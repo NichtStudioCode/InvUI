@@ -28,36 +28,58 @@ public class WindowManager implements Listener {
             () -> windows.forEach(Window::handleTick), 0, 1);
     }
     
+    /**
+     * Gets the {@link WindowManager} instance or creates a new one if there isn't one.
+     * 
+     * @return The {@link WindowManager} instance
+     */
     public static WindowManager getInstance() {
-        return instance == null ? instance = new WindowManager() : instance;
+        return hasInstance() ? instance = new WindowManager() : instance;
     }
     
+    /**
+     * Gets if the {@link WindowManager} already has an instance.
+     * 
+     * @return if the {@link WindowManager} already has an instance
+     */
     public static boolean hasInstance() {
         return instance != null;
     }
     
+    /**
+     * Adds a {@link Window} to the list of windows.
+     * This method is usually called by the {@link Window} itself.
+     * 
+     * @param window The {@link Window} to add
+     */
     public void addWindow(Window window) {
         windows.add(window);
     }
     
+    /**
+     * Removes a {@link Window} from the list of windows.
+     * This method is usually called by the {@link Window} itself.
+     * 
+     * @param window The {@link Window} to remove
+     */
     public void removeWindow(Window window) {
         windows.remove(window);
     }
     
     /**
-     * Find a window to an inventory
+     * Finds the window to an inventory.
      *
      * @param inventory The inventory
      * @return The window that belongs to that inventory
      */
     public Optional<Window> findWindow(Inventory inventory) {
         return windows.stream()
-            .filter(w -> w.getInventory().equals(inventory))
+            .filter(w -> w.getInventory() == inventory)
             .findFirst();
     }
     
     /**
-     * Find a window to a player
+     * Finds the window to a player.
      *
      * @param player The player
      * @return The window that the player has open
@@ -69,7 +91,7 @@ public class WindowManager implements Listener {
     }
     
     /**
-     * Get a list of all currently active windows
+     * Gets a list of all currently active windows.
      *
      * @return A list of all windows
      */

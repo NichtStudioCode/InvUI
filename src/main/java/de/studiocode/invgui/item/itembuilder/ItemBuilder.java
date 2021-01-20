@@ -167,6 +167,11 @@ public class ItemBuilder {
         return this;
     }
     
+    /**
+     * Contains the texture value for a player head.
+     * 
+     * @see ItemBuilder
+     */
     public static class PlayerHead {
         
         private final String textureValue;

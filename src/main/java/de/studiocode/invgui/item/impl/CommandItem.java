@@ -7,7 +7,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * An item that will force a player to run a command or say something in the chat when clicked
+ * An item that will force a player to run a command or say something in the chat when clicked.
  */
 public class CommandItem extends SimpleItem {
     

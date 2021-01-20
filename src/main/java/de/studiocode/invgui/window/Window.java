@@ -4,6 +4,10 @@ import de.studiocode.invgui.animation.Animation;
 import de.studiocode.invgui.gui.GUI;
 import de.studiocode.invgui.item.Item;
 import de.studiocode.invgui.item.itembuilder.ItemBuilder;
+import de.studiocode.invgui.window.impl.BaseWindow;
+import de.studiocode.invgui.window.impl.DropperWindow;
+import de.studiocode.invgui.window.impl.HopperWindow;
+import de.studiocode.invgui.window.impl.NormalInventoryWindow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
@@ -15,6 +19,11 @@ import java.util.UUID;
 /**
  * A window is the way to show a player a GUI.
  * Windows can only have one viewer at a time.
+ * 
+ * @see BaseWindow
+ * @see NormalInventoryWindow
+ * @see HopperWindow
+ * @see DropperWindow
  */
 public interface Window {
     
