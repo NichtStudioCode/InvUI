@@ -23,12 +23,12 @@ public class SimplePagedGUIs extends PagedGUI {
     }
     
     @Override
-    int getPageAmount() {
+    protected int getPageAmount() {
         return guis.size();
     }
     
     @Override
-    List<SlotElement> getPageItems(int page) {
+    protected List<SlotElement> getPageItems(int page) {
         return Arrays.asList(guis.get(page).getSlotElements());
     }
     

@@ -27,7 +27,7 @@ public class SimplePagedItemsGUI extends PagedGUI {
     }
     
     @Override
-    List<SlotElement> getPageItems(int page) {
+    protected List<SlotElement> getPageItems(int page) {
         int length = getItemListSlots().length;
         int from = page * length;
         int to = Math.min(from + length, items.size());
