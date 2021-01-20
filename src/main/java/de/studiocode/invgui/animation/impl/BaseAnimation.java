@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
@@ -21,7 +22,7 @@ public abstract class BaseAnimation implements Animation {
     private Player player;
     private CopyOnWriteArrayList<Integer> slots;
     private BiConsumer<Integer, Integer> show;
-    private Runnable finish;
+    private final List<Runnable> finishHandlers = new ArrayList<>();
     
     private BukkitTask task;
     private int frame;
@@ -50,8 +51,8 @@ public abstract class BaseAnimation implements Animation {
     }
     
     @Override
-    public void setFinishHandler(@NotNull Runnable finish) {
-        this.finish = finish;
+    public void addFinishHandler(@NotNull Runnable finish) {
+        finishHandlers.add(finish);
     }
     
     public CopyOnWriteArrayList<Integer> getSlots() {
@@ -65,7 +66,7 @@ public abstract class BaseAnimation implements Animation {
     
     protected void finished() {
         task.cancel();
-        finish.run();
+        finishHandlers.forEach(Runnable::run);
     }
     
     public void start() {

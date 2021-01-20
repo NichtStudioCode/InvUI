@@ -146,7 +146,7 @@ public abstract class BaseWindow implements Window {
             animation.setBounds(getGui().getWidth(), getGui().getHeight());
             animation.setPlayer(getViewer());
             animation.addShowHandler((frame, index) -> redrawItem(index, itemsDisplayed[index], false));
-            animation.setFinishHandler(() -> this.animation = null);
+            animation.addFinishHandler(() -> this.animation = null);
             animation.setSlots(IntStream.range(0, size)
                 .filter(i -> itemsDisplayed[i] != null)
                 .boxed()
