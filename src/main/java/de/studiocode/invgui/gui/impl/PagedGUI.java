@@ -100,7 +100,7 @@ public abstract class PagedGUI extends BaseGUI {
     
     protected abstract int getPageAmount();
     
-    abstract List<SlotElement> getPageItems(int page);
+    protected abstract List<SlotElement> getPageItems(int page);
     
     class ForwardItem extends BaseItem {
         
