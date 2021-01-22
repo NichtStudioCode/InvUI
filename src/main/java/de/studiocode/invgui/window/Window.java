@@ -4,6 +4,7 @@ import de.studiocode.invgui.animation.Animation;
 import de.studiocode.invgui.gui.GUI;
 import de.studiocode.invgui.item.Item;
 import de.studiocode.invgui.item.itembuilder.ItemBuilder;
+import de.studiocode.invgui.virtualinventory.VirtualInventory;
 import de.studiocode.invgui.window.impl.BaseWindow;
 import de.studiocode.invgui.window.impl.DropperWindow;
 import de.studiocode.invgui.window.impl.HopperWindow;
@@ -79,6 +80,15 @@ public interface Window {
      * @param item The {@link Item} whose {@link ItemBuilder} has been updated.
      */
     void handleItemBuilderUpdate(Item item);
+    
+    /**
+     * A method called by the {@link VirtualInventory} to notify the
+     * Window that one if it's contents has been updated and the {@link ItemStack}'s
+     * displayed in the {@link Inventory} should be replaced.
+     * 
+     * @param virtualInventory The {@link VirtualInventory}
+     */
+    void handleVirtualInventoryUpdate(VirtualInventory virtualInventory);
     
     /**
      * Removes the {@link Window} from the {@link WindowManager} list.

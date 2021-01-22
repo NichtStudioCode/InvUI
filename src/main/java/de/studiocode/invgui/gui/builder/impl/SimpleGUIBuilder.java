@@ -11,7 +11,7 @@ public class SimpleGUIBuilder extends BaseGUIBuilder {
     @Override
     public SimpleGUI build() {
         SimpleGUI gui = new SimpleGUI(getWidth(), getHeight());
-        setItems(gui);
+        setSlotElements(gui);
         return gui;
     }
     

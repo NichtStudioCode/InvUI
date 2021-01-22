@@ -22,7 +22,7 @@ public class SimplePagedItemsGUIBuilder extends PagedGUIBuilder {
         
         SimplePagedItemsGUI gui = new SimplePagedItemsGUI(getWidth(), getHeight(), getBackItemIndex(), getBackBuilder(),
             getForwardItemIndex(), getForwardBuilder(), items, getListSlots());
-        setItems(gui);
+        setSlotElements(gui);
         
         return gui;
     }

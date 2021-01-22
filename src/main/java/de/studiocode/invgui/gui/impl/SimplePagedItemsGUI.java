@@ -1,6 +1,7 @@
 package de.studiocode.invgui.gui.impl;
 
 import de.studiocode.invgui.gui.SlotElement;
+import de.studiocode.invgui.gui.SlotElement.ItemSlotElement;
 import de.studiocode.invgui.item.Item;
 import de.studiocode.invgui.item.itembuilder.ItemBuilder;
 
@@ -32,7 +33,7 @@ public class SimplePagedItemsGUI extends PagedGUI {
         int from = page * length;
         int to = Math.min(from + length, items.size());
         
-        return items.subList(from, to).stream().map(SlotElement::new).collect(Collectors.toList());
+        return items.subList(from, to).stream().map(ItemSlotElement::new).collect(Collectors.toList());
     }
     
 }

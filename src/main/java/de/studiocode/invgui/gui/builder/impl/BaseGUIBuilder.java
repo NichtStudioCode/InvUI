@@ -1,6 +1,7 @@
 package de.studiocode.invgui.gui.builder.impl;
 
 import de.studiocode.invgui.gui.GUI;
+import de.studiocode.invgui.gui.SlotElement;
 import de.studiocode.invgui.gui.builder.GUIBuilder;
 import de.studiocode.invgui.item.Item;
 import org.jetbrains.annotations.NotNull;
@@ -38,6 +39,11 @@ public abstract class BaseGUIBuilder implements GUIBuilder {
         ingredientMap.put(key, new Ingredient(item));
     }
     
+    @Override
+    public void setIngredient(char key, @NotNull SlotElement slotElement) {
+        ingredientMap.put(key, new Ingredient(slotElement));
+    }
+    
     public void setIngredient(char key, int special) {
         ingredientMap.put(key, new Ingredient(special));
     }
@@ -63,11 +69,12 @@ public abstract class BaseGUIBuilder implements GUIBuilder {
         return ingredients;
     }
     
-    protected void setItems(GUI gui) {
+    protected void setSlotElements(GUI gui) {
         Ingredient[] ingredients = parseStructure();
         for (int i = 0; i < gui.getSize(); i++) {
             Ingredient ingredient = ingredients[i];
-            if (ingredient.isItem()) gui.setItem(i, ingredient.getItem());
+            if (ingredient != null && ingredient.isSlotElement())
+                gui.setSlotElement(i, ingredient.getSlotElement());
         }
     }
     
@@ -88,35 +95,40 @@ public abstract class BaseGUIBuilder implements GUIBuilder {
     
     static class Ingredient {
         
-        private final Item item;
+        private final SlotElement slotElement;
         private final int special;
         
         public Ingredient(Item item) {
-            this.item = item;
+            this.slotElement = new SlotElement.ItemSlotElement(item);
+            this.special = -1;
+        }
+        
+        public Ingredient(SlotElement slotElement) {
+            this.slotElement = slotElement;
             this.special = -1;
         }
         
         public Ingredient(int special) {
             this.special = special;
-            this.item = null;
+            this.slotElement = null;
         }
         
-        public Item getItem() {
+        public SlotElement getSlotElement() {
             if (isSpecial()) throw new IllegalStateException("Ingredient is special");
-            return item;
+            return slotElement;
         }
         
         public int getSpecial() {
-            if (isItem()) throw new IllegalStateException("Ingredient is item");
+            if (isSlotElement()) throw new IllegalStateException("Ingredient is item");
             return special;
         }
         
-        public boolean isItem() {
-            return item != null;
+        public boolean isSlotElement() {
+            return slotElement != null;
         }
         
         public boolean isSpecial() {
-            return item == null;
+            return slotElement == null;
         }
         
     }

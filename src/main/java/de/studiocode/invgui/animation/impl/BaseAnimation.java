@@ -77,7 +77,6 @@ public abstract class BaseAnimation implements Animation {
     }
     
     public void cancel() {
-        System.out.println("ani cancel");
         task.cancel();
     }
     

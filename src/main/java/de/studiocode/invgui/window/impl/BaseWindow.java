@@ -3,8 +3,12 @@ package de.studiocode.invgui.window.impl;
 import de.studiocode.invgui.InvGui;
 import de.studiocode.invgui.animation.Animation;
 import de.studiocode.invgui.gui.GUI;
+import de.studiocode.invgui.gui.SlotElement.ItemSlotElement;
+import de.studiocode.invgui.gui.SlotElement.ItemStackHolder;
+import de.studiocode.invgui.gui.SlotElement.VISlotElement;
 import de.studiocode.invgui.item.Item;
 import de.studiocode.invgui.util.ArrayUtils;
+import de.studiocode.invgui.virtualinventory.VirtualInventory;
 import de.studiocode.invgui.window.Window;
 import de.studiocode.invgui.window.WindowManager;
 import org.bukkit.Bukkit;
@@ -13,11 +17,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -28,7 +30,7 @@ public abstract class BaseWindow implements Window {
     private final UUID viewerUUID;
     private final Inventory inventory;
     private final boolean closeOnEvent;
-    private final Item[] itemsDisplayed;
+    private final ItemStackHolder[] itemsDisplayed;
     
     private Animation animation;
     private boolean closeable;
@@ -41,7 +43,7 @@ public abstract class BaseWindow implements Window {
         this.inventory = inventory;
         this.closeable = closeable;
         this.closeOnEvent = closeOnEvent;
-        this.itemsDisplayed = new Item[size];
+        this.itemsDisplayed = new ItemStackHolder[size];
         
         initItems();
         WindowManager.getInstance().addWindow(this);
@@ -49,39 +51,61 @@ public abstract class BaseWindow implements Window {
     
     private void initItems() {
         for (int i = 0; i < size; i++) {
-            Item item = gui.getItem(i);
-            if (item != null) redrawItem(i, item, true);
+            ItemStackHolder holder = gui.getItemStackHolder(i);
+            if (holder != null) redrawItem(i, holder, true);
         }
     }
     
-    private void redrawItem(int index, Item item, boolean setItem) {
-        inventory.setItem(index, item == null ? null : item.getItemBuilder().buildFor(viewerUUID));
+    private void redrawItem(int index, ItemStackHolder holder, boolean setItem) {
+        // put ItemStack in inventory
+        ItemStack itemStack = holder == null ? null : holder.getItemStack(viewerUUID);
+        inventory.setItem(index, itemStack);
+        
         if (setItem) {
-            // tell the Item that this is now its Window
-            if (item != null) item.addWindow(this);
-            
             // tell the previous item (if there is one) that this is no longer its window
-            Item previousItem = itemsDisplayed[index];
-            if (previousItem != null) previousItem.removeWindow(this);
+            ItemStackHolder previousHolder = itemsDisplayed[index];
+            if (previousHolder instanceof ItemSlotElement) {
+                ItemSlotElement element = (ItemSlotElement) previousHolder;
+                Item item = element.getItem();
+                // check if the Item isn't still present on another index
+                if (getItemSlotElements(item).size() == 1) {
+                    // only if not, remove Window from list in Item
+                    item.removeWindow(this);
+                }
+            } else if (previousHolder instanceof VISlotElement) {
+                VISlotElement element = (VISlotElement) previousHolder;
+                VirtualInventory virtualInventory = element.getVirtualInventory();
+                // check if the VirtualInventory isn't still present on another index
+                if (getVISlotElements(element.getVirtualInventory()).size() == 1) {
+                    // only if not, remove Window from list in VirtualInventory
+                    virtualInventory.removeWindow(this);
+                }
+            }
             
-            itemsDisplayed[index] = item;
+            // tell the Item or VirtualInventory that it is being displayed in this Window
+            if (holder instanceof ItemSlotElement) {
+                ((ItemSlotElement) holder).getItem().addWindow(this);
+            } else if (holder instanceof VISlotElement) {
+                ((VISlotElement) holder).getVirtualInventory().addWindow(this);
+            }
+            
+            itemsDisplayed[index] = holder;
         }
     }
     
     @Override
     public void handleTick() {
         for (int i = 0; i < size; i++) {
-            Item item = gui.getItem(i);
-            if (itemsDisplayed[i] != item) redrawItem(i, item, true);
+            ItemStackHolder holder = gui.getItemStackHolder(i);
+            if (itemsDisplayed[i] != holder) redrawItem(i, holder, true);
         }
     }
     
     @Override
     public void handleClick(InventoryClickEvent event) {
-        event.setCancelled(true);
         if (animation == null) { // if not in animation, let the gui handle the click
             gui.handleClick(event.getSlot(), (Player) event.getWhoClicked(), event.getClick(), event);
-        }
+        } else event.setCancelled(true);
     }
     
     @Override
@@ -104,9 +128,24 @@ public abstract class BaseWindow implements Window {
     
     @Override
     public void handleItemBuilderUpdate(Item item) {
-        for (int i : ArrayUtils.findAllOccurrences(itemsDisplayed, item)) {
-            redrawItem(i, item, false);
-        }
+        getItemSlotElements(item).forEach((index, slotElement) ->
+            redrawItem(index, slotElement, false));
+    }
+    
+    @Override
+    public void handleVirtualInventoryUpdate(VirtualInventory virtualInventory) {
+        getVISlotElements(virtualInventory).forEach((index, slotElement) ->
+            redrawItem(index, slotElement, false));
+    }
+    
+    private Map<Integer, ItemStackHolder> getItemSlotElements(Item item) {
+        return ArrayUtils.findAllOccurrences(itemsDisplayed, holder -> holder instanceof ItemSlotElement
+            && ((ItemSlotElement) holder).getItem() == item);
+    }
+    
+    private Map<Integer, ItemStackHolder> getVISlotElements(VirtualInventory virtualInventory) {
+        return ArrayUtils.findAllOccurrences(itemsDisplayed, holder -> holder instanceof VISlotElement
+            && ((VISlotElement) holder).getVirtualInventory() == virtualInventory);
     }
     
     @Override
@@ -117,6 +156,8 @@ public abstract class BaseWindow implements Window {
         
         Arrays.stream(itemsDisplayed)
             .filter(Objects::nonNull)
+            .filter(holder -> holder instanceof ItemSlotElement)
+            .map(holder -> ((ItemSlotElement) holder).getItem())
             .forEach(item -> item.removeWindow(this));
         
         if (closeForViewer) closeForViewer();
@@ -148,7 +189,11 @@ public abstract class BaseWindow implements Window {
             animation.addShowHandler((frame, index) -> redrawItem(index, itemsDisplayed[index], false));
             animation.addFinishHandler(() -> this.animation = null);
             animation.setSlots(IntStream.range(0, size)
-                .filter(i -> itemsDisplayed[i] != null)
+                .filter(i -> {
+                    ItemStackHolder element = itemsDisplayed[i];
+                    return !(element == null || (element instanceof VISlotElement
+                        && !((VISlotElement) element).getVirtualInventory().hasItem(((VISlotElement) element).getIndex())));
+                })
                 .boxed()
                 .collect(Collectors.toCollection(ArrayList::new)));
             

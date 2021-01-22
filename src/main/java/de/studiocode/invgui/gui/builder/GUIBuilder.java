@@ -1,6 +1,7 @@
 package de.studiocode.invgui.gui.builder;
 
 import de.studiocode.invgui.gui.GUI;
+import de.studiocode.invgui.gui.SlotElement;
 import de.studiocode.invgui.item.Item;
 import org.bukkit.inventory.ShapedRecipe;
 import org.jetbrains.annotations.NotNull;
@@ -25,10 +26,19 @@ public interface GUIBuilder {
      * Sets an ingredient for the structure String, which will later be
      * used to set up the inventory correctly.
      *
-     * @param c    The ingredient key
+     * @param key    The ingredient key
      * @param item The {@link Item}
      */
-    void setIngredient(char c, @NotNull Item item);
+    void setIngredient(char key, @NotNull Item item);
+    
+    /**
+     * Sets an ingredient for the structure String, which will later be
+     * used to set up the inventory correctly.
+     *
+     * @param key    The ingredient key
+     * @param slotElement The {@link SlotElement}
+     */
+    void setIngredient(char key, @NotNull SlotElement slotElement);
     
     /**
      * Builds the {@link GUI}.

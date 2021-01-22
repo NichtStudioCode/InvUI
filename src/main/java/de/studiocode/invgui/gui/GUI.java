@@ -1,7 +1,9 @@
 package de.studiocode.invgui.gui;
 
+import de.studiocode.invgui.gui.SlotElement.ItemStackHolder;
 import de.studiocode.invgui.gui.impl.*;
 import de.studiocode.invgui.item.Item;
+import de.studiocode.invgui.virtualinventory.VirtualInventory;
 import de.studiocode.invgui.window.Window;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -11,8 +13,9 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * A GUI is a container for width * height {@link SlotElement}s.<br>
- * Each {@link SlotElement} can either be an {@link Item} or a
- * reference to another {@link GUI}s slot index.</br>
+ * Each {@link SlotElement} can either be an {@link Item},
+ * a reference to a {@link VirtualInventory}'s or another {@link GUI}'s
+ * slot index.<br>
  * A {@link GUI} is not an {@link Inventory}, nor does
  * it access one. It just contains {@link SlotElement}s and their positions.<br>
  * In order to create an {@link Inventory} which is visible
@@ -114,7 +117,7 @@ public interface GUI {
      *
      * @param x The x coordinate
      * @param y The y coordinate
-     * @return The {@link Item} which is placed on that slot or null if there is none
+     * @return The {@link Item} which is placed on that slot or null if there isn't one
      */
     Item getItem(int x, int y);
     
@@ -122,7 +125,7 @@ public interface GUI {
      * Gets the {@link Item} placed on that slot.
      *
      * @param index The slot index
-     * @return The {@link Item} which is placed on that slot or null if there is none
+     * @return The {@link Item} which is placed on that slot or null if there isn't one
      */
     Item getItem(int index);
     
@@ -132,6 +135,23 @@ public interface GUI {
      * @param items The {@link Item}s that should be added to the gui
      */
     void addItems(@NotNull Item... items);
+    
+    /**
+     * Gets the {@link ItemStackHolder} on these coordinates.
+     *
+     * @param x The x coordinate
+     * @param y The y coordinate
+     * @return The {@link ItemStackHolder} which is placed on that slot or null if there isn't one
+     */
+    ItemStackHolder getItemStackHolder(int x, int y);
+    
+    /**
+     * Gets the {@link ItemStackHolder} placed on that slot.
+     *
+     * @param index The slot index
+     * @return The {@link ItemStackHolder} which is placed on that slot or null if there isn't one
+     */
+    ItemStackHolder getItemStackHolder(int index);
     
     /**
      * Removes an {@link Item} by its coordinates.
@@ -224,7 +244,5 @@ public interface GUI {
      * @param replaceExisting If existing {@link Item}s should be replaced.
      */
     void fillRectangle(int x, int y, int width, int height, Item item, boolean replaceExisting);
-    
-    // TODO: more filling methods
     
 }

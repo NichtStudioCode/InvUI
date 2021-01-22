@@ -16,8 +16,6 @@ public class SimplePagedGUIs extends PagedGUI {
         super(width, height, false, itemListSlots);
         this.guis = guis;
         
-        System.out.println("control slot " + backItemSlot + " fwd " + forwardItemSlot);
-        
         setControlItems(backItemSlot, new BackItem(backBuilder), forwardItemSlot, new ForwardItem(forwardBuilder));
         update();
     }

@@ -6,9 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 
@@ -34,7 +32,7 @@ public class WindowManager implements Listener {
      * @return The {@link WindowManager} instance
      */
     public static WindowManager getInstance() {
-        return hasInstance() ? instance = new WindowManager() : instance;
+        return !hasInstance() ? instance = new WindowManager() : instance;
     }
     
     /**
@@ -101,7 +99,23 @@ public class WindowManager implements Listener {
     
     @EventHandler
     public void handleInventoryClick(InventoryClickEvent event) {
-        findWindow(event.getClickedInventory()).ifPresent(window -> window.handleClick(event));
+        Optional<Window> w = findWindow(event.getClickedInventory());
+        if (w.isPresent()) { // player clicked window
+            w.ifPresent(window -> window.handleClick(event));
+        } else {
+            Optional<Window> w1 = findWindow(event.getView().getTopInventory());
+            if (w1.isPresent()) { // player clicked lower inventory while looking at window
+                // don't let the player shift-click items to another inventory
+                if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY)
+                    event.setCancelled(true);
+            }
+        }
+    }
+    
+    @EventHandler
+    public void handleInventoryDrag(InventoryDragEvent event) {
+        // currently, dragging items is not supported
+        findWindow(event.getInventory()).ifPresent(w -> event.setCancelled(true));
     }
     
     @EventHandler(priority = EventPriority.HIGHEST)
