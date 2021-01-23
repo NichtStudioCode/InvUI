@@ -3,22 +3,29 @@ package de.studiocode.invgui.virtualinventory;
 import de.studiocode.invgui.InvGui;
 import de.studiocode.invgui.window.Window;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
-public class VirtualInventory {
+public class VirtualInventory implements ConfigurationSerializable {
     
-    private transient final Set<Window> windows = new HashSet<>();
+    private final Set<Window> windows = new HashSet<>();
     
+    private final UUID uuid;
     private int size;
     private ItemStack[] items;
     
-    public VirtualInventory(int size) {
+    public VirtualInventory(@Nullable UUID uuid, int size, @NotNull ItemStack[] items) {
+        this.uuid = uuid;
         this.size = size;
-        this.items = new ItemStack[size];
+        this.items = items;
+    }
+    
+    public VirtualInventory(@Nullable UUID uuid, int size) {
+        this(uuid, size, new ItemStack[size]);
     }
     
     public int getSize() {
@@ -123,6 +130,26 @@ public class VirtualInventory {
     private void notifyWindows() {
         Bukkit.getScheduler().runTask(InvGui.getInstance().getPlugin(), () ->
             windows.forEach(window -> window.handleVirtualInventoryUpdate(this)));
+    }
+    
+    public UUID getUuid() {
+        return uuid;
+    }
+    
+    @NotNull
+    @Override
+    public Map<String, Object> serialize() {
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("uuid", uuid.toString());
+        result.put("size", size);
+        result.put("items", items);
+        return result;
+    }
+    
+    public static VirtualInventory deserialize(@NotNull Map<String, Object> args) {
+        //noinspection unchecked
+        return new VirtualInventory(UUID.fromString((String) args.get("uuid")),
+            (int) args.get("size"), ((ArrayList<ItemStack>) args.get("items")).toArray(new ItemStack[0]));
     }
     
 }

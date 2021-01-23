@@ -24,6 +24,7 @@ public class WindowManager implements Listener {
         Bukkit.getPluginManager().registerEvents(this, InvGui.getInstance().getPlugin());
         Bukkit.getScheduler().scheduleSyncRepeatingTask(InvGui.getInstance().getPlugin(),
             () -> windows.forEach(Window::handleTick), 0, 1);
+        InvGui.getInstance().addDisableHandler(() -> windows.forEach(w -> w.close(true)));
     }
     
     /**
@@ -32,16 +33,7 @@ public class WindowManager implements Listener {
      * @return The {@link WindowManager} instance
      */
     public static WindowManager getInstance() {
-        return !hasInstance() ? instance = new WindowManager() : instance;
-    }
-    
-    /**
-     * Gets if the {@link WindowManager} already has an instance.
-     * 
-     * @return if the {@link WindowManager} already has an instance
-     */
-    public static boolean hasInstance() {
-        return instance != null;
+        return instance == null ? instance = new WindowManager() : instance;
     }
     
     /**

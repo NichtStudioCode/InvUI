@@ -1,16 +1,23 @@
 package de.studiocode.invgui;
 
-import de.studiocode.invgui.window.WindowManager;
 import org.bukkit.plugin.Plugin;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class InvGui {
     
     private static InvGui instance;
     
+    private final List<Runnable> disableHandlers = new ArrayList<>();
     private Plugin plugin;
     
     public static InvGui getInstance() {
         return instance == null ? instance = new InvGui() : instance;
+    }
+    
+    public void setPlugin(Plugin plugin) {
+        this.plugin = plugin;
     }
     
     public Plugin getPlugin() {
@@ -19,14 +26,12 @@ public class InvGui {
         return plugin;
     }
     
-    public void setPlugin(Plugin plugin) {
-        this.plugin = plugin;
+    public void addDisableHandler(Runnable runnable) {
+        disableHandlers.add(runnable);
     }
     
     public void onDisable() {
-        if (WindowManager.hasInstance())
-            WindowManager.getInstance().getWindows()
-                .forEach(w -> w.close(true));
+        disableHandlers.forEach(Runnable::run);
     }
     
 }
