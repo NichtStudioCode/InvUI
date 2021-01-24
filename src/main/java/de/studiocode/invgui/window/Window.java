@@ -58,6 +58,13 @@ public interface Window {
     
     /**
      * A method called by the {@link WindowManager} to notify the Window
+     * that {@link ItemStack}s have been shift-clicked from the lower
+     * {@link Inventory} to this {@link Window}
+     */
+    void handleItemShift(InventoryClickEvent event);
+    
+    /**
+     * A method called by the {@link WindowManager} to notify the Window
      * that its underlying {@link Inventory} is being opened.
      *
      * @param event The {@link InventoryOpenEvent} associated with this action.

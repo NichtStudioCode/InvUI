@@ -1,6 +1,7 @@
 package de.studiocode.invgui.virtualinventory;
 
 import de.studiocode.invgui.InvGui;
+import de.studiocode.invgui.util.ArrayUtils;
 import de.studiocode.invgui.window.Window;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -37,9 +38,55 @@ public class VirtualInventory implements ConfigurationSerializable {
         this.items = Arrays.copyOf(items, size);
     }
     
-    // TODO
-    public void addItem(ItemStack... itemStacks) {
-        throw new UnsupportedOperationException("not implemented yet");
+    public boolean isSynced(int index, ItemStack assumedStack) {
+        ItemStack actualStack = items[index];
+        return (actualStack == null && assumedStack == null)
+            || (actualStack != null && actualStack.equals(assumedStack));
+    }
+    
+    public int addItem(ItemStack itemStack) {
+        final int originalAmount = itemStack.getAmount();
+        int amountLeft = originalAmount;
+        
+        addItems:
+        {
+            // find all slots where the item partially fits and add it there
+            ItemStack partialStack;
+            while ((partialStack = findPartialSlot(itemStack)) != null) {
+                amountLeft = addTo(partialStack, amountLeft);
+                if (amountLeft == 0) break addItems;
+            }
+            
+            // there are still items left, put the rest on an empty slot
+            int emptyIndex = ArrayUtils.findFirstEmptyIndex(items);
+            if (emptyIndex != -1) {
+                ItemStack leftover = itemStack.clone();
+                leftover.setAmount(amountLeft);
+                items[emptyIndex] = leftover;
+                amountLeft = 0;
+            }
+        }
+        
+        // if items have been added, notify windows
+        if (originalAmount != amountLeft) notifyWindows();
+        
+        // return how many items couldn't be added
+        return amountLeft;
+    }
+    
+    private ItemStack findPartialSlot(ItemStack itemStack) {
+        for (ItemStack currentStack : items) {
+            if (currentStack != null && currentStack.getAmount() < currentStack.getMaxStackSize()
+                && currentStack.isSimilar(itemStack)) return currentStack;
+        }
+        
+        return null;
+    }
+    
+    private int addTo(ItemStack itemStack, int amount) {
+        int maxAddable = Math.min(itemStack.getMaxStackSize() - itemStack.getAmount(), amount);
+        itemStack.setAmount(itemStack.getAmount() + maxAddable);
+        return amount - maxAddable;
     }
     
     public void setItem(int index, ItemStack itemStack) {
@@ -47,72 +94,81 @@ public class VirtualInventory implements ConfigurationSerializable {
         notifyWindows();
     }
     
+    public void setAmount(int index, int amount) {
+        ItemStack itemStack = items[index];
+        if (itemStack != null) {
+            if (amount == 0) items[index] = null;
+            else itemStack.setAmount(amount);
+            
+            notifyWindows();
+        }
+    }
+    
+    public void setMaxAmount(int index) {
+        ItemStack itemStack = items[index];
+        if (itemStack != null) {
+            itemStack.setAmount(itemStack.getMaxStackSize());
+            notifyWindows();
+        }
+    }
+    
     public ItemStack getItemStack(int index) {
         return items[index];
     }
     
-    public boolean removeItem(int index) {
-        if (hasItem(index)) {
+    public void removeItem(int index) {
+        if (items[index] != null) {
             items[index] = null;
             notifyWindows();
-            return true;
         }
-        
-        return false;
     }
     
-    public boolean removeOne(int index) {
-        if (!hasItem(index)) return false;
-        
-        int amount = items[index].getAmount() - 1;
-        if (amount > 0) {
-            items[index].setAmount(amount);
+    public void removeOne(int index) {
+        ItemStack itemStack = items[index];
+        if (itemStack != null) {
+            int amount = itemStack.getAmount() - 1;
+            if (amount > 0) itemStack.setAmount(amount);
+            else items[index] = null;
+            
             notifyWindows();
-        } else removeItem(index);
-        
-        return true;
+        }
     }
     
-    public boolean removeHalf(int index, int expectedCurrentAmount) {
-        if (!hasItem(index) || items[index].getAmount() != expectedCurrentAmount) return false;
-        
-        int amount = items[index].getAmount() / 2;
-        
-        if (amount > 0) {
-            items[index].setAmount(amount);
+    public void removeHalf(int index) {
+        ItemStack itemStack = items[index];
+        if (itemStack != null) {
+            int amount = itemStack.getAmount() / 2;
+            if (amount > 0) itemStack.setAmount(amount);
+            else items[index] = null;
+            
             notifyWindows();
-        } else removeItem(index);
-        
-        return true;
+        }
     }
     
-    public boolean place(int index, ItemStack itemStack, int expectedCurrentAmount) {
-        int currentAmount = items[index] == null ? 0 : items[index].getAmount();
-        if (currentAmount != expectedCurrentAmount) return false;
+    public void place(int index, ItemStack itemStack) {
+        ItemStack there = items[index];
+        int currentAmount = there == null ? 0 : there.getAmount();
         
-        if (items[index] == null) {
+        if (there == null) {
             setItem(index, itemStack);
         } else {
-            items[index].setAmount(expectedCurrentAmount + itemStack.getAmount());
+            there.setAmount(currentAmount + itemStack.getAmount());
             notifyWindows();
         }
-        return true;
     }
     
-    public boolean placeOne(int index, ItemStack itemStack, int expectedCurrentAmount) {
-        int currentAmount = items[index] == null ? 0 : items[index].getAmount();
-        if (currentAmount != expectedCurrentAmount) return false;
+    public void placeOne(int index, ItemStack itemStack) {
+        ItemStack there = items[index];
+        int currentAmount = there == null ? 0 : there.getAmount();
         
-        if (items[index] == null) {
+        if (there == null) {
             ItemStack single = itemStack.clone();
             single.setAmount(1);
             setItem(index, single);
         } else {
-            items[index].setAmount(expectedCurrentAmount + 1);
+            there.setAmount(currentAmount + 1);
+            notifyWindows();
         }
-        
-        notifyWindows();
-        return true;
     }
     
     public boolean hasItem(int index) {

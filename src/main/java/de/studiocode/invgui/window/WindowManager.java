@@ -29,7 +29,7 @@ public class WindowManager implements Listener {
     
     /**
      * Gets the {@link WindowManager} instance or creates a new one if there isn't one.
-     * 
+     *
      * @return The {@link WindowManager} instance
      */
     public static WindowManager getInstance() {
@@ -39,7 +39,7 @@ public class WindowManager implements Listener {
     /**
      * Adds a {@link Window} to the list of windows.
      * This method is usually called by the {@link Window} itself.
-     * 
+     *
      * @param window The {@link Window} to add
      */
     public void addWindow(Window window) {
@@ -49,7 +49,7 @@ public class WindowManager implements Listener {
     /**
      * Removes a {@link Window} from the list of windows.
      * This method is usually called by the {@link Window} itself.
-     * 
+     *
      * @param window The {@link Window} to remove
      */
     public void removeWindow(Window window) {
@@ -93,14 +93,12 @@ public class WindowManager implements Listener {
     public void handleInventoryClick(InventoryClickEvent event) {
         Optional<Window> w = findWindow(event.getClickedInventory());
         if (w.isPresent()) { // player clicked window
-            w.ifPresent(window -> window.handleClick(event));
+            w.get().handleClick(event);
         } else {
             Optional<Window> w1 = findWindow(event.getView().getTopInventory());
-            if (w1.isPresent()) { // player clicked lower inventory while looking at window
-                // don't let the player shift-click items to another inventory
-                if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY)
-                    event.setCancelled(true);
-            }
+            // player shift-clicked from lower inventory to window
+            if (w1.isPresent() && event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY)
+                w1.get().handleItemShift(event);
         }
     }
     

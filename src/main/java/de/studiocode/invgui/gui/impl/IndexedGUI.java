@@ -15,6 +15,10 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 abstract class IndexedGUI implements GUI {
     
     protected final int size;
@@ -43,10 +47,9 @@ abstract class IndexedGUI implements GUI {
     private void handleVISlotElementClick(VISlotElement element, InventoryClickEvent event) {
         VirtualInventory virtualInventory = element.getVirtualInventory();
         int index = element.getIndex();
-    
+        
         ItemStack cursor = event.getCursor();
         ItemStack clicked = event.getCurrentItem();
-        int clickedAmount = clicked == null ? 0 : clicked.getAmount();
         
         switch (event.getAction()) {
             
@@ -58,29 +61,52 @@ abstract class IndexedGUI implements GUI {
             
             case DROP_ONE_SLOT:
             case PICKUP_ONE:
-                if (!virtualInventory.removeOne(index))
-                    event.setCancelled(true);
+                if (virtualInventory.isSynced(index, clicked)) {
+                    virtualInventory.removeOne(index);
+                } else event.setCancelled(true);
                 break;
             
             case DROP_ALL_SLOT:
             case PICKUP_ALL:
-                if (!virtualInventory.removeItem(index))
-                    event.setCancelled(true);
+                if (virtualInventory.isSynced(index, clicked)) {
+                    virtualInventory.removeItem(index);
+                } else event.setCancelled(true);
                 break;
-            
+    
+            case PICKUP_HALF:
+                if (virtualInventory.isSynced(index, clicked)) {
+                    virtualInventory.removeHalf(index);
+                } else event.setCancelled(true);
+                break;
+    
             case PLACE_ALL:
-                if (!virtualInventory.place(index, cursor, clickedAmount))
-                    event.setCancelled(true);
+                if (virtualInventory.isSynced(index, clicked)) {
+                    virtualInventory.place(index, cursor);
+                } else event.setCancelled(true);
                 break;
             
             case PLACE_ONE:
-                if (!virtualInventory.placeOne(index, cursor, clickedAmount))
-                    event.setCancelled(true);
+                if (virtualInventory.isSynced(index, clicked)) {
+                    virtualInventory.placeOne(index, cursor);
+                } else event.setCancelled(true);
                 break;
-            
-            case PICKUP_HALF:
-                if (!virtualInventory.removeHalf(index, clickedAmount))
-                    event.setCancelled(true);
+                
+            case PLACE_SOME:
+                if (virtualInventory.isSynced(index, clicked)) {
+                    virtualInventory.setMaxAmount(index);
+                } else event.setCancelled(true);
+                break;
+                
+            case MOVE_TO_OTHER_INVENTORY:
+                event.setCancelled(true);
+                if (virtualInventory.isSynced(index, clicked)) {
+                    int leftOverAmount = 0;
+                    HashMap<Integer, ItemStack> leftover =
+                        event.getWhoClicked().getInventory().addItem(virtualInventory.getItemStack(index));
+                    if (!leftover.isEmpty()) leftOverAmount = leftover.get(0).getAmount();
+                    
+                    virtualInventory.setAmount(index, leftOverAmount);
+                }
                 break;
             
             default:
@@ -88,6 +114,41 @@ abstract class IndexedGUI implements GUI {
                 event.setCancelled(true);
                 break;
         }
+    }
+    
+    @Override
+    public void handleItemShift(InventoryClickEvent event) {
+        event.setCancelled(true);
+        
+        ItemStack clicked = event.getCurrentItem();
+        
+        List<VirtualInventory> virtualInventories = getAllVirtualInventories();
+        if (virtualInventories.size() > 0) {
+            int amountLeft = clicked.getAmount();
+            for (VirtualInventory virtualInventory : virtualInventories) {
+                ItemStack toAdd = clicked.clone();
+                toAdd.setAmount(amountLeft);
+                amountLeft = virtualInventory.addItem(toAdd);
+                
+                if (amountLeft == 0) break;
+            }
+            
+            if (amountLeft != 0) event.getCurrentItem().setAmount(amountLeft);
+            else event.getClickedInventory().setItem(event.getSlot(), null);
+        }
+    }
+    
+    private List<VirtualInventory> getAllVirtualInventories() {
+        List<VirtualInventory> virtualInventories = new ArrayList<>();
+        ArrayUtils
+            .findAllOccurrences(slotElements, element -> element instanceof VISlotElement)
+            .values().stream()
+            .map(element -> ((VISlotElement) element).getVirtualInventory())
+            .forEach(vi -> {
+                if (!virtualInventories.contains(vi)) virtualInventories.add(vi);
+            });
+        
+        return virtualInventories;
     }
     
     @Override

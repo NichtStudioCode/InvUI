@@ -109,6 +109,13 @@ public abstract class BaseWindow implements Window {
     }
     
     @Override
+    public void handleItemShift(InventoryClickEvent event) {
+        if (animation == null) { // if not in animation, let the gui handle the item shift
+            gui.handleItemShift(event);
+        } else event.setCancelled(true);
+    }
+    
+    @Override
     public void handleOpen(InventoryOpenEvent event) {
         if (!event.getPlayer().equals(getViewer()))
             event.setCancelled(true);

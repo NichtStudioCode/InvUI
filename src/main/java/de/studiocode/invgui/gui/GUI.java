@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -186,6 +187,14 @@ public interface GUI {
      * @param event     The {@link InventoryClickEvent}
      */
     void handleClick(int slot, Player player, ClickType clickType, InventoryClickEvent event);
+    
+    /**
+     * A method called when an {@link ItemStack} has been shift-clicked into this
+     * {@link GUI}.
+     *
+     * @param event The {@link InventoryClickEvent} associated with this action
+     */
+    void handleItemShift(InventoryClickEvent event);
     
     // ---- fill methods ----
     
