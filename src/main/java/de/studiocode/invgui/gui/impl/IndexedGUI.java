@@ -51,69 +51,57 @@ abstract class IndexedGUI implements GUI {
         ItemStack cursor = event.getCursor();
         ItemStack clicked = event.getCurrentItem();
         
-        switch (event.getAction()) {
-            
-            case CLONE_STACK:
-            case DROP_ALL_CURSOR:
-            case DROP_ONE_CURSOR:
-                // empty, this does not affect anything
-                break;
-            
-            case DROP_ONE_SLOT:
-            case PICKUP_ONE:
-                if (virtualInventory.isSynced(index, clicked)) {
+        if (virtualInventory.isSynced(index, clicked)) {
+            switch (event.getAction()) {
+                
+                case CLONE_STACK:
+                case DROP_ALL_CURSOR:
+                case DROP_ONE_CURSOR:
+                    // empty, this does not affect anything
+                    break;
+                
+                case DROP_ONE_SLOT:
+                case PICKUP_ONE:
                     virtualInventory.removeOne(index);
-                } else event.setCancelled(true);
-                break;
-            
-            case DROP_ALL_SLOT:
-            case PICKUP_ALL:
-                if (virtualInventory.isSynced(index, clicked)) {
+                    break;
+                
+                case DROP_ALL_SLOT:
+                case PICKUP_ALL:
                     virtualInventory.removeItem(index);
-                } else event.setCancelled(true);
-                break;
-            
-            case PICKUP_HALF:
-                if (virtualInventory.isSynced(index, clicked)) {
+                    break;
+                
+                case PICKUP_HALF:
                     virtualInventory.removeHalf(index);
-                } else event.setCancelled(true);
-                break;
-            
-            case PLACE_ALL:
-                if (virtualInventory.isSynced(index, clicked)) {
+                    break;
+                
+                case PLACE_ALL:
                     virtualInventory.place(index, cursor);
-                } else event.setCancelled(true);
-                break;
-            
-            case PLACE_ONE:
-                if (virtualInventory.isSynced(index, clicked)) {
+                    break;
+                
+                case PLACE_ONE:
                     virtualInventory.placeOne(index, cursor);
-                } else event.setCancelled(true);
-                break;
-            
-            case PLACE_SOME:
-                if (virtualInventory.isSynced(index, clicked)) {
+                    break;
+                
+                case PLACE_SOME:
                     virtualInventory.setMaxAmount(index);
-                } else event.setCancelled(true);
-                break;
-            
-            case MOVE_TO_OTHER_INVENTORY:
-                event.setCancelled(true);
-                if (virtualInventory.isSynced(index, clicked)) {
+                    break;
+                
+                case MOVE_TO_OTHER_INVENTORY:
+                    event.setCancelled(true);
                     int leftOverAmount = 0;
                     HashMap<Integer, ItemStack> leftover =
                         event.getWhoClicked().getInventory().addItem(virtualInventory.getItemStack(index));
                     if (!leftover.isEmpty()) leftOverAmount = leftover.get(0).getAmount();
                     
                     virtualInventory.setAmount(index, leftOverAmount);
-                }
-                break;
-            
-            default:
-                // action not supported
-                event.setCancelled(true);
-                break;
-        }
+                    break;
+                
+                default:
+                    // action not supported
+                    event.setCancelled(true);
+                    break;
+            }
+        } else event.setCancelled(true);
     }
     
     @Override

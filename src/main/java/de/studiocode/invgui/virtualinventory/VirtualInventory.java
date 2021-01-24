@@ -54,15 +54,12 @@ public class VirtualInventory implements ConfigurationSerializable {
         final int originalAmount = itemStack.getAmount();
         int amountLeft = originalAmount;
         
-        addItems:
-        {
-            // find all slots where the item partially fits and add it there
-            ItemStack partialStack;
-            while ((partialStack = findPartialSlot(itemStack)) != null) {
-                amountLeft = addTo(partialStack, amountLeft);
-                if (amountLeft == 0) break addItems;
-            }
-            
+        // find all slots where the item partially fits and add it there
+        ItemStack partialStack;
+        while ((partialStack = findPartialSlot(itemStack)) != null && amountLeft != 0) 
+            amountLeft = addTo(partialStack, amountLeft);
+        
+        if (amountLeft != 0) {
             // there are still items left, put the rest on an empty slot
             int emptyIndex = ArrayUtils.findFirstEmptyIndex(items);
             if (emptyIndex != -1) {
