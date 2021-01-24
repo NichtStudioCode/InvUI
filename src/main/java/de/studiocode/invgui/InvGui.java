@@ -16,14 +16,14 @@ public class InvGui {
         return instance == null ? instance = new InvGui() : instance;
     }
     
-    public void setPlugin(Plugin plugin) {
-        this.plugin = plugin;
-    }
-    
     public Plugin getPlugin() {
         if (plugin == null)
             throw new IllegalStateException("Please set your plugin using InvGui.getInstance().setPlugin");
         return plugin;
+    }
+    
+    public void setPlugin(Plugin plugin) {
+        this.plugin = plugin;
     }
     
     public void addDisableHandler(Runnable runnable) {

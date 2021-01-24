@@ -20,7 +20,7 @@ import java.util.UUID;
 /**
  * A window is the way to show a player a GUI.
  * Windows can only have one viewer at a time.
- * 
+ *
  * @see BaseWindow
  * @see NormalInventoryWindow
  * @see HopperWindow
@@ -92,7 +92,7 @@ public interface Window {
      * A method called by the {@link VirtualInventory} to notify the
      * Window that one if it's contents has been updated and the {@link ItemStack}'s
      * displayed in the {@link Inventory} should be replaced.
-     * 
+     *
      * @param virtualInventory The {@link VirtualInventory}
      */
     void handleVirtualInventoryUpdate(VirtualInventory virtualInventory);

@@ -65,7 +65,7 @@ public abstract class PagedGUI extends BaseGUI {
     private void updatePageContent() {
         if (getCurrentPage() < getPageAmount()) {
             List<SlotElement> slotElements = getPageItems(currentPage);
-    
+            
             for (int i = 0; i < itemListSlots.length; i++) {
                 if (slotElements.size() > i) setSlotElement(itemListSlots[i], slotElements.get(i));
                 else remove(itemListSlots[i]);
@@ -73,13 +73,13 @@ public abstract class PagedGUI extends BaseGUI {
         } else setCurrentPage(getPageAmount() - 1);
     }
     
+    public int getCurrentPage() {
+        return currentPage;
+    }
+    
     private void setCurrentPage(int page) {
         currentPage = page;
         update();
-    }
-    
-    public int getCurrentPage() {
-        return currentPage;
     }
     
     public Item getForwardItem() {

@@ -15,15 +15,13 @@ import java.util.function.BiConsumer;
 public abstract class BaseAnimation implements Animation {
     
     private final int tickDelay;
-    
+    private final List<Runnable> finishHandlers = new ArrayList<>();
     private int width;
     private int height;
     private int size;
     private Player player;
     private CopyOnWriteArrayList<Integer> slots;
     private BiConsumer<Integer, Integer> show;
-    private final List<Runnable> finishHandlers = new ArrayList<>();
-    
     private BukkitTask task;
     private int frame;
     

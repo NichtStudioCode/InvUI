@@ -29,6 +29,12 @@ public class VirtualInventory implements ConfigurationSerializable {
         this(uuid, size, new ItemStack[size]);
     }
     
+    public static VirtualInventory deserialize(@NotNull Map<String, Object> args) {
+        //noinspection unchecked
+        return new VirtualInventory(UUID.fromString((String) args.get("uuid")),
+            (int) args.get("size"), ((ArrayList<ItemStack>) args.get("items")).toArray(new ItemStack[0]));
+    }
+    
     public int getSize() {
         return size;
     }
@@ -200,12 +206,6 @@ public class VirtualInventory implements ConfigurationSerializable {
         result.put("size", size);
         result.put("items", items);
         return result;
-    }
-    
-    public static VirtualInventory deserialize(@NotNull Map<String, Object> args) {
-        //noinspection unchecked
-        return new VirtualInventory(UUID.fromString((String) args.get("uuid")),
-            (int) args.get("size"), ((ArrayList<ItemStack>) args.get("items")).toArray(new ItemStack[0]));
     }
     
 }

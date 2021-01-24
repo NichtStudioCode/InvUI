@@ -12,22 +12,22 @@ public interface Animation {
     /**
      * Sets the {@link Player} that will see this animation.
      * Useful for playing sounds in a showHandler. ({@link #addShowHandler(BiConsumer)})
-     * 
+     *
      * @param player The {@link Player} that will se this {@link Animation}.
      */
     void setPlayer(@NotNull Player player);
     
     /**
      * Sets the bounds of the {@link Inventory} this {@link Animation} will take place in.
-     * 
-     * @param width The width of the {@link Inventory}
+     *
+     * @param width  The width of the {@link Inventory}
      * @param height The height {@link Inventory}
      */
     void setBounds(int width, int height);
     
     /**
      * Sets the slots that should be shown.
-     * 
+     *
      * @param slots The slots that should be shown.
      */
     void setSlots(List<Integer> slots);
@@ -35,7 +35,7 @@ public interface Animation {
     /**
      * Adds a show handler.
      * Can be used to for example play a sound when a slot pops up.
-     * 
+     *
      * @param show The show handler as a {@link BiConsumer} consisting of
      *             frame number (first int) and slot index to show (second int).
      */
@@ -43,7 +43,7 @@ public interface Animation {
     
     /**
      * Adds a {@link Runnable} that should run after the {@link Animation} is finished.
-     * 
+     *
      * @param finish The {@link Runnable} that should run after the {@link Animation} is finished.
      */
     void addFinishHandler(@NotNull Runnable finish);

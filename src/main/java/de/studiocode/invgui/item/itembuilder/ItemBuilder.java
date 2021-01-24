@@ -169,7 +169,7 @@ public class ItemBuilder {
     
     /**
      * Contains the texture value for a player head.
-     * 
+     *
      * @see ItemBuilder
      */
     public static class PlayerHead {

@@ -26,7 +26,7 @@ public interface GUIBuilder {
      * Sets an ingredient for the structure String, which will later be
      * used to set up the inventory correctly.
      *
-     * @param key    The ingredient key
+     * @param key  The ingredient key
      * @param item The {@link Item}
      */
     void setIngredient(char key, @NotNull Item item);
@@ -35,7 +35,7 @@ public interface GUIBuilder {
      * Sets an ingredient for the structure String, which will later be
      * used to set up the inventory correctly.
      *
-     * @param key    The ingredient key
+     * @param key         The ingredient key
      * @param slotElement The {@link SlotElement}
      */
     void setIngredient(char key, @NotNull SlotElement slotElement);

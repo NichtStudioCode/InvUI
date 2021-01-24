@@ -72,13 +72,13 @@ abstract class IndexedGUI implements GUI {
                     virtualInventory.removeItem(index);
                 } else event.setCancelled(true);
                 break;
-    
+            
             case PICKUP_HALF:
                 if (virtualInventory.isSynced(index, clicked)) {
                     virtualInventory.removeHalf(index);
                 } else event.setCancelled(true);
                 break;
-    
+            
             case PLACE_ALL:
                 if (virtualInventory.isSynced(index, clicked)) {
                     virtualInventory.place(index, cursor);
@@ -90,13 +90,13 @@ abstract class IndexedGUI implements GUI {
                     virtualInventory.placeOne(index, cursor);
                 } else event.setCancelled(true);
                 break;
-                
+            
             case PLACE_SOME:
                 if (virtualInventory.isSynced(index, clicked)) {
                     virtualInventory.setMaxAmount(index);
                 } else event.setCancelled(true);
                 break;
-                
+            
             case MOVE_TO_OTHER_INVENTORY:
                 event.setCancelled(true);
                 if (virtualInventory.isSynced(index, clicked)) {
