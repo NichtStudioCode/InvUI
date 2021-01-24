@@ -3,6 +3,7 @@ package de.studiocode.invgui.animation.impl;
 import de.studiocode.invgui.InvGui;
 import de.studiocode.invgui.animation.Animation;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
@@ -25,8 +26,11 @@ public abstract class BaseAnimation implements Animation {
     private BukkitTask task;
     private int frame;
     
-    public BaseAnimation(int tickDelay) {
+    public BaseAnimation(int tickDelay, boolean sound) {
         this.tickDelay = tickDelay;
+        
+        if (sound) addShowHandler((frame, index) -> getPlayer().playSound(getPlayer().getLocation(),
+            Sound.ENTITY_ITEM_PICKUP, 1, 1));
     }
     
     protected abstract void handleFrame(int frame);
@@ -44,8 +48,8 @@ public abstract class BaseAnimation implements Animation {
         else this.show = show;
     }
     
-    protected void show(int i) {
-        show.accept(frame, i);
+    protected void show(int... slots) {
+        for (int i : slots) show.accept(frame, i);
     }
     
     @Override
@@ -62,7 +66,7 @@ public abstract class BaseAnimation implements Animation {
         this.slots = new CopyOnWriteArrayList<>(slots);
     }
     
-    protected void finished() {
+    protected void finish() {
         task.cancel();
         finishHandlers.forEach(Runnable::run);
     }
