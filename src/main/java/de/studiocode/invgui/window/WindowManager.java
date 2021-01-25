@@ -10,10 +10,15 @@ import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
+/**
+ * Manages all {@link Window}s and provides methods for searching them.
+ */
 public class WindowManager implements Listener {
     
     private static WindowManager instance;
@@ -57,10 +62,10 @@ public class WindowManager implements Listener {
     }
     
     /**
-     * Finds the window to an inventory.
+     * Finds the {@link Window} to an {@link Inventory}.
      *
-     * @param inventory The inventory
-     * @return The window that belongs to that inventory
+     * @param inventory The {@link Inventory}
+     * @return The {@link Window} that belongs to that {@link Inventory}
      */
     public Optional<Window> findWindow(Inventory inventory) {
         return windows.stream()
@@ -69,21 +74,34 @@ public class WindowManager implements Listener {
     }
     
     /**
-     * Finds the window to a player.
+     * Finds all {@link Window}s to a {@link Player}
      *
-     * @param player The player
-     * @return The window that the player has open
+     * @param player The {@link Player}
+     * @return A list of {@link Window}s that have the {@link Player} as their viewer.
      */
-    public Optional<Window> findWindow(Player player) {
+    public List<Window> findWindows(Player player) {
         return windows.stream()
-            .filter(w -> w.getInventory().getViewers().stream().anyMatch(player::equals))
-            .findFirst();
+            .filter(w -> w.getViewer().getUniqueId().equals(player.getUniqueId()))
+            .collect(Collectors.toCollection(ArrayList::new));
     }
     
     /**
-     * Gets a list of all currently active windows.
+     * Finds the {@link Window} the {@link Player} has currently open.
+     * 
+     * @param player The {@link Player}
+     * @return The {@link Window} the {@link Player} has currently open or <code>null</code>
+     * if there isn't one.
+     */
+    public Window findWindow(Player player) {
+        return windows.stream()
+            .filter(w -> w.getInventory().getViewers().contains(player))
+            .findFirst().orElse(null);
+    }
+    
+    /**
+     * Gets a list of all currently active {@link Window}s.
      *
-     * @return A list of all windows
+     * @return A list of all {@link Window}s
      */
     public List<Window> getWindows() {
         return windows;
