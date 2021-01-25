@@ -15,9 +15,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 abstract class IndexedGUI implements GUI {
     
@@ -48,10 +46,13 @@ abstract class IndexedGUI implements GUI {
         VirtualInventory virtualInventory = element.getVirtualInventory();
         int index = element.getIndex();
         
+        Player player = (Player) event.getWhoClicked();
         ItemStack cursor = event.getCursor();
         ItemStack clicked = event.getCurrentItem();
         
         if (virtualInventory.isSynced(index, clicked)) {
+            boolean cancelled = false;
+            
             switch (event.getAction()) {
                 
                 case CLONE_STACK:
@@ -62,28 +63,28 @@ abstract class IndexedGUI implements GUI {
                 
                 case DROP_ONE_SLOT:
                 case PICKUP_ONE:
-                    virtualInventory.removeOne(index);
+                    cancelled = virtualInventory.removeOne(player, index);
                     break;
                 
                 case DROP_ALL_SLOT:
                 case PICKUP_ALL:
-                    virtualInventory.removeItem(index);
+                    cancelled = virtualInventory.removeItem(player, index);
                     break;
                 
                 case PICKUP_HALF:
-                    virtualInventory.removeHalf(index);
+                    cancelled = virtualInventory.removeHalf(player, index);
                     break;
                 
                 case PLACE_ALL:
-                    virtualInventory.place(index, cursor);
+                    cancelled = virtualInventory.place(player, index, cursor);
                     break;
                 
                 case PLACE_ONE:
-                    virtualInventory.placeOne(index, cursor);
+                    cancelled = virtualInventory.placeOne(player, index, cursor);
                     break;
                 
                 case PLACE_SOME:
-                    virtualInventory.setMaxAmount(index);
+                    cancelled = virtualInventory.setToMaxAmount(player, index);
                     break;
                 
                 case MOVE_TO_OTHER_INVENTORY:
@@ -93,7 +94,8 @@ abstract class IndexedGUI implements GUI {
                         event.getWhoClicked().getInventory().addItem(virtualInventory.getItemStack(index));
                     if (!leftover.isEmpty()) leftOverAmount = leftover.get(0).getAmount();
                     
-                    virtualInventory.setAmount(index, leftOverAmount);
+                    // TODO: find a way to cancel at this point
+                    virtualInventory.setAmount(player, index, leftOverAmount, true);
                     break;
                 
                 default:
@@ -101,6 +103,8 @@ abstract class IndexedGUI implements GUI {
                     event.setCancelled(true);
                     break;
             }
+            
+            if (cancelled) event.setCancelled(true);
         } else event.setCancelled(true);
     }
     
@@ -108,6 +112,7 @@ abstract class IndexedGUI implements GUI {
     public void handleItemShift(InventoryClickEvent event) {
         event.setCancelled(true);
         
+        Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
         
         List<VirtualInventory> virtualInventories = getAllVirtualInventories();
@@ -116,7 +121,7 @@ abstract class IndexedGUI implements GUI {
             for (VirtualInventory virtualInventory : virtualInventories) {
                 ItemStack toAdd = clicked.clone();
                 toAdd.setAmount(amountLeft);
-                amountLeft = virtualInventory.addItem(toAdd);
+                amountLeft = virtualInventory.addItem(player, toAdd);
                 
                 if (amountLeft == 0) break;
             }
@@ -128,10 +133,11 @@ abstract class IndexedGUI implements GUI {
     
     private List<VirtualInventory> getAllVirtualInventories() {
         List<VirtualInventory> virtualInventories = new ArrayList<>();
-        ArrayUtils
-            .findAllOccurrences(slotElements, element -> element instanceof VISlotElement)
-            .values().stream()
-            .map(element -> ((VISlotElement) element).getVirtualInventory())
+        Arrays.stream(slotElements)
+            .filter(Objects::nonNull)
+            .map(SlotElement::getItemStackHolder)
+            .filter(holder -> holder instanceof VISlotElement)
+            .map(holder -> ((VISlotElement) holder).getVirtualInventory())
             .forEach(vi -> {
                 if (!virtualInventories.contains(vi)) virtualInventories.add(vi);
             });
@@ -174,12 +180,8 @@ abstract class IndexedGUI implements GUI {
         SlotElement slotElement = slotElements[index];
         
         if (slotElement != null) {
-            if (slotElement instanceof ItemSlotElement) {
-                return ((ItemSlotElement) slotElement).getItem();
-            } else if (slotElement instanceof LinkedSlotElement) {
-                SlotElement bottom = ((LinkedSlotElement) slotElement).getBottomSlotElement();
-                if (bottom instanceof ItemSlotElement) return ((ItemSlotElement) bottom).getItem();
-            }
+            ItemStackHolder holder = slotElement.getItemStackHolder();
+            if (holder instanceof ItemSlotElement) return ((ItemSlotElement) holder).getItem();
         }
         
         return null;
@@ -188,11 +190,7 @@ abstract class IndexedGUI implements GUI {
     @Override
     public ItemStackHolder getItemStackHolder(int index) {
         SlotElement slotElement = slotElements[index];
-        if (slotElement instanceof ItemStackHolder) {
-            return (ItemStackHolder) slotElement;
-        } else if (slotElement instanceof LinkedSlotElement) {
-            return ((LinkedSlotElement) slotElement).getItemStackHolder();
-        } else return null;
+        return slotElement == null ? null : slotElement.getItemStackHolder();
     }
     
     @Override

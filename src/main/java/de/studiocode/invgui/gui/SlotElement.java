@@ -8,6 +8,8 @@ import java.util.UUID;
 
 public interface SlotElement {
     
+    ItemStackHolder getItemStackHolder();
+    
     interface ItemStackHolder {
         
         ItemStack getItemStack(UUID viewerUUID);
@@ -32,6 +34,11 @@ public interface SlotElement {
         @Override
         public ItemStack getItemStack(UUID viewerUUID) {
             return item.getItemBuilder().buildFor(viewerUUID);
+        }
+    
+        @Override
+        public ItemStackHolder getItemStackHolder() {
+            return this;
         }
         
     }
@@ -65,6 +72,11 @@ public interface SlotElement {
         public ItemStack getItemStack(UUID viewerUUID) {
             return getItemStack();
         }
+    
+        @Override
+        public ItemStackHolder getItemStackHolder() {
+            return this;
+        }
         
     }
     
@@ -90,17 +102,13 @@ public interface SlotElement {
             return slot;
         }
         
-        public SlotElement getBottomSlotElement() {
+        public ItemStackHolder getItemStackHolder() {
             LinkedSlotElement element = this;
             while (true) {
                 SlotElement below = element.getGui().getSlotElement(element.getSlotIndex());
                 if (below instanceof LinkedSlotElement) element = (LinkedSlotElement) below;
-                else return below;
+                else return (ItemStackHolder) below;
             }
-        }
-        
-        public ItemStackHolder getItemStackHolder() {
-            return (ItemStackHolder) getBottomSlotElement();
         }
         
     }
