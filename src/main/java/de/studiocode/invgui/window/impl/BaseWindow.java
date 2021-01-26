@@ -20,8 +20,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.function.Predicate;
 
 public abstract class BaseWindow implements Window {
     
@@ -187,24 +186,25 @@ public abstract class BaseWindow implements Window {
     }
     
     @Override
-    public void playAnimation(Animation animation) {
+    public void playAnimation(Animation animation, Predicate<ItemStackHolder> filter) {
         if (getViewer() != null) {
             this.animation = animation;
+            
+            List<Integer> slots = new ArrayList<>();
+            for (int i = 0; i < size; i++) {
+                ItemStackHolder holder = itemsDisplayed[i];
+                if (holder != null && filter.test(holder)) {
+                    slots.add(i);
+                    inventory.setItem(i, null);
+                }
+            }
             
             animation.setBounds(getGui().getWidth(), getGui().getHeight());
             animation.setPlayer(getViewer());
             animation.addShowHandler((frame, index) -> redrawItem(index, itemsDisplayed[index], false));
             animation.addFinishHandler(() -> this.animation = null);
-            animation.setSlots(IntStream.range(0, size)
-                .filter(i -> {
-                    ItemStackHolder element = itemsDisplayed[i];
-                    return !(element == null || (element instanceof VISlotElement
-                        && !((VISlotElement) element).getVirtualInventory().hasItem(((VISlotElement) element).getIndex())));
-                })
-                .boxed()
-                .collect(Collectors.toCollection(ArrayList::new)));
+            animation.setSlots(slots);
             
-            clearItemStacks();
             animation.start();
         }
     }
@@ -219,10 +219,6 @@ public abstract class BaseWindow implements Window {
             for (int i = 0; i < gui.getSize(); i++)
                 redrawItem(i, itemsDisplayed[i], false);
         }
-    }
-    
-    private void clearItemStacks() {
-        for (int i = 0; i < inventory.getSize(); i++) inventory.setItem(i, null);
     }
     
     @Override

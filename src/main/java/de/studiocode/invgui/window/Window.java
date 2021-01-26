@@ -2,6 +2,7 @@ package de.studiocode.invgui.window;
 
 import de.studiocode.invgui.animation.Animation;
 import de.studiocode.invgui.gui.GUI;
+import de.studiocode.invgui.gui.SlotElement.ItemStackHolder;
 import de.studiocode.invgui.item.Item;
 import de.studiocode.invgui.item.itembuilder.ItemBuilder;
 import de.studiocode.invgui.virtualinventory.VirtualInventory;
@@ -16,6 +17,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.UUID;
+import java.util.function.Predicate;
 
 /**
  * A window is the way to show a player a GUI.
@@ -126,8 +128,9 @@ public interface Window {
      * Plays an animation.
      *
      * @param animation The animation to play.
+     * @param filter    The filter that selects which Items should be animated.
      */
-    void playAnimation(Animation animation);
+    void playAnimation(Animation animation, Predicate<ItemStackHolder> filter);
     
     /**
      * Gets if the player is able to close the {@link Inventory}.
