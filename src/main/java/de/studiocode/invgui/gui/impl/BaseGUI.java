@@ -1,9 +1,13 @@
 package de.studiocode.invgui.gui.impl;
 
+import de.studiocode.invgui.gui.GUI;
 import de.studiocode.invgui.gui.SlotElement;
 import de.studiocode.invgui.gui.SlotElement.ItemStackHolder;
+import de.studiocode.invgui.gui.SlotElement.LinkedSlotElement;
+import de.studiocode.invgui.gui.SlotElement.VISlotElement;
 import de.studiocode.invgui.item.Item;
 import de.studiocode.invgui.util.SlotUtils;
+import de.studiocode.invgui.virtualinventory.VirtualInventory;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.SortedSet;
@@ -31,6 +35,11 @@ public abstract class BaseGUI extends IndexedGUI {
     @Override
     public SlotElement getSlotElement(int x, int y) {
         return getSlotElement(convToIndex(x, y));
+    }
+    
+    @Override
+    public boolean hasSlotElement(int x, int y) {
+        return hasSlotElement(convToIndex(x, y));
     }
     
     @Override
@@ -110,6 +119,29 @@ public abstract class BaseGUI extends IndexedGUI {
     @Override
     public void fillRectangle(int x, int y, int width, int height, Item item, boolean replaceExisting) {
         fill(SlotUtils.getSlotsRect(x, y, width, height, this.width), item, replaceExisting);
+    }
+    
+    @Override
+    public void fillRectangle(int x, int y, GUI gui, boolean replaceExisting) {
+        int slotIndex = 0;
+        for (int slot : SlotUtils.getSlotsRect(x, y, gui.getWidth(), gui.getHeight(), this.width)) {
+            if (hasSlotElement(slot) && !replaceExisting) continue;
+            setSlotElement(slot, new LinkedSlotElement(gui, slotIndex));
+            slotIndex++;
+        }
+    }
+    
+    @Override
+    public void fillRectangle(int x, int y, int width, VirtualInventory virtualInventory, boolean replaceExisting) {
+        int height = (int) Math.ceil((double) virtualInventory.getSize() / (double) width);
+        
+        int slotIndex = 0;
+        for (int slot : SlotUtils.getSlotsRect(x, y, width, height, this.width)) {
+            if (slotIndex >= virtualInventory.getSize()) return;
+            if (hasSlotElement(slot) && !replaceExisting) continue;
+            setSlotElement(slot, new VISlotElement(virtualInventory, slotIndex));
+            slotIndex++;
+        }
     }
     
 }

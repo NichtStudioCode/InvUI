@@ -167,6 +167,11 @@ abstract class IndexedGUI implements GUI {
     }
     
     @Override
+    public boolean hasSlotElement(int index) {
+        return slotElements[index] != null;
+    }
+    
+    @Override
     public SlotElement[] getSlotElements() {
         return slotElements.clone();
     }
@@ -207,11 +212,6 @@ abstract class IndexedGUI implements GUI {
     @Override
     public void remove(int index) {
         slotElements[index] = null;
-    }
-    
-    @Override
-    public void nest(int offset, @NotNull GUI gui) {
-        for (int i = 0; i < gui.getSize(); i++) slotElements[i + offset] = new LinkedSlotElement(gui, i);
     }
     
     @Override

@@ -71,7 +71,7 @@ public interface GUI {
     void setSlotElement(int index, @NotNull SlotElement slotElement);
     
     /**
-     * Gets the {@link SlotElement} on these coordinates
+     * Gets the {@link SlotElement} on these coordinates.
      *
      * @param x The x coordinate
      * @param y The y coordinate
@@ -80,12 +80,29 @@ public interface GUI {
     SlotElement getSlotElement(int x, int y);
     
     /**
-     * Gets the {@link SlotElement} placed on that slot
+     * Gets the {@link SlotElement} placed on that slot.
      *
      * @param index The slot index
      * @return The {@link SlotElement} placed on that slot
      */
     SlotElement getSlotElement(int index);
+    
+    /**
+     * Gets if there is a {@link SlotElement} on these coordinates.
+     *
+     * @param x The x coordinate
+     * @param y The y coordinate
+     * @return If there is a {@link SlotElement} placed there
+     */
+    boolean hasSlotElement(int x, int y);
+    
+    /**
+     * Gets if there is a {@link SlotElement} placed on that slot.
+     *
+     * @param index The slot index
+     * @return If there is a {@link SlotElement} placed there
+     */
+    boolean hasSlotElement(int index);
     
     /**
      * Gets a all {@link SlotElement}s of this {@link GUI} in an Array.
@@ -170,15 +187,6 @@ public interface GUI {
     void remove(int index);
     
     /**
-     * Fills the slots of this {@link GUI} with the content of another one,
-     * allowing for nested {@link GUI}s
-     *
-     * @param offset Defines the index where the nested {@link GUI} should start (inclusive)
-     * @param gui    The {@link GUI} which should be put inside this {@link GUI}
-     */
-    void nest(int offset, @NotNull GUI gui);
-    
-    /**
      * A method called if a slot in the {@link Inventory} has been clicked.
      *
      * @param slot      The slot that has been clicked
@@ -253,5 +261,26 @@ public interface GUI {
      * @param replaceExisting If existing {@link Item}s should be replaced.
      */
     void fillRectangle(int x, int y, int width, int height, Item item, boolean replaceExisting);
+    
+    /**
+     * Fills a rectangle of another {@link GUI} in this {@link GUI}.
+     *
+     * @param x               The x coordinate where the rectangle should start
+     * @param y               The y coordinate where the rectangle should start
+     * @param gui             The {@link GUI} to be put into this {@link GUI}
+     * @param replaceExisting If existing {@link SlotElement}s should be replaced.
+     */
+    void fillRectangle(int x, int y, GUI gui, boolean replaceExisting);
+    
+    /**
+     * Fills a rectangle of a {@link VirtualInventory} in this {@link GUI}.
+     *
+     * @param x                The x coordinate where the rectangle should start
+     * @param y                The y coordinate where the rectangle should start
+     * @param width            The line length of the rectangle. (VirtualInventory does not define a width)
+     * @param virtualInventory The {@link VirtualInventory} to be put into this {@link GUI}.
+     * @param replaceExisting  If existing {@link SlotElement}s should be replaced.
+     */
+    void fillRectangle(int x, int y, int width, VirtualInventory virtualInventory, boolean replaceExisting);
     
 }

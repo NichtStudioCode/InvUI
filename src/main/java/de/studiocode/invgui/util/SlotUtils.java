@@ -28,8 +28,8 @@ public class SlotUtils {
     
     public static SortedSet<Integer> getSlotsRect(int x, int y, int width, int height, int frameWidth) {
         SortedSet<Integer> slots = new TreeSet<>();
-        for (int y1 = y; y1 <= height; y1++) {
-            for (int x1 = x; x1 <= width; x1++) {
+        for (int y1 = y; y1 < height + y; y1++) {
+            for (int x1 = x; x1 < width + x; x1++) {
                 slots.add(convertToIndex(x1, y1, frameWidth));
             }
         }
