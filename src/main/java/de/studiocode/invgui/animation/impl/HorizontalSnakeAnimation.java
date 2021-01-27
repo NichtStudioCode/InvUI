@@ -20,7 +20,6 @@ public class HorizontalSnakeAnimation extends SoundAnimation {
             if (left) {
                 if (x <= 0) {
                     y++;
-                    x = 0;
                     left = false;
                 } else x--;
             } else {

@@ -20,7 +20,6 @@ public class VerticalSnakeAnimation extends SoundAnimation {
             if (up) {
                 if (y <= 0) {
                     x++;
-                    y = 0;
                     up = false;
                 } else y--;
             } else {
