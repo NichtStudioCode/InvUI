@@ -175,7 +175,10 @@ public class ItemBuilder implements Cloneable {
     @Override
     public ItemBuilder clone() {
         try {
-            return (ItemBuilder) super.clone();
+            return ((ItemBuilder) super.clone())
+                .setLore(new ArrayList<>(lore))
+                .setItemFlags(new ArrayList<>(itemFlags))
+                .setEnchantments(new HashMap<>(enchantments));
         } catch (CloneNotSupportedException e) {
             throw new Error(e);
         }

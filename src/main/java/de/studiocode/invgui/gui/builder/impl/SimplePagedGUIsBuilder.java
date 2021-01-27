@@ -15,13 +15,13 @@ public class SimplePagedGUIsBuilder extends PagedGUIBuilder {
     
     @Override
     public SimplePagedGUIs build() {
-        if (getBackBuilder() == null || getForwardBuilder() == null)
+        if (getBackFunction() == null || getForwardFunction() == null)
             throw new IllegalStateException("BackBuilder or ForwardBuilder haven't been set yet");
         if (guis == null)
             throw new IllegalStateException("GUIs haven't been set yet");
         
-        SimplePagedGUIs gui = new SimplePagedGUIs(getWidth(), getHeight(), getBackItemIndex(), getBackBuilder(),
-            getForwardItemIndex(), getForwardBuilder(), guis, getListSlots());
+        SimplePagedGUIs gui = new SimplePagedGUIs(getWidth(), getHeight(), getBackItemIndex(), getBackFunction(),
+            getForwardItemIndex(), getForwardFunction(), guis, getListSlots());
         setSlotElements(gui);
         
         return gui;

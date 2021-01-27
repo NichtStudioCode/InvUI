@@ -2,12 +2,8 @@ package de.studiocode.invgui.gui.impl;
 
 import de.studiocode.invgui.gui.SlotElement;
 import de.studiocode.invgui.item.Item;
-import de.studiocode.invgui.item.impl.BaseItem;
-import de.studiocode.invgui.item.itembuilder.ItemBuilder;
-import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.jetbrains.annotations.NotNull;
+import de.studiocode.invgui.item.impl.pagedgui.BackItem;
+import de.studiocode.invgui.item.impl.pagedgui.ForwardItem;
 
 import java.util.List;
 
@@ -63,7 +59,7 @@ public abstract class PagedGUI extends BaseGUI {
     }
     
     private void updatePageContent() {
-        if (getCurrentPage() < getPageAmount()) {
+        if (getCurrentPageIndex() < getPageAmount()) {
             List<SlotElement> slotElements = getPageItems(currentPage);
             
             for (int i = 0; i < itemListSlots.length; i++) {
@@ -73,7 +69,7 @@ public abstract class PagedGUI extends BaseGUI {
         } else setCurrentPage(getPageAmount() - 1);
     }
     
-    public int getCurrentPage() {
+    public int getCurrentPageIndex() {
         return currentPage;
     }
     
@@ -98,61 +94,8 @@ public abstract class PagedGUI extends BaseGUI {
         return itemListSlots;
     }
     
-    protected abstract int getPageAmount();
+    public abstract int getPageAmount();
     
     protected abstract List<SlotElement> getPageItems(int page);
-    
-    class ForwardItem extends BaseItem {
-        
-        private final ItemBuilder itemBuilder;
-        
-        public ForwardItem(@NotNull ItemBuilder itemBuilder) {
-            this.itemBuilder = itemBuilder;
-        }
-        
-        @Override
-        public ItemBuilder getItemBuilder() {
-            itemBuilder.clearLore();
-            
-            if (hasNextPage())
-                itemBuilder.addLoreLines("§7Go to page §e" + (getCurrentPage() + 1)
-                    + (infinitePages ? "" : "§7/§e" + getPageAmount()));
-            else itemBuilder.addLoreLines("§7There are no more pages");
-            
-            return itemBuilder;
-        }
-        
-        @Override
-        public void handleClick(ClickType clickType, Player player, InventoryClickEvent event) {
-            if (clickType == ClickType.LEFT) goForward();
-        }
-        
-    }
-    
-    class BackItem extends BaseItem {
-        
-        private final ItemBuilder itemBuilder;
-        
-        public BackItem(@NotNull ItemBuilder itemBuilder) {
-            this.itemBuilder = itemBuilder;
-        }
-        
-        @Override
-        public ItemBuilder getItemBuilder() {
-            itemBuilder.clearLore();
-            
-            if (hasPageBefore())
-                itemBuilder.addLoreLines("§7Go to page §e" + getCurrentPage() + "§7/§e" + getPageAmount());
-            else itemBuilder.addLoreLines("§7You can't go further back");
-            
-            return itemBuilder;
-        }
-        
-        @Override
-        public void handleClick(ClickType clickType, Player player, InventoryClickEvent event) {
-            if (clickType == ClickType.LEFT) goBack();
-        }
-        
-    }
     
 }

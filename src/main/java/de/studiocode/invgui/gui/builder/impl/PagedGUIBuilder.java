@@ -1,13 +1,15 @@
 package de.studiocode.invgui.gui.builder.impl;
 
+import de.studiocode.invgui.gui.impl.PagedGUI;
 import de.studiocode.invgui.item.itembuilder.ItemBuilder;
 
 import java.util.List;
+import java.util.function.Function;
 
 public abstract class PagedGUIBuilder extends BaseGUIBuilder {
     
-    private ItemBuilder backBuilder;
-    private ItemBuilder forwardBuilder;
+    private Function<PagedGUI, ItemBuilder> backFunction;
+    private Function<PagedGUI, ItemBuilder> forwardFunction;
     private int[] listSlots;
     
     public PagedGUIBuilder(int width, int height) {
@@ -40,32 +42,26 @@ public abstract class PagedGUIBuilder extends BaseGUIBuilder {
         this.listSlots = listSlots;
     }
     
-    public void setBackItemIngredient(char c) {
-        setIngredient(c, 0);
+    public void setListSlotIngredient(char key) {
+        setIngredient(key, 2);
     }
     
-    public void setForwardItemIngredient(char c) {
-        setIngredient(c, 1);
+    public void setBackItem(char key, Function<PagedGUI, ItemBuilder> backFunction) {
+        setIngredient(key, 0);
+        this.backFunction = backFunction;
     }
     
-    public void setListSlotIngredient(char c) {
-        setIngredient(c, 2);
+    protected Function<PagedGUI, ItemBuilder> getBackFunction() {
+        return backFunction;
     }
     
-    protected ItemBuilder getBackBuilder() {
-        return backBuilder;
+    public void setForwardItem(char key, Function<PagedGUI, ItemBuilder> forwardFunction) {
+        setIngredient(key, 1);
+        this.forwardFunction = forwardFunction;
     }
     
-    public void setBackBuilder(ItemBuilder backBuilder) {
-        this.backBuilder = backBuilder;
-    }
-    
-    protected ItemBuilder getForwardBuilder() {
-        return forwardBuilder;
-    }
-    
-    public void setForwardBuilder(ItemBuilder forwardBuilder) {
-        this.forwardBuilder = forwardBuilder;
+    protected Function<PagedGUI, ItemBuilder> getForwardFunction() {
+        return forwardFunction;
     }
     
 }
