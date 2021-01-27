@@ -15,6 +15,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -130,7 +132,7 @@ public interface Window {
      * @param animation The animation to play.
      * @param filter    The filter that selects which Items should be animated.
      */
-    void playAnimation(Animation animation, Predicate<ItemStackHolder> filter);
+    void playAnimation(@NotNull Animation animation, @Nullable Predicate<ItemStackHolder> filter);
     
     /**
      * Gets if the player is able to close the {@link Inventory}.

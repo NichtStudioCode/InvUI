@@ -19,9 +19,9 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.util.*;
 
-public class ItemBuilder {
-    
+public class ItemBuilder implements Cloneable {
     protected Material material;
+    
     protected int amount = 1;
     protected int damage;
     protected int customModelData = -1;
@@ -165,6 +165,20 @@ public class ItemBuilder {
     public ItemBuilder clearEnchantments() {
         enchantments.clear();
         return this;
+    }
+    
+    public ItemBuilder setGameProfile(GameProfile gameProfile) {
+        this.gameProfile = gameProfile;
+        return this;
+    }
+    
+    @Override
+    public ItemBuilder clone() {
+        try {
+            return (ItemBuilder) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new Error(e);
+        }
     }
     
     /**

@@ -18,6 +18,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -186,14 +188,14 @@ public abstract class BaseWindow implements Window {
     }
     
     @Override
-    public void playAnimation(Animation animation, Predicate<ItemStackHolder> filter) {
+    public void playAnimation(@NotNull Animation animation, @Nullable Predicate<ItemStackHolder> filter) {
         if (getViewer() != null) {
             this.animation = animation;
             
             List<Integer> slots = new ArrayList<>();
             for (int i = 0; i < size; i++) {
                 ItemStackHolder holder = itemsDisplayed[i];
-                if (holder != null && filter.test(holder)) {
+                if (holder != null && (filter == null || filter.test(holder))) {
                     slots.add(i);
                     inventory.setItem(i, null);
                 }
