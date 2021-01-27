@@ -192,31 +192,18 @@ public class VirtualInventory implements ConfigurationSerializable {
     }
     
     /**
-     * Changes the amount of an {@link ItemStack} on a specific slot.
+     * Changes the amount of an {@link ItemStack} on a specific slot without calling the {@link ItemUpdateEvent}
      *
-     * @param player The player that did this or <code>null</code> if it wasn't a player.
      * @param index  The slot index
      * @param amount The new amount
-     * @return If the action has been cancelled
      */
-    public boolean setAmount(Player player, int index, int amount, boolean ignoreCancelled) {
+    public void setAmountSilently(int index, int amount) {
         ItemStack itemStack = items[index];
         if (itemStack != null) {
-            int currentAmount = itemStack.getAmount();
-            
-            ItemUpdateEvent event = createAndCallEvent(player, itemStack, index, currentAmount, amount);
-            
-            if (!event.isCancelled() || ignoreCancelled) {
-                if (amount == 0) items[index] = null;
-                else itemStack.setAmount(amount);
-                
-                notifyWindows();
-                
-                return false;
-            }
+            if (amount == 0) items[index] = null;
+            else itemStack.setAmount(amount);
+            notifyWindows();
         }
-        
-        return true;
     }
     
     /**
@@ -256,7 +243,7 @@ public class VirtualInventory implements ConfigurationSerializable {
         ItemStack itemStack = items[index];
         if (itemStack != null) {
             
-            ItemUpdateEvent event =createAndCallEvent(player, itemStack, index,
+            ItemUpdateEvent event = createAndCallEvent(player, itemStack, index,
                 itemStack.getAmount(), 0);
             
             if (!event.isCancelled()) {

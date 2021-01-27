@@ -9,6 +9,8 @@ import de.studiocode.invgui.gui.SlotElement.VISlotElement;
 import de.studiocode.invgui.item.Item;
 import de.studiocode.invgui.util.ArrayUtils;
 import de.studiocode.invgui.virtualinventory.VirtualInventory;
+import de.studiocode.invgui.virtualinventory.event.ItemUpdateEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -89,13 +91,22 @@ abstract class IndexedGUI implements GUI {
                 
                 case MOVE_TO_OTHER_INVENTORY:
                     event.setCancelled(true);
-                    int leftOverAmount = 0;
-                    HashMap<Integer, ItemStack> leftover =
-                        event.getWhoClicked().getInventory().addItem(virtualInventory.getItemStack(index));
-                    if (!leftover.isEmpty()) leftOverAmount = leftover.get(0).getAmount();
                     
-                    // TODO: find a way to cancel at this point
-                    virtualInventory.setAmount(player, index, leftOverAmount, true);
+                    ItemStack invStack = virtualInventory.getItemStack(index);
+                    ItemUpdateEvent updateEvent = new ItemUpdateEvent(virtualInventory, player, invStack,
+                        index, invStack.getAmount(), -1);
+                    Bukkit.getPluginManager().callEvent(updateEvent);
+                    
+                    if (!updateEvent.isCancelled()) {
+                        int leftOverAmount = 0;
+                        HashMap<Integer, ItemStack> leftover =
+                            event.getWhoClicked().getInventory().addItem(virtualInventory.getItemStack(index));
+                        
+                        if (!leftover.isEmpty()) leftOverAmount = leftover.get(0).getAmount();
+                        
+                        virtualInventory.setAmountSilently(index, leftOverAmount);
+                    }
+                    
                     break;
                 
                 default:

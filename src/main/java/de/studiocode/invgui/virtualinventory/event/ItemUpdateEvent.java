@@ -34,7 +34,8 @@ public class ItemUpdateEvent extends Event implements Cancellable {
      * @param itemStack        The {@link ItemStack} that is affected
      * @param slot             The slot that is affected
      * @param previousAmount   The previous amount of the {@link ItemStack}
-     * @param newAmount        The amount that the {@link ItemStack} will have if the event is not being cancelled
+     * @param newAmount        The amount that the {@link ItemStack} will have if the event is not being
+     *                         cancelled or -1 if not known
      */
     public ItemUpdateEvent(@NotNull VirtualInventory virtualInventory, @Nullable Player player, @NotNull ItemStack itemStack, int slot, int previousAmount,
                            int newAmount) {
@@ -48,7 +49,7 @@ public class ItemUpdateEvent extends Event implements Cancellable {
     
     /**
      * Gets the {@link HandlerList} of this {@link Event}
-     * 
+     *
      * @return The {@link HandlerList} of this {@link Event}
      */
     public static HandlerList getHandlerList() {
@@ -57,7 +58,7 @@ public class ItemUpdateEvent extends Event implements Cancellable {
     
     /**
      * Gets the {@link VirtualInventory} where this action takes place.
-     * 
+     *
      * @return The {@link VirtualInventory}
      */
     public VirtualInventory getVirtualInventory() {
@@ -76,7 +77,7 @@ public class ItemUpdateEvent extends Event implements Cancellable {
     
     /**
      * Gets the {@link ItemStack} involved in this action.
-     * 
+     *
      * @return The {@link ItemStack}
      */
     public ItemStack getItemStack() {
@@ -85,7 +86,7 @@ public class ItemUpdateEvent extends Event implements Cancellable {
     
     /**
      * Gets the slot that is affected.
-     * 
+     *
      * @return The slot
      */
     public int getSlot() {
@@ -94,7 +95,7 @@ public class ItemUpdateEvent extends Event implements Cancellable {
     
     /**
      * Gets the previous amount of the {@link ItemStack}
-     * 
+     *
      * @return The previous amount
      */
     public int getPreviousAmount() {
@@ -103,8 +104,8 @@ public class ItemUpdateEvent extends Event implements Cancellable {
     
     /**
      * Gets the new amount of the {@link ItemStack} if the event
-     * isn't being cancelled.
-     * 
+     * isn't being cancelled or -1 if not unknown.
+     *
      * @return The new amount
      */
     public int getNewAmount() {
@@ -131,5 +132,5 @@ public class ItemUpdateEvent extends Event implements Cancellable {
     public HandlerList getHandlers() {
         return handlers;
     }
-
+    
 }
