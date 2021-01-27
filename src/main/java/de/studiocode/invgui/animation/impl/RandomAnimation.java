@@ -8,7 +8,7 @@ import java.util.Random;
 /**
  * Lets the {@link Item}s pop up randomly.
  */
-public class RandomAnimation extends BaseAnimation {
+public class RandomAnimation extends SoundAnimation {
     
     private final Random random = new Random();
     

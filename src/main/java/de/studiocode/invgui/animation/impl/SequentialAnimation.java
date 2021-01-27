@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Lets the {@link Item}s pop up index after index.
  */
-public class SequentialAnimation extends BaseAnimation {
+public class SequentialAnimation extends SoundAnimation {
     
     public SequentialAnimation(int tickDelay, boolean sound) {
         super(tickDelay, sound);

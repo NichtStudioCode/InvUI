@@ -2,8 +2,8 @@ package de.studiocode.invgui.animation.impl;
 
 import de.studiocode.invgui.InvGui;
 import de.studiocode.invgui.animation.Animation;
+import de.studiocode.invgui.util.SlotUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
@@ -26,11 +26,8 @@ public abstract class BaseAnimation implements Animation {
     private BukkitTask task;
     private int frame;
     
-    public BaseAnimation(int tickDelay, boolean sound) {
+    public BaseAnimation(int tickDelay) {
         this.tickDelay = tickDelay;
-        
-        if (sound) addShowHandler((frame, index) -> getPlayer().playSound(getPlayer().getLocation(),
-            Sound.ENTITY_ITEM_PICKUP, 1, 1));
     }
     
     protected abstract void handleFrame(int frame);
@@ -76,6 +73,13 @@ public abstract class BaseAnimation implements Animation {
             handleFrame(frame);
             frame++;
         }, 0, tickDelay);
+    }
+    
+    protected int convToIndex(int x, int y) {
+        if (x >= width || y >= height)
+            throw new IllegalArgumentException("Coordinates out of bounds");
+        
+        return SlotUtils.convertToIndex(x, y, width);
     }
     
     public void cancel() {

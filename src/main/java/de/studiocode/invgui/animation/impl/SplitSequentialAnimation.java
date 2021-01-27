@@ -2,7 +2,7 @@ package de.studiocode.invgui.animation.impl;
 
 import java.util.List;
 
-public class SplitSequentialAnimation extends BaseAnimation {
+public class SplitSequentialAnimation extends SoundAnimation {
     
     public SplitSequentialAnimation(int tickDelay, boolean sound) {
         super(tickDelay, sound);
