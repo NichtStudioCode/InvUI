@@ -1,8 +1,6 @@
 package de.studiocode.invgui.window;
 
-import de.studiocode.invgui.animation.Animation;
 import de.studiocode.invgui.gui.GUI;
-import de.studiocode.invgui.gui.SlotElement.ItemStackHolder;
 import de.studiocode.invgui.item.Item;
 import de.studiocode.invgui.item.itembuilder.ItemBuilder;
 import de.studiocode.invgui.virtualinventory.VirtualInventory;
@@ -15,15 +13,12 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
-import java.util.function.Predicate;
 
 /**
  * A window is the way to show a player a GUI.
- * Windows can only have one viewer at a time.
+ * Windows can only have one viewer.
  *
  * @see BaseWindow
  * @see NormalInventoryWindow
@@ -45,12 +40,6 @@ public interface Window {
      * @return The underlying {@link GUI}.
      */
     GUI getGui();
-    
-    /**
-     * A method called every tick by the {@link WindowManager}
-     * to re-draw the {@link Item}s.
-     */
-    void handleTick();
     
     /**
      * A method called by the {@link WindowManager} to notify the Window
@@ -125,14 +114,6 @@ public interface Window {
      * Shows the window to a the player.
      */
     void show();
-    
-    /**
-     * Plays an animation.
-     *
-     * @param animation The animation to play.
-     * @param filter    The filter that selects which Items should be animated.
-     */
-    void playAnimation(@NotNull Animation animation, @Nullable Predicate<ItemStackHolder> filter);
     
     /**
      * Gets if the player is able to close the {@link Inventory}.

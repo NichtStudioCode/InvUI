@@ -1,6 +1,8 @@
 package de.studiocode.invgui.gui.impl;
 
+import de.studiocode.invgui.animation.Animation;
 import de.studiocode.invgui.gui.GUI;
+import de.studiocode.invgui.gui.GUIParent;
 import de.studiocode.invgui.gui.SlotElement;
 import de.studiocode.invgui.gui.SlotElement.ItemSlotElement;
 import de.studiocode.invgui.gui.SlotElement.ItemStackHolder;
@@ -10,19 +12,26 @@ import de.studiocode.invgui.item.Item;
 import de.studiocode.invgui.util.ArrayUtils;
 import de.studiocode.invgui.virtualinventory.VirtualInventory;
 import de.studiocode.invgui.virtualinventory.event.ItemUpdateEvent;
+import de.studiocode.invgui.window.Window;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Predicate;
 
-abstract class IndexedGUI implements GUI {
+abstract class IndexedGUI implements GUI, GUIParent {
     
-    protected final int size;
-    protected final SlotElement[] slotElements;
+    private final int size;
+    private final SlotElement[] slotElements;
+    private final Set<GUIParent> parents = new HashSet<>();
+    
+    private SlotElement[] animationElements;
+    private Animation animation;
     
     public IndexedGUI(int size) {
         this.size = size;
@@ -31,6 +40,12 @@ abstract class IndexedGUI implements GUI {
     
     @Override
     public void handleClick(int slotNumber, Player player, ClickType clickType, InventoryClickEvent event) {
+        if (animation != null) {
+            // cancel all clicks if an animation is running
+            event.setCancelled(true);
+            return;
+        }
+        
         SlotElement slotElement = slotElements[slotNumber];
         if (slotElement instanceof LinkedSlotElement) {
             LinkedSlotElement linkedElement = (LinkedSlotElement) slotElement;
@@ -123,6 +138,8 @@ abstract class IndexedGUI implements GUI {
     public void handleItemShift(InventoryClickEvent event) {
         event.setCancelled(true);
         
+        if (animation != null) return; // cancel all clicks if an animation is running
+        
         Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
         
@@ -157,8 +174,119 @@ abstract class IndexedGUI implements GUI {
     }
     
     @Override
-    public void setSlotElement(int index, @NotNull SlotElement slotElement) {
+    public void handleSlotElementUpdate(GUI child, int slotIndex) {
+        // find all SlotElements that link to this slotIndex in this child GUI and notify all parents
+        for (int index = 0; index < size; index++) {
+            SlotElement element = slotElements[index];
+            if (element instanceof LinkedSlotElement) {
+                LinkedSlotElement linkedSlotElement = (LinkedSlotElement) element;
+                if (linkedSlotElement.getGui() == child && linkedSlotElement.getSlotIndex() == slotIndex)
+                    for (GUIParent parent : parents) parent.handleSlotElementUpdate(this, index);
+            }
+        }
+    }
+    
+    @Override
+    public void addParent(@NotNull GUIParent parent) {
+        parents.add(parent);
+    }
+    
+    @Override
+    public void removeParent(@NotNull GUIParent parent) {
+        parents.remove(parent);
+    }
+    
+    @Override
+    public Set<GUIParent> getParents() {
+        return parents;
+    }
+    
+    private List<Window> findAllWindows() {
+        List<Window> windows = new ArrayList<>();
+        List<GUIParent> parents = new ArrayList<>(this.parents);
+        
+        while (!parents.isEmpty()) {
+            List<GUIParent> parents1 = new ArrayList<>(parents);
+            parents.clear();
+            for (GUIParent parent : parents1) {
+                if (parent instanceof GUI) parents.addAll(((GUI) parent).getParents());
+                else if (parent instanceof Window) windows.add((Window) parent);
+            }
+        }
+        
+        return windows;
+    }
+    
+    @Override
+    public void playAnimation(@NotNull Animation animation, @Nullable Predicate<ItemStackHolder> filter) {
+        if (animation != null) cancelAnimation();
+        
+        this.animation = animation;
+        this.animationElements = slotElements.clone();
+        
+        List<Integer> slots = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            ItemStackHolder holder = getItemStackHolder(i);
+            if (holder != null && (filter == null || filter.test(holder))) {
+                slots.add(i);
+                setSlotElement(i, null);
+            }
+        }
+    
+        animation.setSlots(slots);
+        animation.setGUI(this);
+        animation.setWindows(findAllWindows());
+        animation.addShowHandler((frame, index) -> setSlotElement(index, animationElements[index]));
+        animation.addFinishHandler(() -> {
+            this.animation = null;
+            this.animationElements = null;
+        });
+        
+        animation.start();
+    }
+    
+    @Override
+    public void cancelAnimation() {
+        if (this.animation != null) {
+            // cancel the scheduler task and set animation to null
+            animation.cancel();
+            animation = null;
+        
+            // show all SlotElements again
+            for (int i = 0; i < size; i++) setSlotElement(i, animationElements[i]);
+            animationElements = null;
+        }
+    }
+    
+    @Override
+    public void setSlotElement(int index, SlotElement slotElement) {
+        SlotElement oldElement = slotElements[index];
+        GUI oldLink = oldElement instanceof LinkedSlotElement ? ((LinkedSlotElement) oldElement).getGui() : null;
+        
+        // set new SlotElement on index
         slotElements[index] = slotElement;
+        
+        GUI newLink = slotElement instanceof LinkedSlotElement ? ((LinkedSlotElement) slotElement).getGui() : null;
+        
+        // notify parents that a SlotElement has been changed
+        parents.forEach(parent -> parent.handleSlotElementUpdate(this, index));
+        
+        // if newLink is the same as oldLink, there isn't anything to be done
+        if (newLink == oldLink) return;
+        
+        // if the slot previously linked to GUI
+        if (oldLink != null) {
+            // If no other slot still links to that GUI, remove this GUI from parents
+            if (Arrays.stream(slotElements)
+                .filter(element -> element instanceof LinkedSlotElement)
+                .map(element -> ((LinkedSlotElement) element).getGui())
+                .noneMatch(gui -> gui == oldLink)) oldLink.removeParent(this);
+        }
+        
+        // if the slot now links to a GUI add this as parent
+        if (newLink != null) {
+            newLink.addParent(this);
+        }
     }
     
     @Override
@@ -179,7 +307,7 @@ abstract class IndexedGUI implements GUI {
     @Override
     public void setItem(int index, Item item) {
         remove(index);
-        if (item != null) slotElements[index] = new ItemSlotElement(item);
+        if (item != null) setSlotElement(index, new ItemSlotElement(item));
     }
     
     @Override
@@ -211,7 +339,7 @@ abstract class IndexedGUI implements GUI {
     
     @Override
     public void remove(int index) {
-        slotElements[index] = null;
+        setSlotElement(index, null);
     }
     
     @Override

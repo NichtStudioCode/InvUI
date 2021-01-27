@@ -7,8 +7,8 @@ public abstract class SoundAnimation extends BaseAnimation {
     public SoundAnimation(int tickDelay, boolean sound) {
         super(tickDelay);
     
-        if (sound) addShowHandler((frame, index) -> getPlayer().playSound(getPlayer().getLocation(),
-            Sound.ENTITY_ITEM_PICKUP, 1, 1));
+        if (sound) addShowHandler((frame, index) -> getViewers().forEach(player -> 
+                player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 1, 1)));
     }
     
 }

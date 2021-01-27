@@ -1,5 +1,6 @@
 package de.studiocode.invgui.gui;
 
+import de.studiocode.invgui.animation.Animation;
 import de.studiocode.invgui.gui.SlotElement.ItemStackHolder;
 import de.studiocode.invgui.gui.impl.*;
 import de.studiocode.invgui.item.Item;
@@ -11,6 +12,10 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * A GUI is a container for width * height {@link SlotElement}s.<br>
@@ -59,7 +64,7 @@ public interface GUI {
      * @param y           The y coordinate
      * @param slotElement The {@link SlotElement} to be placed there.
      */
-    void setSlotElement(int x, int y, @NotNull SlotElement slotElement);
+    void setSlotElement(int x, int y, SlotElement slotElement);
     
     /**
      * Sets the {@link SlotElement} on these coordinates.
@@ -68,7 +73,7 @@ public interface GUI {
      * @param index       The slot index
      * @param slotElement The {@link SlotElement} to be placed there.
      */
-    void setSlotElement(int index, @NotNull SlotElement slotElement);
+    void setSlotElement(int index, SlotElement slotElement);
     
     /**
      * Gets the {@link SlotElement} on these coordinates.
@@ -203,6 +208,40 @@ public interface GUI {
      * @param event The {@link InventoryClickEvent} associated with this action
      */
     void handleItemShift(InventoryClickEvent event);
+    
+    /**
+     * Adds a {@link GUIParent} to the set of {@link GUIParent}s.
+     * 
+     * @param parent The {@link GUIParent} to add
+     */
+    void addParent(@NotNull GUIParent parent);
+    
+    /**
+     * Removes a {@link GUIParent} from the set of {@link GUIParent}s
+     * 
+     * @param parent The {@link GUIParent} to remove
+     */
+    void removeParent(@NotNull GUIParent parent);
+    
+    /**
+     * Gets all {@link GUIParent}s.
+     * 
+     * @return The {@link GUIParent}s of this {@link GUI}
+     */
+    Set<GUIParent> getParents();
+    
+    /**
+     * Plays an {@link Animation}.
+     *
+     * @param animation The {@link Animation} to play.
+     * @param filter    The filter that selects which {@link ItemStackHolder}s should be animated.
+     */
+    void playAnimation(@NotNull Animation animation, @Nullable Predicate<ItemStackHolder> filter);
+    
+    /**
+     * Cancels the running {@link Animation} if there is one.
+     */
+    void cancelAnimation();
     
     // ---- fill methods ----
     

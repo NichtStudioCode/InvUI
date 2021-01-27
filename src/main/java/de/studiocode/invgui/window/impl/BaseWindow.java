@@ -1,8 +1,8 @@
 package de.studiocode.invgui.window.impl;
 
 import de.studiocode.invgui.InvGui;
-import de.studiocode.invgui.animation.Animation;
 import de.studiocode.invgui.gui.GUI;
+import de.studiocode.invgui.gui.GUIParent;
 import de.studiocode.invgui.gui.SlotElement.ItemSlotElement;
 import de.studiocode.invgui.gui.SlotElement.ItemStackHolder;
 import de.studiocode.invgui.gui.SlotElement.VISlotElement;
@@ -18,13 +18,10 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.function.Predicate;
 
-public abstract class BaseWindow implements Window {
+public abstract class BaseWindow implements Window, GUIParent {
     
     private final GUI gui;
     private final int size;
@@ -33,7 +30,6 @@ public abstract class BaseWindow implements Window {
     private final boolean closeOnEvent;
     private final ItemStackHolder[] itemsDisplayed;
     
-    private Animation animation;
     private boolean closeable;
     private boolean closed;
     
@@ -46,6 +42,7 @@ public abstract class BaseWindow implements Window {
         this.closeOnEvent = closeOnEvent;
         this.itemsDisplayed = new ItemStackHolder[size];
         
+        gui.addParent(this);
         initItems();
         WindowManager.getInstance().addWindow(this);
     }
@@ -95,25 +92,18 @@ public abstract class BaseWindow implements Window {
     }
     
     @Override
-    public void handleTick() {
-        for (int i = 0; i < size; i++) {
-            ItemStackHolder holder = gui.getItemStackHolder(i);
-            if (itemsDisplayed[i] != holder) redrawItem(i, holder, true);
-        }
+    public void handleSlotElementUpdate(GUI child, int slotIndex) {
+        redrawItem(slotIndex, gui.getItemStackHolder(slotIndex), true);
     }
     
     @Override
     public void handleClick(InventoryClickEvent event) {
-        if (animation == null) { // if not in animation, let the gui handle the click
-            gui.handleClick(event.getSlot(), (Player) event.getWhoClicked(), event.getClick(), event);
-        } else event.setCancelled(true);
+        gui.handleClick(event.getSlot(), (Player) event.getWhoClicked(), event.getClick(), event);
     }
     
     @Override
     public void handleItemShift(InventoryClickEvent event) {
-        if (animation == null) { // if not in animation, let the gui handle the item shift
-            gui.handleItemShift(event);
-        } else event.setCancelled(true);
+        gui.handleItemShift(event);
     }
     
     @Override
@@ -125,7 +115,6 @@ public abstract class BaseWindow implements Window {
     @Override
     public void handleClose(Player player) {
         if (closeable) {
-            stopAnimation();
             if (closeOnEvent) close(false);
         } else {
             if (player.equals(getViewer()))
@@ -168,6 +157,8 @@ public abstract class BaseWindow implements Window {
             .map(holder -> ((ItemSlotElement) holder).getItem())
             .forEach(item -> item.removeWindow(this));
         
+        gui.removeParent(this);
+        
         if (closeForViewer) closeForViewer();
     }
     
@@ -185,42 +176,6 @@ public abstract class BaseWindow implements Window {
         Player viewer = getViewer();
         if (viewer == null) throw new IllegalStateException("The player is not online.");
         viewer.openInventory(inventory);
-    }
-    
-    @Override
-    public void playAnimation(@NotNull Animation animation, @Nullable Predicate<ItemStackHolder> filter) {
-        if (getViewer() != null) {
-            this.animation = animation;
-            
-            List<Integer> slots = new ArrayList<>();
-            for (int i = 0; i < size; i++) {
-                ItemStackHolder holder = itemsDisplayed[i];
-                if (holder != null && (filter == null || filter.test(holder))) {
-                    slots.add(i);
-                    inventory.setItem(i, null);
-                }
-            }
-            
-            animation.setBounds(getGui().getWidth(), getGui().getHeight());
-            animation.setPlayer(getViewer());
-            animation.addShowHandler((frame, index) -> redrawItem(index, itemsDisplayed[index], false));
-            animation.addFinishHandler(() -> this.animation = null);
-            animation.setSlots(slots);
-            
-            animation.start();
-        }
-    }
-    
-    private void stopAnimation() {
-        if (this.animation != null) {
-            // cancel the scheduler task and set animation to null
-            animation.cancel();
-            animation = null;
-            
-            // show all items again
-            for (int i = 0; i < gui.getSize(); i++)
-                redrawItem(i, itemsDisplayed[i], false);
-        }
     }
     
     @Override

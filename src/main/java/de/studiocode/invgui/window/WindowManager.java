@@ -27,8 +27,6 @@ public class WindowManager implements Listener {
     
     private WindowManager() {
         Bukkit.getPluginManager().registerEvents(this, InvGui.getInstance().getPlugin());
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(InvGui.getInstance().getPlugin(),
-            () -> windows.forEach(Window::handleTick), 0, 1);
         InvGui.getInstance().addDisableHandler(() -> windows.forEach(w -> w.close(true)));
     }
     

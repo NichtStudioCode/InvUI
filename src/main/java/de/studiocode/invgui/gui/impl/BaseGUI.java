@@ -28,7 +28,7 @@ public abstract class BaseGUI extends IndexedGUI {
     }
     
     @Override
-    public void setSlotElement(int x, int y, @NotNull SlotElement slotElement) {
+    public void setSlotElement(int x, int y, SlotElement slotElement) {
         setSlotElement(convToIndex(x, y), slotElement);
     }
     
@@ -81,7 +81,7 @@ public abstract class BaseGUI extends IndexedGUI {
     
     public void fill(@NotNull SortedSet<Integer> slots, Item item, boolean replaceExisting) {
         for (int slot : slots) {
-            if (!replaceExisting && slotElements[slot] != null) continue;
+            if (!replaceExisting && hasSlotElement(slot)) continue;
             setItem(slot, item);
         }
     }
@@ -89,14 +89,14 @@ public abstract class BaseGUI extends IndexedGUI {
     @Override
     public void fill(int start, int end, Item item, boolean replaceExisting) {
         for (int i = start; i < end; i++) {
-            if (!replaceExisting && slotElements[i] != null) continue;
+            if (!replaceExisting && hasSlotElement(i)) continue;
             setItem(i, item);
         }
     }
     
     @Override
     public void fill(Item item, boolean replaceExisting) {
-        fill(0, size, item, replaceExisting);
+        fill(0, getSize(), item, replaceExisting);
     }
     
     @Override

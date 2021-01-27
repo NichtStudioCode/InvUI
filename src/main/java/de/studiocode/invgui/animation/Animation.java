@@ -1,7 +1,7 @@
 package de.studiocode.invgui.animation;
 
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
+import de.studiocode.invgui.gui.GUI;
+import de.studiocode.invgui.window.Window;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -10,20 +10,19 @@ import java.util.function.BiConsumer;
 public interface Animation {
     
     /**
-     * Sets the {@link Player} that will see this animation.
-     * Useful for playing sounds in a showHandler. ({@link #addShowHandler(BiConsumer)})
+     * Sets the {@link GUI} this {@link Animation} will take place in.
      *
-     * @param player The {@link Player} that will se this {@link Animation}.
+     * @param gui The {@link GUI} this {@link Animation} will take place in
      */
-    void setPlayer(@NotNull Player player);
+    void setGUI(GUI gui);
     
     /**
-     * Sets the bounds of the {@link Inventory} this {@link Animation} will take place in.
+     * Sets the {@link Window}s that will see this animation.
+     * Useful for playing sounds in a showHandler. ({@link #addShowHandler(BiConsumer)})
      *
-     * @param width  The width of the {@link Inventory}
-     * @param height The height {@link Inventory}
+     * @param windows The {@link Window}s that will see this animation
      */
-    void setBounds(int width, int height);
+    void setWindows(@NotNull List<Window> windows);
     
     /**
      * Sets the slots that should be shown.
