@@ -5,7 +5,8 @@ import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import de.studiocode.invgui.util.MojangApiUtils;
 import de.studiocode.invgui.util.Pair;
-import de.studiocode.invgui.util.ReflectionUtils;
+import de.studiocode.invgui.util.reflection.ReflectionRegistry;
+import de.studiocode.invgui.util.reflection.ReflectionUtils;
 import de.studiocode.invgui.window.impl.BaseWindow;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -54,7 +55,7 @@ public class ItemBuilder implements Cloneable {
         if (itemMeta instanceof Damageable) ((Damageable) itemMeta).setDamage(damage);
         if (customModelData != -1) itemMeta.setCustomModelData(customModelData);
         if (displayName != null) itemMeta.setDisplayName(displayName);
-        if (gameProfile != null) ReflectionUtils.setValueOfDeclaredField(itemMeta, "profile", gameProfile);
+        if (gameProfile != null) ReflectionUtils.setFieldValue(ReflectionRegistry.CB_CRAFT_META_SKULL_PROFILE_FIELD, itemMeta, gameProfile);
         enchantments.forEach((enchantment, pair) -> itemMeta.addEnchant(enchantment, pair.getFirst(), pair.getSecond()));
         itemMeta.addItemFlags(itemFlags.toArray(new ItemFlag[0]));
         itemMeta.setLore(lore);
