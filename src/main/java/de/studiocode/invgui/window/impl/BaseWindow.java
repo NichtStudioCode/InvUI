@@ -165,13 +165,13 @@ public abstract class BaseWindow implements Window, GUIParent {
     @Override
     public void closeForViewer() {
         closeable = true;
-        new ArrayList<>(inventory.getViewers()).forEach(HumanEntity::closeInventory); // clone list to prevent ConcurrentModificationException
+        // clone list to prevent ConcurrentModificationException
+        new ArrayList<>(inventory.getViewers()).forEach(HumanEntity::closeInventory);
     }
     
     @Override
     public void show() {
         if (closed) throw new IllegalStateException("The Window has already been closed.");
-        if (inventory.getViewers().size() != 0) throw new IllegalStateException("A Window can only have one viewer.");
         
         Player viewer = getViewer();
         if (viewer == null) throw new IllegalStateException("The player is not online.");

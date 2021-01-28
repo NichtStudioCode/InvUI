@@ -70,7 +70,7 @@ public abstract class BaseAnimation implements Animation {
     @Override
     public void start() {
         task = Bukkit.getScheduler().runTaskTimer(InvGui.getInstance().getPlugin(), () -> {
-            // if there are now viewers for more than 3 ticks, the animation can be cancelled
+            // if there are no viewers for more than 3 ticks, the animation can be cancelled
             if (getViewers().isEmpty()) {
                 noViewerTicks++;
                 if (noViewerTicks > 3) {
