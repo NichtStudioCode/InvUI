@@ -5,6 +5,8 @@ import de.studiocode.invgui.item.impl.SimpleItem;
 import de.studiocode.invgui.item.itembuilder.ItemBuilder;
 import org.bukkit.Material;
 
+import java.util.HashMap;
+
 public enum CustomItem {
     
     BACKGROUND(10000000),
@@ -68,6 +70,33 @@ public enum CustomItem {
      */
     public Item getItem() {
         return item;
+    }
+    
+    public enum MaterialWithBackground {
+    
+        FULL(9999998),
+        NORMAL(9999999);
+        
+        private final int customModelData;
+        
+        private final HashMap<Material, Item> items = new HashMap<>();
+        
+        MaterialWithBackground(int customModelData) {
+            this.customModelData = customModelData;
+        }
+        
+        public ItemBuilder getItemBuilder(Material material) {
+            return new ItemBuilder(material).setCustomModelData(customModelData);
+        }
+        
+        public Item getItem(Material material) {
+            if (!items.containsKey(material)) {
+                items.put(material, new SimpleItem(getItemBuilder(material)));
+            }
+            
+            return items.get(material);
+        }
+        
     }
     
 }
