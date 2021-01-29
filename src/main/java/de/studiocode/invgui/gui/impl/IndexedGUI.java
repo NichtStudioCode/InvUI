@@ -201,7 +201,8 @@ abstract class IndexedGUI implements GUI, GUIParent {
         return parents;
     }
     
-    private List<Window> findAllWindows() {
+    @Override
+    public List<Window> findAllWindows() {
         List<Window> windows = new ArrayList<>();
         List<GUIParent> parents = new ArrayList<>(this.parents);
         
@@ -215,6 +216,16 @@ abstract class IndexedGUI implements GUI, GUIParent {
         }
         
         return windows;
+    }
+    
+    @Override
+    public List<Player> findAllViewers() {
+        List<Player> players = new ArrayList<>();
+        findAllWindows().stream()
+            .flatMap(window -> window.getInventory().getViewers().stream())
+            .forEach(humanEntity -> players.add((Player) humanEntity));
+        
+        return players;
     }
     
     @Override

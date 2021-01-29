@@ -14,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -229,6 +230,20 @@ public interface GUI {
      * @return The {@link GUIParent}s of this {@link GUI}
      */
     Set<GUIParent> getParents();
+    
+    /**
+     * Finds all {@link Window}s that show this {@link GUI}.
+     * 
+     * @return The list of {@link Window} that show this {@link GUI}
+     */
+    List<Window> findAllWindows();
+    
+    /**
+     * Finds all {@link Player}s that are currently seeing this {@link Window}.
+     * 
+     * @return The list of {@link Player}s that are currently seeing this {@link Window}
+     */
+    List<Player> findAllViewers();
     
     /**
      * Plays an {@link Animation}.
