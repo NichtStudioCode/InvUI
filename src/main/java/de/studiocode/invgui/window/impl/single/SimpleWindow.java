@@ -1,4 +1,4 @@
-package de.studiocode.invgui.window.impl;
+package de.studiocode.invgui.window.impl.single;
 
 import de.studiocode.invgui.gui.GUI;
 import org.bukkit.Bukkit;
@@ -7,14 +7,14 @@ import org.bukkit.inventory.Inventory;
 
 import java.util.UUID;
 
-public final class NormalInventoryWindow extends BaseWindow {
+public final class SimpleWindow extends SingleWindow {
     
-    public NormalInventoryWindow(UUID viewerUUID, GUI gui, String title, boolean closeable, boolean closeOnEvent) {
+    public SimpleWindow(UUID viewerUUID, String title, GUI gui, boolean closeable, boolean closeOnEvent) {
         super(viewerUUID, gui, createInventory(gui, title), closeable, closeOnEvent);
     }
     
-    public NormalInventoryWindow(Player player, GUI gui, String title, boolean closeable, boolean closeOnEvent) {
-        this(player.getUniqueId(), gui, title, closeable, closeOnEvent);
+    public SimpleWindow(Player player, String title, GUI gui, boolean closeable, boolean closeOnEvent) {
+        this(player.getUniqueId(), title, gui, closeable, closeOnEvent);
     }
     
     private static Inventory createInventory(GUI gui, String title) {

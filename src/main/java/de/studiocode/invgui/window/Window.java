@@ -1,14 +1,15 @@
 package de.studiocode.invgui.window;
 
 import de.studiocode.invgui.gui.GUI;
+import de.studiocode.invgui.gui.GUIParent;
 import de.studiocode.invgui.item.Item;
 import de.studiocode.invgui.item.itembuilder.ItemBuilder;
 import de.studiocode.invgui.virtualinventory.VirtualInventory;
-import de.studiocode.invgui.window.impl.BaseWindow;
-import de.studiocode.invgui.window.impl.DropperWindow;
-import de.studiocode.invgui.window.impl.HopperWindow;
-import de.studiocode.invgui.window.impl.NormalInventoryWindow;
+import de.studiocode.invgui.window.impl.combined.combinedgui.SimpleCombinedGUIWindow;
+import de.studiocode.invgui.window.impl.combined.splitgui.SimpleSplitGUIWindow;
+import de.studiocode.invgui.window.impl.single.SimpleWindow;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
@@ -20,26 +21,25 @@ import java.util.UUID;
  * A window is the way to show a player a GUI.
  * Windows can only have one viewer.
  *
- * @see BaseWindow
- * @see NormalInventoryWindow
- * @see HopperWindow
- * @see DropperWindow
+ * @see SimpleWindow
+ * @see SimpleCombinedGUIWindow
+ * @see SimpleSplitGUIWindow
  */
-public interface Window {
+public interface Window extends GUIParent {
     
     /**
-     * Gets the underlying {@link Inventory}.
+     * Gets the underlying {@link Inventory}s.
      *
-     * @return The underlying {@link Inventory}.
+     * @return The underlying {@link Inventory}s.
      */
-    Inventory getInventory();
+    Inventory[] getInventories();
     
     /**
-     * Gets the underlying {@link GUI}.
+     * Gets the underlying {@link GUI}s.
      *
-     * @return The underlying {@link GUI}.
+     * @return The underlying {@link GUI}s.
      */
-    GUI getGui();
+    GUI[] getGuis();
     
     /**
      * A method called by the {@link WindowManager} to notify the Window
@@ -71,6 +71,14 @@ public interface Window {
      * @param player The {@link Player} who closed this inventory.
      */
     void handleClose(Player player);
+    
+    /**
+     * A method called by the {@link WindowManager} to notify the Window
+     * that it's viewer has died.
+     *
+     * @param event The {@link PlayerDeathEvent} associated with this action.
+     */
+    void handleViewerDeath(PlayerDeathEvent event);
     
     /**
      * A method called by the {@link Item} itself to notify the Window
@@ -132,9 +140,17 @@ public interface Window {
     /**
      * Gets the viewer of this {@link Window}
      *
-     * @return The viewer of this window, can be null.
+     * @return The viewer of this window.
      */
     Player getViewer();
+    
+    /**
+     * Gets a the current {@link Player} that is viewing this
+     * {@link Window} or null of there isn't one.
+     *
+     * @return The current viewer of this {@link Window} (can be null)
+     */
+    Player getCurrentViewer();
     
     /**
      * Gets the viewer's UUID or null if there is no viewer.

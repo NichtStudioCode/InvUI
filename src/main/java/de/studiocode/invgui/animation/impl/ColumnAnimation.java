@@ -13,7 +13,7 @@ public class ColumnAnimation extends SoundAnimation {
         boolean showedSomething = false;
         
         while (!showedSomething || column == getWidth() - 1) {
-            for (int y = 0; y != getHeight(); y++) {
+            for (int y = 0; y < getHeight(); y++) {
                 int index = convToIndex(column, y);
                 if (getSlots().contains(index)) {
                     show(index);

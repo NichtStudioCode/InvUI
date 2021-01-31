@@ -23,8 +23,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
-abstract class IndexedGUI implements GUI, GUIParent {
+abstract class IndexedGUI implements GUI {
     
     private final int size;
     private final SlotElement[] slotElements;
@@ -219,13 +220,11 @@ abstract class IndexedGUI implements GUI, GUIParent {
     }
     
     @Override
-    public List<Player> findAllViewers() {
-        List<Player> players = new ArrayList<>();
-        findAllWindows().stream()
-            .flatMap(window -> window.getInventory().getViewers().stream())
-            .forEach(humanEntity -> players.add((Player) humanEntity));
-        
-        return players;
+    public Set<Player> findAllCurrentViewers() {
+        return findAllWindows().stream()
+            .map(Window::getCurrentViewer)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
     }
     
     @Override
@@ -243,7 +242,7 @@ abstract class IndexedGUI implements GUI, GUIParent {
                 setSlotElement(i, null);
             }
         }
-    
+        
         animation.setSlots(slots);
         animation.setGUI(this);
         animation.setWindows(findAllWindows());
@@ -262,7 +261,7 @@ abstract class IndexedGUI implements GUI, GUIParent {
             // cancel the scheduler task and set animation to null
             animation.cancel();
             animation = null;
-        
+            
             // show all SlotElements again
             for (int i = 0; i < size; i++) setSlotElement(i, animationElements[i]);
             animationElements = null;

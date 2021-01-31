@@ -6,7 +6,6 @@ import de.studiocode.invgui.gui.GUI;
 import de.studiocode.invgui.util.SlotUtils;
 import de.studiocode.invgui.window.Window;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
@@ -14,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
@@ -71,7 +71,7 @@ public abstract class BaseAnimation implements Animation {
     public void start() {
         task = Bukkit.getScheduler().runTaskTimer(InvGui.getInstance().getPlugin(), () -> {
             // if there are no viewers for more than 3 ticks, the animation can be cancelled
-            if (getViewers().isEmpty()) {
+            if (getCurrentViewers().isEmpty()) {
                 noViewerTicks++;
                 if (noViewerTicks > 3) {
                     gui.cancelAnimation();
@@ -120,14 +120,11 @@ public abstract class BaseAnimation implements Animation {
         return height;
     }
     
-    public List<Player> getViewers() {
+    public Set<Player> getCurrentViewers() {
         return windows.stream()
-            .map(window -> {
-                List<HumanEntity> viewers = window.getInventory().getViewers();
-                return (Player) (viewers.isEmpty() ? null : viewers.get(0));
-            })
+            .map(Window::getCurrentViewer)
             .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+            .collect(Collectors.toSet());
     }
     
 }

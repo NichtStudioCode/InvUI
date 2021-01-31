@@ -13,7 +13,7 @@ public class RowAnimation extends SoundAnimation {
         boolean showedSomething = false;
         
         while (!showedSomething || row == getHeight() - 1) {
-            for (int x = 0; x != getWidth(); x++) {
+            for (int x = 0; x < getWidth(); x++) {
                 int index = convToIndex(x, row);
                 if (getSlots().contains(index)) {
                     show(index);

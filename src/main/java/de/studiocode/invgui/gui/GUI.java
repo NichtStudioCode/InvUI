@@ -34,7 +34,7 @@ import java.util.function.Predicate;
  * @see SimplePagedItemsGUI
  * @see SimplePagedGUIs
  */
-public interface GUI {
+public interface GUI extends GUIParent {
     
     /**
      * Gets the size of the {@link GUI}.
@@ -212,38 +212,38 @@ public interface GUI {
     
     /**
      * Adds a {@link GUIParent} to the set of {@link GUIParent}s.
-     * 
+     *
      * @param parent The {@link GUIParent} to add
      */
     void addParent(@NotNull GUIParent parent);
     
     /**
      * Removes a {@link GUIParent} from the set of {@link GUIParent}s
-     * 
+     *
      * @param parent The {@link GUIParent} to remove
      */
     void removeParent(@NotNull GUIParent parent);
     
     /**
      * Gets all {@link GUIParent}s.
-     * 
+     *
      * @return The {@link GUIParent}s of this {@link GUI}
      */
     Set<GUIParent> getParents();
     
     /**
      * Finds all {@link Window}s that show this {@link GUI}.
-     * 
+     *
      * @return The list of {@link Window} that show this {@link GUI}
      */
     List<Window> findAllWindows();
     
     /**
      * Finds all {@link Player}s that are currently seeing this {@link Window}.
-     * 
+     *
      * @return The list of {@link Player}s that are currently seeing this {@link Window}
      */
-    List<Player> findAllViewers();
+    Set<Player> findAllCurrentViewers();
     
     /**
      * Plays an {@link Animation}.

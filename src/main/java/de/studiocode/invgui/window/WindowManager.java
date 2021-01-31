@@ -6,11 +6,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -27,7 +29,7 @@ public class WindowManager implements Listener {
     
     private WindowManager() {
         Bukkit.getPluginManager().registerEvents(this, InvGui.getInstance().getPlugin());
-        InvGui.getInstance().addDisableHandler(() -> windows.forEach(w -> w.close(true)));
+        InvGui.getInstance().addDisableHandler(() -> windows.forEach(window -> window.close(true)));
     }
     
     /**
@@ -67,7 +69,7 @@ public class WindowManager implements Listener {
      */
     public Optional<Window> findWindow(Inventory inventory) {
         return windows.stream()
-            .filter(w -> w.getInventory() == inventory)
+            .filter(w -> Arrays.stream(w.getInventories()).anyMatch(inv -> inv == inventory))
             .findFirst();
     }
     
@@ -85,15 +87,14 @@ public class WindowManager implements Listener {
     
     /**
      * Finds the {@link Window} the {@link Player} has currently open.
-     * 
+     *
      * @param player The {@link Player}
-     * @return The {@link Window} the {@link Player} has currently open or <code>null</code>
-     * if there isn't one.
+     * @return The {@link Window} the {@link Player} has currently open
      */
-    public Window findWindow(Player player) {
+    public Optional<Window> findOpenWindow(Player player) {
         return windows.stream()
-            .filter(w -> w.getInventory().getViewers().contains(player))
-            .findFirst().orElse(null);
+            .filter(w -> w.getCurrentViewer().equals(player))
+            .findFirst();
     }
     
     /**
@@ -137,6 +138,11 @@ public class WindowManager implements Listener {
     @EventHandler
     public void handlePlayerQuit(PlayerQuitEvent event) {
         findWindow(event.getPlayer().getOpenInventory().getTopInventory()).ifPresent(window -> window.handleClose(event.getPlayer()));
+    }
+    
+    @EventHandler
+    public void handlePlayerDeath(PlayerDeathEvent event) {
+        findWindows(event.getEntity()).forEach(window -> window.handleViewerDeath(event));
     }
     
 }

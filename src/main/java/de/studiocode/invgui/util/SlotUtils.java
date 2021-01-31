@@ -41,4 +41,14 @@ public class SlotUtils {
         return y * width + x;
     }
     
+    public static int translatePlayerInvToGui(int slot) {
+        if (slot > 8) return slot - 9;
+        else return slot + 27;
+    }
+    
+    public static int translateGuiToPlayerInv(int slot) {
+        if (slot > 26) return slot - 27;
+        else return slot + 9;
+    }
+    
 }

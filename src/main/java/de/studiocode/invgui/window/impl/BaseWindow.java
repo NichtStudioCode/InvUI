@@ -1,8 +1,6 @@
 package de.studiocode.invgui.window.impl;
 
 import de.studiocode.invgui.InvGui;
-import de.studiocode.invgui.gui.GUI;
-import de.studiocode.invgui.gui.GUIParent;
 import de.studiocode.invgui.gui.SlotElement.ItemSlotElement;
 import de.studiocode.invgui.gui.SlotElement.ItemStackHolder;
 import de.studiocode.invgui.gui.SlotElement.VISlotElement;
@@ -14,50 +12,33 @@ import de.studiocode.invgui.window.WindowManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
-public abstract class BaseWindow implements Window, GUIParent {
+public abstract class BaseWindow implements Window {
     
-    private final GUI gui;
-    private final int size;
     private final UUID viewerUUID;
-    private final Inventory inventory;
     private final boolean closeOnEvent;
     private final ItemStackHolder[] itemsDisplayed;
     
     private boolean closeable;
     private boolean closed;
     
-    public BaseWindow(UUID viewerUUID, GUI gui, Inventory inventory, boolean closeable, boolean closeOnEvent) {
-        this.gui = gui;
-        this.size = gui.getSize();
+    public BaseWindow(UUID viewerUUID, int size, boolean closeable, boolean closeOnEvent) {
         this.viewerUUID = viewerUUID;
-        this.inventory = inventory;
         this.closeable = closeable;
         this.closeOnEvent = closeOnEvent;
         this.itemsDisplayed = new ItemStackHolder[size];
         
-        gui.addParent(this);
-        initItems();
         WindowManager.getInstance().addWindow(this);
     }
     
-    private void initItems() {
-        for (int i = 0; i < size; i++) {
-            ItemStackHolder holder = gui.getItemStackHolder(i);
-            if (holder != null) redrawItem(i, holder, true);
-        }
-    }
-    
-    private void redrawItem(int index, ItemStackHolder holder, boolean setItem) {
+    protected void redrawItem(int index, ItemStackHolder holder, boolean setItem) {
         // put ItemStack in inventory
         ItemStack itemStack = holder == null ? null : holder.getItemStack(viewerUUID);
-        inventory.setItem(index, itemStack);
+        setInvItem(index, itemStack);
         
         if (setItem) {
             // tell the previous item (if there is one) that this is no longer its window
@@ -92,34 +73,21 @@ public abstract class BaseWindow implements Window, GUIParent {
     }
     
     @Override
-    public void handleSlotElementUpdate(GUI child, int slotIndex) {
-        redrawItem(slotIndex, gui.getItemStackHolder(slotIndex), true);
-    }
-    
-    @Override
-    public void handleClick(InventoryClickEvent event) {
-        gui.handleClick(event.getSlot(), (Player) event.getWhoClicked(), event.getClick(), event);
-    }
-    
-    @Override
-    public void handleItemShift(InventoryClickEvent event) {
-        gui.handleItemShift(event);
-    }
-    
-    @Override
     public void handleOpen(InventoryOpenEvent event) {
         if (!event.getPlayer().equals(getViewer()))
             event.setCancelled(true);
+        else handleOpened();
     }
     
     @Override
     public void handleClose(Player player) {
         if (closeable) {
             if (closeOnEvent) close(false);
+            handleClosed();
         } else {
             if (player.equals(getViewer()))
                 Bukkit.getScheduler().runTaskLater(InvGui.getInstance().getPlugin(),
-                    () -> player.openInventory(inventory), 0);
+                    () -> player.openInventory(getInventories()[0]), 0);
         }
     }
     
@@ -135,12 +103,12 @@ public abstract class BaseWindow implements Window, GUIParent {
             redrawItem(index, slotElement, false));
     }
     
-    private Map<Integer, ItemStackHolder> getItemSlotElements(Item item) {
+    protected Map<Integer, ItemStackHolder> getItemSlotElements(Item item) {
         return ArrayUtils.findAllOccurrences(itemsDisplayed, holder -> holder instanceof ItemSlotElement
             && ((ItemSlotElement) holder).getItem() == item);
     }
     
-    private Map<Integer, ItemStackHolder> getVISlotElements(VirtualInventory virtualInventory) {
+    protected Map<Integer, ItemStackHolder> getVISlotElements(VirtualInventory virtualInventory) {
         return ArrayUtils.findAllOccurrences(itemsDisplayed, holder -> holder instanceof VISlotElement
             && ((VISlotElement) holder).getVirtualInventory() == virtualInventory);
     }
@@ -157,7 +125,8 @@ public abstract class BaseWindow implements Window, GUIParent {
             .map(holder -> ((ItemSlotElement) holder).getItem())
             .forEach(item -> item.removeWindow(this));
         
-        gui.removeParent(this);
+        Arrays.stream(getGuis())
+            .forEach(gui -> gui.removeParent(this));
         
         if (closeForViewer) closeForViewer();
     }
@@ -166,7 +135,9 @@ public abstract class BaseWindow implements Window, GUIParent {
     public void closeForViewer() {
         closeable = true;
         // clone list to prevent ConcurrentModificationException
-        new ArrayList<>(inventory.getViewers()).forEach(HumanEntity::closeInventory);
+        new ArrayList<>(getInventories()[0].getViewers()).forEach(HumanEntity::closeInventory);
+        
+        handleClosed();
     }
     
     @Override
@@ -175,7 +146,13 @@ public abstract class BaseWindow implements Window, GUIParent {
         
         Player viewer = getViewer();
         if (viewer == null) throw new IllegalStateException("The player is not online.");
-        viewer.openInventory(inventory);
+        viewer.openInventory(getInventories()[0]);
+    }
+    
+    @Override
+    public Player getCurrentViewer() {
+        List<HumanEntity> viewers = getInventories()[0].getViewers();
+        return viewers.isEmpty() ? null : (Player) viewers.get(0);
     }
     
     @Override
@@ -186,16 +163,6 @@ public abstract class BaseWindow implements Window, GUIParent {
     @Override
     public UUID getViewerUUID() {
         return viewerUUID;
-    }
-    
-    @Override
-    public Inventory getInventory() {
-        return inventory;
-    }
-    
-    @Override
-    public GUI getGui() {
-        return gui;
     }
     
     @Override
@@ -212,5 +179,11 @@ public abstract class BaseWindow implements Window, GUIParent {
     public boolean isClosed() {
         return closed;
     }
+    
+    protected abstract void setInvItem(int slot, ItemStack itemStack);
+    
+    protected abstract void handleOpened();
+    
+    protected abstract void handleClosed();
     
 }
