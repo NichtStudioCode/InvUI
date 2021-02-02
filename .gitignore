@@ -56,5 +56,5 @@ target/
 
 # Testing
 src/test/
-src/main/java/de/studiocode/invgui/InvGuiPlugin.java
+src/main/java/de/studiocode/invui/InvUIPlugin.java
 src/main/resources/plugin.yml
