@@ -43,6 +43,7 @@ public class CycleItem extends BaseItem {
     
     private void handleStateChange() {
         if (stateChangeHandler != null) stateChangeHandler.accept(state);
+        notifyWindows();
     }
     
     public int getState() {
