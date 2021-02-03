@@ -62,7 +62,8 @@ public enum CustomItem {
     GREEN_CHECKMARK(10000044),
     
     ANVIL_OVERLAY_PLUS(10000045),
-    ANVIL_OVERLAY_ARROW(10000046);
+    ANVIL_OVERLAY_ARROW(10000046),
+    ANVIL_OVERLAY_ARROW_LEFT(10000047);
     
     private final ItemBuilder itemBuilder;
     private final Item item;
