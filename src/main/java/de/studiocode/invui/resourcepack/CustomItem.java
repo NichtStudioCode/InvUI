@@ -59,7 +59,10 @@ public enum CustomItem {
     RED_X(10000041),
     CHECKMARK(10000042),
     LIGHT_CHECKMARK(10000043),
-    GREEN_CHECKMARK(10000044);
+    GREEN_CHECKMARK(10000044),
+    
+    ANVIL_OVERLAY_PLUS(10000045),
+    ANVIL_OVERLAY_ARROW(10000046);
     
     private final ItemBuilder itemBuilder;
     private final Item item;
