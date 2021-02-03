@@ -15,19 +15,19 @@ public abstract class SingleWindow extends BaseWindow {
     
     private final GUI gui;
     private final int size;
-    private final Inventory inventory;
+    protected Inventory inventory;
     
-    public SingleWindow(UUID viewerUUID, GUI gui, Inventory inventory, boolean closeable, boolean closeOnEvent) {
+    public SingleWindow(UUID viewerUUID, GUI gui, Inventory inventory, boolean initItems, boolean closeable, boolean closeOnEvent) {
         super(viewerUUID, gui.getSize(), closeable, closeOnEvent);
         this.gui = gui;
         this.size = gui.getSize();
         this.inventory = inventory;
         
         gui.addParent(this);
-        initItems();
+        if (initItems) initItems();
     }
     
-    private void initItems() {
+    protected void initItems() {
         for (int i = 0; i < size; i++) {
             ItemStackHolder holder = gui.getItemStackHolder(i);
             if (holder != null) redrawItem(i, holder, true);

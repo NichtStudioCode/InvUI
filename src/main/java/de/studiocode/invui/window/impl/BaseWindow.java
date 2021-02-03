@@ -1,5 +1,6 @@
 package de.studiocode.invui.window.impl;
 
+import de.studiocode.inventoryacess.api.version.InventoryAccess;
 import de.studiocode.invui.InvUI;
 import de.studiocode.invui.gui.SlotElement.ItemSlotElement;
 import de.studiocode.invui.gui.SlotElement.ItemStackHolder;
@@ -86,8 +87,7 @@ public abstract class BaseWindow implements Window {
             handleClosed();
         } else {
             if (player.equals(getViewer()))
-                Bukkit.getScheduler().runTaskLater(InvUI.getInstance().getPlugin(),
-                    () -> player.openInventory(getInventories()[0]), 0);
+                Bukkit.getScheduler().runTaskLater(InvUI.getInstance().getPlugin(), this::show, 0);
         }
     }
     
@@ -146,7 +146,7 @@ public abstract class BaseWindow implements Window {
         
         Player viewer = getViewer();
         if (viewer == null) throw new IllegalStateException("The player is not online.");
-        viewer.openInventory(getInventories()[0]);
+        InventoryAccess.getInventoryUtils().openCustomInventory(viewer, getInventories()[0]);
     }
     
     @Override

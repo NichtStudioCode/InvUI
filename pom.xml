@@ -21,7 +21,6 @@
     </build>
 
     <repositories>
-
         <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
@@ -30,9 +29,19 @@
             <id>minecraft-repo</id>
             <url>https://libraries.minecraft.net/</url>
         </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations-java5</artifactId>
+            <version>RELEASE</version>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
@@ -52,10 +61,9 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations-java5</artifactId>
-            <version>RELEASE</version>
-            <scope>compile</scope>
+            <groupId>com.github.NichtStudioCode</groupId>
+            <artifactId>InventoryAccess</artifactId>
+            <version>v0.1</version>
         </dependency>
     </dependencies>
 

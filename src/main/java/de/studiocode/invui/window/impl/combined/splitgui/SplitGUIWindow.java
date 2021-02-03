@@ -13,14 +13,14 @@ public abstract class SplitGUIWindow extends BaseCombinedWindow {
     private final GUI upperGui;
     private final GUI lowerGui;
     
-    public SplitGUIWindow(Player player, GUI upperGui, GUI lowerGui, Inventory upperInventory, boolean closeable, boolean closeOnEvent) {
+    public SplitGUIWindow(Player player, GUI upperGui, GUI lowerGui, Inventory upperInventory, boolean initItems, boolean closeable, boolean closeOnEvent) {
         super(player, upperGui.getSize() + lowerGui.getSize(), upperInventory, closeable, closeOnEvent);
         this.upperGui = upperGui;
         this.lowerGui = lowerGui;
         
         upperGui.addParent(this);
         lowerGui.addParent(this);
-        initUpperItems();
+        if (initItems) initUpperItems();
     }
     
     @Override

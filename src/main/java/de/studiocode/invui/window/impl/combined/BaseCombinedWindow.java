@@ -17,8 +17,8 @@ import java.util.Objects;
 
 public abstract class BaseCombinedWindow extends BaseWindow {
     
-    private final Inventory upperInventory;
     private final Inventory playerInventory;
+    protected Inventory upperInventory;
     
     private final ItemStack[] playerItems = new ItemStack[36];
     private boolean isCurrentlyOpened;
@@ -64,6 +64,7 @@ public abstract class BaseCombinedWindow extends BaseWindow {
             throw new IllegalArgumentException("VirtualInventories are not allowed in CombinedWindows");
         
         super.redrawItem(index, holder, setItem);
+        if (getViewer() != null) getViewer().updateInventory(); // fixes a bug where some items wouldn't be displayed correctly
     }
     
     @Override
@@ -71,9 +72,17 @@ public abstract class BaseCombinedWindow extends BaseWindow {
         if (slot >= upperInventory.getSize()) {
             if (isCurrentlyOpened) {
                 int invSlot = SlotUtils.translateGuiToPlayerInv(slot - upperInventory.getSize());
-                playerInventory.setItem(invSlot, itemStack);
+                setPlayerInvItem(invSlot, itemStack);
             }
-        } else upperInventory.setItem(slot, itemStack);
+        } else setUpperInvItem(slot, itemStack);
+    }
+    
+    protected void setUpperInvItem(int slot, ItemStack itemStack) {
+        upperInventory.setItem(slot, itemStack);
+    }
+    
+    protected void setPlayerInvItem(int slot, ItemStack itemStack) {
+        playerInventory.setItem(slot, itemStack);
     }
     
     @Override
