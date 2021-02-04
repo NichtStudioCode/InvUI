@@ -18,7 +18,7 @@ public class AutoCycleItem extends BaseItem {
     private final ItemBuilder[] itemBuilders;
     private final BukkitTask task;
     
-    private int state = -1;
+    private int state;
     
     public AutoCycleItem(int period, ItemBuilder... itemBuilders) {
         this.itemBuilders = itemBuilders;
