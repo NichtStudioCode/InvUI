@@ -38,8 +38,8 @@
     <dependencies>
         <dependency>
             <groupId>org.jetbrains</groupId>
-            <artifactId>annotations-java5</artifactId>
-            <version>RELEASE</version>
+            <artifactId>annotations</artifactId>
+            <version>16.0.1</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -63,7 +63,7 @@
         <dependency>
             <groupId>com.github.NichtStudioCode</groupId>
             <artifactId>InventoryAccess</artifactId>
-            <version>v0.1</version>
+            <version>v0.2</version>
         </dependency>
     </dependencies>
 

@@ -1,7 +1,7 @@
 package de.studiocode.invui.window.impl.single;
 
-import de.studiocode.inventoryacess.api.abstraction.inventory.AnvilInventory;
-import de.studiocode.inventoryacess.api.version.InventoryAccess;
+import de.studiocode.inventoryaccess.api.abstraction.inventory.AnvilInventory;
+import de.studiocode.inventoryaccess.api.version.InventoryAccess;
 import de.studiocode.invui.gui.GUI;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
