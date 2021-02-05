@@ -89,6 +89,10 @@ public abstract class PagedGUI extends BaseGUI {
         update();
     }
     
+    public int getCurrentPageIndex() {
+        return currentPage;
+    }
+    
     public Item getForwardItem() {
         return forwardItem;
     }

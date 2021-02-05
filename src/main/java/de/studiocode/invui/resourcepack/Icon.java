@@ -7,7 +7,12 @@ import org.bukkit.Material;
 
 import java.util.HashMap;
 
-public enum CustomItem {
+/**
+ * Custom-textured Items that look like they are a part of the inventory.
+ * Needs the resource pack to work, activate ResourcePack forcing
+ * via {@link ForceResourcePack#setActivated(boolean)}.
+ */
+public enum Icon {
     
     BACKGROUND(10000000),
     
@@ -68,7 +73,7 @@ public enum CustomItem {
     private final ItemBuilder itemBuilder;
     private final Item item;
     
-    CustomItem(int customModelData) {
+    Icon(int customModelData) {
         this.itemBuilder = new ItemBuilder(Material.POPPY)
             .setCustomModelData(customModelData)
             .setDisplayName("§0");
@@ -77,7 +82,7 @@ public enum CustomItem {
     }
     
     /**
-     * Gets a copy of the {@link ItemBuilder} for this {@link CustomItem}.
+     * Gets a copy of the {@link ItemBuilder} for this {@link Icon}.
      *
      * @return A copy of the {@link ItemBuilder}
      */
@@ -94,8 +99,12 @@ public enum CustomItem {
         return item;
     }
     
-    public enum MaterialWithBackground {
-    
+    /**
+     * An icon version of a {@link Material}.
+     * An item displayed in front of {@link Icon#BACKGROUND}
+     */
+    public enum MaterialIcon {
+        
         FULL(9999998),
         NORMAL(9999999);
         
@@ -103,7 +112,7 @@ public enum CustomItem {
         
         private final HashMap<Material, Item> items = new HashMap<>();
         
-        MaterialWithBackground(int customModelData) {
+        MaterialIcon(int customModelData) {
             this.customModelData = customModelData;
         }
         
