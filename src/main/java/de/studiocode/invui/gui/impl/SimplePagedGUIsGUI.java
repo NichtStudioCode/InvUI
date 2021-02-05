@@ -13,7 +13,7 @@ import java.util.function.Function;
 
 /**
  * A {@link PagedGUI} where every page is it's own {@link GUI}.
- * 
+ *
  * @see PagedGUIBuilder
  * @see SimplePagedItemsGUI
  */

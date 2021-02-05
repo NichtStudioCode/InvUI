@@ -18,9 +18,8 @@ import java.util.Objects;
 public abstract class BaseCombinedWindow extends BaseWindow {
     
     private final Inventory playerInventory;
-    protected Inventory upperInventory;
-    
     private final ItemStack[] playerItems = new ItemStack[36];
+    protected Inventory upperInventory;
     private boolean isCurrentlyOpened;
     
     public BaseCombinedWindow(Player player, int size, Inventory upperInventory, boolean closeable, boolean closeOnEvent) {
@@ -64,7 +63,8 @@ public abstract class BaseCombinedWindow extends BaseWindow {
             throw new IllegalArgumentException("VirtualInventories are not allowed in CombinedWindows");
         
         super.redrawItem(index, holder, setItem);
-        if (getViewer() != null) getViewer().updateInventory(); // fixes a bug where some items wouldn't be displayed correctly
+        if (getViewer() != null)
+            getViewer().updateInventory(); // fixes a bug where some items wouldn't be displayed correctly
     }
     
     @Override

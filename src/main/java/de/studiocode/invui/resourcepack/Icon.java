@@ -92,7 +92,7 @@ public enum Icon {
     
     /**
      * Gets a non-clickable {@link Item} with this texture.
-     * 
+     *
      * @return A non-clickable {@link Item} with this texture.
      */
     public Item getItem() {

@@ -21,8 +21,8 @@ import java.io.IOException;
 import java.util.*;
 
 public class ItemBuilder implements Cloneable {
-    protected Material material;
     
+    protected Material material;
     protected int amount = 1;
     protected int damage;
     protected int customModelData = -1;
@@ -55,7 +55,8 @@ public class ItemBuilder implements Cloneable {
         if (itemMeta instanceof Damageable) ((Damageable) itemMeta).setDamage(damage);
         if (customModelData != -1) itemMeta.setCustomModelData(customModelData);
         if (displayName != null) itemMeta.setDisplayName(displayName);
-        if (gameProfile != null) ReflectionUtils.setFieldValue(ReflectionRegistry.CB_CRAFT_META_SKULL_PROFILE_FIELD, itemMeta, gameProfile);
+        if (gameProfile != null)
+            ReflectionUtils.setFieldValue(ReflectionRegistry.CB_CRAFT_META_SKULL_PROFILE_FIELD, itemMeta, gameProfile);
         enchantments.forEach((enchantment, pair) -> itemMeta.addEnchant(enchantment, pair.getFirst(), pair.getSecond()));
         itemMeta.addItemFlags(itemFlags.toArray(new ItemFlag[0]));
         itemMeta.setLore(lore);

@@ -28,7 +28,8 @@ public class TabGUIBuilder extends GUIBuilder {
         int[] tabItemSlots = this.tabItemSlots != null ? this.tabItemSlots : findIndicesOf(1);
         
         if (listSlots.length == 0) throw new IllegalStateException("No list slots have been set.");
-        if (tabItemSlots.length != tabs.size()) throw new IllegalStateException("TabItemSlots length has to be the same as tabs size");
+        if (tabItemSlots.length != tabs.size())
+            throw new IllegalStateException("TabItemSlots length has to be the same as tabs size");
         
         SimpleTabGUI tabGUI = new SimpleTabGUI(width, height, tabs, listSlots, tabItemSlots);
         setSlotElements(tabGUI);

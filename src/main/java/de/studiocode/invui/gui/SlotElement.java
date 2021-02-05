@@ -35,7 +35,7 @@ public interface SlotElement {
         public ItemStack getItemStack(UUID viewerUUID) {
             return item.getItemBuilder().buildFor(viewerUUID);
         }
-    
+        
         @Override
         public ItemStackHolder getItemStackHolder() {
             return this;
@@ -72,7 +72,7 @@ public interface SlotElement {
         public ItemStack getItemStack(UUID viewerUUID) {
             return getItemStack();
         }
-    
+        
         @Override
         public ItemStackHolder getItemStackHolder() {
             return this;

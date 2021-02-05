@@ -28,7 +28,7 @@ public class AnvilWindow extends SingleWindow {
     @Override
     public void show() {
         if (isClosed()) throw new IllegalStateException("The Window has already been closed.");
-    
+        
         Player viewer = getViewer();
         if (viewer == null) throw new IllegalStateException("The player is not online.");
         anvilInventory.open();

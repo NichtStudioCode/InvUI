@@ -16,10 +16,10 @@ public class AnvilSplitGUIWindow extends SplitGUIWindow {
                                boolean closeable, Consumer<String> renameHandler) {
         
         super(player, upperGui, lowerGui, null, false, closeable, true);
-    
+        
         anvilInventory = InventoryAccess.createAnvilInventory(player, title, renameHandler);
         upperInventory = anvilInventory.getBukkitInventory();
-    
+        
         initUpperItems();
     }
     

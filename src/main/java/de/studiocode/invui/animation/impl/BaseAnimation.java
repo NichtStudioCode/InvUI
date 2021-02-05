@@ -52,11 +52,6 @@ public abstract class BaseAnimation implements Animation {
     }
     
     @Override
-    public void setSlots(List<Integer> slots) {
-        this.slots = new CopyOnWriteArrayList<>(slots);
-    }
-    
-    @Override
     public void addShowHandler(@NotNull BiConsumer<Integer, Integer> show) {
         if (this.show != null) this.show = this.show.andThen(show);
         else this.show = show;
@@ -78,7 +73,7 @@ public abstract class BaseAnimation implements Animation {
                     return;
                 }
             } else noViewerTicks = 0;
-    
+            
             // handle the next frame
             handleFrame(frame);
             frame++;
@@ -99,6 +94,11 @@ public abstract class BaseAnimation implements Animation {
     
     public CopyOnWriteArrayList<Integer> getSlots() {
         return slots;
+    }
+    
+    @Override
+    public void setSlots(List<Integer> slots) {
+        this.slots = new CopyOnWriteArrayList<>(slots);
     }
     
     protected void show(int... slots) {

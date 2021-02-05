@@ -42,15 +42,15 @@ public abstract class PagedGUI extends BaseGUI {
         }
     }
     
-    public boolean hasNextPage() {
-        return currentPage < getPageAmount() - 1 || infinitePages;
-    }
-    
     public void goBack() {
         if (hasPageBefore()) {
             currentPage--;
             update();
         }
+    }
+    
+    public boolean hasNextPage() {
+        return currentPage < getPageAmount() - 1 || infinitePages;
     }
     
     public boolean hasPageBefore() {
@@ -63,16 +63,16 @@ public abstract class PagedGUI extends BaseGUI {
         updatePageContent();
     }
     
-    private void updateControlItems() {
-        backItem.notifyWindows();
-        forwardItem.notifyWindows();
-    }
-    
     private void correctPage() {
         if (currentPage == 0) return;
         int pageAmount = getPageAmount();
         if (currentPage < 0) currentPage = 0;
         else if (currentPage >= pageAmount) currentPage = pageAmount - 1;
+    }
+    
+    private void updateControlItems() {
+        backItem.notifyWindows();
+        forwardItem.notifyWindows();
     }
     
     private void updatePageContent() {
@@ -82,11 +82,6 @@ public abstract class PagedGUI extends BaseGUI {
             if (slotElements.size() > i) setSlotElement(itemListSlots[i], slotElements.get(i));
             else remove(itemListSlots[i]);
         }
-    }
-    
-    private void setCurrentPage(int page) {
-        currentPage = page;
-        update();
     }
     
     public int getCurrentPageIndex() {

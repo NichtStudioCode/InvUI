@@ -14,7 +14,7 @@ import java.util.function.Function;
 
 /**
  * A {@link GUI} that has multiple tabs with which users can switch between {@link GUI}s.
- * 
+ *
  * @see TabGUIBuilder
  */
 public class SimpleTabGUI extends TabGUI {
@@ -26,7 +26,7 @@ public class SimpleTabGUI extends TabGUI {
         
         super(width, height, tabs.size(), listSlots);
         this.tabs = new ArrayList<>(tabs.keySet());
-    
+        
         List<Function<TabGUI, ItemBuilder>> builderFunctions = new ArrayList<>(tabs.values());
         for (int i = 0; i < tabs.size(); i++) {
             TabItem tabItem = new TabItem(this, i, builderFunctions.get(i));

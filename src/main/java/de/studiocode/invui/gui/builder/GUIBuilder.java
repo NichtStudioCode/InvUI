@@ -53,7 +53,8 @@ public class GUIBuilder {
      */
     public GUIBuilder setStructure(@NotNull String structure) {
         String cleanedStructure = structure.replace(" ", "").replace("\n", "");
-        if (cleanedStructure.length() != size) throw new IllegalArgumentException("Structure length does not match size");
+        if (cleanedStructure.length() != size)
+            throw new IllegalArgumentException("Structure length does not match size");
         this.structure = cleanedStructure;
         
         return this;

@@ -36,7 +36,7 @@ public class CycleItem extends BaseItem {
             if (++state == states.length) state = 0;
             handleStateChange();
         } else if (clickType.isRightClick()) {
-            if (--state < 0) state = states.length -1;
+            if (--state < 0) state = states.length - 1;
             handleStateChange();
         }
     }

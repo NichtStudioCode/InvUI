@@ -6,8 +6,8 @@ import static de.studiocode.invui.util.reflection.ReflectionUtils.*;
 
 public class ReflectionRegistry {
     
-    public static final String NET_MINECRAFT_SERVER_PACKAGE_PATH = ReflectionUtils.getNMS();
-    public static final String CRAFT_BUKKIT_PACKAGE_PATH = ReflectionUtils.getCB();
+    public static final String NET_MINECRAFT_SERVER_PACKAGE_PATH = getNMS();
+    public static final String CRAFT_BUKKIT_PACKAGE_PATH = getCB();
     public static final String BUKKIT_PACKAGE_PATH = "org.bukkit.";
     
     // Classes
