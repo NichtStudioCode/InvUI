@@ -1,12 +1,21 @@
 package de.studiocode.invui.gui.impl;
 
+import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement;
+import de.studiocode.invui.gui.builder.PagedGUIBuilder;
 import de.studiocode.invui.item.Item;
 import de.studiocode.invui.item.impl.pagedgui.BackItem;
 import de.studiocode.invui.item.impl.pagedgui.ForwardItem;
 
 import java.util.List;
 
+/**
+ * A {@link GUI} with pages.
+ *
+ * @see PagedGUIBuilder
+ * @see SimplePagedItemsGUI
+ * @see SimplePagedGUIsGUI
+ */
 public abstract class PagedGUI extends BaseGUI {
     
     private final boolean infinitePages;
@@ -49,6 +58,7 @@ public abstract class PagedGUI extends BaseGUI {
     }
     
     protected void update() {
+        correctPage();
         updateControlItems();
         updatePageContent();
     }
@@ -58,19 +68,20 @@ public abstract class PagedGUI extends BaseGUI {
         forwardItem.notifyWindows();
     }
     
-    private void updatePageContent() {
-        if (getCurrentPageIndex() < getPageAmount()) {
-            List<SlotElement> slotElements = getPageItems(currentPage);
-            
-            for (int i = 0; i < itemListSlots.length; i++) {
-                if (slotElements.size() > i) setSlotElement(itemListSlots[i], slotElements.get(i));
-                else remove(itemListSlots[i]);
-            }
-        } else setCurrentPage(getPageAmount() - 1);
+    private void correctPage() {
+        if (currentPage == 0) return;
+        int pageAmount = getPageAmount();
+        if (currentPage < 0) currentPage = 0;
+        else if (currentPage >= pageAmount) currentPage = pageAmount - 1;
     }
     
-    public int getCurrentPageIndex() {
-        return currentPage;
+    private void updatePageContent() {
+        List<SlotElement> slotElements = getPageElements(currentPage);
+        
+        for (int i = 0; i < itemListSlots.length; i++) {
+            if (slotElements.size() > i) setSlotElement(itemListSlots[i], slotElements.get(i));
+            else remove(itemListSlots[i]);
+        }
     }
     
     private void setCurrentPage(int page) {
@@ -96,6 +107,6 @@ public abstract class PagedGUI extends BaseGUI {
     
     public abstract int getPageAmount();
     
-    protected abstract List<SlotElement> getPageItems(int page);
+    protected abstract List<SlotElement> getPageElements(int page);
     
 }

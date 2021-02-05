@@ -3,7 +3,7 @@ package de.studiocode.invui.gui.builder;
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.gui.impl.PagedGUI;
-import de.studiocode.invui.gui.impl.SimplePagedGUIs;
+import de.studiocode.invui.gui.impl.SimplePagedGUIsGUI;
 import de.studiocode.invui.gui.impl.SimplePagedItemsGUI;
 import de.studiocode.invui.item.Item;
 import de.studiocode.invui.item.itembuilder.ItemBuilder;
@@ -45,7 +45,7 @@ public class PagedGUIBuilder extends GUIBuilder {
         
         PagedGUI gui;
         if (contentType == ContentType.GUI) {
-            gui = new SimplePagedGUIs(width, height, backSlot, backFunction,
+            gui = new SimplePagedGUIsGUI(width, height, backSlot, backFunction,
                 forwardSlot, forwardFunction, (List<GUI>) content, listSlots);
         } else {
             gui = new SimplePagedItemsGUI(width, height, backSlot, backFunction,
