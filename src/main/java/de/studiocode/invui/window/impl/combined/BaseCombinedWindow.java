@@ -3,6 +3,7 @@ package de.studiocode.invui.window.impl.combined;
 import de.studiocode.invui.gui.SlotElement.ItemStackHolder;
 import de.studiocode.invui.gui.SlotElement.VISlotElement;
 import de.studiocode.invui.util.SlotUtils;
+import de.studiocode.invui.window.Window;
 import de.studiocode.invui.window.impl.BaseWindow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -14,7 +15,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-
+/**
+ * A {@link Window} that uses both top and player {@link Inventory}.
+ */
 public abstract class BaseCombinedWindow extends BaseWindow {
     
     private final Inventory playerInventory;

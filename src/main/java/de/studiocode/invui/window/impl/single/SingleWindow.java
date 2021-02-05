@@ -2,6 +2,7 @@ package de.studiocode.invui.window.impl.single;
 
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement.ItemStackHolder;
+import de.studiocode.invui.window.Window;
 import de.studiocode.invui.window.impl.BaseWindow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -11,6 +12,9 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.UUID;
 
+/**
+ * A {@link Window} that just uses the top {@link Inventory}.
+ */
 public abstract class SingleWindow extends BaseWindow {
     
     private final GUI gui;

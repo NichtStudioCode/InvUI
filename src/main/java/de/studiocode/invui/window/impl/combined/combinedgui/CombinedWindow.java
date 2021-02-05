@@ -3,16 +3,20 @@ package de.studiocode.invui.window.impl.combined.combinedgui;
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement.ItemStackHolder;
 import de.studiocode.invui.util.SlotUtils;
+import de.studiocode.invui.window.Window;
 import de.studiocode.invui.window.impl.combined.BaseCombinedWindow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 
-public abstract class CombinedGUIWindow extends BaseCombinedWindow {
+/**
+ * A {@link Window} where top and player {@link Inventory} are affected by the same {@link GUI}.
+ */
+public abstract class CombinedWindow extends BaseCombinedWindow {
     
     private final GUI gui;
     
-    public CombinedGUIWindow(Player player, GUI gui, Inventory upperInventory, boolean closeable, boolean closeOnEvent) {
+    public CombinedWindow(Player player, GUI gui, Inventory upperInventory, boolean closeable, boolean closeOnEvent) {
         super(player, gui.getSize(), upperInventory, closeable, closeOnEvent);
         this.gui = gui;
         

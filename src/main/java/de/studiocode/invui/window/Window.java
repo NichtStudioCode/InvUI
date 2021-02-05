@@ -5,8 +5,8 @@ import de.studiocode.invui.gui.GUIParent;
 import de.studiocode.invui.item.Item;
 import de.studiocode.invui.item.itembuilder.ItemBuilder;
 import de.studiocode.invui.virtualinventory.VirtualInventory;
-import de.studiocode.invui.window.impl.combined.combinedgui.SimpleCombinedGUIWindow;
-import de.studiocode.invui.window.impl.combined.splitgui.SimpleSplitGUIWindow;
+import de.studiocode.invui.window.impl.combined.combinedgui.SimpleCombinedWindow;
+import de.studiocode.invui.window.impl.combined.splitgui.SimpleSplitWindow;
 import de.studiocode.invui.window.impl.single.SimpleWindow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -22,8 +22,8 @@ import java.util.UUID;
  * Windows can only have one viewer.
  *
  * @see SimpleWindow
- * @see SimpleCombinedGUIWindow
- * @see SimpleSplitGUIWindow
+ * @see SimpleCombinedWindow
+ * @see SimpleSplitWindow
  */
 public interface Window extends GUIParent {
     
@@ -53,6 +53,8 @@ public interface Window extends GUIParent {
      * A method called by the {@link WindowManager} to notify the Window
      * that {@link ItemStack}s have been shift-clicked from the lower
      * {@link Inventory} to this {@link Window}
+     * 
+     * @param event The {@link InventoryClickEvent} associated with this action.
      */
     void handleItemShift(InventoryClickEvent event);
     

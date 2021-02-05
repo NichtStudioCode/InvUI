@@ -1,11 +1,14 @@
 package de.studiocode.invui.window;
 
 import de.studiocode.invui.InvUI;
+import de.studiocode.invui.window.impl.combined.BaseCombinedWindow;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -143,6 +146,16 @@ public class WindowManager implements Listener {
     @EventHandler
     public void handlePlayerDeath(PlayerDeathEvent event) {
         findWindows(event.getEntity()).forEach(window -> window.handleViewerDeath(event));
+    }
+    
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void handleItemPickup(EntityPickupItemEvent event) {
+        Entity entity = event.getEntity();
+        if (entity instanceof Player) {
+            Optional<Window> window = findOpenWindow(((Player) entity));
+            if (window.isPresent() && window.get() instanceof BaseCombinedWindow)
+                event.setCancelled(true);
+        }
     }
     
 }

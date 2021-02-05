@@ -5,9 +5,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
-public class SimpleCombinedGUIWindow extends CombinedGUIWindow {
+public class SimpleCombinedWindow extends CombinedWindow {
     
-    public SimpleCombinedGUIWindow(Player player, String title, GUI gui, boolean closeable, boolean closeOnEvent) {
+    public SimpleCombinedWindow(Player player, String title, GUI gui, boolean closeable, boolean closeOnEvent) {
         super(player, gui, createInventory(gui, title), closeable, closeOnEvent);
     }
     

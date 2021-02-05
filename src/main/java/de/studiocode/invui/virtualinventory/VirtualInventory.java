@@ -27,7 +27,7 @@ public class VirtualInventory implements ConfigurationSerializable {
      *
      * @param uuid  The {@link UUID} this {@link VirtualInventory} should have.
      *              Can be null, only used for serialization.
-     * @param size  The size of the {@link VirtualInventory} ( size > 0 )
+     * @param size  The size of the {@link VirtualInventory}
      * @param items An array of {@link ItemStack} which reflects the contents of this
      *              {@link VirtualInventory}, therefore the length of that array has
      *              to be the same as <code>size</code>.

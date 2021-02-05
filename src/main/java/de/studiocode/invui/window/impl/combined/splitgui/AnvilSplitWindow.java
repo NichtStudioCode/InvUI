@@ -8,12 +8,12 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.function.Consumer;
 
-public class AnvilSplitGUIWindow extends SplitGUIWindow {
+public class AnvilSplitWindow extends SplitWindow {
     
     private final AnvilInventory anvilInventory;
     
-    public AnvilSplitGUIWindow(Player player, String title, GUI upperGui, GUI lowerGui,
-                               boolean closeable, Consumer<String> renameHandler) {
+    public AnvilSplitWindow(Player player, String title, GUI upperGui, GUI lowerGui,
+                            boolean closeable, Consumer<String> renameHandler) {
         
         super(player, upperGui, lowerGui, null, false, closeable, true);
         

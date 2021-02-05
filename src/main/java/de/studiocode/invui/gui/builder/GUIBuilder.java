@@ -50,6 +50,7 @@ public class GUIBuilder {
      * define where which {@link Item} should be.
      *
      * @param structure The structure {@link String}
+     * @return The {@link GUIBuilder}
      */
     public GUIBuilder setStructure(@NotNull String structure) {
         String cleanedStructure = structure.replace(" ", "").replace("\n", "");
@@ -66,6 +67,7 @@ public class GUIBuilder {
      *
      * @param key  The ingredient key
      * @param item The {@link Item}
+     * @return The {@link GUIBuilder}
      */
     public GUIBuilder setIngredient(char key, @NotNull Item item) {
         ingredientMap.put(key, new Ingredient(item));
@@ -78,6 +80,7 @@ public class GUIBuilder {
      *
      * @param key         The ingredient key
      * @param slotElement The {@link SlotElement}
+     * @return The {@link GUIBuilder}
      */
     public GUIBuilder setIngredient(char key, @NotNull SlotElement slotElement) {
         ingredientMap.put(key, new Ingredient(slotElement));

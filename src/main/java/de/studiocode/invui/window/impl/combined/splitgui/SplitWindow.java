@@ -3,17 +3,21 @@ package de.studiocode.invui.window.impl.combined.splitgui;
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement.ItemStackHolder;
 import de.studiocode.invui.util.SlotUtils;
+import de.studiocode.invui.window.Window;
 import de.studiocode.invui.window.impl.combined.BaseCombinedWindow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 
-public abstract class SplitGUIWindow extends BaseCombinedWindow {
+/**
+ * A {@link Window} where top and player {@link Inventory} are affected by different {@link GUI}s.
+ */
+public abstract class SplitWindow extends BaseCombinedWindow {
     
     private final GUI upperGui;
     private final GUI lowerGui;
     
-    public SplitGUIWindow(Player player, GUI upperGui, GUI lowerGui, Inventory upperInventory, boolean initItems, boolean closeable, boolean closeOnEvent) {
+    public SplitWindow(Player player, GUI upperGui, GUI lowerGui, Inventory upperInventory, boolean initItems, boolean closeable, boolean closeOnEvent) {
         super(player, upperGui.getSize() + lowerGui.getSize(), upperInventory, closeable, closeOnEvent);
         this.upperGui = upperGui;
         this.lowerGui = lowerGui;
