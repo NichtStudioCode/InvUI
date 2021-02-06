@@ -24,6 +24,5 @@ Supports versions ranging from 1.14 to 1.16.
 * GUI Builder
 
 ## Examples
-![1](https://i.imgur.com/uaqjHSS.gif)
-
+![1](https://i.imgur.com/uaqjHSS.gif) 
 ![2](https://i.imgur.com/rvE7VK5.gif)
