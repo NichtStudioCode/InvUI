@@ -192,6 +192,9 @@ public class ItemBuilder implements Cloneable {
      * @see ItemBuilder
      */
     public static class PlayerHead {
+    
+        private static final HashMap<String, UUID> uuidCache = new HashMap<>();
+        private static final HashMap<UUID, String> textureCache = new HashMap<>();
         
         private final String textureValue;
         
@@ -204,8 +207,13 @@ public class ItemBuilder implements Cloneable {
         }
         
         public static PlayerHead of(@NotNull String playerName) {
+            if (uuidCache.containsKey(playerName)) return of(uuidCache.get(playerName));
+            
             try {
-                return of(MojangApiUtils.getCurrentUUID(playerName));
+                UUID currentUUID = MojangApiUtils.getCurrentUUID(playerName);
+                uuidCache.put(playerName, currentUUID);
+                
+                return of(currentUUID);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -214,8 +222,13 @@ public class ItemBuilder implements Cloneable {
         }
         
         public static PlayerHead of(@NotNull UUID uuid) {
+            if (textureCache.containsKey(uuid)) return new PlayerHead(textureCache.get(uuid));
+            
             try {
-                return new PlayerHead(MojangApiUtils.getSkinData(uuid, false)[0]);
+                String textureValue = MojangApiUtils.getSkinData(uuid, false)[0];
+                textureCache.put(uuid, textureValue);
+                
+                return new PlayerHead(textureValue);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -225,6 +238,11 @@ public class ItemBuilder implements Cloneable {
         
         public static PlayerHead fromTextureValue(@NotNull String textureValue) {
             return new PlayerHead(textureValue);
+        }
+        
+        public static void clearCache() {
+            uuidCache.clear();
+            textureCache.clear();
         }
         
         public String getTextureValue() {
