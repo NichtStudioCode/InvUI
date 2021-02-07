@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
-public final class SimpleWindow extends SingleWindow {
+public class SimpleWindow extends SingleWindow {
     
     public SimpleWindow(UUID viewerUUID, String title, GUI gui, boolean closeable, boolean closeOnEvent) {
         super(viewerUUID, gui, InventoryUtils.createMatchingInventory(gui, title), true, closeable, closeOnEvent);
