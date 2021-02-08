@@ -14,14 +14,14 @@ Supports all versions from 1.14 to 1.16.
 [Wiki](https://github.com/NichtStudioCode/InvUI/wiki)
 
 ## Features
-* Different types of inventories (Chest, Anvil, Dropper...)
-* Different GUI types (Normal, Paged, Tab)
-* Nested GUIs (For example use another PagedGUI as a page)
-* Easily customizeable (Create your own GUI types and Items)
-* Easy way to add localization using the built-in ItemBuilder
-* Supports custom textures (Forced ResourcePack)
-* Uncloseable inventories
-* GUI Builder
+*   Different types of inventories (Chest, Anvil, Dropper...)
+*   Different GUI types (Normal, Paged, Tab, Scroll)
+*   Nested GUIs (For example use another PagedGUI as a page)
+*   Easily customizable (Create your own GUI types and Items)
+*   Easy way to add localization using the built-in ItemBuilder
+*   Supports custom textures (Forced ResourcePack)
+*   Uncloseable inventories
+*   GUI Builder
 
 ## Examples
 ![1](https://i.imgur.com/uaqjHSS.gif) 
