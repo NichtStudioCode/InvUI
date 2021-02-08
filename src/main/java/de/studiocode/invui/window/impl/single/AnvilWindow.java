@@ -20,6 +20,10 @@ public class AnvilWindow extends SingleWindow {
         initItems();
     }
     
+    public AnvilWindow(Player player, String title, GUI gui, Consumer<String> renameHandler) {
+        this(player, title, gui, true, renameHandler);
+    }
+    
     @Override
     protected void setInvItem(int slot, ItemStack itemStack) {
         anvilInventory.setItem(slot, itemStack);

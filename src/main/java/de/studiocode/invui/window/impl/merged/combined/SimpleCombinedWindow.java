@@ -1,4 +1,4 @@
-package de.studiocode.invui.window.impl.combined.combinedgui;
+package de.studiocode.invui.window.impl.merged.combined;
 
 import de.studiocode.invui.gui.GUI;
 import org.bukkit.Bukkit;
@@ -9,6 +9,10 @@ public class SimpleCombinedWindow extends CombinedWindow {
     
     public SimpleCombinedWindow(Player player, String title, GUI gui, boolean closeable, boolean closeOnEvent) {
         super(player, gui, createInventory(gui, title), closeable, closeOnEvent);
+    }
+    
+    public SimpleCombinedWindow(Player player, String title, GUI gui) {
+        this(player, title, gui, true, true);
     }
     
     private static Inventory createInventory(GUI gui, String title) {

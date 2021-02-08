@@ -68,7 +68,7 @@ public interface GUI extends GUIParent {
      * @param y           The y coordinate
      * @param slotElement The {@link SlotElement} to be placed there.
      */
-    void setSlotElement(int x, int y, SlotElement slotElement);
+    void setSlotElement(int x, int y, @Nullable SlotElement slotElement);
     
     /**
      * Sets the {@link SlotElement} on these coordinates.
@@ -77,7 +77,7 @@ public interface GUI extends GUIParent {
      * @param index       The slot index
      * @param slotElement The {@link SlotElement} to be placed there.
      */
-    void setSlotElement(int index, SlotElement slotElement);
+    void setSlotElement(int index, @Nullable SlotElement slotElement);
     
     /**
      * Gets the {@link SlotElement} on these coordinates.
@@ -271,7 +271,7 @@ public interface GUI extends GUIParent {
      * @param item            The {@link Item} that should be used or null to remove an existing item.
      * @param replaceExisting If existing {@link Item}s should be replaced.
      */
-    void fill(int start, int end, Item item, boolean replaceExisting);
+    void fill(int start, int end, @Nullable Item item, boolean replaceExisting);
     
     /**
      * Fills the entire {@link GUI} with {@link Item}s.
@@ -279,7 +279,7 @@ public interface GUI extends GUIParent {
      * @param item            The {@link Item} that should be used or null to remove an existing item.
      * @param replaceExisting If existing {@link Item}s should be replaced.
      */
-    void fill(Item item, boolean replaceExisting);
+    void fill(@Nullable Item item, boolean replaceExisting);
     
     /**
      * Fills one row with an specific {@link Item}
@@ -288,7 +288,7 @@ public interface GUI extends GUIParent {
      * @param item            The {@link Item} that should be used or null to remove an existing item.
      * @param replaceExisting If existing {@link Item}s should be replaced.
      */
-    void fillRow(int row, Item item, boolean replaceExisting);
+    void fillRow(int row, @Nullable Item item, boolean replaceExisting);
     
     /**
      * Fills one column with an specific {@link Item}
@@ -297,7 +297,7 @@ public interface GUI extends GUIParent {
      * @param item            The {@link Item} that should be used or null to remove an existing item.
      * @param replaceExisting If existing {@link Item}s should be replaced.
      */
-    void fillColumn(int column, Item item, boolean replaceExisting);
+    void fillColumn(int column, @Nullable Item item, boolean replaceExisting);
     
     /**
      * Fills the borders of this {@link GUI} with an specific {@link Item}
@@ -305,7 +305,7 @@ public interface GUI extends GUIParent {
      * @param item            The {@link Item} that should be used or null to remove an existing item.
      * @param replaceExisting If existing {@link Item}s should be replaced.
      */
-    void fillBorders(Item item, boolean replaceExisting);
+    void fillBorders(@Nullable Item item, boolean replaceExisting);
     
     /**
      * Fills a rectangle in this {@link GUI} with an specific {@link Item}
@@ -317,7 +317,7 @@ public interface GUI extends GUIParent {
      * @param item            The {@link Item} that should be used or null to remove an existing item.
      * @param replaceExisting If existing {@link Item}s should be replaced.
      */
-    void fillRectangle(int x, int y, int width, int height, Item item, boolean replaceExisting);
+    void fillRectangle(int x, int y, int width, int height, @Nullable Item item, boolean replaceExisting);
     
     /**
      * Fills a rectangle of another {@link GUI} in this {@link GUI}.
@@ -327,7 +327,7 @@ public interface GUI extends GUIParent {
      * @param gui             The {@link GUI} to be put into this {@link GUI}
      * @param replaceExisting If existing {@link SlotElement}s should be replaced.
      */
-    void fillRectangle(int x, int y, GUI gui, boolean replaceExisting);
+    void fillRectangle(int x, int y, @NotNull GUI gui, boolean replaceExisting);
     
     /**
      * Fills a rectangle of a {@link VirtualInventory} in this {@link GUI}.
@@ -338,6 +338,6 @@ public interface GUI extends GUIParent {
      * @param virtualInventory The {@link VirtualInventory} to be put into this {@link GUI}.
      * @param replaceExisting  If existing {@link SlotElement}s should be replaced.
      */
-    void fillRectangle(int x, int y, int width, VirtualInventory virtualInventory, boolean replaceExisting);
+    void fillRectangle(int x, int y, int width, @NotNull VirtualInventory virtualInventory, boolean replaceExisting);
     
 }

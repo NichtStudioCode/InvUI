@@ -9,6 +9,7 @@ import de.studiocode.invui.item.Item;
 import de.studiocode.invui.util.SlotUtils;
 import de.studiocode.invui.virtualinventory.VirtualInventory;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 
@@ -79,7 +80,7 @@ public abstract class BaseGUI extends IndexedGUI {
     
     // filling methods
     
-    public void fill(@NotNull Set<Integer> slots, Item item, boolean replaceExisting) {
+    public void fill(@NotNull Set<Integer> slots, @Nullable Item item, boolean replaceExisting) {
         for (int slot : slots) {
             if (!replaceExisting && hasSlotElement(slot)) continue;
             setItem(slot, item);
@@ -87,7 +88,7 @@ public abstract class BaseGUI extends IndexedGUI {
     }
     
     @Override
-    public void fill(int start, int end, Item item, boolean replaceExisting) {
+    public void fill(int start, int end, @Nullable Item item, boolean replaceExisting) {
         for (int i = start; i < end; i++) {
             if (!replaceExisting && hasSlotElement(i)) continue;
             setItem(i, item);
@@ -95,34 +96,34 @@ public abstract class BaseGUI extends IndexedGUI {
     }
     
     @Override
-    public void fill(Item item, boolean replaceExisting) {
+    public void fill(@Nullable Item item, boolean replaceExisting) {
         fill(0, getSize(), item, replaceExisting);
     }
     
     @Override
-    public void fillRow(int row, Item item, boolean replaceExisting) {
+    public void fillRow(int row, @Nullable Item item, boolean replaceExisting) {
         if (row >= height) throw new IllegalArgumentException("Row out of bounds");
         fill(SlotUtils.getSlotsRow(row, width), item, replaceExisting);
     }
     
     @Override
-    public void fillColumn(int column, Item item, boolean replaceExisting) {
+    public void fillColumn(int column, @Nullable Item item, boolean replaceExisting) {
         if (column >= width) throw new IllegalArgumentException("Column out of bounds");
         fill(SlotUtils.getSlotsColumn(column, width, height), item, replaceExisting);
     }
     
     @Override
-    public void fillBorders(Item item, boolean replaceExisting) {
+    public void fillBorders(@Nullable Item item, boolean replaceExisting) {
         fill(SlotUtils.getSlotsBorders(width, height), item, replaceExisting);
     }
     
     @Override
-    public void fillRectangle(int x, int y, int width, int height, Item item, boolean replaceExisting) {
+    public void fillRectangle(int x, int y, int width, int height, @Nullable Item item, boolean replaceExisting) {
         fill(SlotUtils.getSlotsRect(x, y, width, height, this.width), item, replaceExisting);
     }
     
     @Override
-    public void fillRectangle(int x, int y, GUI gui, boolean replaceExisting) {
+    public void fillRectangle(int x, int y, @NotNull GUI gui, boolean replaceExisting) {
         int slotIndex = 0;
         for (int slot : SlotUtils.getSlotsRect(x, y, gui.getWidth(), gui.getHeight(), this.width)) {
             if (hasSlotElement(slot) && !replaceExisting) continue;
@@ -132,7 +133,7 @@ public abstract class BaseGUI extends IndexedGUI {
     }
     
     @Override
-    public void fillRectangle(int x, int y, int width, VirtualInventory virtualInventory, boolean replaceExisting) {
+    public void fillRectangle(int x, int y, int width, @NotNull VirtualInventory virtualInventory, boolean replaceExisting) {
         int height = (int) Math.ceil((double) virtualInventory.getSize() / (double) width);
         
         int slotIndex = 0;

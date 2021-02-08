@@ -1,4 +1,4 @@
-package de.studiocode.invui.window.impl.combined;
+package de.studiocode.invui.window.impl.merged;
 
 import de.studiocode.invui.gui.SlotElement.ItemStackHolder;
 import de.studiocode.invui.gui.SlotElement.VISlotElement;
@@ -18,14 +18,14 @@ import java.util.Objects;
 /**
  * A {@link Window} that uses both top and player {@link Inventory}.
  */
-public abstract class BaseCombinedWindow extends BaseWindow {
+public abstract class MergedWindow extends BaseWindow {
     
     private final Inventory playerInventory;
     private final ItemStack[] playerItems = new ItemStack[36];
     protected Inventory upperInventory;
     private boolean isCurrentlyOpened;
     
-    public BaseCombinedWindow(Player player, int size, Inventory upperInventory, boolean closeable, boolean closeOnEvent) {
+    public MergedWindow(Player player, int size, Inventory upperInventory, boolean closeable, boolean closeOnEvent) {
         super(player.getUniqueId(), size, closeable, closeOnEvent);
         this.upperInventory = upperInventory;
         this.playerInventory = player.getInventory();

@@ -1,10 +1,10 @@
-package de.studiocode.invui.window.impl.combined.splitgui;
+package de.studiocode.invui.window.impl.merged.split;
 
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement.ItemStackHolder;
 import de.studiocode.invui.util.SlotUtils;
 import de.studiocode.invui.window.Window;
-import de.studiocode.invui.window.impl.combined.BaseCombinedWindow;
+import de.studiocode.invui.window.impl.merged.MergedWindow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -12,7 +12,7 @@ import org.bukkit.inventory.Inventory;
 /**
  * A {@link Window} where top and player {@link Inventory} are affected by different {@link GUI}s.
  */
-public abstract class SplitWindow extends BaseCombinedWindow {
+public abstract class SplitWindow extends MergedWindow {
     
     private final GUI upperGui;
     private final GUI lowerGui;

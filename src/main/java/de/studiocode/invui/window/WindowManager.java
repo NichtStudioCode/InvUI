@@ -1,7 +1,7 @@
 package de.studiocode.invui.window;
 
 import de.studiocode.invui.InvUI;
-import de.studiocode.invui.window.impl.combined.BaseCombinedWindow;
+import de.studiocode.invui.window.impl.merged.MergedWindow;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -153,7 +153,7 @@ public class WindowManager implements Listener {
         Entity entity = event.getEntity();
         if (entity instanceof Player) {
             Optional<Window> window = findOpenWindow(((Player) entity));
-            if (window.isPresent() && window.get() instanceof BaseCombinedWindow)
+            if (window.isPresent() && window.get() instanceof MergedWindow)
                 event.setCancelled(true);
         }
     }

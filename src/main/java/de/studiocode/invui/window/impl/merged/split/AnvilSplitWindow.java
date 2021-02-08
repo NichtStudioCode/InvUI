@@ -1,4 +1,4 @@
-package de.studiocode.invui.window.impl.combined.splitgui;
+package de.studiocode.invui.window.impl.merged.split;
 
 import de.studiocode.inventoryaccess.api.abstraction.inventory.AnvilInventory;
 import de.studiocode.inventoryaccess.api.version.InventoryAccess;
@@ -21,6 +21,10 @@ public class AnvilSplitWindow extends SplitWindow {
         upperInventory = anvilInventory.getBukkitInventory();
         
         initUpperItems();
+    }
+    
+    public AnvilSplitWindow(Player player, String title, GUI upperGui, GUI lowerGui, Consumer<String> renameHandler) {
+        this(player, title, upperGui, lowerGui, true, renameHandler);
     }
     
     @Override
