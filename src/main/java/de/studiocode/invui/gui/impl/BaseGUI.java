@@ -10,7 +10,7 @@ import de.studiocode.invui.util.SlotUtils;
 import de.studiocode.invui.virtualinventory.VirtualInventory;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.SortedSet;
+import java.util.Set;
 
 /**
  * A subclass of {@link IndexedGUI} which contains all the
@@ -79,7 +79,7 @@ public abstract class BaseGUI extends IndexedGUI {
     
     // filling methods
     
-    public void fill(@NotNull SortedSet<Integer> slots, Item item, boolean replaceExisting) {
+    public void fill(@NotNull Set<Integer> slots, Item item, boolean replaceExisting) {
         for (int slot : slots) {
             if (!replaceExisting && hasSlotElement(slot)) continue;
             setItem(slot, item);

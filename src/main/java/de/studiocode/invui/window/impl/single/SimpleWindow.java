@@ -12,8 +12,16 @@ public class SimpleWindow extends SingleWindow {
         super(viewerUUID, gui, InventoryUtils.createMatchingInventory(gui, title), true, closeable, closeOnEvent);
     }
     
+    public SimpleWindow(UUID viewerUUID, String title, GUI gui) {
+        this(viewerUUID, title, gui, true, true);
+    }
+    
     public SimpleWindow(Player player, String title, GUI gui, boolean closeable, boolean closeOnEvent) {
         this(player.getUniqueId(), title, gui, closeable, closeOnEvent);
+    }
+    
+    public SimpleWindow(Player player, String title, GUI gui) {
+        this(player, title, gui, true, true);
     }
     
 }

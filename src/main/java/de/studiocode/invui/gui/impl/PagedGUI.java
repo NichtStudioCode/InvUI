@@ -64,7 +64,8 @@ public abstract class PagedGUI extends BaseGUI {
     }
     
     private void correctPage() {
-        if (currentPage == 0) return;
+        if (currentPage == 0 || infinitePages) return;
+        
         int pageAmount = getPageAmount();
         if (currentPage < 0) currentPage = 0;
         else if (currentPage >= pageAmount) currentPage = pageAmount - 1;
