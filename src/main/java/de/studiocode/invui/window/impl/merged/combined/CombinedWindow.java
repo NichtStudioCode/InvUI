@@ -2,6 +2,7 @@ package de.studiocode.invui.window.impl.merged.combined;
 
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement.ItemStackHolder;
+import de.studiocode.invui.util.Pair;
 import de.studiocode.invui.util.SlotUtils;
 import de.studiocode.invui.window.Window;
 import de.studiocode.invui.window.impl.merged.MergedWindow;
@@ -30,17 +31,17 @@ public abstract class CombinedWindow extends MergedWindow {
     }
     
     @Override
-    public void handleClick(InventoryClickEvent event) {
-        Inventory clicked = event.getClickedInventory();
-        int guiSlot = clicked == getUpperInventory() ? event.getSlot()
-            : getUpperInventory().getSize() + SlotUtils.translatePlayerInvToGui(event.getSlot());
-        
-        gui.handleClick(guiSlot, (Player) event.getWhoClicked(), event.getClick(), event);
+    protected ItemStackHolder getItemStackHolder(int index) {
+        return gui.getItemStackHolder(index);
     }
     
     @Override
-    protected ItemStackHolder getItemStackHolder(int index) {
-        return gui.getItemStackHolder(index);
+    protected Pair<GUI, Integer> getWhereClicked(InventoryClickEvent event) {
+        Inventory clicked = event.getClickedInventory();
+        int slot = event.getSlot();
+        int clickedIndex = clicked == getUpperInventory() ? slot
+            : getUpperInventory().getSize() + SlotUtils.translatePlayerInvToGui(slot);
+        return new Pair<>(gui, clickedIndex);
     }
     
     @Override

@@ -1,7 +1,8 @@
 package de.studiocode.invui.window.impl.merged;
 
+import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement.ItemStackHolder;
-import de.studiocode.invui.gui.SlotElement.VISlotElement;
+import de.studiocode.invui.util.Pair;
 import de.studiocode.invui.util.SlotUtils;
 import de.studiocode.invui.window.Window;
 import de.studiocode.invui.window.impl.BaseWindow;
@@ -62,9 +63,6 @@ public abstract class MergedWindow extends BaseWindow {
     
     @Override
     protected void redrawItem(int index, ItemStackHolder holder, boolean setItem) {
-        if (holder instanceof VISlotElement)
-            throw new IllegalArgumentException("VirtualInventories are not allowed in CombinedWindows");
-        
         super.redrawItem(index, holder, setItem);
         if (getViewer() != null)
             getViewer().updateInventory(); // fixes a bug where some items wouldn't be displayed correctly
@@ -115,8 +113,14 @@ public abstract class MergedWindow extends BaseWindow {
     }
     
     @Override
+    public void handleClick(InventoryClickEvent event) {
+        Pair<GUI, Integer> clicked = getWhereClicked(event);
+        clicked.getFirst().handleClick(clicked.getSecond(), (Player) event.getWhoClicked(), event.getClick(), event);
+    }
+    
+    @Override
     public void handleItemShift(InventoryClickEvent event) {
-        event.setCancelled(true);
+        // empty
     }
     
     @Override
@@ -133,5 +137,7 @@ public abstract class MergedWindow extends BaseWindow {
     }
     
     protected abstract ItemStackHolder getItemStackHolder(int index);
+    
+    protected abstract Pair<GUI, Integer> getWhereClicked(InventoryClickEvent event);
     
 }

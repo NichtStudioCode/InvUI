@@ -2,6 +2,7 @@ package de.studiocode.invui.window.impl.merged.split;
 
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement.ItemStackHolder;
+import de.studiocode.invui.util.Pair;
 import de.studiocode.invui.util.SlotUtils;
 import de.studiocode.invui.window.Window;
 import de.studiocode.invui.window.impl.merged.MergedWindow;
@@ -34,20 +35,20 @@ public abstract class SplitWindow extends MergedWindow {
     }
     
     @Override
-    public void handleClick(InventoryClickEvent event) {
-        Inventory clicked = event.getClickedInventory();
-        if (clicked == getUpperInventory()) {
-            upperGui.handleClick(event.getSlot(), (Player) event.getWhoClicked(), event.getClick(), event);
-        } else {
-            int index = SlotUtils.translatePlayerInvToGui(event.getSlot());
-            lowerGui.handleClick(index, (Player) event.getWhoClicked(), event.getClick(), event);
-        }
-    }
-    
-    @Override
     public ItemStackHolder getItemStackHolder(int index) {
         if (index >= upperGui.getSize()) return lowerGui.getItemStackHolder(index - upperGui.getSize());
         else return upperGui.getItemStackHolder(index);
+    }
+    
+    @Override
+    protected Pair<GUI, Integer> getWhereClicked(InventoryClickEvent event) {
+        Inventory clicked = event.getClickedInventory();
+        if (clicked == getUpperInventory()) {
+            return new Pair<>(upperGui, event.getSlot());
+        } else {
+            int index = SlotUtils.translatePlayerInvToGui(event.getSlot());
+            return new Pair<>(lowerGui, index);
+        }
     }
     
     @Override

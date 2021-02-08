@@ -13,6 +13,9 @@ import de.studiocode.invui.util.ArrayUtils;
 import de.studiocode.invui.virtualinventory.VirtualInventory;
 import de.studiocode.invui.virtualinventory.event.ItemUpdateEvent;
 import de.studiocode.invui.window.Window;
+import de.studiocode.invui.window.WindowManager;
+import de.studiocode.invui.window.impl.merged.combined.CombinedWindow;
+import de.studiocode.invui.window.impl.merged.split.SplitWindow;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -107,6 +110,8 @@ abstract class IndexedGUI implements GUI {
                 
                 case MOVE_TO_OTHER_INVENTORY:
                     event.setCancelled(true);
+                    Window window = WindowManager.getInstance().findOpenWindow(player).orElse(null);
+                    if (window instanceof CombinedWindow) break; // can't move if there is no other gui
                     
                     ItemStack invStack = virtualInventory.getItemStack(index);
                     ItemUpdateEvent updateEvent = new ItemUpdateEvent(virtualInventory, player, invStack,
@@ -114,12 +119,18 @@ abstract class IndexedGUI implements GUI {
                     Bukkit.getPluginManager().callEvent(updateEvent);
                     
                     if (!updateEvent.isCancelled()) {
-                        int leftOverAmount = 0;
-                        HashMap<Integer, ItemStack> leftover =
-                            event.getWhoClicked().getInventory().addItem(virtualInventory.getItemStack(index));
-                        
-                        if (!leftover.isEmpty()) leftOverAmount = leftover.get(0).getAmount();
-                        
+                        int leftOverAmount;
+                        if (window instanceof SplitWindow) {
+                            SplitWindow splitWindow = (SplitWindow) window;
+                            GUI[] guis  = splitWindow.getGuis();
+                            GUI otherGui = guis[0] == this ? guis[1] : guis[0];
+                            
+                            leftOverAmount = ((IndexedGUI) otherGui).putIntoVirtualInventories(player, invStack, virtualInventory);
+                        } else {
+                            leftOverAmount = 0;
+                            HashMap<Integer, ItemStack> leftover = event.getWhoClicked().getInventory().addItem(virtualInventory.getItemStack(index));
+                            if (!leftover.isEmpty()) leftOverAmount = leftover.get(0).getAmount();
+                        }
                         virtualInventory.setAmountSilently(index, leftOverAmount);
                     }
                     
@@ -144,29 +155,41 @@ abstract class IndexedGUI implements GUI {
         Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
         
-        List<VirtualInventory> virtualInventories = getAllVirtualInventories();
-        if (virtualInventories.size() > 0) {
-            int amountLeft = clicked.getAmount();
-            for (VirtualInventory virtualInventory : virtualInventories) {
-                ItemStack toAdd = clicked.clone();
-                toAdd.setAmount(amountLeft);
-                amountLeft = virtualInventory.addItem(player, toAdd);
-                
-                if (amountLeft == 0) break;
-            }
-            
+        int amountLeft = putIntoVirtualInventories(player, clicked);
+        if (amountLeft != clicked.getAmount()) {
             if (amountLeft != 0) event.getCurrentItem().setAmount(amountLeft);
             else event.getClickedInventory().setItem(event.getSlot(), null);
         }
     }
     
-    private List<VirtualInventory> getAllVirtualInventories() {
+    private int putIntoVirtualInventories(Player player, ItemStack itemStack, VirtualInventory... ignored) {
+        if (itemStack.getAmount() <= 0) throw new IllegalArgumentException("Illegal ItemStack amount");
+        
+        List<VirtualInventory> virtualInventories = getAllVirtualInventories(ignored);
+        if (virtualInventories.size() > 0) {
+            int amountLeft = itemStack.getAmount();
+            for (VirtualInventory virtualInventory : virtualInventories) {
+                ItemStack toAdd = itemStack.clone();
+                toAdd.setAmount(amountLeft);
+                amountLeft = virtualInventory.addItem(player, toAdd);
+            
+                if (amountLeft == 0) break;
+            }
+            
+            return amountLeft;
+        }
+        
+        return itemStack.getAmount();
+    }
+    
+    private List<VirtualInventory> getAllVirtualInventories(VirtualInventory... ignored) {
         List<VirtualInventory> virtualInventories = new ArrayList<>();
         Arrays.stream(slotElements)
             .filter(Objects::nonNull)
             .map(SlotElement::getItemStackHolder)
             .filter(holder -> holder instanceof VISlotElement)
             .map(holder -> ((VISlotElement) holder).getVirtualInventory())
+            .filter(vi -> Arrays.stream(ignored).noneMatch(vi::equals))
             .forEach(vi -> {
                 if (!virtualInventories.contains(vi)) virtualInventories.add(vi);
             });
