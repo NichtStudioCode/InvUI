@@ -1,8 +1,12 @@
 package de.studiocode.invui.gui.impl;
 
+import de.studiocode.invui.gui.Controllable;
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.item.Item;
+import de.studiocode.invui.item.impl.controlitem.ControlItem;
+import de.studiocode.invui.item.impl.controlitem.ScrollItem;
+import de.studiocode.invui.util.SlotUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +16,7 @@ import java.util.List;
  *
  * @see SimpleScrollGUI
  */
-public abstract class ScrollGUI extends BaseGUI {
+public abstract class ScrollGUI extends BaseGUI implements Controllable {
     
     private final List<Item> controlItems = new ArrayList<>();
     private final boolean infiniteLines;
@@ -21,12 +25,11 @@ public abstract class ScrollGUI extends BaseGUI {
     
     protected int offset;
     
-    
-    public ScrollGUI(int width, int height, boolean infiniteLines, int lineLength, int... itemListSlots) {
+    public ScrollGUI(int width, int height, boolean infiniteLines, int... itemListSlots) {
         super(width, height);
         this.infiniteLines = infiniteLines;
         this.itemListSlots = itemListSlots;
-        this.lineLength = lineLength;
+        this.lineLength = SlotUtils.getLongestLineLength(itemListSlots, width);
         
         if (lineLength == 0)
             throw new IllegalArgumentException("Line length can't be 0");
@@ -36,9 +39,14 @@ public abstract class ScrollGUI extends BaseGUI {
             throw new IllegalArgumentException("itemListSlots has to be a multiple of lineLength");
     }
     
-    public void addControlItem(int index, Item item) {
-        controlItems.add(item);
-        setItem(index, item);
+    @Override
+    public void addControlItem(int index, ControlItem<?> controlItem) {
+        if (!(controlItem instanceof ScrollItem))
+            throw new IllegalArgumentException("controlItem is not an instance of ScrollItem");
+    
+        ((ScrollItem) controlItem).setGui(this);
+        setItem(index, controlItem);
+        controlItems.add(controlItem);
     }
     
     public void setCurrentLine(int line) {

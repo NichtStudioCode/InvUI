@@ -1,7 +1,6 @@
-package de.studiocode.invui.item.impl.tabgui;
+package de.studiocode.invui.item.impl.controlitem;
 
 import de.studiocode.invui.gui.impl.TabGUI;
-import de.studiocode.invui.item.impl.FunctionItem;
 import de.studiocode.invui.item.itembuilder.ItemBuilder;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -9,18 +8,21 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 
 import java.util.function.Function;
 
-public class TabItem extends FunctionItem<TabGUI> {
+/**
+ * Switches between tabs in a {@link TabGUI}
+ */
+public class TabItem extends ControlItem<TabGUI> {
     
     private final int tab;
     
-    public TabItem(TabGUI tabGUI, int tab, Function<TabGUI, ItemBuilder> builderFunction) {
-        super(tabGUI, builderFunction);
+    public TabItem(int tab, Function<TabGUI, ItemBuilder> builderFunction) {
+        super(builderFunction);
         this.tab = tab;
     }
     
     @Override
     public void handleClick(ClickType clickType, Player player, InventoryClickEvent event) {
-        if (clickType == ClickType.LEFT) getT().showTab(tab);
+        if (clickType == ClickType.LEFT) getGui().showTab(tab);
     }
     
 }

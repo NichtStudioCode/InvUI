@@ -1,7 +1,9 @@
 package de.studiocode.invui.util;
 
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class SlotUtils {
     
@@ -73,6 +75,30 @@ public class SlotUtils {
     public static int translateGuiToPlayerInv(int slot) {
         if (slot > 26) return slot - 27;
         else return slot + 9;
+    }
+    
+    public static int getLongestLineLength(int[] slots, int frameWidth) {
+        int longestLength = 0;
+        int currentLength = 1;
+        Point2D previous = null;
+        
+        for (Point2D point : Arrays.stream(slots)
+            .mapToObj(index -> convertFromIndex(index, frameWidth))
+            .collect(Collectors.toList())) {
+            if (previous != null) {
+                if (isNeighbor(previous, point)) currentLength++;
+                else currentLength = 1;
+            }
+            
+            previous = point;
+            longestLength = Math.max(longestLength, currentLength);
+        }
+        
+        return longestLength;
+    }
+    
+    public static boolean isNeighbor(Point2D point1, Point2D point2) {
+        return Math.abs(point1.getX() - point2.getX()) + Math.abs(point1.getY() - point2.getY()) == 1;
     }
     
     public enum Order {

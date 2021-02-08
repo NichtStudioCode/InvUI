@@ -3,8 +3,6 @@ package de.studiocode.invui.gui;
 import de.studiocode.invui.animation.Animation;
 import de.studiocode.invui.gui.SlotElement.ItemStackHolder;
 import de.studiocode.invui.gui.builder.GUIBuilder;
-import de.studiocode.invui.gui.builder.PagedGUIBuilder;
-import de.studiocode.invui.gui.builder.TabGUIBuilder;
 import de.studiocode.invui.gui.impl.*;
 import de.studiocode.invui.item.Item;
 import de.studiocode.invui.virtualinventory.VirtualInventory;
@@ -38,8 +36,6 @@ import java.util.function.Predicate;
  * @see SimplePagedGUIsGUI
  * @see SimpleTabGUI
  * @see GUIBuilder
- * @see PagedGUIBuilder
- * @see TabGUIBuilder
  */
 public interface GUI extends GUIParent {
     

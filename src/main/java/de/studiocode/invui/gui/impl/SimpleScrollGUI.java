@@ -10,8 +10,8 @@ public class SimpleScrollGUI extends ScrollGUI {
     
     private List<Item> items;
     
-    public SimpleScrollGUI(int width, int height, List<Item> items, int lineLength, int... itemListSlots) {
-        super(width, height, false, lineLength, itemListSlots);
+    public SimpleScrollGUI(int width, int height, List<Item> items, int... itemListSlots) {
+        super(width, height, false, itemListSlots);
         this.items = items;
         
         update();

@@ -1,17 +1,19 @@
 package de.studiocode.invui.gui.impl;
 
+import de.studiocode.invui.gui.Controllable;
 import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.item.Item;
-import de.studiocode.invui.item.impl.tabgui.TabItem;
+import de.studiocode.invui.item.impl.controlitem.ControlItem;
+import de.studiocode.invui.item.impl.controlitem.TabItem;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
-public abstract class TabGUI extends BaseGUI {
+public abstract class TabGUI extends BaseGUI implements Controllable {
     
+    private final List<Item> controlItems = new ArrayList<>();
     private final int tabAmount;
     private final int[] listSlots;
-    private final Item[] tabItems;
     
     private int currentTab;
     
@@ -19,7 +21,6 @@ public abstract class TabGUI extends BaseGUI {
         super(width, height);
         this.tabAmount = tabAmount;
         this.listSlots = listSlots;
-        this.tabItems = new Item[tabAmount];
     }
     
     public void showTab(int tab) {
@@ -30,14 +31,26 @@ public abstract class TabGUI extends BaseGUI {
         update();
     }
     
-    public void setTabItem(int tab, int index, TabItem tabItem) {
-        tabItems[tab] = tabItem;
-        setItem(index, tabItem);
+    @Override
+    public void addControlItem(int index, ControlItem<?> controlItem) {
+        if (!(controlItem instanceof TabItem))
+            throw new IllegalArgumentException("controlItem is not an instance of TabItem");
+        
+        ((TabItem) controlItem).setGui(this);
+        setItem(index, controlItem);
+        controlItems.add(controlItem);
     }
     
     protected void update() {
-        Arrays.stream(tabItems).forEach(Item::notifyWindows);
-        
+        updateControlItems();
+        updateContent();
+    }
+    
+    private void updateControlItems() {
+        controlItems.forEach(Item::notifyWindows);
+    }
+    
+    private void updateContent() {
         List<SlotElement> slotElements = getSlotElements(currentTab);
         for (int i = 0; i < listSlots.length; i++) {
             int slot = listSlots[i];
