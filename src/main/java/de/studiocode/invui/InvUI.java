@@ -1,6 +1,10 @@
 package de.studiocode.invui;
 
 import de.studiocode.invui.util.reflection.ReflectionUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
@@ -8,7 +12,7 @@ import java.util.List;
 
 import static de.studiocode.invui.util.reflection.ReflectionRegistry.PLUGIN_CLASS_LOADER_PLUGIN_FIELD;
 
-public class InvUI {
+public class InvUI implements Listener {
     
     private static InvUI instance;
     
@@ -16,7 +20,8 @@ public class InvUI {
     private final Plugin plugin;
     
     public InvUI() {
-        this.plugin = ReflectionUtils.getFieldValue(PLUGIN_CLASS_LOADER_PLUGIN_FIELD, getClass().getClassLoader());
+        plugin = ReflectionUtils.getFieldValue(PLUGIN_CLASS_LOADER_PLUGIN_FIELD, getClass().getClassLoader());
+        Bukkit.getPluginManager().registerEvents(this, plugin);
     }
     
     public static InvUI getInstance() {
@@ -31,8 +36,11 @@ public class InvUI {
         disableHandlers.add(runnable);
     }
     
-    public void onDisable() {
-        disableHandlers.forEach(Runnable::run);
+    @EventHandler
+    public void handlePluginDisable(PluginDisableEvent event) {
+        if (event.getPlugin().equals(plugin)) {
+            disableHandlers.forEach(Runnable::run);
+        }
     }
     
 }
