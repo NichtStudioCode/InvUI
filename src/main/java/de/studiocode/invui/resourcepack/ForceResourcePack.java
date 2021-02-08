@@ -19,7 +19,7 @@ public class ForceResourcePack implements Listener {
     
     private final HashMap<Player, BukkitTask> tasks = new HashMap<>();
     
-    private String resourcePackUrl = "https://github.com/NichtStudioCode/InvGuiRP/releases/download/v0.5/InvGuiRP.zip";
+    private String resourcePackUrl = "https://github.com/NichtStudioCode/InvUIRP/releases/download/v0.6/InvUIRP.zip";
     private boolean activated;
     
     private ForceResourcePack() {
