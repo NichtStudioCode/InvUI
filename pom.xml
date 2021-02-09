@@ -63,7 +63,8 @@
         <dependency>
             <groupId>com.github.NichtStudioCode</groupId>
             <artifactId>InventoryAccess</artifactId>
-            <version>v0.2</version>
+            <version>0.3</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
