@@ -3,6 +3,8 @@ package de.studiocode.invui.gui.impl;
 import de.studiocode.invui.gui.Controllable;
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement;
+import de.studiocode.invui.gui.structure.Marker;
+import de.studiocode.invui.gui.structure.Structure;
 import de.studiocode.invui.item.Item;
 import de.studiocode.invui.item.impl.controlitem.ControlItem;
 import de.studiocode.invui.item.impl.controlitem.ScrollItem;
@@ -37,6 +39,11 @@ public abstract class ScrollGUI extends BaseGUI implements Controllable {
             throw new IllegalArgumentException("No item list slots provided");
         if (itemListSlots.length % lineLength != 0)
             throw new IllegalArgumentException("itemListSlots has to be a multiple of lineLength");
+    }
+    
+    public ScrollGUI(int width, int height, boolean infiniteLines, Structure structure) {
+        this(width, height, infiniteLines, structure.createIngredientList().findIndicesOfMarker(Marker.ITEM_LIST_SLOT));
+        applyStructure(structure);
     }
     
     @Override

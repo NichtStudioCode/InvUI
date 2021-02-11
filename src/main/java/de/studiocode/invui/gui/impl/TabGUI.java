@@ -2,6 +2,8 @@ package de.studiocode.invui.gui.impl;
 
 import de.studiocode.invui.gui.Controllable;
 import de.studiocode.invui.gui.SlotElement;
+import de.studiocode.invui.gui.structure.Marker;
+import de.studiocode.invui.gui.structure.Structure;
 import de.studiocode.invui.item.Item;
 import de.studiocode.invui.item.impl.controlitem.ControlItem;
 import de.studiocode.invui.item.impl.controlitem.TabItem;
@@ -21,6 +23,11 @@ public abstract class TabGUI extends BaseGUI implements Controllable {
         super(width, height);
         this.tabAmount = tabAmount;
         this.listSlots = listSlots;
+    }
+    
+    public TabGUI(int width, int height, int tabAmount, Structure structure) {
+        this(width, height, tabAmount, structure.createIngredientList().findIndicesOfMarker(Marker.ITEM_LIST_SLOT));
+        applyStructure(structure);
     }
     
     public void showTab(int tab) {

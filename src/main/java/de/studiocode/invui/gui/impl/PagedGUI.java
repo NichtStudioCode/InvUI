@@ -4,6 +4,8 @@ import de.studiocode.invui.gui.Controllable;
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.gui.builder.GUIBuilder;
+import de.studiocode.invui.gui.structure.Marker;
+import de.studiocode.invui.gui.structure.Structure;
 import de.studiocode.invui.item.Item;
 import de.studiocode.invui.item.impl.controlitem.ControlItem;
 import de.studiocode.invui.item.impl.controlitem.PageItem;
@@ -29,6 +31,11 @@ public abstract class PagedGUI extends BaseGUI implements Controllable {
         super(width, height);
         this.infinitePages = infinitePages;
         this.itemListSlots = itemListSlots;
+    }
+    
+    public PagedGUI(int width, int height, boolean infinitePages, Structure structure) {
+        this(width, height, infinitePages, structure.createIngredientList().findIndicesOfMarker(Marker.ITEM_LIST_SLOT));
+        applyStructure(structure);
     }
     
     @Override

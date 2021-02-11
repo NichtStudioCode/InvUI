@@ -3,6 +3,9 @@ package de.studiocode.invui.gui.impl;
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.gui.builder.GUIBuilder;
+import de.studiocode.invui.gui.structure.Structure;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,13 +21,16 @@ public class SimplePagedGUIsGUI extends PagedGUI {
     
     private List<GUI> guis;
     
-    public SimplePagedGUIsGUI(int width, int height, int... itemListSlots) {
-        this(width, height, new ArrayList<>(), itemListSlots);
+    public SimplePagedGUIsGUI(int width, int height, @Nullable List<GUI> guis, int... itemListSlots) {
+        super(width, height, false, itemListSlots);
+        this.guis = guis == null ? new ArrayList<>() : guis;
+        
+        update();
     }
     
-    public SimplePagedGUIsGUI(int width, int height, List<GUI> guis, int... itemListSlots) {
-        super(width, height, false, itemListSlots);
-        this.guis = guis;
+    public SimplePagedGUIsGUI(int width, int height, @Nullable List<GUI> guis, @NotNull Structure structure) {
+        super(width, height, false, structure);
+        this.guis = guis == null ? new ArrayList<>() : guis;
         
         update();
     }

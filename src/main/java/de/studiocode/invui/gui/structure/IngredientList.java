@@ -1,4 +1,4 @@
-package de.studiocode.invui.gui.builder;
+package de.studiocode.invui.gui.structure;
 
 import de.studiocode.invui.gui.Controllable;
 import de.studiocode.invui.gui.GUI;
@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-class IngredientList extends ArrayList<Ingredient> {
+public class IngredientList extends ArrayList<Ingredient> {
     
     public IngredientList(String structure, HashMap<Character, Ingredient> ingredientMap) {
         for (char c : structure.toCharArray()) {
@@ -22,6 +22,9 @@ class IngredientList extends ArrayList<Ingredient> {
     }
     
     public void insertIntoGUI(GUI gui) {
+        if (size() != gui.getSize())
+            throw new IllegalArgumentException("Structure size does not match GUI size");
+        
         for (int i = 0; i < size(); i++) {
             Ingredient ingredient = get(i);
             if (ingredient != null && ingredient.isSlotElement()) {
@@ -40,7 +43,7 @@ class IngredientList extends ArrayList<Ingredient> {
         }
     }
     
-    public List<Integer> findIndicesOfMarker(Marker marker) {
+    public int[] findIndicesOfMarker(Marker marker) {
         List<Integer> indices = new ArrayList<>();
         for (int i = 0; i < size(); i++) {
             Ingredient ingredient = get(i);
@@ -48,11 +51,7 @@ class IngredientList extends ArrayList<Ingredient> {
                 indices.add(i);
         }
         
-        return indices;
-    }
-    
-    public int[] findIndicesOfMarkerAsArray(Marker marker) {
-        return findIndicesOfMarker(marker).stream().mapToInt(Integer::intValue).toArray();
+        return indices.stream().mapToInt(Integer::intValue).toArray();
     }
     
 }

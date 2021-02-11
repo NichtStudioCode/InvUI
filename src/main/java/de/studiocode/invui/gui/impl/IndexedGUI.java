@@ -8,6 +8,7 @@ import de.studiocode.invui.gui.SlotElement.ItemSlotElement;
 import de.studiocode.invui.gui.SlotElement.ItemStackHolder;
 import de.studiocode.invui.gui.SlotElement.LinkedSlotElement;
 import de.studiocode.invui.gui.SlotElement.VISlotElement;
+import de.studiocode.invui.gui.structure.Structure;
 import de.studiocode.invui.item.Item;
 import de.studiocode.invui.util.ArrayUtils;
 import de.studiocode.invui.virtualinventory.VirtualInventory;
@@ -373,6 +374,11 @@ abstract class IndexedGUI implements GUI {
     @Override
     public void remove(int index) {
         setSlotElement(index, null);
+    }
+    
+    @Override
+    public void applyStructure(Structure structure) {
+        structure.createIngredientList().insertIntoGUI(this);
     }
     
     @Override

@@ -25,6 +25,9 @@ public abstract class ControlItem<G extends GUI> extends BaseItem {
     }
     
     public void setGui(G gui) {
+        if (this.gui != null)
+            throw new IllegalStateException("The GUI is already set. (One ControlItem can't control multiple GUIs)");
+        
         this.gui = gui;
     }
     

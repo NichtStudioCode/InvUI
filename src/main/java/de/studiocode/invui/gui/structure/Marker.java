@@ -1,4 +1,4 @@
-package de.studiocode.invui.gui.builder;
+package de.studiocode.invui.gui.structure;
 
 public enum Marker {
     

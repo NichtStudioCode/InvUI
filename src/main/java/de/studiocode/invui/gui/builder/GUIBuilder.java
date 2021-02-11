@@ -2,17 +2,17 @@ package de.studiocode.invui.gui.builder;
 
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement;
-import de.studiocode.invui.gui.SlotElement.ItemSlotElement;
 import de.studiocode.invui.gui.impl.*;
+import de.studiocode.invui.gui.structure.Marker;
+import de.studiocode.invui.gui.structure.Structure;
 import de.studiocode.invui.item.Item;
-import de.studiocode.invui.item.impl.SimpleItem;
 import de.studiocode.invui.item.itembuilder.ItemBuilder;
 import org.bukkit.inventory.ShapedRecipe;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.function.Supplier;
 
 import static de.studiocode.invui.gui.builder.GUIType.*;
 
@@ -26,9 +26,8 @@ public class GUIBuilder {
     private final GUIType guiType;
     private final int width;
     private final int height;
-    private final HashMap<Character, Ingredient> ingredientMap = new HashMap<>();
     
-    private String structure;
+    private Structure structure;
     
     private List<Item> items = new ArrayList<>();
     private List<GUI> guis = new ArrayList<>();
@@ -39,33 +38,38 @@ public class GUIBuilder {
         this.height = height;
     }
     
-    public GUIBuilder setStructure(@NotNull String structure) {
-        String trimmedStructure = structure
-            .replace(" ", "")
-            .replace("\n", "");
-        
-        if (trimmedStructure.length() != width * height)
-            throw new IllegalArgumentException("Structure size does not match GUI size");
-        
-        this.structure = trimmedStructure;
+    public GUIBuilder setStructure(@NotNull String structureData) {
+        this.structure = new Structure(structureData);
         return this;
     }
     
-    public GUIBuilder setIngredient(char key, @NotNull ItemBuilder itemBuilder) {
-        return setIngredient(key, new SimpleItem(itemBuilder));
-    }
-    
-    public GUIBuilder setIngredient(char key, @NotNull Item item) {
-        return setIngredient(key, new ItemSlotElement(item));
-    }
-    
-    public GUIBuilder setIngredient(char key, @NotNull SlotElement element) {
-        ingredientMap.put(key, new Ingredient(element));
+    public GUIBuilder setStructure(@NotNull Structure structure) {
+        this.structure = structure;
         return this;
     }
     
-    public GUIBuilder setMarker(char key, @NotNull Marker marker) {
-        ingredientMap.put(key, new Ingredient(marker));
+    public GUIBuilder addIngredient(char key, @NotNull ItemBuilder itemBuilder) {
+        structure.addIngredient(key, itemBuilder);
+        return this;
+    }
+    
+    public GUIBuilder addIngredient(char key, @NotNull Item item) {
+        structure.addIngredient(key, item);
+        return this;
+    }
+    
+    public GUIBuilder addIngredient(char key, @NotNull SlotElement element) {
+        structure.addIngredient(key, element);
+        return this;
+    }
+    
+    public GUIBuilder addIngredient(char key, @NotNull Marker marker) {
+        structure.addIngredient(key, marker);
+        return this;
+    }
+    
+    public GUIBuilder addIngredient(char key, @NotNull Supplier<Item> itemSupplier) {
+        structure.addIngredient(key, itemSupplier);
         return this;
     }
     
@@ -98,63 +102,46 @@ public class GUIBuilder {
     }
     
     public GUI build() {
-        IngredientList ingredients = new IngredientList(structure, ingredientMap);
-        
         switch (guiType) {
             
             case NORMAL:
-                return buildSimpleGUI(ingredients);
+                return buildSimpleGUI();
             
             case PAGED_ITEMS:
-                return buildSimplePagedItemsGUI(ingredients);
+                return buildSimplePagedItemsGUI();
             
             case PAGED_GUIs:
-                return buildSimplePagedGUIsGUI(ingredients);
+                return buildSimplePagedGUIsGUI();
             
             case TAB:
-                return buildSimpleTabGUI(ingredients);
+                return buildSimpleTabGUI();
             
             case SCROLL:
-                return buildSimpleScrollGUI(ingredients);
+                return buildSimpleScrollGUI();
             
             default:
                 throw new UnsupportedOperationException("Unknown GUI type");
         }
     }
     
-    private SimpleGUI buildSimpleGUI(IngredientList ingredients) {
-        SimpleGUI gui = new SimpleGUI(width, height);
-        ingredients.insertIntoGUI(gui);
-        
-        return gui;
+    private SimpleGUI buildSimpleGUI() {
+        return new SimpleGUI(width, height, structure);
     }
     
-    private SimplePagedItemsGUI buildSimplePagedItemsGUI(IngredientList ingredients) {
-        SimplePagedItemsGUI gui = new SimplePagedItemsGUI(width, height, items, ingredients.findIndicesOfMarkerAsArray(Marker.ITEM_LIST_SLOT));
-        ingredients.insertIntoGUI(gui);
-        
-        return gui;
+    private SimplePagedItemsGUI buildSimplePagedItemsGUI() {
+        return new SimplePagedItemsGUI(width, height, items, structure);
     }
     
-    private SimplePagedGUIsGUI buildSimplePagedGUIsGUI(IngredientList ingredients) {
-        SimplePagedGUIsGUI gui = new SimplePagedGUIsGUI(width, height, guis, ingredients.findIndicesOfMarkerAsArray(Marker.ITEM_LIST_SLOT));
-        ingredients.insertIntoGUI(gui);
-    
-        return gui;
+    private SimplePagedGUIsGUI buildSimplePagedGUIsGUI() {
+        return new SimplePagedGUIsGUI(width, height, guis, structure);
     }
     
-    private SimpleTabGUI buildSimpleTabGUI(IngredientList ingredients) {
-        SimpleTabGUI gui = new SimpleTabGUI(width, height, guis, ingredients.findIndicesOfMarkerAsArray(Marker.ITEM_LIST_SLOT));
-        ingredients.insertIntoGUI(gui);
-        
-        return gui;
+    private SimpleTabGUI buildSimpleTabGUI() {
+        return new SimpleTabGUI(width, height, guis, structure);
     }
     
-    private SimpleScrollGUI buildSimpleScrollGUI(IngredientList ingredients) {
-        SimpleScrollGUI gui = new SimpleScrollGUI(width, height, items, ingredients.findIndicesOfMarkerAsArray(Marker.ITEM_LIST_SLOT));
-        ingredients.insertIntoGUI(gui);
-        
-        return gui;
+    private SimpleScrollGUI buildSimpleScrollGUI() {
+        return new SimpleScrollGUI(width, height, items, structure);
     }
     
 }

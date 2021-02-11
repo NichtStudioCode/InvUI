@@ -4,6 +4,7 @@ import de.studiocode.invui.animation.Animation;
 import de.studiocode.invui.gui.SlotElement.ItemStackHolder;
 import de.studiocode.invui.gui.builder.GUIBuilder;
 import de.studiocode.invui.gui.impl.*;
+import de.studiocode.invui.gui.structure.Structure;
 import de.studiocode.invui.item.Item;
 import de.studiocode.invui.virtualinventory.VirtualInventory;
 import de.studiocode.invui.window.Window;
@@ -194,6 +195,13 @@ public interface GUI extends GUIParent {
      * @param index The slot index of the {@link Item}s that should be removed
      */
     void remove(int index);
+    
+    /**
+     * Applies the given {@link Structure} to the {@link GUI}.
+     *
+     * @param structure The structure
+     */
+    void applyStructure(Structure structure);
     
     /**
      * A method called if a slot in the {@link Inventory} has been clicked.
