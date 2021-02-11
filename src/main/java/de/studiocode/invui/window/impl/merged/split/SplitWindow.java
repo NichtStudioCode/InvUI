@@ -1,7 +1,7 @@
 package de.studiocode.invui.window.impl.merged.split;
 
 import de.studiocode.invui.gui.GUI;
-import de.studiocode.invui.gui.SlotElement.ItemStackHolder;
+import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.util.Pair;
 import de.studiocode.invui.util.SlotUtils;
 import de.studiocode.invui.window.Window;
@@ -31,13 +31,13 @@ public abstract class SplitWindow extends MergedWindow {
     @Override
     public void handleSlotElementUpdate(GUI child, int slotIndex) {
         redrawItem(child == upperGui ? slotIndex : upperGui.getSize() + slotIndex,
-            child.getItemStackHolder(slotIndex), true);
+            child.getSlotElement(slotIndex), true);
     }
     
     @Override
-    public ItemStackHolder getItemStackHolder(int index) {
-        if (index >= upperGui.getSize()) return lowerGui.getItemStackHolder(index - upperGui.getSize());
-        else return upperGui.getItemStackHolder(index);
+    public SlotElement getSlotElement(int index) {
+        if (index >= upperGui.getSize()) return lowerGui.getSlotElement(index - upperGui.getSize());
+        else return upperGui.getSlotElement(index);
     }
     
     @Override

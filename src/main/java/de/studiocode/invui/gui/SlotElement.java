@@ -8,18 +8,14 @@ import java.util.UUID;
 
 public interface SlotElement {
     
-    ItemStackHolder getItemStackHolder();
+    ItemStack getItemStack(UUID viewerUUID);
     
-    interface ItemStackHolder {
-        
-        ItemStack getItemStack(UUID viewerUUID);
-        
-    }
+    SlotElement getHoldingElement();
     
     /**
      * Contains an Item
      */
-    class ItemSlotElement implements SlotElement, ItemStackHolder {
+    class ItemSlotElement implements SlotElement {
         
         private final Item item;
         
@@ -35,9 +31,9 @@ public interface SlotElement {
         public ItemStack getItemStack(UUID viewerUUID) {
             return item.getItemBuilder().buildFor(viewerUUID);
         }
-        
+    
         @Override
-        public ItemStackHolder getItemStackHolder() {
+        public SlotElement getHoldingElement() {
             return this;
         }
         
@@ -46,7 +42,7 @@ public interface SlotElement {
     /**
      * Links to a slot in a virtual inventory
      */
-    class VISlotElement implements SlotElement, ItemStackHolder {
+    class VISlotElement implements SlotElement {
         
         private final VirtualInventory virtualInventory;
         private final int index;
@@ -72,9 +68,9 @@ public interface SlotElement {
         public ItemStack getItemStack(UUID viewerUUID) {
             return getItemStack();
         }
-        
+    
         @Override
-        public ItemStackHolder getItemStackHolder() {
+        public SlotElement getHoldingElement() {
             return this;
         }
         
@@ -102,13 +98,19 @@ public interface SlotElement {
             return slot;
         }
         
-        public ItemStackHolder getItemStackHolder() {
+        @Override
+        public SlotElement getHoldingElement() {
             LinkedSlotElement element = this;
             while (true) {
                 SlotElement below = element.getGui().getSlotElement(element.getSlotIndex());
                 if (below instanceof LinkedSlotElement) element = (LinkedSlotElement) below;
-                else return (ItemStackHolder) below;
+                else return below;
             }
+        }
+    
+        @Override
+        public ItemStack getItemStack(UUID viewerUUID) {
+            return getHoldingElement().getItemStack(viewerUUID);
         }
         
     }

@@ -1,7 +1,7 @@
 package de.studiocode.invui.window.impl.single;
 
 import de.studiocode.invui.gui.GUI;
-import de.studiocode.invui.gui.SlotElement.ItemStackHolder;
+import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.window.Window;
 import de.studiocode.invui.window.impl.BaseWindow;
 import org.bukkit.entity.Player;
@@ -33,8 +33,8 @@ public abstract class SingleWindow extends BaseWindow {
     
     protected void initItems() {
         for (int i = 0; i < size; i++) {
-            ItemStackHolder holder = gui.getItemStackHolder(i);
-            if (holder != null) redrawItem(i, holder, true);
+            SlotElement element = gui.getSlotElement(i);
+            if (element != null) redrawItem(i, element, true);
         }
     }
     
@@ -55,7 +55,7 @@ public abstract class SingleWindow extends BaseWindow {
     
     @Override
     public void handleSlotElementUpdate(GUI child, int slotIndex) {
-        redrawItem(slotIndex, gui.getItemStackHolder(slotIndex), true);
+        redrawItem(slotIndex, gui.getSlotElement(slotIndex), true);
     }
     
     @Override

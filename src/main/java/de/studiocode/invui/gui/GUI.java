@@ -1,7 +1,6 @@
 package de.studiocode.invui.gui;
 
 import de.studiocode.invui.animation.Animation;
-import de.studiocode.invui.gui.SlotElement.ItemStackHolder;
 import de.studiocode.invui.gui.builder.GUIBuilder;
 import de.studiocode.invui.gui.impl.*;
 import de.studiocode.invui.gui.structure.Structure;
@@ -165,23 +164,6 @@ public interface GUI extends GUIParent {
     void addItems(@NotNull Item... items);
     
     /**
-     * Gets the {@link ItemStackHolder} on these coordinates.
-     *
-     * @param x The x coordinate
-     * @param y The y coordinate
-     * @return The {@link ItemStackHolder} which is placed on that slot or null if there isn't one
-     */
-    ItemStackHolder getItemStackHolder(int x, int y);
-    
-    /**
-     * Gets the {@link ItemStackHolder} placed on that slot.
-     *
-     * @param index The slot index
-     * @return The {@link ItemStackHolder} which is placed on that slot or null if there isn't one
-     */
-    ItemStackHolder getItemStackHolder(int index);
-    
-    /**
      * Removes an {@link Item} by its coordinates.
      *
      * @param x The x coordinate
@@ -260,9 +242,9 @@ public interface GUI extends GUIParent {
      * Plays an {@link Animation}.
      *
      * @param animation The {@link Animation} to play.
-     * @param filter    The filter that selects which {@link ItemStackHolder}s should be animated.
+     * @param filter    The filter that selects which {@link SlotElement}s should be animated.
      */
-    void playAnimation(@NotNull Animation animation, @Nullable Predicate<ItemStackHolder> filter);
+    void playAnimation(@NotNull Animation animation, @Nullable Predicate<SlotElement> filter);
     
     /**
      * Cancels the running {@link Animation} if there is one.

@@ -1,7 +1,7 @@
 package de.studiocode.invui.window.impl.merged;
 
 import de.studiocode.invui.gui.GUI;
-import de.studiocode.invui.gui.SlotElement.ItemStackHolder;
+import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.util.Pair;
 import de.studiocode.invui.util.SlotUtils;
 import de.studiocode.invui.window.Window;
@@ -34,15 +34,15 @@ public abstract class MergedWindow extends BaseWindow {
     
     protected void initUpperItems() {
         for (int i = 0; i < upperInventory.getSize(); i++) {
-            ItemStackHolder holder = getItemStackHolder(i);
-            if (holder != null) redrawItem(i, holder, true);
+            SlotElement element = getSlotElement(i);
+            if (element != null) redrawItem(i, element, true);
         }
     }
     
     private void initPlayerItems() {
         for (int i = upperInventory.getSize(); i < upperInventory.getSize() + 36; i++) {
-            ItemStackHolder holder = getItemStackHolder(i);
-            if (holder != null) redrawItem(i, holder, true);
+            SlotElement element = getSlotElement(i);
+            if (element != null) redrawItem(i, element, true);
         }
     }
     
@@ -62,8 +62,8 @@ public abstract class MergedWindow extends BaseWindow {
     }
     
     @Override
-    protected void redrawItem(int index, ItemStackHolder holder, boolean setItem) {
-        super.redrawItem(index, holder, setItem);
+    protected void redrawItem(int index, SlotElement element, boolean setItem) {
+        super.redrawItem(index, element, setItem);
         if (getViewer() != null)
             getViewer().updateInventory(); // fixes a bug where some items wouldn't be displayed correctly
     }
@@ -136,7 +136,7 @@ public abstract class MergedWindow extends BaseWindow {
         return playerInventory;
     }
     
-    protected abstract ItemStackHolder getItemStackHolder(int index);
+    protected abstract SlotElement getSlotElement(int index);
     
     protected abstract Pair<GUI, Integer> getWhereClicked(InventoryClickEvent event);
     

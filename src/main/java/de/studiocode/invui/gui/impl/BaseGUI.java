@@ -2,7 +2,6 @@ package de.studiocode.invui.gui.impl;
 
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement;
-import de.studiocode.invui.gui.SlotElement.ItemStackHolder;
 import de.studiocode.invui.gui.SlotElement.LinkedSlotElement;
 import de.studiocode.invui.gui.SlotElement.VISlotElement;
 import de.studiocode.invui.item.Item;
@@ -41,11 +40,6 @@ public abstract class BaseGUI extends IndexedGUI {
     @Override
     public boolean hasSlotElement(int x, int y) {
         return hasSlotElement(convToIndex(x, y));
-    }
-    
-    @Override
-    public ItemStackHolder getItemStackHolder(int x, int y) {
-        return getItemStackHolder(convToIndex(x, y));
     }
     
     @Override

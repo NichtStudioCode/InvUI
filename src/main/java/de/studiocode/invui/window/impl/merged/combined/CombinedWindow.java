@@ -1,7 +1,7 @@
 package de.studiocode.invui.window.impl.merged.combined;
 
 import de.studiocode.invui.gui.GUI;
-import de.studiocode.invui.gui.SlotElement.ItemStackHolder;
+import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.util.Pair;
 import de.studiocode.invui.util.SlotUtils;
 import de.studiocode.invui.window.Window;
@@ -27,12 +27,12 @@ public abstract class CombinedWindow extends MergedWindow {
     
     @Override
     public void handleSlotElementUpdate(GUI child, int slotIndex) {
-        redrawItem(slotIndex, gui.getItemStackHolder(slotIndex), true);
+        redrawItem(slotIndex, gui.getSlotElement(slotIndex), true);
     }
     
     @Override
-    protected ItemStackHolder getItemStackHolder(int index) {
-        return gui.getItemStackHolder(index);
+    protected SlotElement getSlotElement(int index) {
+        return gui.getSlotElement(index);
     }
     
     @Override

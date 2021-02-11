@@ -2,8 +2,8 @@ package de.studiocode.invui.window.impl;
 
 import de.studiocode.inventoryaccess.api.version.InventoryAccess;
 import de.studiocode.invui.InvUI;
+import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.gui.SlotElement.ItemSlotElement;
-import de.studiocode.invui.gui.SlotElement.ItemStackHolder;
 import de.studiocode.invui.gui.SlotElement.VISlotElement;
 import de.studiocode.invui.item.Item;
 import de.studiocode.invui.util.ArrayUtils;
@@ -22,7 +22,7 @@ public abstract class BaseWindow implements Window {
     
     private final UUID viewerUUID;
     private final boolean closeOnEvent;
-    private final ItemStackHolder[] itemsDisplayed;
+    private final SlotElement[] elementsDisplayed;
     
     private boolean closeable;
     private boolean closed;
@@ -31,45 +31,45 @@ public abstract class BaseWindow implements Window {
         this.viewerUUID = viewerUUID;
         this.closeable = closeable;
         this.closeOnEvent = closeOnEvent;
-        this.itemsDisplayed = new ItemStackHolder[size];
+        this.elementsDisplayed = new SlotElement[size];
         
         WindowManager.getInstance().addWindow(this);
     }
     
-    protected void redrawItem(int index, ItemStackHolder holder, boolean setItem) {
+    protected void redrawItem(int index, SlotElement element, boolean setItem) {
         // put ItemStack in inventory
-        ItemStack itemStack = holder == null ? null : holder.getItemStack(viewerUUID);
+        ItemStack itemStack = element == null ? null : element.getItemStack(viewerUUID);
         setInvItem(index, itemStack);
         
         if (setItem) {
             // tell the previous item (if there is one) that this is no longer its window
-            ItemStackHolder previousHolder = itemsDisplayed[index];
-            if (previousHolder instanceof ItemSlotElement) {
-                ItemSlotElement element = (ItemSlotElement) previousHolder;
-                Item item = element.getItem();
+            SlotElement previousElement = elementsDisplayed[index];
+            if (previousElement instanceof ItemSlotElement) {
+                ItemSlotElement itemSlotElement = (ItemSlotElement) previousElement;
+                Item item = itemSlotElement.getItem();
                 // check if the Item isn't still present on another index
                 if (getItemSlotElements(item).size() == 1) {
                     // only if not, remove Window from list in Item
                     item.removeWindow(this);
                 }
-            } else if (previousHolder instanceof VISlotElement) {
-                VISlotElement element = (VISlotElement) previousHolder;
-                VirtualInventory virtualInventory = element.getVirtualInventory();
+            } else if (previousElement instanceof VISlotElement) {
+                VISlotElement viSlotElement = (VISlotElement) previousElement;
+                VirtualInventory virtualInventory = viSlotElement.getVirtualInventory();
                 // check if the VirtualInventory isn't still present on another index
-                if (getVISlotElements(element.getVirtualInventory()).size() == 1) {
+                if (getVISlotElements(viSlotElement.getVirtualInventory()).size() == 1) {
                     // only if not, remove Window from list in VirtualInventory
                     virtualInventory.removeWindow(this);
                 }
             }
             
             // tell the Item or VirtualInventory that it is being displayed in this Window
-            if (holder instanceof ItemSlotElement) {
-                ((ItemSlotElement) holder).getItem().addWindow(this);
-            } else if (holder instanceof VISlotElement) {
-                ((VISlotElement) holder).getVirtualInventory().addWindow(this);
+            if (element instanceof ItemSlotElement) {
+                ((ItemSlotElement) element).getItem().addWindow(this);
+            } else if (element instanceof VISlotElement) {
+                ((VISlotElement) element).getVirtualInventory().addWindow(this);
             }
             
-            itemsDisplayed[index] = holder;
+            elementsDisplayed[index] = element;
         }
     }
     
@@ -103,14 +103,14 @@ public abstract class BaseWindow implements Window {
             redrawItem(index, slotElement, false));
     }
     
-    protected Map<Integer, ItemStackHolder> getItemSlotElements(Item item) {
-        return ArrayUtils.findAllOccurrences(itemsDisplayed, holder -> holder instanceof ItemSlotElement
-            && ((ItemSlotElement) holder).getItem() == item);
+    protected Map<Integer, SlotElement> getItemSlotElements(Item item) {
+        return ArrayUtils.findAllOccurrences(elementsDisplayed, element -> element instanceof ItemSlotElement
+            && ((ItemSlotElement) element).getItem() == item);
     }
     
-    protected Map<Integer, ItemStackHolder> getVISlotElements(VirtualInventory virtualInventory) {
-        return ArrayUtils.findAllOccurrences(itemsDisplayed, holder -> holder instanceof VISlotElement
-            && ((VISlotElement) holder).getVirtualInventory() == virtualInventory);
+    protected Map<Integer, SlotElement> getVISlotElements(VirtualInventory virtualInventory) {
+        return ArrayUtils.findAllOccurrences(elementsDisplayed, element -> element instanceof VISlotElement
+            && ((VISlotElement) element).getVirtualInventory() == virtualInventory);
     }
     
     @Override
@@ -119,10 +119,11 @@ public abstract class BaseWindow implements Window {
         
         WindowManager.getInstance().removeWindow(this);
         
-        Arrays.stream(itemsDisplayed)
+        Arrays.stream(elementsDisplayed)
             .filter(Objects::nonNull)
-            .filter(holder -> holder instanceof ItemSlotElement)
-            .map(holder -> ((ItemSlotElement) holder).getItem())
+            .map(SlotElement::getHoldingElement)
+            .filter(element -> element instanceof ItemSlotElement)
+            .map(element -> ((ItemSlotElement) element).getItem())
             .forEach(item -> item.removeWindow(this));
         
         Arrays.stream(getGuis())

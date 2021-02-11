@@ -5,7 +5,6 @@ import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.GUIParent;
 import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.gui.SlotElement.ItemSlotElement;
-import de.studiocode.invui.gui.SlotElement.ItemStackHolder;
 import de.studiocode.invui.gui.SlotElement.LinkedSlotElement;
 import de.studiocode.invui.gui.SlotElement.VISlotElement;
 import de.studiocode.invui.gui.structure.Structure;
@@ -123,7 +122,7 @@ abstract class IndexedGUI implements GUI {
                         int leftOverAmount;
                         if (window instanceof SplitWindow) {
                             SplitWindow splitWindow = (SplitWindow) window;
-                            GUI[] guis  = splitWindow.getGuis();
+                            GUI[] guis = splitWindow.getGuis();
                             GUI otherGui = guis[0] == this ? guis[1] : guis[0];
                             
                             leftOverAmount = ((IndexedGUI) otherGui).putIntoVirtualInventories(player, invStack, virtualInventory);
@@ -173,7 +172,7 @@ abstract class IndexedGUI implements GUI {
                 ItemStack toAdd = itemStack.clone();
                 toAdd.setAmount(amountLeft);
                 amountLeft = virtualInventory.addItem(player, toAdd);
-            
+                
                 if (amountLeft == 0) break;
             }
             
@@ -187,9 +186,9 @@ abstract class IndexedGUI implements GUI {
         List<VirtualInventory> virtualInventories = new ArrayList<>();
         Arrays.stream(slotElements)
             .filter(Objects::nonNull)
-            .map(SlotElement::getItemStackHolder)
-            .filter(holder -> holder instanceof VISlotElement)
-            .map(holder -> ((VISlotElement) holder).getVirtualInventory())
+            .map(SlotElement::getHoldingElement)
+            .filter(element -> element instanceof VISlotElement)
+            .map(element -> ((VISlotElement) element).getVirtualInventory())
             .filter(vi -> Arrays.stream(ignored).noneMatch(vi::equals))
             .forEach(vi -> {
                 if (!virtualInventories.contains(vi)) virtualInventories.add(vi);
@@ -252,7 +251,7 @@ abstract class IndexedGUI implements GUI {
     }
     
     @Override
-    public void playAnimation(@NotNull Animation animation, @Nullable Predicate<ItemStackHolder> filter) {
+    public void playAnimation(@NotNull Animation animation, @Nullable Predicate<SlotElement> filter) {
         if (animation != null) cancelAnimation();
         
         this.animation = animation;
@@ -260,8 +259,8 @@ abstract class IndexedGUI implements GUI {
         
         List<Integer> slots = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            ItemStackHolder holder = getItemStackHolder(i);
-            if (holder != null && (filter == null || filter.test(holder))) {
+            SlotElement element = getSlotElement(i);
+            if (element != null && (filter == null || filter.test(element))) {
                 slots.add(i);
                 setSlotElement(i, null);
             }
@@ -357,18 +356,14 @@ abstract class IndexedGUI implements GUI {
     public Item getItem(int index) {
         SlotElement slotElement = slotElements[index];
         
-        if (slotElement != null) {
-            ItemStackHolder holder = slotElement.getItemStackHolder();
-            if (holder instanceof ItemSlotElement) return ((ItemSlotElement) holder).getItem();
+        if (slotElement instanceof ItemSlotElement) {
+            return ((ItemSlotElement) slotElement).getItem();
+        } else if (slotElement instanceof LinkedSlotElement) {
+            SlotElement holdingElement = slotElement.getHoldingElement();
+            if (holdingElement instanceof ItemSlotElement) return ((ItemSlotElement) holdingElement).getItem();
         }
         
         return null;
-    }
-    
-    @Override
-    public ItemStackHolder getItemStackHolder(int index) {
-        SlotElement slotElement = slotElements[index];
-        return slotElement == null ? null : slotElement.getItemStackHolder();
     }
     
     @Override
