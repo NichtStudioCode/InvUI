@@ -5,6 +5,7 @@ import de.studiocode.invui.gui.GUIParent;
 import de.studiocode.invui.item.Item;
 import de.studiocode.invui.item.itembuilder.ItemBuilder;
 import de.studiocode.invui.virtualinventory.VirtualInventory;
+import de.studiocode.invui.window.impl.merged.MergedWindow;
 import de.studiocode.invui.window.impl.merged.combined.SimpleCombinedWindow;
 import de.studiocode.invui.window.impl.merged.split.SimpleSplitWindow;
 import de.studiocode.invui.window.impl.single.SimpleWindow;
@@ -53,7 +54,7 @@ public interface Window extends GUIParent {
     /**
      * A method called by the {@link WindowManager} to notify the {@link Window}
      * that {@link ItemStack}s have been dragged inside it.
-     * 
+     *
      * @param event The {@link InventoryDragEvent} associated with this action.
      */
     void handleDrag(InventoryDragEvent event);
@@ -62,10 +63,21 @@ public interface Window extends GUIParent {
      * A method called by the {@link WindowManager} to notify the {@link Window}
      * that {@link ItemStack}s have been shift-clicked from the lower
      * {@link Inventory} to this {@link Window}
-     * 
+     *
      * @param event The {@link InventoryClickEvent} associated with this action.
      */
     void handleItemShift(InventoryClickEvent event);
+    
+    /**
+     * A method called by the {@link WindowManager} to notify the {@link Window}
+     * that a {@link Player} is trying to collect {@link ItemStack} to the cursor
+     * by double-clicking in the player inventory.
+     * This method is not called when the player inventory is also part of the
+     * {@link Window}. ({@link MergedWindow})
+     *
+     * @param event The {@link InventoryClickEvent} associated with this action.
+     */
+    void handleCursorCollect(InventoryClickEvent event);
     
     /**
      * A method called by the {@link WindowManager} to notify the {@link Window}

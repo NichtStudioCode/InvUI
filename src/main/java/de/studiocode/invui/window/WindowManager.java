@@ -116,9 +116,21 @@ public class WindowManager implements Listener {
             w.get().handleClick(event);
         } else {
             Optional<Window> w1 = findWindow(event.getView().getTopInventory());
-            // player shift-clicked from lower inventory to window
-            if (w1.isPresent() && event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY)
-                w1.get().handleItemShift(event);
+            // player inventory (not merged window) clicked
+            if (w1.isPresent()) {
+                Window window = w1.get();
+                switch (event.getAction()) {
+                    // items have been shift clicked from player inv to Window
+                    case MOVE_TO_OTHER_INVENTORY:
+                        window.handleItemShift(event);
+                        break;
+                    
+                    // items have been collected by clicking a slot in the player inv
+                    case COLLECT_TO_CURSOR:
+                        window.handleCursorCollect(event);
+                        break;
+                }
+            }
         }
     }
     

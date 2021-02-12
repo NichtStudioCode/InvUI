@@ -15,7 +15,6 @@ import de.studiocode.invui.virtualinventory.event.ItemUpdateEvent;
 import de.studiocode.invui.window.Window;
 import de.studiocode.invui.window.WindowManager;
 import de.studiocode.invui.window.impl.merged.MergedWindow;
-import de.studiocode.invui.window.impl.merged.combined.CombinedWindow;
 import de.studiocode.invui.window.impl.merged.split.SplitWindow;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -112,11 +111,17 @@ abstract class IndexedGUI implements GUI {
                 case SWAP_WITH_CURSOR:
                     cancelled = virtualInventory.setItemStack(player, index, event.getCursor());
                     break;
+                    
+                case COLLECT_TO_CURSOR:
+                    cancelled = true;
+                    ItemStack newCursor = cursor.clone();
+                    newCursor.setAmount(virtualInventory.collectToCursor(player, newCursor));
+                    player.setItemOnCursor(newCursor);
+                break;
                 
                 case MOVE_TO_OTHER_INVENTORY:
-                    event.setCancelled(true);
+                    cancelled = true;
                     Window window = WindowManager.getInstance().findOpenWindow(player).orElse(null);
-                    if (window instanceof CombinedWindow) break; // can't move if there is no other gui
                     
                     ItemStack invStack = virtualInventory.getItemStack(index);
                     ItemUpdateEvent updateEvent = new ItemUpdateEvent(virtualInventory, index, player, invStack, null);
@@ -146,8 +151,9 @@ abstract class IndexedGUI implements GUI {
                     break;
                 
                 default:
+                    // TODO: Hotbar swap
                     // action not supported
-                    event.setCancelled(true);
+                    cancelled = true;
                     break;
             }
             

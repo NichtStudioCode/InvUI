@@ -120,7 +120,12 @@ public abstract class MergedWindow extends BaseWindow {
     
     @Override
     public void handleItemShift(InventoryClickEvent event) {
-        // empty
+        // empty, should not be called by the WindowManager
+    }
+    
+    @Override
+    public void handleCursorCollect(InventoryClickEvent event) {
+        // empty, should not be called by the WindowManager
     }
     
     @Override

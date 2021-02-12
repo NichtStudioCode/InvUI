@@ -2,7 +2,6 @@ package de.studiocode.invui.virtualinventory;
 
 import de.studiocode.invui.InvUI;
 import de.studiocode.invui.util.ArrayUtils;
-import de.studiocode.invui.util.Pair;
 import de.studiocode.invui.virtualinventory.event.ItemUpdateEvent;
 import de.studiocode.invui.window.Window;
 import org.bukkit.Bukkit;
@@ -100,11 +99,10 @@ public class VirtualInventory implements ConfigurationSerializable {
     
     /**
      * Sets an {@link ItemStack} on a specific slot.
-     * 
+     *
      * @param player    The player that did this or <code>null</code> if it wasn't a player.
      * @param index     The slot index
      * @param itemStack The {@link ItemStack} that should be put on that slot
-     *                  
      * @return If the action has been cancelled
      */
     public boolean setItemStack(Player player, int index, ItemStack itemStack) {
@@ -116,7 +114,7 @@ public class VirtualInventory implements ConfigurationSerializable {
             
             return false;
         }
-    
+        
         return true;
     }
     
@@ -339,9 +337,10 @@ public class VirtualInventory implements ConfigurationSerializable {
         int amountLeft = originalAmount;
         
         // find all slots where the item partially fits and add it there
-        Pair<Integer, ItemStack> partialSlot;
-        while ((partialSlot = findPartialSlot(itemStack)) != null && amountLeft != 0)
+        for (int partialSlot : findPartialSlots(itemStack)) {
             amountLeft = addTo(player, partialSlot, amountLeft);
+            if (amountLeft == 0) break;
+        }
         
         if (amountLeft != 0) {
             // there are still items left, put the rest on an empty slot
@@ -361,19 +360,52 @@ public class VirtualInventory implements ConfigurationSerializable {
         return amountLeft;
     }
     
-    private Pair<Integer, ItemStack> findPartialSlot(ItemStack itemStack) {
+    public int collectToCursor(Player player, ItemStack itemStack) {
+        int amount = itemStack.getAmount();
+        int maxStackSize = itemStack.getMaxStackSize();
+        if (amount < itemStack.getMaxStackSize()) {
+            // find partial slots and take items from there
+            for (int partialSlot : findPartialSlots(itemStack)) {
+                amount += takeFrom(player, partialSlot, maxStackSize - amount);
+                if (amount == maxStackSize) break;
+            }
+            
+            // if only taking from partial stacks wasn't enough, take from a full slot
+            if (amount < itemStack.getMaxStackSize()) {
+                int fullSlot = findFullSlot(itemStack);
+                if (fullSlot != -1) {
+                    amount += takeFrom(player, fullSlot, maxStackSize - amount);
+                }
+            }
+        }
+        
+        return amount;
+    }
+    
+    private List<Integer> findPartialSlots(ItemStack itemStack) {
+        List<Integer> partialSlots = new ArrayList<>();
         for (int i = 0; i < items.length; i++) {
             ItemStack currentStack = items[i];
             if (currentStack != null && currentStack.getAmount() < currentStack.getMaxStackSize()
-                && currentStack.isSimilar(itemStack)) return new Pair<>(i, currentStack);
+                && currentStack.isSimilar(itemStack)) partialSlots.add(i);
         }
         
-        return null;
+        return partialSlots;
     }
     
-    private int addTo(Player player, Pair<Integer, ItemStack> partialSlot, int amount) {
-        int index = partialSlot.getFirst();
-        ItemStack itemStack = partialSlot.getSecond();
+    private int findFullSlot(ItemStack itemStack) {
+        for (int i = 0; i < items.length; i++) {
+            ItemStack currentStack = items[i];
+            if (currentStack != null 
+                && currentStack.getAmount() == currentStack.getMaxStackSize()
+                && currentStack.isSimilar(itemStack)) return i;
+        }
+        
+        return -1;
+    }
+    
+    private int addTo(Player player, int index, int amount) {
+        ItemStack itemStack = items[index];
         
         int maxAddable = Math.min(itemStack.getMaxStackSize() - itemStack.getAmount(), amount);
         
@@ -389,6 +421,27 @@ public class VirtualInventory implements ConfigurationSerializable {
             notifyWindows();
             return amount - maxAddable;
         } else return amount;
+    }
+    
+    private int takeFrom(Player player, int index, int maxTake) {
+        ItemStack itemStack = items[index];
+        int amount = itemStack.getAmount();
+        int take = Math.min(amount, maxTake);
+        
+        ItemStack newStack;
+        if (take != amount) {
+            newStack = itemStack.clone();
+            newStack.setAmount(amount - take);
+        } else newStack = null;
+        
+        ItemUpdateEvent event = createAndCallEvent(index, player, itemStack, newStack);
+        if (!event.isCancelled()) {
+            items[index] = newStack;
+            notifyWindows();
+            return take;
+        }
+        
+        return 0;
     }
     
     /**
