@@ -124,8 +124,7 @@ public class WindowManager implements Listener {
     
     @EventHandler
     public void handleInventoryDrag(InventoryDragEvent event) {
-        // currently, dragging items is not supported
-        findWindow(event.getInventory()).ifPresent(w -> event.setCancelled(true));
+        findWindow(event.getInventory()).ifPresent(window -> window.handleDrag(event));
     }
     
     @EventHandler(priority = EventPriority.HIGHEST)

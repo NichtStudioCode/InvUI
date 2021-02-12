@@ -52,6 +52,13 @@ public abstract class SplitWindow extends MergedWindow {
     }
     
     @Override
+    protected Pair<GUI, Integer> getGuiAt(int index) {
+        if (index < upperGui.getSize()) return new Pair<>(upperGui, index);
+        else if (index < (upperGui.getSize() + lowerGui.getSize())) return new Pair<>(lowerGui, index - upperGui.getSize());
+        else return null;
+    }
+    
+    @Override
     public GUI[] getGuis() {
         return new GUI[] {upperGui, lowerGui};
     }

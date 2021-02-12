@@ -2,6 +2,7 @@ package de.studiocode.invui.window.impl.single;
 
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement;
+import de.studiocode.invui.util.Pair;
 import de.studiocode.invui.window.Window;
 import de.studiocode.invui.window.impl.BaseWindow;
 import org.bukkit.entity.Player;
@@ -61,6 +62,16 @@ public abstract class SingleWindow extends BaseWindow {
     @Override
     public void handleClick(InventoryClickEvent event) {
         gui.handleClick(event.getSlot(), (Player) event.getWhoClicked(), event.getClick(), event);
+    }
+    
+    @Override
+    protected Pair<GUI, Integer> getGuiAt(int index) {
+        return index < gui.getSize() ? new Pair<>(gui, index) : null;
+    }
+    
+    @Override
+    protected SlotElement getSlotElement(int index) {
+        return gui.getSlotElement(index);
     }
     
     @Override

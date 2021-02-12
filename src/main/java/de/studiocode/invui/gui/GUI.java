@@ -204,6 +204,17 @@ public interface GUI extends GUIParent {
     void handleItemShift(InventoryClickEvent event);
     
     /**
+     * A method called when an {@link ItemStack} has been dragged over the {@link GUI}.
+     *
+     * @param player   The player that is responsible for this action
+     * @param slot     The slot index
+     * @param oldStack The {@link ItemStack} that was previously on that slot
+     * @param newStack The new {@link ItemStack} that would be there if the action isn't cancelled
+     * @return If the action has been cancelled
+     */
+    boolean handleItemDrag(Player player, int slot, ItemStack oldStack, ItemStack newStack);
+    
+    /**
      * Adds a {@link GUIParent} to the set of {@link GUIParent}s.
      *
      * @param parent The {@link GUIParent} to add

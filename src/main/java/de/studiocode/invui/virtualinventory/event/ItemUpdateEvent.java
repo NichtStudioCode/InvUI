@@ -17,34 +17,30 @@ public class ItemUpdateEvent extends Event implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     
     private final VirtualInventory virtualInventory;
-    private final ItemStack itemStack;
+    private final ItemStack previousItemStack;
+    private final ItemStack newItemStack;
     private final Player player;
     private final int slot;
-    private final int previousAmount;
-    private final int newAmount;
     
     private boolean cancelled;
     
     /**
      * Creates a new {@link ItemUpdateEvent}.
      *
-     * @param virtualInventory The {@link VirtualInventory} where this action takes place.
-     * @param player           The {@link Player} who changed the {@link ItemStack} or <code>null</code>
-     *                         if it wasn't a {@link Player}
-     * @param itemStack        The {@link ItemStack} that is affected
-     * @param slot             The slot that is affected
-     * @param previousAmount   The previous amount of the {@link ItemStack}
-     * @param newAmount        The amount that the {@link ItemStack} will have if the event is not being
-     *                         cancelled or -1 if not known
+     * @param virtualInventory  The {@link VirtualInventory} where this action takes place.
+     * @param player            The {@link Player} who changed the {@link ItemStack} or <code>null</code>
+     *                          if it wasn't a {@link Player}
+     * @param slot              The slot that is affected
+     * @param previousItemStack The {@link ItemStack} that was there previously
+     * @param newItemStack      The {@link ItemStack} that will be there if the event isn't cancelled
      */
-    public ItemUpdateEvent(@NotNull VirtualInventory virtualInventory, @Nullable Player player, @NotNull ItemStack itemStack, int slot, int previousAmount,
-                           int newAmount) {
+    public ItemUpdateEvent(@NotNull VirtualInventory virtualInventory, int slot, @Nullable Player player,
+                           @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
         this.virtualInventory = virtualInventory;
-        this.player = player;
-        this.itemStack = itemStack;
         this.slot = slot;
-        this.previousAmount = previousAmount;
-        this.newAmount = newAmount;
+        this.player = player;
+        this.previousItemStack = previousItemStack;
+        this.newItemStack = newItemStack;
     }
     
     /**
@@ -76,12 +72,21 @@ public class ItemUpdateEvent extends Event implements Cancellable {
     }
     
     /**
-     * Gets the {@link ItemStack} involved in this action.
+     * Gets the {@link ItemStack} that was there previously.
      *
      * @return The {@link ItemStack}
      */
-    public ItemStack getItemStack() {
-        return itemStack;
+    public ItemStack getPreviousItemStack() {
+        return previousItemStack;
+    }
+    
+    /**
+     * The new {@link ItemStack} that will be there if the event isn't cancelled.
+     *
+     * @return The new {@link ItemStack}
+     */
+    public ItemStack getNewItemStack() {
+        return newItemStack;
     }
     
     /**
@@ -91,25 +96,6 @@ public class ItemUpdateEvent extends Event implements Cancellable {
      */
     public int getSlot() {
         return slot;
-    }
-    
-    /**
-     * Gets the previous amount of the {@link ItemStack}
-     *
-     * @return The previous amount
-     */
-    public int getPreviousAmount() {
-        return previousAmount;
-    }
-    
-    /**
-     * Gets the new amount of the {@link ItemStack} if the event
-     * isn't being cancelled or -1 if not unknown.
-     *
-     * @return The new amount
-     */
-    public int getNewAmount() {
-        return newAmount;
     }
     
     @Override

@@ -2,17 +2,21 @@ package de.studiocode.invui.window.impl;
 
 import de.studiocode.inventoryaccess.api.version.InventoryAccess;
 import de.studiocode.invui.InvUI;
+import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.gui.SlotElement.ItemSlotElement;
 import de.studiocode.invui.gui.SlotElement.VISlotElement;
 import de.studiocode.invui.item.Item;
 import de.studiocode.invui.util.ArrayUtils;
+import de.studiocode.invui.util.Pair;
 import de.studiocode.invui.virtualinventory.VirtualInventory;
 import de.studiocode.invui.window.Window;
 import de.studiocode.invui.window.WindowManager;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -34,6 +38,10 @@ public abstract class BaseWindow implements Window {
         this.elementsDisplayed = new SlotElement[size];
         
         WindowManager.getInstance().addWindow(this);
+    }
+    
+    protected void redrawItem(int index) {
+        redrawItem(index, getSlotElement(index), false);
     }
     
     protected void redrawItem(int index, SlotElement element, boolean setItem) {
@@ -71,6 +79,36 @@ public abstract class BaseWindow implements Window {
             
             elementsDisplayed[index] = element;
         }
+    }
+    
+    @Override
+    public void handleDrag(InventoryDragEvent event) {
+        Player player = ((Player) event.getWhoClicked()).getPlayer();
+        Map<Integer, ItemStack> newItems = event.getNewItems();
+        
+        int itemsLeft = event.getCursor() == null ? 0 : event.getCursor().getAmount();
+        for (int rawSlot : event.getRawSlots()) { // loop over all affected slots
+            ItemStack currentStack = event.getView().getItem(rawSlot);
+            if (currentStack != null && currentStack.getType() == Material.AIR) currentStack = null;
+            
+            // get the GUI at that index and ask for permission to drag an Item there
+            Pair<GUI, Integer> pair = getGuiAt(rawSlot);
+            if (pair != null && pair.getFirst().handleItemDrag(player, pair.getSecond(), currentStack, newItems.get(rawSlot))) { 
+                // the drag was cancelled
+                int currentAmount = currentStack == null ? 0 : currentStack.getAmount();
+                int newAmount = newItems.get(rawSlot).getAmount();
+                
+                itemsLeft += newAmount - currentAmount;
+                
+                // Redraw cancelled items after the event so there won't be any Items that aren't actually there
+                Bukkit.getScheduler().runTask(InvUI.getInstance().getPlugin(), () -> redrawItem(rawSlot));
+            }
+        }
+        
+        // update the amount on the cursor
+        ItemStack cursorStack = event.getOldCursor();
+        cursorStack.setAmount(itemsLeft);
+        event.setCursor(cursorStack);
     }
     
     @Override
@@ -182,6 +220,10 @@ public abstract class BaseWindow implements Window {
     }
     
     protected abstract void setInvItem(int slot, ItemStack itemStack);
+    
+    protected abstract SlotElement getSlotElement(int index);
+    
+    protected abstract Pair<GUI, Integer> getGuiAt(int index);
     
     protected abstract void handleOpened();
     

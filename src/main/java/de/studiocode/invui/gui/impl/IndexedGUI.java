@@ -14,6 +14,7 @@ import de.studiocode.invui.virtualinventory.VirtualInventory;
 import de.studiocode.invui.virtualinventory.event.ItemUpdateEvent;
 import de.studiocode.invui.window.Window;
 import de.studiocode.invui.window.WindowManager;
+import de.studiocode.invui.window.impl.merged.MergedWindow;
 import de.studiocode.invui.window.impl.merged.combined.CombinedWindow;
 import de.studiocode.invui.window.impl.merged.split.SplitWindow;
 import org.bukkit.Bukkit;
@@ -108,22 +109,30 @@ abstract class IndexedGUI implements GUI {
                     cancelled = virtualInventory.setToMaxAmount(player, index);
                     break;
                 
+                case SWAP_WITH_CURSOR:
+                    cancelled = virtualInventory.setItemStack(player, index, event.getCursor());
+                    break;
+                
                 case MOVE_TO_OTHER_INVENTORY:
                     event.setCancelled(true);
                     Window window = WindowManager.getInstance().findOpenWindow(player).orElse(null);
                     if (window instanceof CombinedWindow) break; // can't move if there is no other gui
                     
                     ItemStack invStack = virtualInventory.getItemStack(index);
-                    ItemUpdateEvent updateEvent = new ItemUpdateEvent(virtualInventory, player, invStack,
-                        index, invStack.getAmount(), -1);
+                    ItemUpdateEvent updateEvent = new ItemUpdateEvent(virtualInventory, index, player, invStack, null);
                     Bukkit.getPluginManager().callEvent(updateEvent);
                     
                     if (!updateEvent.isCancelled()) {
                         int leftOverAmount;
-                        if (window instanceof SplitWindow) {
-                            SplitWindow splitWindow = (SplitWindow) window;
-                            GUI[] guis = splitWindow.getGuis();
-                            GUI otherGui = guis[0] == this ? guis[1] : guis[0];
+                        if (window instanceof MergedWindow) {
+                            GUI otherGui;
+                            if (window instanceof SplitWindow) {
+                                SplitWindow splitWindow = (SplitWindow) window;
+                                GUI[] guis = splitWindow.getGuis();
+                                otherGui = guis[0] == this ? guis[1] : guis[0];
+                            } else {
+                                otherGui = this;
+                            }
                             
                             leftOverAmount = ((IndexedGUI) otherGui).putIntoVirtualInventories(player, invStack, virtualInventory);
                         } else {
@@ -144,6 +153,22 @@ abstract class IndexedGUI implements GUI {
             
             if (cancelled) event.setCancelled(true);
         } else event.setCancelled(true);
+    }
+    
+    @Override
+    public boolean handleItemDrag(Player player, int slot, ItemStack oldStack, ItemStack newStack) {
+        SlotElement element = getSlotElement(slot);
+        if (element != null) element = element.getHoldingElement();
+        if (element instanceof VISlotElement) {
+            VISlotElement viSlotElement = ((VISlotElement) element);
+            VirtualInventory virtualInventory = viSlotElement.getVirtualInventory();
+            int viIndex = viSlotElement.getIndex();
+            if (virtualInventory.isSynced(viIndex, oldStack)) {
+                return virtualInventory.setItemStack(player, viIndex, newStack);
+            }
+        }
+        
+        return true;
     }
     
     @Override

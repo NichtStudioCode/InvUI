@@ -45,6 +45,11 @@ public abstract class CombinedWindow extends MergedWindow {
     }
     
     @Override
+    protected Pair<GUI, Integer> getGuiAt(int index) {
+        return index < gui.getSize() ? new Pair<>(gui, index) : null;
+    }
+    
+    @Override
     public GUI[] getGuis() {
         return new GUI[] {gui};
     }

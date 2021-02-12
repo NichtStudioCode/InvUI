@@ -11,6 +11,7 @@ import de.studiocode.invui.window.impl.single.SimpleWindow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -42,7 +43,7 @@ public interface Window extends GUIParent {
     GUI[] getGuis();
     
     /**
-     * A method called by the {@link WindowManager} to notify the Window
+     * A method called by the {@link WindowManager} to notify the {@link Window}
      * that one of its {@link Item}s has been clicked.
      *
      * @param event The {@link InventoryClickEvent} associated with this action.
@@ -50,7 +51,15 @@ public interface Window extends GUIParent {
     void handleClick(InventoryClickEvent event);
     
     /**
-     * A method called by the {@link WindowManager} to notify the Window
+     * A method called by the {@link WindowManager} to notify the {@link Window}
+     * that {@link ItemStack}s have been dragged inside it.
+     * 
+     * @param event The {@link InventoryDragEvent} associated with this action.
+     */
+    void handleDrag(InventoryDragEvent event);
+    
+    /**
+     * A method called by the {@link WindowManager} to notify the {@link Window}
      * that {@link ItemStack}s have been shift-clicked from the lower
      * {@link Inventory} to this {@link Window}
      * 
@@ -59,7 +68,7 @@ public interface Window extends GUIParent {
     void handleItemShift(InventoryClickEvent event);
     
     /**
-     * A method called by the {@link WindowManager} to notify the Window
+     * A method called by the {@link WindowManager} to notify the {@link Window}
      * that its underlying {@link Inventory} is being opened.
      *
      * @param event The {@link InventoryOpenEvent} associated with this action.
@@ -67,7 +76,7 @@ public interface Window extends GUIParent {
     void handleOpen(InventoryOpenEvent event);
     
     /**
-     * A method called by the {@link WindowManager} to notify the Window
+     * A method called by the {@link WindowManager} to notify the {@link Window}
      * that its underlying {@link Inventory} is being closed.
      *
      * @param player The {@link Player} who closed this inventory.
@@ -75,7 +84,7 @@ public interface Window extends GUIParent {
     void handleClose(Player player);
     
     /**
-     * A method called by the {@link WindowManager} to notify the Window
+     * A method called by the {@link WindowManager} to notify the {@link Window}
      * that it's viewer has died.
      *
      * @param event The {@link PlayerDeathEvent} associated with this action.
@@ -83,7 +92,7 @@ public interface Window extends GUIParent {
     void handleViewerDeath(PlayerDeathEvent event);
     
     /**
-     * A method called by the {@link Item} itself to notify the Window
+     * A method called by the {@link Item} itself to notify the {@link Window}
      * that its {@link ItemBuilder} has been updated and the {@link ItemStack}
      * in the {@link Inventory} should be replaced.
      *
@@ -93,7 +102,7 @@ public interface Window extends GUIParent {
     
     /**
      * A method called by the {@link VirtualInventory} to notify the
-     * Window that one if it's contents has been updated and the {@link ItemStack}'s
+     * {@link Window} that one if it's contents has been updated and the {@link ItemStack}'s
      * displayed in the {@link Inventory} should be replaced.
      *
      * @param virtualInventory The {@link VirtualInventory}
@@ -155,9 +164,9 @@ public interface Window extends GUIParent {
     Player getCurrentViewer();
     
     /**
-     * Gets the viewer's UUID or null if there is no viewer.
+     * Gets the viewer's {@link UUID}
      *
-     * @return The viewer's UUID or null if there is now viewer.
+     * @return The viewer's {@link UUID}
      */
     UUID getViewerUUID();
     
