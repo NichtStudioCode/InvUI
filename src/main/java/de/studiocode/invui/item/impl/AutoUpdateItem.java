@@ -2,7 +2,7 @@ package de.studiocode.invui.item.impl;
 
 import de.studiocode.invui.InvUI;
 import de.studiocode.invui.item.Item;
-import de.studiocode.invui.item.itembuilder.ItemBuilder;
+import de.studiocode.invui.item.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 

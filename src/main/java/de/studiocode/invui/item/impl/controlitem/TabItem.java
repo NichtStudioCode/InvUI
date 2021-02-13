@@ -1,7 +1,7 @@
 package de.studiocode.invui.item.impl.controlitem;
 
 import de.studiocode.invui.gui.impl.TabGUI;
-import de.studiocode.invui.item.itembuilder.ItemBuilder;
+import de.studiocode.invui.item.ItemBuilder;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;

@@ -1,4 +1,4 @@
-package de.studiocode.invui.item.itembuilder;
+package de.studiocode.invui.item;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -12,6 +12,7 @@ import de.studiocode.invui.util.reflection.ReflectionUtils;
 import de.studiocode.invui.window.impl.BaseWindow;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
@@ -213,12 +214,12 @@ public class ItemBuilder implements Cloneable {
         
         private final String textureValue;
         
-        private HeadTexture(@NotNull String textureValue) {
+        public HeadTexture(@NotNull String textureValue) {
             this.textureValue = textureValue;
         }
         
-        public static HeadTexture of(@NotNull Player player) {
-            return of(player.getUniqueId());
+        public static HeadTexture of(@NotNull OfflinePlayer offlinePlayer) {
+            return of(offlinePlayer.getUniqueId());
         }
         
         @SuppressWarnings("deprecation")
@@ -244,10 +245,6 @@ public class ItemBuilder implements Cloneable {
                 e.printStackTrace();
                 return null;
             }
-        }
-        
-        public static HeadTexture fromTextureValue(@NotNull String textureValue) {
-            return new HeadTexture(textureValue);
         }
         
         public static void invalidateCache() {

@@ -6,7 +6,7 @@ import de.studiocode.invui.gui.impl.*;
 import de.studiocode.invui.gui.structure.Marker;
 import de.studiocode.invui.gui.structure.Structure;
 import de.studiocode.invui.item.Item;
-import de.studiocode.invui.item.itembuilder.ItemBuilder;
+import de.studiocode.invui.item.ItemBuilder;
 import org.bukkit.inventory.ShapedRecipe;
 import org.jetbrains.annotations.NotNull;
 

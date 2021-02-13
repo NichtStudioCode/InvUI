@@ -1,6 +1,5 @@
 package de.studiocode.invui.item;
 
-import de.studiocode.invui.item.itembuilder.ItemBuilder;
 import de.studiocode.invui.window.Window;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;

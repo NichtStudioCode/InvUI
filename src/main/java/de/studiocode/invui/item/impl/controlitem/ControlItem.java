@@ -2,7 +2,7 @@ package de.studiocode.invui.item.impl.controlitem;
 
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.item.impl.BaseItem;
-import de.studiocode.invui.item.itembuilder.ItemBuilder;
+import de.studiocode.invui.item.ItemBuilder;
 
 import java.util.function.Function;
 

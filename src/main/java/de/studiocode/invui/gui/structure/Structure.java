@@ -5,7 +5,7 @@ import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.gui.SlotElement.ItemSlotElement;
 import de.studiocode.invui.item.Item;
 import de.studiocode.invui.item.impl.SimpleItem;
-import de.studiocode.invui.item.itembuilder.ItemBuilder;
+import de.studiocode.invui.item.ItemBuilder;
 import org.bukkit.inventory.ShapedRecipe;
 import org.jetbrains.annotations.NotNull;
 

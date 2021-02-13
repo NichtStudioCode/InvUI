@@ -2,7 +2,7 @@ package de.studiocode.invui.resourcepack;
 
 import de.studiocode.invui.item.Item;
 import de.studiocode.invui.item.impl.SimpleItem;
-import de.studiocode.invui.item.itembuilder.ItemBuilder;
+import de.studiocode.invui.item.ItemBuilder;
 import org.bukkit.Material;
 
 import java.util.HashMap;
