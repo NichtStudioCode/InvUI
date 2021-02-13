@@ -1,5 +1,7 @@
 package de.studiocode.invui.item.itembuilder;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
@@ -8,6 +10,7 @@ import de.studiocode.invui.util.Pair;
 import de.studiocode.invui.util.reflection.ReflectionRegistry;
 import de.studiocode.invui.util.reflection.ReflectionUtils;
 import de.studiocode.invui.window.impl.BaseWindow;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -17,8 +20,10 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 public class ItemBuilder implements Cloneable {
     
@@ -32,15 +37,25 @@ public class ItemBuilder implements Cloneable {
     protected HashMap<Enchantment, Pair<Integer, Boolean>> enchantments = new HashMap<>();
     protected GameProfile gameProfile;
     
+    /**
+     * Constructs a new {@link ItemBuilder} based on the given {@link Material}.
+     *
+     * @param material The {@link Material}
+     */
     public ItemBuilder(Material material) {
         this.material = material;
     }
     
-    public ItemBuilder(@NotNull PlayerHead playerHead) {
+    /**
+     * Constructs a new {@link ItemBuilder} of skull with the specified {@link HeadTexture}.
+     *
+     * @param headTexture The {@link HeadTexture}
+     */
+    public ItemBuilder(@NotNull HeadTexture headTexture) {
         material = Material.PLAYER_HEAD;
         gameProfile = new GameProfile(UUID.randomUUID(), null);
         PropertyMap propertyMap = gameProfile.getProperties();
-        propertyMap.put("textures", new Property("textures", playerHead.getTextureValue()));
+        propertyMap.put("textures", new Property("textures", headTexture.getTextureValue()));
     }
     
     /**
@@ -169,11 +184,6 @@ public class ItemBuilder implements Cloneable {
         return this;
     }
     
-    public ItemBuilder setGameProfile(GameProfile gameProfile) {
-        this.gameProfile = gameProfile;
-        return this;
-    }
-    
     @Override
     public ItemBuilder clone() {
         try {
@@ -191,58 +201,58 @@ public class ItemBuilder implements Cloneable {
      *
      * @see ItemBuilder
      */
-    public static class PlayerHead {
-    
-        private static final HashMap<String, UUID> uuidCache = new HashMap<>();
-        private static final HashMap<UUID, String> textureCache = new HashMap<>();
+    public static class HeadTexture implements Serializable {
+        
+        private static final Cache<UUID, String> textureCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(1, TimeUnit.DAYS)
+            .build();
+        
+        private static final Cache<String, UUID> uuidCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(1, TimeUnit.DAYS)
+            .build();
         
         private final String textureValue;
         
-        private PlayerHead(@NotNull String textureValue) {
+        private HeadTexture(@NotNull String textureValue) {
             this.textureValue = textureValue;
         }
         
-        public static PlayerHead of(@NotNull Player player) {
+        public static HeadTexture of(@NotNull Player player) {
             return of(player.getUniqueId());
         }
         
-        public static PlayerHead of(@NotNull String playerName) {
-            if (uuidCache.containsKey(playerName)) return of(uuidCache.get(playerName));
-            
-            try {
-                UUID currentUUID = MojangApiUtils.getCurrentUUID(playerName);
-                uuidCache.put(playerName, currentUUID);
-                
-                return of(currentUUID);
-            } catch (IOException e) {
-                e.printStackTrace();
+        @SuppressWarnings("deprecation")
+        public static HeadTexture of(@NotNull String playerName) {
+            if (Bukkit.getServer().getOnlineMode()) {
+                // if the server is in online mode, the Minecraft UUID cache (usercache.json) can be used
+                return of(Bukkit.getOfflinePlayer(playerName).getUniqueId());
+            } else {
+                // the server isn't in online mode - the UUID has to be retrieved from the Mojang API
+                try {
+                    return of(uuidCache.get(playerName, () -> MojangApiUtils.getCurrentUUID(playerName)));
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                    return null;
+                }
             }
-            
-            return null;
         }
         
-        public static PlayerHead of(@NotNull UUID uuid) {
-            if (textureCache.containsKey(uuid)) return new PlayerHead(textureCache.get(uuid));
-            
+        public static HeadTexture of(@NotNull UUID uuid) {
             try {
-                String textureValue = MojangApiUtils.getSkinData(uuid, false)[0];
-                textureCache.put(uuid, textureValue);
-                
-                return new PlayerHead(textureValue);
-            } catch (IOException e) {
+                return new HeadTexture(textureCache.get(uuid, () -> MojangApiUtils.getSkinData(uuid, false)[0]));
+            } catch (ExecutionException e) {
                 e.printStackTrace();
+                return null;
             }
-            
-            return null;
         }
         
-        public static PlayerHead fromTextureValue(@NotNull String textureValue) {
-            return new PlayerHead(textureValue);
+        public static HeadTexture fromTextureValue(@NotNull String textureValue) {
+            return new HeadTexture(textureValue);
         }
         
-        public static void clearCache() {
-            uuidCache.clear();
-            textureCache.clear();
+        public static void invalidateCache() {
+            uuidCache.invalidateAll();
+            textureCache.invalidateAll();
         }
         
         public String getTextureValue() {
