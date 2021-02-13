@@ -68,16 +68,19 @@ public class ItemBuilder implements Cloneable {
         ItemStack itemStack = new ItemStack(material, amount);
         
         ItemMeta itemMeta = itemStack.getItemMeta();
-        if (itemMeta instanceof Damageable) ((Damageable) itemMeta).setDamage(damage);
-        if (customModelData != -1) itemMeta.setCustomModelData(customModelData);
-        if (displayName != null) itemMeta.setDisplayName(displayName);
-        if (gameProfile != null)
-            ReflectionUtils.setFieldValue(ReflectionRegistry.CB_CRAFT_META_SKULL_PROFILE_FIELD, itemMeta, gameProfile);
-        enchantments.forEach((enchantment, pair) -> itemMeta.addEnchant(enchantment, pair.getFirst(), pair.getSecond()));
-        itemMeta.addItemFlags(itemFlags.toArray(new ItemFlag[0]));
-        itemMeta.setLore(lore);
+        if (itemMeta != null) {
+            if (itemMeta instanceof Damageable) ((Damageable) itemMeta).setDamage(damage);
+            if (customModelData != -1) itemMeta.setCustomModelData(customModelData);
+            if (displayName != null) itemMeta.setDisplayName(displayName);
+            if (gameProfile != null)
+                ReflectionUtils.setFieldValue(ReflectionRegistry.CB_CRAFT_META_SKULL_PROFILE_FIELD, itemMeta, gameProfile);
+            enchantments.forEach((enchantment, pair) -> itemMeta.addEnchant(enchantment, pair.getFirst(), pair.getSecond()));
+            itemMeta.addItemFlags(itemFlags.toArray(new ItemFlag[0]));
+            itemMeta.setLore(lore);
+            
+            itemStack.setItemMeta(itemMeta);
+        }
         
-        itemStack.setItemMeta(itemMeta);
         return itemStack;
     }
     
