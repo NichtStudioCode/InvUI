@@ -9,8 +9,9 @@ import java.util.HashMap;
 
 /**
  * Custom-textured Items that look like they are a part of the inventory.
- * Needs the resource pack to work, activate ResourcePack forcing
- * via {@link ForceResourcePack#setActivated(boolean)}.
+ * Needs the resource pack to work, activate ResourcePack forcing and
+ * choose between the lightweight or complete version using
+ * {@link ForceResourcePack#setResourcePackUrl(String)}.
  */
 public enum Icon {
     
@@ -75,7 +76,11 @@ public enum Icon {
     CIRCLE(10000058),
     LIGHT_CIRCLE(10000059),
     BOX(10000060),
-    LIGHT_BOX(10000061);
+    LIGHT_BOX(10000061),
+    REFRESH(10000062),
+    LIGHT_REFRESH(10000063),
+    REFRESH_ANIMATED(10000064),
+    LIGHT_REFRESH_ANIMATED(10000065);
     
     private final ItemBuilder itemBuilder;
     private final Item item;

@@ -20,17 +20,19 @@ import static org.bukkit.event.player.PlayerResourcePackStatusEvent.Status.DECLI
  */
 public class ForceResourcePack implements Listener {
     
+    private static final String RP_VERSION = "v0.7";
+    
     /**
      * A resource pack with all the {@link Icon}s
      */
     public static final String LIGHT_RESOURCE_PACK_URL =
-            "https://github.com/NichtStudioCode/InvUIRP/releases/download/v0.6-light/InvUIRP.zip";
+        "https://github.com/NichtStudioCode/InvUIRP/releases/download/" + RP_VERSION + "-light/InvUIRP.zip";
     
     /**
      * A resource pack that also provides all {@link MaterialIcon}s
      */
-    public static final String FULL_RESOURCE_PACK_URL =
-            "https://github.com/NichtStudioCode/InvUIRP/releases/download/v0.6/InvUIRP.zip";
+    public static final String COMPLETE_RESOURCE_PACK_URL =
+        "https://github.com/NichtStudioCode/InvUIRP/releases/download/" + RP_VERSION + "/InvUIRP.zip";
     
     private static final ForceResourcePack INSTANCE = new ForceResourcePack();
     
@@ -69,7 +71,7 @@ public class ForceResourcePack implements Listener {
     private void sendResourcePack(Player player) {
         player.setResourcePack(resourcePackUrl);
         tasks.put(player, Bukkit.getScheduler().runTaskLater(InvUI.getInstance().getPlugin(),
-                () -> kickPlayer(player), 20 * 5));
+            () -> kickPlayer(player), 20 * 5));
     }
     
     @EventHandler
