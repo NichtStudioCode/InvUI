@@ -17,19 +17,25 @@ public class InvUI implements Listener {
     private static InvUI instance;
     
     private final List<Runnable> disableHandlers = new ArrayList<>();
-    private final Plugin plugin;
-    
-    public InvUI() {
-        plugin = ReflectionUtils.getFieldValue(PLUGIN_CLASS_LOADER_PLUGIN_FIELD, getClass().getClassLoader());
-        Bukkit.getPluginManager().registerEvents(this, plugin);
-    }
+    private Plugin plugin;
     
     public static InvUI getInstance() {
         return instance == null ? instance = new InvUI() : instance;
     }
     
     public Plugin getPlugin() {
+        if (plugin == null) {
+            System.out.println("[InvUI] Retrieving plugin from PluginClassLoader... This may cause issues!");
+            setPlugin(ReflectionUtils.getFieldValue(PLUGIN_CLASS_LOADER_PLUGIN_FIELD, getClass().getClassLoader()));
+        }
         return plugin;
+    }
+    
+    public void setPlugin(Plugin plugin) {
+        if (this.plugin != null)
+            throw new IllegalStateException("The plugin is already set!");
+        this.plugin = plugin;
+        Bukkit.getPluginManager().registerEvents(this, plugin);
     }
     
     public void addDisableHandler(Runnable runnable) {
