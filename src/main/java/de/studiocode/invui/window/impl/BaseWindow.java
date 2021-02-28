@@ -7,6 +7,7 @@ import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.gui.SlotElement.ItemSlotElement;
 import de.studiocode.invui.gui.SlotElement.VISlotElement;
 import de.studiocode.invui.item.Item;
+import de.studiocode.invui.item.ItemBuilder;
 import de.studiocode.invui.util.ArrayUtils;
 import de.studiocode.invui.util.Pair;
 import de.studiocode.invui.virtualinventory.VirtualInventory;
@@ -46,7 +47,11 @@ public abstract class BaseWindow implements Window {
     
     protected void redrawItem(int index, SlotElement element, boolean setItem) {
         // put ItemStack in inventory
-        ItemStack itemStack = element == null ? null : element.getItemStack(viewerUUID);
+        ItemStack itemStack;
+        if (element == null) {
+            ItemBuilder background = getGuiAt(index).getFirst().getBackground();
+            itemStack = background == null ? null : background.buildFor(viewerUUID);
+        } else itemStack = element.getItemStack(viewerUUID);
         setInvItem(index, itemStack);
         
         if (setItem) {

@@ -35,14 +35,14 @@ public abstract class MergedWindow extends BaseWindow {
     protected void initUpperItems() {
         for (int i = 0; i < upperInventory.getSize(); i++) {
             SlotElement element = getSlotElement(i);
-            if (element != null) redrawItem(i, element, true);
+            redrawItem(i, element, true);
         }
     }
     
     private void initPlayerItems() {
         for (int i = upperInventory.getSize(); i < upperInventory.getSize() + 36; i++) {
             SlotElement element = getSlotElement(i);
-            if (element != null) redrawItem(i, element, true);
+            redrawItem(i, element, true);
         }
     }
     

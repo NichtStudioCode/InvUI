@@ -9,6 +9,7 @@ import de.studiocode.invui.gui.SlotElement.LinkedSlotElement;
 import de.studiocode.invui.gui.SlotElement.VISlotElement;
 import de.studiocode.invui.gui.structure.Structure;
 import de.studiocode.invui.item.Item;
+import de.studiocode.invui.item.ItemBuilder;
 import de.studiocode.invui.util.ArrayUtils;
 import de.studiocode.invui.virtualinventory.VirtualInventory;
 import de.studiocode.invui.virtualinventory.event.ItemUpdateEvent;
@@ -36,6 +37,8 @@ abstract class IndexedGUI implements GUI {
     
     private SlotElement[] animationElements;
     private Animation animation;
+    
+    private ItemBuilder background;
     
     public IndexedGUI(int size) {
         this.size = size;
@@ -395,6 +398,16 @@ abstract class IndexedGUI implements GUI {
         }
         
         return null;
+    }
+    
+    @Override
+    public void setBackground(ItemBuilder itemBuilder) {
+        this.background = itemBuilder;
+    }
+    
+    @Override
+    public ItemBuilder getBackground() {
+        return background;
     }
     
     @Override

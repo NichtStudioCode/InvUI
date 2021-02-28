@@ -36,7 +36,7 @@ public abstract class SingleWindow extends BaseWindow {
     protected void initItems() {
         for (int i = 0; i < size; i++) {
             SlotElement element = gui.getSlotElement(i);
-            if (element != null) redrawItem(i, element, true);
+            redrawItem(i, element, true);
         }
     }
     

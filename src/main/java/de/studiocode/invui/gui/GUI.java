@@ -5,6 +5,7 @@ import de.studiocode.invui.gui.builder.GUIBuilder;
 import de.studiocode.invui.gui.impl.*;
 import de.studiocode.invui.gui.structure.Structure;
 import de.studiocode.invui.item.Item;
+import de.studiocode.invui.item.ItemBuilder;
 import de.studiocode.invui.virtualinventory.VirtualInventory;
 import de.studiocode.invui.window.Window;
 import org.bukkit.entity.Player;
@@ -162,6 +163,21 @@ public interface GUI extends GUIParent {
      * @param items The {@link Item}s that should be added to the gui
      */
     void addItems(@NotNull Item... items);
+    
+    /**
+     * Sets the {@link ItemBuilder} that will be used if nothing else
+     * is placed on a slot.
+     * @param itemBuilder The {@link ItemBuilder}
+     */
+    void setBackground(@Nullable ItemBuilder itemBuilder);
+    
+    /**
+     * Gets the {@link ItemBuilder} that will used if nothing else
+     * is placed on a slot.
+     * 
+     * @return The {@link ItemBuilder}
+     */
+    ItemBuilder getBackground();
     
     /**
      * Removes an {@link Item} by its coordinates.
