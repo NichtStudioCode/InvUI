@@ -53,6 +53,11 @@ public class VirtualInventoryManager {
         return virtualInventory == null ? createNew(uuid, size) : virtualInventory;
     }
     
+    public void remove(VirtualInventory virtualInventory) {
+        inventories.remove(virtualInventory.getUuid(), virtualInventory);
+        getSaveFile(virtualInventory).delete();
+    }
+    
     private void deserializeAll() {
         if (SAVE_DIR.exists()) {
             Arrays.stream(SAVE_DIR.listFiles())
@@ -69,7 +74,7 @@ public class VirtualInventoryManager {
     private void serializeAll() {
         inventories.values().forEach(virtualInventory -> {
             try {
-                File file = new File(SAVE_DIR, virtualInventory.getUuid() + ".vi");
+                File file = getSaveFile(virtualInventory);
                 YamlConfiguration config = new YamlConfiguration();
                 config.set("vi", virtualInventory);
                 config.save(file);
@@ -77,6 +82,10 @@ public class VirtualInventoryManager {
                 e.printStackTrace();
             }
         });
+    }
+    
+    private File getSaveFile(VirtualInventory virtualInventory) {
+        return new File(SAVE_DIR, virtualInventory.getUuid() + ".vi");
     }
     
 }
