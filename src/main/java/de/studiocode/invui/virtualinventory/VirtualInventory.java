@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 public class VirtualInventory implements ConfigurationSerializable {
     
@@ -20,6 +21,7 @@ public class VirtualInventory implements ConfigurationSerializable {
     private final UUID uuid;
     private int size;
     private ItemStack[] items;
+    private Consumer<ItemUpdateEvent> itemUpdateHandler;
     
     /**
      * Creates a new {@link VirtualInventory}.
@@ -396,7 +398,7 @@ public class VirtualInventory implements ConfigurationSerializable {
     private int findFullSlot(ItemStack itemStack) {
         for (int i = 0; i < items.length; i++) {
             ItemStack currentStack = items[i];
-            if (currentStack != null 
+            if (currentStack != null
                 && currentStack.getAmount() == currentStack.getMaxStackSize()
                 && currentStack.isSimilar(itemStack)) return i;
         }
@@ -471,8 +473,8 @@ public class VirtualInventory implements ConfigurationSerializable {
     
     private ItemUpdateEvent createAndCallEvent(int index, Player player, ItemStack previousItemStack, ItemStack newItemStack) {
         ItemUpdateEvent event = new ItemUpdateEvent(this, index, player, previousItemStack, newItemStack);
+        if (itemUpdateHandler != null) itemUpdateHandler.accept(event);
         Bukkit.getPluginManager().callEvent(event);
-        
         return event;
     }
     
@@ -483,6 +485,19 @@ public class VirtualInventory implements ConfigurationSerializable {
      */
     public UUID getUuid() {
         return uuid;
+    }
+    
+    /**
+     * Sets the item update handler which is an alternative for using
+     * Bukkit's event system for handling item updates in this virtual
+     * inventory. The item update handler is called before the Bukkit event
+     * is fired and all changes made are visible when catching Bukkit's
+     * event.
+     *
+     * @param itemUpdateHandler The item update handler
+     */
+    public void setItemUpdateHandler(Consumer<ItemUpdateEvent> itemUpdateHandler) {
+        this.itemUpdateHandler = itemUpdateHandler;
     }
     
     /**
