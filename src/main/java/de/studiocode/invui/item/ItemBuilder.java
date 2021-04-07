@@ -31,7 +31,7 @@ public class ItemBuilder implements Cloneable {
     protected Material material;
     protected int amount = 1;
     protected int damage;
-    protected int customModelData = -1;
+    protected int customModelData;
     protected String displayName;
     protected List<String> lore = new ArrayList<>();
     protected List<ItemFlag> itemFlags = new ArrayList<>();
@@ -70,7 +70,7 @@ public class ItemBuilder implements Cloneable {
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta != null) {
             if (itemMeta instanceof Damageable) ((Damageable) itemMeta).setDamage(damage);
-            if (customModelData != -1) itemMeta.setCustomModelData(customModelData);
+            if (customModelData != 0) itemMeta.setCustomModelData(customModelData);
             if (displayName != null) itemMeta.setDisplayName(displayName);
             if (gameProfile != null)
                 ReflectionUtils.setFieldValue(ReflectionRegistry.CB_CRAFT_META_SKULL_PROFILE_FIELD, itemMeta, gameProfile);
