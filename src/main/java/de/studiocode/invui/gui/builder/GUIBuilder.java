@@ -95,7 +95,7 @@ public class GUIBuilder {
     }
     
     public GUIBuilder addGUI(@NotNull GUI gui) {
-        if (guiType != PAGED_GUIs)
+        if (guiType != PAGED_GUIs && guiType != TAB)
             throw new UnsupportedOperationException("GUIs cannot be set in this gui type.");
         guis.add(gui);
         return this;
