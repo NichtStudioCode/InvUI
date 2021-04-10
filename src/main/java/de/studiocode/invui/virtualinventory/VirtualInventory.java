@@ -75,6 +75,15 @@ public class VirtualInventory implements ConfigurationSerializable {
     }
     
     /**
+     * Gets a deep copy of the {@link ItemStack}s in this {@link VirtualInventory}
+     * 
+     * @return A copy of the {@link ItemStack}s in this {@link VirtualInventory}
+     */
+    public ItemStack[] getItems() {
+        return Arrays.stream(items).map(ItemStack::clone).toArray(ItemStack[]::new);
+    }
+    
+    /**
      * Changes the size of this {@link VirtualInventory}, removing
      * existing {@link ItemStack}s reduced.
      *
