@@ -80,7 +80,9 @@ public class VirtualInventory implements ConfigurationSerializable {
      * @return A copy of the {@link ItemStack}s in this {@link VirtualInventory}
      */
     public ItemStack[] getItems() {
-        return Arrays.stream(items).map(ItemStack::clone).toArray(ItemStack[]::new);
+        return Arrays.stream(items)
+            .map(itemStack -> itemStack != null ? itemStack.clone() : null)
+            .toArray(ItemStack[]::new);
     }
     
     /**
