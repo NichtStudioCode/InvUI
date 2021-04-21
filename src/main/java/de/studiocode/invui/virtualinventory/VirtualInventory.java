@@ -3,10 +3,10 @@ package de.studiocode.invui.virtualinventory;
 import de.studiocode.invui.InvUI;
 import de.studiocode.invui.util.ArrayUtils;
 import de.studiocode.invui.virtualinventory.event.ItemUpdateEvent;
+import de.studiocode.invui.virtualinventory.event.UpdateReason;
 import de.studiocode.invui.window.Window;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -76,7 +76,7 @@ public class VirtualInventory implements ConfigurationSerializable {
     
     /**
      * Gets a deep copy of the {@link ItemStack}s in this {@link VirtualInventory}
-     * 
+     *
      * @return A copy of the {@link ItemStack}s in this {@link VirtualInventory}
      */
     public ItemStack[] getItems() {
@@ -111,14 +111,14 @@ public class VirtualInventory implements ConfigurationSerializable {
     /**
      * Sets an {@link ItemStack} on a specific slot.
      *
-     * @param player    The player that did this or <code>null</code> if it wasn't a player.
-     * @param index     The slot index
-     * @param itemStack The {@link ItemStack} that should be put on that slot
+     * @param updateReason The reason for item update, can be null.
+     * @param index        The slot index
+     * @param itemStack    The {@link ItemStack} that should be put on that slot
      * @return If the action has been cancelled
      */
-    public boolean setItemStack(Player player, int index, ItemStack itemStack) {
+    public boolean setItemStack(@Nullable UpdateReason updateReason, int index, ItemStack itemStack) {
         ItemStack newStack = itemStack.clone();
-        ItemUpdateEvent event = createAndCallEvent(index, player, items[index], newStack);
+        ItemUpdateEvent event = createAndCallEvent(index, updateReason, items[index], newStack);
         if (!event.isCancelled()) {
             items[index] = newStack;
             notifyWindows();
@@ -153,12 +153,12 @@ public class VirtualInventory implements ConfigurationSerializable {
      * Sets an {@link ItemStack} on a specific slot or adds the amount
      * if there already is an {@link ItemStack} on that slot.
      *
-     * @param player    The player that did this or <code>null</code> if it wasn't a player.
-     * @param index     The slot index
-     * @param itemStack The {@link ItemStack} to place
+     * @param updateReason The reason for item update, can be null.
+     * @param index        The slot index
+     * @param itemStack    The {@link ItemStack} to place
      * @return If the action has been cancelled
      */
-    public boolean place(Player player, int index, ItemStack itemStack) {
+    public boolean place(@Nullable UpdateReason updateReason, int index, ItemStack itemStack) {
         ItemStack currentStack = items[index];
         
         ItemStack newStack;
@@ -169,7 +169,7 @@ public class VirtualInventory implements ConfigurationSerializable {
             newStack.setAmount(newStack.getAmount() + itemStack.getAmount());
         }
         
-        ItemUpdateEvent event = createAndCallEvent(index, player, currentStack, newStack);
+        ItemUpdateEvent event = createAndCallEvent(index, updateReason, currentStack, newStack);
         if (!event.isCancelled()) {
             items[index] = newStack;
             notifyWindows();
@@ -184,12 +184,12 @@ public class VirtualInventory implements ConfigurationSerializable {
      * Puts on of an {@link ItemStack} on a specific slots or adds one
      * if there is already an {@link ItemStack} on that slot.
      *
-     * @param player    The player that did this or <code>null</code> if it wasn't a player.
-     * @param index     The slot index
-     * @param itemStack The {@link ItemStack} to place one of
+     * @param updateReason The reason for item update, can be null.
+     * @param index        The slot index
+     * @param itemStack    The {@link ItemStack} to place one of
      * @return If the action has been cancelled
      */
-    public boolean placeOne(Player player, int index, ItemStack itemStack) {
+    public boolean placeOne(@Nullable UpdateReason updateReason, int index, ItemStack itemStack) {
         ItemStack currentStack = items[index];
         
         ItemStack newStack;
@@ -201,7 +201,7 @@ public class VirtualInventory implements ConfigurationSerializable {
             newStack.setAmount(newStack.getAmount() + 1);
         }
         
-        ItemUpdateEvent event = createAndCallEvent(index, player, currentStack, newStack);
+        ItemUpdateEvent event = createAndCallEvent(index, updateReason, currentStack, newStack);
         if (!event.isCancelled()) {
             items[index] = newStack;
             notifyWindows();
@@ -231,17 +231,17 @@ public class VirtualInventory implements ConfigurationSerializable {
      * Changes the amount of an {@link ItemStack} on a specific slot
      * to the {@link ItemStack}'s {@link ItemStack#getMaxStackSize()}.
      *
-     * @param player The player that did this or <code>null</code> if it wasn't a player.
-     * @param index  The slot index
+     * @param updateReason The reason for item update, can be null.
+     * @param index        The slot index
      * @return If the action has been cancelled
      */
-    public boolean setToMaxAmount(Player player, int index) {
+    public boolean setToMaxAmount(@Nullable UpdateReason updateReason, int index) {
         ItemStack currentStack = items[index];
         if (currentStack != null) {
             ItemStack newStack = currentStack.clone();
             newStack.setAmount(newStack.getMaxStackSize());
             
-            ItemUpdateEvent event = createAndCallEvent(index, player, currentStack, newStack);
+            ItemUpdateEvent event = createAndCallEvent(index, updateReason, currentStack, newStack);
             if (!event.isCancelled()) {
                 items[index] = newStack;
                 notifyWindows();
@@ -257,15 +257,15 @@ public class VirtualInventory implements ConfigurationSerializable {
      * Removes an {@link ItemStack} on a specific slot from
      * the {@link VirtualInventory}.
      *
-     * @param player The player that did this or <code>null</code> if it wasn't a player.
-     * @param index  The slot index
+     * @param updateReason The reason for item update, can be null.
+     * @param index        The slot index
      * @return If the action has been cancelled
      */
-    public boolean removeItem(Player player, int index) {
+    public boolean removeItem(@Nullable UpdateReason updateReason, int index) {
         ItemStack currentStack = items[index];
         if (currentStack != null) {
             
-            ItemUpdateEvent event = createAndCallEvent(index, player, currentStack, null);
+            ItemUpdateEvent event = createAndCallEvent(index, updateReason, currentStack, null);
             if (!event.isCancelled()) {
                 items[index] = null;
                 notifyWindows();
@@ -280,11 +280,11 @@ public class VirtualInventory implements ConfigurationSerializable {
     /**
      * Removes one from an {@link ItemStack} on a specific slot.
      *
-     * @param player The player that did this or <code>null</code> if it wasn't a player.
-     * @param index  The slot index
+     * @param updateReason The reason for item update, can be null.
+     * @param index        The slot index
      * @return If the action has been cancelled
      */
-    public boolean removeOne(Player player, int index) {
+    public boolean removeOne(@Nullable UpdateReason updateReason, int index) {
         ItemStack currentStack = items[index];
         if (currentStack != null) {
             int newAmount = currentStack.getAmount() - 1;
@@ -293,14 +293,14 @@ public class VirtualInventory implements ConfigurationSerializable {
                 ItemStack newStack = currentStack.clone();
                 newStack.setAmount(newAmount);
                 
-                ItemUpdateEvent event = createAndCallEvent(index, player, currentStack, newStack);
+                ItemUpdateEvent event = createAndCallEvent(index, updateReason, currentStack, newStack);
                 if (!event.isCancelled()) {
                     items[index] = newStack;
                     notifyWindows();
                     
                     return false;
                 }
-            } else return removeItem(player, index);
+            } else return removeItem(updateReason, index);
         }
         
         return true;
@@ -309,11 +309,11 @@ public class VirtualInventory implements ConfigurationSerializable {
     /**
      * Removes half of the {@link ItemStack} on a specific slot.
      *
-     * @param player The player that did this or <code>null</code> if it wasn't a player.
-     * @param index  The slot index
+     * @param updateReason The reason for item update, can be null.
+     * @param index        The slot index
      * @return If the action has been cancelled
      */
-    public boolean removeHalf(Player player, int index) {
+    public boolean removeHalf(@Nullable UpdateReason updateReason, int index) {
         ItemStack currentStack = items[index];
         if (currentStack != null) {
             int newAmount = currentStack.getAmount() / 2;
@@ -322,7 +322,7 @@ public class VirtualInventory implements ConfigurationSerializable {
                 ItemStack newStack = currentStack.clone();
                 newStack.setAmount(newAmount);
                 
-                ItemUpdateEvent event = createAndCallEvent(index, player, currentStack, newStack);
+                ItemUpdateEvent event = createAndCallEvent(index, updateReason, currentStack, newStack);
                 if (!event.isCancelled()) {
                     items[index] = newStack;
                     notifyWindows();
@@ -330,7 +330,7 @@ public class VirtualInventory implements ConfigurationSerializable {
                     return false;
                 }
                 
-            } else return removeItem(player, index);
+            } else return removeItem(updateReason, index);
         }
         
         return true;
@@ -339,17 +339,17 @@ public class VirtualInventory implements ConfigurationSerializable {
     /**
      * Adds an {@link ItemStack} to the {@link VirtualInventory}.
      *
-     * @param player    The player that did this or <code>null</code> if it wasn't a player.
-     * @param itemStack The {@link ItemStack} to add
+     * @param updateReason The reason for item update, can be null.
+     * @param itemStack    The {@link ItemStack} to add
      * @return The amount of items that couldn't be added
      */
-    public int addItem(Player player, ItemStack itemStack) {
+    public int addItem(@Nullable UpdateReason updateReason, ItemStack itemStack) {
         final int originalAmount = itemStack.getAmount();
         int amountLeft = originalAmount;
         
         // find all slots where the item partially fits and add it there
         for (int partialSlot : findPartialSlots(itemStack)) {
-            amountLeft = addTo(player, partialSlot, amountLeft);
+            amountLeft = addTo(updateReason, partialSlot, amountLeft);
             if (amountLeft == 0) break;
         }
         
@@ -359,7 +359,7 @@ public class VirtualInventory implements ConfigurationSerializable {
             if (emptyIndex != -1) {
                 ItemStack leftover = itemStack.clone();
                 leftover.setAmount(amountLeft);
-                if (!place(player, emptyIndex, leftover))
+                if (!place(updateReason, emptyIndex, leftover))
                     amountLeft = 0;
             }
         }
@@ -371,13 +371,13 @@ public class VirtualInventory implements ConfigurationSerializable {
         return amountLeft;
     }
     
-    public int collectToCursor(Player player, ItemStack itemStack) {
+    public int collectToCursor(@Nullable UpdateReason updateReason, ItemStack itemStack) {
         int amount = itemStack.getAmount();
         int maxStackSize = itemStack.getMaxStackSize();
         if (amount < itemStack.getMaxStackSize()) {
             // find partial slots and take items from there
             for (int partialSlot : findPartialSlots(itemStack)) {
-                amount += takeFrom(player, partialSlot, maxStackSize - amount);
+                amount += takeFrom(updateReason, partialSlot, maxStackSize - amount);
                 if (amount == maxStackSize) break;
             }
             
@@ -385,7 +385,7 @@ public class VirtualInventory implements ConfigurationSerializable {
             if (amount < itemStack.getMaxStackSize()) {
                 int fullSlot = findFullSlot(itemStack);
                 if (fullSlot != -1) {
-                    amount += takeFrom(player, fullSlot, maxStackSize - amount);
+                    amount += takeFrom(updateReason, fullSlot, maxStackSize - amount);
                 }
             }
         }
@@ -415,7 +415,7 @@ public class VirtualInventory implements ConfigurationSerializable {
         return -1;
     }
     
-    private int addTo(Player player, int index, int amount) {
+    private int addTo(@Nullable UpdateReason updateReason, int index, int amount) {
         ItemStack itemStack = items[index];
         
         int maxAddable = Math.min(itemStack.getMaxStackSize() - itemStack.getAmount(), amount);
@@ -426,7 +426,7 @@ public class VirtualInventory implements ConfigurationSerializable {
         ItemStack newStack = itemStack.clone();
         newStack.setAmount(newAmount);
         
-        ItemUpdateEvent event = createAndCallEvent(index, player, itemStack, newStack);
+        ItemUpdateEvent event = createAndCallEvent(index, updateReason, itemStack, newStack);
         if (!event.isCancelled()) {
             items[index] = newStack;
             notifyWindows();
@@ -434,7 +434,7 @@ public class VirtualInventory implements ConfigurationSerializable {
         } else return amount;
     }
     
-    private int takeFrom(Player player, int index, int maxTake) {
+    private int takeFrom(@Nullable UpdateReason updateReason, int index, int maxTake) {
         ItemStack itemStack = items[index];
         int amount = itemStack.getAmount();
         int take = Math.min(amount, maxTake);
@@ -445,7 +445,7 @@ public class VirtualInventory implements ConfigurationSerializable {
             newStack.setAmount(amount - take);
         } else newStack = null;
         
-        ItemUpdateEvent event = createAndCallEvent(index, player, itemStack, newStack);
+        ItemUpdateEvent event = createAndCallEvent(index, updateReason, itemStack, newStack);
         if (!event.isCancelled()) {
             items[index] = newStack;
             notifyWindows();
@@ -480,8 +480,8 @@ public class VirtualInventory implements ConfigurationSerializable {
             windows.forEach(window -> window.handleVirtualInventoryUpdate(this)));
     }
     
-    private ItemUpdateEvent createAndCallEvent(int index, Player player, ItemStack previousItemStack, ItemStack newItemStack) {
-        ItemUpdateEvent event = new ItemUpdateEvent(this, index, player, previousItemStack, newItemStack);
+    private ItemUpdateEvent createAndCallEvent(int index, UpdateReason updateReason, ItemStack previousItemStack, ItemStack newItemStack) {
+        ItemUpdateEvent event = new ItemUpdateEvent(this, index, updateReason, previousItemStack, newItemStack);
         if (itemUpdateHandler != null) itemUpdateHandler.accept(event);
         Bukkit.getPluginManager().callEvent(event);
         return event;

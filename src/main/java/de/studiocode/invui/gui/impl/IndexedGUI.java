@@ -13,6 +13,8 @@ import de.studiocode.invui.item.ItemBuilder;
 import de.studiocode.invui.util.ArrayUtils;
 import de.studiocode.invui.virtualinventory.VirtualInventory;
 import de.studiocode.invui.virtualinventory.event.ItemUpdateEvent;
+import de.studiocode.invui.virtualinventory.event.PlayerUpdateReason;
+import de.studiocode.invui.virtualinventory.event.UpdateReason;
 import de.studiocode.invui.window.Window;
 import de.studiocode.invui.window.WindowManager;
 import de.studiocode.invui.window.impl.merged.MergedWindow;
@@ -73,6 +75,8 @@ abstract class IndexedGUI implements GUI {
         Player player = (Player) event.getWhoClicked();
         ItemStack cursor = event.getCursor();
         ItemStack clicked = event.getCurrentItem();
+    
+        UpdateReason updateReason = new PlayerUpdateReason(player, event);
         
         if (virtualInventory.isSynced(index, clicked)) {
             boolean cancelled = false;
@@ -87,38 +91,38 @@ abstract class IndexedGUI implements GUI {
                 
                 case DROP_ONE_SLOT:
                 case PICKUP_ONE:
-                    cancelled = virtualInventory.removeOne(player, index);
+                    cancelled = virtualInventory.removeOne(updateReason, index);
                     break;
                 
                 case DROP_ALL_SLOT:
                 case PICKUP_ALL:
-                    cancelled = virtualInventory.removeItem(player, index);
+                    cancelled = virtualInventory.removeItem(updateReason, index);
                     break;
                 
                 case PICKUP_HALF:
-                    cancelled = virtualInventory.removeHalf(player, index);
+                    cancelled = virtualInventory.removeHalf(updateReason, index);
                     break;
                 
                 case PLACE_ALL:
-                    cancelled = virtualInventory.place(player, index, cursor);
+                    cancelled = virtualInventory.place(updateReason, index, cursor);
                     break;
                 
                 case PLACE_ONE:
-                    cancelled = virtualInventory.placeOne(player, index, cursor);
+                    cancelled = virtualInventory.placeOne(updateReason, index, cursor);
                     break;
                 
                 case PLACE_SOME:
-                    cancelled = virtualInventory.setToMaxAmount(player, index);
+                    cancelled = virtualInventory.setToMaxAmount(updateReason, index);
                     break;
                 
                 case SWAP_WITH_CURSOR:
-                    cancelled = virtualInventory.setItemStack(player, index, event.getCursor());
+                    cancelled = virtualInventory.setItemStack(updateReason, index, event.getCursor());
                     break;
                     
                 case COLLECT_TO_CURSOR:
                     cancelled = true;
                     ItemStack newCursor = cursor.clone();
-                    newCursor.setAmount(virtualInventory.collectToCursor(player, newCursor));
+                    newCursor.setAmount(virtualInventory.collectToCursor(updateReason, newCursor));
                     player.setItemOnCursor(newCursor);
                 break;
                 
@@ -127,7 +131,7 @@ abstract class IndexedGUI implements GUI {
                     Window window = WindowManager.getInstance().findOpenWindow(player).orElse(null);
                     
                     ItemStack invStack = virtualInventory.getItemStack(index);
-                    ItemUpdateEvent updateEvent = new ItemUpdateEvent(virtualInventory, index, player, invStack, null);
+                    ItemUpdateEvent updateEvent = new ItemUpdateEvent(virtualInventory, index, updateReason, invStack, null);
                     Bukkit.getPluginManager().callEvent(updateEvent);
                     
                     if (!updateEvent.isCancelled()) {
@@ -142,7 +146,7 @@ abstract class IndexedGUI implements GUI {
                                 otherGui = this;
                             }
                             
-                            leftOverAmount = ((IndexedGUI) otherGui).putIntoVirtualInventories(player, invStack, virtualInventory);
+                            leftOverAmount = ((IndexedGUI) otherGui).putIntoVirtualInventories(updateReason, invStack, virtualInventory);
                         } else {
                             leftOverAmount = 0;
                             HashMap<Integer, ItemStack> leftover = event.getWhoClicked().getInventory().addItem(virtualInventory.getItemStack(index));
@@ -165,7 +169,7 @@ abstract class IndexedGUI implements GUI {
     }
     
     @Override
-    public boolean handleItemDrag(Player player, int slot, ItemStack oldStack, ItemStack newStack) {
+    public boolean handleItemDrag(UpdateReason updateReason, int slot, ItemStack oldStack, ItemStack newStack) {
         SlotElement element = getSlotElement(slot);
         if (element != null) element = element.getHoldingElement();
         if (element instanceof VISlotElement) {
@@ -173,7 +177,7 @@ abstract class IndexedGUI implements GUI {
             VirtualInventory virtualInventory = viSlotElement.getVirtualInventory();
             int viIndex = viSlotElement.getIndex();
             if (virtualInventory.isSynced(viIndex, oldStack)) {
-                return virtualInventory.setItemStack(player, viIndex, newStack);
+                return virtualInventory.setItemStack(updateReason, viIndex, newStack);
             }
         }
         
@@ -189,14 +193,16 @@ abstract class IndexedGUI implements GUI {
         Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
         
-        int amountLeft = putIntoVirtualInventories(player, clicked);
+        UpdateReason updateReason = new PlayerUpdateReason(player, event);
+        
+        int amountLeft = putIntoVirtualInventories(updateReason, clicked);
         if (amountLeft != clicked.getAmount()) {
             if (amountLeft != 0) event.getCurrentItem().setAmount(amountLeft);
             else event.getClickedInventory().setItem(event.getSlot(), null);
         }
     }
     
-    private int putIntoVirtualInventories(Player player, ItemStack itemStack, VirtualInventory... ignored) {
+    private int putIntoVirtualInventories(UpdateReason updateReason, ItemStack itemStack, VirtualInventory... ignored) {
         if (itemStack.getAmount() <= 0) throw new IllegalArgumentException("Illegal ItemStack amount");
         
         List<VirtualInventory> virtualInventories = getAllVirtualInventories(ignored);
@@ -205,7 +211,7 @@ abstract class IndexedGUI implements GUI {
             for (VirtualInventory virtualInventory : virtualInventories) {
                 ItemStack toAdd = itemStack.clone();
                 toAdd.setAmount(amountLeft);
-                amountLeft = virtualInventory.addItem(player, toAdd);
+                amountLeft = virtualInventory.addItem(updateReason, toAdd);
                 
                 if (amountLeft == 0) break;
             }

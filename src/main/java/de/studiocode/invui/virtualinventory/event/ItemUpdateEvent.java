@@ -19,7 +19,7 @@ public class ItemUpdateEvent extends Event implements Cancellable {
     private final VirtualInventory virtualInventory;
     private final ItemStack previousItemStack;
     private final ItemStack newItemStack;
-    private final Player player;
+    private final UpdateReason updateReason;
     private final int slot;
     
     private boolean cancelled;
@@ -28,17 +28,19 @@ public class ItemUpdateEvent extends Event implements Cancellable {
      * Creates a new {@link ItemUpdateEvent}.
      *
      * @param virtualInventory  The {@link VirtualInventory} where this action takes place.
-     * @param player            The {@link Player} who changed the {@link ItemStack} or <code>null</code>
+     * @param updateReason      The {@link UpdateReason} for the calling of this event.
+     *                          This will probably be a {@link PlayerUpdateReason} in most cases but can be a custom one
+     *                          if you called the methods in the {@link VirtualInventory} yourself.
      *                          if it wasn't a {@link Player}
      * @param slot              The slot that is affected
      * @param previousItemStack The {@link ItemStack} that was there previously
      * @param newItemStack      The {@link ItemStack} that will be there if the event isn't cancelled
      */
-    public ItemUpdateEvent(@NotNull VirtualInventory virtualInventory, int slot, @Nullable Player player,
+    public ItemUpdateEvent(@NotNull VirtualInventory virtualInventory, int slot, @Nullable UpdateReason updateReason,
                            @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
         this.virtualInventory = virtualInventory;
         this.slot = slot;
-        this.player = player;
+        this.updateReason = updateReason;
         this.previousItemStack = previousItemStack;
         this.newItemStack = newItemStack;
     }
@@ -62,13 +64,12 @@ public class ItemUpdateEvent extends Event implements Cancellable {
     }
     
     /**
-     * Gets the {@link Player} who changed the {@link ItemStack} or <code>null</code>
-     * if it wasn't a {@link Player}.
+     * Gets the {@link UpdateReason} for the calling of this event.
      *
-     * @return The {@link Player}
+     * @return The reason why this event was called. Probably a {@link PlayerUpdateReason} in most cases.
      */
-    public Player getPlayer() {
-        return player;
+    public UpdateReason getUpdateReason() {
+        return updateReason;
     }
     
     /**

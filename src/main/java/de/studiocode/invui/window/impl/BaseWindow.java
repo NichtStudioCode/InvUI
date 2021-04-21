@@ -11,6 +11,8 @@ import de.studiocode.invui.item.ItemBuilder;
 import de.studiocode.invui.util.ArrayUtils;
 import de.studiocode.invui.util.Pair;
 import de.studiocode.invui.virtualinventory.VirtualInventory;
+import de.studiocode.invui.virtualinventory.event.PlayerUpdateReason;
+import de.studiocode.invui.virtualinventory.event.UpdateReason;
 import de.studiocode.invui.window.Window;
 import de.studiocode.invui.window.WindowManager;
 import org.bukkit.Bukkit;
@@ -89,6 +91,7 @@ public abstract class BaseWindow implements Window {
     @Override
     public void handleDrag(InventoryDragEvent event) {
         Player player = ((Player) event.getWhoClicked()).getPlayer();
+        UpdateReason updateReason = new PlayerUpdateReason(player, event);
         Map<Integer, ItemStack> newItems = event.getNewItems();
         
         int itemsLeft = event.getCursor() == null ? 0 : event.getCursor().getAmount();
@@ -98,7 +101,7 @@ public abstract class BaseWindow implements Window {
             
             // get the GUI at that index and ask for permission to drag an Item there
             Pair<GUI, Integer> pair = getGuiAt(rawSlot);
-            if (pair != null && pair.getFirst().handleItemDrag(player, pair.getSecond(), currentStack, newItems.get(rawSlot))) { 
+            if (pair != null && pair.getFirst().handleItemDrag(updateReason, pair.getSecond(), currentStack, newItems.get(rawSlot))) { 
                 // the drag was cancelled
                 int currentAmount = currentStack == null ? 0 : currentStack.getAmount();
                 int newAmount = newItems.get(rawSlot).getAmount();

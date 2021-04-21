@@ -7,6 +7,7 @@ import de.studiocode.invui.gui.structure.Structure;
 import de.studiocode.invui.item.Item;
 import de.studiocode.invui.item.ItemBuilder;
 import de.studiocode.invui.virtualinventory.VirtualInventory;
+import de.studiocode.invui.virtualinventory.event.UpdateReason;
 import de.studiocode.invui.window.Window;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -167,6 +168,7 @@ public interface GUI extends GUIParent {
     /**
      * Sets the {@link ItemBuilder} that will be used if nothing else
      * is placed on a slot.
+     *
      * @param itemBuilder The {@link ItemBuilder}
      */
     void setBackground(@Nullable ItemBuilder itemBuilder);
@@ -174,7 +176,7 @@ public interface GUI extends GUIParent {
     /**
      * Gets the {@link ItemBuilder} that will used if nothing else
      * is placed on a slot.
-     * 
+     *
      * @return The {@link ItemBuilder}
      */
     ItemBuilder getBackground();
@@ -222,13 +224,13 @@ public interface GUI extends GUIParent {
     /**
      * A method called when an {@link ItemStack} has been dragged over the {@link GUI}.
      *
-     * @param player   The player that is responsible for this action
-     * @param slot     The slot index
-     * @param oldStack The {@link ItemStack} that was previously on that slot
-     * @param newStack The new {@link ItemStack} that would be there if the action isn't cancelled
+     * @param updateReason The reason for this item update.
+     * @param slot         The slot index
+     * @param oldStack     The {@link ItemStack} that was previously on that slot
+     * @param newStack     The new {@link ItemStack} that would be there if the action isn't cancelled
      * @return If the action has been cancelled
      */
-    boolean handleItemDrag(Player player, int slot, ItemStack oldStack, ItemStack newStack);
+    boolean handleItemDrag(UpdateReason updateReason, int slot, ItemStack oldStack, ItemStack newStack);
     
     /**
      * Adds a {@link GUIParent} to the set of {@link GUIParent}s.
