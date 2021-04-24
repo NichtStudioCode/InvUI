@@ -18,7 +18,7 @@ import java.util.UUID;
  */
 public class VirtualInventoryManager {
     
-    private static final File SAVE_DIR = new File("plugins/InvUI/VirtualInventory/");
+    private static final File SAVE_DIR = new File("plugins/InvUI/VirtualInventory/" + InvUI.getInstance().getPlugin().getName() + "/");
     
     private static VirtualInventoryManager instance;
     

@@ -2,9 +2,6 @@ package de.studiocode.invui.virtualinventory.event;
 
 import de.studiocode.invui.virtualinventory.VirtualInventory;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
-import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -12,9 +9,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * An event that is called whenever a slot inside a {@link VirtualInventory} gets updated.
  */
-public class ItemUpdateEvent extends Event implements Cancellable {
-    
-    private static final HandlerList handlers = new HandlerList();
+public class ItemUpdateEvent {
     
     private final VirtualInventory virtualInventory;
     private final ItemStack previousItemStack;
@@ -43,15 +38,6 @@ public class ItemUpdateEvent extends Event implements Cancellable {
         this.updateReason = updateReason;
         this.previousItemStack = previousItemStack;
         this.newItemStack = newItemStack;
-    }
-    
-    /**
-     * Gets the {@link HandlerList} of this {@link Event}
-     *
-     * @return The {@link HandlerList} of this {@link Event}
-     */
-    public static HandlerList getHandlerList() {
-        return handlers;
     }
     
     /**
@@ -99,25 +85,22 @@ public class ItemUpdateEvent extends Event implements Cancellable {
         return slot;
     }
     
-    @Override
+    /**
+     * Gets the cancellation state of this event.
+     *
+     * @return The cancellation state of this event.
+     */
     public boolean isCancelled() {
         return cancelled;
     }
     
-    @Override
+    /**
+     * Sets the cancellation state of this event.
+     *
+     * @param cancel If this event should be cancelled.
+     */
     public void setCancelled(boolean cancel) {
         this.cancelled = cancel;
-    }
-    
-    /**
-     * Gets the {@link HandlerList} of this {@link Event}
-     *
-     * @return The {@link HandlerList} of this {@link Event}
-     */
-    @NotNull
-    @Override
-    public HandlerList getHandlers() {
-        return handlers;
     }
     
 }

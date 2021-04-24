@@ -373,6 +373,53 @@ public class VirtualInventory implements ConfigurationSerializable {
         return amountLeft;
     }
     
+    /**
+     * Returns the amount of items that wouldn't fit in the inventory when added.
+     * <br>
+     * <strong>Note: This method does not add any {@link ItemStack}s to the {@link VirtualInventory}.</strong>
+     *
+     * @param itemStack The {@link ItemStack} to use
+     * @return How many items wouldn't fit in the inventory when added
+     */
+    public int simulateAdd(ItemStack itemStack) {
+        int amountLeft = itemStack.getAmount();
+        
+        // find all slots where the item partially fits
+        for (int partialSlot : findPartialSlots(itemStack)) {
+            ItemStack partialItem = items[partialSlot];
+            amountLeft = Math.max(0, amountLeft - (partialItem.getMaxStackSize() - partialItem.getAmount()));
+            if (amountLeft == 0) break;
+        }
+        
+        // remaining items would be added to an empty slot
+        if (amountLeft != 0 && ArrayUtils.findFirstEmptyIndex(items) != -1) amountLeft = 0;
+        
+        return amountLeft;
+    }
+    
+    /**
+     * Simulates adding multiple {@link ItemStack}s to this {@link VirtualInventory}
+     * and returns the amount of {@link ItemStack}s that did not fit.<br>
+     * This method should only be used for simulating the addition of <strong>multiple</strong> {@link ItemStack}s.
+     * For a single {@link ItemStack} use {@link #simulateAdd(ItemStack)}<br>
+     * <strong>Note: This method does not add any {@link ItemStack}s to the {@link VirtualInventory}.</strong>
+     *
+     * @param itemStacks The {@link ItemStack} to be used in the simulation
+     * @return An array of integers representing the leftover amount for each {@link ItemStack} provided.
+     * The size of this array is always equal to the amount of {@link ItemStack}s provided as method parameters.
+     */
+    public int[] simulateMultiAdd(List<ItemStack> itemStacks) {
+        if (itemStacks.size() < 2) throw new IllegalArgumentException("Illegal amount of ItemStacks in List");
+        
+        VirtualInventory copiedInv = new VirtualInventory(null, size, getItems());
+        int[] result = new int[itemStacks.size()];
+        for (int index = 0; index != itemStacks.size(); index++) {
+            result[index] = copiedInv.addItem(null, itemStacks.get(index));
+        }
+        
+        return result;
+    }
+    
     public int collectToCursor(@Nullable UpdateReason updateReason, ItemStack itemStack) {
         int amount = itemStack.getAmount();
         int maxStackSize = itemStack.getMaxStackSize();
@@ -482,10 +529,18 @@ public class VirtualInventory implements ConfigurationSerializable {
             windows.forEach(window -> window.handleVirtualInventoryUpdate(this)));
     }
     
-    private ItemUpdateEvent createAndCallEvent(int index, UpdateReason updateReason, ItemStack previousItemStack, ItemStack newItemStack) {
+    /**
+     * Creates an {@link ItemUpdateEvent} and calls the {@link #itemUpdateHandler} to handle it.
+     *
+     * @param index             The slot index of the affected {@link ItemStack}
+     * @param updateReason      The {@link UpdateReason}
+     * @param previousItemStack The {@link ItemStack} that was previously on that slot
+     * @param newItemStack      The {@link ItemStack} that will be on that slot
+     * @return The {@link ItemUpdateEvent} after it has been handled by the {@link #itemUpdateHandler}
+     */
+    public ItemUpdateEvent createAndCallEvent(int index, UpdateReason updateReason, ItemStack previousItemStack, ItemStack newItemStack) {
         ItemUpdateEvent event = new ItemUpdateEvent(this, index, updateReason, previousItemStack, newItemStack);
         if (itemUpdateHandler != null) itemUpdateHandler.accept(event);
-        Bukkit.getPluginManager().callEvent(event);
         return event;
     }
     

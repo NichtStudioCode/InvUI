@@ -19,7 +19,6 @@ import de.studiocode.invui.window.Window;
 import de.studiocode.invui.window.WindowManager;
 import de.studiocode.invui.window.impl.merged.MergedWindow;
 import de.studiocode.invui.window.impl.merged.split.SplitWindow;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -131,8 +130,7 @@ abstract class IndexedGUI implements GUI {
                     Window window = WindowManager.getInstance().findOpenWindow(player).orElse(null);
                     
                     ItemStack invStack = virtualInventory.getItemStack(index);
-                    ItemUpdateEvent updateEvent = new ItemUpdateEvent(virtualInventory, index, updateReason, invStack, null);
-                    Bukkit.getPluginManager().callEvent(updateEvent);
+                    ItemUpdateEvent updateEvent = virtualInventory.createAndCallEvent(index, updateReason, invStack, null);
                     
                     if (!updateEvent.isCancelled()) {
                         int leftOverAmount;
