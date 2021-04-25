@@ -168,9 +168,13 @@ public abstract class BaseWindow implements Window {
         Arrays.stream(elementsDisplayed)
             .filter(Objects::nonNull)
             .map(SlotElement::getHoldingElement)
-            .filter(element -> element instanceof ItemSlotElement)
-            .map(element -> ((ItemSlotElement) element).getItem())
-            .forEach(item -> item.removeWindow(this));
+            .forEach(slotElement -> {
+                if (slotElement instanceof ItemSlotElement) {
+                    ((ItemSlotElement) slotElement).getItem().removeWindow(this);
+                } else if (slotElement instanceof VISlotElement) {
+                    ((VISlotElement) slotElement).getVirtualInventory().removeWindow(this);
+                }
+            });
         
         Arrays.stream(getGuis())
             .forEach(gui -> gui.removeParent(this));
