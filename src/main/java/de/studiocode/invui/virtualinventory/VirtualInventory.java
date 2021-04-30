@@ -420,6 +420,19 @@ public class VirtualInventory implements ConfigurationSerializable {
         return result;
     }
     
+    /**
+     * Checks if the {@link VirtualInventory} could theoretically hold the
+     * provided {@link ItemStack}.
+     *
+     * @param itemStacks The {@link ItemStack}s
+     * @return If the {@link VirtualInventory} can fit all these items
+     */
+    public boolean canHold(List<ItemStack> itemStacks) {
+        if (itemStacks.size() == 0) return true;
+        else if (itemStacks.size() == 1) return simulateAdd(itemStacks.get(0)) == 0;
+        else return Arrays.stream(simulateMultiAdd(itemStacks)).allMatch(i -> i == 0);
+    }
+    
     public int collectToCursor(@Nullable UpdateReason updateReason, ItemStack itemStack) {
         int amount = itemStack.getAmount();
         int maxStackSize = itemStack.getMaxStackSize();
