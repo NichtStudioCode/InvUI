@@ -103,4 +103,52 @@ public class ItemUpdateEvent {
         this.cancelled = cancel;
     }
     
+    /**
+     * Calculates if the Action resulted in items being added to
+     * the {@link VirtualInventory}.
+     *
+     * @return If items were added to the {@link VirtualInventory}
+     */
+    public boolean isAdd() {
+        if (newItemStack != null && previousItemStack != null) {
+            return newItemStack.getAmount() > previousItemStack.getAmount();
+        } else return previousItemStack == null && newItemStack != null;
+    }
+    
+    /**
+     * Calculates if the action resulted in items being removed
+     * from the {@link VirtualInventory}.
+     *
+     * @return If items were removed from the {@link VirtualInventory}
+     */
+    public boolean isRemove() {
+        if (newItemStack != null && previousItemStack != null) {
+            return newItemStack.getAmount() < previousItemStack.getAmount();
+        } else return newItemStack == null && previousItemStack != null;
+    }
+    
+    /**
+     * Gets the amount of items that have been removed.
+     *
+     * @return The amount of items that have been removed
+     * @throws IllegalStateException when {@link #isRemove()} is false
+     */
+    public int getRemovedAmount() {
+        if (!isRemove()) throw new IllegalStateException("No items have been removed");
+        if (newItemStack == null) return previousItemStack.getAmount();
+        else return previousItemStack.getAmount() - newItemStack.getAmount();
+    }
+    
+    /**
+     * Gets the amount of items that have been added.
+     *
+     * @return The amount of items that have been added
+     * @throws IllegalStateException when {@link #isAdd()} is false
+     */
+    public int getAddedAmount() {
+        if (!isAdd()) throw new IllegalStateException("No items have been added");
+        if (previousItemStack == null) return newItemStack.getAmount();
+        else return newItemStack.getAmount() - previousItemStack.getAmount();
+    }
+    
 }
