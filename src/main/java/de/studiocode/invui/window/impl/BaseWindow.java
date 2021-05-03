@@ -77,14 +77,19 @@ public abstract class BaseWindow implements Window {
                 }
             }
             
-            // tell the Item or VirtualInventory that it is being displayed in this Window
-            if (element instanceof ItemSlotElement) {
-                ((ItemSlotElement) element).getItem().addWindow(this);
-            } else if (element instanceof VISlotElement) {
-                ((VISlotElement) element).getVirtualInventory().addWindow(this);
+            if (element != null) {
+                // tell the Item or VirtualInventory that it is being displayed in this Window
+                SlotElement holdingElement = element.getHoldingElement();
+                if (holdingElement instanceof ItemSlotElement) {
+                    ((ItemSlotElement) holdingElement).getItem().addWindow(this);
+                } else if (holdingElement instanceof VISlotElement) {
+                    ((VISlotElement) holdingElement).getVirtualInventory().addWindow(this);
+                }
+                
+                elementsDisplayed[index] = holdingElement;
+            } else {
+                elementsDisplayed[index] = null;
             }
-            
-            elementsDisplayed[index] = element;
         }
     }
     
@@ -101,7 +106,7 @@ public abstract class BaseWindow implements Window {
             
             // get the GUI at that index and ask for permission to drag an Item there
             Pair<GUI, Integer> pair = getGuiAt(rawSlot);
-            if (pair != null && pair.getFirst().handleItemDrag(updateReason, pair.getSecond(), currentStack, newItems.get(rawSlot))) { 
+            if (pair != null && pair.getFirst().handleItemDrag(updateReason, pair.getSecond(), currentStack, newItems.get(rawSlot))) {
                 // the drag was cancelled
                 int currentAmount = currentStack == null ? 0 : currentStack.getAmount();
                 int newAmount = newItems.get(rawSlot).getAmount();
