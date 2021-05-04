@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 public class ItemBuilder implements Cloneable {
     
+    protected ItemStack base;
     protected Material material;
     protected int amount = 1;
     protected int damage;
@@ -48,6 +49,27 @@ public class ItemBuilder implements Cloneable {
     }
     
     /**
+     * Constructs a new {@link ItemBuilder} based on the given {@link Material} and amount.
+     *
+     * @param material The {@link Material}
+     * @param amount   The amount
+     */
+    public ItemBuilder(Material material, int amount) {
+        this.material = material;
+        this.amount = amount;
+    }
+    
+    /**
+     * Constructs a new {@link ItemBuilder} based on the give {@link ItemStack}.
+     * This will keep the {@link ItemStack} and uses it's {@link ItemMeta}
+     *
+     * @param base The {@link ItemStack to use as a base}
+     */
+    public ItemBuilder(ItemStack base) {
+        this.base = base.clone();
+    }
+    
+    /**
      * Constructs a new {@link ItemBuilder} of skull with the specified {@link HeadTexture}.
      *
      * @param headTexture The {@link HeadTexture}
@@ -65,17 +87,25 @@ public class ItemBuilder implements Cloneable {
      * @return The {@link ItemStack}
      */
     public ItemStack build() {
-        ItemStack itemStack = new ItemStack(material, amount);
+        ItemStack itemStack = (base != null) ? base : new ItemStack(material, amount);
         
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta != null) {
             if (itemMeta instanceof Damageable) ((Damageable) itemMeta).setDamage(damage);
             if (customModelData != 0) itemMeta.setCustomModelData(customModelData);
             if (displayName != null) itemMeta.setDisplayName(displayName);
-            if (gameProfile != null)
+            if (gameProfile != null) {
                 ReflectionUtils.setFieldValue(ReflectionRegistry.CB_CRAFT_META_SKULL_PROFILE_FIELD, itemMeta, gameProfile);
-            enchantments.forEach((enchantment, pair) -> itemMeta.addEnchant(enchantment, pair.getFirst(), pair.getSecond()));
-            itemMeta.addItemFlags(itemFlags.toArray(new ItemFlag[0]));
+            }
+            if (!enchantments.isEmpty()) {
+                if (base != null)
+                    itemMeta.getEnchants().forEach((enchantment, level) -> itemMeta.removeEnchant(enchantment));
+                enchantments.forEach((enchantment, pair) -> itemMeta.addEnchant(enchantment, pair.getFirst(), pair.getSecond()));
+            }
+            if (!itemFlags.isEmpty()) {
+                if (base != null) itemMeta.removeItemFlags(itemMeta.getItemFlags().toArray(new ItemFlag[0]));
+                itemMeta.addItemFlags(itemFlags.toArray(new ItemFlag[0]));
+            }
             itemMeta.setLore(lore);
             
             itemStack.setItemMeta(itemMeta);
