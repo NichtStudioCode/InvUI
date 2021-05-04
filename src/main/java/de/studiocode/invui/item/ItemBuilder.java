@@ -44,7 +44,7 @@ public class ItemBuilder implements Cloneable {
      *
      * @param material The {@link Material}
      */
-    public ItemBuilder(Material material) {
+    public ItemBuilder(@NotNull Material material) {
         this.material = material;
     }
     
@@ -54,7 +54,7 @@ public class ItemBuilder implements Cloneable {
      * @param material The {@link Material}
      * @param amount   The amount
      */
-    public ItemBuilder(Material material, int amount) {
+    public ItemBuilder(@NotNull Material material, int amount) {
         this.material = material;
         this.amount = amount;
     }
@@ -65,7 +65,7 @@ public class ItemBuilder implements Cloneable {
      *
      * @param base The {@link ItemStack to use as a base}
      */
-    public ItemBuilder(ItemStack base) {
+    public ItemBuilder(@NotNull ItemStack base) {
         this.base = base.clone();
     }
     
@@ -128,7 +128,7 @@ public class ItemBuilder implements Cloneable {
         return build();
     }
     
-    public ItemBuilder setMaterial(Material material) {
+    public ItemBuilder setMaterial(@NotNull Material material) {
         this.material = material;
         return this;
     }
@@ -153,17 +153,17 @@ public class ItemBuilder implements Cloneable {
         return this;
     }
     
-    public ItemBuilder setLore(List<String> lore) {
+    public ItemBuilder setLore(@NotNull List<String> lore) {
         this.lore = lore;
         return this;
     }
     
-    public ItemBuilder addLoreLines(String... lines) {
+    public ItemBuilder addLoreLines(@NotNull String... lines) {
         lore.addAll(Arrays.asList(lines));
         return this;
     }
     
-    public ItemBuilder removeLoreLines(String... lines) {
+    public ItemBuilder removeLoreLines(@NotNull String... lines) {
         lore.removeAll(Arrays.asList(lines));
         return this;
     }
@@ -178,17 +178,17 @@ public class ItemBuilder implements Cloneable {
         return this;
     }
     
-    public ItemBuilder setItemFlags(List<ItemFlag> itemFlags) {
+    public ItemBuilder setItemFlags(@NotNull List<ItemFlag> itemFlags) {
         this.itemFlags = itemFlags;
         return this;
     }
     
-    public ItemBuilder addItemFlags(ItemFlag... itemFlags) {
+    public ItemBuilder addItemFlags(@NotNull ItemFlag... itemFlags) {
         this.itemFlags.addAll(Arrays.asList(itemFlags));
         return this;
     }
     
-    public ItemBuilder removeItemFlags(ItemFlag... itemFlags) {
+    public ItemBuilder removeItemFlags(@NotNull ItemFlag... itemFlags) {
         this.itemFlags.removeAll(Arrays.asList(itemFlags));
         return this;
     }
@@ -198,7 +198,7 @@ public class ItemBuilder implements Cloneable {
         return this;
     }
     
-    public ItemBuilder setEnchantments(HashMap<Enchantment, Pair<Integer, Boolean>> enchantments) {
+    public ItemBuilder setEnchantments(@NotNull HashMap<Enchantment, Pair<Integer, Boolean>> enchantments) {
         this.enchantments = enchantments;
         return this;
     }
