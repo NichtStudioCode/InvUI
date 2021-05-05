@@ -104,27 +104,39 @@ public class ItemUpdateEvent {
     }
     
     /**
-     * Calculates if the Action resulted in items being added to
+     * Gets if the action resulted in items being added to
      * the {@link VirtualInventory}.
      *
      * @return If items were added to the {@link VirtualInventory}
      */
     public boolean isAdd() {
-        if (newItemStack != null && previousItemStack != null) {
+        if (newItemStack != null && previousItemStack != null && newItemStack.isSimilar(previousItemStack)) {
             return newItemStack.getAmount() > previousItemStack.getAmount();
         } else return previousItemStack == null && newItemStack != null;
     }
     
     /**
-     * Calculates if the action resulted in items being removed
+     * Gets if the action resulted in items being removed
      * from the {@link VirtualInventory}.
      *
      * @return If items were removed from the {@link VirtualInventory}
      */
     public boolean isRemove() {
-        if (newItemStack != null && previousItemStack != null) {
+        if (newItemStack != null && previousItemStack != null && newItemStack.isSimilar(previousItemStack)) {
             return newItemStack.getAmount() < previousItemStack.getAmount();
         } else return newItemStack == null && previousItemStack != null;
+    }
+    
+    /**
+     * Gets if the type of the {@link ItemStack} has changed.
+     * This does not account for an {@link ItemStack} turning null
+     * or being null previously, {@link #isRemove()} and {@link #isAdd()}
+     * should be used for that.
+     *
+     * @return If the type of the {@link ItemStack} has changed
+     */
+    public boolean isSwap() {
+        return newItemStack != null && previousItemStack != null && !newItemStack.isSimilar(previousItemStack);
     }
     
     /**
