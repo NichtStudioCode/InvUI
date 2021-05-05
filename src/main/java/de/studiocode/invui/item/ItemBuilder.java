@@ -67,6 +67,7 @@ public class ItemBuilder implements Cloneable {
      */
     public ItemBuilder(@NotNull ItemStack base) {
         this.base = base.clone();
+        this.amount = base.getAmount();
     }
     
     /**
@@ -87,7 +88,13 @@ public class ItemBuilder implements Cloneable {
      * @return The {@link ItemStack}
      */
     public ItemStack build() {
-        ItemStack itemStack = (base != null) ? base : new ItemStack(material, amount);
+        ItemStack itemStack;
+        if (base != null) {
+            itemStack = base;
+            itemStack.setAmount(amount);
+        } else {
+            itemStack = new ItemStack(material, amount);
+        }
         
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta != null) {
