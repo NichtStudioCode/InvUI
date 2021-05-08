@@ -537,7 +537,13 @@ public class VirtualInventory implements ConfigurationSerializable {
         windows.remove(window);
     }
     
-    private void notifyWindows() {
+    /**
+     * Notifies all {@link Window}s displaying this {@link VirtualInventory} to update their
+     * representative {@link ItemStack}s.
+     * This method should only be called manually in very specific cases like when the
+     * {@link ItemMeta} of an {@link ItemStack} in this inventory has changed.
+     */
+    public void notifyWindows() {
         Bukkit.getScheduler().runTask(InvUI.getInstance().getPlugin(), () ->
             windows.forEach(window -> window.handleVirtualInventoryUpdate(this)));
     }
