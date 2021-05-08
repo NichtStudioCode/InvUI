@@ -225,13 +225,56 @@ public class ItemBuilder implements Cloneable {
         return this;
     }
     
+    public ItemStack getBase() {
+        return base;
+    }
+    
+    public Material getMaterial() {
+        return material;
+    }
+    
+    public int getAmount() {
+        return amount;
+    }
+    
+    public int getDamage() {
+        return damage;
+    }
+    
+    public int getCustomModelData() {
+        return customModelData;
+    }
+    
+    public String getDisplayName() {
+        return displayName;
+    }
+    
+    public List<String> getLore() {
+        return lore;
+    }
+    
+    public List<ItemFlag> getItemFlags() {
+        return itemFlags;
+    }
+    
+    public HashMap<Enchantment, Pair<Integer, Boolean>> getEnchantments() {
+        return enchantments;
+    }
+    
+    public GameProfile getGameProfile() {
+        return gameProfile;
+    }
+    
     @Override
     public ItemBuilder clone() {
         try {
-            return ((ItemBuilder) super.clone())
-                .setLore(new ArrayList<>(lore))
-                .setItemFlags(new ArrayList<>(itemFlags))
-                .setEnchantments(new HashMap<>(enchantments));
+            ItemBuilder clone = ((ItemBuilder) super.clone());
+            if (base != null) clone.base = base.clone();
+            clone.lore = new ArrayList<>(lore);
+            clone.itemFlags = new ArrayList<>(itemFlags);
+            clone.enchantments = new HashMap<>(enchantments);
+            
+            return clone;
         } catch (CloneNotSupportedException e) {
             throw new Error(e);
         }
