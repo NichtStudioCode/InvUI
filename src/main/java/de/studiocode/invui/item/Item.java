@@ -36,9 +36,11 @@ public interface Item {
     void removeWindow(Window window);
     
     /**
-     * Gets all the {@link Window}s the {@link Item} is displayed in.
+     * Gets an immutable {@link Set} of all the {@link Window}s where this
+     * {@link Item} is displayed in.
      *
-     * @return The {@link Set} of {@link Window}s the {@link Item} is displayed in.
+     * @return An immutable view of the {@link Set} of all the {@link Window}s
+     * where this {@link Item} is displayed in.
      */
     Set<Window> getWindows();
     

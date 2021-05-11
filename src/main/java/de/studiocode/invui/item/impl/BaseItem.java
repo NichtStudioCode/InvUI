@@ -3,6 +3,7 @@ package de.studiocode.invui.item.impl;
 import de.studiocode.invui.item.Item;
 import de.studiocode.invui.window.Window;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,7 +26,7 @@ public abstract class BaseItem implements Item {
     
     @Override
     public Set<Window> getWindows() {
-        return windows;
+        return Collections.unmodifiableSet(windows);
     }
     
     @Override

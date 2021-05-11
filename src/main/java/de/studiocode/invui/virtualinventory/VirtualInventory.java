@@ -551,6 +551,16 @@ public class VirtualInventory implements ConfigurationSerializable {
     }
     
     /**
+     * Gets an immutable view of the {@link Set} that contains all the {@link Window}s that
+     * display this {@link VirtualInventory}.
+     * 
+     * @return An UnmodifiableSet of all the {@link Window}s that show this {@link VirtualInventory}.
+     */
+    public Set<Window> getWindows() {
+        return Collections.unmodifiableSet(windows);
+    }
+    
+    /**
      * Notifies all {@link Window}s displaying this {@link VirtualInventory} to update their
      * representative {@link ItemStack}s.
      * This method should only be called manually in very specific cases like when the
