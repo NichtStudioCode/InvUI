@@ -289,6 +289,11 @@ abstract class IndexedGUI implements GUI {
     }
     
     @Override
+    public void closeForAllViewers() {
+        findAllCurrentViewers().forEach(Player::closeInventory);
+    }
+    
+    @Override
     public void playAnimation(@NotNull Animation animation, @Nullable Predicate<SlotElement> filter) {
         if (animation != null) cancelAnimation();
         

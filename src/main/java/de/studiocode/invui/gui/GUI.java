@@ -12,6 +12,7 @@ import de.studiocode.invui.window.Window;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -266,6 +267,15 @@ public interface GUI extends GUIParent {
      * @return The list of {@link Player}s that are currently seeing this {@link Window}
      */
     Set<Player> findAllCurrentViewers();
+    
+    /**
+     * Closes the open {@link Inventory} for all viewers of {@link Window}s
+     * where this {@link GUI} is displayed.
+     * Does not actually call the {@link Window#close(boolean)} method, which will
+     * be indirectly invoked by the {@link InventoryCloseEvent} if the {@link Window}
+     * is set to close on that event.
+     */
+    void closeForAllViewers();
     
     /**
      * Plays an {@link Animation}.
