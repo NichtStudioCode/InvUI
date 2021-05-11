@@ -8,12 +8,14 @@ import de.studiocode.invui.window.Window;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Consumer;
 
+// TODO: clean up
 public class VirtualInventory implements ConfigurationSerializable {
     
     private final Set<Window> windows = new HashSet<>();
@@ -340,10 +342,14 @@ public class VirtualInventory implements ConfigurationSerializable {
     
     /**
      * Adds an {@link ItemStack} to the {@link VirtualInventory}.
+     * This method does not work the same way as Bukkit's addItem method
+     * as it respects the max stack size of the item type.
      *
      * @param updateReason The reason for item update, can be null.
      * @param itemStack    The {@link ItemStack} to add
      * @return The amount of items that couldn't be added
+     * @see #simulateAdd(ItemStack)
+     * @see #simulateMultiAdd(List) 
      */
     public int addItem(@Nullable UpdateReason updateReason, ItemStack itemStack) {
         final int originalAmount = itemStack.getAmount();
@@ -355,15 +361,11 @@ public class VirtualInventory implements ConfigurationSerializable {
             if (amountLeft == 0) break;
         }
         
-        if (amountLeft != 0) {
-            // there are still items left, put the rest on an empty slot
-            int emptyIndex = ArrayUtils.findFirstEmptyIndex(items);
-            if (emptyIndex != -1) {
-                ItemStack leftover = itemStack.clone();
-                leftover.setAmount(amountLeft);
-                if (!place(updateReason, emptyIndex, leftover))
-                    amountLeft = 0;
-            }
+        // find all empty slots and put the item there
+        while (amountLeft > 0) {
+            int emptySlot = ArrayUtils.findFirstEmptyIndex(items);
+            if (emptySlot == -1) break;
+            amountLeft = addToEmpty(updateReason, emptySlot, itemStack, amountLeft);
         }
         
         // if items have been added, notify windows
@@ -382,17 +384,20 @@ public class VirtualInventory implements ConfigurationSerializable {
      * @return How many items wouldn't fit in the inventory when added
      */
     public int simulateAdd(ItemStack itemStack) {
+        int maxStackSize = itemStack.getMaxStackSize();
         int amountLeft = itemStack.getAmount();
         
         // find all slots where the item partially fits
         for (int partialSlot : findPartialSlots(itemStack)) {
             ItemStack partialItem = items[partialSlot];
-            amountLeft = Math.max(0, amountLeft - (partialItem.getMaxStackSize() - partialItem.getAmount()));
+            amountLeft = Math.max(0, amountLeft - (maxStackSize - partialItem.getAmount()));
             if (amountLeft == 0) break;
         }
         
-        // remaining items would be added to an empty slot
-        if (amountLeft != 0 && ArrayUtils.findFirstEmptyIndex(items) != -1) amountLeft = 0;
+        // remaining items would be added to empty slots
+        for (int ignored : ArrayUtils.findEmptyIndices(items)) {
+            amountLeft -= Math.min(amountLeft, maxStackSize);
+        }
         
         return amountLeft;
     }
@@ -496,6 +501,15 @@ public class VirtualInventory implements ConfigurationSerializable {
         } else return amount;
     }
     
+    private int addToEmpty(@Nullable UpdateReason updateReason, int index, @NotNull ItemStack type, int amount) {
+        int maxAddable = Math.min(type.getType().getMaxStackSize(), amount);
+        ItemStack newStack = type.clone();
+        newStack.setAmount(maxAddable);
+        
+        if (setItemStack(updateReason, index, newStack)) return amount;
+        else return amount - maxAddable;
+    }
+    
     private int takeFrom(@Nullable UpdateReason updateReason, int index, int maxTake) {
         ItemStack itemStack = items[index];
         int amount = itemStack.getAmount();
@@ -573,11 +587,8 @@ public class VirtualInventory implements ConfigurationSerializable {
     }
     
     /**
-     * Sets the item update handler which is an alternative for using
-     * Bukkit's event system for handling item updates in this virtual
-     * inventory. The item update handler is called before the Bukkit event
-     * is fired and all changes made are visible when catching Bukkit's
-     * event.
+     * Sets the item update handler which will get called every time
+     * an item gets updated in this {@link VirtualInventory}.
      *
      * @param itemUpdateHandler The item update handler
      */
