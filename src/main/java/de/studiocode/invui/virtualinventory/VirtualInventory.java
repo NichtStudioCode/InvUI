@@ -349,7 +349,7 @@ public class VirtualInventory implements ConfigurationSerializable {
      * @param itemStack    The {@link ItemStack} to add
      * @return The amount of items that couldn't be added
      * @see #simulateAdd(ItemStack)
-     * @see #simulateMultiAdd(List) 
+     * @see #simulateMultiAdd(List)
      */
     public int addItem(@Nullable UpdateReason updateReason, ItemStack itemStack) {
         final int originalAmount = itemStack.getAmount();
@@ -362,9 +362,8 @@ public class VirtualInventory implements ConfigurationSerializable {
         }
         
         // find all empty slots and put the item there
-        while (amountLeft > 0) {
-            int emptySlot = ArrayUtils.findFirstEmptyIndex(items);
-            if (emptySlot == -1) break;
+        for (int emptySlot : ArrayUtils.findEmptyIndices(items)) {
+            if (amountLeft == 0) break;
             amountLeft = addToEmpty(updateReason, emptySlot, itemStack, amountLeft);
         }
         
