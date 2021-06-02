@@ -32,7 +32,7 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-abstract class BaseGUI implements GUI {
+public abstract class BaseGUI implements GUI {
     
     private final int width;
     private final int height;
