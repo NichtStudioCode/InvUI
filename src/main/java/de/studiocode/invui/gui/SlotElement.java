@@ -31,7 +31,7 @@ public interface SlotElement {
         public ItemStack getItemStack(UUID viewerUUID) {
             return item.getItemBuilder().buildFor(viewerUUID);
         }
-    
+        
         @Override
         public SlotElement getHoldingElement() {
             return this;
@@ -45,30 +45,30 @@ public interface SlotElement {
     class VISlotElement implements SlotElement {
         
         private final VirtualInventory virtualInventory;
-        private final int index;
+        private final int slot;
         
-        public VISlotElement(VirtualInventory virtualInventory, int index) {
+        public VISlotElement(VirtualInventory virtualInventory, int slot) {
             this.virtualInventory = virtualInventory;
-            this.index = index;
+            this.slot = slot;
         }
         
         public VirtualInventory getVirtualInventory() {
             return virtualInventory;
         }
         
-        public int getIndex() {
-            return index;
+        public int getSlot() {
+            return slot;
         }
         
         public ItemStack getItemStack() {
-            return virtualInventory.getItemStack(index);
+            return virtualInventory.getUnsafeItemStack(slot);
         }
         
         @Override
         public ItemStack getItemStack(UUID viewerUUID) {
             return getItemStack();
         }
-    
+        
         @Override
         public SlotElement getHoldingElement() {
             return this;
@@ -107,7 +107,7 @@ public interface SlotElement {
                 else return below;
             }
         }
-    
+        
         @Override
         public ItemStack getItemStack(UUID viewerUUID) {
             return getHoldingElement().getItemStack(viewerUUID);

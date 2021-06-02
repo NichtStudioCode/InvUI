@@ -13,7 +13,7 @@ public class ItemUpdateEvent {
     
     private final VirtualInventory virtualInventory;
     private final ItemStack previousItemStack;
-    private final ItemStack newItemStack;
+    private ItemStack newItemStack;
     private final UpdateReason updateReason;
     private final int slot;
     
@@ -74,6 +74,17 @@ public class ItemUpdateEvent {
      */
     public ItemStack getNewItemStack() {
         return newItemStack;
+    }
+    
+    /**
+     * Change the {@link ItemStack} that will appear in the {@link VirtualInventory}
+     * to a different one.
+     *
+     * @param newItemStack The {@link ItemStack} to appear in the {@link VirtualInventory}
+     *                     if the {@link ItemUpdateEvent} is not cancelled.
+     */
+    public void setNewItemStack(@Nullable ItemStack newItemStack) {
+        this.newItemStack = newItemStack;
     }
     
     /**

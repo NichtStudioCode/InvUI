@@ -19,6 +19,7 @@ import de.studiocode.invui.window.Window;
 import de.studiocode.invui.window.WindowManager;
 import de.studiocode.invui.window.impl.merged.MergedWindow;
 import de.studiocode.invui.window.impl.merged.split.SplitWindow;
+import de.studiocode.invui.window.impl.single.SingleWindow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -67,18 +68,19 @@ abstract class IndexedGUI implements GUI {
         } else event.setCancelled(true); // Only VISlotElements have allowed interactions
     }
     
+    @SuppressWarnings("deprecation")
     private void handleVISlotElementClick(VISlotElement element, InventoryClickEvent event) {
         VirtualInventory virtualInventory = element.getVirtualInventory();
-        int index = element.getIndex();
+        int slot = element.getSlot();
         
         Player player = (Player) event.getWhoClicked();
         ItemStack cursor = event.getCursor();
         ItemStack clicked = event.getCurrentItem();
-    
+        
         UpdateReason updateReason = new PlayerUpdateReason(player, event);
         
-        if (virtualInventory.isSynced(index, clicked)) {
-            boolean cancelled = false;
+        if (virtualInventory.isSynced(slot, clicked)) {
+            boolean cancel = false;
             
             switch (event.getAction()) {
                 
@@ -90,80 +92,124 @@ abstract class IndexedGUI implements GUI {
                 
                 case DROP_ONE_SLOT:
                 case PICKUP_ONE:
-                    cancelled = virtualInventory.removeOne(updateReason, index);
+                    cancel = virtualInventory.changeItemAmount(updateReason, slot, -1) != -1;
                     break;
                 
                 case DROP_ALL_SLOT:
                 case PICKUP_ALL:
-                    cancelled = virtualInventory.removeItem(updateReason, index);
+                    cancel = !virtualInventory.setItemStack(updateReason, slot, null);
+                    // set null
                     break;
                 
                 case PICKUP_HALF:
-                    cancelled = virtualInventory.removeHalf(updateReason, index);
-                    break;
-                
-                case PLACE_ALL:
-                    cancelled = virtualInventory.place(updateReason, index, cursor);
-                    break;
-                
-                case PLACE_ONE:
-                    cancelled = virtualInventory.placeOne(updateReason, index, cursor);
-                    break;
-                
-                case PLACE_SOME:
-                    cancelled = virtualInventory.setToMaxAmount(updateReason, index);
-                    break;
-                
-                case SWAP_WITH_CURSOR:
-                    cancelled = virtualInventory.setItemStack(updateReason, index, event.getCursor());
-                    break;
+                    int amount = virtualInventory.getAmount(slot);
+                    int halfAmount = amount / 2;
+                    int newAmount = virtualInventory.changeItemAmount(updateReason, slot, halfAmount);
                     
-                case COLLECT_TO_CURSOR:
-                    cancelled = true;
-                    ItemStack newCursor = cursor.clone();
-                    newCursor.setAmount(virtualInventory.collectToCursor(updateReason, newCursor));
-                    player.setItemOnCursor(newCursor);
-                break;
-                
-                case MOVE_TO_OTHER_INVENTORY:
-                    cancelled = true;
-                    Window window = WindowManager.getInstance().findOpenWindow(player).orElse(null);
-                    
-                    ItemStack invStack = virtualInventory.getItemStack(index);
-                    ItemUpdateEvent updateEvent = virtualInventory.createAndCallEvent(index, updateReason, invStack, null);
-                    
-                    if (!updateEvent.isCancelled()) {
-                        int leftOverAmount;
-                        if (window instanceof MergedWindow) {
-                            GUI otherGui;
-                            if (window instanceof SplitWindow) {
-                                SplitWindow splitWindow = (SplitWindow) window;
-                                GUI[] guis = splitWindow.getGuis();
-                                otherGui = guis[0] == this ? guis[1] : guis[0];
-                            } else {
-                                otherGui = this;
-                            }
-                            
-                            leftOverAmount = ((IndexedGUI) otherGui).putIntoVirtualInventories(updateReason, invStack, virtualInventory);
-                        } else {
-                            leftOverAmount = 0;
-                            HashMap<Integer, ItemStack> leftover = event.getWhoClicked().getInventory().addItem(virtualInventory.getItemStack(index));
-                            if (!leftover.isEmpty()) leftOverAmount = leftover.get(0).getAmount();
+                    // amount did not change as predicted
+                    if (newAmount != halfAmount) {
+                        cancel = true;
+                        
+                        // action wasn't completely cancelled
+                        if (newAmount != amount) {
+                            int cursorAmount = amount - newAmount;
+                            cancel = true;
+                            ItemStack newCursorStack = clicked.clone();
+                            newCursorStack.setAmount(cursorAmount);
+                            event.setCursor(newCursorStack);
                         }
-                        virtualInventory.setAmountSilently(index, leftOverAmount);
                     }
                     
                     break;
                 
+                case PLACE_SOME:
+                case PLACE_ALL:
+                    int amountLeft = virtualInventory.putItemStack(updateReason, slot, cursor);
+                    if (amountLeft > 0) {
+                        cancel = true;
+                        if (amountLeft != cursor.getAmount())
+                            cursor.setAmount(amountLeft);
+                    }
+                    break;
+                
+                case PLACE_ONE:
+                    ItemStack itemStack = cursor.clone();
+                    itemStack.setAmount(1);
+                    cancel = virtualInventory.putItemStack(updateReason, slot, itemStack) != 0;
+                    break;
+                
+                case SWAP_WITH_CURSOR:
+                    cancel = !virtualInventory.setItemStack(updateReason, slot, event.getCursor());
+                    break;
+                
+                case COLLECT_TO_CURSOR:
+                    cancel = true;
+                    ItemStack newCursorStack = cursor.clone();
+                    newCursorStack.setAmount(virtualInventory.collectToCursor(updateReason, newCursorStack));
+                    event.setCursor(newCursorStack);
+                    break;
+                
+                case MOVE_TO_OTHER_INVENTORY:
+                    cancel = true;
+                    handleMoveToOtherInventory(player, event, virtualInventory, slot, updateReason);
+                    break;
+                
+                case HOTBAR_MOVE_AND_READD:
+                case HOTBAR_SWAP:
+                    cancel = handleHotbarSwap(player, event, virtualInventory, slot, updateReason);
+                    break;
+                
                 default:
-                    // TODO: Hotbar swap
                     // action not supported
-                    cancelled = true;
+                    cancel = true;
                     break;
             }
             
-            if (cancelled) event.setCancelled(true);
+            event.setCancelled(cancel);
         } else event.setCancelled(true);
+    }
+    
+    private void handleMoveToOtherInventory(Player player, InventoryClickEvent event, VirtualInventory inventory, int slot, UpdateReason reason) {
+        Window window = WindowManager.getInstance().findOpenWindow(player).orElse(null);
+        
+        ItemStack invStack = inventory.getItemStack(slot);
+        ItemUpdateEvent updateEvent = inventory.callUpdateEvent(reason, slot, invStack, null);
+        
+        if (!updateEvent.isCancelled()) {
+            int leftOverAmount;
+            if (window instanceof MergedWindow) {
+                GUI otherGui;
+                if (window instanceof SplitWindow) {
+                    SplitWindow splitWindow = (SplitWindow) window;
+                    GUI[] guis = splitWindow.getGuis();
+                    otherGui = guis[0] == this ? guis[1] : guis[0];
+                } else {
+                    otherGui = this;
+                }
+                
+                leftOverAmount = ((IndexedGUI) otherGui).putIntoVirtualInventories(reason, invStack, inventory);
+            } else {
+                leftOverAmount = 0;
+                HashMap<Integer, ItemStack> leftover = event.getWhoClicked().getInventory().addItem(inventory.getItemStack(slot));
+                if (!leftover.isEmpty()) leftOverAmount = leftover.get(0).getAmount();
+            }
+            
+            invStack.setAmount(leftOverAmount);
+            inventory.setItemStackSilently(slot, invStack);
+        }
+    }
+    
+    private boolean handleHotbarSwap(Player player, InventoryClickEvent event, VirtualInventory inventory, int slot, UpdateReason reason) {
+        Window window = WindowManager.getInstance().findOpenWindow(player).orElse(null);
+        if (window instanceof SingleWindow) {
+            int hotbarButton = event.getHotbarButton();
+            ItemStack hotbarItem = player.getInventory().getItem(hotbarButton);
+            if (hotbarItem != null) hotbarItem = hotbarItem.clone();
+            
+            return !inventory.setItemStack(reason, slot, hotbarItem);
+        } // TODO: add support for merged windows
+        
+        return true;
     }
     
     @Override
@@ -173,13 +219,13 @@ abstract class IndexedGUI implements GUI {
         if (element instanceof VISlotElement) {
             VISlotElement viSlotElement = ((VISlotElement) element);
             VirtualInventory virtualInventory = viSlotElement.getVirtualInventory();
-            int viIndex = viSlotElement.getIndex();
-            if (virtualInventory.isSynced(viIndex, oldStack)) {
-                return virtualInventory.setItemStack(updateReason, viIndex, newStack);
+            int viSlot = viSlotElement.getSlot();
+            if (virtualInventory.isSynced(viSlot, oldStack)) {
+                return virtualInventory.setItemStack(updateReason, viSlot, newStack);
             }
         }
         
-        return true;
+        return false;
     }
     
     @Override

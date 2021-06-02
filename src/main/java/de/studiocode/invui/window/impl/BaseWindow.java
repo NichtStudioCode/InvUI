@@ -106,7 +106,7 @@ public abstract class BaseWindow implements Window {
             
             // get the GUI at that index and ask for permission to drag an Item there
             Pair<GUI, Integer> pair = getGuiAt(rawSlot);
-            if (pair != null && pair.getFirst().handleItemDrag(updateReason, pair.getSecond(), currentStack, newItems.get(rawSlot))) {
+            if (pair != null && !pair.getFirst().handleItemDrag(updateReason, pair.getSecond(), currentStack, newItems.get(rawSlot))) {
                 // the drag was cancelled
                 int currentAmount = currentStack == null ? 0 : currentStack.getAmount();
                 int newAmount = newItems.get(rawSlot).getAmount();

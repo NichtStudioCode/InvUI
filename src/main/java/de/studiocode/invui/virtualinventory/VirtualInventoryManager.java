@@ -3,6 +3,7 @@ package de.studiocode.invui.virtualinventory;
 import de.studiocode.invui.InvUI;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -44,6 +45,16 @@ public class VirtualInventoryManager {
         return virtualInventory;
     }
     
+    public VirtualInventory createNew(@NotNull UUID uuid, int size, ItemStack[] items, int[] stackSizes) {
+        if (inventories.containsKey(uuid))
+            throw new IllegalArgumentException("A Virtual Inventory with that UUID already exists");
+        
+        VirtualInventory virtualInventory = new VirtualInventory(uuid, size, items, stackSizes);
+        inventories.put(uuid, virtualInventory);
+        
+        return virtualInventory;
+    }
+    
     public VirtualInventory getByUuid(@NotNull UUID uuid) {
         return inventories.get(uuid);
     }
@@ -51,6 +62,11 @@ public class VirtualInventoryManager {
     public VirtualInventory getOrCreate(UUID uuid, int size) {
         VirtualInventory virtualInventory = getByUuid(uuid);
         return virtualInventory == null ? createNew(uuid, size) : virtualInventory;
+    }
+    
+    public VirtualInventory getOrCreate(UUID uuid, int size, ItemStack[] items, int[] stackSizes) {
+        VirtualInventory virtualInventory = getByUuid(uuid);
+        return virtualInventory == null ? createNew(uuid, size, items, stackSizes) : virtualInventory;
     }
     
     public void remove(VirtualInventory virtualInventory) {

@@ -6,6 +6,7 @@ import de.studiocode.invui.virtualinventory.event.ItemUpdateEvent;
 import de.studiocode.invui.virtualinventory.event.UpdateReason;
 import de.studiocode.invui.window.Window;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -15,44 +16,43 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
 
-// TODO: clean up
+import static java.lang.Math.min;
+
 public class VirtualInventory implements ConfigurationSerializable {
-    
-    private final Set<Window> windows = new HashSet<>();
     
     private final UUID uuid;
     private int size;
     private ItemStack[] items;
+    private int[] stackSizes;
+    private final Set<Window> windows = new HashSet<>();
     private Consumer<ItemUpdateEvent> itemUpdateHandler;
     
     /**
-     * Creates a new {@link VirtualInventory}.
+     * Constructs a new {@link VirtualInventory}
      *
-     * @param uuid  The {@link UUID} this {@link VirtualInventory} should have.
-     *              Can be null, only used for serialization.
-     * @param size  The size of the {@link VirtualInventory}
-     * @param items An array of {@link ItemStack} which reflects the contents of this
-     *              {@link VirtualInventory}, therefore the length of that array has
-     *              to be the same as <code>size</code>.
+     * @param uuid       The {@link UUID} of this {@link VirtualInventory}. Can be null, only used for serialization.
+     * @param size       The amount of slots this {@link VirtualInventory} has.
+     * @param items      A predefined array of content. Can be null. Will not get copied!
+     * @param stackSizes An array of maximum allowed stack sizes for the each slot in the {@link VirtualInventory}.
      */
-    public VirtualInventory(@Nullable UUID uuid, int size, @NotNull ItemStack[] items) {
-        if (size < 1) throw new IllegalArgumentException("size cannot be smaller than 1");
-        if (items.length != size) throw new IllegalArgumentException("items length has to be the same as size");
-        
+    public VirtualInventory(@Nullable UUID uuid, int size, @Nullable ItemStack[] items, int[] stackSizes) {
         this.uuid = uuid;
         this.size = size;
-        this.items = items;
+        this.items = items == null ? new ItemStack[size] : items;
+        if (stackSizes == null) {
+            this.stackSizes = new int[size];
+            Arrays.fill(this.stackSizes, 64);
+        } else this.stackSizes = stackSizes;
     }
     
     /**
-     * Creates a new {@link VirtualInventory}.
+     * Constructs a new {@link VirtualInventory}
      *
-     * @param uuid The {@link UUID} this {@link VirtualInventory} should have.
-     *             Can be null, only used for serialization.
-     * @param size The size of the {@link VirtualInventory}
+     * @param uuid The {@link UUID} of this {@link VirtualInventory}. Can be null, only used for serialization.
+     * @param size The amount of slots this {@link VirtualInventory} has.
      */
     public VirtualInventory(@Nullable UUID uuid, int size) {
-        this(uuid, size, new ItemStack[size]);
+        this(uuid, size, null, null);
     }
     
     /**
@@ -63,281 +63,342 @@ public class VirtualInventory implements ConfigurationSerializable {
      */
     public static VirtualInventory deserialize(@NotNull Map<String, Object> args) {
         //noinspection unchecked
-        return new VirtualInventory(UUID.fromString((String) args.get("uuid")),
-            (int) args.get("size"), ((ArrayList<ItemStack>) args.get("items")).toArray(new ItemStack[0]));
+        return new VirtualInventory(
+            UUID.fromString((String) args.get("uuid")),
+            (int) args.get("size"),
+            ((ArrayList<ItemStack>) args.get("items")).toArray(new ItemStack[0]),
+            ((ArrayList<Integer>) args.get("stackSizes")).stream().mapToInt(Integer::intValue).toArray()
+        );
+    }
+    
+    /**
+     * Serializes this {@link VirtualInventory} to a {@link Map}
+     *
+     * @return A {@link Map} that contains the serialized data of this {@link VirtualInventory}
+     */
+    @NotNull
+    @Override
+    public Map<String, Object> serialize() {
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("uuid", uuid.toString());
+        result.put("size", size);
+        result.put("stackSizes", stackSizes);
+        result.put("items", items);
+        return result;
+    }
+    
+    /**
+     * Gets a set of {@link Window}s that display this {@link VirtualInventory}.
+     *
+     * @return An unmodifiable view of the set that contains all {@link Window}s that display
+     * content of this {@link VirtualInventory}.
+     */
+    public Set<Window> getWindows() {
+        return Collections.unmodifiableSet(windows);
+    }
+    
+    /**
+     * Adds a {@link Window} to the set of {@link Window}s, telling the {@link VirtualInventory} that
+     * its contents are now being displayed in that {@link Window}.
+     *
+     * @param window The {@link Window} to be added.
+     */
+    public void addWindow(Window window) {
+        windows.add(window);
+    }
+    
+    /**
+     * Removes a {@link Window} from the set of {@link Window}s, telling the {@link VirtualInventory} that
+     * its contents are no longer being displayed in that {@link Window}.
+     *
+     * @param window The {@link Window} to be removed.
+     */
+    public void removeWindow(Window window) {
+        windows.remove(window);
+    }
+    
+    /**
+     * Notifies all {@link Window}s displaying this {@link VirtualInventory} to update their
+     * representative {@link ItemStack}s.
+     * This method should only be called manually in very specific cases like when the
+     * {@link ItemMeta} of an {@link ItemStack} in this inventory has changed.
+     */
+    public void notifyWindows() {
+        Bukkit.getScheduler().runTask(InvUI.getInstance().getPlugin(), () ->
+            windows.forEach(window -> window.handleVirtualInventoryUpdate(this)));
+    }
+    
+    /**
+     * Changes the size of the {@link VirtualInventory}.
+     * {@link ItemStack}s in slots which are no longer valid will be removed from the {@link VirtualInventory}.
+     * This method does not call an event.
+     *
+     * @param size The new size of the {@link VirtualInventory}
+     */
+    public void resize(int size) {
+        this.size = size;
+        this.items = Arrays.copyOf(items, size);
+        this.stackSizes = Arrays.copyOf(stackSizes, size);
+    }
+    
+    /**
+     * Sets a handler which is called every time something gets updated in the {@link VirtualInventory}.
+     *
+     * @param itemUpdateHandler The new item update handler
+     */
+    public void setItemUpdateHandler(Consumer<ItemUpdateEvent> itemUpdateHandler) {
+        this.itemUpdateHandler = itemUpdateHandler;
+    }
+    
+    /**
+     * Gets the {@link UUID} of this {@link VirtualInventory}.
+     *
+     * @return The {@link UUID}
+     */
+    public UUID getUuid() {
+        return uuid;
     }
     
     /**
      * Gets the size of this {@link VirtualInventory}.
      *
-     * @return The size of this {@link VirtualInventory}
+     * @return How many slots this {@link VirtualInventory} has.
      */
     public int getSize() {
         return size;
     }
     
     /**
-     * Gets a deep copy of the {@link ItemStack}s in this {@link VirtualInventory}
+     * Gets a copy of the contents of this {@link VirtualInventory}.
      *
-     * @return A copy of the {@link ItemStack}s in this {@link VirtualInventory}
+     * @return A deep copy of the {@link ItemStack}s this {@link VirtualInventory} contains.
      */
     public ItemStack[] getItems() {
-        return Arrays.stream(items)
-            .map(itemStack -> itemStack != null ? itemStack.clone() : null)
-            .toArray(ItemStack[]::new);
+        return Arrays.stream(items).map(item -> item != null ? item.clone() : null).toArray(ItemStack[]::new);
     }
     
     /**
-     * Changes the size of this {@link VirtualInventory}, removing
-     * existing {@link ItemStack}s reduced.
+     * Gets a clone of the {@link ItemStack} on that slot.
      *
-     * @param size The new size of this {@link VirtualInventory}
+     * @param slot The slot
+     * @return The {@link ItemStack} on the given slot
      */
-    public void resize(int size) {
-        this.size = size;
-        this.items = Arrays.copyOf(items, size);
+    public ItemStack getItemStack(int slot) {
+        ItemStack itemStack = items[slot];
+        return itemStack != null ? itemStack.clone() : null;
     }
     
     /**
-     * Checks if the {@link ItemStack} on that slot index is the same
+     * Returns the actual {@link ItemStack} on that slot.
+     * <br>
+     * Not a clone, should be handled carefully as changes done on that item will not call any
+     * Window updates (and create inconsistency between server and client),
+     * in which case a manual call of {@link #notifyWindows} is needed.
+     * <br>
+     * Modifying this {@link ItemStack} will not call an {@link ItemUpdateEvent}.
+     *
+     * @param slot The slot
+     * @return The actual {@link ItemStack} on that slot
+     */
+    public ItemStack getUnsafeItemStack(int slot) {
+        return items[slot];
+    }
+    
+    /**
+     * Gets the amount of items on a slot.
+     *
+     * @param slot The slot
+     * @return The amount of items on that slot
+     */
+    public int getAmount(int slot) {
+        ItemStack currentStack = items[slot];
+        return currentStack != null ? currentStack.getAmount() : 0;
+    }
+    
+    /**
+     * Gets the maximum stack size for a specific slot. If there is an {@link ItemStack} on that
+     * slot, the returned value will be the minimum of both the slot limit and {@link Material#getMaxStackSize()}.
+     *
+     * @param slot        The slot
+     * @param alternative The alternative maximum stack size if no {@link ItemStack} is placed on that slot.
+     *                    Should probably be the max stack size of the {@link Material} that will be added.
+     * @return The current maximum allowed stack size on the specific slot.
+     */
+    public int getMaxStackSize(int slot, int alternative) {
+        ItemStack currentItem = items[slot];
+        int slotMaxStackSize = stackSizes == null ? 64 : stackSizes[slot];
+        if (alternative != -1)
+            return min(currentItem != null ? currentItem.getMaxStackSize() : alternative, slotMaxStackSize);
+        else return slotMaxStackSize;
+    }
+    
+    /**
+     * Sets all the maximum allowed stack sizes
+     *
+     * @param maxStackSizes All max stack sizes
+     */
+    public void setMaxStackSizes(int[] maxStackSizes) {
+        this.stackSizes = maxStackSizes;
+    }
+    
+    /**
+     * Sets the maximum allowed stack size on a specific slot.
+     *
+     * @param slot         The slot
+     * @param maxStackSize The max stack size
+     */
+    public void setMaxStackSize(int slot, int maxStackSize) {
+        stackSizes[slot] = maxStackSize;
+    }
+    
+    /**
+     * Creates an {@link ItemUpdateEvent} and calls the {@link #itemUpdateHandler} to handle it.
+     *
+     * @param updateReason      The {@link UpdateReason}
+     * @param slot              The slot of the affected {@link ItemStack}
+     * @param previousItemStack The {@link ItemStack} that was previously on that slot
+     * @param newItemStack      The {@link ItemStack} that will be on that slot
+     * @return The {@link ItemUpdateEvent} after it has been handled by the {@link #itemUpdateHandler}
+     */
+    public ItemUpdateEvent callUpdateEvent(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
+        ItemUpdateEvent event = new ItemUpdateEvent(this, slot, updateReason, previousItemStack, newItemStack);
+        if (itemUpdateHandler != null) itemUpdateHandler.accept(event);
+        return event;
+    }
+    
+    /**
+     * Checks if the {@link ItemStack} on that slot is the same
      * as the assumed {@link ItemStack} provided as parameter.
      *
-     * @param index        The slot index
+     * @param slot         The slot
      * @param assumedStack The assumed {@link ItemStack}
      * @return If the {@link ItemStack} on that slot is the same as the assumed {@link ItemStack}
      */
-    public boolean isSynced(int index, ItemStack assumedStack) {
-        ItemStack actualStack = items[index];
+    public boolean isSynced(int slot, ItemStack assumedStack) {
+        ItemStack actualStack = items[slot];
         return (actualStack == null && assumedStack == null)
             || (actualStack != null && actualStack.equals(assumedStack));
     }
     
     /**
-     * Sets an {@link ItemStack} on a specific slot.
+     * Changes the {@link ItemStack} on a specific slot to that one, regardless of what was
+     * previously on that slot.
+     * <br>
+     * This method does not call an {@link ItemUpdateEvent} and ignores the maximum allowed stack size of
+     * both the {@link Material} and the slot.
+     * <br>
+     * This method will always be successful.
      *
-     * @param updateReason The reason for item update, can be null.
-     * @param index        The slot index
-     * @param itemStack    The {@link ItemStack} that should be put on that slot
-     * @return If the action has been cancelled
+     * @param slot      The slot
+     * @param itemStack The {@link ItemStack} to set.
      */
-    public boolean setItemStack(@Nullable UpdateReason updateReason, int index, ItemStack itemStack) {
-        ItemStack newStack = itemStack.clone();
-        ItemUpdateEvent event = createAndCallEvent(index, updateReason, items[index], newStack);
+    public void setItemStackSilently(int slot, @Nullable ItemStack itemStack) {
+        if (itemStack != null && itemStack.getAmount() == 0) items[slot] = null;
+        else items[slot] = itemStack;
+        notifyWindows();
+    }
+    
+    /**
+     * Changes the {@link ItemStack} on a specific slot to that one, regardless of what was
+     * previously on that slot.
+     * <br>
+     * This method ignores the maximum allowed stack size of both the {@link Material} and the slot.
+     *
+     * @param updateReason The reason used in the {@link ItemUpdateEvent}.
+     * @param slot         The slot
+     * @param itemStack    The {@link ItemStack} to set.
+     * @return If the action was successful
+     */
+    public boolean forceSetItemStack(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack itemStack) {
+        ItemUpdateEvent event = callUpdateEvent(updateReason, slot, items[slot], itemStack);
         if (!event.isCancelled()) {
-            items[index] = newStack;
-            notifyWindows();
-            
-            return false;
+            setItemStackSilently(slot, event.getNewItemStack());
+            return true;
         }
-        
-        return true;
+        return false;
     }
     
     /**
-     * Gets the {@link ItemStack} on a specific slot.
+     * Changes the {@link ItemStack} on a specific slot to the given one, regardless of what previously was on
+     * that slot.
+     * <br>
+     * This method will fail if the given {@link ItemStack} does not completely fit inside because of the
+     * maximum allowed stack size.
      *
-     * @param index The slot index
-     * @return The {@link ItemStack} on that slot
+     * @param updateReason The reason used in the {@link ItemUpdateEvent}.
+     * @param slot         The slot
+     * @param itemStack    The {@link ItemStack} to set.
+     * @return If the action was successful
      */
-    public ItemStack getItemStack(int index) {
-        return items[index];
+    public boolean setItemStack(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack itemStack) {
+        int maxStackSize = getMaxStackSize(slot, itemStack != null ? itemStack.getMaxStackSize() : -1);
+        if (itemStack != null && itemStack.getAmount() > maxStackSize) return false;
+        return forceSetItemStack(updateReason, slot, itemStack);
     }
     
     /**
-     * Checks if there is an {@link ItemStack} on a specific slot.
+     * Adds an {@link ItemStack} on a specific slot.
      *
-     * @param index The slot index
-     * @return If there is an {@link ItemStack} on that slot
+     * @param updateReason The reason used in the {@link ItemUpdateEvent}.
+     * @param slot         The slot
+     * @param itemStack    The {@link ItemStack} to add.
+     * @return The amount of items that did not fit on that slot.
      */
-    public boolean hasItemStack(int index) {
-        return items[index] != null;
-    }
-    
-    /**
-     * Sets an {@link ItemStack} on a specific slot or adds the amount
-     * if there already is an {@link ItemStack} on that slot.
-     *
-     * @param updateReason The reason for item update, can be null.
-     * @param index        The slot index
-     * @param itemStack    The {@link ItemStack} to place
-     * @return If the action has been cancelled
-     */
-    public boolean place(@Nullable UpdateReason updateReason, int index, ItemStack itemStack) {
-        ItemStack currentStack = items[index];
-        
-        ItemStack newStack;
-        if (currentStack == null) {
-            newStack = itemStack.clone();
-        } else {
-            newStack = currentStack.clone();
-            newStack.setAmount(newStack.getAmount() + itemStack.getAmount());
-        }
-        
-        ItemUpdateEvent event = createAndCallEvent(index, updateReason, currentStack, newStack);
-        if (!event.isCancelled()) {
-            items[index] = newStack;
-            notifyWindows();
-            
-            return false;
-        }
-        
-        return true;
-    }
-    
-    /**
-     * Puts on of an {@link ItemStack} on a specific slots or adds one
-     * if there is already an {@link ItemStack} on that slot.
-     *
-     * @param updateReason The reason for item update, can be null.
-     * @param index        The slot index
-     * @param itemStack    The {@link ItemStack} to place one of
-     * @return If the action has been cancelled
-     */
-    public boolean placeOne(@Nullable UpdateReason updateReason, int index, ItemStack itemStack) {
-        ItemStack currentStack = items[index];
-        
-        ItemStack newStack;
-        if (currentStack == null) {
-            newStack = itemStack.clone();
-            newStack.setAmount(1);
-        } else {
-            newStack = currentStack.clone();
-            newStack.setAmount(newStack.getAmount() + 1);
-        }
-        
-        ItemUpdateEvent event = createAndCallEvent(index, updateReason, currentStack, newStack);
-        if (!event.isCancelled()) {
-            items[index] = newStack;
-            notifyWindows();
-            
-            return false;
-        }
-        
-        return true;
-    }
-    
-    /**
-     * Changes the amount of an {@link ItemStack} on a specific slot without calling the {@link ItemUpdateEvent}
-     *
-     * @param index  The slot index
-     * @param amount The new amount
-     */
-    public void setAmountSilently(int index, int amount) {
-        ItemStack currentStack = items[index];
-        if (currentStack != null) {
-            if (amount == 0) items[index] = null;
-            else currentStack.setAmount(amount);
-            notifyWindows();
-        }
-    }
-    
-    /**
-     * Changes the amount of an {@link ItemStack} on a specific slot
-     * to the {@link ItemStack}'s {@link ItemStack#getMaxStackSize()}.
-     *
-     * @param updateReason The reason for item update, can be null.
-     * @param index        The slot index
-     * @return If the action has been cancelled
-     */
-    public boolean setToMaxAmount(@Nullable UpdateReason updateReason, int index) {
-        ItemStack currentStack = items[index];
-        if (currentStack != null) {
-            ItemStack newStack = currentStack.clone();
-            newStack.setAmount(newStack.getMaxStackSize());
-            
-            ItemUpdateEvent event = createAndCallEvent(index, updateReason, currentStack, newStack);
-            if (!event.isCancelled()) {
-                items[index] = newStack;
-                notifyWindows();
+    public int putItemStack(@Nullable UpdateReason updateReason, int slot, @NotNull ItemStack itemStack) {
+        ItemStack currentStack = items[slot];
+        if (currentStack == null || currentStack.isSimilar(itemStack)) {
+            int currentAmount = currentStack == null ? 0 : currentStack.getAmount();
+            int maxStackSize = getMaxStackSize(slot, itemStack.getMaxStackSize());
+            if (currentAmount < maxStackSize) {
+                ItemStack newItemStack = itemStack.clone();
+                newItemStack.setAmount(min(currentAmount + itemStack.getAmount(), maxStackSize));
                 
-                return false;
+                ItemUpdateEvent event = callUpdateEvent(updateReason, slot, currentStack, newItemStack);
+                if (!event.isCancelled()) {
+                    newItemStack = event.getNewItemStack();
+                    items[slot] = newItemStack;
+                    notifyWindows();
+                    
+                    return itemStack.getAmount() - (newItemStack.getAmount() - currentAmount);
+                }
             }
         }
         
-        return true;
+        return itemStack.getAmount();
     }
     
     /**
-     * Removes an {@link ItemStack} on a specific slot from
-     * the {@link VirtualInventory}.
+     * Changes the amount of an {@link ItemStack} on a slot to the given value.
      *
-     * @param updateReason The reason for item update, can be null.
-     * @param index        The slot index
-     * @return If the action has been cancelled
+     * @param updateReason The reason used in the {@link ItemUpdateEvent}.
+     * @param slot         The slot
+     * @param amount       The amount to change to.
+     * @return The amount that it actually changed to.
+     * @throws IllegalStateException If there is no ItemStack on that slot.
      */
-    public boolean removeItem(@Nullable UpdateReason updateReason, int index) {
-        ItemStack currentStack = items[index];
-        if (currentStack != null) {
-            
-            ItemUpdateEvent event = createAndCallEvent(index, updateReason, currentStack, null);
-            if (!event.isCancelled()) {
-                items[index] = null;
-                notifyWindows();
-                
-                return false;
-            }
+    public int changeItemAmount(@Nullable UpdateReason updateReason, int slot, int amount) {
+        ItemStack currentStack = items[slot];
+        if (currentStack == null) throw new IllegalStateException("There is currently no ItemStack on that slot");
+        int maxStackSize = getMaxStackSize(slot, -1);
+        
+        ItemStack newItemStack;
+        if (amount != 0) {
+            newItemStack = currentStack.clone();
+            newItemStack.setAmount(min(amount, maxStackSize));
+        } else {
+            newItemStack = null;
         }
         
-        return true;
-    }
-    
-    /**
-     * Removes one from an {@link ItemStack} on a specific slot.
-     *
-     * @param updateReason The reason for item update, can be null.
-     * @param index        The slot index
-     * @return If the action has been cancelled
-     */
-    public boolean removeOne(@Nullable UpdateReason updateReason, int index) {
-        ItemStack currentStack = items[index];
-        if (currentStack != null) {
-            int newAmount = currentStack.getAmount() - 1;
+        ItemUpdateEvent event = callUpdateEvent(updateReason, slot, currentStack, newItemStack);
+        if (!event.isCancelled()) {
+            newItemStack = event.getNewItemStack();
+            items[slot] = newItemStack;
+            notifyWindows();
             
-            if (newAmount > 0) {
-                ItemStack newStack = currentStack.clone();
-                newStack.setAmount(newAmount);
-                
-                ItemUpdateEvent event = createAndCallEvent(index, updateReason, currentStack, newStack);
-                if (!event.isCancelled()) {
-                    items[index] = newStack;
-                    notifyWindows();
-                    
-                    return false;
-                }
-            } else return removeItem(updateReason, index);
+            return newItemStack != null ? newItemStack.getAmount() : 0;
         }
         
-        return true;
-    }
-    
-    /**
-     * Removes half of the {@link ItemStack} on a specific slot.
-     *
-     * @param updateReason The reason for item update, can be null.
-     * @param index        The slot index
-     * @return If the action has been cancelled
-     */
-    public boolean removeHalf(@Nullable UpdateReason updateReason, int index) {
-        ItemStack currentStack = items[index];
-        if (currentStack != null) {
-            int newAmount = currentStack.getAmount() / 2;
-            
-            if (newAmount > 0) {
-                ItemStack newStack = currentStack.clone();
-                newStack.setAmount(newAmount);
-                
-                ItemUpdateEvent event = createAndCallEvent(index, updateReason, currentStack, newStack);
-                if (!event.isCancelled()) {
-                    items[index] = newStack;
-                    notifyWindows();
-                    
-                    return false;
-                }
-                
-            } else return removeItem(updateReason, index);
-        }
-        
-        return true;
+        return amount;
     }
     
     /**
@@ -345,9 +406,9 @@ public class VirtualInventory implements ConfigurationSerializable {
      * This method does not work the same way as Bukkit's addItem method
      * as it respects the max stack size of the item type.
      *
-     * @param updateReason The reason for item update, can be null.
+     * @param updateReason The reason used in the {@link ItemUpdateEvent}.
      * @param itemStack    The {@link ItemStack} to add
-     * @return The amount of items that couldn't be added
+     * @return The amount of items that didn't fit
      * @see #simulateAdd(ItemStack)
      * @see #simulateMultiAdd(List)
      */
@@ -357,14 +418,19 @@ public class VirtualInventory implements ConfigurationSerializable {
         
         // find all slots where the item partially fits and add it there
         for (int partialSlot : findPartialSlots(itemStack)) {
-            amountLeft = addTo(updateReason, partialSlot, amountLeft);
+            ItemStack stackToPut = itemStack.clone();
+            stackToPut.setAmount(amountLeft);
+            amountLeft = putItemStack(updateReason, partialSlot, stackToPut);
+            
             if (amountLeft == 0) break;
         }
         
         // find all empty slots and put the item there
         for (int emptySlot : ArrayUtils.findEmptyIndices(items)) {
+            ItemStack stackToPut = itemStack.clone();
+            stackToPut.setAmount(amountLeft);
+            amountLeft = putItemStack(updateReason, emptySlot, stackToPut);
             if (amountLeft == 0) break;
-            amountLeft = addToEmpty(updateReason, emptySlot, itemStack, amountLeft);
         }
         
         // if items have been added, notify windows
@@ -383,18 +449,19 @@ public class VirtualInventory implements ConfigurationSerializable {
      * @return How many items wouldn't fit in the inventory when added
      */
     public int simulateAdd(ItemStack itemStack) {
-        int maxStackSize = itemStack.getMaxStackSize();
         int amountLeft = itemStack.getAmount();
         
         // find all slots where the item partially fits
         for (int partialSlot : findPartialSlots(itemStack)) {
             ItemStack partialItem = items[partialSlot];
+            int maxStackSize = getMaxStackSize(partialSlot, -1);
             amountLeft = Math.max(0, amountLeft - (maxStackSize - partialItem.getAmount()));
             if (amountLeft == 0) break;
         }
         
         // remaining items would be added to empty slots
-        for (int ignored : ArrayUtils.findEmptyIndices(items)) {
+        for (int emptySlot : ArrayUtils.findEmptyIndices(items)) {
+            int maxStackSize = getMaxStackSize(emptySlot, itemStack.getMaxStackSize());
             amountLeft -= Math.min(amountLeft, maxStackSize);
         }
         
@@ -415,7 +482,7 @@ public class VirtualInventory implements ConfigurationSerializable {
     public int[] simulateMultiAdd(List<ItemStack> itemStacks) {
         if (itemStacks.size() < 2) throw new IllegalArgumentException("Illegal amount of ItemStacks in List");
         
-        VirtualInventory copiedInv = new VirtualInventory(null, size, getItems());
+        VirtualInventory copiedInv = new VirtualInventory(null, size, getItems(), stackSizes.clone());
         int[] result = new int[itemStacks.size()];
         for (int index = 0; index != itemStacks.size(); index++) {
             result[index] = copiedInv.addItem(null, itemStacks.get(index));
@@ -425,18 +492,13 @@ public class VirtualInventory implements ConfigurationSerializable {
     }
     
     /**
-     * Checks if the {@link VirtualInventory} could theoretically hold the
-     * provided {@link ItemStack}.
+     * Finds all {@link ItemStack}s similar to the provided {@link ItemStack} and removes them from
+     * their slot until the maximum stack size of the {@link Material} is reached.
      *
-     * @param itemStacks The {@link ItemStack}s
-     * @return If the {@link VirtualInventory} can fit all these items
+     * @param updateReason The reason used in the {@link ItemUpdateEvent}.
+     * @param itemStack    The {@link ItemStack} to find matches to
+     * @return The amount of collected items
      */
-    public boolean canHold(List<ItemStack> itemStacks) {
-        if (itemStacks.size() == 0) return true;
-        else if (itemStacks.size() == 1) return simulateAdd(itemStacks.get(0)) == 0;
-        else return Arrays.stream(simulateMultiAdd(itemStacks)).allMatch(i -> i == 0);
-    }
-    
     public int collectToCursor(@Nullable UpdateReason updateReason, ItemStack itemStack) {
         int amount = itemStack.getAmount();
         int maxStackSize = itemStack.getMaxStackSize();
@@ -444,15 +506,13 @@ public class VirtualInventory implements ConfigurationSerializable {
             // find partial slots and take items from there
             for (int partialSlot : findPartialSlots(itemStack)) {
                 amount += takeFrom(updateReason, partialSlot, maxStackSize - amount);
-                if (amount == maxStackSize) break;
+                if (amount == maxStackSize) return amount;
             }
             
-            // if only taking from partial stacks wasn't enough, take from a full slot
-            if (amount < itemStack.getMaxStackSize()) {
-                int fullSlot = findFullSlot(itemStack);
-                if (fullSlot != -1) {
-                    amount += takeFrom(updateReason, fullSlot, maxStackSize - amount);
-                }
+            // only taking from partial stacks wasn't enough, take from a full slot
+            for (int fullSlot : findFullSlots(itemStack)) {
+                amount += takeFrom(updateReason, fullSlot, maxStackSize - amount);
+                if (amount == maxStackSize) return amount;
             }
         }
         
@@ -461,52 +521,28 @@ public class VirtualInventory implements ConfigurationSerializable {
     
     private List<Integer> findPartialSlots(ItemStack itemStack) {
         List<Integer> partialSlots = new ArrayList<>();
-        for (int i = 0; i < items.length; i++) {
-            ItemStack currentStack = items[i];
-            if (currentStack != null && currentStack.getAmount() < currentStack.getMaxStackSize()
-                && currentStack.isSimilar(itemStack)) partialSlots.add(i);
+        for (int slot = 0; slot < size; slot++) {
+            ItemStack currentStack = items[slot];
+            if (itemStack.isSimilar(currentStack)) {
+                int maxStackSize = getMaxStackSize(slot, -1);
+                if (currentStack.getAmount() < maxStackSize) partialSlots.add(slot);
+            }
         }
         
         return partialSlots;
     }
     
-    private int findFullSlot(ItemStack itemStack) {
-        for (int i = 0; i < items.length; i++) {
-            ItemStack currentStack = items[i];
-            if (currentStack != null
-                && currentStack.getAmount() == currentStack.getMaxStackSize()
-                && currentStack.isSimilar(itemStack)) return i;
+    private List<Integer> findFullSlots(ItemStack itemStack) {
+        List<Integer> fullSlots = new ArrayList<>();
+        for (int slot = 0; slot < size; slot++) {
+            ItemStack currentStack = items[slot];
+            if (itemStack.isSimilar(currentStack)) {
+                int maxStackSize = getMaxStackSize(slot, -1);
+                if (currentStack.getAmount() == maxStackSize) fullSlots.add(slot);
+            }
         }
         
-        return -1;
-    }
-    
-    private int addTo(@Nullable UpdateReason updateReason, int index, int amount) {
-        ItemStack itemStack = items[index];
-        
-        int maxAddable = Math.min(itemStack.getMaxStackSize() - itemStack.getAmount(), amount);
-        
-        int currentAmount = itemStack.getAmount();
-        int newAmount = currentAmount + maxAddable;
-        
-        ItemStack newStack = itemStack.clone();
-        newStack.setAmount(newAmount);
-        
-        ItemUpdateEvent event = createAndCallEvent(index, updateReason, itemStack, newStack);
-        if (!event.isCancelled()) {
-            items[index] = newStack;
-            notifyWindows();
-            return amount - maxAddable;
-        } else return amount;
-    }
-    
-    private int addToEmpty(@Nullable UpdateReason updateReason, int index, @NotNull ItemStack type, int amount) {
-        int maxAddable = Math.min(type.getType().getMaxStackSize(), amount);
-        ItemStack newStack = type.clone();
-        newStack.setAmount(maxAddable);
-        
-        if (setItemStack(updateReason, index, newStack)) return amount;
-        else return amount - maxAddable;
+        return fullSlots;
     }
     
     private int takeFrom(@Nullable UpdateReason updateReason, int index, int maxTake) {
@@ -520,7 +556,7 @@ public class VirtualInventory implements ConfigurationSerializable {
             newStack.setAmount(amount - take);
         } else newStack = null;
         
-        ItemUpdateEvent event = createAndCallEvent(index, updateReason, itemStack, newStack);
+        ItemUpdateEvent event = callUpdateEvent(updateReason, index, itemStack, newStack);
         if (!event.isCancelled()) {
             items[index] = newStack;
             notifyWindows();
@@ -528,96 +564,6 @@ public class VirtualInventory implements ConfigurationSerializable {
         }
         
         return 0;
-    }
-    
-    /**
-     * Adds a {@link Window} to the window set, telling the {@link VirtualInventory} that it is
-     * currently being displayed in that {@link Window}.
-     *
-     * @param window The {@link Window} the {@link VirtualInventory} is currently displayed in.
-     */
-    public void addWindow(Window window) {
-        windows.add(window);
-    }
-    
-    /**
-     * Removes an {@link Window} from the window set, telling the {@link VirtualInventory} that it
-     * is no longer being displayed in that {@link Window}.
-     *
-     * @param window The {@link Window} the {@link VirtualInventory} is no longer displayed in.
-     */
-    public void removeWindow(Window window) {
-        windows.remove(window);
-    }
-    
-    /**
-     * Gets an immutable view of the {@link Set} that contains all the {@link Window}s that
-     * display this {@link VirtualInventory}.
-     * 
-     * @return An UnmodifiableSet of all the {@link Window}s that show this {@link VirtualInventory}.
-     */
-    public Set<Window> getWindows() {
-        return Collections.unmodifiableSet(windows);
-    }
-    
-    /**
-     * Notifies all {@link Window}s displaying this {@link VirtualInventory} to update their
-     * representative {@link ItemStack}s.
-     * This method should only be called manually in very specific cases like when the
-     * {@link ItemMeta} of an {@link ItemStack} in this inventory has changed.
-     */
-    public void notifyWindows() {
-        Bukkit.getScheduler().runTask(InvUI.getInstance().getPlugin(), () ->
-            windows.forEach(window -> window.handleVirtualInventoryUpdate(this)));
-    }
-    
-    /**
-     * Creates an {@link ItemUpdateEvent} and calls the {@link #itemUpdateHandler} to handle it.
-     *
-     * @param index             The slot index of the affected {@link ItemStack}
-     * @param updateReason      The {@link UpdateReason}
-     * @param previousItemStack The {@link ItemStack} that was previously on that slot
-     * @param newItemStack      The {@link ItemStack} that will be on that slot
-     * @return The {@link ItemUpdateEvent} after it has been handled by the {@link #itemUpdateHandler}
-     */
-    public ItemUpdateEvent createAndCallEvent(int index, UpdateReason updateReason, ItemStack previousItemStack, ItemStack newItemStack) {
-        ItemUpdateEvent event = new ItemUpdateEvent(this, index, updateReason, previousItemStack, newItemStack);
-        if (itemUpdateHandler != null) itemUpdateHandler.accept(event);
-        return event;
-    }
-    
-    /**
-     * Gets the {@link UUID} of this {@link VirtualInventory}.
-     *
-     * @return The {@link UUID} of this {@link VirtualInventory}
-     */
-    public UUID getUuid() {
-        return uuid;
-    }
-    
-    /**
-     * Sets the item update handler which will get called every time
-     * an item gets updated in this {@link VirtualInventory}.
-     *
-     * @param itemUpdateHandler The item update handler
-     */
-    public void setItemUpdateHandler(Consumer<ItemUpdateEvent> itemUpdateHandler) {
-        this.itemUpdateHandler = itemUpdateHandler;
-    }
-    
-    /**
-     * Serializes this {@link VirtualInventory} to a {@link Map}
-     *
-     * @return A {@link Map} that contains the serialized data of this {@link VirtualInventory}
-     */
-    @NotNull
-    @Override
-    public Map<String, Object> serialize() {
-        Map<String, Object> result = new LinkedHashMap<>();
-        result.put("uuid", uuid.toString());
-        result.put("size", size);
-        result.put("items", items);
-        return result;
     }
     
 }
