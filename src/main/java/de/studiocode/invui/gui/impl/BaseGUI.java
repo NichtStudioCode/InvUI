@@ -97,7 +97,7 @@ public abstract class BaseGUI implements GUI {
                 
                 case DROP_ONE_SLOT:
                 case PICKUP_ONE:
-                    cancel = virtualInventory.setItemAmount(updateReason, slot, -1) != -1;
+                    cancel = virtualInventory.addItemAmount(updateReason, slot, -1) != -1;
                     break;
                 
                 case DROP_ALL_SLOT:
