@@ -97,7 +97,7 @@ public abstract class BaseGUI implements GUI {
                 
                 case DROP_ONE_SLOT:
                 case PICKUP_ONE:
-                    cancel = virtualInventory.changeItemAmount(updateReason, slot, -1) != -1;
+                    cancel = virtualInventory.setItemAmount(updateReason, slot, -1) != -1;
                     break;
                 
                 case DROP_ALL_SLOT:
@@ -109,7 +109,7 @@ public abstract class BaseGUI implements GUI {
                 case PICKUP_HALF:
                     int amount = virtualInventory.getAmount(slot);
                     int halfAmount = amount / 2;
-                    int newAmount = virtualInventory.changeItemAmount(updateReason, slot, halfAmount);
+                    int newAmount = virtualInventory.setItemAmount(updateReason, slot, halfAmount);
                     
                     // amount did not change as predicted
                     if (newAmount != halfAmount) {
