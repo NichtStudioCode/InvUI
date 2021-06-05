@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  * A {@link PagedGUI} that is filled with {@link Item}s.
  *
  * @see GUIBuilder
- * @see SimplePagedGUIsGUI
+ * @see SimplePagedNestedGUI
  */
 public class SimplePagedItemsGUI extends PagedGUI {
     

@@ -36,7 +36,7 @@ import java.util.function.Predicate;
  * @see PagedGUI
  * @see SimpleGUI
  * @see SimplePagedItemsGUI
- * @see SimplePagedGUIsGUI
+ * @see SimplePagedNestedGUI
  * @see SimpleTabGUI
  * @see GUIBuilder
  */

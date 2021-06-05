@@ -18,7 +18,7 @@ import java.util.List;
  *
  * @see GUIBuilder
  * @see SimplePagedItemsGUI
- * @see SimplePagedGUIsGUI
+ * @see SimplePagedNestedGUI
  */
 public abstract class PagedGUI extends BaseGUI implements Controllable {
     

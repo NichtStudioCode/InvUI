@@ -18,16 +18,16 @@ import java.util.stream.IntStream;
  * @see GUIBuilder
  * @see SimplePagedItemsGUI
  */
-public class SimplePagedGUIsGUI extends PagedGUI {
+public class SimplePagedNestedGUI extends PagedGUI {
     
     private List<GUI> guis;
     
-    public SimplePagedGUIsGUI(int width, int height, @Nullable List<GUI> guis, int... itemListSlots) {
+    public SimplePagedNestedGUI(int width, int height, @Nullable List<GUI> guis, int... itemListSlots) {
         super(width, height, false, itemListSlots);
         setGuis(guis);
     }
     
-    public SimplePagedGUIsGUI(int width, int height, @Nullable List<GUI> guis, @NotNull Structure structure) {
+    public SimplePagedNestedGUI(int width, int height, @Nullable List<GUI> guis, @NotNull Structure structure) {
         super(width, height, false, structure);
         setGuis(guis);
     }

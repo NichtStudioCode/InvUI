@@ -111,7 +111,7 @@ public class GUIBuilder {
                 return buildSimplePagedItemsGUI();
             
             case PAGED_GUIs:
-                return buildSimplePagedGUIsGUI();
+                return buildSimplePagedNestedGUI();
             
             case TAB:
                 return buildSimpleTabGUI();
@@ -132,8 +132,8 @@ public class GUIBuilder {
         return new SimplePagedItemsGUI(width, height, items, structure);
     }
     
-    private SimplePagedGUIsGUI buildSimplePagedGUIsGUI() {
-        return new SimplePagedGUIsGUI(width, height, guis, structure);
+    private SimplePagedNestedGUI buildSimplePagedNestedGUI() {
+        return new SimplePagedNestedGUI(width, height, guis, structure);
     }
     
     private SimpleTabGUI buildSimpleTabGUI() {
