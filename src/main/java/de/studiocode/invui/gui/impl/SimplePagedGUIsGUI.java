@@ -8,8 +8,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * A {@link PagedGUI} where every page is it's own {@link GUI}.
@@ -23,16 +24,12 @@ public class SimplePagedGUIsGUI extends PagedGUI {
     
     public SimplePagedGUIsGUI(int width, int height, @Nullable List<GUI> guis, int... itemListSlots) {
         super(width, height, false, itemListSlots);
-        this.guis = guis == null ? new ArrayList<>() : guis;
-        
-        update();
+        setGuis(guis);
     }
     
     public SimplePagedGUIsGUI(int width, int height, @Nullable List<GUI> guis, @NotNull Structure structure) {
         super(width, height, false, structure);
-        this.guis = guis == null ? new ArrayList<>() : guis;
-        
-        update();
+        setGuis(guis);
     }
     
     @Override
@@ -42,11 +39,16 @@ public class SimplePagedGUIsGUI extends PagedGUI {
     
     @Override
     protected List<SlotElement> getPageElements(int page) {
-        return Arrays.asList(guis.get(page).getSlotElements());
+        GUI gui = guis.get(page);
+        int size = gui.getSize();
+        
+        return IntStream.range(0, size)
+            .mapToObj(i -> new SlotElement.LinkedSlotElement(gui, i))
+            .collect(Collectors.toList());
     }
     
-    public void setGuis(List<GUI> guis) {
-        this.guis = guis;
+    public void setGuis(@Nullable List<GUI> guis) {
+        this.guis = guis == null ? new ArrayList<>() : guis;
         update();
     }
     
