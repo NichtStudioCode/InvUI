@@ -55,6 +55,6 @@ target/
 .libs/
 
 # Testing
-src/test/
-src/main/java/de/studiocode/invui/InvUIPlugin.java
-src/main/resources/plugin.yml
+InvUI/src/test/
+InvUI/src/main/java/de/studiocode/invui/InvUIPlugin.java
+InvUI/src/main/resources/plugin.yml
