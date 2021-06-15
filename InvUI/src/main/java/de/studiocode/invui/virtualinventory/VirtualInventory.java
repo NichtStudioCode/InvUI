@@ -447,19 +447,21 @@ public class VirtualInventory implements ConfigurationSerializable {
         
         // find all slots where the item partially fits and add it there
         for (int partialSlot : findPartialSlots(itemStack)) {
+            if (amountLeft == 0) break;
+            
             ItemStack stackToPut = itemStack.clone();
             stackToPut.setAmount(amountLeft);
             amountLeft = putItemStack(updateReason, partialSlot, stackToPut);
             
-            if (amountLeft == 0) break;
         }
         
         // find all empty slots and put the item there
         for (int emptySlot : ArrayUtils.findEmptyIndices(items)) {
+            if (amountLeft == 0) break;
+            
             ItemStack stackToPut = itemStack.clone();
             stackToPut.setAmount(amountLeft);
             amountLeft = putItemStack(updateReason, emptySlot, stackToPut);
-            if (amountLeft == 0) break;
         }
         
         // if items have been added, notify windows
@@ -513,14 +515,17 @@ public class VirtualInventory implements ConfigurationSerializable {
         
         // find all slots where the item partially fits
         for (int partialSlot : findPartialSlots(itemStack)) {
+            if (amountLeft == 0) break;
+            
             ItemStack partialItem = items[partialSlot];
             int maxStackSize = getMaxStackSize(partialSlot, -1);
             amountLeft = Math.max(0, amountLeft - (maxStackSize - partialItem.getAmount()));
-            if (amountLeft == 0) break;
         }
         
         // remaining items would be added to empty slots
         for (int emptySlot : ArrayUtils.findEmptyIndices(items)) {
+            if (amountLeft == 0) break;
+            
             int maxStackSize = getMaxStackSize(emptySlot, itemStack.getMaxStackSize());
             amountLeft -= Math.min(amountLeft, maxStackSize);
         }
