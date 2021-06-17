@@ -17,6 +17,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 public class VirtualInventory implements ConfigurationSerializable {
@@ -244,6 +245,17 @@ public class VirtualInventory implements ConfigurationSerializable {
     }
     
     /**
+     * Gets the maximum stack size for a specific slot while ignoring the {@link ItemStack} on it
+     * and it's own maximum stack size.
+     *
+     * @param slot The slot
+     * @return The maximum stack size on that slo
+     */
+    public int getMaxSlotStackSize(int slot) {
+        return stackSizes == null ? 64 : stackSizes[slot];
+    }
+    
+    /**
      * Sets all the maximum allowed stack sizes
      *
      * @param maxStackSizes All max stack sizes
@@ -342,7 +354,7 @@ public class VirtualInventory implements ConfigurationSerializable {
      * @return If the action was successful
      */
     public boolean setItemStack(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack itemStack) {
-        int maxStackSize = getMaxStackSize(slot, itemStack != null ? itemStack.getMaxStackSize() : -1);
+        int maxStackSize = min(getMaxSlotStackSize(slot), itemStack != null ? itemStack.getMaxStackSize() : 64);
         if (itemStack != null && itemStack.getAmount() > maxStackSize) return false;
         return forceSetItemStack(updateReason, slot, itemStack);
     }
@@ -519,7 +531,7 @@ public class VirtualInventory implements ConfigurationSerializable {
             
             ItemStack partialItem = items[partialSlot];
             int maxStackSize = getMaxStackSize(partialSlot, -1);
-            amountLeft = Math.max(0, amountLeft - (maxStackSize - partialItem.getAmount()));
+            amountLeft = max(0, amountLeft - (maxStackSize - partialItem.getAmount()));
         }
         
         // remaining items would be added to empty slots
@@ -527,7 +539,7 @@ public class VirtualInventory implements ConfigurationSerializable {
             if (amountLeft == 0) break;
             
             int maxStackSize = getMaxStackSize(emptySlot, itemStack.getMaxStackSize());
-            amountLeft -= Math.min(amountLeft, maxStackSize);
+            amountLeft -= min(amountLeft, maxStackSize);
         }
         
         return amountLeft;
@@ -608,7 +620,7 @@ public class VirtualInventory implements ConfigurationSerializable {
     private int takeFrom(@Nullable UpdateReason updateReason, int index, int maxTake) {
         ItemStack itemStack = items[index];
         int amount = itemStack.getAmount();
-        int take = Math.min(amount, maxTake);
+        int take = min(amount, maxTake);
         
         ItemStack newStack;
         if (take != amount) {
