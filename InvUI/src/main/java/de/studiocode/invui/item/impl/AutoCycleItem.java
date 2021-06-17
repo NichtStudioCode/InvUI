@@ -3,6 +3,7 @@ package de.studiocode.invui.item.impl;
 import de.studiocode.invui.InvUI;
 import de.studiocode.invui.item.Item;
 import de.studiocode.invui.item.ItemBuilder;
+import de.studiocode.invui.window.Window;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -16,17 +17,24 @@ import org.bukkit.scheduler.BukkitTask;
 public class AutoCycleItem extends BaseItem {
     
     private final ItemBuilder[] itemBuilders;
-    private final BukkitTask task;
+    private final int period;
+    private BukkitTask task;
     
     private int state;
     
     public AutoCycleItem(int period, ItemBuilder... itemBuilders) {
         this.itemBuilders = itemBuilders;
+        this.period = period;
+    }
+    
+    public void start() {
+        if (task != null) task.cancel();
         task = Bukkit.getScheduler().runTaskTimer(InvUI.getInstance().getPlugin(), this::cycle, 0, period);
     }
     
     public void cancel() {
         task.cancel();
+        task = null;
     }
     
     private void cycle() {
@@ -38,6 +46,18 @@ public class AutoCycleItem extends BaseItem {
     @Override
     public ItemBuilder getItemBuilder() {
         return itemBuilders[state];
+    }
+    
+    @Override
+    public void addWindow(Window window) {
+        super.addWindow(window);
+        if (task == null) start();
+    }
+    
+    @Override
+    public void removeWindow(Window window) {
+        super.removeWindow(window);
+        if (getWindows().isEmpty() && task != null) cancel();
     }
     
     @Override
