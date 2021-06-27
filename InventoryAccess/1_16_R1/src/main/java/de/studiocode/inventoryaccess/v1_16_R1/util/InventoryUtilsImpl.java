@@ -14,6 +14,11 @@ public class InventoryUtilsImpl implements InventoryUtils {
     
     @Override
     public void openCustomInventory(Player player, Inventory inventory) {
+        openCustomInventory(player, inventory, null);
+    }
+    
+    @Override
+    public void openCustomInventory(Player player, Inventory inventory, String title) {
         EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
         Containers<?> windowType = CraftContainer.getNotchInventoryType(inventory);
         
@@ -22,16 +27,26 @@ public class InventoryUtilsImpl implements InventoryUtils {
             container = CraftEventFactory.callInventoryOpenEvent(entityPlayer, container);
             if (container != null) {
                 IInventory iinventory = ((CraftInventory) inventory).getInventory();
-                IChatBaseComponent title;
-                if (iinventory instanceof ITileInventory)
-                    title = ((ITileInventory) iinventory).getScoreboardDisplayName();
-                else title = CraftChatMessage.fromString(container.getBukkitView().getTitle())[0];
+                IChatBaseComponent titleComponent;
+                if (title == null) {
+                    if (iinventory instanceof ITileInventory)
+                        titleComponent = ((ITileInventory) iinventory).getScoreboardDisplayName();
+                    else titleComponent = CraftChatMessage.fromString(container.getBukkitView().getTitle())[0];
+                } else titleComponent = CraftChatMessage.fromString(title)[0];
             
-                entityPlayer.playerConnection.sendPacket(new PacketPlayOutOpenWindow(container.windowId, windowType, title));
+                entityPlayer.playerConnection.sendPacket(new PacketPlayOutOpenWindow(container.windowId, windowType, titleComponent));
                 entityPlayer.activeContainer = container;
                 entityPlayer.activeContainer.addSlotListener(entityPlayer);
             }
         }
+    }
+    
+    @Override
+    public void updateOpenInventoryTitle(Player player, String title) {
+        EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
+        Container container = entityPlayer.activeContainer;
+        IChatBaseComponent titleComponent = CraftChatMessage.fromString(container.getBukkitView().getTitle())[0];
+        entityPlayer.playerConnection.sendPacket(new PacketPlayOutOpenWindow(container.windowId, container.getType(), titleComponent));
     }
     
 }

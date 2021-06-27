@@ -161,6 +161,13 @@ public interface Window extends GUIParent {
     void setCloseable(boolean closeable);
     
     /**
+     * Changes the title of the {@link Inventory}.
+     *
+     * @param title The new title
+     */
+    void changeTitle(String title);
+    
+    /**
      * Gets the viewer of this {@link Window}
      *
      * @return The viewer of this window.

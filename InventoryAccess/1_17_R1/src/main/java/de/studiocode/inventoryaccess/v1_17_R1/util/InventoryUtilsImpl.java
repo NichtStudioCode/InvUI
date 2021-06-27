@@ -20,6 +20,11 @@ public class InventoryUtilsImpl implements InventoryUtils {
     
     @Override
     public void openCustomInventory(Player player, Inventory inventory) {
+        openCustomInventory(player, inventory, null);
+    }
+    
+    @Override
+    public void openCustomInventory(Player player, Inventory inventory, String title) {
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
         MenuType<?> menuType = CraftContainer.getNotchInventoryType(inventory);
         
@@ -28,18 +33,27 @@ public class InventoryUtilsImpl implements InventoryUtils {
             menu = CraftEventFactory.callInventoryOpenEvent(serverPlayer, menu);
             if (menu != null) {
                 Container container = ((CraftInventory) inventory).getInventory();
-                Component title;
-                if (container instanceof MenuProvider)
-                    title = ((MenuProvider) container).getDisplayName();
-                else title = CraftChatMessage.fromString(menu.getBukkitView().getTitle())[0];
+                Component titleComponent;
+                if (title == null) {
+                    if (container instanceof MenuProvider)
+                        titleComponent = ((MenuProvider) container).getDisplayName();
+                    else titleComponent = CraftChatMessage.fromString(menu.getBukkitView().getTitle())[0];
+                } else titleComponent = CraftChatMessage.fromString(title)[0];
                 
                 menu.checkReachable = false;
-                serverPlayer.connection.send(new ClientboundOpenScreenPacket(menu.containerId, menuType, title));
+                serverPlayer.connection.send(new ClientboundOpenScreenPacket(menu.containerId, menuType, titleComponent));
                 serverPlayer.containerMenu = menu;
                 serverPlayer.initMenu(menu);
             }
         }
         
+    }
+    
+    @Override
+    public void updateOpenInventoryTitle(Player player, String title) {
+        ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
+        AbstractContainerMenu menu = serverPlayer.containerMenu;
+        serverPlayer.connection.send(new ClientboundOpenScreenPacket(menu.containerId, menu.getType(), CraftChatMessage.fromString(title)[0]));
     }
     
 }

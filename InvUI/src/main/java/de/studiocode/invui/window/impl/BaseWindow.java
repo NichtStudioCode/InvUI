@@ -31,6 +31,8 @@ public abstract class BaseWindow implements Window {
     private final boolean closeOnEvent;
     private final SlotElement[] elementsDisplayed;
     
+    private String updatedTitle;
+    
     private boolean closeable;
     private boolean closed;
     
@@ -202,7 +204,16 @@ public abstract class BaseWindow implements Window {
         
         Player viewer = getViewer();
         if (viewer == null) throw new IllegalStateException("The player is not online.");
-        InventoryAccess.getInventoryUtils().openCustomInventory(viewer, getInventories()[0]);
+        InventoryAccess.getInventoryUtils().openCustomInventory(viewer, getInventories()[0], updatedTitle);
+    }
+    
+    @Override
+    public void changeTitle(String title) {
+        updatedTitle = title;
+        Player currentViewer = getCurrentViewer();
+        if (currentViewer != null) {
+            InventoryAccess.getInventoryUtils().updateOpenInventoryTitle(currentViewer, title);
+        }
     }
     
     @Override
