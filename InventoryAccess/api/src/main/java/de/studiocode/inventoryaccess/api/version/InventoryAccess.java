@@ -9,8 +9,8 @@ import java.util.function.Consumer;
 
 public class InventoryAccess {
     
-    private static final Class<InventoryUtils> INVENTORY_UTILS_CLASS = ReflectionUtils.getClass("util.InventoryUtilsImpl");
-    private static final Class<AnvilInventory> ANVIL_INVENTORY_CLASS = ReflectionUtils.getClass("inventory.AnvilInventoryImpl");
+    private static final Class<InventoryUtils> INVENTORY_UTILS_CLASS = ReflectionUtils.getImplClass("util.InventoryUtilsImpl");
+    private static final Class<AnvilInventory> ANVIL_INVENTORY_CLASS = ReflectionUtils.getImplClass("inventory.AnvilInventoryImpl");
     
     private static final Constructor<AnvilInventory> ANVIL_INVENTORY_CONSTRUCTOR
         = ReflectionUtils.getConstructor(ANVIL_INVENTORY_CLASS, Player.class, String.class, Consumer.class);
