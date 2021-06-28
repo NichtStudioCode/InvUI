@@ -1,11 +1,9 @@
 package de.studiocode.invui.resourcepack;
 
 import de.studiocode.invui.item.Item;
-import de.studiocode.invui.item.impl.SimpleItem;
 import de.studiocode.invui.item.ItemBuilder;
+import de.studiocode.invui.item.impl.SimpleItem;
 import org.bukkit.Material;
-
-import java.util.HashMap;
 
 /**
  * Custom-textured Items that look like they are a part of the inventory.
@@ -109,37 +107,6 @@ public enum Icon {
      */
     public Item getItem() {
         return item;
-    }
-    
-    /**
-     * An icon version of a {@link Material}.
-     * An item displayed in front of {@link Icon#BACKGROUND}
-     */
-    public enum MaterialIcon {
-        
-        FULL(9999998),
-        NORMAL(9999999);
-        
-        private final int customModelData;
-        
-        private final HashMap<Material, Item> items = new HashMap<>();
-        
-        MaterialIcon(int customModelData) {
-            this.customModelData = customModelData;
-        }
-        
-        public ItemBuilder getItemBuilder(Material material) {
-            return new ItemBuilder(material).setCustomModelData(customModelData);
-        }
-        
-        public Item getItem(Material material) {
-            if (!items.containsKey(material)) {
-                items.put(material, new SimpleItem(getItemBuilder(material)));
-            }
-            
-            return items.get(material);
-        }
-        
     }
     
 }
