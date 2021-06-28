@@ -22,6 +22,12 @@ public class ReflectionUtils {
         return "net.minecraft.server." + version + ".";
     }
     
+    protected static int getVersion() {
+        String version = Bukkit.getVersion();
+        version = version.substring(version.indexOf("MC: "), version.length() - 1).substring(4);
+        return Integer.parseInt(version.split("\\.")[1]);
+    }
+    
     public static Class<?> getBukkitClass(String path) {
         try {
             return Class.forName(BUKKIT_PACKAGE_PATH + path);

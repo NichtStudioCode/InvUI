@@ -1,7 +1,7 @@
 package de.studiocode.invui.resourcepack;
 
 import de.studiocode.invui.InvUI;
-import de.studiocode.invui.resourcepack.Icon.MaterialIcon;
+import de.studiocode.invui.util.reflection.ReflectionRegistry;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -20,19 +20,14 @@ import static org.bukkit.event.player.PlayerResourcePackStatusEvent.Status.DECLI
  */
 public class ForceResourcePack implements Listener {
     
-    private static final String RP_VERSION = "v0.7";
+    private static final String RP_VERSION = "v0.8";
     
     /**
      * A resource pack with all the {@link Icon}s
      */
-    public static final String LIGHT_RESOURCE_PACK_URL =
-        "https://github.com/NichtStudioCode/InvUIRP/releases/download/" + RP_VERSION + "-light/InvUIRP.zip";
-    
-    /**
-     * A resource pack that also provides all {@link MaterialIcon}s
-     */
-    public static final String COMPLETE_RESOURCE_PACK_URL =
-        "https://github.com/NichtStudioCode/InvUIRP/releases/download/" + RP_VERSION + "/InvUIRP.zip";
+    public static final String RESOURCE_PACK_URL =
+        "https://github.com/NichtStudioCode/InvUIRP/releases/download/"
+            + RP_VERSION + (ReflectionRegistry.VERSION > 14 ? "" : "-legacy") + "/InvUIRP.zip";
     
     private static final ForceResourcePack INSTANCE = new ForceResourcePack();
     
