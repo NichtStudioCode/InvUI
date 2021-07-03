@@ -9,6 +9,7 @@ import de.studiocode.invui.window.impl.merged.MergedWindow;
 import de.studiocode.invui.window.impl.merged.combined.SimpleCombinedWindow;
 import de.studiocode.invui.window.impl.merged.split.SimpleSplitWindow;
 import de.studiocode.invui.window.impl.single.SimpleWindow;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -16,6 +17,7 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
@@ -165,7 +167,14 @@ public interface Window extends GUIParent {
      *
      * @param title The new title
      */
-    void changeTitle(String title);
+    void changeTitle(@NotNull BaseComponent[] title);
+    
+    /**
+     * Changes the title of the {@link Inventory}.
+     *
+     * @param title The new title
+     */
+    void changeTitle(@NotNull String title);
     
     /**
      * Gets the viewer of this {@link Window}

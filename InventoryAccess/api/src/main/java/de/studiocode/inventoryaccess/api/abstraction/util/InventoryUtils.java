@@ -1,5 +1,6 @@
 package de.studiocode.inventoryaccess.api.abstraction.util;
 
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
@@ -26,8 +27,9 @@ public interface InventoryUtils {
      *
      * @param player    The {@link Player} to open the {@link Inventory} for
      * @param inventory The {@link Inventory}
+     * @param title     The title of the inventory
      */
-    void openCustomInventory(Player player, Inventory inventory, String title);
+    void openCustomInventory(Player player, Inventory inventory, BaseComponent[] title);
     
     /**
      * Changes the title of the {@link Inventory} the player is currently viewing.
@@ -35,6 +37,6 @@ public interface InventoryUtils {
      * @param player The {@link Player}
      * @param title  The new title
      */
-    void updateOpenInventoryTitle(Player player, String title);
+    void updateOpenInventoryTitle(Player player, BaseComponent[] title);
     
 }

@@ -3,6 +3,8 @@ package de.studiocode.invui.window.impl.merged.split;
 import de.studiocode.inventoryaccess.api.abstraction.inventory.AnvilInventory;
 import de.studiocode.inventoryaccess.api.version.InventoryAccess;
 import de.studiocode.invui.gui.GUI;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -12,15 +14,21 @@ public class AnvilSplitWindow extends SplitWindow {
     
     private final AnvilInventory anvilInventory;
     
-    public AnvilSplitWindow(Player player, String title, GUI upperGui, GUI lowerGui,
-                            boolean closeable, Consumer<String> renameHandler) {
-        
-        super(player, upperGui, lowerGui, null, false, closeable, true);
+    public AnvilSplitWindow(Player player, BaseComponent[] title, GUI upperGui, GUI lowerGui, boolean closeable, Consumer<String> renameHandler) {
+        super(player, title, upperGui, lowerGui, null, false, closeable, true);
         
         anvilInventory = InventoryAccess.createAnvilInventory(player, title, renameHandler);
         upperInventory = anvilInventory.getBukkitInventory();
         
         initUpperItems();
+    }
+    
+    public AnvilSplitWindow(Player player, BaseComponent[] title, GUI upperGui, GUI lowerGui, Consumer<String> renameHandler) {
+        this(player, title, upperGui, lowerGui, true, renameHandler);
+    }
+    
+    public AnvilSplitWindow(Player player, String title, GUI upperGui, GUI lowerGui, boolean closeable, Consumer<String> renameHandler) {
+        this(player, TextComponent.fromLegacyText(title), upperGui, lowerGui, closeable, renameHandler);
     }
     
     public AnvilSplitWindow(Player player, String title, GUI upperGui, GUI lowerGui, Consumer<String> renameHandler) {

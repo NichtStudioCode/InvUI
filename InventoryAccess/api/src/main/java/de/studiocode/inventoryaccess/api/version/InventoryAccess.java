@@ -2,6 +2,7 @@ package de.studiocode.inventoryaccess.api.version;
 
 import de.studiocode.inventoryaccess.api.abstraction.inventory.AnvilInventory;
 import de.studiocode.inventoryaccess.api.abstraction.util.InventoryUtils;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Constructor;
@@ -13,7 +14,7 @@ public class InventoryAccess {
     private static final Class<AnvilInventory> ANVIL_INVENTORY_CLASS = ReflectionUtils.getImplClass("inventory.AnvilInventoryImpl");
     
     private static final Constructor<AnvilInventory> ANVIL_INVENTORY_CONSTRUCTOR
-        = ReflectionUtils.getConstructor(ANVIL_INVENTORY_CLASS, Player.class, String.class, Consumer.class);
+        = ReflectionUtils.getConstructor(ANVIL_INVENTORY_CLASS, Player.class, BaseComponent[].class, Consumer.class);
     
     private static final InventoryUtils INVENTORY_UTILS = ReflectionUtils.constructEmpty(INVENTORY_UTILS_CLASS);
     
@@ -35,7 +36,7 @@ public class InventoryAccess {
      *                      types something in the renaming section of the anvil
      * @return The {@link AnvilInventory}
      */
-    public static AnvilInventory createAnvilInventory(Player player, String title, Consumer<String> renameHandler) {
+    public static AnvilInventory createAnvilInventory(Player player, BaseComponent[] title, Consumer<String> renameHandler) {
         return ReflectionUtils.construct(ANVIL_INVENTORY_CONSTRUCTOR, player, title, renameHandler);
     }
     

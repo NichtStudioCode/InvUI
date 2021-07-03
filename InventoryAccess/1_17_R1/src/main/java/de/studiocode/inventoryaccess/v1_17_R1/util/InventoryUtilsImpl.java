@@ -1,6 +1,8 @@
 package de.studiocode.inventoryaccess.v1_17_R1.util;
 
 import de.studiocode.inventoryaccess.api.abstraction.util.InventoryUtils;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
 import net.minecraft.server.level.ServerPlayer;
@@ -24,7 +26,7 @@ public class InventoryUtilsImpl implements InventoryUtils {
     }
     
     @Override
-    public void openCustomInventory(Player player, Inventory inventory, String title) {
+    public void openCustomInventory(Player player, Inventory inventory, BaseComponent[] title) {
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
         MenuType<?> menuType = CraftContainer.getNotchInventoryType(inventory);
         
@@ -38,7 +40,7 @@ public class InventoryUtilsImpl implements InventoryUtils {
                     if (container instanceof MenuProvider)
                         titleComponent = ((MenuProvider) container).getDisplayName();
                     else titleComponent = CraftChatMessage.fromString(menu.getBukkitView().getTitle())[0];
-                } else titleComponent = CraftChatMessage.fromString(title)[0];
+                } else titleComponent = createNMSComponent(title);
                 
                 menu.checkReachable = false;
                 serverPlayer.connection.send(new ClientboundOpenScreenPacket(menu.containerId, menuType, titleComponent));
@@ -50,10 +52,15 @@ public class InventoryUtilsImpl implements InventoryUtils {
     }
     
     @Override
-    public void updateOpenInventoryTitle(Player player, String title) {
+    public void updateOpenInventoryTitle(Player player, BaseComponent[] title) {
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
         AbstractContainerMenu menu = serverPlayer.containerMenu;
-        serverPlayer.connection.send(new ClientboundOpenScreenPacket(menu.containerId, menu.getType(), CraftChatMessage.fromString(title)[0]));
+        serverPlayer.connection.send(new ClientboundOpenScreenPacket(menu.containerId, menu.getType(), createNMSComponent(title)));
+    }
+    
+    public static Component createNMSComponent(BaseComponent[] components) {
+        String json = ComponentSerializer.toString(components);
+        return CraftChatMessage.fromJSON(json);
     }
     
 }

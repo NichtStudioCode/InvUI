@@ -6,6 +6,7 @@ import de.studiocode.invui.util.InventoryUtils;
 import de.studiocode.invui.util.Pair;
 import de.studiocode.invui.window.Window;
 import de.studiocode.invui.window.impl.BaseWindow;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -23,8 +24,8 @@ public abstract class SingleWindow extends BaseWindow {
     private final int size;
     protected Inventory inventory;
     
-    public SingleWindow(UUID viewerUUID, GUI gui, Inventory inventory, boolean initItems, boolean closeable, boolean closeOnEvent) {
-        super(viewerUUID, gui.getSize(), closeable, closeOnEvent);
+    public SingleWindow(UUID viewerUUID, BaseComponent[] title, GUI gui, Inventory inventory, boolean initItems, boolean closeable, boolean closeOnEvent) {
+        super(viewerUUID, title, gui.getSize(), closeable, closeOnEvent);
         this.gui = gui;
         this.size = gui.getSize();
         this.inventory = inventory;

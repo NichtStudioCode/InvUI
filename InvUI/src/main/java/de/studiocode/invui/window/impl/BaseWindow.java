@@ -15,6 +15,8 @@ import de.studiocode.invui.virtualinventory.event.PlayerUpdateReason;
 import de.studiocode.invui.virtualinventory.event.UpdateReason;
 import de.studiocode.invui.window.Window;
 import de.studiocode.invui.window.WindowManager;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
@@ -22,6 +24,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -31,13 +34,14 @@ public abstract class BaseWindow implements Window {
     private final boolean closeOnEvent;
     private final SlotElement[] elementsDisplayed;
     
-    private String updatedTitle;
+    private BaseComponent[] title;
     
     private boolean closeable;
     private boolean closed;
     
-    public BaseWindow(UUID viewerUUID, int size, boolean closeable, boolean closeOnEvent) {
+    public BaseWindow(UUID viewerUUID, BaseComponent[] title, int size, boolean closeable, boolean closeOnEvent) {
         this.viewerUUID = viewerUUID;
+        this.title = title;
         this.closeable = closeable;
         this.closeOnEvent = closeOnEvent;
         this.elementsDisplayed = new SlotElement[size];
@@ -204,16 +208,21 @@ public abstract class BaseWindow implements Window {
         
         Player viewer = getViewer();
         if (viewer == null) throw new IllegalStateException("The player is not online.");
-        InventoryAccess.getInventoryUtils().openCustomInventory(viewer, getInventories()[0], updatedTitle);
+        InventoryAccess.getInventoryUtils().openCustomInventory(viewer, getInventories()[0], title);
     }
     
     @Override
-    public void changeTitle(String title) {
-        updatedTitle = title;
+    public void changeTitle(@NotNull BaseComponent[] title) {
+        this.title = title;
         Player currentViewer = getCurrentViewer();
         if (currentViewer != null) {
             InventoryAccess.getInventoryUtils().updateOpenInventoryTitle(currentViewer, title);
         }
+    }
+    
+    @Override
+    public void changeTitle(@NotNull String title) {
+        changeTitle(TextComponent.fromLegacyText(title));
     }
     
     @Override

@@ -1,6 +1,8 @@
 package de.studiocode.inventoryaccess.v1_15_R1.util;
 
 import de.studiocode.inventoryaccess.api.abstraction.util.InventoryUtils;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
 import net.minecraft.server.v1_15_R1.*;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_15_R1.event.CraftEventFactory;
@@ -17,7 +19,7 @@ public class InventoryUtilsImpl implements InventoryUtils {
     }
     
     @Override
-    public void openCustomInventory(Player player, Inventory inventory, String title) {
+    public void openCustomInventory(Player player, Inventory inventory, BaseComponent[] title) {
         EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
         Containers<?> windowType = CraftContainer.getNotchInventoryType(inventory);
         
@@ -31,7 +33,7 @@ public class InventoryUtilsImpl implements InventoryUtils {
                     if (iinventory instanceof ITileInventory)
                         titleComponent = ((ITileInventory) iinventory).getScoreboardDisplayName();
                     else titleComponent = new ChatComponentText(container.getBukkitView().getTitle());
-                } else titleComponent = new ChatComponentText(title);
+                } else titleComponent = createNMSComponent(title);
                 
                 entityPlayer.playerConnection.sendPacket(new PacketPlayOutOpenWindow(container.windowId, windowType, titleComponent));
                 entityPlayer.activeContainer = container;
@@ -41,10 +43,15 @@ public class InventoryUtilsImpl implements InventoryUtils {
     }
     
     @Override
-    public void updateOpenInventoryTitle(Player player, String title) {
+    public void updateOpenInventoryTitle(Player player, BaseComponent[] title) {
         EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
         Container container = entityPlayer.activeContainer;
-        entityPlayer.playerConnection.sendPacket(new PacketPlayOutOpenWindow(container.windowId, container.getType(), new ChatComponentText(title)));
+        entityPlayer.playerConnection.sendPacket(new PacketPlayOutOpenWindow(container.windowId, container.getType(), createNMSComponent(title)));
+    }
+    
+    public static IChatBaseComponent createNMSComponent(BaseComponent[] components) {
+        String json = ComponentSerializer.toString(components);
+        return IChatBaseComponent.ChatSerializer.a(json);
     }
     
 }

@@ -1,9 +1,11 @@
 package de.studiocode.inventoryaccess.v1_17_R1.inventory;
 
 import de.studiocode.inventoryaccess.api.abstraction.inventory.AnvilInventory;
+import de.studiocode.inventoryaccess.v1_17_R1.util.InventoryUtilsImpl;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
@@ -27,7 +29,7 @@ import java.util.function.Consumer;
 
 public class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
     
-    private final String title;
+    private final Component title;
     private final Consumer<String> renameHandler;
     private final CraftInventoryView view;
     private final ServerPlayer player;
@@ -35,11 +37,11 @@ public class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
     private String text;
     private boolean open;
     
-    public AnvilInventoryImpl(org.bukkit.entity.Player player, String title, Consumer<String> renameHandler) {
-        this(((CraftPlayer) player).getHandle(), title, renameHandler);
+    public AnvilInventoryImpl(org.bukkit.entity.Player player, BaseComponent[] title, Consumer<String> renameHandler) {
+        this(((CraftPlayer) player).getHandle(), InventoryUtilsImpl.createNMSComponent(title), renameHandler);
     }
     
-    public AnvilInventoryImpl(ServerPlayer player, String title, Consumer<String> renameHandler) {
+    public AnvilInventoryImpl(ServerPlayer player, Component title, Consumer<String> renameHandler) {
         super(player.nextContainerCounter(), player.getInventory(),
             ContainerLevelAccess.create(player.level, new BlockPos(Integer.MAX_VALUE, 0, 0)));
         
@@ -62,7 +64,7 @@ public class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
         player.containerMenu = this;
         
         // send open packet
-        player.connection.send(new ClientboundOpenScreenPacket(containerId, MenuType.ANVIL, new TextComponent(title)));
+        player.connection.send(new ClientboundOpenScreenPacket(containerId, MenuType.ANVIL, title));
         
         // send initial items
         NonNullList<ItemStack> itemsList = NonNullList.of(ItemStack.EMPTY, getItem(0), getItem(1), getItem(2));

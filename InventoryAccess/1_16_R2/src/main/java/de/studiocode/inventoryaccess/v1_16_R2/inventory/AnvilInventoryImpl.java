@@ -1,6 +1,8 @@
 package de.studiocode.inventoryaccess.v1_16_R2.inventory;
 
 import de.studiocode.inventoryaccess.api.abstraction.inventory.AnvilInventory;
+import de.studiocode.inventoryaccess.v1_16_R2.util.InventoryUtilsImpl;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.minecraft.server.v1_16_R2.*;
 import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_16_R2.event.CraftEventFactory;
@@ -15,7 +17,7 @@ import java.util.function.Consumer;
 
 public class AnvilInventoryImpl extends ContainerAnvil implements AnvilInventory {
     
-    private final String title;
+    private final IChatBaseComponent title;
     private final Consumer<String> renameHandler;
     private final CraftInventoryView view;
     private final EntityPlayer player;
@@ -23,11 +25,11 @@ public class AnvilInventoryImpl extends ContainerAnvil implements AnvilInventory
     private String text;
     private boolean open;
     
-    public AnvilInventoryImpl(Player player, String title, Consumer<String> renameHandler) {
-        this(((CraftPlayer) player).getHandle(), title, renameHandler);
+    public AnvilInventoryImpl(Player player, BaseComponent[] title, Consumer<String> renameHandler) {
+        this(((CraftPlayer) player).getHandle(), InventoryUtilsImpl.createNMSComponent(title), renameHandler);
     }
     
-    public AnvilInventoryImpl(EntityPlayer player, String title, Consumer<String> renameHandler) {
+    public AnvilInventoryImpl(EntityPlayer player, IChatBaseComponent title, Consumer<String> renameHandler) {
         super(player.nextContainerCounter(), player.inventory,
             ContainerAccess.at(player.getWorld(), new BlockPosition(Integer.MAX_VALUE, 0, 0)));
         
@@ -50,7 +52,7 @@ public class AnvilInventoryImpl extends ContainerAnvil implements AnvilInventory
         player.activeContainer = this;
         
         // send open packet
-        player.playerConnection.sendPacket(new PacketPlayOutOpenWindow(windowId, Containers.ANVIL, new ChatMessage(title)));
+        player.playerConnection.sendPacket(new PacketPlayOutOpenWindow(windowId, Containers.ANVIL, title));
         
         // send initial items
         NonNullList<ItemStack> itemsList = NonNullList.a(ItemStack.b, getItem(0), getItem(1), getItem(2));
