@@ -123,6 +123,7 @@ public class VirtualInventoryManager {
         try {
             DataOutputStream dos = new DataOutputStream(out);
             UUID uuid = vi.getUuid();
+            dos.writeByte((byte) 3); // Placeholder
             dos.writeLong(uuid.getMostSignificantBits());
             dos.writeLong(uuid.getLeastSignificantBits());
             DataUtils.writeByteArray(dos, DataUtils.toByteArray(vi.getStackSizes()));
@@ -148,6 +149,7 @@ public class VirtualInventoryManager {
         try {
             DataInputStream din = new DataInputStream(in);
             UUID uuid = new UUID(din.readLong(), din.readLong());
+            din.readByte(); // Placeholder
             int[] stackSizes = DataUtils.toIntArray(DataUtils.readByteArray(din));
             
             ItemStack[] items = Arrays.stream(DataUtils.read2DByteArray(din)).map(data -> {
