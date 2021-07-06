@@ -1,13 +1,14 @@
 package de.studiocode.invui.virtualinventory;
 
+import de.studiocode.inventoryaccess.api.version.InventoryAccess;
 import de.studiocode.invui.InvUI;
+import de.studiocode.invui.util.DataUtils;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +27,8 @@ public class VirtualInventoryManager {
     private final Map<UUID, VirtualInventory> inventories = new HashMap<>();
     
     private VirtualInventoryManager() {
+        SAVE_DIR.mkdirs();
+        
         ConfigurationSerialization.registerClass(VirtualInventory.class);
         InvUI.getInstance().addDisableHandler(this::serializeAll);
         deserializeAll();
@@ -77,12 +80,23 @@ public class VirtualInventoryManager {
     private void deserializeAll() {
         if (SAVE_DIR.exists()) {
             Arrays.stream(SAVE_DIR.listFiles())
-                .filter(file -> file.getName().endsWith(".vi"))
                 .forEach(file -> {
-                    YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
-                    VirtualInventory virtualInventory = config.getSerializable("vi", VirtualInventory.class);
-                    
-                    inventories.put(virtualInventory.getUuid(), virtualInventory);
+                    if (file.getName().endsWith(".vi")) {
+                        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+                        VirtualInventory virtualInventory = config.getSerializable("vi", VirtualInventory.class);
+                        inventories.put(virtualInventory.getUuid(), virtualInventory);
+                        
+                        file.delete();
+                    } else if (file.getName().endsWith(".vi2")) {
+                        try {
+                            FileInputStream in = new FileInputStream(file);
+                            VirtualInventory virtualInventory = deserializeInventory(in);
+                            inventories.put(virtualInventory.getUuid(), virtualInventory);
+                            in.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 });
         }
     }
@@ -91,9 +105,10 @@ public class VirtualInventoryManager {
         inventories.values().forEach(virtualInventory -> {
             try {
                 File file = getSaveFile(virtualInventory);
-                YamlConfiguration config = new YamlConfiguration();
-                config.set("vi", virtualInventory);
-                config.save(file);
+                FileOutputStream out = new FileOutputStream(file);
+                serializeInventory(virtualInventory, out);
+                out.flush();
+                out.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -101,7 +116,53 @@ public class VirtualInventoryManager {
     }
     
     private File getSaveFile(VirtualInventory virtualInventory) {
-        return new File(SAVE_DIR, virtualInventory.getUuid() + ".vi");
+        return new File(SAVE_DIR, virtualInventory.getUuid() + ".vi2");
+    }
+    
+    public void serializeInventory(VirtualInventory vi, OutputStream out) {
+        try {
+            DataOutputStream dos = new DataOutputStream(out);
+            UUID uuid = vi.getUuid();
+            dos.writeLong(uuid.getMostSignificantBits());
+            dos.writeLong(uuid.getLeastSignificantBits());
+            DataUtils.writeByteArray(dos, DataUtils.toByteArray(vi.getStackSizes()));
+            
+            byte[][] items = Arrays.stream(vi.getItems()).map(itemStack -> {
+                    if (itemStack != null) {
+                        return InventoryAccess.getItemUtils().serializeItemStack(itemStack, true);
+                    } else return new byte[0];
+                }
+            ).toArray(byte[][]::new);
+            
+            DataUtils.write2DByteArray(dos, items);
+            
+            dos.flush();
+        } catch (
+            IOException e) {
+            e.printStackTrace();
+        }
+        
+    }
+    
+    public VirtualInventory deserializeInventory(InputStream in) {
+        try {
+            DataInputStream din = new DataInputStream(in);
+            UUID uuid = new UUID(din.readLong(), din.readLong());
+            int[] stackSizes = DataUtils.toIntArray(DataUtils.readByteArray(din));
+            
+            ItemStack[] items = Arrays.stream(DataUtils.read2DByteArray(din)).map(data -> {
+                    if (data.length != 0) {
+                        return InventoryAccess.getItemUtils().deserializeItemStack(data, true);
+                    } else return null;
+                }
+            ).toArray(ItemStack[]::new);
+            
+            return new VirtualInventory(uuid, stackSizes.length, items, stackSizes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        return null;
     }
     
 }

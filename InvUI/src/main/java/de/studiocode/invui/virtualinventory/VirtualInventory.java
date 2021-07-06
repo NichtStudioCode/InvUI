@@ -13,6 +13,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -62,7 +64,10 @@ public class VirtualInventory implements ConfigurationSerializable {
      *
      * @param args The args which contain the data to deserialize
      * @return The deserialized {@link VirtualInventory}
+     * @deprecated Use {@link VirtualInventoryManager#serializeInventory(VirtualInventory, OutputStream)}
+     * and {@link VirtualInventoryManager#deserializeInventory(InputStream)} for serialization
      */
+    @Deprecated
     public static VirtualInventory deserialize(@NotNull Map<String, Object> args) {
         //noinspection unchecked
         return new VirtualInventory(
@@ -77,7 +82,10 @@ public class VirtualInventory implements ConfigurationSerializable {
      * Serializes this {@link VirtualInventory} to a {@link Map}
      *
      * @return A {@link Map} that contains the serialized data of this {@link VirtualInventory}
+     * @deprecated Use {@link VirtualInventoryManager#serializeInventory(VirtualInventory, OutputStream)}
+     * and {@link VirtualInventoryManager#deserializeInventory(InputStream)} for serialization
      */
+    @Deprecated
     @NotNull
     @Override
     public Map<String, Object> serialize() {
@@ -168,6 +176,15 @@ public class VirtualInventory implements ConfigurationSerializable {
      */
     public int getSize() {
         return size;
+    }
+    
+    /**
+     * Gets the array of max stack sizes for this {@link VirtualInventory}.
+     *
+     * @return The array defining the max stack sizes for this {@link VirtualInventory}
+     */
+    public int[] getStackSizes() {
+        return stackSizes;
     }
     
     /**
