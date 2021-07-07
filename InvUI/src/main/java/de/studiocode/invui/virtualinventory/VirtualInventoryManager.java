@@ -123,9 +123,9 @@ public class VirtualInventoryManager {
         try {
             DataOutputStream dos = new DataOutputStream(out);
             UUID uuid = vi.getUuid();
-            dos.writeByte((byte) 3); // Placeholder
             dos.writeLong(uuid.getMostSignificantBits());
             dos.writeLong(uuid.getLeastSignificantBits());
+            dos.writeByte((byte) 3); // Placeholder
             DataUtils.writeByteArray(dos, DataUtils.toByteArray(vi.getStackSizes()));
             
             byte[][] items = Arrays.stream(vi.getItems()).map(itemStack -> {
