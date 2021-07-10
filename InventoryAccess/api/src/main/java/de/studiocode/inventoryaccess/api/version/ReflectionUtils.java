@@ -13,8 +13,15 @@ public class ReflectionUtils {
     private static final String VERSION = getVersion();
     
     private static String getVersion() {
-        String path = Bukkit.getServer().getClass().getPackage().getName();
-        return path.substring(path.lastIndexOf(".") + 1);
+        String version = Bukkit.getVersion();
+        version = version.substring(version.indexOf("MC: "), version.length() - 1).substring(4);
+        
+        if (version.equals("1.17.1")) {
+            return "v1_17_R2"; // TODO: find a better solution
+        } else {
+            String path = Bukkit.getServer().getClass().getPackage().getName();
+            return path.substring(path.lastIndexOf(".") + 1);
+        }
     }
     
     public static <T> Class<T> getImplClass(String path) {

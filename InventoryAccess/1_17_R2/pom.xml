@@ -10,12 +10,12 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>1_17_R1</artifactId>
+    <artifactId>1_17_R2</artifactId>
 
     <properties>
         <maven.compiler.source>16</maven.compiler.source>
         <maven.compiler.target>16</maven.compiler.target>
-        <spigotVersion>1.17-R0.1-SNAPSHOT</spigotVersion>
+        <spigotVersion>1.17.1-R0.1-SNAPSHOT</spigotVersion>
     </properties>
     
     <dependencies>
