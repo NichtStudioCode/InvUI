@@ -14,18 +14,30 @@ import static de.studiocode.invui.util.reflection.ReflectionRegistry.PLUGIN_CLAS
 
 public class InvUI implements Listener {
     
-    private static InvUI instance;
+    private static final Object LOCK = new Object();
+    private static volatile InvUI instance;
     
     private final List<Runnable> disableHandlers = new ArrayList<>();
     private final Plugin plugin;
     
-    public InvUI() {
+    private InvUI() {
         plugin = ReflectionUtils.getFieldValue(PLUGIN_CLASS_LOADER_PLUGIN_FIELD, getClass().getClassLoader());
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
     
     public static InvUI getInstance() {
-        return instance == null ? instance = new InvUI() : instance;
+        InvUI localRef = instance;
+        
+        if (localRef == null) {
+            synchronized (LOCK) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new InvUI();
+                }
+            }
+        }
+        
+        return localRef;
     }
     
     public Plugin getPlugin() {
