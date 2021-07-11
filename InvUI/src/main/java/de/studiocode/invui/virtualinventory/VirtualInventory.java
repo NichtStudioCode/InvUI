@@ -554,7 +554,7 @@ public class VirtualInventory implements ConfigurationSerializable {
             return simulateSingleAdd(itemStack) == 0;
         } else {
             ItemStack[] allStacks = Stream.concat(Stream.of(itemStack), Arrays.stream(itemStacks)).toArray(ItemStack[]::new);
-            return Arrays.stream(simulateMultiAdd(allStacks)).allMatch(i -> i == 0);
+            return Arrays.stream(simulateMultiAdd(Arrays.asList(allStacks))).allMatch(i -> i == 0);
         }
     }
     
