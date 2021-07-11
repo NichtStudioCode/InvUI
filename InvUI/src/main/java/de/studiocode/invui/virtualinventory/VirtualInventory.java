@@ -536,6 +536,8 @@ public class VirtualInventory implements ConfigurationSerializable {
      * The size of this array is always equal to the amount of {@link ItemStack}s provided as method parameters.
      */
     public int[] simulateAdd(@NotNull List<@NotNull ItemStack> itemStacks) {
+        if (itemStacks.isEmpty()) return new int[] {};
+        
         if (itemStacks.size() == 1) {
             return new int[] {simulateSingleAdd(itemStacks.get(0))};
         } else {
@@ -555,6 +557,22 @@ public class VirtualInventory implements ConfigurationSerializable {
         } else {
             ItemStack[] allStacks = Stream.concat(Stream.of(itemStack), Arrays.stream(itemStacks)).toArray(ItemStack[]::new);
             return Arrays.stream(simulateMultiAdd(Arrays.asList(allStacks))).allMatch(i -> i == 0);
+        }
+    }
+    
+    /**
+     * Simulates adding {@link ItemStack}s to this {@link VirtualInventory}
+     * and then returns if all {@link ItemStack}s would fit.
+     *
+     * @return If all provided {@link ItemStack}s would fit if added.
+     */
+    public boolean canHold(@NotNull List<@NotNull ItemStack> itemStacks) {
+        if (itemStacks.isEmpty()) return true;
+        
+        if (itemStacks.size() == 1) {
+            return simulateSingleAdd(itemStacks.get(0)) == 0;
+        } else {
+            return Arrays.stream(simulateMultiAdd(itemStacks)).allMatch(i -> i == 0);
         }
     }
     
