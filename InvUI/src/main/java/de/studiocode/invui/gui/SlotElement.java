@@ -1,6 +1,7 @@
 package de.studiocode.invui.gui;
 
 import de.studiocode.invui.item.Item;
+import de.studiocode.invui.item.ItemBuilder;
 import de.studiocode.invui.virtualinventory.VirtualInventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -13,7 +14,7 @@ public interface SlotElement {
     SlotElement getHoldingElement();
     
     /**
-     * Contains an Item
+     * Contains an {@link Item}
      */
     class ItemSlotElement implements SlotElement {
         
@@ -40,16 +41,24 @@ public interface SlotElement {
     }
     
     /**
-     * Links to a slot in a virtual inventory
+     * Links to a slot in a {@link VirtualInventory}
      */
     class VISlotElement implements SlotElement {
         
         private final VirtualInventory virtualInventory;
         private final int slot;
+        private final ItemBuilder background;
         
         public VISlotElement(VirtualInventory virtualInventory, int slot) {
             this.virtualInventory = virtualInventory;
             this.slot = slot;
+            this.background = null;
+        }
+        
+        public VISlotElement(VirtualInventory virtualInventory, int slot, ItemBuilder background) {
+            this.virtualInventory = virtualInventory;
+            this.slot = slot;
+            this.background = background;
         }
         
         public VirtualInventory getVirtualInventory() {
@@ -60,13 +69,15 @@ public interface SlotElement {
             return slot;
         }
         
-        public ItemStack getItemStack() {
-            return virtualInventory.getUnsafeItemStack(slot);
+        public ItemBuilder getBackground() {
+            return background;
         }
         
         @Override
         public ItemStack getItemStack(UUID viewerUUID) {
-            return getItemStack();
+            ItemStack itemStack = virtualInventory.getUnsafeItemStack(slot);
+            if (itemStack == null && background != null) itemStack = background.buildFor(viewerUUID);
+            return itemStack;
         }
         
         @Override
@@ -77,7 +88,7 @@ public interface SlotElement {
     }
     
     /**
-     * Links to a slot in another GUI
+     * Links to a slot in another {@link GUI}
      */
     class LinkedSlotElement implements SlotElement {
         

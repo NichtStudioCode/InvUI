@@ -11,6 +11,7 @@ import de.studiocode.invui.gui.structure.Structure;
 import de.studiocode.invui.item.Item;
 import de.studiocode.invui.item.ItemBuilder;
 import de.studiocode.invui.util.ArrayUtils;
+import de.studiocode.invui.util.InventoryUtils;
 import de.studiocode.invui.util.SlotUtils;
 import de.studiocode.invui.virtualinventory.VirtualInventory;
 import de.studiocode.invui.virtualinventory.event.ItemUpdateEvent;
@@ -23,8 +24,11 @@ import de.studiocode.invui.window.impl.merged.split.SplitWindow;
 import de.studiocode.invui.window.impl.single.SingleWindow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -73,112 +77,143 @@ public abstract class BaseGUI implements GUI {
         } else event.setCancelled(true); // Only VISlotElements have allowed interactions
     }
     
-    @SuppressWarnings("deprecation")
     private void handleVISlotElementClick(VISlotElement element, InventoryClickEvent event) {
-        VirtualInventory virtualInventory = element.getVirtualInventory();
-        int slot = element.getSlot();
-        
-        Player player = (Player) event.getWhoClicked();
-        ItemStack cursor = event.getCursor();
-        ItemStack clicked = event.getCurrentItem();
+        // these actions are ignored as they don't modify the inventory
+        InventoryAction action = event.getAction();
+        if (action != InventoryAction.CLONE_STACK
+            && action != InventoryAction.DROP_ALL_CURSOR
+            && action != InventoryAction.DROP_ONE_CURSOR
+        ) {
+            event.setCancelled(true);
+            
+            VirtualInventory inventory = element.getVirtualInventory();
+            int slot = element.getSlot();
+            
+            Player player = (Player) event.getWhoClicked();
+            
+            ItemStack cursor = event.getCursor();
+            if (cursor != null && cursor.getType().isAir()) cursor = null;
+            
+            ItemStack clicked = event.getCurrentItem();
+            if (clicked != null && clicked.getType().isAir()) clicked = null;
+            
+            ItemStack technicallyClicked = inventory.getItemStack(slot);
+            if (inventory.isSynced(slot, clicked) || didClickBackgroundItem(player, element, inventory, slot, clicked)) {
+                
+                switch (event.getClick()) {
+                    case LEFT:
+                        handleVILeftClick(event, inventory, slot, player, technicallyClicked, cursor);
+                        break;
+                    case RIGHT:
+                        handleVIRightClick(event, inventory, slot, player, technicallyClicked, cursor);
+                        break;
+                    case SHIFT_RIGHT:
+                    case SHIFT_LEFT:
+                        handleVIItemShift(event, inventory, slot, player, technicallyClicked);
+                        break;
+                    case NUMBER_KEY:
+                        handleVINumberKey(event, inventory, slot, player, technicallyClicked);
+                        break;
+                    case SWAP_OFFHAND:
+                        handleVIOffHandKey(event, inventory, slot, player, technicallyClicked);
+                        break;
+                    case DROP:
+                        handleVIDrop(false, event, inventory, slot, player, technicallyClicked);
+                        break;
+                    case CONTROL_DROP:
+                        handleVIDrop(true, event, inventory, slot, player, technicallyClicked);
+                        break;
+                    case DOUBLE_CLICK:
+                        handleVIDoubleClick(event, inventory, player, cursor);
+                        break;
+                }
+            }
+        }
+    }
+    
+    private boolean didClickBackgroundItem(Player player, VISlotElement element, VirtualInventory inventory, int slot, ItemStack clicked) {
+        UUID uuid = player.getUniqueId();
+        return inventory.getUnsafeItemStack(slot) == null
+            && (isBuilderSimilar(background, uuid, clicked) || isBuilderSimilar(element.getBackground(), uuid, clicked));
+    }
+    
+    private boolean isBuilderSimilar(ItemBuilder builder, UUID uuid, ItemStack expected) {
+        return builder != null && builder.buildFor(uuid).isSimilar(expected);
+    }
+    
+    @SuppressWarnings("deprecation")
+    private void handleVILeftClick(InventoryClickEvent event, VirtualInventory inventory, int slot, Player player, ItemStack clicked, ItemStack cursor) {
+        // nothing happens if both cursor and clicked stack are empty
+        if (clicked == null && cursor == null) return;
         
         UpdateReason updateReason = new PlayerUpdateReason(player, event);
         
-        if (virtualInventory.isSynced(slot, clicked)) {
-            boolean cancel = false;
-            
-            switch (event.getAction()) {
-                
-                case CLONE_STACK:
-                case DROP_ALL_CURSOR:
-                case DROP_ONE_CURSOR:
-                    // empty, this does not affect anything
-                    break;
-                
-                case DROP_ONE_SLOT:
-                case PICKUP_ONE:
-                    cancel = virtualInventory.addItemAmount(updateReason, slot, -1) != -1;
-                    break;
-                
-                case DROP_ALL_SLOT:
-                case PICKUP_ALL:
-                    cancel = !virtualInventory.setItemStack(updateReason, slot, null);
-                    // set null
-                    break;
-                
-                case PICKUP_HALF:
-                    int amount = virtualInventory.getAmount(slot);
-                    int halfAmount = amount / 2;
-                    int newAmount = virtualInventory.setItemAmount(updateReason, slot, halfAmount);
-                    
-                    // amount did not change as predicted
-                    if (newAmount != halfAmount) {
-                        cancel = true;
-                        
-                        // action wasn't completely cancelled
-                        if (newAmount != amount) {
-                            int cursorAmount = amount - newAmount;
-                            cancel = true;
-                            ItemStack newCursorStack = clicked.clone();
-                            newCursorStack.setAmount(cursorAmount);
-                            event.setCursor(newCursorStack);
-                        }
-                    }
-                    
-                    break;
-                
-                case PLACE_SOME:
-                case PLACE_ALL:
-                    int amountLeft = virtualInventory.putItemStack(updateReason, slot, cursor);
-                    if (amountLeft > 0) {
-                        cancel = true;
-                        if (amountLeft != cursor.getAmount())
-                            cursor.setAmount(amountLeft);
-                    }
-                    break;
-                
-                case PLACE_ONE:
-                    ItemStack itemStack = cursor.clone();
-                    itemStack.setAmount(1);
-                    cancel = virtualInventory.putItemStack(updateReason, slot, itemStack) != 0;
-                    break;
-                
-                case SWAP_WITH_CURSOR:
-                    cancel = !virtualInventory.setItemStack(updateReason, slot, event.getCursor());
-                    break;
-                
-                case COLLECT_TO_CURSOR:
-                    cancel = true;
-                    ItemStack newCursorStack = cursor.clone();
-                    newCursorStack.setAmount(virtualInventory.collectToCursor(updateReason, newCursorStack));
-                    event.setCursor(newCursorStack);
-                    break;
-                
-                case MOVE_TO_OTHER_INVENTORY:
-                    cancel = true;
-                    handleMoveToOtherInventory(player, event, virtualInventory, slot, updateReason);
-                    break;
-                
-                case HOTBAR_MOVE_AND_READD:
-                case HOTBAR_SWAP:
-                    cancel = handleHotbarSwap(player, event, virtualInventory, slot, updateReason);
-                    break;
-                
-                default:
-                    // action not supported
-                    cancel = true;
-                    break;
+        if (cursor == null) {
+            // if the cursor is empty, pick the stack up
+            if (inventory.setItemStack(updateReason, slot, null))
+                event.setCursor(clicked);
+        } else if (clicked == null) {
+            // if the clicked slot is empty, place the item on the cursor there
+            if (inventory.setItemStack(updateReason, slot, cursor))
+                event.setCursor(null);
+        } else if (cursor.isSimilar(clicked)) {
+            // if the items on the cursor are similar to the clicked ones, add them to the stack
+            int cursorAmount = cursor.getAmount();
+            int added = inventory.addItemAmount(updateReason, slot, cursorAmount);
+            if (added != 0) {
+                if (added == cursorAmount) {
+                    event.setCursor(null);
+                } else {
+                    cursor.setAmount(cursorAmount - added);
+                    event.setCursor(cursor);
+                }
             }
-            
-            event.setCancelled(cancel);
-        } else event.setCancelled(true);
+        } else if (!cursor.isSimilar(clicked)) {
+            // if the stacks are not similar, swap them
+            if (inventory.setItemStack(updateReason, slot, cursor))
+                event.setCursor(clicked);
+        }
     }
     
-    private void handleMoveToOtherInventory(Player player, InventoryClickEvent event, VirtualInventory inventory, int slot, UpdateReason reason) {
-        Window window = WindowManager.getInstance().findOpenWindow(player).orElse(null);
+    @SuppressWarnings("deprecation")
+    private void handleVIRightClick(InventoryClickEvent event, VirtualInventory inventory, int slot, Player player, ItemStack clicked, ItemStack cursor) {
+        // nothing happens if both cursor and clicked stack are empty
+        if (clicked == null && cursor == null) return;
         
-        ItemStack invStack = inventory.getItemStack(slot);
-        ItemUpdateEvent updateEvent = inventory.callUpdateEvent(reason, slot, invStack, null);
+        UpdateReason updateReason = new PlayerUpdateReason(player, event);
+        
+        if (cursor == null) {
+            // if the cursor is empty, split the stack to the cursor
+            // if the stack is not divisible by 2, give the cursor the bigger part
+            int clickedAmount = clicked.getAmount();
+            int newClickedAmount = clickedAmount / 2;
+            int newCursorAmount = clickedAmount - newClickedAmount;
+            
+            cursor = clicked.clone();
+            
+            clicked.setAmount(newClickedAmount);
+            cursor.setAmount(newCursorAmount);
+            
+            if (inventory.setItemStack(updateReason, slot, clicked))
+                event.setCursor(cursor);
+        } else {
+            // put one item from the cursor in the inventory
+            ItemStack toAdd = cursor.clone();
+            toAdd.setAmount(1);
+            int remains = inventory.putItemStack(updateReason, slot, toAdd);
+            if (remains == 0) {
+                cursor.setAmount(cursor.getAmount() - 1);
+                event.setCursor(cursor);
+            }
+        }
+    }
+    
+    private void handleVIItemShift(InventoryClickEvent event, VirtualInventory inventory, int slot, Player player, ItemStack clicked) {
+        if (clicked == null) return;
+        
+        UpdateReason updateReason = new PlayerUpdateReason(player, event);
+        Window window = WindowManager.getInstance().findOpenWindow(player).orElse(null);
+        ItemUpdateEvent updateEvent = inventory.callUpdateEvent(updateReason, slot, clicked, null);
         
         if (!updateEvent.isCancelled()) {
             int leftOverAmount;
@@ -192,29 +227,71 @@ public abstract class BaseGUI implements GUI {
                     otherGui = this;
                 }
                 
-                leftOverAmount = ((BaseGUI) otherGui).putIntoVirtualInventories(reason, invStack, inventory);
+                leftOverAmount = ((BaseGUI) otherGui).putIntoVirtualInventories(updateReason, clicked, inventory);
             } else {
                 leftOverAmount = 0;
                 HashMap<Integer, ItemStack> leftover = event.getWhoClicked().getInventory().addItem(inventory.getItemStack(slot));
                 if (!leftover.isEmpty()) leftOverAmount = leftover.get(0).getAmount();
             }
             
-            invStack.setAmount(leftOverAmount);
-            inventory.setItemStackSilently(slot, invStack);
+            clicked.setAmount(leftOverAmount);
+            inventory.setItemStackSilently(slot, clicked);
         }
     }
     
-    private boolean handleHotbarSwap(Player player, InventoryClickEvent event, VirtualInventory inventory, int slot, UpdateReason reason) {
+    // TODO: add support for merged windows
+    private void handleVINumberKey(InventoryClickEvent event, VirtualInventory inventory, int slot, Player player, ItemStack clicked) {
         Window window = WindowManager.getInstance().findOpenWindow(player).orElse(null);
         if (window instanceof SingleWindow) {
+            Inventory playerInventory = player.getInventory();
             int hotbarButton = event.getHotbarButton();
-            ItemStack hotbarItem = player.getInventory().getItem(hotbarButton);
+            ItemStack hotbarItem = playerInventory.getItem(hotbarButton);
             if (hotbarItem != null) hotbarItem = hotbarItem.clone();
             
-            return !inventory.setItemStack(reason, slot, hotbarItem);
-        } // TODO: add support for merged windows
+            UpdateReason updateReason = new PlayerUpdateReason(player, event);
+            
+            if (inventory.setItemStack(updateReason, slot, hotbarItem))
+                playerInventory.setItem(hotbarButton, clicked);
+        }
+    }
+    
+    // TODO: add support for merged windows
+    private void handleVIOffHandKey(InventoryClickEvent event, VirtualInventory inventory, int slot, Player player, ItemStack clicked) {
+        Window window = WindowManager.getInstance().findOpenWindow(player).orElse(null);
+        if (window instanceof SingleWindow) {
+            PlayerInventory playerInventory = player.getInventory();
+            ItemStack offhandItem = playerInventory.getItemInOffHand();
+            
+            UpdateReason updateReason = new PlayerUpdateReason(player, event);
+            
+            if (inventory.setItemStack(updateReason, slot, offhandItem))
+                playerInventory.setItemInOffHand(clicked);
+        }
+    }
+    
+    private void handleVIDrop(boolean ctrl, InventoryClickEvent event, VirtualInventory inventory, int slot, Player player, ItemStack clicked) {
+        if (clicked == null) return;
         
-        return true;
+        UpdateReason updateReason = new PlayerUpdateReason(player, event);
+        
+        if (ctrl) {
+            if (inventory.setItemStack(updateReason, slot, null)) {
+                InventoryUtils.dropItemLikePlayer(player, clicked);
+            }
+        } else if (inventory.addItemAmount(updateReason, slot, -1) == -1) {
+            clicked.setAmount(1);
+            InventoryUtils.dropItemLikePlayer(player, clicked);
+        }
+        
+    }
+    
+    @SuppressWarnings("deprecation")
+    private void handleVIDoubleClick(InventoryClickEvent event, VirtualInventory inventory, Player player, ItemStack cursor) {
+        if (cursor == null) return;
+        
+        UpdateReason updateReason = new PlayerUpdateReason(player, event);
+        cursor.setAmount(inventory.collectToCursor(updateReason, cursor));
+        event.setCursor(cursor);
     }
     
     @Override
@@ -586,13 +663,18 @@ public abstract class BaseGUI implements GUI {
     
     @Override
     public void fillRectangle(int x, int y, int width, @NotNull VirtualInventory virtualInventory, boolean replaceExisting) {
+        fillRectangle(x, y, width, virtualInventory, null, replaceExisting);
+    }
+    
+    @Override
+    public void fillRectangle(int x, int y, int width, @NotNull VirtualInventory virtualInventory, @Nullable ItemBuilder background, boolean replaceExisting) {
         int height = (int) Math.ceil((double) virtualInventory.getSize() / (double) width);
         
         int slotIndex = 0;
         for (int slot : SlotUtils.getSlotsRect(x, y, width, height, this.width)) {
             if (slotIndex >= virtualInventory.getSize()) return;
             if (hasSlotElement(slot) && !replaceExisting) continue;
-            setSlotElement(slot, new VISlotElement(virtualInventory, slotIndex));
+            setSlotElement(slot, new VISlotElement(virtualInventory, slotIndex, background));
             slotIndex++;
         }
     }

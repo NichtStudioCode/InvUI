@@ -369,4 +369,16 @@ public interface GUI extends GUIParent {
      */
     void fillRectangle(int x, int y, int width, @NotNull VirtualInventory virtualInventory, boolean replaceExisting);
     
+    /**
+     * Fills a rectangle of a {@link VirtualInventory} in this {@link GUI}.
+     *
+     * @param x                The x coordinate where the rectangle should start
+     * @param y                The y coordinate where the rectangle should start
+     * @param width            The line length of the rectangle. (VirtualInventory does not define a width)
+     * @param virtualInventory The {@link VirtualInventory} to be put into this {@link GUI}.
+     * @param background       The {@link ItemBuilder} for empty slots of the {@link VirtualInventory}
+     * @param replaceExisting  If existing {@link SlotElement}s should be replaced.
+     */
+    void fillRectangle(int x, int y, int width, @NotNull VirtualInventory virtualInventory, @Nullable ItemBuilder background, boolean replaceExisting);
+    
 }

@@ -19,7 +19,7 @@ public class InvUI implements Listener {
     private final List<Runnable> disableHandlers = new ArrayList<>();
     private final Plugin plugin;
     
-    public InvUI() {
+    private InvUI() {
         plugin = ReflectionUtils.getFieldValue(PLUGIN_CLASS_LOADER_PLUGIN_FIELD, getClass().getClassLoader());
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }

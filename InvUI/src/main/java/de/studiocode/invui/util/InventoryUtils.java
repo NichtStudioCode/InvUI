@@ -2,6 +2,9 @@ package de.studiocode.invui.util;
 
 import de.studiocode.invui.gui.GUI;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -30,6 +33,14 @@ public class InventoryUtils {
         }
         
         return false;
+    }
+    
+    public static void dropItemLikePlayer(Player player, ItemStack itemStack) {
+        Location location = player.getLocation();
+        location.add(0, 1.5, 0); // not the eye location
+        Item item = location.getWorld().dropItem(location, itemStack);
+        item.setPickupDelay(40);
+        item.setVelocity(location.getDirection().multiply(0.35));
     }
     
 }

@@ -56,7 +56,7 @@ public abstract class BaseWindow implements Window {
     protected void redrawItem(int index, SlotElement element, boolean setItem) {
         // put ItemStack in inventory
         ItemStack itemStack;
-        if (element == null) {
+        if (element == null || (element instanceof VISlotElement && element.getItemStack(viewerUUID) == null)) {
             ItemBuilder background = getGuiAt(index).getFirst().getBackground();
             itemStack = background == null ? null : background.buildFor(viewerUUID);
         } else itemStack = element.getItemStack(viewerUUID);
