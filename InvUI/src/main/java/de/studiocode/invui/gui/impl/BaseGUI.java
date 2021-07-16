@@ -246,7 +246,7 @@ public abstract class BaseGUI implements GUI {
             Inventory playerInventory = player.getInventory();
             int hotbarButton = event.getHotbarButton();
             ItemStack hotbarItem = playerInventory.getItem(hotbarButton);
-            if (hotbarItem != null) hotbarItem = hotbarItem.clone();
+            if (hotbarItem != null && hotbarItem.getType().isAir()) hotbarItem = null;
             
             UpdateReason updateReason = new PlayerUpdateReason(player, event);
             
@@ -261,6 +261,7 @@ public abstract class BaseGUI implements GUI {
         if (window instanceof SingleWindow) {
             PlayerInventory playerInventory = player.getInventory();
             ItemStack offhandItem = playerInventory.getItemInOffHand();
+            if (offhandItem != null && offhandItem.getType().isAir()) offhandItem = null;
             
             UpdateReason updateReason = new PlayerUpdateReason(player, event);
             
