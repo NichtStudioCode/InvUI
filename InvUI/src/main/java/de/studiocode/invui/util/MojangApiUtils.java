@@ -6,6 +6,8 @@ import com.google.gson.JsonParser;
 import com.mojang.util.UUIDTypeAdapter;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URL;
 import java.util.UUID;
 
@@ -15,10 +17,9 @@ public class MojangApiUtils {
     private static final String NAME_AT_TIME_URL = "https://api.mojang.com/users/profiles/minecraft/%s?at=%s";
     
     public static String[] getSkinData(UUID uuid, boolean requestSignature) throws IOException {
-        String url = String.format(SKIN_DATA_URL, uuid, requestSignature);
-        String content = WebUtils.readWebsiteContent(new URL(url));
-        
-        JsonObject jsonObject = new JsonParser().parse(content).getAsJsonObject();
+        String url = String.format(SKIN_DATA_URL, uuid, !requestSignature);
+        Reader reader = new InputStreamReader(new URL(url).openConnection().getInputStream());
+        JsonObject jsonObject = new JsonParser().parse(reader).getAsJsonObject();
         
         checkForError(jsonObject);
         if (jsonObject.has("properties")) {
@@ -38,9 +39,8 @@ public class MojangApiUtils {
     
     public static UUID getUuidAtTime(String name, long timestamp) throws IOException {
         String url = String.format(NAME_AT_TIME_URL, name, timestamp);
-        String content = WebUtils.readWebsiteContent(new URL(url));
-        
-        JsonObject jsonObject = new JsonParser().parse(content).getAsJsonObject();
+        Reader reader = new InputStreamReader(new URL(url).openConnection().getInputStream());
+        JsonObject jsonObject = new JsonParser().parse(reader).getAsJsonObject();
         
         checkForError(jsonObject);
         if (jsonObject.has("id")) {
