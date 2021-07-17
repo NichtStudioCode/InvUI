@@ -96,7 +96,7 @@ public class WindowManager implements Listener {
      */
     public Optional<Window> findOpenWindow(Player player) {
         return windows.stream()
-            .filter(w -> w.getCurrentViewer().equals(player))
+            .filter(w -> player.equals(w.getCurrentViewer()))
             .findFirst();
     }
     
