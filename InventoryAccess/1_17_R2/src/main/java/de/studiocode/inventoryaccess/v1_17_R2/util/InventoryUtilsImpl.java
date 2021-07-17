@@ -1,6 +1,6 @@
 package de.studiocode.inventoryaccess.v1_17_R2.util;
 
-import de.studiocode.inventoryaccess.api.abstraction.util.InventoryUtils;
+import de.studiocode.inventoryaccess.abstraction.util.InventoryUtils;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.minecraft.network.chat.Component;

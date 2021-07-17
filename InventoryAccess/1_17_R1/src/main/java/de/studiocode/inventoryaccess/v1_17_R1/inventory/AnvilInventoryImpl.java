@@ -1,6 +1,6 @@
 package de.studiocode.inventoryaccess.v1_17_R1.inventory;
 
-import de.studiocode.inventoryaccess.api.abstraction.inventory.AnvilInventory;
+import de.studiocode.inventoryaccess.abstraction.inventory.AnvilInventory;
 import de.studiocode.inventoryaccess.v1_17_R1.util.InventoryUtilsImpl;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.minecraft.core.BlockPos;

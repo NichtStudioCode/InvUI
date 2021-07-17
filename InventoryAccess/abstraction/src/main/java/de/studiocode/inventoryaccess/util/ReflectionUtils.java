@@ -1,13 +1,15 @@
-package de.studiocode.invui.util.reflection;
+package de.studiocode.inventoryaccess.util;
 
 import org.bukkit.Bukkit;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import static de.studiocode.invui.util.reflection.ReflectionRegistry.*;
+import static de.studiocode.inventoryaccess.util.ReflectionRegistry.*;
 
+@SuppressWarnings({"unchecked", "unused"})
 public class ReflectionUtils {
     
     protected static String getCB() {
@@ -16,41 +18,43 @@ public class ReflectionUtils {
         return "org.bukkit.craftbukkit." + version + ".";
     }
     
-    protected static String getNMS() {
-        String path = Bukkit.getServer().getClass().getPackage().getName();
-        String version = path.substring(path.lastIndexOf(".") + 1);
-        return "net.minecraft.server." + version + ".";
-    }
-    
-    protected static int getVersion() {
+    protected static int getVersionNumber() {
         String version = Bukkit.getVersion();
         version = version.substring(version.indexOf("MC: "), version.length() - 1).substring(4);
         return Integer.parseInt(version.split("\\.")[1]);
     }
     
-    public static Class<?> getBukkitClass(String path) {
-        try {
-            return Class.forName(BUKKIT_PACKAGE_PATH + path);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+    protected static String getInventoryAccessVersion() {
+        String version = Bukkit.getVersion();
+        version = version.substring(version.indexOf("MC: "), version.length() - 1).substring(4);
         
-        return null;
+        if (version.equals("1.17.1")) {
+            return "v1_17_R2"; // TODO: find a better solution
+        } else {
+            String path = Bukkit.getServer().getClass().getPackage().getName();
+            return path.substring(path.lastIndexOf(".") + 1);
+        }
     }
     
-    public static Class<?> getNMSClass(String path) {
+    public static <T> Class<T> getImplClass(String path) {
         try {
-            return Class.forName(NET_MINECRAFT_SERVER_PACKAGE_PATH + path);
+            return (Class<T>) Class.forName("de.studiocode.inventoryaccess." + INV_ACCESS_VERSION + "." + path);
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            throw new UnsupportedOperationException("Your version (" + INV_ACCESS_VERSION + ") is not supported by InventoryAccess");
         }
-        
-        return null;
     }
     
-    public static Class<?> getCBClass(String path) {
+    public static <T> Class<T> getBukkitClass(String path) {
+        return getClass(BUKKIT_PACKAGE_PATH + path);
+    }
+    
+    public static <T> Class<T> getCBClass(String path) {
+        return getClass(CRAFT_BUKKIT_PACKAGE_PATH + path);
+    }
+    
+    public static <T> Class<T> getClass(String path) {
         try {
-            return Class.forName(CRAFT_BUKKIT_PACKAGE_PATH + path);
+            return (Class<T>) Class.forName(path);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -70,10 +74,30 @@ public class ReflectionUtils {
         return null;
     }
     
-    public static Constructor<?> getConstructor(Class<?> clazz, boolean declared, Class<?> parameterTypes) {
+    public static <T> Constructor<T> getConstructor(Class<T> clazz, boolean declared, Class<?>... parameterTypes) {
         try {
             return declared ? clazz.getDeclaredConstructor(parameterTypes) : clazz.getConstructor(parameterTypes);
         } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        
+        return null;
+    }
+    
+    public static <T> T constructEmpty(Class<?> clazz) {
+        try {
+            return (T) clazz.getConstructor().newInstance();
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
+        }
+        
+        return null;
+    }
+    
+    public static <T> T construct(Constructor<T> constructor, Object... args) {
+        try {
+            return constructor.newInstance(args);
+        } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
         
@@ -84,6 +108,16 @@ public class ReflectionUtils {
         try {
             return declared ? clazz.getDeclaredMethod(name, parameterTypes) : clazz.getMethod(name, parameterTypes);
         } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        
+        return null;
+    }
+    
+    public static <T> T invokeMethod(Method method, Object obj, Object... args) {
+        try {
+            return (T) method.invoke(obj, args);
+        } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
         

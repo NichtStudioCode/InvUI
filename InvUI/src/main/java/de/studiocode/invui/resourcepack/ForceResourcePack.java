@@ -1,7 +1,7 @@
 package de.studiocode.invui.resourcepack;
 
+import de.studiocode.inventoryaccess.util.ReflectionRegistry;
 import de.studiocode.invui.InvUI;
-import de.studiocode.invui.util.reflection.ReflectionRegistry;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

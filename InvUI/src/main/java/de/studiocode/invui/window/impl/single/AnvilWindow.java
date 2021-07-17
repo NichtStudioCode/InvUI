@@ -1,7 +1,7 @@
 package de.studiocode.invui.window.impl.single;
 
-import de.studiocode.inventoryaccess.api.abstraction.inventory.AnvilInventory;
-import de.studiocode.inventoryaccess.api.version.InventoryAccess;
+import de.studiocode.inventoryaccess.abstraction.inventory.AnvilInventory;
+import de.studiocode.inventoryaccess.version.InventoryAccess;
 import de.studiocode.invui.gui.GUI;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;

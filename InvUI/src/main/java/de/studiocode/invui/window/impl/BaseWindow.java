@@ -1,6 +1,6 @@
 package de.studiocode.invui.window.impl;
 
-import de.studiocode.inventoryaccess.api.version.InventoryAccess;
+import de.studiocode.inventoryaccess.version.InventoryAccess;
 import de.studiocode.invui.InvUI;
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement;

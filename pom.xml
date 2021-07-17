@@ -36,8 +36,8 @@
         <module>InventoryAccess/1_16_R3</module>
         <module>InventoryAccess/1_17_R1</module>
         <module>InventoryAccess/1_17_R2</module>
-        <module>InventoryAccess/api</module>
         <module>InvUI</module>
+        <module>InventoryAccess/abstraction</module>
     </modules>
 
     <build>

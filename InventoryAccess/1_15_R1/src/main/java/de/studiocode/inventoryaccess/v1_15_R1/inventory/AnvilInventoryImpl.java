@@ -1,7 +1,7 @@
 package de.studiocode.inventoryaccess.v1_15_R1.inventory;
 
-import de.studiocode.inventoryaccess.api.abstraction.inventory.AnvilInventory;
-import de.studiocode.inventoryaccess.api.version.ReflectionUtils;
+import de.studiocode.inventoryaccess.abstraction.inventory.AnvilInventory;
+import de.studiocode.inventoryaccess.util.ReflectionUtils;
 import de.studiocode.inventoryaccess.v1_15_R1.util.InventoryUtilsImpl;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.minecraft.server.v1_15_R1.*;
@@ -46,9 +46,9 @@ public class AnvilInventoryImpl extends ContainerAnvil implements AnvilInventory
         this.renameHandler = renameHandler;
         this.player = player;
         
-        repairInventory = ReflectionUtils.getValueOfField(REPAIR_INVENTORY_FIELD, this);
-        resultInventory = ReflectionUtils.getValueOfField(RESULT_INVENTORY_FIELD, this);
-        ContainerAccess containerAccess = ReflectionUtils.getValueOfField(CONTAINER_ACCESS_FIELD, this);
+        repairInventory = ReflectionUtils.getFieldValue(REPAIR_INVENTORY_FIELD, this);
+        resultInventory = ReflectionUtils.getFieldValue(RESULT_INVENTORY_FIELD, this);
+        ContainerAccess containerAccess = ReflectionUtils.getFieldValue(CONTAINER_ACCESS_FIELD, this);
         
         CraftInventoryAnvil inventory = new CraftInventoryAnvil(containerAccess.getLocation(),
             repairInventory, resultInventory, this);

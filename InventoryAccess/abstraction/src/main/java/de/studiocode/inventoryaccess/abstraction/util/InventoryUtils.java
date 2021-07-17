@@ -1,4 +1,4 @@
-package de.studiocode.inventoryaccess.api.abstraction.util;
+package de.studiocode.inventoryaccess.abstraction.util;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.entity.Player;

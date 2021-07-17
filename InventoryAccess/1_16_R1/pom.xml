@@ -26,7 +26,7 @@
         </dependency>
         <dependency>
             <groupId>de.studiocode.invui</groupId>
-            <artifactId>api</artifactId>
+            <artifactId>abstraction</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>

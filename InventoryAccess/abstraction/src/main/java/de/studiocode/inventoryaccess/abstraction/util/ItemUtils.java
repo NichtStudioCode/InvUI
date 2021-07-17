@@ -1,4 +1,4 @@
-package de.studiocode.inventoryaccess.api.abstraction.util;
+package de.studiocode.inventoryaccess.abstraction.util;
 
 import org.bukkit.inventory.ItemStack;
 

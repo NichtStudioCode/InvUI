@@ -1,7 +1,7 @@
 package de.studiocode.inventoryaccess.v1_16_R3.util;
 
-import de.studiocode.inventoryaccess.api.abstraction.util.ItemUtils;
-import de.studiocode.inventoryaccess.api.version.ReflectionUtils;
+import de.studiocode.inventoryaccess.abstraction.util.ItemUtils;
+import de.studiocode.inventoryaccess.util.ReflectionUtils;
 import net.minecraft.server.v1_16_R3.ItemStack;
 import net.minecraft.server.v1_16_R3.NBTCompressedStreamTools;
 import net.minecraft.server.v1_16_R3.NBTTagCompound;

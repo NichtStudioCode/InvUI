@@ -1,6 +1,6 @@
 package de.studiocode.invui;
 
-import de.studiocode.invui.util.reflection.ReflectionUtils;
+import de.studiocode.inventoryaccess.util.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -10,7 +10,7 @@ import org.bukkit.plugin.Plugin;
 import java.util.ArrayList;
 import java.util.List;
 
-import static de.studiocode.invui.util.reflection.ReflectionRegistry.PLUGIN_CLASS_LOADER_PLUGIN_FIELD;
+import static de.studiocode.inventoryaccess.util.ReflectionRegistry.PLUGIN_CLASS_LOADER_PLUGIN_FIELD;
 
 public class InvUI implements Listener {
     

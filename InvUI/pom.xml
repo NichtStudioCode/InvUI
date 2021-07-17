@@ -45,7 +45,7 @@
         </dependency>
         <dependency>
             <groupId>de.studiocode.invui</groupId>
-            <artifactId>api</artifactId>
+            <artifactId>abstraction</artifactId>
             <version>0.1-SNAPSHOT</version>
         </dependency>
         <dependency>

@@ -1,8 +1,9 @@
-package de.studiocode.inventoryaccess.api.version;
+package de.studiocode.inventoryaccess.version;
 
-import de.studiocode.inventoryaccess.api.abstraction.inventory.AnvilInventory;
-import de.studiocode.inventoryaccess.api.abstraction.util.InventoryUtils;
-import de.studiocode.inventoryaccess.api.abstraction.util.ItemUtils;
+import de.studiocode.inventoryaccess.abstraction.inventory.AnvilInventory;
+import de.studiocode.inventoryaccess.abstraction.util.InventoryUtils;
+import de.studiocode.inventoryaccess.abstraction.util.ItemUtils;
+import de.studiocode.inventoryaccess.util.ReflectionUtils;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.entity.Player;
 
@@ -16,7 +17,7 @@ public class InventoryAccess {
     private static final Class<AnvilInventory> ANVIL_INVENTORY_CLASS = ReflectionUtils.getImplClass("inventory.AnvilInventoryImpl");
     
     private static final Constructor<AnvilInventory> ANVIL_INVENTORY_CONSTRUCTOR
-        = ReflectionUtils.getConstructor(ANVIL_INVENTORY_CLASS, Player.class, BaseComponent[].class, Consumer.class);
+        = ReflectionUtils.getConstructor(ANVIL_INVENTORY_CLASS, false, Player.class, BaseComponent[].class, Consumer.class);
     
     private static final InventoryUtils INVENTORY_UTILS = ReflectionUtils.constructEmpty(INVENTORY_UTILS_CLASS);
     private static final ItemUtils ITEM_UTILS = ReflectionUtils.constructEmpty(ITEM_UTILS_CLASS);
