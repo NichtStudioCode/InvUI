@@ -152,21 +152,14 @@ public abstract class BaseGUI implements GUI {
             // if the cursor is empty, pick the stack up
             if (inventory.setItemStack(updateReason, slot, null))
                 event.setCursor(clicked);
-        } else if (clicked == null) {
-            // if the clicked slot is empty, place the item on the cursor there
-            if (inventory.setItemStack(updateReason, slot, cursor))
+        } else if (clicked == null || cursor.isSimilar(clicked)) {
+            // if there are no items or they're similar to the cursor, add the cursor items to the stack
+            int remains = inventory.putItemStack(updateReason, slot, cursor);
+            if (remains == 0) {
                 event.setCursor(null);
-        } else if (cursor.isSimilar(clicked)) {
-            // if the items on the cursor are similar to the clicked ones, add them to the stack
-            int cursorAmount = cursor.getAmount();
-            int added = inventory.addItemAmount(updateReason, slot, cursorAmount);
-            if (added != 0) {
-                if (added == cursorAmount) {
-                    event.setCursor(null);
-                } else {
-                    cursor.setAmount(cursorAmount - added);
-                    event.setCursor(cursor);
-                }
+            } else {
+                cursor.setAmount(remains);
+                event.setCursor(cursor);
             }
         } else if (!cursor.isSimilar(clicked)) {
             // if the stacks are not similar, swap them
