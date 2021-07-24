@@ -220,7 +220,7 @@ public abstract class BaseGUI implements GUI {
                     otherGui = this;
                 }
                 
-                leftOverAmount = ((BaseGUI) otherGui).putIntoVirtualInventories(updateReason, clicked, inventory);
+                leftOverAmount = ((BaseGUI) otherGui).putIntoFirstVirtualInventory(updateReason, clicked, inventory);
             } else {
                 leftOverAmount = 0;
                 HashMap<Integer, ItemStack> leftover = event.getWhoClicked().getInventory().addItem(inventory.getItemStack(slot));
@@ -315,31 +315,26 @@ public abstract class BaseGUI implements GUI {
         
         UpdateReason updateReason = new PlayerUpdateReason(player, event);
         
-        int amountLeft = putIntoVirtualInventories(updateReason, clicked);
+        int amountLeft = putIntoFirstVirtualInventory(updateReason, clicked);
         if (amountLeft != clicked.getAmount()) {
             if (amountLeft != 0) event.getCurrentItem().setAmount(amountLeft);
             else event.getClickedInventory().setItem(event.getSlot(), null);
         }
     }
     
-    private int putIntoVirtualInventories(UpdateReason updateReason, ItemStack itemStack, VirtualInventory... ignored) {
-        if (itemStack.getAmount() <= 0) throw new IllegalArgumentException("Illegal ItemStack amount");
+    private int putIntoFirstVirtualInventory(UpdateReason updateReason, ItemStack itemStack, VirtualInventory... ignored) {
+        List<VirtualInventory> inventories = getAllVirtualInventories(ignored);
+        int originalAmount = itemStack.getAmount();
         
-        List<VirtualInventory> virtualInventories = getAllVirtualInventories(ignored);
-        if (virtualInventories.size() > 0) {
-            int amountLeft = itemStack.getAmount();
-            for (VirtualInventory virtualInventory : virtualInventories) {
-                ItemStack toAdd = itemStack.clone();
-                toAdd.setAmount(amountLeft);
-                amountLeft = virtualInventory.addItem(updateReason, toAdd);
-                
-                if (amountLeft == 0) break;
+        if (inventories.size() > 0) {
+            for (VirtualInventory inventory : inventories) {
+                int amountLeft = inventory.addItem(updateReason, itemStack);
+                if (originalAmount != amountLeft)
+                    return amountLeft;
             }
-            
-            return amountLeft;
         }
         
-        return itemStack.getAmount();
+        return originalAmount;
     }
     
     private List<VirtualInventory> getAllVirtualInventories(VirtualInventory... ignored) {
