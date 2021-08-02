@@ -411,7 +411,8 @@ public class VirtualInventory implements ConfigurationSerializable {
                     items[slot] = newItemStack;
                     notifyWindows();
                     
-                    return itemStack.getAmount() - (newItemStack.getAmount() - currentAmount);
+                    int newAmount = newItemStack != null ? newItemStack.getAmount() : 0;
+                    return itemStack.getAmount() - (newAmount - currentAmount);
                 }
             }
         }
