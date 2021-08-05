@@ -121,7 +121,8 @@ public interface SlotElement {
         
         @Override
         public ItemStack getItemStack(UUID viewerUUID) {
-            return getHoldingElement().getItemStack(viewerUUID);
+            SlotElement holdingElement = getHoldingElement();
+            return holdingElement != null ? holdingElement.getItemStack(viewerUUID) : null;
         }
         
     }
