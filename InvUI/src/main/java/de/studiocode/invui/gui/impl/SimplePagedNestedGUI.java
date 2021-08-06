@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
- * A {@link PagedGUI} where every page is it's own {@link GUI}.
+ * A {@link PagedGUI} where every page is its own {@link GUI}.
  *
  * @see GUIBuilder
  * @see SimplePagedItemsGUI
@@ -39,6 +39,8 @@ public class SimplePagedNestedGUI extends PagedGUI {
     
     @Override
     protected List<SlotElement> getPageElements(int page) {
+        if (guis.size() <= page) return new ArrayList<>();
+        
         GUI gui = guis.get(page);
         int size = gui.getSize();
         
