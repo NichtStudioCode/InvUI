@@ -88,7 +88,7 @@ public class GUIBuilder {
     }
     
     public GUIBuilder setGUIs(@NotNull List<GUI> guis) {
-        if (guiType != PAGED_GUIs)
+        if (guiType != PAGED_GUIs && guiType != TAB)
             throw new UnsupportedOperationException("GUIs cannot be set in this gui type.");
         this.guis = guis;
         return this;
