@@ -182,18 +182,18 @@ public class ItemBuilder implements ItemProvider {
     }
     
     public ItemBuilder setDisplayName(String displayName) {
-        this.displayName = ComponentUtils.fromLegacyText(displayName);
+        this.displayName = ComponentUtils.withoutPreFormatting(displayName);
         return this;
     }
     
-    public ItemBuilder setDisplayName(BaseComponent[] displayName) {
-        this.displayName = displayName;
+    public ItemBuilder setDisplayName(BaseComponent... displayName) {
+        this.displayName = ComponentUtils.withoutPreFormatting(displayName);
         return this;
     }
     
     public ItemBuilder setLegacyLore(@NotNull List<String> lore) {
         this.lore = lore.stream()
-            .map(ComponentUtils::fromLegacyText)
+            .map(ComponentUtils::withoutPreFormatting)
             .collect(Collectors.toList());
         return this;
     }
@@ -207,14 +207,14 @@ public class ItemBuilder implements ItemProvider {
         if (lore == null) lore = new ArrayList<>();
         
         for (String line : lines)
-            lore.add(ComponentUtils.fromLegacyText(line));
+            lore.add(ComponentUtils.withoutPreFormatting(line));
         return this;
     }
     
     public ItemBuilder addLoreLines(@NotNull BaseComponent[]... lines) {
         if (lore == null) lore = new ArrayList<>();
         
-        lore.addAll(Arrays.asList(lines));
+        lore.addAll(Arrays.stream(lines).map(ComponentUtils::withoutPreFormatting).collect(Collectors.toList()));
         return this;
     }
     
