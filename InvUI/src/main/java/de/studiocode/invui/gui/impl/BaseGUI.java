@@ -1,6 +1,7 @@
 package de.studiocode.invui.gui.impl;
 
 import de.studiocode.invui.animation.Animation;
+import de.studiocode.invui.gui.Controllable;
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.GUIParent;
 import de.studiocode.invui.gui.SlotElement;
@@ -10,6 +11,7 @@ import de.studiocode.invui.gui.SlotElement.VISlotElement;
 import de.studiocode.invui.gui.structure.Structure;
 import de.studiocode.invui.item.Item;
 import de.studiocode.invui.item.ItemProvider;
+import de.studiocode.invui.item.impl.controlitem.ControlItem;
 import de.studiocode.invui.util.ArrayUtils;
 import de.studiocode.invui.util.InventoryUtils;
 import de.studiocode.invui.util.SlotUtils;
@@ -36,7 +38,7 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public abstract class BaseGUI implements GUI {
+public abstract class BaseGUI implements GUI, Controllable {
     
     private final int width;
     private final int height;
@@ -452,17 +454,35 @@ public abstract class BaseGUI implements GUI {
     }
     
     @Override
+    public void updateControlItems() {
+        for (SlotElement element : slotElements) {
+            if (element instanceof ItemSlotElement) {
+                Item item = ((ItemSlotElement) element).getItem();
+                if (item instanceof ControlItem<?>)
+                    item.notifyWindows();
+            }
+        }
+    }
+    
+    @Override
     public void setSlotElement(int index, SlotElement slotElement) {
         SlotElement oldElement = slotElements[index];
-        GUI oldLink = oldElement instanceof LinkedSlotElement ? ((LinkedSlotElement) oldElement).getGui() : null;
         
         // set new SlotElement on index
         slotElements[index] = slotElement;
         
-        GUI newLink = slotElement instanceof LinkedSlotElement ? ((LinkedSlotElement) slotElement).getGui() : null;
+        // set the gui if it is a ControlItem
+        if (slotElement instanceof ItemSlotElement) {
+            Item item = ((ItemSlotElement) slotElement).getItem();
+            if (item instanceof ControlItem<?>)
+                ((ControlItem<?>) item).setGui(this);
+        }
         
         // notify parents that a SlotElement has been changed
         parents.forEach(parent -> parent.handleSlotElementUpdate(this, index));
+        
+        GUI oldLink = oldElement instanceof LinkedSlotElement ? ((LinkedSlotElement) oldElement).getGui() : null;
+        GUI newLink = slotElement instanceof LinkedSlotElement ? ((LinkedSlotElement) slotElement).getGui() : null;
         
         // if newLink is the same as oldLink, there isn't anything to be done
         if (newLink == oldLink) return;

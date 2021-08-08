@@ -1,16 +1,11 @@
 package de.studiocode.invui.gui.impl;
 
-import de.studiocode.invui.gui.Controllable;
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.gui.builder.GUIBuilder;
 import de.studiocode.invui.gui.structure.Marker;
 import de.studiocode.invui.gui.structure.Structure;
-import de.studiocode.invui.item.Item;
-import de.studiocode.invui.item.impl.controlitem.ControlItem;
-import de.studiocode.invui.item.impl.controlitem.PageItem;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,9 +15,8 @@ import java.util.List;
  * @see SimplePagedItemsGUI
  * @see SimplePagedNestedGUI
  */
-public abstract class PagedGUI extends BaseGUI implements Controllable {
+public abstract class PagedGUI extends BaseGUI {
     
-    private final List<Item> controlItems = new ArrayList<>();
     private final boolean infinitePages;
     private final int[] itemListSlots;
     protected int currentPage;
@@ -36,16 +30,6 @@ public abstract class PagedGUI extends BaseGUI implements Controllable {
     public PagedGUI(int width, int height, boolean infinitePages, Structure structure) {
         this(width, height, infinitePages, structure.createIngredientList().findIndicesOfMarker(Marker.ITEM_LIST_SLOT));
         applyStructure(structure);
-    }
-    
-    @Override
-    public void addControlItem(int index, ControlItem<?> controlItem) {
-        if (!(controlItem instanceof PageItem))
-            throw new IllegalArgumentException("controlItem is not an instance of PageItem");
-        
-        ((PageItem) controlItem).setGui(this);
-        setItem(index, controlItem);
-        controlItems.add(controlItem);
     }
     
     public void goForward() {
@@ -82,10 +66,6 @@ public abstract class PagedGUI extends BaseGUI implements Controllable {
         int pageAmount = getPageAmount();
         if (currentPage < 0) currentPage = 0;
         else if (currentPage >= pageAmount) currentPage = pageAmount - 1;
-    }
-    
-    private void updateControlItems() {
-        controlItems.forEach(Item::notifyWindows);
     }
     
     private void updatePageContent() {

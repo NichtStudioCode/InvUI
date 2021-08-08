@@ -1,16 +1,11 @@
 package de.studiocode.invui.gui.impl;
 
-import de.studiocode.invui.gui.Controllable;
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.gui.structure.Marker;
 import de.studiocode.invui.gui.structure.Structure;
-import de.studiocode.invui.item.Item;
-import de.studiocode.invui.item.impl.controlitem.ControlItem;
-import de.studiocode.invui.item.impl.controlitem.ScrollItem;
 import de.studiocode.invui.util.SlotUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,9 +13,8 @@ import java.util.List;
  *
  * @see SimpleScrollGUI
  */
-public abstract class ScrollGUI extends BaseGUI implements Controllable {
+public abstract class ScrollGUI extends BaseGUI {
     
-    private final List<Item> controlItems = new ArrayList<>();
     private final boolean infiniteLines;
     private final int lineLength;
     private final int[] itemListSlots;
@@ -44,16 +38,6 @@ public abstract class ScrollGUI extends BaseGUI implements Controllable {
     public ScrollGUI(int width, int height, boolean infiniteLines, Structure structure) {
         this(width, height, infiniteLines, structure.createIngredientList().findIndicesOfMarker(Marker.ITEM_LIST_SLOT));
         applyStructure(structure);
-    }
-    
-    @Override
-    public void addControlItem(int index, ControlItem<?> controlItem) {
-        if (!(controlItem instanceof ScrollItem))
-            throw new IllegalArgumentException("controlItem is not an instance of ScrollItem");
-    
-        ((ScrollItem) controlItem).setGui(this);
-        setItem(index, controlItem);
-        controlItems.add(controlItem);
     }
     
     public void setCurrentLine(int line) {
@@ -113,10 +97,6 @@ public abstract class ScrollGUI extends BaseGUI implements Controllable {
             int maxLineIndex = getMaxLineIndex();
             if (currentLine >= maxLineIndex) setCurrentLine(maxLineIndex);
         }
-    }
-    
-    private void updateControlItems() {
-        controlItems.forEach(Item::notifyWindows);
     }
     
     private void updateContent() {

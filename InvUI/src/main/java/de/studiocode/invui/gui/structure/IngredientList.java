@@ -1,11 +1,6 @@
 package de.studiocode.invui.gui.structure;
 
-import de.studiocode.invui.gui.Controllable;
 import de.studiocode.invui.gui.GUI;
-import de.studiocode.invui.gui.SlotElement;
-import de.studiocode.invui.gui.SlotElement.ItemSlotElement;
-import de.studiocode.invui.item.Item;
-import de.studiocode.invui.item.impl.controlitem.ControlItem;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,19 +22,8 @@ public class IngredientList extends ArrayList<Ingredient> {
         
         for (int i = 0; i < size(); i++) {
             Ingredient ingredient = get(i);
-            if (ingredient != null && ingredient.isSlotElement()) {
-                SlotElement slotElement = ingredient.getSlotElement();
-                
-                if (gui instanceof Controllable && slotElement instanceof ItemSlotElement) {
-                    Item item = ((ItemSlotElement) slotElement).getItem();
-                    if (item instanceof ControlItem) {
-                        ((Controllable) gui).addControlItem(i, (ControlItem<?>) item);
-                        continue;
-                    }
-                }
-                
+            if (ingredient != null && ingredient.isSlotElement())
                 gui.setSlotElement(i, ingredient.getSlotElement());
-            }
         }
     }
     
