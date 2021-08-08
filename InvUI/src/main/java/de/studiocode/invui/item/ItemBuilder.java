@@ -7,9 +7,12 @@ import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import de.studiocode.inventoryaccess.util.ReflectionRegistry;
 import de.studiocode.inventoryaccess.util.ReflectionUtils;
+import de.studiocode.inventoryaccess.version.InventoryAccess;
 import de.studiocode.invui.util.MojangApiUtils;
 import de.studiocode.invui.util.Pair;
 import de.studiocode.invui.window.impl.BaseWindow;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -25,6 +28,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class ItemBuilder implements ItemProvider {
     
@@ -33,10 +37,10 @@ public class ItemBuilder implements ItemProvider {
     protected int amount = 1;
     protected int damage;
     protected int customModelData;
-    protected String displayName;
-    protected List<String> lore = new ArrayList<>();
-    protected List<ItemFlag> itemFlags = new ArrayList<>();
-    protected HashMap<Enchantment, Pair<Integer, Boolean>> enchantments = new HashMap<>();
+    protected BaseComponent[] displayName;
+    protected List<BaseComponent[]> lore;
+    protected List<ItemFlag> itemFlags;
+    protected HashMap<Enchantment, Pair<Integer, Boolean>> enchantments;
     protected GameProfile gameProfile;
     
     /**
@@ -98,23 +102,43 @@ public class ItemBuilder implements ItemProvider {
         
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta != null) {
-            if (itemMeta instanceof Damageable) ((Damageable) itemMeta).setDamage(damage);
-            if (customModelData != 0) itemMeta.setCustomModelData(customModelData);
-            if (displayName != null) itemMeta.setDisplayName(displayName);
-            if (gameProfile != null) {
-                ReflectionUtils.setFieldValue(ReflectionRegistry.CB_CRAFT_META_SKULL_PROFILE_FIELD, itemMeta, gameProfile);
-            }
-            if (!enchantments.isEmpty()) {
+            // display name
+            if (displayName != null)
+                InventoryAccess.getItemUtils().setDisplayName(itemMeta, displayName);
+            
+            // lore
+            if (lore != null)
+                InventoryAccess.getItemUtils().setLore(itemMeta, lore);
+            
+            // damage
+            if (itemMeta instanceof Damageable)
+                ((Damageable) itemMeta).setDamage(damage);
+            
+            // custom model data
+            if (customModelData != 0)
+                itemMeta.setCustomModelData(customModelData);
+            
+            // enchantments
+            if (enchantments != null) {
                 if (base != null)
                     itemMeta.getEnchants().forEach((enchantment, level) -> itemMeta.removeEnchant(enchantment));
+                
                 enchantments.forEach((enchantment, pair) -> itemMeta.addEnchant(enchantment, pair.getFirst(), pair.getSecond()));
             }
-            if (!itemFlags.isEmpty()) {
-                if (base != null) itemMeta.removeItemFlags(itemMeta.getItemFlags().toArray(new ItemFlag[0]));
+            
+            // item flags
+            if (itemFlags != null) {
+                if (base != null)
+                    itemMeta.removeItemFlags(itemMeta.getItemFlags().toArray(new ItemFlag[0]));
+                
                 itemMeta.addItemFlags(itemFlags.toArray(new ItemFlag[0]));
             }
-            itemMeta.setLore(lore);
             
+            // game profile
+            if (gameProfile != null)
+                ReflectionUtils.setFieldValue(ReflectionRegistry.CB_CRAFT_META_SKULL_PROFILE_FIELD, itemMeta, gameProfile);
+            
+            // apply to the item stack
             itemStack.setItemMeta(itemMeta);
         }
         
@@ -156,26 +180,45 @@ public class ItemBuilder implements ItemProvider {
     }
     
     public ItemBuilder setDisplayName(String displayName) {
+        this.displayName = TextComponent.fromLegacyText(displayName);
+        return this;
+    }
+    
+    public ItemBuilder setDisplayName(BaseComponent[] displayName) {
         this.displayName = displayName;
         return this;
     }
     
-    public ItemBuilder setLore(@NotNull List<String> lore) {
+    public ItemBuilder setLegacyLore(@NotNull List<String> lore) {
+        this.lore = lore.stream()
+            .map(TextComponent::fromLegacyText)
+            .collect(Collectors.toList());
+        return this;
+    }
+    
+    public ItemBuilder setLore(List<BaseComponent[]> lore) {
         this.lore = lore;
         return this;
     }
     
     public ItemBuilder addLoreLines(@NotNull String... lines) {
+        if (lore == null) lore = new ArrayList<>();
+        
+        for (String line : lines)
+            lore.add(TextComponent.fromLegacyText(line));
+        return this;
+    }
+    
+    public ItemBuilder addLoreLines(@NotNull BaseComponent[]... lines) {
+        if (lore == null) lore = new ArrayList<>();
+        
         lore.addAll(Arrays.asList(lines));
         return this;
     }
     
-    public ItemBuilder removeLoreLines(@NotNull String... lines) {
-        lore.removeAll(Arrays.asList(lines));
-        return this;
-    }
-    
     public ItemBuilder removeLoreLine(int index) {
+        if (lore == null) lore = new ArrayList<>();
+        
         lore.remove(index);
         return this;
     }
@@ -191,11 +234,15 @@ public class ItemBuilder implements ItemProvider {
     }
     
     public ItemBuilder addItemFlags(@NotNull ItemFlag... itemFlags) {
+        if (this.itemFlags == null) this.itemFlags = new ArrayList<>();
+        
         this.itemFlags.addAll(Arrays.asList(itemFlags));
         return this;
     }
     
     public ItemBuilder removeItemFlags(@NotNull ItemFlag... itemFlags) {
+        if (this.itemFlags == null) this.itemFlags = new ArrayList<>();
+        
         this.itemFlags.removeAll(Arrays.asList(itemFlags));
         return this;
     }
@@ -211,16 +258,22 @@ public class ItemBuilder implements ItemProvider {
     }
     
     public ItemBuilder addEnchantment(Enchantment enchantment, int level, boolean ignoreLevelRestriction) {
+        if (enchantments == null) enchantments = new HashMap<>();
+        
         enchantments.put(enchantment, new Pair<>(level, ignoreLevelRestriction));
         return this;
     }
     
     public ItemBuilder removeEnchantment(Enchantment enchantment) {
+        if (enchantments == null) enchantments = new HashMap<>();
+        
         enchantments.remove(enchantment);
         return this;
     }
     
     public ItemBuilder clearEnchantments() {
+        if (enchantments == null) enchantments = new HashMap<>();
+        
         enchantments.clear();
         return this;
     }
@@ -245,11 +298,11 @@ public class ItemBuilder implements ItemProvider {
         return customModelData;
     }
     
-    public String getDisplayName() {
+    public BaseComponent[] getDisplayName() {
         return displayName;
     }
     
-    public List<String> getLore() {
+    public List<BaseComponent[]> getLore() {
         return lore;
     }
     
@@ -270,9 +323,9 @@ public class ItemBuilder implements ItemProvider {
         try {
             ItemBuilder clone = ((ItemBuilder) super.clone());
             if (base != null) clone.base = base.clone();
-            clone.lore = new ArrayList<>(lore);
-            clone.itemFlags = new ArrayList<>(itemFlags);
-            clone.enchantments = new HashMap<>(enchantments);
+            if (lore != null) clone.lore = new ArrayList<>(lore);
+            if (itemFlags != null) clone.itemFlags = new ArrayList<>(itemFlags);
+            if (enchantments != null) clone.enchantments = new HashMap<>(enchantments);
             
             return clone;
         } catch (CloneNotSupportedException e) {

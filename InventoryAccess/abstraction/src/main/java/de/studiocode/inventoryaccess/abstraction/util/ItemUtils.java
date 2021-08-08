@@ -1,9 +1,12 @@
 package de.studiocode.inventoryaccess.abstraction.util;
 
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 
 public interface ItemUtils {
     
@@ -46,5 +49,19 @@ public interface ItemUtils {
      * @see #serializeItemStack(ItemStack, OutputStream, boolean)
      */
     ItemStack deserializeItemStack(InputStream inputStream, boolean compressed);
+    
+    /**
+     * Sets the display name of an {@link ItemMeta}
+     * @param itemMeta The {@link ItemMeta}
+     * @param name The display name as a {@link BaseComponent BaseComponent[]}
+     */
+    void setDisplayName(ItemMeta itemMeta, BaseComponent[] name);
+    
+    /**
+     * Sets the lore of an {@link ItemMeta}
+     * @param itemMeta The {@link ItemMeta}
+     * @param lore The lore as a list of {@link BaseComponent BaseComponent[]}
+     */
+    void setLore(ItemMeta itemMeta, List<BaseComponent[]> lore);
     
 }

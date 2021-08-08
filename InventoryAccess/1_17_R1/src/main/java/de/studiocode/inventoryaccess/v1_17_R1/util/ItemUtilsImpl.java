@@ -1,14 +1,20 @@
 package de.studiocode.inventoryaccess.v1_17_R1.util;
 
 import de.studiocode.inventoryaccess.abstraction.util.ItemUtils;
+import de.studiocode.inventoryaccess.util.ReflectionRegistry;
 import de.studiocode.inventoryaccess.util.ReflectionUtils;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.world.item.ItemStack;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.io.*;
 import java.lang.reflect.Field;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ItemUtilsImpl implements ItemUtils {
     
@@ -70,6 +76,24 @@ public class ItemUtilsImpl implements ItemUtils {
         }
         
         return null;
+    }
+    
+    @Override
+    public void setDisplayName(ItemMeta itemMeta, BaseComponent[] name) {
+        ReflectionUtils.setFieldValue(
+            ReflectionRegistry.CB_CRAFT_META_ITEM_DISPLAY_NAME_FIELD,
+            itemMeta,
+            ComponentSerializer.toString(name)
+        );
+    }
+    
+    @Override
+    public void setLore(ItemMeta itemMeta, List<BaseComponent[]> lore) {
+        ReflectionUtils.setFieldValue(
+            ReflectionRegistry.CB_CRAFT_META_ITEM_LORE_FIELD,
+            itemMeta,
+            lore.stream().map(ComponentSerializer::toString).collect(Collectors.toList())
+        );
     }
     
 }
