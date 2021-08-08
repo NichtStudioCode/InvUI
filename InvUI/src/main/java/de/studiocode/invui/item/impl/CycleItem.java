@@ -26,7 +26,7 @@ public class CycleItem extends BaseItem {
     }
     
     @Override
-    public ItemProvider getItemBuilder() {
+    public ItemProvider getItemProvider() {
         return states[state];
     }
     

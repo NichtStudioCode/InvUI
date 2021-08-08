@@ -16,21 +16,21 @@ import java.util.function.Consumer;
  */
 public class SimpleItem extends BaseItem {
     
-    private final ItemProvider itemBuilder;
+    private final ItemProvider itemProvider;
     private final Consumer<Click> clickHandler;
     
-    public SimpleItem(@NotNull ItemProvider itemBuilder) {
-        this.itemBuilder = itemBuilder;
+    public SimpleItem(@NotNull ItemProvider itemProvider) {
+        this.itemProvider = itemProvider;
         this.clickHandler = null;
     }
     
-    public SimpleItem(@NotNull ItemProvider itemBuilder, @Nullable Consumer<Click> clickHandler) {
-        this.itemBuilder = itemBuilder;
+    public SimpleItem(@NotNull ItemProvider itemProvider, @Nullable Consumer<Click> clickHandler) {
+        this.itemProvider = itemProvider;
         this.clickHandler = clickHandler;
     }
     
-    public ItemProvider getItemBuilder() {
-        return itemBuilder;
+    public ItemProvider getItemProvider() {
+        return itemProvider;
     }
     
     @Override

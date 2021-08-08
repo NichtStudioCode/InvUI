@@ -149,7 +149,7 @@ public abstract class BaseWindow implements Window {
     }
     
     @Override
-    public void handleItemBuilderUpdate(Item item) {
+    public void handleItemProviderUpdate(Item item) {
         getItemSlotElements(item).forEach((index, slotElement) ->
             redrawItem(index, slotElement, false));
     }

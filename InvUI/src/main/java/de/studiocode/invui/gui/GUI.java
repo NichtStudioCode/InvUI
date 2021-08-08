@@ -170,9 +170,9 @@ public interface GUI extends GUIParent {
      * Sets the {@link ItemProvider} that will be used if nothing else
      * is placed on a slot.
      *
-     * @param itemBuilder The {@link ItemProvider}
+     * @param itemProvider The {@link ItemProvider}
      */
-    void setBackground(@Nullable ItemProvider itemBuilder);
+    void setBackground(@Nullable ItemProvider itemProvider);
     
     /**
      * Gets the {@link ItemProvider} that will used if nothing else

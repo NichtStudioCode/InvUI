@@ -14,11 +14,11 @@ public abstract class ControlItem<G extends GUI> extends BaseItem {
     
     private G gui;
     
-    public abstract ItemProvider getItemBuilder(G gui);
+    public abstract ItemProvider getItemProvider(G gui);
     
     @Override
-    public final ItemProvider getItemBuilder() {
-        return getItemBuilder(gui);
+    public final ItemProvider getItemProvider() {
+        return getItemProvider(gui);
     }
     
     public G getGui() {

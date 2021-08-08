@@ -30,8 +30,8 @@ public class Structure {
             .replace("\n", "");
     }
     
-    public static void addGlobalIngredient(char key, @NotNull ItemProvider itemBuilder) {
-        addGlobalIngredient(key, new SimpleItem(itemBuilder));
+    public static void addGlobalIngredient(char key, @NotNull ItemProvider itemProvider) {
+        addGlobalIngredient(key, new SimpleItem(itemProvider));
     }
     
     public static void addGlobalIngredient(char key, @NotNull Item item) {
@@ -54,8 +54,8 @@ public class Structure {
         globalIngredientMap.put(key, new Ingredient(elementSupplier));
     }
     
-    public Structure addIngredient(char key, @NotNull ItemProvider itemBuilder) {
-        return addIngredient(key, new SimpleItem(itemBuilder));
+    public Structure addIngredient(char key, @NotNull ItemProvider itemProvider) {
+        return addIngredient(key, new SimpleItem(itemProvider));
     }
     
     public Structure addIngredient(char key, @NotNull Item item) {

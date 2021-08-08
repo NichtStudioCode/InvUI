@@ -1,9 +1,9 @@
 package de.studiocode.invui.item.impl;
 
 import de.studiocode.invui.InvUI;
-import de.studiocode.invui.item.ItemProvider;
 import de.studiocode.invui.item.Item;
 import de.studiocode.invui.item.ItemBuilder;
+import de.studiocode.invui.item.ItemProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -20,24 +20,24 @@ import java.util.function.Supplier;
  */
 public class AsyncItem extends BaseItem {
     
-    private volatile ItemProvider itemBuilder;
+    private volatile ItemProvider itemProvider;
     
-    public AsyncItem(@Nullable ItemProvider itemBuilder, @NotNull Supplier<? extends ItemProvider> builderSupplier) {
-        this.itemBuilder = itemBuilder == null ? new ItemBuilder(Material.AIR) : itemBuilder;
+    public AsyncItem(@Nullable ItemProvider itemProvider, @NotNull Supplier<? extends ItemProvider> providerSupplier) {
+        this.itemProvider = itemProvider == null ? new ItemBuilder(Material.AIR) : itemProvider;
         
         Bukkit.getScheduler().runTaskAsynchronously(InvUI.getInstance().getPlugin(), () -> {
-            this.itemBuilder = builderSupplier.get();
+            this.itemProvider = providerSupplier.get();
             Bukkit.getScheduler().runTask(InvUI.getInstance().getPlugin(), this::notifyWindows);
         });
     }
     
-    public AsyncItem(@NotNull Supplier<? extends ItemProvider> builderSupplier) {
-        this(null, builderSupplier);
+    public AsyncItem(@NotNull Supplier<? extends ItemProvider> providerSupplier) {
+        this(null, providerSupplier);
     }
     
     @Override
-    public ItemProvider getItemBuilder() {
-        return itemBuilder;
+    public ItemProvider getItemProvider() {
+        return itemProvider;
     }
     
     @Override

@@ -547,8 +547,8 @@ public abstract class BaseGUI implements GUI, Controllable {
     }
     
     @Override
-    public void setBackground(ItemProvider itemBuilder) {
-        this.background = itemBuilder;
+    public void setBackground(ItemProvider itemProvider) {
+        this.background = itemProvider;
     }
     
     @Override

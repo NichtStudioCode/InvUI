@@ -16,14 +16,14 @@ import org.bukkit.scheduler.BukkitTask;
  */
 public class AutoCycleItem extends BaseItem {
     
-    private final ItemProvider[] itemBuilders;
+    private final ItemProvider[] itemProviders;
     private final int period;
     private BukkitTask task;
     
     private int state;
     
-    public AutoCycleItem(int period, ItemProvider... itemBuilders) {
-        this.itemBuilders = itemBuilders;
+    public AutoCycleItem(int period, ItemProvider... itemProviders) {
+        this.itemProviders = itemProviders;
         this.period = period;
     }
     
@@ -39,13 +39,13 @@ public class AutoCycleItem extends BaseItem {
     
     private void cycle() {
         state++;
-        if (state == itemBuilders.length) state = 0;
+        if (state == itemProviders.length) state = 0;
         notifyWindows();
     }
     
     @Override
-    public ItemProvider getItemBuilder() {
-        return itemBuilders[state];
+    public ItemProvider getItemProvider() {
+        return itemProviders[state];
     }
     
     @Override

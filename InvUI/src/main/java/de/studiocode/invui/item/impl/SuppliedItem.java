@@ -22,7 +22,7 @@ public class SuppliedItem extends BaseItem {
     }
     
     @Override
-    public ItemProvider getItemBuilder() {
+    public ItemProvider getItemProvider() {
         return builderSupplier.get();
     }
     

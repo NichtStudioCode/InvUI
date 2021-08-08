@@ -14,8 +14,8 @@ public class CommandItem extends SimpleItem {
     
     private final String command;
     
-    public CommandItem(@NotNull ItemProvider itemBuilder, @NotNull String command) {
-        super(itemBuilder);
+    public CommandItem(@NotNull ItemProvider itemProvider, @NotNull String command) {
+        super(itemProvider);
         this.command = command;
     }
     

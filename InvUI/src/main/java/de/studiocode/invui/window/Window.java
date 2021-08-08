@@ -112,7 +112,7 @@ public interface Window extends GUIParent {
      *
      * @param item The {@link Item} whose {@link ItemProvider} has been updated.
      */
-    void handleItemBuilderUpdate(Item item);
+    void handleItemProviderUpdate(Item item);
     
     /**
      * A method called by the {@link VirtualInventory} to notify the

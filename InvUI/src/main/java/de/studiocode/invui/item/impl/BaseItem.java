@@ -31,7 +31,7 @@ public abstract class BaseItem implements Item {
     
     @Override
     public void notifyWindows() {
-        windows.forEach(w -> w.handleItemBuilderUpdate(this));
+        windows.forEach(w -> w.handleItemProviderUpdate(this));
     }
     
 }

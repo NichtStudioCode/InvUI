@@ -30,7 +30,7 @@ public interface SlotElement {
         
         @Override
         public ItemStack getItemStack(UUID viewerUUID) {
-            return item.getItemBuilder().getFor(viewerUUID);
+            return item.getItemProvider().getFor(viewerUUID);
         }
         
         @Override

@@ -17,7 +17,7 @@ public interface Item {
      *
      * @return The {@link ItemProvider}
      */
-    ItemProvider getItemBuilder();
+    ItemProvider getItemProvider();
     
     /**
      * Adds a {@link Window} to the window set, telling the {@link Item} that it is
@@ -45,7 +45,7 @@ public interface Item {
     Set<Window> getWindows();
     
     /**
-     * Calls the {@link Window#handleItemBuilderUpdate(Item)} method on every {@link Window}
+     * Calls the {@link Window#handleItemProviderUpdate(Item)} method on every {@link Window}
      * in the set, notifying them that the {@link ItemProvider} has been updated
      * and the {@link ItemStack} inside the {@link Window}'s {@link Inventory} should
      * be replaced.

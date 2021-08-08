@@ -48,8 +48,8 @@ public class GUIBuilder {
         return this;
     }
     
-    public GUIBuilder addIngredient(char key, @NotNull ItemProvider itemBuilder) {
-        structure.addIngredient(key, itemBuilder);
+    public GUIBuilder addIngredient(char key, @NotNull ItemProvider itemProvider) {
+        structure.addIngredient(key, itemProvider);
         return this;
     }
     
