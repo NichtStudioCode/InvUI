@@ -3,7 +3,7 @@ package de.studiocode.invui.window;
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.GUIParent;
 import de.studiocode.invui.item.Item;
-import de.studiocode.invui.item.ItemBuilder;
+import de.studiocode.invui.item.ItemProvider;
 import de.studiocode.invui.virtualinventory.VirtualInventory;
 import de.studiocode.invui.window.impl.merged.MergedWindow;
 import de.studiocode.invui.window.impl.merged.combined.SimpleCombinedWindow;
@@ -107,10 +107,10 @@ public interface Window extends GUIParent {
     
     /**
      * A method called by the {@link Item} itself to notify the {@link Window}
-     * that its {@link ItemBuilder} has been updated and the {@link ItemStack}
+     * that its {@link ItemProvider} has been updated and the {@link ItemStack}
      * in the {@link Inventory} should be replaced.
      *
-     * @param item The {@link Item} whose {@link ItemBuilder} has been updated.
+     * @param item The {@link Item} whose {@link ItemProvider} has been updated.
      */
     void handleItemBuilderUpdate(Item item);
     

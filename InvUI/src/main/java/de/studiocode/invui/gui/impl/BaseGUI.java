@@ -9,7 +9,7 @@ import de.studiocode.invui.gui.SlotElement.LinkedSlotElement;
 import de.studiocode.invui.gui.SlotElement.VISlotElement;
 import de.studiocode.invui.gui.structure.Structure;
 import de.studiocode.invui.item.Item;
-import de.studiocode.invui.item.ItemBuilder;
+import de.studiocode.invui.item.ItemProvider;
 import de.studiocode.invui.util.ArrayUtils;
 import de.studiocode.invui.util.InventoryUtils;
 import de.studiocode.invui.util.SlotUtils;
@@ -47,7 +47,7 @@ public abstract class BaseGUI implements GUI {
     private SlotElement[] animationElements;
     private Animation animation;
     
-    private ItemBuilder background;
+    private ItemProvider background;
     
     public BaseGUI(int width, int height) {
         this.width = width;
@@ -137,8 +137,8 @@ public abstract class BaseGUI implements GUI {
             && (isBuilderSimilar(background, uuid, clicked) || isBuilderSimilar(element.getBackground(), uuid, clicked));
     }
     
-    private boolean isBuilderSimilar(ItemBuilder builder, UUID uuid, ItemStack expected) {
-        return builder != null && builder.buildFor(uuid).isSimilar(expected);
+    private boolean isBuilderSimilar(ItemProvider builder, UUID uuid, ItemStack expected) {
+        return builder != null && builder.getFor(uuid).isSimilar(expected);
     }
     
     @SuppressWarnings("deprecation")
@@ -527,12 +527,12 @@ public abstract class BaseGUI implements GUI {
     }
     
     @Override
-    public void setBackground(ItemBuilder itemBuilder) {
+    public void setBackground(ItemProvider itemBuilder) {
         this.background = itemBuilder;
     }
     
     @Override
-    public ItemBuilder getBackground() {
+    public ItemProvider getBackground() {
         return background;
     }
     
@@ -656,7 +656,7 @@ public abstract class BaseGUI implements GUI {
     }
     
     @Override
-    public void fillRectangle(int x, int y, int width, @NotNull VirtualInventory virtualInventory, @Nullable ItemBuilder background, boolean replaceExisting) {
+    public void fillRectangle(int x, int y, int width, @NotNull VirtualInventory virtualInventory, @Nullable ItemProvider background, boolean replaceExisting) {
         int height = (int) Math.ceil((double) virtualInventory.getSize() / (double) width);
         
         int slotIndex = 0;

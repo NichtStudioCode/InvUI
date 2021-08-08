@@ -5,7 +5,7 @@ import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.gui.SlotElement.ItemSlotElement;
 import de.studiocode.invui.item.Item;
 import de.studiocode.invui.item.impl.SimpleItem;
-import de.studiocode.invui.item.ItemBuilder;
+import de.studiocode.invui.item.ItemProvider;
 import org.bukkit.inventory.ShapedRecipe;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,7 +30,7 @@ public class Structure {
             .replace("\n", "");
     }
     
-    public static void addGlobalIngredient(char key, @NotNull ItemBuilder itemBuilder) {
+    public static void addGlobalIngredient(char key, @NotNull ItemProvider itemBuilder) {
         addGlobalIngredient(key, new SimpleItem(itemBuilder));
     }
     
@@ -50,7 +50,7 @@ public class Structure {
         globalIngredientMap.put(key, new Ingredient(itemSupplier));
     }
     
-    public Structure addIngredient(char key, @NotNull ItemBuilder itemBuilder) {
+    public Structure addIngredient(char key, @NotNull ItemProvider itemBuilder) {
         return addIngredient(key, new SimpleItem(itemBuilder));
     }
     

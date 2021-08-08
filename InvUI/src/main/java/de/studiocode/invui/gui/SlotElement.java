@@ -1,7 +1,7 @@
 package de.studiocode.invui.gui;
 
 import de.studiocode.invui.item.Item;
-import de.studiocode.invui.item.ItemBuilder;
+import de.studiocode.invui.item.ItemProvider;
 import de.studiocode.invui.virtualinventory.VirtualInventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -30,7 +30,7 @@ public interface SlotElement {
         
         @Override
         public ItemStack getItemStack(UUID viewerUUID) {
-            return item.getItemBuilder().buildFor(viewerUUID);
+            return item.getItemBuilder().getFor(viewerUUID);
         }
         
         @Override
@@ -47,7 +47,7 @@ public interface SlotElement {
         
         private final VirtualInventory virtualInventory;
         private final int slot;
-        private final ItemBuilder background;
+        private final ItemProvider background;
         
         public VISlotElement(VirtualInventory virtualInventory, int slot) {
             this.virtualInventory = virtualInventory;
@@ -55,7 +55,7 @@ public interface SlotElement {
             this.background = null;
         }
         
-        public VISlotElement(VirtualInventory virtualInventory, int slot, ItemBuilder background) {
+        public VISlotElement(VirtualInventory virtualInventory, int slot, ItemProvider background) {
             this.virtualInventory = virtualInventory;
             this.slot = slot;
             this.background = background;
@@ -69,14 +69,14 @@ public interface SlotElement {
             return slot;
         }
         
-        public ItemBuilder getBackground() {
+        public ItemProvider getBackground() {
             return background;
         }
         
         @Override
         public ItemStack getItemStack(UUID viewerUUID) {
             ItemStack itemStack = virtualInventory.getUnsafeItemStack(slot);
-            if (itemStack == null && background != null) itemStack = background.buildFor(viewerUUID);
+            if (itemStack == null && background != null) itemStack = background.getFor(viewerUUID);
             return itemStack;
         }
         

@@ -2,7 +2,7 @@ package de.studiocode.invui.item.impl;
 
 import de.studiocode.invui.item.Click;
 import de.studiocode.invui.item.Item;
-import de.studiocode.invui.item.ItemBuilder;
+import de.studiocode.invui.item.ItemProvider;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -16,20 +16,20 @@ import java.util.function.Consumer;
  */
 public class SimpleItem extends BaseItem {
     
-    private final ItemBuilder itemBuilder;
+    private final ItemProvider itemBuilder;
     private final Consumer<Click> clickHandler;
     
-    public SimpleItem(@NotNull ItemBuilder itemBuilder) {
+    public SimpleItem(@NotNull ItemProvider itemBuilder) {
         this.itemBuilder = itemBuilder;
         this.clickHandler = null;
     }
     
-    public SimpleItem(@NotNull ItemBuilder itemBuilder, @Nullable Consumer<Click> clickHandler) {
+    public SimpleItem(@NotNull ItemProvider itemBuilder, @Nullable Consumer<Click> clickHandler) {
         this.itemBuilder = itemBuilder;
         this.clickHandler = clickHandler;
     }
     
-    public ItemBuilder getItemBuilder() {
+    public ItemProvider getItemBuilder() {
         return itemBuilder;
     }
     

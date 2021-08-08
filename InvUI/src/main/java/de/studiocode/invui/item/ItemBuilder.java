@@ -26,7 +26,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-public class ItemBuilder implements Cloneable {
+public class ItemBuilder implements ItemProvider {
     
     protected ItemStack base;
     protected Material material;
@@ -87,7 +87,7 @@ public class ItemBuilder implements Cloneable {
      *
      * @return The {@link ItemStack}
      */
-    public ItemStack build() {
+    public ItemStack get() {
         ItemStack itemStack;
         if (base != null) {
             itemStack = base;
@@ -128,11 +128,11 @@ public class ItemBuilder implements Cloneable {
      * translates the item's name into the player's language.
      *
      * @param playerUUID The {@link UUID} of the {@link Player}
-     *                   for who this {@link ItemStack} should be built.
+     *                   for whom this {@link ItemStack} should be built.
      * @return The {@link ItemStack}
      */
-    public ItemStack buildFor(@NotNull UUID playerUUID) {
-        return build();
+    public ItemStack getFor(@NotNull UUID playerUUID) {
+        return get();
     }
     
     public ItemBuilder setMaterial(@NotNull Material material) {

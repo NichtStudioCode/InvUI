@@ -1,7 +1,7 @@
 package de.studiocode.invui.item.impl;
 
 import de.studiocode.invui.item.Click;
-import de.studiocode.invui.item.ItemBuilder;
+import de.studiocode.invui.item.ItemProvider;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -13,16 +13,16 @@ import java.util.function.Supplier;
 
 public class SuppliedItem extends BaseItem {
     
-    private final Supplier<ItemBuilder> builderSupplier;
+    private final Supplier<? extends ItemProvider> builderSupplier;
     private final Function<Click, Boolean> clickHandler;
     
-    public SuppliedItem(@NotNull Supplier<ItemBuilder> builderSupplier, @Nullable Function<Click, Boolean> clickHandler) {
+    public SuppliedItem(@NotNull Supplier<? extends ItemProvider> builderSupplier, @Nullable Function<Click, Boolean> clickHandler) {
         this.builderSupplier = builderSupplier;
         this.clickHandler = clickHandler;
     }
     
     @Override
-    public ItemBuilder getItemBuilder() {
+    public ItemProvider getItemBuilder() {
         return builderSupplier.get();
     }
     

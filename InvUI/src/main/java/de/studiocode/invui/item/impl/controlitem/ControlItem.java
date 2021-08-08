@@ -1,17 +1,17 @@
 package de.studiocode.invui.item.impl.controlitem;
 
 import de.studiocode.invui.gui.GUI;
-import de.studiocode.invui.item.ItemBuilder;
+import de.studiocode.invui.item.ItemProvider;
 import de.studiocode.invui.item.impl.BaseItem;
 
 public abstract class ControlItem<G extends GUI> extends BaseItem {
     
     private G gui;
     
-    public abstract ItemBuilder getItemBuilder(G gui);
+    public abstract ItemProvider getItemBuilder(G gui);
     
     @Override
-    public final ItemBuilder getItemBuilder() {
+    public final ItemProvider getItemBuilder() {
         return getItemBuilder(gui);
     }
     

@@ -6,7 +6,7 @@ import de.studiocode.invui.gui.impl.*;
 import de.studiocode.invui.gui.structure.Marker;
 import de.studiocode.invui.gui.structure.Structure;
 import de.studiocode.invui.item.Item;
-import de.studiocode.invui.item.ItemBuilder;
+import de.studiocode.invui.item.ItemProvider;
 import org.bukkit.inventory.ShapedRecipe;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,7 +48,7 @@ public class GUIBuilder {
         return this;
     }
     
-    public GUIBuilder addIngredient(char key, @NotNull ItemBuilder itemBuilder) {
+    public GUIBuilder addIngredient(char key, @NotNull ItemProvider itemBuilder) {
         structure.addIngredient(key, itemBuilder);
         return this;
     }

@@ -12,12 +12,12 @@ import java.util.Set;
 public interface Item {
     
     /**
-     * Gets the {@link ItemBuilder}.
+     * Gets the {@link ItemProvider}.
      * This method gets called every time a {@link Window} is notified ({@link #notifyWindows()}).
      *
-     * @return The {@link ItemBuilder}
+     * @return The {@link ItemProvider}
      */
-    ItemBuilder getItemBuilder();
+    ItemProvider getItemBuilder();
     
     /**
      * Adds a {@link Window} to the window set, telling the {@link Item} that it is
@@ -46,7 +46,7 @@ public interface Item {
     
     /**
      * Calls the {@link Window#handleItemBuilderUpdate(Item)} method on every {@link Window}
-     * in the set, notifying them that the {@link ItemBuilder} has been updated
+     * in the set, notifying them that the {@link ItemProvider} has been updated
      * and the {@link ItemStack} inside the {@link Window}'s {@link Inventory} should
      * be replaced.
      */

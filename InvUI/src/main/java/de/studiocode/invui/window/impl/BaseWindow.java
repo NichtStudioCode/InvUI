@@ -7,7 +7,7 @@ import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.gui.SlotElement.ItemSlotElement;
 import de.studiocode.invui.gui.SlotElement.VISlotElement;
 import de.studiocode.invui.item.Item;
-import de.studiocode.invui.item.ItemBuilder;
+import de.studiocode.invui.item.ItemProvider;
 import de.studiocode.invui.util.ArrayUtils;
 import de.studiocode.invui.util.Pair;
 import de.studiocode.invui.virtualinventory.VirtualInventory;
@@ -57,8 +57,8 @@ public abstract class BaseWindow implements Window {
         // put ItemStack in inventory
         ItemStack itemStack;
         if (element == null || (element instanceof VISlotElement && element.getItemStack(viewerUUID) == null)) {
-            ItemBuilder background = getGuiAt(index).getFirst().getBackground();
-            itemStack = background == null ? null : background.buildFor(viewerUUID);
+            ItemProvider background = getGuiAt(index).getFirst().getBackground();
+            itemStack = background == null ? null : background.getFor(viewerUUID);
         } else itemStack = element.getItemStack(viewerUUID);
         setInvItem(index, itemStack);
         

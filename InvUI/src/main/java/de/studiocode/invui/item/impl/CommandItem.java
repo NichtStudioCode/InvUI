@@ -1,7 +1,7 @@
 package de.studiocode.invui.item.impl;
 
 import de.studiocode.invui.item.Item;
-import de.studiocode.invui.item.ItemBuilder;
+import de.studiocode.invui.item.ItemProvider;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -14,7 +14,7 @@ public class CommandItem extends SimpleItem {
     
     private final String command;
     
-    public CommandItem(@NotNull ItemBuilder itemBuilder, @NotNull String command) {
+    public CommandItem(@NotNull ItemProvider itemBuilder, @NotNull String command) {
         super(itemBuilder);
         this.command = command;
     }

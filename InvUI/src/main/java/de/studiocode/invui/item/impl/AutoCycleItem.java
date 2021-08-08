@@ -2,7 +2,7 @@ package de.studiocode.invui.item.impl;
 
 import de.studiocode.invui.InvUI;
 import de.studiocode.invui.item.Item;
-import de.studiocode.invui.item.ItemBuilder;
+import de.studiocode.invui.item.ItemProvider;
 import de.studiocode.invui.window.Window;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -12,17 +12,17 @@ import org.bukkit.scheduler.BukkitTask;
 
 /**
  * An {@link Item} that automatically cycles through a predefined array of
- * {@link ItemBuilder} at a predefined speed.
+ * {@link ItemProvider} at a predefined speed.
  */
 public class AutoCycleItem extends BaseItem {
     
-    private final ItemBuilder[] itemBuilders;
+    private final ItemProvider[] itemBuilders;
     private final int period;
     private BukkitTask task;
     
     private int state;
     
-    public AutoCycleItem(int period, ItemBuilder... itemBuilders) {
+    public AutoCycleItem(int period, ItemProvider... itemBuilders) {
         this.itemBuilders = itemBuilders;
         this.period = period;
     }
@@ -44,7 +44,7 @@ public class AutoCycleItem extends BaseItem {
     }
     
     @Override
-    public ItemBuilder getItemBuilder() {
+    public ItemProvider getItemBuilder() {
         return itemBuilders[state];
     }
     

@@ -1,7 +1,7 @@
 package de.studiocode.invui.item.impl;
 
 import de.studiocode.invui.item.Item;
-import de.studiocode.invui.item.ItemBuilder;
+import de.studiocode.invui.item.ItemProvider;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -11,22 +11,22 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Consumer;
 
 /**
- * An {@link Item} that cycles trough a predefined array of {@link ItemBuilder}s when clicked.
+ * An {@link Item} that cycles trough a predefined array of {@link ItemProvider}s when clicked.
  */
 public class CycleItem extends BaseItem {
     
     private final Consumer<Integer> stateChangeHandler;
-    private final ItemBuilder[] states;
+    private final ItemProvider[] states;
     
     private int state;
     
-    public CycleItem(@Nullable Consumer<Integer> stateChangeHandler, @NotNull ItemBuilder... states) {
+    public CycleItem(@Nullable Consumer<Integer> stateChangeHandler, @NotNull ItemProvider... states) {
         this.stateChangeHandler = stateChangeHandler;
         this.states = states;
     }
     
     @Override
-    public ItemBuilder getItemBuilder() {
+    public ItemProvider getItemBuilder() {
         return states[state];
     }
     

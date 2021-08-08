@@ -1,6 +1,7 @@
 package de.studiocode.invui.item.impl;
 
 import de.studiocode.invui.InvUI;
+import de.studiocode.invui.item.ItemProvider;
 import de.studiocode.invui.item.Item;
 import de.studiocode.invui.item.ItemBuilder;
 import org.bukkit.Bukkit;
@@ -14,14 +15,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Supplier;
 
 /**
- * An {@link Item} that creates it's {@link ItemBuilder} asynchronously and displays
- * a placeholder {@link ItemBuilder} until the actual {@link ItemBuilder} has been created.
+ * An {@link Item} that creates it's {@link ItemProvider} asynchronously and displays
+ * a placeholder {@link ItemProvider} until the actual {@link ItemProvider} has been created.
  */
 public class AsyncItem extends BaseItem {
     
-    private volatile ItemBuilder itemBuilder;
+    private volatile ItemProvider itemBuilder;
     
-    public AsyncItem(@Nullable ItemBuilder itemBuilder, @NotNull Supplier<ItemBuilder> builderSupplier) {
+    public AsyncItem(@Nullable ItemProvider itemBuilder, @NotNull Supplier<? extends ItemProvider> builderSupplier) {
         this.itemBuilder = itemBuilder == null ? new ItemBuilder(Material.AIR) : itemBuilder;
         
         Bukkit.getScheduler().runTaskAsynchronously(InvUI.getInstance().getPlugin(), () -> {
@@ -30,12 +31,12 @@ public class AsyncItem extends BaseItem {
         });
     }
     
-    public AsyncItem(@NotNull Supplier<ItemBuilder> builderSupplier) {
+    public AsyncItem(@NotNull Supplier<? extends ItemProvider> builderSupplier) {
         this(null, builderSupplier);
     }
     
     @Override
-    public ItemBuilder getItemBuilder() {
+    public ItemProvider getItemBuilder() {
         return itemBuilder;
     }
     

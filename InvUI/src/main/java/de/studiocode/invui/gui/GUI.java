@@ -5,7 +5,7 @@ import de.studiocode.invui.gui.builder.GUIBuilder;
 import de.studiocode.invui.gui.impl.*;
 import de.studiocode.invui.gui.structure.Structure;
 import de.studiocode.invui.item.Item;
-import de.studiocode.invui.item.ItemBuilder;
+import de.studiocode.invui.item.ItemProvider;
 import de.studiocode.invui.virtualinventory.VirtualInventory;
 import de.studiocode.invui.virtualinventory.event.UpdateReason;
 import de.studiocode.invui.window.Window;
@@ -167,20 +167,20 @@ public interface GUI extends GUIParent {
     void addItems(@NotNull Item... items);
     
     /**
-     * Sets the {@link ItemBuilder} that will be used if nothing else
+     * Sets the {@link ItemProvider} that will be used if nothing else
      * is placed on a slot.
      *
-     * @param itemBuilder The {@link ItemBuilder}
+     * @param itemBuilder The {@link ItemProvider}
      */
-    void setBackground(@Nullable ItemBuilder itemBuilder);
+    void setBackground(@Nullable ItemProvider itemBuilder);
     
     /**
-     * Gets the {@link ItemBuilder} that will used if nothing else
+     * Gets the {@link ItemProvider} that will used if nothing else
      * is placed on a slot.
      *
-     * @return The {@link ItemBuilder}
+     * @return The {@link ItemProvider}
      */
-    ItemBuilder getBackground();
+    ItemProvider getBackground();
     
     /**
      * Removes an {@link Item} by its coordinates.
@@ -376,9 +376,9 @@ public interface GUI extends GUIParent {
      * @param y                The y coordinate where the rectangle should start
      * @param width            The line length of the rectangle. (VirtualInventory does not define a width)
      * @param virtualInventory The {@link VirtualInventory} to be put into this {@link GUI}.
-     * @param background       The {@link ItemBuilder} for empty slots of the {@link VirtualInventory}
+     * @param background       The {@link ItemProvider} for empty slots of the {@link VirtualInventory}
      * @param replaceExisting  If existing {@link SlotElement}s should be replaced.
      */
-    void fillRectangle(int x, int y, int width, @NotNull VirtualInventory virtualInventory, @Nullable ItemBuilder background, boolean replaceExisting);
+    void fillRectangle(int x, int y, int width, @NotNull VirtualInventory virtualInventory, @Nullable ItemProvider background, boolean replaceExisting);
     
 }
