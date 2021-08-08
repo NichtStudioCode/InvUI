@@ -68,8 +68,13 @@ public class GUIBuilder {
         return this;
     }
     
-    public GUIBuilder addIngredient(char key, @NotNull Supplier<Item> itemSupplier) {
+    public GUIBuilder addIngredient(char key, @NotNull Supplier<? extends Item> itemSupplier) {
         structure.addIngredient(key, itemSupplier);
+        return this;
+    }
+    
+    public GUIBuilder addIngredientElementSupplier(char key, @NotNull Supplier<? extends SlotElement> elementSupplier) {
+        structure.addIngredientElementSupplier(key, elementSupplier);
         return this;
     }
     

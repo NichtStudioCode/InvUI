@@ -1,8 +1,6 @@
 package de.studiocode.invui.gui.structure;
 
 import de.studiocode.invui.gui.SlotElement;
-import de.studiocode.invui.gui.SlotElement.ItemSlotElement;
-import de.studiocode.invui.item.Item;
 
 import java.util.function.Supplier;
 
@@ -10,16 +8,16 @@ class Ingredient {
     
     private final SlotElement slotElement;
     private final Marker marker;
-    private final Supplier<Item> itemSupplier;
+    private final Supplier<? extends SlotElement> elementSupplier;
     
     public Ingredient(SlotElement slotElement) {
         this.slotElement = slotElement;
-        this.itemSupplier = null;
+        this.elementSupplier = null;
         this.marker = null;
     }
     
-    public Ingredient(Supplier<Item> itemSupplier) {
-        this.itemSupplier = itemSupplier;
+    public Ingredient(Supplier<? extends SlotElement> elementSupplier) {
+        this.elementSupplier = elementSupplier;
         this.slotElement = null;
         this.marker = null;
     }
@@ -27,11 +25,11 @@ class Ingredient {
     public Ingredient(Marker marker) {
         this.marker = marker;
         this.slotElement = null;
-        this.itemSupplier = null;
+        this.elementSupplier = null;
     }
     
     public SlotElement getSlotElement() {
-        return slotElement == null ? new ItemSlotElement(itemSupplier.get()) : slotElement;
+        return slotElement == null ? elementSupplier.get() : slotElement;
     }
     
     public Marker getMarker() {
@@ -39,7 +37,7 @@ class Ingredient {
     }
     
     public boolean isSlotElement() {
-        return slotElement != null || itemSupplier != null;
+        return slotElement != null || elementSupplier != null;
     }
     
     public boolean isMarker() {

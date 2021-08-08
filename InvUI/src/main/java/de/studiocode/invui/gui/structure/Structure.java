@@ -38,6 +38,10 @@ public class Structure {
         addGlobalIngredient(key, new ItemSlotElement(item));
     }
     
+    public static void addGlobalIngredient(char key, @NotNull Supplier<? extends Item> itemSupplier) {
+        addGlobalIngredientElementSupplier(key, () -> new ItemSlotElement(itemSupplier.get()));
+    }
+    
     public static void addGlobalIngredient(char key, @NotNull SlotElement element) {
         globalIngredientMap.put(key, new Ingredient(element));
     }
@@ -46,8 +50,8 @@ public class Structure {
         globalIngredientMap.put(key, new Ingredient(marker));
     }
     
-    public static void addGlobalIngredient(char key, @NotNull Supplier<Item> itemSupplier) {
-        globalIngredientMap.put(key, new Ingredient(itemSupplier));
+    public static void addGlobalIngredientElementSupplier(char key, @NotNull Supplier<? extends SlotElement> elementSupplier) {
+        globalIngredientMap.put(key, new Ingredient(elementSupplier));
     }
     
     public Structure addIngredient(char key, @NotNull ItemProvider itemBuilder) {
@@ -68,8 +72,13 @@ public class Structure {
         return this;
     }
     
-    public Structure addIngredient(char key, @NotNull Supplier<Item> itemSupplier) {
-        ingredientMap.put(key, new Ingredient(itemSupplier));
+    public Structure addIngredient(char key, @NotNull Supplier<? extends Item> itemSupplier) {
+        ingredientMap.put(key, new Ingredient(() -> new ItemSlotElement(itemSupplier.get())));
+        return this;
+    }
+    
+    public Structure addIngredientElementSupplier(char key, @NotNull Supplier<? extends SlotElement> elementSupplier) {
+        ingredientMap.put(key, new Ingredient(elementSupplier));
         return this;
     }
     
