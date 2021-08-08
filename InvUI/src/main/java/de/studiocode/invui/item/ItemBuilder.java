@@ -8,11 +8,11 @@ import com.mojang.authlib.properties.PropertyMap;
 import de.studiocode.inventoryaccess.util.ReflectionRegistry;
 import de.studiocode.inventoryaccess.util.ReflectionUtils;
 import de.studiocode.inventoryaccess.version.InventoryAccess;
+import de.studiocode.invui.util.ComponentUtils;
 import de.studiocode.invui.util.MojangApiUtils;
 import de.studiocode.invui.util.Pair;
 import de.studiocode.invui.window.impl.BaseWindow;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -91,6 +91,7 @@ public class ItemBuilder implements ItemProvider {
      *
      * @return The {@link ItemStack}
      */
+    @Override
     public ItemStack get() {
         ItemStack itemStack;
         if (base != null) {
@@ -155,6 +156,7 @@ public class ItemBuilder implements ItemProvider {
      *                   for whom this {@link ItemStack} should be built.
      * @return The {@link ItemStack}
      */
+    @Override
     public ItemStack getFor(@NotNull UUID playerUUID) {
         return get();
     }
@@ -180,7 +182,7 @@ public class ItemBuilder implements ItemProvider {
     }
     
     public ItemBuilder setDisplayName(String displayName) {
-        this.displayName = TextComponent.fromLegacyText(displayName);
+        this.displayName = ComponentUtils.fromLegacyText(displayName);
         return this;
     }
     
@@ -191,7 +193,7 @@ public class ItemBuilder implements ItemProvider {
     
     public ItemBuilder setLegacyLore(@NotNull List<String> lore) {
         this.lore = lore.stream()
-            .map(TextComponent::fromLegacyText)
+            .map(ComponentUtils::fromLegacyText)
             .collect(Collectors.toList());
         return this;
     }
@@ -205,7 +207,7 @@ public class ItemBuilder implements ItemProvider {
         if (lore == null) lore = new ArrayList<>();
         
         for (String line : lines)
-            lore.add(TextComponent.fromLegacyText(line));
+            lore.add(ComponentUtils.fromLegacyText(line));
         return this;
     }
     
