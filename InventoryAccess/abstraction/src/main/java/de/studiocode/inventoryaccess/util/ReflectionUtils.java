@@ -106,7 +106,9 @@ public class ReflectionUtils {
     
     public static Method getMethod(Class<?> clazz, boolean declared, String name, Class<?>... parameterTypes) {
         try {
-            return declared ? clazz.getDeclaredMethod(name, parameterTypes) : clazz.getMethod(name, parameterTypes);
+            Method method = declared ? clazz.getDeclaredMethod(name, parameterTypes) : clazz.getMethod(name, parameterTypes);
+            if (declared) method.setAccessible(true);
+            return method;
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }

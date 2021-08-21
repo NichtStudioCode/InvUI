@@ -1,5 +1,6 @@
 package de.studiocode.invui.window.impl.merged;
 
+import de.studiocode.inventoryaccess.version.InventoryAccess;
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.util.Pair;
@@ -102,6 +103,9 @@ public abstract class MergedWindow extends BaseWindow {
     
     @Override
     protected void handleOpened() {
+        // Prevent players from receiving advancements from UI items
+        InventoryAccess.getPlayerUtils().stopAdvancementListening(getViewer());
+        
         isCurrentlyOpened = true;
         clearPlayerInventory();
         initPlayerItems();
@@ -111,6 +115,9 @@ public abstract class MergedWindow extends BaseWindow {
     protected void handleClosed() {
         isCurrentlyOpened = false;
         restorePlayerInventory();
+        
+        // Start the advancement listeners again
+        InventoryAccess.getPlayerUtils().startAdvancementListening(getViewer());
     }
     
     @Override

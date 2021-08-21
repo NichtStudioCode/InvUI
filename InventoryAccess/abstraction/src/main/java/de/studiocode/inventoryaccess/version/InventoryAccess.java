@@ -3,6 +3,7 @@ package de.studiocode.inventoryaccess.version;
 import de.studiocode.inventoryaccess.abstraction.inventory.AnvilInventory;
 import de.studiocode.inventoryaccess.abstraction.util.InventoryUtils;
 import de.studiocode.inventoryaccess.abstraction.util.ItemUtils;
+import de.studiocode.inventoryaccess.abstraction.util.PlayerUtils;
 import de.studiocode.inventoryaccess.util.ReflectionUtils;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.entity.Player;
@@ -14,6 +15,7 @@ public class InventoryAccess {
     
     private static final Class<InventoryUtils> INVENTORY_UTILS_CLASS = ReflectionUtils.getImplClass("util.InventoryUtilsImpl");
     private static final Class<ItemUtils> ITEM_UTILS_CLASS = ReflectionUtils.getImplClass("util.ItemUtilsImpl");
+    private static final Class<PlayerUtils> PLAYER_UTILS_CLASS = ReflectionUtils.getImplClass("util.PlayerUtilsImpl");
     private static final Class<AnvilInventory> ANVIL_INVENTORY_CLASS = ReflectionUtils.getImplClass("inventory.AnvilInventoryImpl");
     
     private static final Constructor<AnvilInventory> ANVIL_INVENTORY_CONSTRUCTOR
@@ -21,6 +23,7 @@ public class InventoryAccess {
     
     private static final InventoryUtils INVENTORY_UTILS = ReflectionUtils.constructEmpty(INVENTORY_UTILS_CLASS);
     private static final ItemUtils ITEM_UTILS = ReflectionUtils.constructEmpty(ITEM_UTILS_CLASS);
+    private static final PlayerUtils PLAYER_UTILS = ReflectionUtils.constructEmpty(PLAYER_UTILS_CLASS);
     
     /**
      * Gets the {@link InventoryUtils}
@@ -38,6 +41,15 @@ public class InventoryAccess {
      */
     public static ItemUtils getItemUtils() {
         return ITEM_UTILS;
+    }
+    
+    /**
+     * Gets the {@link PlayerUtils}
+     *
+     * @return The {@link PlayerUtils}
+     */
+    public static PlayerUtils getPlayerUtils() {
+        return PLAYER_UTILS;
     }
     
     /**
