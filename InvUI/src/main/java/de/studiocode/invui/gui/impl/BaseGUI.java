@@ -563,7 +563,7 @@ public abstract class BaseGUI implements GUI, Controllable {
     
     @Override
     public void applyStructure(Structure structure) {
-        structure.createIngredientList().insertIntoGUI(this);
+        structure.getIngredientList().insertIntoGUI(this);
     }
     
     @Override

@@ -2,7 +2,7 @@ package de.studiocode.invui.gui.impl;
 
 import de.studiocode.invui.gui.Controllable;
 import de.studiocode.invui.gui.SlotElement;
-import de.studiocode.invui.gui.structure.Marker;
+import de.studiocode.invui.gui.structure.Markers;
 import de.studiocode.invui.gui.structure.Structure;
 
 import java.util.List;
@@ -21,7 +21,7 @@ public abstract class TabGUI extends BaseGUI implements Controllable {
     }
     
     public TabGUI(int width, int height, int tabAmount, Structure structure) {
-        this(width, height, tabAmount, structure.createIngredientList().findIndicesOfMarker(Marker.ITEM_LIST_SLOT));
+        this(width, height, tabAmount, structure.getIngredientList().findIndicesOfMarker(Markers.ITEM_LIST_SLOT));
         applyStructure(structure);
     }
     

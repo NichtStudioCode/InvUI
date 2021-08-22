@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 class Ingredient {
     
     private final SlotElement slotElement;
-    private final Marker marker;
+    private final String marker;
     private final Supplier<? extends SlotElement> elementSupplier;
     
     public Ingredient(SlotElement slotElement) {
@@ -22,7 +22,7 @@ class Ingredient {
         this.marker = null;
     }
     
-    public Ingredient(Marker marker) {
+    public Ingredient(String marker) {
         this.marker = marker;
         this.slotElement = null;
         this.elementSupplier = null;
@@ -32,7 +32,7 @@ class Ingredient {
         return slotElement == null ? elementSupplier.get() : slotElement;
     }
     
-    public Marker getMarker() {
+    public String getMarker() {
         return marker;
     }
     

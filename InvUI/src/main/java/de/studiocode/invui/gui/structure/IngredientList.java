@@ -27,14 +27,14 @@ public class IngredientList extends ArrayList<Ingredient> {
         }
     }
     
-    public int[] findIndicesOfMarker(Marker marker) {
+    public int[] findIndicesOfMarker(String marker) {
         List<Integer> indices = new ArrayList<>();
         for (int i = 0; i < size(); i++) {
             Ingredient ingredient = get(i);
-            if (ingredient != null && ingredient.isMarker() && ingredient.getMarker() == marker)
+            if (ingredient != null && ingredient.isMarker() && ingredient.getMarker().equals(marker))
                 indices.add(i);
         }
-        
+    
         return indices.stream().mapToInt(Integer::intValue).toArray();
     }
     

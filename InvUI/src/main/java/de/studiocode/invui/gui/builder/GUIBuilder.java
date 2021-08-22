@@ -3,10 +3,10 @@ package de.studiocode.invui.gui.builder;
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.gui.builder.guitype.GUIType;
-import de.studiocode.invui.gui.structure.Marker;
 import de.studiocode.invui.gui.structure.Structure;
 import de.studiocode.invui.item.Item;
 import de.studiocode.invui.item.ItemProvider;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,6 +39,11 @@ public class GUIBuilder<G extends GUI> {
         return this;
     }
     
+    public GUIBuilder<G> addIngredient(char key, @NotNull ItemStack itemStack) {
+        context.getStructure().addIngredient(key, itemStack);
+        return this;
+    }
+    
     public GUIBuilder<G> addIngredient(char key, @NotNull ItemProvider itemProvider) {
         context.getStructure().addIngredient(key, itemProvider);
         return this;
@@ -54,7 +59,7 @@ public class GUIBuilder<G extends GUI> {
         return this;
     }
     
-    public GUIBuilder<G> addIngredient(char key, @NotNull Marker marker) {
+    public GUIBuilder<G> addIngredient(char key, @NotNull String marker) {
         context.getStructure().addIngredient(key, marker);
         return this;
     }
