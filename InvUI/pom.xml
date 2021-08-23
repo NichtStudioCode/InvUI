@@ -45,42 +45,42 @@
         </dependency>
         <dependency>
             <groupId>de.studiocode.invui</groupId>
-            <artifactId>abstraction</artifactId>
+            <artifactId>IA</artifactId>
             <version>0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>de.studiocode.invui</groupId>
-            <artifactId>1_14_R1</artifactId>
+            <artifactId>IA-R1</artifactId>
             <version>0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>de.studiocode.invui</groupId>
-            <artifactId>1_15_R1</artifactId>
+            <artifactId>IA-R2</artifactId>
             <version>0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>de.studiocode.invui</groupId>
-            <artifactId>1_16_R1</artifactId>
+            <artifactId>IA-R3</artifactId>
             <version>0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>de.studiocode.invui</groupId>
-            <artifactId>1_16_R2</artifactId>
+            <artifactId>IA-R4</artifactId>
             <version>0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>de.studiocode.invui</groupId>
-            <artifactId>1_16_R3</artifactId>
+            <artifactId>IA-R5</artifactId>
             <version>0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>de.studiocode.invui</groupId>
-            <artifactId>1_17_R1</artifactId>
+            <artifactId>IA-R6</artifactId>
             <version>0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>de.studiocode.invui</groupId>
-            <artifactId>1_17_R2</artifactId>
+            <artifactId>IA-R7</artifactId>
             <version>0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>

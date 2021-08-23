@@ -29,15 +29,15 @@
     </repositories>
 
     <modules>
-        <module>InventoryAccess/1_14_R1</module>
-        <module>InventoryAccess/1_15_R1</module>
-        <module>InventoryAccess/1_16_R1</module>
-        <module>InventoryAccess/1_16_R2</module>
-        <module>InventoryAccess/1_16_R3</module>
-        <module>InventoryAccess/1_17_R1</module>
-        <module>InventoryAccess/1_17_R2</module>
+        <module>InventoryAccess/IA-R1</module>
+        <module>InventoryAccess/IA-R2</module>
+        <module>InventoryAccess/IA-R3</module>
+        <module>InventoryAccess/IA-R4</module>
+        <module>InventoryAccess/IA-R5</module>
+        <module>InventoryAccess/IA-R6</module>
+        <module>InventoryAccess/IA-R7</module>
+        <module>InventoryAccess/IA</module>
         <module>InvUI</module>
-        <module>InventoryAccess/abstraction</module>
     </modules>
 
     <build>
