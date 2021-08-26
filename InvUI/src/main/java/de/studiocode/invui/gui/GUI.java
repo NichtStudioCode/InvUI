@@ -117,7 +117,7 @@ public interface GUI extends GUIParent {
     boolean hasSlotElement(int index);
     
     /**
-     * Gets a all {@link SlotElement}s of this {@link GUI} in an Array.
+     * Gets all {@link SlotElement}s of this {@link GUI} in an Array.
      *
      * @return All {@link SlotElement}s of this {@link GUI}
      */
@@ -175,7 +175,7 @@ public interface GUI extends GUIParent {
     void setBackground(@Nullable ItemProvider itemProvider);
     
     /**
-     * Gets the {@link ItemProvider} that will used if nothing else
+     * Gets the {@link ItemProvider} that will be used if nothing else
      * is placed on a slot.
      *
      * @return The {@link ItemProvider}
@@ -311,7 +311,7 @@ public interface GUI extends GUIParent {
     void fill(@Nullable Item item, boolean replaceExisting);
     
     /**
-     * Fills one row with an specific {@link Item}
+     * Fills one row with a specific {@link Item}
      *
      * @param row             The row
      * @param item            The {@link Item} that should be used or null to remove an existing item.
@@ -320,7 +320,7 @@ public interface GUI extends GUIParent {
     void fillRow(int row, @Nullable Item item, boolean replaceExisting);
     
     /**
-     * Fills one column with an specific {@link Item}
+     * Fills one column with a specific {@link Item}
      *
      * @param column          The column
      * @param item            The {@link Item} that should be used or null to remove an existing item.
@@ -329,7 +329,7 @@ public interface GUI extends GUIParent {
     void fillColumn(int column, @Nullable Item item, boolean replaceExisting);
     
     /**
-     * Fills the borders of this {@link GUI} with an specific {@link Item}
+     * Fills the borders of this {@link GUI} with a specific {@link Item}
      *
      * @param item            The {@link Item} that should be used or null to remove an existing item.
      * @param replaceExisting If existing {@link Item}s should be replaced.
@@ -337,7 +337,7 @@ public interface GUI extends GUIParent {
     void fillBorders(@Nullable Item item, boolean replaceExisting);
     
     /**
-     * Fills a rectangle in this {@link GUI} with an specific {@link Item}
+     * Fills a rectangle in this {@link GUI} with a specific {@link Item}
      *
      * @param x               The x coordinate where the rectangle should start.
      * @param y               The y coordinate where the rectangle should start.

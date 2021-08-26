@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Consumer;
 
 /**
- * An {@link Item} that cycles trough a predefined array of {@link ItemProvider}s when clicked.
+ * An {@link Item} that cycles through a predefined array of {@link ItemProvider}s when clicked.
  */
 public class CycleItem extends BaseItem {
     

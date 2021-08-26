@@ -37,7 +37,7 @@ public class VirtualInventory implements ConfigurationSerializable {
      * @param uuid       The {@link UUID} of this {@link VirtualInventory}. Can be null, only used for serialization.
      * @param size       The amount of slots this {@link VirtualInventory} has.
      * @param items      A predefined array of content. Can be null. Will not get copied!
-     * @param stackSizes An array of maximum allowed stack sizes for the each slot in the {@link VirtualInventory}.
+     * @param stackSizes An array of maximum allowed stack sizes for each slot in the {@link VirtualInventory}.
      */
     public VirtualInventory(@Nullable UUID uuid, int size, @Nullable ItemStack[] items, int[] stackSizes) {
         this.uuid = uuid;

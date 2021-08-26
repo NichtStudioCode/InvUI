@@ -144,7 +144,7 @@ public interface Window extends GUIParent {
     void closeForViewer();
     
     /**
-     * Shows the window to a the player.
+     * Shows the window to the player.
      */
     void show();
     
@@ -184,7 +184,7 @@ public interface Window extends GUIParent {
     Player getViewer();
     
     /**
-     * Gets a the current {@link Player} that is viewing this
+     * Gets the current {@link Player} that is viewing this
      * {@link Window} or null of there isn't one.
      *
      * @return The current viewer of this {@link Window} (can be null)

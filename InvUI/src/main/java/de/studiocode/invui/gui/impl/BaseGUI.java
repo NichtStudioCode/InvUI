@@ -155,7 +155,7 @@ public abstract class BaseGUI implements GUI, Controllable {
             if (inventory.setItemStack(updateReason, slot, null))
                 event.setCursor(clicked);
         } else if (clicked == null || cursor.isSimilar(clicked)) {
-            // if there are no items or they're similar to the cursor, add the cursor items to the stack
+            // if there are no items, or they're similar to the cursor, add the cursor items to the stack
             int remains = inventory.putItemStack(updateReason, slot, cursor);
             if (remains == 0) {
                 event.setCursor(null);
