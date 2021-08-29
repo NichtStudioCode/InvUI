@@ -79,6 +79,7 @@ public abstract class BaseGUI implements GUI, Controllable {
         } else event.setCancelled(true); // Only VISlotElements have allowed interactions
     }
     
+    // region virtual inventories
     private void handleVISlotElementClick(VISlotElement element, InventoryClickEvent event) {
         // these actions are ignored as they don't modify the inventory
         InventoryAction action = event.getAction();
@@ -353,6 +354,7 @@ public abstract class BaseGUI implements GUI, Controllable {
         
         return virtualInventories;
     }
+    // endregion
     
     @Override
     public void handleSlotElementUpdate(GUI child, int slotIndex) {
@@ -571,8 +573,7 @@ public abstract class BaseGUI implements GUI, Controllable {
         return size;
     }
     
-    // -- coordinate-based methods --
-    
+    // region coordinate-based methods
     @Override
     public void setSlotElement(int x, int y, SlotElement slotElement) {
         setSlotElement(convToIndex(x, y), slotElement);
@@ -687,5 +688,6 @@ public abstract class BaseGUI implements GUI, Controllable {
             slotIndex++;
         }
     }
+    // endregion
     
 }
