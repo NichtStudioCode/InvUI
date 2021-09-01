@@ -326,7 +326,7 @@ public abstract class BaseGUI implements GUI, Controllable {
     }
     
     private int putIntoFirstVirtualInventory(UpdateReason updateReason, ItemStack itemStack, VirtualInventory... ignored) {
-        List<VirtualInventory> inventories = getAllVirtualInventories(ignored);
+        LinkedHashSet<VirtualInventory> inventories = getAllVirtualInventories(ignored);
         int originalAmount = itemStack.getAmount();
         
         if (inventories.size() > 0) {
@@ -340,19 +340,15 @@ public abstract class BaseGUI implements GUI, Controllable {
         return originalAmount;
     }
     
-    private List<VirtualInventory> getAllVirtualInventories(VirtualInventory... ignored) {
-        List<VirtualInventory> virtualInventories = new ArrayList<>();
-        Arrays.stream(slotElements)
+    private LinkedHashSet<VirtualInventory> getAllVirtualInventories(VirtualInventory... ignored) {
+        return Arrays.stream(slotElements)
             .filter(Objects::nonNull)
             .map(SlotElement::getHoldingElement)
             .filter(element -> element instanceof VISlotElement)
             .map(element -> ((VISlotElement) element).getVirtualInventory())
             .filter(vi -> Arrays.stream(ignored).noneMatch(vi::equals))
-            .forEach(vi -> {
-                if (!virtualInventories.contains(vi)) virtualInventories.add(vi);
-            });
-        
-        return virtualInventories;
+            .sorted((vi1, vi2) -> -Integer.compare(vi1.getGuiShiftPriority(), vi2.getGuiShiftPriority()))
+            .collect(Collectors.toCollection(LinkedHashSet::new));
     }
     // endregion
     

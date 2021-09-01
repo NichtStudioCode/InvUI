@@ -1,6 +1,7 @@
 package de.studiocode.invui.virtualinventory;
 
 import de.studiocode.invui.InvUI;
+import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.util.ArrayUtils;
 import de.studiocode.invui.virtualinventory.event.ItemUpdateEvent;
 import de.studiocode.invui.virtualinventory.event.UpdateReason;
@@ -30,6 +31,7 @@ public class VirtualInventory implements ConfigurationSerializable {
     private int[] stackSizes;
     private final Set<Window> windows = new HashSet<>();
     private Consumer<ItemUpdateEvent> itemUpdateHandler;
+    private int guiShiftPriority = 0;
     
     /**
      * Constructs a new {@link VirtualInventory}
@@ -158,6 +160,28 @@ public class VirtualInventory implements ConfigurationSerializable {
      */
     public void setItemUpdateHandler(Consumer<ItemUpdateEvent> itemUpdateHandler) {
         this.itemUpdateHandler = itemUpdateHandler;
+    }
+    
+    /**
+     * Sets the priority for shift-clicking {@link ItemStack ItemStatcks} into a {@link GUI}
+     * with multiple {@link VirtualInventory}.
+     * Not serialized with {@link VirtualInventoryManager#serializeInventory(VirtualInventory, OutputStream)}.
+     *
+     * @param guiShiftPriority The priority for shift-clicking, {@link VirtualInventory VirtualInventories} with
+     *                         a higher priority get prioritized.
+     */
+    public void setGuiShiftPriority(int guiShiftPriority) {
+        this.guiShiftPriority = guiShiftPriority;
+    }
+    
+    /**
+     * Gets the priority for shift-clicking {@link ItemStack ItemStatcks} into a {@link GUI}
+     *
+     * @return The priority for shift-clicking, {@link VirtualInventory VirtualInventories} with
+     * a higher priority get prioritized.
+     */
+    public int getGuiShiftPriority() {
+        return guiShiftPriority;
     }
     
     /**
