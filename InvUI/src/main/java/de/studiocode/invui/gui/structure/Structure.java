@@ -7,6 +7,7 @@ import de.studiocode.invui.item.Item;
 import de.studiocode.invui.item.ItemProvider;
 import de.studiocode.invui.item.ItemWrapper;
 import de.studiocode.invui.item.impl.SimpleItem;
+import de.studiocode.invui.virtualinventory.VirtualInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.jetbrains.annotations.NotNull;
@@ -74,6 +75,11 @@ public class Structure implements Cloneable {
     public Structure addIngredient(char key, @NotNull Item item) {
         if (ingredientList != null) throw new UnsupportedOperationException("Structure is locked");
         return addIngredient(key, new ItemSlotElement(item));
+    }
+    
+    public Structure addIngredient(char key, @NotNull VirtualInventory inventory) {
+        if (ingredientList != null) throw new UnsupportedOperationException("Structure is locked");
+        return addIngredientElementSupplier(key, new VISlotElementSupplier(inventory));
     }
     
     public Structure addIngredient(char key, @NotNull SlotElement element) {

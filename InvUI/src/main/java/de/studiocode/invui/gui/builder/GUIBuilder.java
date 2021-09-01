@@ -6,6 +6,7 @@ import de.studiocode.invui.gui.builder.guitype.GUIType;
 import de.studiocode.invui.gui.structure.Structure;
 import de.studiocode.invui.item.Item;
 import de.studiocode.invui.item.ItemProvider;
+import de.studiocode.invui.virtualinventory.VirtualInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.jetbrains.annotations.NotNull;
@@ -51,6 +52,11 @@ public class GUIBuilder<G extends GUI> {
     
     public GUIBuilder<G> addIngredient(char key, @NotNull Item item) {
         context.getStructure().addIngredient(key, item);
+        return this;
+    }
+    
+    public GUIBuilder<G> addIngredient(char key, @NotNull VirtualInventory inventory) {
+        context.getStructure().addIngredient(key, inventory);
         return this;
     }
     
