@@ -124,6 +124,18 @@ public interface Window extends GUIParent {
     void handleVirtualInventoryUpdate(VirtualInventory virtualInventory);
     
     /**
+     * Adds a close handler that will be called when this window gets closed.
+     * @param closeHandler The close handler to add
+     */
+    void addCloseHandler(Runnable closeHandler);
+    
+    /**
+     * Removes a close handler that has been added previously.
+     * @param closeHandler The close handler to remove
+     */
+    void removeCloseHandler(Runnable closeHandler);
+    
+    /**
      * Removes the {@link Window} from the {@link WindowManager} list.
      * If this method is called, the {@link Window} can't be shown again.
      *

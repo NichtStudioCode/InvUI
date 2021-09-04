@@ -39,6 +39,8 @@ public abstract class BaseWindow implements Window {
     private boolean closeable;
     private boolean closed;
     
+    private final ArrayList<Runnable> closeHandlers = new ArrayList<>();
+    
     public BaseWindow(UUID viewerUUID, BaseComponent[] title, int size, boolean closeable, boolean closeOnEvent) {
         this.viewerUUID = viewerUUID;
         this.title = title;
@@ -142,6 +144,7 @@ public abstract class BaseWindow implements Window {
         if (closeable) {
             if (closeOnEvent) close(false);
             handleClosed();
+            closeHandlers.forEach(Runnable::run);
         } else {
             if (player.equals(getViewer()))
                 Bukkit.getScheduler().runTaskLater(InvUI.getInstance().getPlugin(), this::show, 0);
@@ -223,6 +226,16 @@ public abstract class BaseWindow implements Window {
     @Override
     public void changeTitle(@NotNull String title) {
         changeTitle(TextComponent.fromLegacyText(title));
+    }
+    
+    @Override
+    public void addCloseHandler(Runnable closeHandler) {
+        closeHandlers.add(closeHandler);
+    }
+    
+    @Override
+    public void removeCloseHandler(Runnable closeHandler) {
+        closeHandlers.remove(closeHandler);
     }
     
     @Override
