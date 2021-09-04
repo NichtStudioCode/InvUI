@@ -80,7 +80,7 @@ public abstract class BaseGUI implements GUI, Controllable {
     }
     
     // region virtual inventories
-    private void handleVISlotElementClick(VISlotElement element, InventoryClickEvent event) {
+    protected void handleVISlotElementClick(VISlotElement element, InventoryClickEvent event) {
         // these actions are ignored as they don't modify the inventory
         InventoryAction action = event.getAction();
         if (action != InventoryAction.CLONE_STACK
@@ -145,7 +145,7 @@ public abstract class BaseGUI implements GUI, Controllable {
     }
     
     @SuppressWarnings("deprecation")
-    private void handleVILeftClick(InventoryClickEvent event, VirtualInventory inventory, int slot, Player player, ItemStack clicked, ItemStack cursor) {
+    protected void handleVILeftClick(InventoryClickEvent event, VirtualInventory inventory, int slot, Player player, ItemStack clicked, ItemStack cursor) {
         // nothing happens if both cursor and clicked stack are empty
         if (clicked == null && cursor == null) return;
         
@@ -172,7 +172,7 @@ public abstract class BaseGUI implements GUI, Controllable {
     }
     
     @SuppressWarnings("deprecation")
-    private void handleVIRightClick(InventoryClickEvent event, VirtualInventory inventory, int slot, Player player, ItemStack clicked, ItemStack cursor) {
+    protected void handleVIRightClick(InventoryClickEvent event, VirtualInventory inventory, int slot, Player player, ItemStack clicked, ItemStack cursor) {
         // nothing happens if both cursor and clicked stack are empty
         if (clicked == null && cursor == null) return;
         
@@ -204,7 +204,7 @@ public abstract class BaseGUI implements GUI, Controllable {
         }
     }
     
-    private void handleVIItemShift(InventoryClickEvent event, VirtualInventory inventory, int slot, Player player, ItemStack clicked) {
+    protected void handleVIItemShift(InventoryClickEvent event, VirtualInventory inventory, int slot, Player player, ItemStack clicked) {
         if (clicked == null) return;
         
         UpdateReason updateReason = new PlayerUpdateReason(player, event);
@@ -236,7 +236,7 @@ public abstract class BaseGUI implements GUI, Controllable {
     }
     
     // TODO: add support for merged windows
-    private void handleVINumberKey(InventoryClickEvent event, VirtualInventory inventory, int slot, Player player, ItemStack clicked) {
+    protected void handleVINumberKey(InventoryClickEvent event, VirtualInventory inventory, int slot, Player player, ItemStack clicked) {
         Window window = WindowManager.getInstance().findOpenWindow(player).orElse(null);
         if (window instanceof SingleWindow) {
             Inventory playerInventory = player.getInventory();
@@ -252,7 +252,7 @@ public abstract class BaseGUI implements GUI, Controllable {
     }
     
     // TODO: add support for merged windows
-    private void handleVIOffHandKey(InventoryClickEvent event, VirtualInventory inventory, int slot, Player player, ItemStack clicked) {
+    protected void handleVIOffHandKey(InventoryClickEvent event, VirtualInventory inventory, int slot, Player player, ItemStack clicked) {
         Window window = WindowManager.getInstance().findOpenWindow(player).orElse(null);
         if (window instanceof SingleWindow) {
             PlayerInventory playerInventory = player.getInventory();
@@ -266,7 +266,7 @@ public abstract class BaseGUI implements GUI, Controllable {
         }
     }
     
-    private void handleVIDrop(boolean ctrl, InventoryClickEvent event, VirtualInventory inventory, int slot, Player player, ItemStack clicked) {
+    protected void handleVIDrop(boolean ctrl, InventoryClickEvent event, VirtualInventory inventory, int slot, Player player, ItemStack clicked) {
         if (clicked == null) return;
         
         UpdateReason updateReason = new PlayerUpdateReason(player, event);
@@ -283,7 +283,7 @@ public abstract class BaseGUI implements GUI, Controllable {
     }
     
     @SuppressWarnings("deprecation")
-    private void handleVIDoubleClick(InventoryClickEvent event, VirtualInventory inventory, Player player, ItemStack cursor) {
+    protected void handleVIDoubleClick(InventoryClickEvent event, VirtualInventory inventory, Player player, ItemStack cursor) {
         if (cursor == null) return;
         
         UpdateReason updateReason = new PlayerUpdateReason(player, event);
@@ -325,7 +325,7 @@ public abstract class BaseGUI implements GUI, Controllable {
         }
     }
     
-    private int putIntoFirstVirtualInventory(UpdateReason updateReason, ItemStack itemStack, VirtualInventory... ignored) {
+    protected int putIntoFirstVirtualInventory(UpdateReason updateReason, ItemStack itemStack, VirtualInventory... ignored) {
         LinkedHashSet<VirtualInventory> inventories = getAllVirtualInventories(ignored);
         int originalAmount = itemStack.getAmount();
         
@@ -340,7 +340,7 @@ public abstract class BaseGUI implements GUI, Controllable {
         return originalAmount;
     }
     
-    private LinkedHashSet<VirtualInventory> getAllVirtualInventories(VirtualInventory... ignored) {
+    protected LinkedHashSet<VirtualInventory> getAllVirtualInventories(VirtualInventory... ignored) {
         return Arrays.stream(slotElements)
             .filter(Objects::nonNull)
             .map(SlotElement::getHoldingElement)
