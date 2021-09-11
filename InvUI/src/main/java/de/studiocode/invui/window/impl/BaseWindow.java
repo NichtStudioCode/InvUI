@@ -175,6 +175,8 @@ public abstract class BaseWindow implements Window {
     
     @Override
     public void close(boolean closeForViewer) {
+        if (closed) return;
+        
         closed = true;
         
         WindowManager.getInstance().removeWindow(this);
@@ -199,10 +201,12 @@ public abstract class BaseWindow implements Window {
     @Override
     public void closeForViewer() {
         closeable = true;
-        // clone list to prevent ConcurrentModificationException
-        new ArrayList<>(getInventories()[0].getViewers()).forEach(HumanEntity::closeInventory);
         
-        handleClosed();
+        Player viewer = getCurrentViewer();
+        if (viewer != null) {
+            viewer.closeInventory();
+            handleClosed();
+        }
     }
     
     @Override
