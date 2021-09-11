@@ -56,6 +56,7 @@ public class InventoryUtilsImpl implements InventoryUtils {
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
         AbstractContainerMenu menu = serverPlayer.containerMenu;
         serverPlayer.connection.send(new ClientboundOpenScreenPacket(menu.containerId, menu.getType(), createNMSComponent(title)));
+        serverPlayer.initMenu(menu);
     }
     
     public static Component createNMSComponent(BaseComponent[] components) {

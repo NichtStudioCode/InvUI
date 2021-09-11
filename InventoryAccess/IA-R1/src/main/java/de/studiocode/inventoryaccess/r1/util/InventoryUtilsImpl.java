@@ -48,6 +48,7 @@ public class InventoryUtilsImpl implements InventoryUtils {
         EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
         Container container = entityPlayer.activeContainer;
         entityPlayer.playerConnection.sendPacket(new PacketPlayOutOpenWindow(container.windowId, container.getType(), createNMSComponent(title)));
+        entityPlayer.updateInventory(container);
     }
     
     private static Containers<?> getNotchInventoryType(Inventory inventory) {
