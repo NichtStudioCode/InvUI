@@ -9,10 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Automatically serializes and deserializes {@link VirtualInventory}s
@@ -70,6 +67,10 @@ public class VirtualInventoryManager {
     public VirtualInventory getOrCreate(UUID uuid, int size, ItemStack[] items, int[] stackSizes) {
         VirtualInventory virtualInventory = getByUuid(uuid);
         return virtualInventory == null ? createNew(uuid, size, items, stackSizes) : virtualInventory;
+    }
+    
+    public List<VirtualInventory> getAllInventories() {
+        return new ArrayList<>(inventories.values());
     }
     
     public void remove(VirtualInventory virtualInventory) {
