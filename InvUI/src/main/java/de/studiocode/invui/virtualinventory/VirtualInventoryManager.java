@@ -120,6 +120,12 @@ public class VirtualInventoryManager {
         return new File(SAVE_DIR, virtualInventory.getUuid() + ".vi2");
     }
     
+    public byte[] serializeInventory(VirtualInventory vi) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        serializeInventory(vi, out);
+        return out.toByteArray();
+    }
+    
     public void serializeInventory(VirtualInventory vi, OutputStream out) {
         try {
             DataOutputStream dos = new DataOutputStream(out);
@@ -144,6 +150,10 @@ public class VirtualInventoryManager {
             e.printStackTrace();
         }
         
+    }
+    
+    public VirtualInventory deserializeInventory(byte[] bytes) {
+        return deserializeInventory(new ByteArrayInputStream(bytes));
     }
     
     public VirtualInventory deserializeInventory(InputStream in) {

@@ -42,7 +42,7 @@ public class VirtualInventory implements ConfigurationSerializable {
      * @param stackSizes An array of maximum allowed stack sizes for each slot in the {@link VirtualInventory}.
      */
     public VirtualInventory(@Nullable UUID uuid, int size, @Nullable ItemStack[] items, int[] stackSizes) {
-        this.uuid = uuid;
+        this.uuid = uuid == null ? new UUID(0L, 0L) : uuid;
         this.size = size;
         this.items = items == null ? new ItemStack[size] : items;
         if (stackSizes == null) {
@@ -97,6 +97,10 @@ public class VirtualInventory implements ConfigurationSerializable {
         result.put("stackSizes", stackSizes);
         result.put("items", items);
         return result;
+    }
+    
+    public byte[] toByteArray() {
+        return VirtualInventoryManager.getInstance().serializeInventory(this);
     }
     
     /**
@@ -189,6 +193,7 @@ public class VirtualInventory implements ConfigurationSerializable {
      *
      * @return The {@link UUID}
      */
+    @NotNull
     public UUID getUuid() {
         return uuid;
     }
