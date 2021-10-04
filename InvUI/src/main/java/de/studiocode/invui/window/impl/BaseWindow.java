@@ -112,7 +112,7 @@ public abstract class BaseWindow implements Window {
             ItemStack currentStack = event.getView().getItem(rawSlot);
             if (currentStack != null && currentStack.getType() == Material.AIR) currentStack = null;
             
-            // get the GUI at that index and ask for permission to drag an Item there
+            // get the GUI at that slot and ask for permission to drag an Item there
             Pair<GUI, Integer> pair = getGuiAt(rawSlot);
             if (pair != null && !pair.getFirst().handleItemDrag(updateReason, pair.getSecond(), currentStack, newItems.get(rawSlot))) {
                 // the drag was cancelled
@@ -120,11 +120,11 @@ public abstract class BaseWindow implements Window {
                 int newAmount = newItems.get(rawSlot).getAmount();
                 
                 itemsLeft += newAmount - currentAmount;
-                
-                // Redraw cancelled items after the event so there won't be any Items that aren't actually there
-                Bukkit.getScheduler().runTask(InvUI.getInstance().getPlugin(), () -> redrawItem(rawSlot));
             }
         }
+        
+        // Redraw all items after the event so there won't be any Items that aren't actually there
+        Bukkit.getScheduler().runTask(InvUI.getInstance().getPlugin(), () -> event.getRawSlots().forEach(this::redrawItem));
         
         // update the amount on the cursor
         ItemStack cursorStack = event.getOldCursor();
