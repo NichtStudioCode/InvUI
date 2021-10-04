@@ -167,7 +167,7 @@ public class VirtualInventory implements ConfigurationSerializable {
     }
     
     /**
-     * Sets the priority for shift-clicking {@link ItemStack ItemStatcks} into a {@link GUI}
+     * Sets the priority for shift-clicking {@link ItemStack ItemStacks} into a {@link GUI}
      * with multiple {@link VirtualInventory}.
      * Not serialized with {@link VirtualInventoryManager#serializeInventory(VirtualInventory, OutputStream)}.
      *
@@ -179,7 +179,7 @@ public class VirtualInventory implements ConfigurationSerializable {
     }
     
     /**
-     * Gets the priority for shift-clicking {@link ItemStack ItemStatcks} into a {@link GUI}
+     * Gets the priority for shift-clicking {@link ItemStack ItemStacks} into a {@link GUI}
      *
      * @return The priority for shift-clicking, {@link VirtualInventory VirtualInventories} with
      * a higher priority get prioritized.
