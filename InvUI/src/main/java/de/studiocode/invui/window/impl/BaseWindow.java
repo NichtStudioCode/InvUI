@@ -124,7 +124,11 @@ public abstract class BaseWindow implements Window {
         }
         
         // Redraw all items after the event so there won't be any Items that aren't actually there
-        Bukkit.getScheduler().runTask(InvUI.getInstance().getPlugin(), () -> event.getRawSlots().forEach(this::redrawItem));
+        Bukkit.getScheduler().runTask(InvUI.getInstance().getPlugin(),
+            () -> event.getRawSlots().forEach(rawSlot -> {
+                if (getGuiAt(rawSlot) != null) redrawItem(rawSlot);
+            })
+        );
         
         // update the amount on the cursor
         ItemStack cursorStack = event.getOldCursor();
