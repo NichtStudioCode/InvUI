@@ -28,6 +28,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ItemBuilder implements ItemProvider {
@@ -42,6 +43,7 @@ public class ItemBuilder implements ItemProvider {
     protected List<ItemFlag> itemFlags;
     protected HashMap<Enchantment, Pair<Integer, Boolean>> enchantments;
     protected GameProfile gameProfile;
+    protected List<Function<ItemStack, ItemStack>> modifiers;
     
     /**
      * Constructs a new {@link ItemBuilder} based on the given {@link Material}.
@@ -143,6 +145,12 @@ public class ItemBuilder implements ItemProvider {
             itemStack.setItemMeta(itemMeta);
         }
         
+        // run modifiers
+        if (modifiers != null) {
+            for (Function<ItemStack, ItemStack> modifier : modifiers)
+                itemStack = modifier.apply(itemStack);
+        }
+        
         return itemStack;
     }
     
@@ -219,14 +227,12 @@ public class ItemBuilder implements ItemProvider {
     }
     
     public ItemBuilder removeLoreLine(int index) {
-        if (lore == null) lore = new ArrayList<>();
-        
-        lore.remove(index);
+        if (lore != null) lore.remove(index);
         return this;
     }
     
     public ItemBuilder clearLore() {
-        lore.clear();
+        if (lore != null) lore.clear();
         return this;
     }
     
@@ -237,20 +243,18 @@ public class ItemBuilder implements ItemProvider {
     
     public ItemBuilder addItemFlags(@NotNull ItemFlag... itemFlags) {
         if (this.itemFlags == null) this.itemFlags = new ArrayList<>();
-        
         this.itemFlags.addAll(Arrays.asList(itemFlags));
         return this;
     }
     
     public ItemBuilder removeItemFlags(@NotNull ItemFlag... itemFlags) {
-        if (this.itemFlags == null) this.itemFlags = new ArrayList<>();
-        
-        this.itemFlags.removeAll(Arrays.asList(itemFlags));
+        if (this.itemFlags != null)
+            this.itemFlags.removeAll(Arrays.asList(itemFlags));
         return this;
     }
     
     public ItemBuilder clearItemFlags() {
-        itemFlags.clear();
+        if (itemFlags != null) itemFlags.clear();
         return this;
     }
     
@@ -261,22 +265,29 @@ public class ItemBuilder implements ItemProvider {
     
     public ItemBuilder addEnchantment(Enchantment enchantment, int level, boolean ignoreLevelRestriction) {
         if (enchantments == null) enchantments = new HashMap<>();
-        
         enchantments.put(enchantment, new Pair<>(level, ignoreLevelRestriction));
         return this;
     }
     
     public ItemBuilder removeEnchantment(Enchantment enchantment) {
         if (enchantments == null) enchantments = new HashMap<>();
-        
         enchantments.remove(enchantment);
         return this;
     }
     
     public ItemBuilder clearEnchantments() {
-        if (enchantments == null) enchantments = new HashMap<>();
-        
-        enchantments.clear();
+        if (enchantments != null) enchantments.clear();
+        return this;
+    }
+    
+    public ItemBuilder addModifier(Function<ItemStack, ItemStack> modifier) {
+        if (modifiers == null) modifiers = new ArrayList<>();
+        modifiers.add(modifier);
+        return this;
+    }
+    
+    public ItemBuilder clearModifiers() {
+        if (modifiers != null) modifiers.clear();
         return this;
     }
     
@@ -320,6 +331,10 @@ public class ItemBuilder implements ItemProvider {
         return gameProfile;
     }
     
+    public List<Function<ItemStack, ItemStack>> getModifiers() {
+        return modifiers;
+    }
+    
     @Override
     public ItemBuilder clone() {
         try {
@@ -328,10 +343,11 @@ public class ItemBuilder implements ItemProvider {
             if (lore != null) clone.lore = new ArrayList<>(lore);
             if (itemFlags != null) clone.itemFlags = new ArrayList<>(itemFlags);
             if (enchantments != null) clone.enchantments = new HashMap<>(enchantments);
+            if (modifiers != null) clone.modifiers = new ArrayList<>(modifiers);
             
             return clone;
         } catch (CloneNotSupportedException e) {
-            throw new Error(e);
+            throw new AssertionError(e);
         }
     }
     
