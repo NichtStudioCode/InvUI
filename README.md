@@ -6,6 +6,7 @@
 ![License](https://img.shields.io/github/license/NichtStudioCode/InvUI)
 
 # InvUI
+
 An Inventory API for Minecraft Spigot servers.
 
 Supports all versions from 1.14 to 1.17.
@@ -13,15 +14,17 @@ Supports all versions from 1.14 to 1.17.
 [Wiki](https://github.com/NichtStudioCode/InvUI/wiki)
 
 ## Features
-*   Different types of inventories (Chest, Anvil, Dropper...)
-*   Different GUI types (Normal, Paged, Tab, Scroll)
-*   Nested GUIs (For example use another PagedGUI as a page)
-*   Easily customizable (Create your own GUI types and Items)
-*   Easy way to add localization using the built-in ItemBuilder
-*   Supports custom textures (Forced ResourcePack)
-*   Uncloseable inventories
-*   GUI Builder
+
+* Different types of inventories (Chest, Anvil, Dropper...)
+* Different GUI types (Normal, Paged, Tab, Scroll)
+* Nested GUIs (For example use another PagedGUI as a page)
+* Easily customizable (Create your own GUI types and Items)
+* Easy way to add localization using the built-in ItemBuilder
+* Supports custom textures (Forced ResourcePack)
+* Uncloseable inventories
+* GUI Builder
 
 ## Examples
-![1](https://i.imgur.com/uaqjHSS.gif) 
+
+![1](https://i.imgur.com/uaqjHSS.gif)
 ![2](https://i.imgur.com/rvE7VK5.gif)

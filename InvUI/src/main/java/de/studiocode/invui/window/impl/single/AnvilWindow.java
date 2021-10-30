@@ -18,7 +18,7 @@ public class AnvilWindow extends SingleWindow {
         super(player.getUniqueId(), title, gui, null, false, closable, true);
         anvilInventory = InventoryAccess.createAnvilInventory(player, title, renameHandler);
         inventory = anvilInventory.getBukkitInventory();
-    
+        
         initItems();
     }
     

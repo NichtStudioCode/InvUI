@@ -34,7 +34,7 @@ public class IngredientList extends ArrayList<Ingredient> {
             if (ingredient != null && ingredient.isMarker() && ingredient.getMarker().equals(marker))
                 indices.add(i);
         }
-    
+        
         return indices.stream().mapToInt(Integer::intValue).toArray();
     }
     

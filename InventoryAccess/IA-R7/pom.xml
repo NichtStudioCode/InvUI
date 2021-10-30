@@ -17,7 +17,7 @@
         <maven.compiler.target>16</maven.compiler.target>
         <spigotVersion>1.17.1-R0.1-SNAPSHOT</spigotVersion>
     </properties>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.spigotmc</groupId>
@@ -32,7 +32,7 @@
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -49,7 +49,8 @@
                         <configuration>
                             <srgIn>org.spigotmc:minecraft-server:${spigotVersion}:txt:maps-mojang</srgIn>
                             <reverse>true</reverse>
-                            <remappedDependencies>org.spigotmc:spigot:${spigotVersion}:jar:remapped-mojang</remappedDependencies>
+                            <remappedDependencies>org.spigotmc:spigot:${spigotVersion}:jar:remapped-mojang
+                            </remappedDependencies>
                             <remappedArtifactAttached>true</remappedArtifactAttached>
                             <remappedClassifierName>remapped-obf</remappedClassifierName>
                         </configuration>
@@ -61,9 +62,12 @@
                         </goals>
                         <id>remap-spigot</id>
                         <configuration>
-                            <inputFile>${project.build.directory}/${project.artifactId}-${project.version}-remapped-obf.jar</inputFile>
+                            <inputFile>
+                                ${project.build.directory}/${project.artifactId}-${project.version}-remapped-obf.jar
+                            </inputFile>
                             <srgIn>org.spigotmc:minecraft-server:${spigotVersion}:csrg:maps-spigot</srgIn>
-                            <remappedDependencies>org.spigotmc:spigot:${spigotVersion}:jar:remapped-obf</remappedDependencies>
+                            <remappedDependencies>org.spigotmc:spigot:${spigotVersion}:jar:remapped-obf
+                            </remappedDependencies>
                         </configuration>
                     </execution>
                 </executions>

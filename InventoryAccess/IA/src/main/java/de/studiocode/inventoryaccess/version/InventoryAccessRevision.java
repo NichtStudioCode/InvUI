@@ -23,19 +23,19 @@ public enum InventoryAccessRevision {
         this.since = VersionUtils.toMajorMinorPatch(since);
     }
     
+    private static InventoryAccessRevision getRequiredRevision() {
+        for (InventoryAccessRevision revision : values())
+            if (VersionUtils.isServerHigherOrEqual(revision.getSince())) return revision;
+        
+        throw new UnsupportedOperationException("Your version of Minecraft is not supported by InventoryAccess");
+    }
+    
     public String getPackageName() {
         return packageName;
     }
     
     public int[] getSince() {
         return since;
-    }
-    
-    private static InventoryAccessRevision getRequiredRevision() {
-        for (InventoryAccessRevision revision : values())
-            if (VersionUtils.isServerHigherOrEqual(revision.getSince())) return revision;
-        
-        throw new UnsupportedOperationException("Your version of Minecraft is not supported by InventoryAccess");
     }
     
 }

@@ -10,6 +10,7 @@ import net.minecraft.server.v1_16_R3.NBTCompressedStreamTools;
 import net.minecraft.server.v1_16_R3.NBTTagCompound;
 import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -21,14 +22,14 @@ public class ItemUtilsImpl implements ItemUtils {
     private static final Field CRAFT_ITEM_STACK_HANDLE_FIELD = ReflectionUtils.getField(CraftItemStack.class, true, "handle");
     
     @Override
-    public byte[] serializeItemStack(org.bukkit.inventory.ItemStack itemStack, boolean compressed) {
+    public byte[] serializeItemStack(org.bukkit.inventory.@NotNull ItemStack itemStack, boolean compressed) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         serializeItemStack(itemStack, out, compressed);
         return out.toByteArray();
     }
     
     @Override
-    public void serializeItemStack(org.bukkit.inventory.ItemStack itemStack, OutputStream out, boolean compressed) {
+    public void serializeItemStack(org.bukkit.inventory.@NotNull ItemStack itemStack, @NotNull OutputStream out, boolean compressed) {
         try {
             ItemStack nmsStack;
             
@@ -58,7 +59,7 @@ public class ItemUtilsImpl implements ItemUtils {
     }
     
     @Override
-    public org.bukkit.inventory.ItemStack deserializeItemStack(InputStream in, boolean compressed) {
+    public org.bukkit.inventory.ItemStack deserializeItemStack(@NotNull InputStream in, boolean compressed) {
         try {
             NBTTagCompound nbt;
             if (compressed) {
@@ -79,7 +80,7 @@ public class ItemUtilsImpl implements ItemUtils {
     }
     
     @Override
-    public void setDisplayName(ItemMeta itemMeta, BaseComponent[] name) {
+    public void setDisplayName(@NotNull ItemMeta itemMeta, BaseComponent[] name) {
         ReflectionUtils.setFieldValue(
             ReflectionRegistry.CB_CRAFT_META_ITEM_DISPLAY_NAME_FIELD,
             itemMeta,
@@ -88,7 +89,7 @@ public class ItemUtilsImpl implements ItemUtils {
     }
     
     @Override
-    public void setLore(ItemMeta itemMeta, List<BaseComponent[]> lore) {
+    public void setLore(@NotNull ItemMeta itemMeta, @NotNull List<@NotNull BaseComponent[]> lore) {
         ReflectionUtils.setFieldValue(
             ReflectionRegistry.CB_CRAFT_META_ITEM_LORE_FIELD,
             itemMeta,

@@ -167,20 +167,20 @@ public interface GUI extends GUIParent {
     void addItems(@NotNull Item... items);
     
     /**
-     * Sets the {@link ItemProvider} that will be used if nothing else
-     * is placed on a slot.
-     *
-     * @param itemProvider The {@link ItemProvider}
-     */
-    void setBackground(@Nullable ItemProvider itemProvider);
-    
-    /**
      * Gets the {@link ItemProvider} that will be used if nothing else
      * is placed on a slot.
      *
      * @return The {@link ItemProvider}
      */
     ItemProvider getBackground();
+    
+    /**
+     * Sets the {@link ItemProvider} that will be used if nothing else
+     * is placed on a slot.
+     *
+     * @param itemProvider The {@link ItemProvider}
+     */
+    void setBackground(@Nullable ItemProvider itemProvider);
     
     /**
      * Removes an {@link Item} by its coordinates.

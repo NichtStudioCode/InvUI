@@ -40,12 +40,12 @@ public abstract class ScrollGUI extends BaseGUI {
         applyStructure(structure);
     }
     
-    public void setCurrentLine(int line) {
-        this.offset = line * lineLength;
-    }
-    
     public int getCurrentLine() {
         return offset / lineLength;
+    }
+    
+    public void setCurrentLine(int line) {
+        this.offset = line * lineLength;
     }
     
     private int getMaxLineIndex() {

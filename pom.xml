@@ -28,6 +28,15 @@
         </repository>
     </repositories>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>RELEASE</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
     <modules>
         <module>InventoryAccess/IA-R1</module>
         <module>InventoryAccess/IA-R2</module>

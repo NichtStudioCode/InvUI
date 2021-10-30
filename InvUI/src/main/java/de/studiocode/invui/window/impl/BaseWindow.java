@@ -33,13 +33,10 @@ public abstract class BaseWindow implements Window {
     private final UUID viewerUUID;
     private final boolean closeOnEvent;
     private final SlotElement[] elementsDisplayed;
-    
+    private final ArrayList<Runnable> closeHandlers = new ArrayList<>();
     private BaseComponent[] title;
-    
     private boolean closeable;
     private boolean closed;
-    
-    private final ArrayList<Runnable> closeHandlers = new ArrayList<>();
     
     public BaseWindow(UUID viewerUUID, BaseComponent[] title, int size, boolean closeable, boolean closeOnEvent) {
         this.viewerUUID = viewerUUID;

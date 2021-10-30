@@ -43,6 +43,10 @@ public class ForceResourcePack implements Listener {
         return INSTANCE;
     }
     
+    public String getResourcePackUrl() {
+        return resourcePackUrl;
+    }
+    
     /**
      * Sets the URL String for the custom ResourcePack every {@link Player} is required to download.
      * Can be set to null to stop forcing the Resource Pack.
@@ -52,10 +56,6 @@ public class ForceResourcePack implements Listener {
     public void setResourcePackUrl(@Nullable String resourcePackUrl) {
         this.resourcePackUrl = resourcePackUrl;
         if (resourcePackUrl != null) Bukkit.getOnlinePlayers().forEach(this::sendResourcePack);
-    }
-    
-    public String getResourcePackUrl() {
-        return resourcePackUrl;
     }
     
     @EventHandler

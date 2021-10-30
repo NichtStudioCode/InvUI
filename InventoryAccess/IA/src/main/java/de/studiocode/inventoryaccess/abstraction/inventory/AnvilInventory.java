@@ -2,6 +2,8 @@ package de.studiocode.inventoryaccess.abstraction.inventory;
 
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface AnvilInventory {
     
@@ -10,6 +12,7 @@ public interface AnvilInventory {
      *
      * @return The {@link Inventory}
      */
+    @NotNull
     Inventory getBukkitInventory();
     
     /**
@@ -23,7 +26,7 @@ public interface AnvilInventory {
      * @param slot      The slot
      * @param itemStack The {@link ItemStack}
      */
-    void setItem(int slot, ItemStack itemStack);
+    void setItem(int slot, @Nullable ItemStack itemStack);
     
     /**
      * Gets the rename text the user has typed in the renaming section of the anvil.

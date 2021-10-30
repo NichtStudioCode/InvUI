@@ -24,6 +24,7 @@ import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftInventoryView;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.Inventory;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
@@ -37,7 +38,7 @@ public class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
     private String text;
     private boolean open;
     
-    public AnvilInventoryImpl(org.bukkit.entity.Player player, BaseComponent[] title, Consumer<String> renameHandler) {
+    public AnvilInventoryImpl(org.bukkit.entity.Player player, @NotNull BaseComponent[] title, Consumer<String> renameHandler) {
         this(((CraftPlayer) player).getHandle(), InventoryUtilsImpl.createNMSComponent(title), renameHandler);
     }
     
@@ -101,7 +102,7 @@ public class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
     }
     
     @Override
-    public Inventory getBukkitInventory() {
+    public @NotNull Inventory getBukkitInventory() {
         return view.getTopInventory();
     }
     
@@ -115,7 +116,7 @@ public class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
         return open;
     }
     
-    // --- ContainerAnvil ---
+    // --- AnvilMenu ---
     
     @Override
     public CraftInventoryView getBukkitView() {

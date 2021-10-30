@@ -12,6 +12,7 @@ import org.bukkit.craftbukkit.v1_16_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.Inventory;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
@@ -25,7 +26,7 @@ public class AnvilInventoryImpl extends ContainerAnvil implements AnvilInventory
     private String text;
     private boolean open;
     
-    public AnvilInventoryImpl(Player player, BaseComponent[] title, Consumer<String> renameHandler) {
+    public AnvilInventoryImpl(Player player, @NotNull BaseComponent[] title, Consumer<String> renameHandler) {
         this(((CraftPlayer) player).getHandle(), InventoryUtilsImpl.createNMSComponent(title), renameHandler);
     }
     
@@ -56,11 +57,11 @@ public class AnvilInventoryImpl extends ContainerAnvil implements AnvilInventory
         
         // send initial items
         NonNullList<ItemStack> itemsList = NonNullList.a(ItemStack.b, getItem(0), getItem(1), getItem(2));
-        player.playerConnection.sendPacket(new PacketPlayOutWindowItems(getActiveWindowId(player), itemsList));
+        player.playerConnection.sendPacket(new PacketPlayOutWindowItems(InventoryUtilsImpl.getActiveWindowId(player), itemsList));
     }
     
     public void sendItem(int slot) {
-        player.playerConnection.sendPacket(new PacketPlayOutSetSlot(getActiveWindowId(player), slot, getItem(slot)));
+        player.playerConnection.sendPacket(new PacketPlayOutSetSlot(InventoryUtilsImpl.getActiveWindowId(player), slot, getItem(slot)));
     }
     
     public void setItem(int slot, ItemStack item) {
@@ -75,18 +76,13 @@ public class AnvilInventoryImpl extends ContainerAnvil implements AnvilInventory
         else return resultInventory.getItem(0);
     }
     
-    private int getActiveWindowId(EntityPlayer player) {
-        Container container = player.activeContainer;
-        return container == null ? -1 : container.windowId;
-    }
-    
     @Override
     public void setItem(int slot, org.bukkit.inventory.ItemStack itemStack) {
         setItem(slot, CraftItemStack.asNMSCopy(itemStack));
     }
     
     @Override
-    public Inventory getBukkitInventory() {
+    public @NotNull Inventory getBukkitInventory() {
         return view.getTopInventory();
     }
     

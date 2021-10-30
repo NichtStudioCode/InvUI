@@ -103,4 +103,7 @@ public abstract class SingleWindow extends BaseWindow {
         return new GUI[] {gui};
     }
     
+    public GUI getGui() {
+        return gui;
+    }
 }

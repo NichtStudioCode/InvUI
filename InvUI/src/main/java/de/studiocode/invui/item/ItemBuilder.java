@@ -169,45 +169,10 @@ public class ItemBuilder implements ItemProvider {
         return get();
     }
     
-    public ItemBuilder setMaterial(@NotNull Material material) {
-        this.material = material;
-        return this;
-    }
-    
-    public ItemBuilder setAmount(int amount) {
-        this.amount = amount;
-        return this;
-    }
-    
-    public ItemBuilder setDamage(int damage) {
-        this.damage = damage;
-        return this;
-    }
-    
-    public ItemBuilder setCustomModelData(int customModelData) {
-        this.customModelData = customModelData;
-        return this;
-    }
-    
-    public ItemBuilder setDisplayName(String displayName) {
-        this.displayName = ComponentUtils.withoutPreFormatting(displayName);
-        return this;
-    }
-    
-    public ItemBuilder setDisplayName(BaseComponent... displayName) {
-        this.displayName = ComponentUtils.withoutPreFormatting(displayName);
-        return this;
-    }
-    
     public ItemBuilder setLegacyLore(@NotNull List<String> lore) {
         this.lore = lore.stream()
             .map(ComponentUtils::withoutPreFormatting)
             .collect(Collectors.toList());
-        return this;
-    }
-    
-    public ItemBuilder setLore(List<BaseComponent[]> lore) {
-        this.lore = lore;
         return this;
     }
     
@@ -236,11 +201,6 @@ public class ItemBuilder implements ItemProvider {
         return this;
     }
     
-    public ItemBuilder setItemFlags(@NotNull List<ItemFlag> itemFlags) {
-        this.itemFlags = itemFlags;
-        return this;
-    }
-    
     public ItemBuilder addItemFlags(@NotNull ItemFlag... itemFlags) {
         if (this.itemFlags == null) this.itemFlags = new ArrayList<>();
         this.itemFlags.addAll(Arrays.asList(itemFlags));
@@ -255,11 +215,6 @@ public class ItemBuilder implements ItemProvider {
     
     public ItemBuilder clearItemFlags() {
         if (itemFlags != null) itemFlags.clear();
-        return this;
-    }
-    
-    public ItemBuilder setEnchantments(@NotNull HashMap<Enchantment, Pair<Integer, Boolean>> enchantments) {
-        this.enchantments = enchantments;
         return this;
     }
     
@@ -299,32 +254,77 @@ public class ItemBuilder implements ItemProvider {
         return material;
     }
     
+    public ItemBuilder setMaterial(@NotNull Material material) {
+        this.material = material;
+        return this;
+    }
+    
     public int getAmount() {
         return amount;
+    }
+    
+    public ItemBuilder setAmount(int amount) {
+        this.amount = amount;
+        return this;
     }
     
     public int getDamage() {
         return damage;
     }
     
+    public ItemBuilder setDamage(int damage) {
+        this.damage = damage;
+        return this;
+    }
+    
     public int getCustomModelData() {
         return customModelData;
+    }
+    
+    public ItemBuilder setCustomModelData(int customModelData) {
+        this.customModelData = customModelData;
+        return this;
     }
     
     public BaseComponent[] getDisplayName() {
         return displayName;
     }
     
+    public ItemBuilder setDisplayName(String displayName) {
+        this.displayName = ComponentUtils.withoutPreFormatting(displayName);
+        return this;
+    }
+    
+    public ItemBuilder setDisplayName(BaseComponent... displayName) {
+        this.displayName = ComponentUtils.withoutPreFormatting(displayName);
+        return this;
+    }
+    
     public List<BaseComponent[]> getLore() {
         return lore;
+    }
+    
+    public ItemBuilder setLore(List<BaseComponent[]> lore) {
+        this.lore = lore;
+        return this;
     }
     
     public List<ItemFlag> getItemFlags() {
         return itemFlags;
     }
     
+    public ItemBuilder setItemFlags(@NotNull List<ItemFlag> itemFlags) {
+        this.itemFlags = itemFlags;
+        return this;
+    }
+    
     public HashMap<Enchantment, Pair<Integer, Boolean>> getEnchantments() {
         return enchantments;
+    }
+    
+    public ItemBuilder setEnchantments(@NotNull HashMap<Enchantment, Pair<Integer, Boolean>> enchantments) {
+        this.enchantments = enchantments;
+        return this;
     }
     
     public GameProfile getGameProfile() {

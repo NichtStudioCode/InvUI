@@ -17,16 +17,27 @@ import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftInventory;
 import org.bukkit.craftbukkit.v1_17_R1.util.CraftChatMessage;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.jetbrains.annotations.NotNull;
 
 public class InventoryUtilsImpl implements InventoryUtils {
     
+    public static Component createNMSComponent(BaseComponent[] components) {
+        String json = ComponentSerializer.toString(components);
+        return CraftChatMessage.fromJSON(json);
+    }
+    
+    public static int getActiveWindowId(ServerPlayer player) {
+        AbstractContainerMenu container = player.containerMenu;
+        return container == null ? -1 : container.containerId;
+    }
+    
     @Override
-    public void openCustomInventory(Player player, Inventory inventory) {
+    public void openCustomInventory(@NotNull Player player, @NotNull Inventory inventory) {
         openCustomInventory(player, inventory, null);
     }
     
     @Override
-    public void openCustomInventory(Player player, Inventory inventory, BaseComponent[] title) {
+    public void openCustomInventory(@NotNull Player player, @NotNull Inventory inventory, @NotNull BaseComponent[] title) {
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
         MenuType<?> menuType = CraftContainer.getNotchInventoryType(inventory);
         
@@ -52,16 +63,11 @@ public class InventoryUtilsImpl implements InventoryUtils {
     }
     
     @Override
-    public void updateOpenInventoryTitle(Player player, BaseComponent[] title) {
+    public void updateOpenInventoryTitle(@NotNull Player player, @NotNull BaseComponent[] title) {
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
         AbstractContainerMenu menu = serverPlayer.containerMenu;
         serverPlayer.connection.send(new ClientboundOpenScreenPacket(menu.containerId, menu.getType(), createNMSComponent(title)));
         serverPlayer.initMenu(menu);
-    }
-    
-    public static Component createNMSComponent(BaseComponent[] components) {
-        String json = ComponentSerializer.toString(components);
-        return CraftChatMessage.fromJSON(json);
     }
     
 }

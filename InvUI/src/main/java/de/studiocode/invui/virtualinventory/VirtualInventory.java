@@ -26,10 +26,10 @@ import static java.lang.Math.min;
 public class VirtualInventory implements ConfigurationSerializable {
     
     private final UUID uuid;
+    private final Set<Window> windows = new HashSet<>();
     private int size;
     private ItemStack[] items;
     private int[] stackSizes;
-    private final Set<Window> windows = new HashSet<>();
     private Consumer<ItemUpdateEvent> itemUpdateHandler;
     private int guiShiftPriority = 0;
     
@@ -167,6 +167,16 @@ public class VirtualInventory implements ConfigurationSerializable {
     }
     
     /**
+     * Gets the priority for shift-clicking {@link ItemStack ItemStacks} into a {@link GUI}
+     *
+     * @return The priority for shift-clicking, {@link VirtualInventory VirtualInventories} with
+     * a higher priority get prioritized.
+     */
+    public int getGuiShiftPriority() {
+        return guiShiftPriority;
+    }
+    
+    /**
      * Sets the priority for shift-clicking {@link ItemStack ItemStacks} into a {@link GUI}
      * with multiple {@link VirtualInventory}.
      * Not serialized with {@link VirtualInventoryManager#serializeInventory(VirtualInventory, OutputStream)}.
@@ -176,16 +186,6 @@ public class VirtualInventory implements ConfigurationSerializable {
      */
     public void setGuiShiftPriority(int guiShiftPriority) {
         this.guiShiftPriority = guiShiftPriority;
-    }
-    
-    /**
-     * Gets the priority for shift-clicking {@link ItemStack ItemStacks} into a {@link GUI}
-     *
-     * @return The priority for shift-clicking, {@link VirtualInventory VirtualInventories} with
-     * a higher priority get prioritized.
-     */
-    public int getGuiShiftPriority() {
-        return guiShiftPriority;
     }
     
     /**

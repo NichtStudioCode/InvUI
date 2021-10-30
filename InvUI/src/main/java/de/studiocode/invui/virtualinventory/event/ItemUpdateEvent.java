@@ -13,10 +13,9 @@ public class ItemUpdateEvent {
     
     private final VirtualInventory virtualInventory;
     private final ItemStack previousItemStack;
-    private ItemStack newItemStack;
     private final UpdateReason updateReason;
     private final int slot;
-    
+    private ItemStack newItemStack;
     private boolean cancelled;
     
     /**

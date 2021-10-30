@@ -125,12 +125,14 @@ public interface Window extends GUIParent {
     
     /**
      * Adds a close handler that will be called when this window gets closed.
+     *
      * @param closeHandler The close handler to add
      */
     void addCloseHandler(Runnable closeHandler);
     
     /**
      * Removes a close handler that has been added previously.
+     *
      * @param closeHandler The close handler to remove
      */
     void removeCloseHandler(Runnable closeHandler);
