@@ -12,7 +12,7 @@ public abstract class TabGUI extends BaseGUI implements Controllable {
     private final int tabAmount;
     private final int[] listSlots;
     
-    private int currentTab;
+    private int currentTab = -1;
     
     public TabGUI(int width, int height, int tabAmount, int... listSlots) {
         super(width, height);
@@ -28,12 +28,16 @@ public abstract class TabGUI extends BaseGUI implements Controllable {
     public void showTab(int tab) {
         if (tab < 0 || tab >= tabAmount)
             throw new IllegalArgumentException("Tab out of bounds");
+        if (!isTabAvailable(tab))
+            return;
         
         currentTab = tab;
         update();
     }
     
     protected void update() {
+        if (currentTab == -1) currentTab = getFirstAvailableTab();
+        
         updateControlItems();
         updateContent();
     }
@@ -47,10 +51,20 @@ public abstract class TabGUI extends BaseGUI implements Controllable {
         }
     }
     
+    public int getFirstAvailableTab() {
+        for (int tab = 0; tab < tabAmount; tab++) {
+            if (isTabAvailable(tab)) return tab;
+        }
+        
+        throw new UnsupportedOperationException("At least one tab needs to be available");
+    }
+    
     public int getCurrentTab() {
         return currentTab;
     }
     
     public abstract List<SlotElement> getSlotElements(int tab);
+    
+    public abstract boolean isTabAvailable(int tab);
     
 }

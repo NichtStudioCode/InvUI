@@ -8,6 +8,7 @@ import de.studiocode.invui.gui.structure.Structure;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,6 +39,8 @@ public class SimpleTabGUI extends TabGUI {
     }
     
     private List<SlotElement> getLinkingElements(GUI gui) {
+        if (gui == null) return null;
+        
         List<SlotElement> elements = new ArrayList<>();
         for (int slot = 0; slot < gui.getSize(); slot++) {
             SlotElement link = new LinkedSlotElement(gui, slot);
@@ -48,12 +51,17 @@ public class SimpleTabGUI extends TabGUI {
     }
     
     public List<GUI> getTabs() {
-        return tabs;
+        return Collections.unmodifiableList(tabs);
     }
     
     @Override
     public List<SlotElement> getSlotElements(int tab) {
         return linkingElements.get(tab);
+    }
+    
+    @Override
+    public boolean isTabAvailable(int tab) {
+        return tabs.get(tab) != null;
     }
     
 }
