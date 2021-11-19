@@ -481,7 +481,7 @@ public class VirtualInventory implements ConfigurationSerializable {
             return newItemStack != null ? newItemStack.getAmount() : 0;
         }
         
-        return amount;
+        return currentStack.getAmount();
     }
     
     /**
