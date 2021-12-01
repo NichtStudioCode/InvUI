@@ -32,7 +32,7 @@
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>RELEASE</version>
+            <version>23.0.0</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
@@ -45,6 +45,7 @@
         <module>InventoryAccess/IA-R5</module>
         <module>InventoryAccess/IA-R6</module>
         <module>InventoryAccess/IA-R7</module>
+        <module>InventoryAccess/IA-R8</module>
         <module>InventoryAccess/IA</module>
         <module>InvUI</module>
     </modules>
@@ -67,7 +68,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>3.3.1</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>

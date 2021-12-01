@@ -77,6 +77,11 @@
             <artifactId>IA-R7</artifactId>
             <version>0.1-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>de.studiocode.invui</groupId>
+            <artifactId>IA-R8</artifactId>
+            <version>0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>

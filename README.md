@@ -1,6 +1,5 @@
 ![Logo](https://i.imgur.com/bFqCsuj.png)
 
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/446b3c9356744523b409a6a6d281e772)](https://www.codacy.com/gh/NichtStudioCode/InvUI/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=NichtStudioCode/InvUI&amp;utm_campaign=Badge_Grade)
 [![Stars](https://img.shields.io/github/stars/NichtStudioCode/InvUI?color=ffa200)](https://github.com/NichtStudioCode/InvUI/stargazers)
 ![GitHub issues](https://img.shields.io/github/issues/NichtStudioCode/InvUI)
 ![License](https://img.shields.io/github/license/NichtStudioCode/InvUI)
@@ -9,17 +8,18 @@
 
 An Inventory API for Minecraft Spigot servers.
 
-Supports all versions from 1.14 to 1.17.
+Supports all versions from 1.14 to 1.18.
 
 [Wiki](https://github.com/NichtStudioCode/InvUI/wiki)
 
 ## Features
 
-* Different types of inventories (Chest, Anvil, Dropper...)
+* Different types of inventories (Chest, Anvil, Cartography Table, Dropper...)
 * Different GUI types (Normal, Paged, Tab, Scroll)
 * Nested GUIs (For example use another PagedGUI as a page)
 * Easily customizable (Create your own GUI types and Items)
-* Easy way to add localization using the built-in ItemBuilder
+* VirtualInventories to store actual items in GUIs
+* Easy way to add localization using the ItemProvider system and the built-in ItemBuilder
 * Supports custom textures (Forced ResourcePack)
 * Uncloseable inventories
 * GUI Builder
