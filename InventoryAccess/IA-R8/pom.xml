@@ -13,8 +13,8 @@
     <artifactId>IA-R8</artifactId>
 
     <properties>
-        <maven.compiler.source>16</maven.compiler.source>
-        <maven.compiler.target>16</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <spigotVersion>1.18-R0.1-SNAPSHOT</spigotVersion>
     </properties>
 
