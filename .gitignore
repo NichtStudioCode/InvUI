@@ -53,9 +53,3 @@ target/
 
 # Local Libraries shouldn't be added to git
 .libs/
-
-# Testing
-InvUI/src/test/
-InvUI/src/main/java/de/studiocode/invui/InvUIPlugin.java
-InvUI/src/main/resources/plugin.yml
-*/${dir}/
