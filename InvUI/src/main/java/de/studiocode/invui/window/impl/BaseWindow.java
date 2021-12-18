@@ -19,16 +19,21 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 public abstract class BaseWindow implements Window {
+    
+    private static final NamespacedKey SLOT_KEY = new NamespacedKey(InvUI.getInstance().getPlugin(), "slot");
     
     private final UUID viewerUUID;
     private final boolean closeOnEvent;
@@ -55,7 +60,14 @@ public abstract class BaseWindow implements Window {
     protected void redrawItem(int index, SlotElement element, boolean setItem) {
         // put ItemStack in inventory
         ItemStack itemStack;
-        if (element == null || (element instanceof VISlotElement && element.getItemStack(viewerUUID) == null)) {
+        if (element instanceof ItemSlotElement) {
+            itemStack = element.getItemStack(viewerUUID);
+            
+            // This makes every item unique to prevent Shift-DoubleClick "clicking" multiple items at the same time.
+            ItemMeta itemMeta = itemStack.getItemMeta();
+            itemMeta.getPersistentDataContainer().set(SLOT_KEY, PersistentDataType.BYTE, (byte) index);
+            itemStack.setItemMeta(itemMeta);
+        } else if (element == null || (element instanceof VISlotElement && element.getItemStack(viewerUUID) == null)) {
             ItemProvider background = getGuiAt(index).getFirst().getBackground();
             itemStack = background == null ? null : background.getFor(viewerUUID);
         } else itemStack = element.getItemStack(viewerUUID);
