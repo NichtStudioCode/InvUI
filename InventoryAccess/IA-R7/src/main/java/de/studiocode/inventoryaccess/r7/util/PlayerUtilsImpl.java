@@ -3,8 +3,11 @@ package de.studiocode.inventoryaccess.r7.util;
 import de.studiocode.inventoryaccess.abstraction.util.PlayerUtils;
 import de.studiocode.inventoryaccess.map.MapIcon;
 import de.studiocode.inventoryaccess.map.MapPatch;
+import de.studiocode.inventoryaccess.util.DataUtils;
 import de.studiocode.inventoryaccess.util.ReflectionUtils;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket;
+import net.minecraft.network.protocol.game.ClientboundResourcePackPacket;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.ServerAdvancementManager;
 import net.minecraft.server.level.ServerPlayer;
@@ -74,6 +77,18 @@ public class PlayerUtilsImpl implements PlayerUtils {
             patch.getWidth(), patch.getHeight(),
             patch.getColors()
         );
+    }
+    
+    @Override
+    public void sendResourcePack(@NotNull Player player, @NotNull String url, byte[] hash, @Nullable BaseComponent[] prompt, boolean force) {
+        var serverPlayer = ((CraftPlayer) player).getHandle();
+        var packet = new ClientboundResourcePackPacket(
+            url,
+            DataUtils.toHexadecimalString(hash),
+            force,
+            InventoryUtilsImpl.createNMSComponent(prompt)
+        );
+        serverPlayer.connection.connection.send(packet);
     }
     
 }

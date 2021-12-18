@@ -3,6 +3,9 @@ package de.studiocode.invui.util;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 public class DataUtils {
@@ -72,6 +75,17 @@ public class DataUtils {
             array2d[i] = readByteArray(din);
         }
         return array2d;
+    }
+    
+    public static byte[] createSha1Hash(InputStream in) throws NoSuchAlgorithmException, IOException {
+        MessageDigest md = MessageDigest.getInstance("SHA1");
+        int len;
+        byte[] buffer = new byte[4096];
+        while ((len = in.read(buffer)) != -1) {
+            md.update(buffer, 0, len);
+        }
+        in.close();
+        return md.digest();
     }
     
 }

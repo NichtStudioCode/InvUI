@@ -22,6 +22,8 @@ import org.jetbrains.annotations.NotNull;
 public class InventoryUtilsImpl implements InventoryUtils {
     
     public static Component createNMSComponent(BaseComponent[] components) {
+        if (components == null) return null;
+        
         String json = ComponentSerializer.toString(components);
         return CraftChatMessage.fromJSON(json);
     }

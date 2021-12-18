@@ -1,7 +1,11 @@
 package de.studiocode.invui.resourcepack;
 
 import de.studiocode.inventoryaccess.util.ReflectionRegistry;
+import de.studiocode.inventoryaccess.util.VersionUtils;
+import de.studiocode.inventoryaccess.version.InventoryAccess;
 import de.studiocode.invui.InvUI;
+import de.studiocode.invui.util.DataUtils;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,6 +15,9 @@ import org.bukkit.event.player.PlayerResourcePackStatusEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
+import java.net.URL;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 
 import static org.bukkit.event.player.PlayerResourcePackStatusEvent.Status.DECLINED;
@@ -21,6 +28,7 @@ import static org.bukkit.event.player.PlayerResourcePackStatusEvent.Status.DECLI
 public class ForceResourcePack implements Listener {
     
     private static final String RP_VERSION = "v0.8";
+    private static final ForceResourcePack INSTANCE = new ForceResourcePack();
     
     /**
      * A resource pack with all the {@link Icon}s
@@ -29,11 +37,11 @@ public class ForceResourcePack implements Listener {
         "https://github.com/NichtStudioCode/InvUIRP/releases/download/"
             + RP_VERSION + (ReflectionRegistry.VERSION > 14 ? "" : "-legacy") + "/InvUIRP.zip";
     
-    private static final ForceResourcePack INSTANCE = new ForceResourcePack();
-    
     private final HashMap<Player, BukkitTask> tasks = new HashMap<>();
     
     private String resourcePackUrl;
+    private BaseComponent[] prompt;
+    private byte[] hash;
     
     private ForceResourcePack() {
         Bukkit.getPluginManager().registerEvents(this, InvUI.getInstance().getPlugin());
@@ -52,10 +60,22 @@ public class ForceResourcePack implements Listener {
      * Can be set to null to stop forcing the Resource Pack.
      *
      * @param resourcePackUrl The ResourcePack URL String
+     * @param prompt          The prompt to be displayed (since 1.17)
      */
-    public void setResourcePackUrl(@Nullable String resourcePackUrl) {
+    public void setResourcePack(@Nullable String resourcePackUrl, @Nullable BaseComponent[] prompt) {
         this.resourcePackUrl = resourcePackUrl;
-        if (resourcePackUrl != null) Bukkit.getOnlinePlayers().forEach(this::sendResourcePack);
+        this.prompt = prompt;
+        
+        if (resourcePackUrl != null) {
+            try {
+                URL url = new URL(resourcePackUrl);
+                hash = DataUtils.createSha1Hash(url.openStream());
+            } catch (IOException | NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            }
+            
+            Bukkit.getOnlinePlayers().forEach(this::sendResourcePack);
+        }
     }
     
     @EventHandler
@@ -64,9 +84,13 @@ public class ForceResourcePack implements Listener {
     }
     
     private void sendResourcePack(Player player) {
-        player.setResourcePack(resourcePackUrl);
-        tasks.put(player, Bukkit.getScheduler().runTaskLater(InvUI.getInstance().getPlugin(),
-            () -> kickPlayer(player), 20 * 5));
+        if (VersionUtils.isServerHigherOrEqual("1.17.0")) {
+            InventoryAccess.getPlayerUtils().sendResourcePack(player, resourcePackUrl, hash, prompt, true);
+        } else {
+            player.setResourcePack(resourcePackUrl);
+            tasks.put(player, Bukkit.getScheduler().runTaskLater(InvUI.getInstance().getPlugin(),
+                () -> kickPlayer(player), 20 * 5));
+        }
     }
     
     @EventHandler
