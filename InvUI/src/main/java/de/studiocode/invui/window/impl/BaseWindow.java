@@ -64,9 +64,11 @@ public abstract class BaseWindow implements Window {
             itemStack = element.getItemStack(viewerUUID);
             
             // This makes every item unique to prevent Shift-DoubleClick "clicking" multiple items at the same time.
-            ItemMeta itemMeta = itemStack.getItemMeta();
-            itemMeta.getPersistentDataContainer().set(SLOT_KEY, PersistentDataType.BYTE, (byte) index);
-            itemStack.setItemMeta(itemMeta);
+            if (itemStack.hasItemMeta()) {
+                ItemMeta itemMeta = itemStack.getItemMeta();
+                itemMeta.getPersistentDataContainer().set(SLOT_KEY, PersistentDataType.BYTE, (byte) index);
+                itemStack.setItemMeta(itemMeta);
+            }
         } else if (element == null || (element instanceof VISlotElement && element.getItemStack(viewerUUID) == null)) {
             ItemProvider background = getGuiAt(index).getFirst().getBackground();
             itemStack = background == null ? null : background.getFor(viewerUUID);
