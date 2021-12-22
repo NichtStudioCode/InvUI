@@ -63,6 +63,18 @@ public class ForceResourcePack implements Listener {
      * @param prompt          The prompt to be displayed (since 1.17)
      */
     public void setResourcePack(@Nullable String resourcePackUrl, @Nullable BaseComponent[] prompt) {
+        setResourcePack(resourcePackUrl, prompt, true);
+    }
+    
+    /**
+     * Sets the URL String for the custom ResourcePack every {@link Player} is required to download.
+     * Can be set to null to stop forcing the Resource Pack.
+     *
+     * @param resourcePackUrl     The ResourcePack URL String
+     * @param prompt              The prompt to be displayed (since 1.17)
+     * @param sendToOnlinePlayers If the resource pack should also be sent to all currently online players
+     */
+    public void setResourcePack(@Nullable String resourcePackUrl, @Nullable BaseComponent[] prompt, boolean sendToOnlinePlayers) {
         this.resourcePackUrl = resourcePackUrl;
         this.prompt = prompt;
         
@@ -74,7 +86,7 @@ public class ForceResourcePack implements Listener {
                 e.printStackTrace();
             }
             
-            Bukkit.getOnlinePlayers().forEach(this::sendResourcePack);
+            if (sendToOnlinePlayers) Bukkit.getOnlinePlayers().forEach(this::sendResourcePack);
         }
     }
     
@@ -83,7 +95,7 @@ public class ForceResourcePack implements Listener {
         if (resourcePackUrl != null) sendResourcePack(event.getPlayer());
     }
     
-    private void sendResourcePack(Player player) {
+    public void sendResourcePack(Player player) {
         if (VersionUtils.isServerHigherOrEqual("1.17.0")) {
             InventoryAccess.getPlayerUtils().sendResourcePack(player, resourcePackUrl, hash, prompt, true);
         } else {
