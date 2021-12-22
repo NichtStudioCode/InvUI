@@ -1,21 +1,12 @@
-package de.studiocode.invui.item;
+package de.studiocode.invui.item.builder;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
-import com.mojang.authlib.properties.PropertyMap;
-import de.studiocode.inventoryaccess.util.ReflectionRegistry;
-import de.studiocode.inventoryaccess.util.ReflectionUtils;
 import de.studiocode.inventoryaccess.version.InventoryAccess;
+import de.studiocode.invui.item.ItemProvider;
 import de.studiocode.invui.util.ComponentUtils;
-import de.studiocode.invui.util.MojangApiUtils;
 import de.studiocode.invui.util.Pair;
 import de.studiocode.invui.window.impl.BaseWindow;
 import net.md_5.bungee.api.chat.BaseComponent;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
@@ -24,14 +15,11 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Serializable;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class ItemBuilder implements ItemProvider {
+abstract class BaseItemBuilder<T> implements ItemProvider {
     
     protected ItemStack base;
     protected Material material;
@@ -42,50 +30,37 @@ public class ItemBuilder implements ItemProvider {
     protected List<BaseComponent[]> lore;
     protected List<ItemFlag> itemFlags;
     protected HashMap<Enchantment, Pair<Integer, Boolean>> enchantments;
-    protected GameProfile gameProfile;
     protected List<Function<ItemStack, ItemStack>> modifiers;
     
     /**
-     * Constructs a new {@link ItemBuilder} based on the given {@link Material}.
+     * Constructs a new {@link BaseItemBuilder} based on the given {@link Material}.
      *
      * @param material The {@link Material}
      */
-    public ItemBuilder(@NotNull Material material) {
+    public BaseItemBuilder(@NotNull Material material) {
         this.material = material;
     }
     
     /**
-     * Constructs a new {@link ItemBuilder} based on the given {@link Material} and amount.
+     * Constructs a new {@link BaseItemBuilder} based on the given {@link Material} and amount.
      *
      * @param material The {@link Material}
      * @param amount   The amount
      */
-    public ItemBuilder(@NotNull Material material, int amount) {
+    public BaseItemBuilder(@NotNull Material material, int amount) {
         this.material = material;
         this.amount = amount;
     }
     
     /**
-     * Constructs a new {@link ItemBuilder} based on the give {@link ItemStack}.
+     * Constructs a new {@link BaseItemBuilder} based on the give {@link ItemStack}.
      * This will keep the {@link ItemStack} and uses it's {@link ItemMeta}
      *
      * @param base The {@link ItemStack to use as a base}
      */
-    public ItemBuilder(@NotNull ItemStack base) {
+    public BaseItemBuilder(@NotNull ItemStack base) {
         this.base = base.clone();
         this.amount = base.getAmount();
-    }
-    
-    /**
-     * Constructs a new {@link ItemBuilder} of skull with the specified {@link HeadTexture}.
-     *
-     * @param headTexture The {@link HeadTexture}
-     */
-    public ItemBuilder(@NotNull HeadTexture headTexture) {
-        material = Material.PLAYER_HEAD;
-        gameProfile = new GameProfile(UUID.randomUUID(), null);
-        PropertyMap propertyMap = gameProfile.getProperties();
-        propertyMap.put("textures", new Property("textures", headTexture.getTextureValue()));
     }
     
     /**
@@ -137,10 +112,6 @@ public class ItemBuilder implements ItemProvider {
                 itemMeta.addItemFlags(itemFlags.toArray(new ItemFlag[0]));
             }
             
-            // game profile
-            if (gameProfile != null)
-                ReflectionUtils.setFieldValue(ReflectionRegistry.CB_CRAFT_META_SKULL_PROFILE_FIELD, itemMeta, gameProfile);
-            
             // apply to the item stack
             itemStack.setItemMeta(itemMeta);
         }
@@ -157,7 +128,7 @@ public class ItemBuilder implements ItemProvider {
     /**
      * Builds the {@link ItemStack} for a specific player.
      * This is the method called by {@link BaseWindow} which gives you
-     * the option to (for example) create a subclass of {@link ItemBuilder} that automatically
+     * the option to (for example) create a subclass of {@link BaseItemBuilder} that automatically
      * translates the item's name into the player's language.
      *
      * @param playerUUID The {@link UUID} of the {@link Player}
@@ -169,81 +140,81 @@ public class ItemBuilder implements ItemProvider {
         return get();
     }
     
-    public ItemBuilder setLegacyLore(@NotNull List<String> lore) {
+    public T setLegacyLore(@NotNull List<String> lore) {
         this.lore = lore.stream()
             .map(ComponentUtils::withoutPreFormatting)
             .collect(Collectors.toList());
-        return this;
+        return getThis();
     }
     
-    public ItemBuilder addLoreLines(@NotNull String... lines) {
+    public T addLoreLines(@NotNull String... lines) {
         if (lore == null) lore = new ArrayList<>();
         
         for (String line : lines)
             lore.add(ComponentUtils.withoutPreFormatting(line));
-        return this;
+        return getThis();
     }
     
-    public ItemBuilder addLoreLines(@NotNull BaseComponent[]... lines) {
+    public T addLoreLines(@NotNull BaseComponent[]... lines) {
         if (lore == null) lore = new ArrayList<>();
         
         lore.addAll(Arrays.stream(lines).map(ComponentUtils::withoutPreFormatting).collect(Collectors.toList()));
-        return this;
+        return getThis();
     }
     
-    public ItemBuilder removeLoreLine(int index) {
+    public T removeLoreLine(int index) {
         if (lore != null) lore.remove(index);
-        return this;
+        return getThis();
     }
     
-    public ItemBuilder clearLore() {
+    public T clearLore() {
         if (lore != null) lore.clear();
-        return this;
+        return getThis();
     }
     
-    public ItemBuilder addItemFlags(@NotNull ItemFlag... itemFlags) {
+    public T addItemFlags(@NotNull ItemFlag... itemFlags) {
         if (this.itemFlags == null) this.itemFlags = new ArrayList<>();
         this.itemFlags.addAll(Arrays.asList(itemFlags));
-        return this;
+        return getThis();
     }
     
-    public ItemBuilder removeItemFlags(@NotNull ItemFlag... itemFlags) {
+    public T removeItemFlags(@NotNull ItemFlag... itemFlags) {
         if (this.itemFlags != null)
             this.itemFlags.removeAll(Arrays.asList(itemFlags));
-        return this;
+        return getThis();
     }
     
-    public ItemBuilder clearItemFlags() {
+    public T clearItemFlags() {
         if (itemFlags != null) itemFlags.clear();
-        return this;
+        return getThis();
     }
     
-    public ItemBuilder addEnchantment(Enchantment enchantment, int level, boolean ignoreLevelRestriction) {
+    public T addEnchantment(Enchantment enchantment, int level, boolean ignoreLevelRestriction) {
         if (enchantments == null) enchantments = new HashMap<>();
         enchantments.put(enchantment, new Pair<>(level, ignoreLevelRestriction));
-        return this;
+        return getThis();
     }
     
-    public ItemBuilder removeEnchantment(Enchantment enchantment) {
+    public T removeEnchantment(Enchantment enchantment) {
         if (enchantments == null) enchantments = new HashMap<>();
         enchantments.remove(enchantment);
-        return this;
+        return getThis();
     }
     
-    public ItemBuilder clearEnchantments() {
+    public T clearEnchantments() {
         if (enchantments != null) enchantments.clear();
-        return this;
+        return getThis();
     }
     
-    public ItemBuilder addModifier(Function<ItemStack, ItemStack> modifier) {
+    public T addModifier(Function<ItemStack, ItemStack> modifier) {
         if (modifiers == null) modifiers = new ArrayList<>();
         modifiers.add(modifier);
-        return this;
+        return getThis();
     }
     
-    public ItemBuilder clearModifiers() {
+    public T clearModifiers() {
         if (modifiers != null) modifiers.clear();
-        return this;
+        return getThis();
     }
     
     public ItemStack getBase() {
@@ -254,162 +225,100 @@ public class ItemBuilder implements ItemProvider {
         return material;
     }
     
-    public ItemBuilder setMaterial(@NotNull Material material) {
+    public T setMaterial(@NotNull Material material) {
         this.material = material;
-        return this;
+        return getThis();
     }
     
     public int getAmount() {
         return amount;
     }
     
-    public ItemBuilder setAmount(int amount) {
+    public T setAmount(int amount) {
         this.amount = amount;
-        return this;
+        return getThis();
     }
     
     public int getDamage() {
         return damage;
     }
     
-    public ItemBuilder setDamage(int damage) {
+    public T setDamage(int damage) {
         this.damage = damage;
-        return this;
+        return getThis();
     }
     
     public int getCustomModelData() {
         return customModelData;
     }
     
-    public ItemBuilder setCustomModelData(int customModelData) {
+    public T setCustomModelData(int customModelData) {
         this.customModelData = customModelData;
-        return this;
+        return getThis();
     }
     
     public BaseComponent[] getDisplayName() {
         return displayName;
     }
     
-    public ItemBuilder setDisplayName(String displayName) {
+    public T setDisplayName(String displayName) {
         this.displayName = ComponentUtils.withoutPreFormatting(displayName);
-        return this;
+        return getThis();
     }
     
-    public ItemBuilder setDisplayName(BaseComponent... displayName) {
+    public T setDisplayName(BaseComponent... displayName) {
         this.displayName = ComponentUtils.withoutPreFormatting(displayName);
-        return this;
+        return getThis();
     }
     
     public List<BaseComponent[]> getLore() {
         return lore;
     }
     
-    public ItemBuilder setLore(List<BaseComponent[]> lore) {
+    public T setLore(List<BaseComponent[]> lore) {
         this.lore = lore;
-        return this;
+        return getThis();
     }
     
     public List<ItemFlag> getItemFlags() {
         return itemFlags;
     }
     
-    public ItemBuilder setItemFlags(@NotNull List<ItemFlag> itemFlags) {
+    public T setItemFlags(@NotNull List<ItemFlag> itemFlags) {
         this.itemFlags = itemFlags;
-        return this;
+        return getThis();
     }
     
     public HashMap<Enchantment, Pair<Integer, Boolean>> getEnchantments() {
         return enchantments;
     }
     
-    public ItemBuilder setEnchantments(@NotNull HashMap<Enchantment, Pair<Integer, Boolean>> enchantments) {
+    public T setEnchantments(@NotNull HashMap<Enchantment, Pair<Integer, Boolean>> enchantments) {
         this.enchantments = enchantments;
-        return this;
-    }
-    
-    public GameProfile getGameProfile() {
-        return gameProfile;
+        return getThis();
     }
     
     public List<Function<ItemStack, ItemStack>> getModifiers() {
         return modifiers;
     }
     
+    @SuppressWarnings("unchecked")
     @Override
-    public ItemBuilder clone() {
+    public T clone() {
         try {
-            ItemBuilder clone = ((ItemBuilder) super.clone());
+            BaseItemBuilder<T> clone = ((BaseItemBuilder<T>) super.clone());
             if (base != null) clone.base = base.clone();
             if (lore != null) clone.lore = new ArrayList<>(lore);
             if (itemFlags != null) clone.itemFlags = new ArrayList<>(itemFlags);
             if (enchantments != null) clone.enchantments = new HashMap<>(enchantments);
             if (modifiers != null) clone.modifiers = new ArrayList<>(modifiers);
             
-            return clone;
+            return (T) clone;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError(e);
         }
     }
     
-    /**
-     * Contains the texture value for a player head.
-     *
-     * @see ItemBuilder
-     */
-    public static class HeadTexture implements Serializable {
-        
-        private static final Cache<UUID, String> textureCache = CacheBuilder.newBuilder()
-            .expireAfterWrite(1, TimeUnit.DAYS)
-            .build();
-        
-        private static final Cache<String, UUID> uuidCache = CacheBuilder.newBuilder()
-            .expireAfterWrite(1, TimeUnit.DAYS)
-            .build();
-        
-        private final String textureValue;
-        
-        public HeadTexture(@NotNull String textureValue) {
-            this.textureValue = textureValue;
-        }
-        
-        public static HeadTexture of(@NotNull OfflinePlayer offlinePlayer) {
-            return of(offlinePlayer.getUniqueId());
-        }
-        
-        @SuppressWarnings("deprecation")
-        public static HeadTexture of(@NotNull String playerName) {
-            if (Bukkit.getServer().getOnlineMode()) {
-                // if the server is in online mode, the Minecraft UUID cache (usercache.json) can be used
-                return of(Bukkit.getOfflinePlayer(playerName).getUniqueId());
-            } else {
-                // the server isn't in online mode - the UUID has to be retrieved from the Mojang API
-                try {
-                    return of(uuidCache.get(playerName, () -> MojangApiUtils.getCurrentUUID(playerName)));
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            }
-        }
-        
-        public static HeadTexture of(@NotNull UUID uuid) {
-            try {
-                return new HeadTexture(textureCache.get(uuid, () -> MojangApiUtils.getSkinData(uuid, false)[0]));
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-        
-        public static void invalidateCache() {
-            uuidCache.invalidateAll();
-            textureCache.invalidateAll();
-        }
-        
-        public String getTextureValue() {
-            return textureValue;
-        }
-        
-    }
+    protected abstract T getThis();
     
 }

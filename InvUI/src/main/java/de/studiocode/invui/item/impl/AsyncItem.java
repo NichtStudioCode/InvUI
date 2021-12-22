@@ -2,13 +2,14 @@ package de.studiocode.invui.item.impl;
 
 import de.studiocode.invui.InvUI;
 import de.studiocode.invui.item.Item;
-import de.studiocode.invui.item.ItemBuilder;
 import de.studiocode.invui.item.ItemProvider;
+import de.studiocode.invui.item.ItemWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,7 +24,7 @@ public class AsyncItem extends BaseItem {
     private volatile ItemProvider itemProvider;
     
     public AsyncItem(@Nullable ItemProvider itemProvider, @NotNull Supplier<? extends ItemProvider> providerSupplier) {
-        this.itemProvider = itemProvider == null ? new ItemBuilder(Material.AIR) : itemProvider;
+        this.itemProvider = itemProvider == null ? new ItemWrapper(new ItemStack(Material.AIR)) : itemProvider;
         
         Bukkit.getScheduler().runTaskAsynchronously(InvUI.getInstance().getPlugin(), () -> {
             this.itemProvider = providerSupplier.get();

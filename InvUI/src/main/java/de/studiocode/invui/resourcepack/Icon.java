@@ -1,7 +1,7 @@
 package de.studiocode.invui.resourcepack;
 
 import de.studiocode.invui.item.Item;
-import de.studiocode.invui.item.ItemBuilder;
+import de.studiocode.invui.item.builder.ItemBuilder;
 import de.studiocode.invui.item.impl.SimpleItem;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Material;
