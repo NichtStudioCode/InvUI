@@ -297,9 +297,7 @@ public class VirtualInventory implements ConfigurationSerializable {
     public int getMaxStackSize(int slot, int alternative) {
         ItemStack currentItem = items[slot];
         int slotMaxStackSize = stackSizes == null ? 64 : stackSizes[slot];
-        if (alternative != -1)
-            return min(currentItem != null ? currentItem.getMaxStackSize() : alternative, slotMaxStackSize);
-        else return slotMaxStackSize;
+        return min(currentItem != null ? currentItem.getMaxStackSize() : alternative != -1 ? alternative : slotMaxStackSize, slotMaxStackSize);
     }
     
     /**
@@ -614,7 +612,7 @@ public class VirtualInventory implements ConfigurationSerializable {
      * @param itemStack The {@link ItemStack} to use
      * @return How many items wouldn't fit in the inventory when added
      */
-    private int simulateSingleAdd(@NotNull ItemStack itemStack) {
+    public int simulateSingleAdd(@NotNull ItemStack itemStack) {
         int amountLeft = itemStack.getAmount();
         
         // find all slots where the item partially fits
@@ -645,7 +643,7 @@ public class VirtualInventory implements ConfigurationSerializable {
      * @return An array of integers representing the leftover amount for each {@link ItemStack} provided.
      * The size of this array is always equal to the amount of {@link ItemStack}s provided as method parameters.
      */
-    private int[] simulateMultiAdd(@NotNull List<@NotNull ItemStack> itemStacks) {
+    public int[] simulateMultiAdd(@NotNull List<@NotNull ItemStack> itemStacks) {
         VirtualInventory copiedInv = new VirtualInventory(null, size, getItems(), stackSizes.clone());
         int[] result = new int[itemStacks.size()];
         for (int index = 0; index != itemStacks.size(); index++) {
