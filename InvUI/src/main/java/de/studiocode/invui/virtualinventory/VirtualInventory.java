@@ -728,4 +728,14 @@ public class VirtualInventory implements ConfigurationSerializable {
         return 0;
     }
     
+    @Override
+    public String toString() {
+        return "VirtualInventory{" +
+            "uuid=" + uuid +
+            ", size=" + size +
+            ", stackSizes=" + Arrays.toString(stackSizes) +
+            ", items=" + Arrays.toString(items) +
+            '}';
+    }
+    
 }
