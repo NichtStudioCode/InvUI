@@ -209,7 +209,7 @@ public abstract class BaseGUI implements GUI, Controllable {
         
         UpdateReason updateReason = new PlayerUpdateReason(player, event);
         Window window = WindowManager.getInstance().findOpenWindow(player).orElse(null);
-        ItemUpdateEvent updateEvent = inventory.callUpdateEvent(updateReason, slot, clicked, null);
+        ItemUpdateEvent updateEvent = inventory.callPreUpdateEvent(updateReason, slot, clicked, null);
         
         if (!updateEvent.isCancelled()) {
             int leftOverAmount;

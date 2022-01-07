@@ -1,13 +1,13 @@
 package de.studiocode.invui.gui.builder.guitype;
 
 import de.studiocode.invui.gui.builder.GUIContext;
-import de.studiocode.invui.gui.impl.SimpleTabGUI;
+import de.studiocode.invui.gui.impl.SimpleScrollVIGUI;
 
-class TabGUIType implements GUIType<SimpleTabGUI> {
+class ScrollVIGUIType implements GUIType<SimpleScrollVIGUI> {
     
     @Override
-    public SimpleTabGUI createGUI(GUIContext context) {
-        return new SimpleTabGUI(context.getWidth(), context.getHeight(), context.getGuis(), context.getStructure());
+    public SimpleScrollVIGUI createGUI(GUIContext context) {
+        return new SimpleScrollVIGUI(context.getWidth(), context.getHeight(), context.getInventory(), context.getStructure());
     }
     
     @Override
@@ -22,7 +22,7 @@ class TabGUIType implements GUIType<SimpleTabGUI> {
     
     @Override
     public boolean acceptsInventory() {
-        return false;
+        return true;
     }
     
 }

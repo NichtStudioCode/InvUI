@@ -10,32 +10,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class SimpleScrollGUI extends ScrollGUI {
+public class SimpleScrollItemsGUI extends ScrollGUI {
     
     private List<Item> items;
     
-    public SimpleScrollGUI(int width, int height, @Nullable List<Item> items, int... itemListSlots) {
+    public SimpleScrollItemsGUI(int width, int height, @Nullable List<Item> items, int... itemListSlots) {
         super(width, height, false, itemListSlots);
-        this.items = items == null ? new ArrayList<>() : items;
-        
-        update();
+        setItems(items);
     }
     
-    public SimpleScrollGUI(int width, int height, @Nullable List<Item> items, @NotNull Structure structure) {
+    public SimpleScrollItemsGUI(int width, int height, @Nullable List<Item> items, @NotNull Structure structure) {
         super(width, height, false, structure);
-        this.items = items == null ? new ArrayList<>() : items;
-        
-        update();
+        setItems(items);
     }
     
-    public void setItems(List<Item> items) {
-        this.items = items;
+    public void setItems(@Nullable List<Item> items) {
+        this.items = items != null ? items : new ArrayList<>();
         update();
-    }
-    
-    @Override
-    protected int getElementAmount() {
-        return items.size();
     }
     
     @Override
@@ -43,6 +34,11 @@ public class SimpleScrollGUI extends ScrollGUI {
         return items.subList(from, Math.min(items.size(), to)).stream()
             .map(SlotElement.ItemSlotElement::new)
             .collect(Collectors.toList());
+    }
+    
+    @Override
+    protected int getMaxLineIndex() {
+        return (int) Math.ceil((double) items.size() / (double) getLineLength()) - 1;
     }
     
 }

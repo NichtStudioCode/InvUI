@@ -12,6 +12,7 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -96,6 +97,7 @@ public class GUIBuilder<G extends GUI> {
     public GUIBuilder<G> addItem(@NotNull Item item) {
         if (!guiType.acceptsItems())
             throw new UnsupportedOperationException("Items cannot be set in this gui type.");
+        if (context.getItems() == null) context.setItems(new ArrayList<>());
         context.getItems().add(item);
         return this;
     }
@@ -110,7 +112,15 @@ public class GUIBuilder<G extends GUI> {
     public GUIBuilder<G> addGUI(@NotNull GUI gui) {
         if (!guiType.acceptsGUIs())
             throw new UnsupportedOperationException("GUIs cannot be set in this gui type.");
+        if (context.getGuis() == null) context.setGuis(new ArrayList<>());
         context.getGuis().add(gui);
+        return this;
+    }
+    
+    public GUIBuilder<G> setInventory(@NotNull VirtualInventory inventory) {
+        if (!guiType.acceptsInventory())
+            throw new UnsupportedOperationException("An inventory cannot be set in this gui type.");
+        context.setInventory(inventory);
         return this;
     }
     

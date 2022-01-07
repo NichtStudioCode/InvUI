@@ -1,18 +1,18 @@
 package de.studiocode.invui.gui.builder.guitype;
 
 import de.studiocode.invui.gui.builder.GUIContext;
-import de.studiocode.invui.gui.impl.SimpleGUI;
+import de.studiocode.invui.gui.impl.SimpleScrollNestedGUI;
 
-class NormalGUIType implements GUIType<SimpleGUI> {
+class ScrollGUIsGUIType implements GUIType<SimpleScrollNestedGUI> {
     
     @Override
-    public SimpleGUI createGUI(GUIContext context) {
-        return new SimpleGUI(context.getWidth(), context.getHeight(), context.getStructure());
+    public SimpleScrollNestedGUI createGUI(GUIContext context) {
+        return new SimpleScrollNestedGUI(context.getWidth(), context.getHeight(), context.getGuis(), context.getStructure());
     }
     
     @Override
     public boolean acceptsGUIs() {
-        return false;
+        return true;
     }
     
     @Override

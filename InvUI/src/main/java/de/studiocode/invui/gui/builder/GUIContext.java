@@ -4,9 +4,9 @@ import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.builder.guitype.GUIType;
 import de.studiocode.invui.gui.structure.Structure;
 import de.studiocode.invui.item.Item;
+import de.studiocode.invui.virtualinventory.VirtualInventory;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,8 +18,9 @@ public class GUIContext {
     private final int width;
     private final int height;
     private Structure structure;
-    private List<GUI> guis = new ArrayList<>();
-    private List<Item> items = new ArrayList<>();
+    private List<GUI> guis;
+    private List<Item> items;
+    private VirtualInventory inventory;
     
     public GUIContext(int width, int height) {
         this.width = width;
@@ -56,6 +57,14 @@ public class GUIContext {
     
     public void setItems(@NotNull List<Item> items) {
         this.items = items;
+    }
+    
+    public VirtualInventory getInventory() {
+        return inventory;
+    }
+    
+    public void setInventory(@NotNull VirtualInventory inventory) {
+        this.inventory = inventory;
     }
     
 }

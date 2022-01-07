@@ -20,4 +20,9 @@ class PagedItemsGUIType implements GUIType<SimplePagedItemsGUI> {
         return true;
     }
     
+    @Override
+    public boolean acceptsInventory() {
+        return false;
+    }
+    
 }

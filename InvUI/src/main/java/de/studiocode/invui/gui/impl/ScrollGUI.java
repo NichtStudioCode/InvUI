@@ -11,12 +11,14 @@ import java.util.List;
 /**
  * A scrollable {@link GUI}
  *
- * @see SimpleScrollGUI
+ * @see SimpleScrollItemsGUI
+ * @see SimpleScrollNestedGUI
  */
 public abstract class ScrollGUI extends BaseGUI {
     
     private final boolean infiniteLines;
     private final int lineLength;
+    private final int lineAmount;
     private final int[] itemListSlots;
     
     protected int offset;
@@ -26,6 +28,7 @@ public abstract class ScrollGUI extends BaseGUI {
         this.infiniteLines = infiniteLines;
         this.itemListSlots = itemListSlots;
         this.lineLength = SlotUtils.getLongestLineLength(itemListSlots, width);
+        this.lineAmount = (int) Math.ceil((double) itemListSlots.length / (double) lineLength);
         
         if (lineLength == 0)
             throw new IllegalArgumentException("Line length can't be 0");
@@ -40,6 +43,10 @@ public abstract class ScrollGUI extends BaseGUI {
         applyStructure(structure);
     }
     
+    public int getLineLength() {
+        return lineLength;
+    }
+    
     public int getCurrentLine() {
         return offset / lineLength;
     }
@@ -48,21 +55,12 @@ public abstract class ScrollGUI extends BaseGUI {
         this.offset = line * lineLength;
     }
     
-    private int getMaxLineIndex() {
-        int maxLineIndex = (int) Math.ceil((double) getElementAmount() / (double) lineLength);
-        return Math.max(0, maxLineIndex - getLineAmount());
-    }
-    
-    private int getLineAmount() {
-        return itemListSlots.length / lineLength;
-    }
-    
     public boolean canScroll(int lines) {
         if (lines == 0 || (infiniteLines && lines > 0)) return true;
         
         int line = getCurrentLine() + lines;
-        int maxLineAmount = getMaxLineIndex();
-        return line >= 0 && line <= maxLineAmount;
+        int maxLineIndex = getMaxLineIndex();
+        return line >= 0 && (line + lineAmount - 1) <= maxLineIndex;
     }
     
     public void scroll(int lines) {
@@ -100,7 +98,7 @@ public abstract class ScrollGUI extends BaseGUI {
     }
     
     private void updateContent() {
-        List<SlotElement> slotElements = getElements(offset, itemListSlots.length + offset);
+        List<? extends SlotElement> slotElements = getElements(offset, itemListSlots.length + offset);
         
         for (int i = 0; i < itemListSlots.length; i++) {
             if (slotElements.size() > i) setSlotElement(itemListSlots[i], slotElements.get(i));
@@ -108,8 +106,8 @@ public abstract class ScrollGUI extends BaseGUI {
         }
     }
     
-    abstract protected int getElementAmount();
+    abstract protected int getMaxLineIndex();
     
-    abstract protected List<SlotElement> getElements(int from, int to);
+    abstract protected List<? extends SlotElement> getElements(int from, int to);
     
 }

@@ -1,13 +1,13 @@
 package de.studiocode.invui.gui.builder.guitype;
 
 import de.studiocode.invui.gui.builder.GUIContext;
-import de.studiocode.invui.gui.impl.SimpleGUI;
+import de.studiocode.invui.gui.impl.SimpleScrollItemsGUI;
 
-class NormalGUIType implements GUIType<SimpleGUI> {
+class ScrollItemsGUIType implements GUIType<SimpleScrollItemsGUI> {
     
     @Override
-    public SimpleGUI createGUI(GUIContext context) {
-        return new SimpleGUI(context.getWidth(), context.getHeight(), context.getStructure());
+    public SimpleScrollItemsGUI createGUI(GUIContext context) {
+        return new SimpleScrollItemsGUI(context.getWidth(), context.getHeight(), context.getItems(), context.getStructure());
     }
     
     @Override
@@ -17,7 +17,7 @@ class NormalGUIType implements GUIType<SimpleGUI> {
     
     @Override
     public boolean acceptsItems() {
-        return false;
+        return true;
     }
     
     @Override

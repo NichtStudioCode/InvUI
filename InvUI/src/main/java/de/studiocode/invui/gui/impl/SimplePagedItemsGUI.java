@@ -24,16 +24,12 @@ public class SimplePagedItemsGUI extends PagedGUI {
     
     public SimplePagedItemsGUI(int width, int height, @Nullable List<Item> items, int... itemListSlots) {
         super(width, height, false, itemListSlots);
-        this.items = items == null ? new ArrayList<>() : items;
-        
-        update();
+        setItems(items);
     }
     
     public SimplePagedItemsGUI(int width, int height, @Nullable List<Item> items, @NotNull Structure structure) {
         super(width, height, false, structure);
-        this.items = items == null ? new ArrayList<>() : items;
-        
-        update();
+        setItems(items);
     }
     
     @Override
@@ -50,8 +46,8 @@ public class SimplePagedItemsGUI extends PagedGUI {
         return items.subList(from, to).stream().map(ItemSlotElement::new).collect(Collectors.toList());
     }
     
-    public void setItems(List<Item> items) {
-        this.items = items;
+    public void setItems(@Nullable List<Item> items) {
+        this.items = items != null ? items : new ArrayList<>();
         update();
     }
     

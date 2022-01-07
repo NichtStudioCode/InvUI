@@ -20,4 +20,9 @@ class PagedGUIsGUIType implements GUIType<SimplePagedNestedGUI> {
         return false;
     }
     
+    @Override
+    public boolean acceptsInventory() {
+        return false;
+    }
+    
 }
