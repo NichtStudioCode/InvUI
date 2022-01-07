@@ -13,13 +13,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class ItemUtilsImpl implements ItemUtils {
-    
-    private static final Field CRAFT_ITEM_STACK_HANDLE_FIELD = ReflectionUtils.getField(CraftItemStack.class, true, "handle");
     
     @Override
     public byte[] serializeItemStack(org.bukkit.inventory.@NotNull ItemStack itemStack, boolean compressed) {
@@ -31,12 +28,7 @@ public class ItemUtilsImpl implements ItemUtils {
     @Override
     public void serializeItemStack(org.bukkit.inventory.@NotNull ItemStack itemStack, @NotNull OutputStream outputStream, boolean compressed) {
         try {
-            ItemStack nmsStack;
-            
-            if (itemStack instanceof CraftItemStack)
-                nmsStack = (ItemStack) CRAFT_ITEM_STACK_HANDLE_FIELD.get(itemStack);
-            else nmsStack = CraftItemStack.asNMSCopy(itemStack);
-            
+            ItemStack nmsStack = CraftItemStack.asNMSCopy(itemStack);
             CompoundTag nbt = nmsStack.save(new CompoundTag());
             
             if (compressed) {
@@ -47,7 +39,7 @@ public class ItemUtilsImpl implements ItemUtils {
             }
             
             outputStream.flush();
-        } catch (IllegalAccessException | IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
