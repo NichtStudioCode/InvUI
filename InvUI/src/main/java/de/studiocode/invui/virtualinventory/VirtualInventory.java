@@ -3,6 +3,7 @@ package de.studiocode.invui.virtualinventory;
 import de.studiocode.invui.InvUI;
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.util.ArrayUtils;
+import de.studiocode.invui.virtualinventory.event.InventoryUpdatedEvent;
 import de.studiocode.invui.virtualinventory.event.ItemUpdateEvent;
 import de.studiocode.invui.virtualinventory.event.UpdateReason;
 import de.studiocode.invui.window.Window;
@@ -31,6 +32,7 @@ public class VirtualInventory implements ConfigurationSerializable {
     private ItemStack[] items;
     private int[] stackSizes;
     private Consumer<ItemUpdateEvent> itemUpdateHandler;
+    private Consumer<InventoryUpdatedEvent> inventoryUpdatedHandler;
     private int guiShiftPriority = 0;
     
     /**
@@ -167,6 +169,15 @@ public class VirtualInventory implements ConfigurationSerializable {
     }
     
     /**
+     * Sets a handler which is called every time after something has been updated in the {@link VirtualInventory}.
+     *
+     * @param inventoryUpdatedHandler The new handler
+     */
+    public void setInventoryUpdatedHandler(Consumer<InventoryUpdatedEvent> inventoryUpdatedHandler) {
+        this.inventoryUpdatedHandler = inventoryUpdatedHandler;
+    }
+    
+    /**
      * Gets the priority for shift-clicking {@link ItemStack ItemStacks} into a {@link GUI}
      *
      * @return The priority for shift-clicking, {@link VirtualInventory VirtualInventories} with
@@ -223,6 +234,16 @@ public class VirtualInventory implements ConfigurationSerializable {
      */
     public ItemStack[] getItems() {
         return Arrays.stream(items).map(item -> item != null ? item.clone() : null).toArray(ItemStack[]::new);
+    }
+    
+    /**
+     * Gets the same {@link ItemStack ItemStack[]} that backs this {@link VirtualInventory}.
+     * <br>
+     * As it is not clone, it should be handled carefully as changes done on that array will not call any
+     * Window updates (and create inconsistency between server and client).
+     */
+    public ItemStack[] getUnsafeItems() {
+        return items;
     }
     
     /**
@@ -302,7 +323,7 @@ public class VirtualInventory implements ConfigurationSerializable {
     
     /**
      * Gets the maximum stack size for a specific slot while ignoring the {@link ItemStack} on it
-     * and it's own maximum stack size.
+     * and its own maximum stack size.
      *
      * @param slot The slot
      * @return The maximum stack size on that slo
@@ -339,9 +360,24 @@ public class VirtualInventory implements ConfigurationSerializable {
      * @param newItemStack      The {@link ItemStack} that will be on that slot
      * @return The {@link ItemUpdateEvent} after it has been handled by the {@link #itemUpdateHandler}
      */
-    public ItemUpdateEvent callUpdateEvent(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
+    public ItemUpdateEvent callPreUpdateEvent(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
         ItemUpdateEvent event = new ItemUpdateEvent(this, slot, updateReason, previousItemStack, newItemStack);
         if (itemUpdateHandler != null) itemUpdateHandler.accept(event);
+        return event;
+    }
+    
+    /**
+     * Creates an {@link InventoryUpdatedEvent} and calls the {@link #inventoryUpdatedHandler} to handle it.
+     *
+     * @param updateReason      The {@link UpdateReason}
+     * @param slot              The slot of the affected {@link ItemStack}
+     * @param previousItemStack The {@link ItemStack} that was on that slot previously.
+     * @param newItemStack      The {@link ItemStack} that is on that slot now.
+     * @return The {@link InventoryUpdatedEvent} after it has been handled by the {@link #inventoryUpdatedHandler}
+     */
+    public InventoryUpdatedEvent callAfterUpdateEvent(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
+        InventoryUpdatedEvent event = new InventoryUpdatedEvent(this, slot, updateReason, previousItemStack, newItemStack);
+        if (inventoryUpdatedHandler != null) inventoryUpdatedHandler.accept(event);
         return event;
     }
     
@@ -389,9 +425,12 @@ public class VirtualInventory implements ConfigurationSerializable {
      * @return If the action was successful
      */
     public boolean forceSetItemStack(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack itemStack) {
-        ItemUpdateEvent event = callUpdateEvent(updateReason, slot, items[slot], itemStack);
+        ItemStack previousStack = items[slot];
+        ItemUpdateEvent event = callPreUpdateEvent(updateReason, slot, previousStack, itemStack);
         if (!event.isCancelled()) {
-            setItemStackSilently(slot, event.getNewItemStack());
+            ItemStack newStack = event.getNewItemStack();
+            setItemStackSilently(slot, newStack);
+            callAfterUpdateEvent(updateReason, slot, previousStack, newStack);
             return true;
         }
         return false;
@@ -432,11 +471,13 @@ public class VirtualInventory implements ConfigurationSerializable {
                 ItemStack newItemStack = itemStack.clone();
                 newItemStack.setAmount(min(currentAmount + itemStack.getAmount(), maxStackSize));
                 
-                ItemUpdateEvent event = callUpdateEvent(updateReason, slot, currentStack, newItemStack);
+                ItemUpdateEvent event = callPreUpdateEvent(updateReason, slot, currentStack, newItemStack);
                 if (!event.isCancelled()) {
                     newItemStack = event.getNewItemStack();
                     items[slot] = newItemStack;
                     notifyWindows();
+                    
+                    callAfterUpdateEvent(updateReason, slot, currentStack, newItemStack);
                     
                     int newAmount = newItemStack != null ? newItemStack.getAmount() : 0;
                     return itemStack.getAmount() - (newAmount - currentAmount);
@@ -470,11 +511,13 @@ public class VirtualInventory implements ConfigurationSerializable {
             newItemStack = null;
         }
         
-        ItemUpdateEvent event = callUpdateEvent(updateReason, slot, currentStack, newItemStack);
+        ItemUpdateEvent event = callPreUpdateEvent(updateReason, slot, currentStack, newItemStack);
         if (!event.isCancelled()) {
             newItemStack = event.getNewItemStack();
             items[slot] = newItemStack;
             notifyWindows();
+            
+            callAfterUpdateEvent(updateReason, slot, currentStack, newItemStack);
             
             return newItemStack != null ? newItemStack.getAmount() : 0;
         }
@@ -718,10 +761,13 @@ public class VirtualInventory implements ConfigurationSerializable {
             newStack.setAmount(amount - take);
         } else newStack = null;
         
-        ItemUpdateEvent event = callUpdateEvent(updateReason, index, itemStack, newStack);
+        ItemUpdateEvent event = callPreUpdateEvent(updateReason, index, itemStack, newStack);
         if (!event.isCancelled()) {
+            newStack = event.getNewItemStack();
             items[index] = newStack;
             notifyWindows();
+            
+            callAfterUpdateEvent(updateReason, index, itemStack, newStack);
             return take;
         }
         

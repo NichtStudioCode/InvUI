@@ -207,9 +207,11 @@ public abstract class BaseGUI implements GUI, Controllable {
     protected void handleVIItemShift(InventoryClickEvent event, VirtualInventory inventory, int slot, Player player, ItemStack clicked) {
         if (clicked == null) return;
         
+        ItemStack previousStack = clicked.clone();
+        
         UpdateReason updateReason = new PlayerUpdateReason(player, event);
         Window window = WindowManager.getInstance().findOpenWindow(player).orElse(null);
-        ItemUpdateEvent updateEvent = inventory.callPreUpdateEvent(updateReason, slot, clicked, null);
+        ItemUpdateEvent updateEvent = inventory.callPreUpdateEvent(updateReason, slot, previousStack, null);
         
         if (!updateEvent.isCancelled()) {
             int leftOverAmount;
@@ -232,6 +234,8 @@ public abstract class BaseGUI implements GUI, Controllable {
             
             clicked.setAmount(leftOverAmount);
             inventory.setItemStackSilently(slot, clicked);
+            
+            inventory.callAfterUpdateEvent(updateReason, slot, previousStack, clicked);
         }
     }
     
