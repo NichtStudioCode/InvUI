@@ -11,6 +11,7 @@ import de.studiocode.invui.virtualinventory.VirtualInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.function.Supplier;
@@ -63,45 +64,50 @@ public class Structure implements Cloneable {
     }
     
     public Structure addIngredient(char key, @NotNull ItemStack itemStack) {
-        if (ingredientList != null) throw new UnsupportedOperationException("Structure is locked");
+        if (ingredientList != null) throw new IllegalStateException("Structure is locked");
         return addIngredient(key, new ItemWrapper(itemStack));
     }
     
     public Structure addIngredient(char key, @NotNull ItemProvider itemProvider) {
-        if (ingredientList != null) throw new UnsupportedOperationException("Structure is locked");
+        if (ingredientList != null) throw new IllegalStateException("Structure is locked");
         return addIngredient(key, new SimpleItem(itemProvider));
     }
     
     public Structure addIngredient(char key, @NotNull Item item) {
-        if (ingredientList != null) throw new UnsupportedOperationException("Structure is locked");
+        if (ingredientList != null) throw new IllegalStateException("Structure is locked");
         return addIngredient(key, new ItemSlotElement(item));
     }
     
     public Structure addIngredient(char key, @NotNull VirtualInventory inventory) {
-        if (ingredientList != null) throw new UnsupportedOperationException("Structure is locked");
+        if (ingredientList != null) throw new IllegalStateException("Structure is locked");
         return addIngredientElementSupplier(key, new VISlotElementSupplier(inventory));
     }
     
+    public Structure addIngredient(char key, @NotNull VirtualInventory inventory, @Nullable ItemProvider background) {
+        if (ingredientList != null) throw new IllegalStateException("Structure is locked");
+        return addIngredientElementSupplier(key, new VISlotElementSupplier(inventory, background));
+    }
+    
     public Structure addIngredient(char key, @NotNull SlotElement element) {
-        if (ingredientList != null) throw new UnsupportedOperationException("Structure is locked");
+        if (ingredientList != null) throw new IllegalStateException("Structure is locked");
         ingredientMap.put(key, new Ingredient(element));
         return this;
     }
     
     public Structure addIngredient(char key, @NotNull String marker) {
-        if (ingredientList != null) throw new UnsupportedOperationException("Structure is locked");
+        if (ingredientList != null) throw new IllegalStateException("Structure is locked");
         ingredientMap.put(key, new Ingredient(marker));
         return this;
     }
     
     public Structure addIngredient(char key, @NotNull Supplier<? extends Item> itemSupplier) {
-        if (ingredientList != null) throw new UnsupportedOperationException("Structure is locked");
+        if (ingredientList != null) throw new IllegalStateException("Structure is locked");
         ingredientMap.put(key, new Ingredient(() -> new ItemSlotElement(itemSupplier.get())));
         return this;
     }
     
     public Structure addIngredientElementSupplier(char key, @NotNull Supplier<? extends SlotElement> elementSupplier) {
-        if (ingredientList != null) throw new UnsupportedOperationException("Structure is locked");
+        if (ingredientList != null) throw new IllegalStateException("Structure is locked");
         ingredientMap.put(key, new Ingredient(elementSupplier));
         return this;
     }
