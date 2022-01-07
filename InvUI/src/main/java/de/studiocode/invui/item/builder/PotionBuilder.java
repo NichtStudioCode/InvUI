@@ -67,7 +67,7 @@ public class PotionBuilder extends BaseItemBuilder<PotionBuilder> {
     
     @Override
     protected PotionBuilder getThis() {
-        return null;
+        return this;
     }
     
     public enum PotionType {
