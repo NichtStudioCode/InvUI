@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * An {@link Item} that automatically cycles through a predefined array of
@@ -61,7 +62,7 @@ public class AutoCycleItem extends BaseItem {
     }
     
     @Override
-    public void handleClick(ClickType clickType, Player player, InventoryClickEvent event) {
+    public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
         // empty
     }
     

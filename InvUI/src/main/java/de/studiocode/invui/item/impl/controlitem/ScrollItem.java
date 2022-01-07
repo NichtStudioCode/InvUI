@@ -4,6 +4,7 @@ import de.studiocode.invui.gui.impl.ScrollGUI;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
@@ -24,7 +25,7 @@ public abstract class ScrollItem extends ControlItem<ScrollGUI> {
     }
     
     @Override
-    public void handleClick(ClickType clickType, Player player, InventoryClickEvent event) {
+    public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
         if (scroll.containsKey(clickType)) getGui().scroll(scroll.get(clickType));
     }
     

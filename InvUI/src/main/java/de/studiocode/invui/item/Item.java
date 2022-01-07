@@ -6,6 +6,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
 
@@ -60,6 +61,6 @@ public interface Item {
      * @param player    The {@link Player} who clicked on the {@link ItemStack}
      * @param event     The {@link InventoryClickEvent} associated with this click.
      */
-    void handleClick(ClickType clickType, Player player, InventoryClickEvent event);
+    void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event);
     
 }

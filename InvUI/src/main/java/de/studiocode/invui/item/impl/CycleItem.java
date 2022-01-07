@@ -47,7 +47,7 @@ public class CycleItem extends BaseItem {
     }
     
     @Override
-    public void handleClick(ClickType clickType, Player player, InventoryClickEvent event) {
+    public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
         if (clickType.isLeftClick()) cycle(player, true);
         else if (clickType.isRightClick()) cycle(player, false);
     }

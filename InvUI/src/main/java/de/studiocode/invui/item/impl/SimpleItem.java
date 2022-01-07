@@ -34,7 +34,7 @@ public class SimpleItem extends BaseItem {
     }
     
     @Override
-    public void handleClick(ClickType clickType, Player player, InventoryClickEvent event) {
+    public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
         if (clickHandler != null) clickHandler.accept(new Click(event));
     }
     

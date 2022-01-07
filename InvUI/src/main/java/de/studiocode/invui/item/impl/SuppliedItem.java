@@ -27,7 +27,7 @@ public class SuppliedItem extends BaseItem {
     }
     
     @Override
-    public void handleClick(ClickType clickType, Player player, InventoryClickEvent event) {
+    public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
         if (clickHandler != null && clickHandler.apply(new Click(event))) notifyWindows();
     }
     
