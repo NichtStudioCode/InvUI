@@ -9,13 +9,11 @@ import de.studiocode.invui.virtualinventory.event.UpdateReason;
 import de.studiocode.invui.window.Window;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.*;
 import java.util.function.Consumer;
@@ -24,7 +22,7 @@ import java.util.stream.Stream;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-public class VirtualInventory implements ConfigurationSerializable {
+public class VirtualInventory {
     
     private final UUID uuid;
     private final Set<Window> windows = new HashSet<>();
@@ -61,44 +59,6 @@ public class VirtualInventory implements ConfigurationSerializable {
      */
     public VirtualInventory(@Nullable UUID uuid, int size) {
         this(uuid, size, null, null);
-    }
-    
-    /**
-     * Deserializes to {@link VirtualInventory}
-     *
-     * @param args The args which contain the data to deserialize
-     * @return The deserialized {@link VirtualInventory}
-     * @deprecated Use {@link VirtualInventoryManager#serializeInventory(VirtualInventory, OutputStream)}
-     * and {@link VirtualInventoryManager#deserializeInventory(InputStream)} for serialization
-     */
-    @Deprecated
-    public static VirtualInventory deserialize(@NotNull Map<String, Object> args) {
-        //noinspection unchecked
-        return new VirtualInventory(
-            UUID.fromString((String) args.get("uuid")),
-            (int) args.get("size"),
-            ((ArrayList<ItemStack>) args.get("items")).toArray(new ItemStack[0]),
-            ((ArrayList<Integer>) args.get("stackSizes")).stream().mapToInt(Integer::intValue).toArray()
-        );
-    }
-    
-    /**
-     * Serializes this {@link VirtualInventory} to a {@link Map}
-     *
-     * @return A {@link Map} that contains the serialized data of this {@link VirtualInventory}
-     * @deprecated Use {@link VirtualInventoryManager#serializeInventory(VirtualInventory, OutputStream)}
-     * and {@link VirtualInventoryManager#deserializeInventory(InputStream)} for serialization
-     */
-    @Deprecated
-    @NotNull
-    @Override
-    public Map<String, Object> serialize() {
-        Map<String, Object> result = new LinkedHashMap<>();
-        result.put("uuid", uuid.toString());
-        result.put("size", size);
-        result.put("stackSizes", stackSizes);
-        result.put("items", items);
-        return result;
     }
     
     public byte[] toByteArray() {

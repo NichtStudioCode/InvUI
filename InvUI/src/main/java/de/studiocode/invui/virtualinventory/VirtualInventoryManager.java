@@ -3,8 +3,6 @@ package de.studiocode.invui.virtualinventory;
 import de.studiocode.inventoryaccess.version.InventoryAccess;
 import de.studiocode.invui.InvUI;
 import de.studiocode.invui.util.DataUtils;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,7 +24,6 @@ public class VirtualInventoryManager {
     private VirtualInventoryManager() {
         SAVE_DIR.mkdirs();
         
-        ConfigurationSerialization.registerClass(VirtualInventory.class);
         InvUI.getInstance().addDisableHandler(this::serializeAll);
         deserializeAll();
     }
@@ -82,13 +79,7 @@ public class VirtualInventoryManager {
         if (SAVE_DIR.exists()) {
             Arrays.stream(SAVE_DIR.listFiles())
                 .forEach(file -> {
-                    if (file.getName().endsWith(".vi")) {
-                        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
-                        VirtualInventory virtualInventory = config.getSerializable("vi", VirtualInventory.class);
-                        inventories.put(virtualInventory.getUuid(), virtualInventory);
-                        
-                        file.delete();
-                    } else if (file.getName().endsWith(".vi2")) {
+                    if (file.getName().endsWith(".vi2")) {
                         try {
                             FileInputStream in = new FileInputStream(file);
                             VirtualInventory virtualInventory = deserializeInventory(in);
