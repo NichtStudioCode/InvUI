@@ -1,49 +1,56 @@
-package de.studiocode.invui.window.impl.single;
+package de.studiocode.invui.window.impl.merged.split;
 
 import de.studiocode.inventoryaccess.abstraction.inventory.CartographyInventory;
 import de.studiocode.inventoryaccess.map.MapIcon;
 import de.studiocode.inventoryaccess.map.MapPatch;
 import de.studiocode.inventoryaccess.version.InventoryAccess;
 import de.studiocode.invui.gui.GUI;
+import de.studiocode.invui.gui.impl.SimpleGUI;
 import de.studiocode.invui.util.MathUtils;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.MapMeta;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-@SuppressWarnings("deprecation")
-public class CartographyWindow extends SingleWindow {
+public class CartographySplitWindow extends SplitWindow {
     
     private final CartographyInventory cartographyInventory;
     private int mapId;
     
-    public CartographyWindow(Player player, String title, GUI gui) {
-        this(player, TextComponent.fromLegacyText(title), gui, true);
+    public CartographySplitWindow(Player player, String title, GUI upperGui, GUI lowerGui) {
+        this(player, TextComponent.fromLegacyText(title), upperGui, lowerGui, true);
     }
     
-    public CartographyWindow(Player player, String title, GUI gui, boolean closeable) {
-        this(player, TextComponent.fromLegacyText(title), gui, closeable);
+    public CartographySplitWindow(Player player, String title, GUI upperGui, GUI lowerGui, boolean closeable) {
+        this(player, TextComponent.fromLegacyText(title), upperGui, lowerGui, closeable);
     }
     
-    public CartographyWindow(Player player, BaseComponent[] title, GUI gui) {
-        this(player, title, gui, true);
+    public CartographySplitWindow(Player player, BaseComponent[] title, GUI upperGui, GUI lowerGui) {
+        this(player, title, upperGui, lowerGui, true);
     }
     
-    public CartographyWindow(Player player, BaseComponent[] title, GUI gui, boolean closeable) {
-        super(player.getUniqueId(), title, gui, null, false, closeable, true);
-        if (gui.getWidth() != 2 || gui.getHeight() != 1) throw new IllegalArgumentException("GUI has to be 2x1");
+    public CartographySplitWindow(Player player, BaseComponent[] title, GUI upperGui, GUI lowerGui, boolean closeable) {
+        super(player, title, createWrappingGUI(upperGui), lowerGui, null, false, closeable, true);
         
         cartographyInventory = InventoryAccess.createCartographyInventory(player, title);
-        inventory = cartographyInventory.getBukkitInventory();
+        upperInventory = cartographyInventory.getBukkitInventory();
         
-        initItems();
+        initUpperItems();
         resetMap();
+    }
+    
+    private static GUI createWrappingGUI(GUI upperGui) {
+        if (upperGui.getWidth() != 2 || upperGui.getHeight() != 1)
+            throw new IllegalArgumentException("GUI has to be 2x1");
+        
+        GUI wrapperGUI = new SimpleGUI(3, 1);
+        wrapperGUI.fillRectangle(1, 0, upperGui, true);
+        return wrapperGUI;
     }
     
     public void updateMap(@Nullable MapPatch patch, @Nullable List<MapIcon> icons) {
@@ -66,20 +73,6 @@ public class CartographyWindow extends SingleWindow {
         mapMeta.setMapId(mapId);
         map.setItemMeta(mapMeta);
         cartographyInventory.setItem(0, map);
-    }
-    
-    @Override
-    protected void setInvItem(int slot, ItemStack itemStack) {
-        cartographyInventory.setItem(slot + 1, itemStack);
-    }
-    
-    @Override
-    public void handleClick(InventoryClickEvent event) {
-        if (event.getSlot() != 0) {
-            getGui().handleClick(event.getSlot() - 1, (Player) event.getWhoClicked(), event.getClick(), event);
-        } else {
-            event.setCancelled(true);
-        }
     }
     
     @Override
