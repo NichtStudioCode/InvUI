@@ -56,7 +56,7 @@ public abstract class ScrollGUI extends BaseGUI {
     }
     
     public boolean canScroll(int lines) {
-        if (lines == 0 || (infiniteLines && lines > 0)) return true;
+        if (lines == 0 || (infiniteLines && lines > 0) || (lines < 0 && getCurrentLine() > 0)) return true;
         
         int line = getCurrentLine() + lines;
         int maxLineIndex = getMaxLineIndex();
