@@ -4,13 +4,13 @@ import de.studiocode.inventoryaccess.util.ReflectionRegistry;
 import de.studiocode.inventoryaccess.util.VersionUtils;
 import de.studiocode.inventoryaccess.version.InventoryAccess;
 import de.studiocode.invui.InvUI;
+import de.studiocode.invui.resourcepack.auth.AuthenticationServiceManager;
 import de.studiocode.invui.util.DataUtils;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Nullable;
@@ -30,9 +30,6 @@ public class ForceResourcePack implements Listener {
     private static final String RP_VERSION = "v0.8";
     private static final ForceResourcePack INSTANCE = new ForceResourcePack();
     
-    /**
-     * A resource pack with all the {@link Icon}s
-     */
     public static final String RESOURCE_PACK_URL =
         "https://github.com/NichtStudioCode/InvUIRP/releases/download/"
             + RP_VERSION + (ReflectionRegistry.VERSION > 14 ? "" : "-legacy") + "/InvUIRP.zip";
@@ -45,6 +42,10 @@ public class ForceResourcePack implements Listener {
     
     private ForceResourcePack() {
         Bukkit.getPluginManager().registerEvents(this, InvUI.getInstance().getPlugin());
+        
+        AuthenticationServiceManager.getInstance().setLoginHandler(player -> {
+            if (resourcePackUrl != null) sendResourcePack(player);
+        });
     }
     
     public static ForceResourcePack getInstance() {
@@ -90,11 +91,6 @@ public class ForceResourcePack implements Listener {
         }
     }
     
-    @EventHandler
-    public void handleJoin(PlayerJoinEvent event) {
-        if (resourcePackUrl != null) sendResourcePack(event.getPlayer());
-    }
-    
     public void sendResourcePack(Player player) {
         if (VersionUtils.isServerHigherOrEqual("1.17.0")) {
             InventoryAccess.getPlayerUtils().sendResourcePack(player, resourcePackUrl, hash, prompt, true);
@@ -106,7 +102,7 @@ public class ForceResourcePack implements Listener {
     }
     
     @EventHandler
-    public void handleResourcePackStatus(PlayerResourcePackStatusEvent event) {
+    private void handleResourcePackStatus(PlayerResourcePackStatusEvent event) {
         if (resourcePackUrl != null) {
             Player player = event.getPlayer();
             if (tasks.containsKey(player)) {
