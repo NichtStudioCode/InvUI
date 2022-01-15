@@ -76,18 +76,20 @@ public class ForceResourcePack implements Listener {
      * @param sendToOnlinePlayers If the resource pack should also be sent to all currently online players
      */
     public void setResourcePack(@Nullable String resourcePackUrl, @Nullable BaseComponent[] prompt, boolean sendToOnlinePlayers) {
-        this.resourcePackUrl = resourcePackUrl;
         this.prompt = prompt;
         
         if (resourcePackUrl != null) {
             try {
                 URL url = new URL(resourcePackUrl);
                 hash = DataUtils.createSha1Hash(url.openStream());
+                this.resourcePackUrl = resourcePackUrl;
             } catch (IOException | NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
             
             if (sendToOnlinePlayers) Bukkit.getOnlinePlayers().forEach(this::sendResourcePack);
+        } else {
+            this.resourcePackUrl = null;
         }
     }
     
