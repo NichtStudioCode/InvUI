@@ -32,7 +32,7 @@ public class AnvilInventoryImpl extends ContainerAnvil implements AnvilInventory
     
     public AnvilInventoryImpl(EntityPlayer player, IChatBaseComponent title, Consumer<String> renameHandler) {
         super(player.nextContainerCounter(), player.inventory,
-            ContainerAccess.at(player.getWorld(), new BlockPosition(Integer.MAX_VALUE, 0, 0)));
+            ContainerAccess.at(player.getWorld(), new BlockPosition(0, 0, 0)));
         
         this.title = title;
         this.renameHandler = renameHandler;

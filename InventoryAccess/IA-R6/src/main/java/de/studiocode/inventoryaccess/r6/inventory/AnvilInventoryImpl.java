@@ -43,7 +43,7 @@ public class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
     
     public AnvilInventoryImpl(ServerPlayer player, Component title, Consumer<String> renameHandler) {
         super(player.nextContainerCounter(), player.getInventory(),
-            ContainerLevelAccess.create(player.level, new BlockPos(Integer.MAX_VALUE, 0, 0)));
+            ContainerLevelAccess.create(player.level, new BlockPos(0, 0, 0)));
         
         this.title = title;
         this.renameHandler = renameHandler;

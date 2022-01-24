@@ -41,7 +41,7 @@ public class CartographyInventoryImpl extends CartographyTableMenu implements Ca
     }
     
     public CartographyInventoryImpl(ServerPlayer player, Component title) {
-        super(player.nextContainerCounter(), player.getInventory(), ContainerLevelAccess.create(player.level, new BlockPos(Integer.MAX_VALUE, 0, 0)));
+        super(player.nextContainerCounter(), player.getInventory(), ContainerLevelAccess.create(player.level, new BlockPos(0, 0, 0)));
         
         this.player = player;
         this.title = title;

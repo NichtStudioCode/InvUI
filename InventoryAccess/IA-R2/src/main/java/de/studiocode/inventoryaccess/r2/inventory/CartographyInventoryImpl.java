@@ -32,7 +32,7 @@ public class CartographyInventoryImpl extends ContainerCartography implements Ca
     }
     
     public CartographyInventoryImpl(EntityPlayer player, IChatBaseComponent title) {
-        super(player.nextContainerCounter(), player.inventory, ContainerAccess.at(player.getWorld(), new BlockPosition(Integer.MAX_VALUE, 0, 0)));
+        super(player.nextContainerCounter(), player.inventory, ContainerAccess.at(player.getWorld(), new BlockPosition(0, 0, 0)));
         
         this.player = player;
         this.title = title;
