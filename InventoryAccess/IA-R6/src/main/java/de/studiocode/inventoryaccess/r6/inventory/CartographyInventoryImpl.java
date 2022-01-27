@@ -27,7 +27,11 @@ import java.lang.reflect.Field;
 
 public class CartographyInventoryImpl extends CartographyTableMenu implements CartographyInventory {
     
-    private static final Field RESULT_CONTAINER_FIELD = ReflectionUtils.getField(CartographyTableMenu.class, true, "u");
+    private static final Field RESULT_CONTAINER_FIELD = ReflectionUtils.getField(
+        CartographyTableMenu.class,
+        true,
+        "SRF(net.minecraft.world.inventory.CartographyTableMenu resultContainer)"
+    );
     
     private final ResultContainer resultContainer = ReflectionUtils.getFieldValue(RESULT_CONTAINER_FIELD, this);
     private final Component title;
