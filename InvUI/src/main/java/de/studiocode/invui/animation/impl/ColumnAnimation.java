@@ -12,7 +12,7 @@ public class ColumnAnimation extends SoundAnimation {
     protected void handleFrame(int frame) {
         boolean showedSomething = false;
         
-        while (!showedSomething || column == getWidth() - 1) {
+        while (!showedSomething && column < getWidth()) {
             for (int y = 0; y < getHeight(); y++) {
                 int index = convToIndex(column, y);
                 if (getSlots().contains(index)) {
@@ -24,7 +24,7 @@ public class ColumnAnimation extends SoundAnimation {
             column++;
         }
         
-        if (column == getHeight() - 1) finish();
+        if (column >= getWidth()) finish();
     }
     
 }

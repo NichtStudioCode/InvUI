@@ -12,7 +12,7 @@ public class RowAnimation extends SoundAnimation {
     protected void handleFrame(int frame) {
         boolean showedSomething = false;
         
-        while (!showedSomething || row == getHeight() - 1) {
+        while (!showedSomething && row < getHeight()) {
             for (int x = 0; x < getWidth(); x++) {
                 int index = convToIndex(x, row);
                 if (getSlots().contains(index)) {
@@ -24,7 +24,7 @@ public class RowAnimation extends SoundAnimation {
             row++;
         }
         
-        if (frame == getHeight() - 1) finish();
+        if (row >= getHeight()) finish();
     }
     
 }
