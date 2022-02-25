@@ -28,8 +28,8 @@ public abstract class MergedWindow extends BaseWindow {
     protected Inventory upperInventory;
     private boolean isCurrentlyOpened;
     
-    public MergedWindow(Player player, BaseComponent[] title, int size, Inventory upperInventory, boolean closeable, boolean closeOnEvent) {
-        super(player.getUniqueId(), title, size, closeable, closeOnEvent);
+    public MergedWindow(Player player, BaseComponent[] title, int size, Inventory upperInventory, boolean closeable, boolean removeOnClose) {
+        super(player.getUniqueId(), title, size, closeable, removeOnClose);
         this.upperInventory = upperInventory;
         this.playerInventory = player.getInventory();
     }

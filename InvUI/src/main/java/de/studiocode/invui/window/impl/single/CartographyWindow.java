@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 @SuppressWarnings("deprecation")
-public class CartographyWindow extends SingleWindow {
+public final class CartographyWindow extends SingleWindow {
     
     private final CartographyInventory cartographyInventory;
     private int mapId;
@@ -44,6 +44,7 @@ public class CartographyWindow extends SingleWindow {
         
         initItems();
         resetMap();
+        register();
     }
     
     public void updateMap(@Nullable MapPatch patch, @Nullable List<MapIcon> icons) {

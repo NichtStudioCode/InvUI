@@ -16,26 +16,23 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
+import java.util.*;
 
 /**
- * Manages all {@link Window}s and provides methods for searching them.
+ * Manages all {@link Window Windows} and provides methods for searching them.
  */
 public class WindowManager implements Listener {
     
     private static WindowManager instance;
     
-    private final List<Window> windows = new CopyOnWriteArrayList<>();
+    private final Map<Inventory, Window> windows = new HashMap<>();
+    private final Map<Player, Window> openWindows = new HashMap<>();
     
     private WindowManager() {
         Bukkit.getPluginManager().registerEvents(this, InvUI.getInstance().getPlugin());
-        InvUI.getInstance().addDisableHandler(() -> windows.forEach(window -> window.close(true)));
+        InvUI.getInstance().addDisableHandler(() -> getWindows().forEach(window -> window.close(true)));
     }
     
     /**
@@ -54,7 +51,7 @@ public class WindowManager implements Listener {
      * @param window The {@link Window} to add
      */
     public void addWindow(Window window) {
-        windows.add(window);
+        windows.put(window.getInventories()[0], window);
     }
     
     /**
@@ -64,7 +61,7 @@ public class WindowManager implements Listener {
      * @param window The {@link Window} to remove
      */
     public void removeWindow(Window window) {
-        windows.remove(window);
+        windows.remove(window.getInventories()[0]);
     }
     
     /**
@@ -73,57 +70,54 @@ public class WindowManager implements Listener {
      * @param inventory The {@link Inventory}
      * @return The {@link Window} that belongs to that {@link Inventory}
      */
-    public Optional<Window> findWindow(Inventory inventory) {
-        return windows.stream()
-            .filter(w -> Arrays.stream(w.getInventories()).anyMatch(inv -> inv == inventory))
-            .findFirst();
+    @Nullable
+    public Window getWindow(Inventory inventory) {
+        return windows.get(inventory);
     }
     
     /**
-     * Finds all {@link Window}s to a {@link Player}
-     *
-     * @param player The {@link Player}
-     * @return A list of {@link Window}s that have the {@link Player} as their viewer.
-     */
-    public List<Window> findWindows(Player player) {
-        return windows.stream()
-            .filter(w -> w.getViewer().getUniqueId().equals(player.getUniqueId()))
-            .collect(Collectors.toCollection(ArrayList::new));
-    }
-    
-    /**
-     * Finds the {@link Window} the {@link Player} has currently open.
+     * Gets the {@link Window} the {@link Player} has currently open.
      *
      * @param player The {@link Player}
      * @return The {@link Window} the {@link Player} has currently open
      */
-    public Optional<Window> findOpenWindow(Player player) {
-        return windows.stream()
-            .filter(w -> player.equals(w.getCurrentViewer()))
-            .findFirst();
+    @Nullable
+    public Window getOpenWindow(Player player) {
+        return openWindows.get(player);
     }
     
     /**
-     * Gets a list of all currently active {@link Window}s.
+     * Gets a set of all registered {@link Window Windows}.
      *
-     * @return A list of all {@link Window}s
+     * @return A set of all {@link Window Windows}
      */
-    public List<Window> getWindows() {
-        return windows;
+    public Set<Window> getWindows() {
+        return new HashSet<>(windows.values());
+    }
+    
+    /**
+     * Gets a set of all currently opened {@link Window Windows}.
+     *
+     * @return A set of all opened {@link Window Windows}
+     */
+    public Set<Window> getOpenWindows() {
+        return new HashSet<>(openWindows.values());
     }
     
     @EventHandler
-    public void handleInventoryClick(InventoryClickEvent event) {
-        Optional<Window> w = findWindow(event.getClickedInventory());
-        if (w.isPresent()) { // player clicked window
-            w.get().handleClick(event);
-        } else {
-            Optional<Window> w1 = findWindow(event.getView().getTopInventory());
-            // player inventory (not merged window) clicked
-            if (w1.isPresent()) {
-                Window window = w1.get();
+    private void handleInventoryClick(InventoryClickEvent event) {
+        Player player = (Player) event.getWhoClicked();
+        Window window = getOpenWindow(player);
+        
+        if (window != null) {
+            Inventory clicked = event.getClickedInventory();
+            
+            if (Arrays.asList(window.getInventories()).contains(clicked)) {
+                // The inventory that was clicked is part of the open window
+                window.handleClick(event);
+            } else {
+                // The inventory that was clicked is not part of the open window, so it is the player inventory
                 switch (event.getAction()) {
-                    // items have been shift clicked from player inv to Window
                     case MOVE_TO_OTHER_INVENTORY:
                         window.handleItemShift(event);
                         break;
@@ -138,36 +132,57 @@ public class WindowManager implements Listener {
     }
     
     @EventHandler
-    public void handleInventoryDrag(InventoryDragEvent event) {
-        findWindow(event.getInventory()).ifPresent(window -> window.handleDrag(event));
+    private void handleInventoryDrag(InventoryDragEvent event) {
+        Window window = getOpenWindow((Player) event.getWhoClicked());
+        if (window != null) {
+            window.handleDrag(event);
+        }
     }
     
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void handleInventoryClose(InventoryCloseEvent event) {
-        findWindow(event.getInventory()).ifPresent(window -> window.handleClose((Player) event.getPlayer()));
+    private void handleInventoryClose(InventoryCloseEvent event) {
+        Window window = getWindow(event.getInventory());
+        if (window != null) {
+            Player player = (Player) event.getPlayer();
+            window.handleClose(player);
+            openWindows.remove(player);
+        }
     }
     
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void handleInventoryOpen(InventoryOpenEvent event) {
-        findWindow(event.getInventory()).ifPresent(window -> window.handleOpen(event));
+    private void handleInventoryOpen(InventoryOpenEvent event) {
+        Window window = getWindow(event.getInventory());
+        if (window != null) {
+            window.handleOpen(event);
+            openWindows.put((Player) event.getPlayer(), window);
+        }
     }
     
     @EventHandler
-    public void handlePlayerQuit(PlayerQuitEvent event) {
-        findWindow(event.getPlayer().getOpenInventory().getTopInventory()).ifPresent(window -> window.handleClose(event.getPlayer()));
+    private void handlePlayerQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+        Window window = getOpenWindow(player);
+        if (window != null) {
+            window.handleClose(player);
+            openWindows.remove(player);
+        }
     }
     
     @EventHandler
-    public void handlePlayerDeath(PlayerDeathEvent event) {
-        findWindows(event.getEntity()).forEach(window -> window.handleViewerDeath(event));
+    private void handlePlayerDeath(PlayerDeathEvent event) {
+        Player player = event.getEntity();
+        Window window = getOpenWindow(player);
+        if (window != null) {
+            window.handleViewerDeath(event);
+        }
     }
     
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void handleItemPickup(EntityPickupItemEvent event) {
+    private void handleItemPickup(EntityPickupItemEvent event) {
         Entity entity = event.getEntity();
         if (entity instanceof Player) {
-            Optional<Window> window = findOpenWindow(((Player) entity));
-            if (window.isPresent() && window.get() instanceof MergedWindow)
+            Window window = getOpenWindow((Player) entity);
+            if (window instanceof MergedWindow)
                 event.setCancelled(true);
         }
     }

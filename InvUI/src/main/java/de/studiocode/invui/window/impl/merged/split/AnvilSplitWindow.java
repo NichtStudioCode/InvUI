@@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.function.Consumer;
 
-public class AnvilSplitWindow extends SplitWindow {
+public final class AnvilSplitWindow extends SplitWindow {
     
     private final AnvilInventory anvilInventory;
     
@@ -21,6 +21,7 @@ public class AnvilSplitWindow extends SplitWindow {
         upperInventory = anvilInventory.getBukkitInventory();
         
         initUpperItems();
+        register();
     }
     
     public AnvilSplitWindow(Player player, BaseComponent[] title, GUI upperGui, GUI lowerGui, Consumer<String> renameHandler) {

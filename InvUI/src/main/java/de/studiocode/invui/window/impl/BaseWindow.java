@@ -36,20 +36,22 @@ public abstract class BaseWindow implements Window {
     private static final NamespacedKey SLOT_KEY = new NamespacedKey(InvUI.getInstance().getPlugin(), "slot");
     
     private final UUID viewerUUID;
-    private final boolean closeOnEvent;
+    private final boolean removeOnClose;
     private final SlotElement[] elementsDisplayed;
     private final ArrayList<Runnable> closeHandlers = new ArrayList<>();
     private BaseComponent[] title;
     private boolean closeable;
     private boolean closed;
     
-    public BaseWindow(UUID viewerUUID, BaseComponent[] title, int size, boolean closeable, boolean closeOnEvent) {
+    public BaseWindow(UUID viewerUUID, BaseComponent[] title, int size, boolean closeable, boolean removeOnClose) {
         this.viewerUUID = viewerUUID;
         this.title = title;
         this.closeable = closeable;
-        this.closeOnEvent = closeOnEvent;
+        this.removeOnClose = removeOnClose;
         this.elementsDisplayed = new SlotElement[size];
-        
+    }
+    
+    protected void register() {
         WindowManager.getInstance().addWindow(this);
     }
     
@@ -157,7 +159,7 @@ public abstract class BaseWindow implements Window {
     @Override
     public void handleClose(Player player) {
         if (closeable) {
-            if (closeOnEvent) close(false);
+            if (removeOnClose) close(false);
             handleClosed();
             closeHandlers.forEach(Runnable::run);
         } else {

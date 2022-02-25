@@ -210,7 +210,7 @@ public abstract class BaseGUI implements GUI, Controllable {
         ItemStack previousStack = clicked.clone();
         
         UpdateReason updateReason = new PlayerUpdateReason(player, event);
-        Window window = WindowManager.getInstance().findOpenWindow(player).orElse(null);
+        Window window = WindowManager.getInstance().getOpenWindow(player);
         ItemUpdateEvent updateEvent = inventory.callPreUpdateEvent(updateReason, slot, previousStack, null);
         
         if (!updateEvent.isCancelled()) {
@@ -241,7 +241,7 @@ public abstract class BaseGUI implements GUI, Controllable {
     
     // TODO: add support for merged windows
     protected void handleVINumberKey(InventoryClickEvent event, VirtualInventory inventory, int slot, Player player, ItemStack clicked) {
-        Window window = WindowManager.getInstance().findOpenWindow(player).orElse(null);
+        Window window = WindowManager.getInstance().getOpenWindow(player);
         if (window instanceof SingleWindow) {
             Inventory playerInventory = player.getInventory();
             int hotbarButton = event.getHotbarButton();
@@ -257,7 +257,7 @@ public abstract class BaseGUI implements GUI, Controllable {
     
     // TODO: add support for merged windows
     protected void handleVIOffHandKey(InventoryClickEvent event, VirtualInventory inventory, int slot, Player player, ItemStack clicked) {
-        Window window = WindowManager.getInstance().findOpenWindow(player).orElse(null);
+        Window window = WindowManager.getInstance().getOpenWindow(player);
         if (window instanceof SingleWindow) {
             PlayerInventory playerInventory = player.getInventory();
             ItemStack offhandItem = playerInventory.getItemInOffHand();

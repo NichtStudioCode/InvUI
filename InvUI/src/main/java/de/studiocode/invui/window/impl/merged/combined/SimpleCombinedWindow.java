@@ -7,14 +7,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
-public class SimpleCombinedWindow extends CombinedWindow {
+public final class SimpleCombinedWindow extends CombinedWindow {
     
-    public SimpleCombinedWindow(Player player, BaseComponent[] title, GUI gui, boolean closeable, boolean closeOnEvent) {
-        super(player, title, gui, createInventory(gui), closeable, closeOnEvent);
+    public SimpleCombinedWindow(Player player, BaseComponent[] title, GUI gui, boolean closeable, boolean removeOnClose) {
+        super(player, title, gui, createInventory(gui), closeable, removeOnClose);
+        register();
     }
     
-    public SimpleCombinedWindow(Player player, String title, GUI gui, boolean closeable, boolean closeOnEvent) {
-        this(player, TextComponent.fromLegacyText(title), gui, closeable, closeOnEvent);
+    public SimpleCombinedWindow(Player player, String title, GUI gui, boolean closeable, boolean removeOnClose) {
+        this(player, TextComponent.fromLegacyText(title), gui, closeable, removeOnClose);
     }
     
     public SimpleCombinedWindow(Player player, String title, GUI gui) {

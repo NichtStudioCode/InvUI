@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class CartographySplitWindow extends SplitWindow {
+public final class CartographySplitWindow extends SplitWindow {
     
     private final CartographyInventory cartographyInventory;
     private int mapId;
@@ -42,6 +42,7 @@ public class CartographySplitWindow extends SplitWindow {
         
         initUpperItems();
         resetMap();
+        register();
     }
     
     private static GUI createWrappingGUI(GUI upperGui) {

@@ -1,13 +1,11 @@
 package de.studiocode.invui.virtualinventory;
 
-import de.studiocode.invui.InvUI;
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.util.ArrayUtils;
 import de.studiocode.invui.virtualinventory.event.InventoryUpdatedEvent;
 import de.studiocode.invui.virtualinventory.event.ItemUpdateEvent;
 import de.studiocode.invui.virtualinventory.event.UpdateReason;
 import de.studiocode.invui.window.Window;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -102,8 +100,7 @@ public class VirtualInventory {
      * {@link ItemMeta} of an {@link ItemStack} in this inventory has changed.
      */
     public void notifyWindows() {
-        Bukkit.getScheduler().runTask(InvUI.getInstance().getPlugin(), () ->
-            windows.forEach(window -> window.handleVirtualInventoryUpdate(this)));
+        windows.forEach(window -> window.handleVirtualInventoryUpdate(this));
     }
     
     /**

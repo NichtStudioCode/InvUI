@@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.function.Consumer;
 
-public class AnvilWindow extends SingleWindow {
+public final class AnvilWindow extends SingleWindow {
     
     private final AnvilInventory anvilInventory;
     
@@ -20,6 +20,7 @@ public class AnvilWindow extends SingleWindow {
         inventory = anvilInventory.getBukkitInventory();
         
         initItems();
+        register();
     }
     
     public AnvilWindow(Player player, String title, GUI gui, boolean closeable, Consumer<String> renameHandler) {

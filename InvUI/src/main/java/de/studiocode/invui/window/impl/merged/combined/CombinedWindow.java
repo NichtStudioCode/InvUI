@@ -18,8 +18,8 @@ public abstract class CombinedWindow extends MergedWindow {
     
     private final GUI gui;
     
-    public CombinedWindow(Player player, BaseComponent[] title, GUI gui, Inventory upperInventory, boolean closeable, boolean closeOnEvent) {
-        super(player, title, gui.getSize(), upperInventory, closeable, closeOnEvent);
+    public CombinedWindow(Player player, BaseComponent[] title, GUI gui, Inventory upperInventory, boolean closeable, boolean removeOnClose) {
+        super(player, title, gui.getSize(), upperInventory, closeable, removeOnClose);
         this.gui = gui;
         
         gui.addParent(this);

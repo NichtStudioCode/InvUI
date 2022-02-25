@@ -6,18 +6,19 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
 
-public class SimpleSplitWindow extends SplitWindow {
+public final class SimpleSplitWindow extends SplitWindow {
     
-    public SimpleSplitWindow(Player player, BaseComponent[] title, GUI upperGui, GUI lowerGui, boolean closeable, boolean closeOnEvent) {
-        super(player, title, upperGui, lowerGui, InventoryUtils.createMatchingInventory(upperGui, ""), true, closeable, closeOnEvent);
+    public SimpleSplitWindow(Player player, BaseComponent[] title, GUI upperGui, GUI lowerGui, boolean closeable, boolean removeOnClose) {
+        super(player, title, upperGui, lowerGui, InventoryUtils.createMatchingInventory(upperGui, ""), true, closeable, removeOnClose);
+        register();
     }
     
     public SimpleSplitWindow(Player player, BaseComponent[] title, GUI upperGui, GUI lowerGui) {
         this(player, title, upperGui, lowerGui, true, true);
     }
     
-    public SimpleSplitWindow(Player player, String title, GUI upperGui, GUI lowerGui, boolean closeable, boolean closeOnEvent) {
-        this(player, TextComponent.fromLegacyText(title), upperGui, lowerGui, closeable, closeOnEvent);
+    public SimpleSplitWindow(Player player, String title, GUI upperGui, GUI lowerGui, boolean closeable, boolean removeOnClose) {
+        this(player, TextComponent.fromLegacyText(title), upperGui, lowerGui, closeable, removeOnClose);
     }
     
     public SimpleSplitWindow(Player player, String title, GUI upperGui, GUI lowerGui) {

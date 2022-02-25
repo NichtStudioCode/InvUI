@@ -24,8 +24,8 @@ public abstract class SingleWindow extends BaseWindow {
     private final int size;
     protected Inventory inventory;
     
-    public SingleWindow(UUID viewerUUID, BaseComponent[] title, GUI gui, Inventory inventory, boolean initItems, boolean closeable, boolean closeOnEvent) {
-        super(viewerUUID, title, gui.getSize(), closeable, closeOnEvent);
+    public SingleWindow(UUID viewerUUID, BaseComponent[] title, GUI gui, Inventory inventory, boolean initItems, boolean closeable, boolean removeOnClose) {
+        super(viewerUUID, title, gui.getSize(), closeable, removeOnClose);
         this.gui = gui;
         this.size = gui.getSize();
         this.inventory = inventory;

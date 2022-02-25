@@ -19,8 +19,8 @@ public abstract class SplitWindow extends MergedWindow {
     private final GUI upperGui;
     private final GUI lowerGui;
     
-    public SplitWindow(Player player, BaseComponent[] title, GUI upperGui, GUI lowerGui, Inventory upperInventory, boolean initItems, boolean closeable, boolean closeOnEvent) {
-        super(player, title, upperGui.getSize() + lowerGui.getSize(), upperInventory, closeable, closeOnEvent);
+    public SplitWindow(Player player, BaseComponent[] title, GUI upperGui, GUI lowerGui, Inventory upperInventory, boolean initItems, boolean closeable, boolean removeOnClose) {
+        super(player, title, upperGui.getSize() + lowerGui.getSize(), upperInventory, closeable, removeOnClose);
         this.upperGui = upperGui;
         this.lowerGui = lowerGui;
         
