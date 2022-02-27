@@ -27,10 +27,7 @@ public abstract class ControlItem<G extends GUI> extends BaseItem {
     
     @SuppressWarnings("unchecked")
     public void setGui(Object gui) {
-        if (this.gui != null)
-            throw new IllegalStateException("The GUI is already set. (One ControlItem can't control multiple GUIs)");
-        
-        this.gui = (G) gui;
+        if (this.gui == null) this.gui = (G) gui;
     }
     
 }
