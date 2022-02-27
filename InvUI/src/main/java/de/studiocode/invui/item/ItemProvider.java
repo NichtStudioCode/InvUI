@@ -1,6 +1,7 @@
 package de.studiocode.invui.item;
 
 import de.studiocode.invui.window.impl.BaseWindow;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -10,6 +11,7 @@ import java.util.function.Supplier;
 
 public interface ItemProvider extends Supplier<ItemStack>, Cloneable {
     
+    ItemProvider EMPTY = new ItemWrapper(new ItemStack(Material.AIR));
     
     /**
      * Builds the {@link ItemStack}
