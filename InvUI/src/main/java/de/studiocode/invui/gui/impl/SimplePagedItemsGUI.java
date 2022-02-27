@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 /**
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 public class SimplePagedItemsGUI extends PagedGUI {
     
     private List<Item> items;
+    private List<BiConsumer<Integer, Integer>> pageChangeHandlers;
     
     public SimplePagedItemsGUI(int width, int height, @Nullable List<Item> items, int... itemListSlots) {
         super(width, height, false, itemListSlots);
@@ -37,6 +39,29 @@ public class SimplePagedItemsGUI extends PagedGUI {
         return (int) Math.ceil((double) items.size() / (double) getItemListSlots().length);
     }
     
+    public void setItems(@Nullable List<Item> items) {
+        this.items = items != null ? items : new ArrayList<>();
+        update();
+    }
+    
+    public void addPageChangeHandler(@NotNull BiConsumer<Integer, Integer> pageChangeHandler) {
+        if (pageChangeHandlers == null) pageChangeHandlers = new ArrayList<>();
+        pageChangeHandlers.add(pageChangeHandler);
+    }
+    
+    public void removePageChangeHandler(@NotNull BiConsumer<Integer, Integer> pageChangeHandler) {
+        if (pageChangeHandlers != null) pageChangeHandlers.remove(pageChangeHandler);
+    }
+    
+    @Nullable
+    public List<BiConsumer<Integer, Integer>> getPageChangeHandlers() {
+        return pageChangeHandlers;
+    }
+    
+    public void setPageChangeHandlers(@Nullable List<BiConsumer<Integer, Integer>> pageChangeHandlers) {
+        this.pageChangeHandlers = pageChangeHandlers;
+    }
+    
     @Override
     protected List<SlotElement> getPageElements(int page) {
         int length = getItemListSlots().length;
@@ -46,9 +71,9 @@ public class SimplePagedItemsGUI extends PagedGUI {
         return items.subList(from, to).stream().map(ItemSlotElement::new).collect(Collectors.toList());
     }
     
-    public void setItems(@Nullable List<Item> items) {
-        this.items = items != null ? items : new ArrayList<>();
-        update();
+    @Override
+    protected void handlePageChange(int previous, int now) {
+        if (pageChangeHandlers != null) pageChangeHandlers.forEach(handler -> handler.accept(previous, now));
     }
     
 }

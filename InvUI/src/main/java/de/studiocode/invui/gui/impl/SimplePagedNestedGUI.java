@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -21,6 +22,7 @@ import java.util.stream.IntStream;
 public class SimplePagedNestedGUI extends PagedGUI {
     
     private List<GUI> guis;
+    private List<BiConsumer<Integer, Integer>> pageChangeHandlers;
     
     public SimplePagedNestedGUI(int width, int height, @Nullable List<GUI> guis, int... itemListSlots) {
         super(width, height, false, itemListSlots);
@@ -37,6 +39,34 @@ public class SimplePagedNestedGUI extends PagedGUI {
         return guis.size();
     }
     
+    public void setGuis(@Nullable List<GUI> guis) {
+        this.guis = guis == null ? new ArrayList<>() : guis;
+        update();
+    }
+    
+    public void addPageChangeHandler(@NotNull BiConsumer<Integer, Integer> pageChangeHandler) {
+        if (pageChangeHandlers == null) pageChangeHandlers = new ArrayList<>();
+        pageChangeHandlers.add(pageChangeHandler);
+    }
+    
+    public void removePageChangeHandler(@NotNull BiConsumer<Integer, Integer> pageChangeHandler) {
+        if (pageChangeHandlers != null) pageChangeHandlers.remove(pageChangeHandler);
+    }
+    
+    @Nullable
+    public List<BiConsumer<Integer, Integer>> getPageChangeHandlers() {
+        return pageChangeHandlers;
+    }
+    
+    public void setPageChangeHandlers(@Nullable List<BiConsumer<Integer, Integer>> pageChangeHandlers) {
+        this.pageChangeHandlers = pageChangeHandlers;
+    }
+    
+    @Override
+    protected void handlePageChange(int previous, int now) {
+        if (pageChangeHandlers != null) pageChangeHandlers.forEach(handler -> handler.accept(previous, now));
+    }
+    
     @Override
     protected List<SlotElement> getPageElements(int page) {
         if (guis.size() <= page) return new ArrayList<>();
@@ -47,11 +77,6 @@ public class SimplePagedNestedGUI extends PagedGUI {
         return IntStream.range(0, size)
             .mapToObj(i -> new SlotElement.LinkedSlotElement(gui, i))
             .collect(Collectors.toList());
-    }
-    
-    public void setGuis(@Nullable List<GUI> guis) {
-        this.guis = guis == null ? new ArrayList<>() : guis;
-        update();
     }
     
 }

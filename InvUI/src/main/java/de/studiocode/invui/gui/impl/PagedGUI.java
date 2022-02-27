@@ -19,7 +19,7 @@ public abstract class PagedGUI extends BaseGUI {
     
     private final boolean infinitePages;
     private final int[] itemListSlots;
-    protected int currentPage;
+    private int currentPage;
     
     public PagedGUI(int width, int height, boolean infinitePages, int... itemListSlots) {
         super(width, height);
@@ -33,17 +33,21 @@ public abstract class PagedGUI extends BaseGUI {
     }
     
     public void goForward() {
-        if (hasNextPage()) {
-            currentPage++;
-            update();
-        }
+        if (hasNextPage())
+            setPage(currentPage + 1);
     }
     
     public void goBack() {
-        if (hasPageBefore()) {
-            currentPage--;
-            update();
-        }
+        if (hasPageBefore())
+            setPage(currentPage - 1);
+    }
+    
+    public void setPage(int page) {
+        int previous = currentPage;
+        currentPage = page;
+        update();
+        if (previous != currentPage)
+            handlePageChange(previous, currentPage);
     }
     
     public boolean hasNextPage() {
@@ -92,5 +96,7 @@ public abstract class PagedGUI extends BaseGUI {
     public abstract int getPageAmount();
     
     protected abstract List<SlotElement> getPageElements(int page);
+    
+    protected abstract void handlePageChange(int previous, int now);
     
 }

@@ -31,8 +31,11 @@ public abstract class TabGUI extends BaseGUI implements Controllable {
         if (!isTabAvailable(tab))
             return;
         
+        int previous = currentTab;
         currentTab = tab;
         update();
+        
+        handleTabChange(previous, currentTab);
     }
     
     protected void update() {
@@ -63,8 +66,10 @@ public abstract class TabGUI extends BaseGUI implements Controllable {
         return currentTab;
     }
     
-    public abstract List<SlotElement> getSlotElements(int tab);
-    
     public abstract boolean isTabAvailable(int tab);
+    
+    protected abstract List<SlotElement> getSlotElements(int tab);
+    
+    protected abstract void handleTabChange(int previous, int now);
     
 }

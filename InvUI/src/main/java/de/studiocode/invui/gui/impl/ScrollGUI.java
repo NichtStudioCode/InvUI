@@ -106,8 +106,8 @@ public abstract class ScrollGUI extends BaseGUI {
         }
     }
     
-    abstract protected int getMaxLineIndex();
+    protected abstract int getMaxLineIndex();
     
-    abstract protected List<? extends SlotElement> getElements(int from, int to);
+    protected abstract List<? extends SlotElement> getElements(int from, int to);
     
 }
