@@ -5,6 +5,7 @@ import de.studiocode.inventoryaccess.util.VersionUtils;
 public enum InventoryAccessRevision {
     
     // this order is required
+    R9("r9", "1.18.2"),
     R8("r8", "1.18.0"),
     R7("r7", "1.17.1"),
     R6("r6", "1.17.0"),

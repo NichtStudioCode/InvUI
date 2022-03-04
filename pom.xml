@@ -6,7 +6,7 @@
 
     <groupId>de.studiocode.invui</groupId>
     <artifactId>InvUI-Parent</artifactId>
-    <version>0.4-SNAPSHOT</version>
+    <version>0.5-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -49,6 +49,7 @@
         <module>InventoryAccess/IA-R6</module>
         <module>InventoryAccess/IA-R7</module>
         <module>InventoryAccess/IA-R8</module>
+        <module>InventoryAccess/IA-R9</module>
         <module>InventoryAccess/IA</module>
         <module>InvUI</module>
         <module>ResourcePack</module>
