@@ -38,7 +38,7 @@
             <plugin>
                 <groupId>xyz.xenondevs</groupId>
                 <artifactId>string-remapper-maven-plugin</artifactId>
-                <version>0.1-SNAPSHOT</version>
+                <version>0.4</version>
 
                 <executions>
                     <execution>
@@ -47,8 +47,9 @@
                             <goal>remap</goal>
                         </goals>
                         <configuration>
-                            <remapGoal>spigot_members</remapGoal>
-                            <srcOut>string-remapper-sources/spigot</srcOut>
+                            <remapGoal>spigot</remapGoal>
+                            <classesIn>${project.build.directory}/classes</classesIn>
+                            <classesOut>${project.build.directory}/classes-spigot</classesOut>
                             <mapsMojang>org.spigotmc:minecraft-server:txt:maps-mojang:${spigot.version}</mapsMojang>
                             <mapsSpigot>
                                 <classes>org.spigotmc:minecraft-server:csrg:maps-spigot:${spigot.version}</classes>
@@ -64,44 +65,13 @@
                         </goals>
                         <configuration>
                             <remapGoal>mojang</remapGoal>
-                            <srcOut>string-remapper-sources/mojang</srcOut>
+                            <classesIn>${project.build.directory}/classes</classesIn>
+                            <classesOut>${project.build.directory}/classes-mojang</classesOut>
                             <mapsMojang>org.spigotmc:minecraft-server:txt:maps-mojang:${spigot.version}</mapsMojang>
                             <mapsSpigot>
                                 <classes>org.spigotmc:minecraft-server:csrg:maps-spigot:${spigot.version}</classes>
                                 <members>org.spigotmc:minecraft-server:csrg:maps-spigot-members:${spigot.version}</members>
                             </mapsSpigot>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
-                <executions>
-                    <execution>
-                        <id>default-compile</id>
-                        <phase>none</phase>
-                    </execution>
-                    <execution>
-                        <id>compile-spigot</id>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                        <configuration>
-                            <compileSourceRoots>${project.build.directory}/string-remapper-sources/spigot</compileSourceRoots>
-                            <outputDirectory>${project.build.directory}/classes/spigot</outputDirectory>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>compile-mojang</id>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                        <configuration>
-                            <compileSourceRoots>${project.build.directory}/string-remapper-sources/mojang</compileSourceRoots>
-                            <outputDirectory>${project.build.directory}/classes/mojang</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
@@ -122,7 +92,7 @@
                             <goal>jar</goal>
                         </goals>
                         <configuration>
-                            <classesDirectory>${project.build.directory}/classes/spigot</classesDirectory>
+                            <classesDirectory>${project.build.directory}/classes-spigot</classesDirectory>
                         </configuration>
                     </execution>
                     <execution>
@@ -131,7 +101,7 @@
                             <goal>jar</goal>
                         </goals>
                         <configuration>
-                            <classesDirectory>${project.build.directory}/classes/mojang</classesDirectory>
+                            <classesDirectory>${project.build.directory}/classes-mojang</classesDirectory>
                             <classifier>remapped-mojang</classifier>
                         </configuration>
                     </execution>
