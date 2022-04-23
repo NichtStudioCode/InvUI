@@ -5,6 +5,7 @@ import de.studiocode.invui.InvUI;
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.gui.SlotElement.ItemSlotElement;
+import de.studiocode.invui.gui.SlotElement.LinkedSlotElement;
 import de.studiocode.invui.gui.SlotElement.VISlotElement;
 import de.studiocode.invui.item.Item;
 import de.studiocode.invui.item.ItemProvider;
@@ -73,6 +74,18 @@ public abstract class BaseWindow implements Window {
             }
         } else if (element == null || (element instanceof VISlotElement && element.getItemStack(viewerUUID) == null)) {
             ItemProvider background = getGuiAt(index).getFirst().getBackground();
+            itemStack = background == null ? null : background.getFor(viewerUUID);
+        } else if (element instanceof LinkedSlotElement && element.getHoldingElement() == null) {
+            ItemProvider background = null;
+            
+            List<GUI> guis = ((LinkedSlotElement) element).getGuiList();
+            guis.add(0, getGuiAt(index).getFirst());
+            
+            for (int i = guis.size() - 1; i >= 0; i--) {
+                background = guis.get(i).getBackground();
+                if (background != null) break;
+            }
+            
             itemStack = background == null ? null : background.getFor(viewerUUID);
         } else itemStack = element.getItemStack(viewerUUID);
         setInvItem(index, itemStack);

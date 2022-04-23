@@ -5,6 +5,8 @@ import de.studiocode.invui.item.ItemProvider;
 import de.studiocode.invui.virtualinventory.VirtualInventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public interface SlotElement {
@@ -117,6 +119,20 @@ public interface SlotElement {
                 if (below instanceof LinkedSlotElement) element = (LinkedSlotElement) below;
                 else return below;
             }
+        }
+        
+        public List<GUI> getGuiList() {
+            ArrayList<GUI> guis = new ArrayList<>();
+            LinkedSlotElement element = this;
+            while (true) {
+                guis.add(element.getGui());
+                SlotElement below = element.getGui().getSlotElement(element.getSlotIndex());
+                if (below instanceof LinkedSlotElement)
+                    element = (LinkedSlotElement) below;
+                else break;
+            }
+            
+            return guis;
         }
         
         @Override
