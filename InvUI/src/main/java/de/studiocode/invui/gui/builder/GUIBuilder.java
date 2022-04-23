@@ -3,6 +3,7 @@ package de.studiocode.invui.gui.builder;
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.gui.builder.guitype.GUIType;
+import de.studiocode.invui.gui.structure.Marker;
 import de.studiocode.invui.gui.structure.Structure;
 import de.studiocode.invui.item.Item;
 import de.studiocode.invui.item.ItemProvider;
@@ -27,14 +28,18 @@ public class GUIBuilder<G extends GUI> {
     private final GUIType<G> guiType;
     private final GUIContext context;
     
-    public GUIBuilder(@NotNull GUIType<G> guiType, int width, int height) {
+    public GUIBuilder(@NotNull GUIType<G> guiType) {
         this.guiType = guiType;
-        this.context = new GUIContext(width, height);
+        this.context = new GUIContext();
     }
     
-    public GUIBuilder<G> setStructure(@NotNull String structureData) {
-        context.setStructure(new Structure(structureData));
+    public GUIBuilder<G> setStructure(int width, int height, @NotNull String structureData) {
+        context.setStructure(new Structure(width, height, structureData));
         return this;
+    }
+    
+    public GUIBuilder<G> setStructure(@NotNull String... structureData) {
+        return setStructure(new Structure(structureData));
     }
     
     public GUIBuilder<G> setStructure(@NotNull Structure structure) {
@@ -72,7 +77,7 @@ public class GUIBuilder<G extends GUI> {
         return this;
     }
     
-    public GUIBuilder<G> addIngredient(char key, @NotNull String marker) {
+    public GUIBuilder<G> addIngredient(char key, @NotNull Marker marker) {
         context.getStructure().addIngredient(key, marker);
         return this;
     }
@@ -121,6 +126,11 @@ public class GUIBuilder<G extends GUI> {
         if (!guiType.acceptsInventory())
             throw new UnsupportedOperationException("An inventory cannot be set in this gui type.");
         context.setInventory(inventory);
+        return this;
+    }
+    
+    public GUIBuilder<G> setBackground(@Nullable ItemProvider background) {
+        context.setBackground(background);
         return this;
     }
     

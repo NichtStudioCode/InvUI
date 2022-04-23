@@ -1,14 +1,22 @@
 package de.studiocode.invui.gui.structure;
 
 import de.studiocode.invui.gui.GUI;
+import de.studiocode.invui.util.SlotUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class IngredientList extends ArrayList<Ingredient> {
     
-    public IngredientList(String structure, HashMap<Character, Ingredient> ingredientMap) {
+    private final int width;
+    private final int height;
+    
+    public IngredientList(int width, int height, String structure, HashMap<Character, Ingredient> ingredientMap) {
+        this.width = width;
+        this.height = height;
+        
         for (char c : structure.toCharArray()) {
             Ingredient ingredient = null;
             if (ingredientMap.containsKey(c)) ingredient = ingredientMap.get(c);
@@ -27,15 +35,48 @@ public class IngredientList extends ArrayList<Ingredient> {
         }
     }
     
-    public int[] findIndicesOfMarker(String marker) {
+    private List<Integer> findIndicesOfHorizontalMarker(Marker marker) {
         List<Integer> indices = new ArrayList<>();
         for (int i = 0; i < size(); i++) {
             Ingredient ingredient = get(i);
-            if (ingredient != null && ingredient.isMarker() && ingredient.getMarker().equals(marker))
+            if (ingredient != null && ingredient.isMarker() && ingredient.getMarker() == marker)
                 indices.add(i);
         }
         
+        return indices;
+    }
+    
+    
+    public List<Integer> findIndicesOfVerticalMarker(Marker marker) {
+        List<Integer> indices = new ArrayList<>();
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                int i = SlotUtils.convertToIndex(x, y, width);
+                Ingredient ingredient = get(i);
+                if (ingredient != null && ingredient.isMarker() && ingredient.getMarker() == marker)
+                    indices.add(i);
+            }
+        }
+        
+        return indices;
+    }
+    
+    public int[] findIndicesOfMarker(Marker marker) {
+        List<Integer> indices;
+        if (marker.isHorizontal()) {
+            indices = findIndicesOfHorizontalMarker(marker);
+        } else {
+            indices = findIndicesOfVerticalMarker(marker);
+        }
+        
         return indices.stream().mapToInt(Integer::intValue).toArray();
+    }
+    
+    public int[] findItemListSlots() {
+        return Stream.concat(
+            findIndicesOfHorizontalMarker(Markers.ITEM_LIST_SLOT_HORIZONTAL).stream(),
+            findIndicesOfVerticalMarker(Markers.ITEM_LIST_SLOT_VERTICAL).stream()
+        ).mapToInt(Integer::intValue).toArray();
     }
     
 }

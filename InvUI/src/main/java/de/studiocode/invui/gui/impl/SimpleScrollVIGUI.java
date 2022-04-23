@@ -20,8 +20,8 @@ public class SimpleScrollVIGUI extends ScrollGUI {
         update();
     }
     
-    public SimpleScrollVIGUI(int width, int height, @Nullable VirtualInventory inventory, @NotNull Structure structure) {
-        super(width, height, false, structure);
+    public SimpleScrollVIGUI(@Nullable VirtualInventory inventory, @NotNull Structure structure) {
+        super(structure.getWidth(), structure.getHeight(), false, structure);
         this.inventory = inventory;
         
         update();

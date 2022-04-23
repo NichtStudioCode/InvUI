@@ -3,7 +3,6 @@ package de.studiocode.invui.gui.impl;
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.gui.builder.GUIBuilder;
-import de.studiocode.invui.gui.structure.Markers;
 import de.studiocode.invui.gui.structure.Structure;
 
 import java.util.List;
@@ -28,7 +27,7 @@ public abstract class PagedGUI extends BaseGUI {
     }
     
     public PagedGUI(int width, int height, boolean infinitePages, Structure structure) {
-        this(width, height, infinitePages, structure.getIngredientList().findIndicesOfMarker(Markers.ITEM_LIST_SLOT));
+        this(width, height, infinitePages, structure.getIngredientList().findItemListSlots());
         applyStructure(structure);
     }
     

@@ -13,8 +13,8 @@ public class SimpleGUI extends BaseGUI {
         super(width, height);
     }
     
-    public SimpleGUI(int width, int height, @NotNull Structure structure) {
-        super(width, height);
+    public SimpleGUI(@NotNull Structure structure) {
+        super(structure.getWidth(), structure.getHeight());
         applyStructure(structure);
     }
     

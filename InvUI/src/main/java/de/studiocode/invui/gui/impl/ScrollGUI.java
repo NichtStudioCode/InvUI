@@ -39,7 +39,7 @@ public abstract class ScrollGUI extends BaseGUI {
     }
     
     public ScrollGUI(int width, int height, boolean infiniteLines, Structure structure) {
-        this(width, height, infiniteLines, structure.getIngredientList().findIndicesOfMarker(Markers.ITEM_LIST_SLOT));
+        this(width, height, infiniteLines, structure.getIngredientList().findItemListSlots());
         applyStructure(structure);
     }
     

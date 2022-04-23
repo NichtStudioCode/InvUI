@@ -19,8 +19,8 @@ public class SimpleScrollNestedGUI extends ScrollGUI {
         setGuis(guis);
     }
     
-    public SimpleScrollNestedGUI(int width, int height, @Nullable List<GUI> guis, @NotNull Structure structure) {
-        super(width, height, false, structure);
+    public SimpleScrollNestedGUI(@Nullable List<GUI> guis, @NotNull Structure structure) {
+        super(structure.getWidth(), structure.getHeight(), false, structure);
         setGuis(guis);
     }
     

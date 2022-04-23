@@ -7,7 +7,9 @@ class TabGUIType implements GUIType<SimpleTabGUI> {
     
     @Override
     public SimpleTabGUI createGUI(GUIContext context) {
-        return new SimpleTabGUI(context.getWidth(), context.getHeight(), context.getGuis(), context.getStructure());
+        SimpleTabGUI gui = new SimpleTabGUI(context.getGuis(), context.getStructure());
+        gui.setBackground(context.getBackground());
+        return gui;
     }
     
     @Override

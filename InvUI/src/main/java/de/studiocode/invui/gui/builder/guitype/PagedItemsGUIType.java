@@ -7,7 +7,9 @@ class PagedItemsGUIType implements GUIType<SimplePagedItemsGUI> {
     
     @Override
     public SimplePagedItemsGUI createGUI(GUIContext context) {
-        return new SimplePagedItemsGUI(context.getWidth(), context.getHeight(), context.getItems(), context.getStructure());
+        SimplePagedItemsGUI gui = new SimplePagedItemsGUI(context.getItems(), context.getStructure());
+        gui.setBackground(context.getBackground());
+        return gui;
     }
     
     @Override

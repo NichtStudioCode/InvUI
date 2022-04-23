@@ -29,8 +29,8 @@ public class SimplePagedNestedGUI extends PagedGUI {
         setGuis(guis);
     }
     
-    public SimplePagedNestedGUI(int width, int height, @Nullable List<GUI> guis, @NotNull Structure structure) {
-        super(width, height, false, structure);
+    public SimplePagedNestedGUI(@Nullable List<GUI> guis, @NotNull Structure structure) {
+        super(structure.getWidth(), structure.getHeight(), false, structure);
         setGuis(guis);
     }
     

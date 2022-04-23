@@ -19,8 +19,8 @@ public class SimpleScrollItemsGUI extends ScrollGUI {
         setItems(items);
     }
     
-    public SimpleScrollItemsGUI(int width, int height, @Nullable List<Item> items, @NotNull Structure structure) {
-        super(width, height, false, structure);
+    public SimpleScrollItemsGUI(@Nullable List<Item> items, @NotNull Structure structure) {
+        super(structure.getWidth(), structure.getHeight(), false, structure);
         setItems(items);
     }
     

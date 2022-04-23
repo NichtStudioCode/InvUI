@@ -7,7 +7,9 @@ class PagedGUIsGUIType implements GUIType<SimplePagedNestedGUI> {
     
     @Override
     public SimplePagedNestedGUI createGUI(GUIContext context) {
-        return new SimplePagedNestedGUI(context.getWidth(), context.getHeight(), context.getGuis(), context.getStructure());
+        SimplePagedNestedGUI gui = new SimplePagedNestedGUI(context.getGuis(), context.getStructure());
+        gui.setBackground(context.getBackground());
+        return gui;
     }
     
     @Override

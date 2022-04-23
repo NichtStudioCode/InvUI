@@ -26,13 +26,27 @@ public class Structure implements Cloneable {
     private static final HashMap<Character, Ingredient> globalIngredientMap = new HashMap<>();
     
     private final String structureData;
+    private final int width;
+    private final int height;
+    
     private HashMap<Character, Ingredient> ingredientMap = new HashMap<>();
     private IngredientList ingredientList;
     
-    public Structure(String structureData) {
-        this.structureData = structureData
-            .replace(" ", "")
-            .replace("\n", "");
+    public Structure(String... structureData) {
+        this(sanitize(structureData[0]).length(), structureData.length, String.join("", structureData));
+    }
+    
+    public Structure(int width, int height, String structureData) {
+        this.width = width;
+        this.height = height;
+        this.structureData = sanitize(structureData);
+        
+        if (width * height != this.structureData.length())
+            throw new IllegalArgumentException("Length of structure data does not match width * height");
+    }
+    
+    private static String sanitize(String s) {
+        return s.replace(" ", "").replace("\n", "");
     }
     
     public static void addGlobalIngredient(char key, @NotNull ItemStack itemStack) {
@@ -55,7 +69,7 @@ public class Structure implements Cloneable {
         globalIngredientMap.put(key, new Ingredient(element));
     }
     
-    public static void addGlobalIngredient(char key, @NotNull String marker) {
+    public static void addGlobalIngredient(char key, @NotNull Marker marker) {
         globalIngredientMap.put(key, new Ingredient(marker));
     }
     
@@ -94,7 +108,7 @@ public class Structure implements Cloneable {
         return this;
     }
     
-    public Structure addIngredient(char key, @NotNull String marker) {
+    public Structure addIngredient(char key, @NotNull Marker marker) {
         if (ingredientList != null) throw new IllegalStateException("Structure is locked");
         ingredientMap.put(key, new Ingredient(marker));
         return this;
@@ -117,7 +131,15 @@ public class Structure implements Cloneable {
         
         HashMap<Character, Ingredient> ingredients = new HashMap<>(globalIngredientMap);
         ingredients.putAll(this.ingredientMap);
-        return ingredientList = new IngredientList(structureData, ingredients);
+        return ingredientList = new IngredientList(width, height, structureData, ingredients);
+    }
+    
+    public int getWidth() {
+        return width;
+    }
+    
+    public int getHeight() {
+        return height;
     }
     
     @Override

@@ -7,7 +7,9 @@ class ScrollGUIsGUIType implements GUIType<SimpleScrollNestedGUI> {
     
     @Override
     public SimpleScrollNestedGUI createGUI(GUIContext context) {
-        return new SimpleScrollNestedGUI(context.getWidth(), context.getHeight(), context.getGuis(), context.getStructure());
+        SimpleScrollNestedGUI gui = new SimpleScrollNestedGUI(context.getGuis(), context.getStructure());
+        gui.setBackground(gui.getBackground());
+        return gui;
     }
     
     @Override

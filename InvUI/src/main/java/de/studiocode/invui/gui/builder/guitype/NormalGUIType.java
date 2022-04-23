@@ -7,7 +7,9 @@ class NormalGUIType implements GUIType<SimpleGUI> {
     
     @Override
     public SimpleGUI createGUI(GUIContext context) {
-        return new SimpleGUI(context.getWidth(), context.getHeight(), context.getStructure());
+        SimpleGUI gui = new SimpleGUI(context.getStructure());
+        gui.setBackground(context.getBackground());
+        return gui;
     }
     
     @Override

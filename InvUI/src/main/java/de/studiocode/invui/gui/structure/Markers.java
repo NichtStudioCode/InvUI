@@ -10,9 +10,15 @@ import de.studiocode.invui.gui.impl.TabGUI;
 public class Markers {
     
     /**
-     * The marker for item list slots in {@link PagedGUI PagedGUIs},
+     * The marker for horizontal item list slots in {@link PagedGUI PagedGUIs},
      * {@link ScrollGUI ScrollGUIs} and {@link TabGUI TabGUIs}
      */
-    public static final String ITEM_LIST_SLOT = "ILS";
+    public static final Marker ITEM_LIST_SLOT_HORIZONTAL = new Marker(true);
+    
+    /**
+     * The marker for vertical item list slots in {@link PagedGUI PagedGUIs},
+     * {@link ScrollGUI ScrollGUIs} and {@link TabGUI TabGUIs}
+     */
+    public static final Marker ITEM_LIST_SLOT_VERTICAL = new Marker(true);
     
 }

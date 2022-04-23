@@ -29,8 +29,8 @@ public class SimplePagedItemsGUI extends PagedGUI {
         setItems(items);
     }
     
-    public SimplePagedItemsGUI(int width, int height, @Nullable List<Item> items, @NotNull Structure structure) {
-        super(width, height, false, structure);
+    public SimplePagedItemsGUI(@Nullable List<Item> items, @NotNull Structure structure) {
+        super(structure.getWidth(), structure.getHeight(), false, structure);
         setItems(items);
     }
     

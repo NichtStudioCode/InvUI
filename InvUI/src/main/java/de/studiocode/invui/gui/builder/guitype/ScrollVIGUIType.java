@@ -7,7 +7,9 @@ class ScrollVIGUIType implements GUIType<SimpleScrollVIGUI> {
     
     @Override
     public SimpleScrollVIGUI createGUI(GUIContext context) {
-        return new SimpleScrollVIGUI(context.getWidth(), context.getHeight(), context.getInventory(), context.getStructure());
+        SimpleScrollVIGUI gui = new SimpleScrollVIGUI(context.getInventory(), context.getStructure());
+        gui.setBackground(context.getBackground());
+        return gui;
     }
     
     @Override

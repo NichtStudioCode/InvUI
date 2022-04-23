@@ -33,8 +33,8 @@ public class SimpleTabGUI extends TabGUI {
         update();
     }
     
-    public SimpleTabGUI(int width, int height, @NotNull List<GUI> tabs, @NotNull Structure structure) {
-        super(width, height, tabs.size(), structure);
+    public SimpleTabGUI(@NotNull List<GUI> tabs, @NotNull Structure structure) {
+        super(structure.getWidth(), structure.getHeight(), tabs.size(), structure);
         this.linkingElements = tabs.stream().map(this::getLinkingElements).collect(Collectors.toList());
         this.tabs = tabs;
         

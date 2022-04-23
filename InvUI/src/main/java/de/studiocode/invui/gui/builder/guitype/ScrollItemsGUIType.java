@@ -7,7 +7,9 @@ class ScrollItemsGUIType implements GUIType<SimpleScrollItemsGUI> {
     
     @Override
     public SimpleScrollItemsGUI createGUI(GUIContext context) {
-        return new SimpleScrollItemsGUI(context.getWidth(), context.getHeight(), context.getItems(), context.getStructure());
+        SimpleScrollItemsGUI gui = new SimpleScrollItemsGUI(context.getItems(), context.getStructure());
+        gui.setBackground(context.getBackground());
+        return gui;
     }
     
     @Override
