@@ -68,6 +68,9 @@ public abstract class BaseWindow implements Window {
             
             // This makes every item unique to prevent Shift-DoubleClick "clicking" multiple items at the same time.
             if (itemStack.hasItemMeta()) {
+                // clone ItemStack in order to not modify the original
+                itemStack = itemStack.clone();
+                
                 ItemMeta itemMeta = itemStack.getItemMeta();
                 itemMeta.getPersistentDataContainer().set(SLOT_KEY, PersistentDataType.BYTE, (byte) index);
                 itemStack.setItemMeta(itemMeta);
