@@ -2,6 +2,7 @@ package de.studiocode.invui.virtualinventory;
 
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.util.ArrayUtils;
+import de.studiocode.invui.util.InventoryUtils;
 import de.studiocode.invui.virtualinventory.event.InventoryUpdatedEvent;
 import de.studiocode.invui.virtualinventory.event.ItemUpdateEvent;
 import de.studiocode.invui.virtualinventory.event.UpdateReason;
@@ -275,7 +276,7 @@ public class VirtualInventory {
     public int getMaxStackSize(int slot, int alternative) {
         ItemStack currentItem = items[slot];
         int slotMaxStackSize = stackSizes == null ? 64 : stackSizes[slot];
-        return min(currentItem != null ? currentItem.getMaxStackSize() : alternative != -1 ? alternative : slotMaxStackSize, slotMaxStackSize);
+        return min(currentItem != null ? InventoryUtils.stackSizeProvider.getMaxStackSize(currentItem) : alternative != -1 ? alternative : slotMaxStackSize, slotMaxStackSize);
     }
     
     /**

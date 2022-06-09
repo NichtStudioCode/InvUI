@@ -227,9 +227,7 @@ public abstract class BaseGUI implements GUI, Controllable {
                 
                 leftOverAmount = ((BaseGUI) otherGui).putIntoFirstVirtualInventory(updateReason, clicked, inventory);
             } else {
-                leftOverAmount = 0;
-                HashMap<Integer, ItemStack> leftover = event.getWhoClicked().getInventory().addItem(inventory.getItemStack(slot));
-                if (!leftover.isEmpty()) leftOverAmount = leftover.get(0).getAmount();
+                leftOverAmount = InventoryUtils.addItemCorrectly(event.getWhoClicked().getInventory(), inventory.getItemStack(slot));
             }
             
             clicked.setAmount(leftOverAmount);
