@@ -79,7 +79,7 @@ public final class SkullBuilder extends BaseItemBuilder<SkullBuilder> {
     
     @Override
     protected SkullBuilder getThis() {
-        return null;
+        return this;
     }
     
     /**
