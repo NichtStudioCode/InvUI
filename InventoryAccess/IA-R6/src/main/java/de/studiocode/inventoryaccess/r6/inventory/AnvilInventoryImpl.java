@@ -1,8 +1,8 @@
 package de.studiocode.inventoryaccess.r6.inventory;
 
 import de.studiocode.inventoryaccess.abstraction.inventory.AnvilInventory;
+import de.studiocode.inventoryaccess.component.ComponentWrapper;
 import de.studiocode.inventoryaccess.r6.util.InventoryUtilsImpl;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
@@ -37,7 +37,7 @@ public class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
     private String text;
     private boolean open;
     
-    public AnvilInventoryImpl(org.bukkit.entity.Player player, @NotNull BaseComponent[] title, Consumer<String> renameHandler) {
+    public AnvilInventoryImpl(org.bukkit.entity.Player player, @NotNull ComponentWrapper title, Consumer<String> renameHandler) {
         this(((CraftPlayer) player).getHandle(), InventoryUtilsImpl.createNMSComponent(title), renameHandler);
     }
     

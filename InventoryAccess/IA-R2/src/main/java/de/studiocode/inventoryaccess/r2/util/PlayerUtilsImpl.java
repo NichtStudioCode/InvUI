@@ -71,7 +71,7 @@ public class PlayerUtilsImpl implements PlayerUtils {
             MapIcon.Type.a(icon.getType().getId()),
             icon.getX(), icon.getY(),
             icon.getRot(),
-            icon.getComponents() != null ? InventoryUtilsImpl.createNMSComponent(icon.getComponents()) : null
+            icon.getComponent() != null ? InventoryUtilsImpl.createNMSComponent(icon.getComponent()) : null
         );
     }
     

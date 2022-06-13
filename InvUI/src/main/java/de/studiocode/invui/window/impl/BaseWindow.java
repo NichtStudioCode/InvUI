@@ -1,5 +1,7 @@
 package de.studiocode.invui.window.impl;
 
+import de.studiocode.inventoryaccess.component.BaseComponentWrapper;
+import de.studiocode.inventoryaccess.component.ComponentWrapper;
 import de.studiocode.inventoryaccess.version.InventoryAccess;
 import de.studiocode.invui.InvUI;
 import de.studiocode.invui.gui.GUI;
@@ -40,11 +42,11 @@ public abstract class BaseWindow implements Window {
     private final boolean removeOnClose;
     private final SlotElement[] elementsDisplayed;
     private final ArrayList<Runnable> closeHandlers = new ArrayList<>();
-    private BaseComponent[] title;
+    private ComponentWrapper title;
     private boolean closeable;
     private boolean closed;
     
-    public BaseWindow(UUID viewerUUID, BaseComponent[] title, int size, boolean closeable, boolean removeOnClose) {
+    public BaseWindow(UUID viewerUUID, ComponentWrapper title, int size, boolean closeable, boolean removeOnClose) {
         this.viewerUUID = viewerUUID;
         this.title = title;
         this.closeable = closeable;
@@ -252,12 +254,17 @@ public abstract class BaseWindow implements Window {
     }
     
     @Override
-    public void changeTitle(@NotNull BaseComponent[] title) {
+    public void changeTitle(@NotNull ComponentWrapper title) {
         this.title = title;
         Player currentViewer = getCurrentViewer();
         if (currentViewer != null) {
             InventoryAccess.getInventoryUtils().updateOpenInventoryTitle(currentViewer, title);
         }
+    }
+    
+    @Override
+    public void changeTitle(@NotNull BaseComponent[] title) {
+        changeTitle(new BaseComponentWrapper(title));
     }
     
     @Override

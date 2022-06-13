@@ -1,6 +1,8 @@
 package de.studiocode.invui.window.impl.merged.split;
 
 import de.studiocode.inventoryaccess.abstraction.inventory.AnvilInventory;
+import de.studiocode.inventoryaccess.component.BaseComponentWrapper;
+import de.studiocode.inventoryaccess.component.ComponentWrapper;
 import de.studiocode.inventoryaccess.version.InventoryAccess;
 import de.studiocode.invui.gui.GUI;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -14,7 +16,7 @@ public final class AnvilSplitWindow extends SplitWindow {
     
     private final AnvilInventory anvilInventory;
     
-    public AnvilSplitWindow(Player player, BaseComponent[] title, GUI upperGui, GUI lowerGui, boolean closeable, Consumer<String> renameHandler) {
+    public AnvilSplitWindow(Player player, ComponentWrapper title, GUI upperGui, GUI lowerGui, boolean closeable, Consumer<String> renameHandler) {
         super(player, title, upperGui, lowerGui, null, false, closeable, true);
         
         anvilInventory = InventoryAccess.createAnvilInventory(player, title, renameHandler);
@@ -22,6 +24,14 @@ public final class AnvilSplitWindow extends SplitWindow {
         
         initUpperItems();
         register();
+    }
+    
+    public AnvilSplitWindow(Player player, ComponentWrapper title, GUI upperGui, GUI lowerGui, Consumer<String> renameHandler) {
+        this(player, title, upperGui, lowerGui, true, renameHandler);
+    }
+    
+    public AnvilSplitWindow(Player player, BaseComponent[] title, GUI upperGui, GUI lowerGui, boolean closeable, Consumer<String> renameHandler) {
+        this(player, new BaseComponentWrapper(title), upperGui, lowerGui, closeable, renameHandler);
     }
     
     public AnvilSplitWindow(Player player, BaseComponent[] title, GUI upperGui, GUI lowerGui, Consumer<String> renameHandler) {

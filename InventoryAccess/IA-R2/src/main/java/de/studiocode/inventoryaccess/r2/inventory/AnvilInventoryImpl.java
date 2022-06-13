@@ -1,9 +1,9 @@
 package de.studiocode.inventoryaccess.r2.inventory;
 
 import de.studiocode.inventoryaccess.abstraction.inventory.AnvilInventory;
+import de.studiocode.inventoryaccess.component.ComponentWrapper;
 import de.studiocode.inventoryaccess.r2.util.InventoryUtilsImpl;
 import de.studiocode.inventoryaccess.util.ReflectionUtils;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.minecraft.server.v1_15_R1.*;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_15_R1.event.CraftEventFactory;
@@ -35,7 +35,7 @@ public class AnvilInventoryImpl extends ContainerAnvil implements AnvilInventory
     private String text;
     private boolean open;
     
-    public AnvilInventoryImpl(Player player, @NotNull BaseComponent[] title, Consumer<String> renameHandler) {
+    public AnvilInventoryImpl(Player player, @NotNull ComponentWrapper title, Consumer<String> renameHandler) {
         this(((CraftPlayer) player).getHandle(), InventoryUtilsImpl.createNMSComponent(title), renameHandler);
     }
     

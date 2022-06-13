@@ -1,11 +1,11 @@
 package de.studiocode.inventoryaccess.r7.util;
 
 import de.studiocode.inventoryaccess.abstraction.util.PlayerUtils;
+import de.studiocode.inventoryaccess.component.ComponentWrapper;
 import de.studiocode.inventoryaccess.map.MapIcon;
 import de.studiocode.inventoryaccess.map.MapPatch;
 import de.studiocode.inventoryaccess.util.DataUtils;
 import de.studiocode.inventoryaccess.util.ReflectionUtils;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket;
 import net.minecraft.network.protocol.game.ClientboundResourcePackPacket;
 import net.minecraft.server.PlayerAdvancements;
@@ -69,7 +69,7 @@ public class PlayerUtilsImpl implements PlayerUtils {
             MapDecoration.Type.byIcon(icon.getType().getId()),
             icon.getX(), icon.getY(),
             icon.getRot(),
-            icon.getComponents() != null ? InventoryUtilsImpl.createNMSComponent(icon.getComponents()) : null
+            icon.getComponent() != null ? InventoryUtilsImpl.createNMSComponent(icon.getComponent()) : null
         );
     }
     
@@ -84,7 +84,7 @@ public class PlayerUtilsImpl implements PlayerUtils {
     }
     
     @Override
-    public void sendResourcePack(@NotNull Player player, @NotNull String url, byte[] hash, @Nullable BaseComponent[] prompt, boolean force) {
+    public void sendResourcePack(@NotNull Player player, @NotNull String url, byte[] hash, @Nullable ComponentWrapper prompt, boolean force) {
         var serverPlayer = ((CraftPlayer) player).getHandle();
         var packet = new ClientboundResourcePackPacket(
             url,

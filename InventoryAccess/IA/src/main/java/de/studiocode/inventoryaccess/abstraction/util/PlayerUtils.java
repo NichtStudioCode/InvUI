@@ -1,8 +1,8 @@
 package de.studiocode.inventoryaccess.abstraction.util;
 
+import de.studiocode.inventoryaccess.component.ComponentWrapper;
 import de.studiocode.inventoryaccess.map.MapIcon;
 import de.studiocode.inventoryaccess.map.MapPatch;
-import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -61,7 +61,7 @@ public interface PlayerUtils {
      * @param prompt The prompt message to be displayed (since 1.17)
      * @param force  If the {@link Player} should be forced to download the resource pack (since 1.17)
      */
-    default void sendResourcePack(@NotNull Player player, @NotNull String url, byte[] hash, @Nullable BaseComponent[] prompt, boolean force) {
+    default void sendResourcePack(@NotNull Player player, @NotNull String url, byte[] hash, @Nullable ComponentWrapper prompt, boolean force) {
         player.setResourcePack(url, hash);
     }
     

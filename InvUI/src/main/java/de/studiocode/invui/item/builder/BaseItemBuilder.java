@@ -1,5 +1,7 @@
 package de.studiocode.invui.item.builder;
 
+import de.studiocode.inventoryaccess.component.BaseComponentWrapper;
+import de.studiocode.inventoryaccess.component.ComponentWrapper;
 import de.studiocode.inventoryaccess.version.InventoryAccess;
 import de.studiocode.invui.item.ItemProvider;
 import de.studiocode.invui.util.ComponentUtils;
@@ -26,8 +28,8 @@ abstract class BaseItemBuilder<T> implements ItemProvider {
     protected int amount = 1;
     protected int damage;
     protected int customModelData;
-    protected BaseComponent[] displayName;
-    protected List<BaseComponent[]> lore;
+    protected ComponentWrapper displayName;
+    protected List<ComponentWrapper> lore;
     protected List<ItemFlag> itemFlags;
     protected HashMap<Enchantment, Pair<Integer, Boolean>> enchantments;
     protected List<Function<ItemStack, ItemStack>> modifiers;
@@ -142,7 +144,7 @@ abstract class BaseItemBuilder<T> implements ItemProvider {
     
     public T setLegacyLore(@NotNull List<String> lore) {
         this.lore = lore.stream()
-            .map(ComponentUtils::withoutPreFormatting)
+            .map(line -> new BaseComponentWrapper(ComponentUtils.withoutPreFormatting(line)))
             .collect(Collectors.toList());
         return getThis();
     }
@@ -151,14 +153,27 @@ abstract class BaseItemBuilder<T> implements ItemProvider {
         if (lore == null) lore = new ArrayList<>();
         
         for (String line : lines)
-            lore.add(ComponentUtils.withoutPreFormatting(line));
+            lore.add(new BaseComponentWrapper(ComponentUtils.withoutPreFormatting(line)));
         return getThis();
     }
     
     public T addLoreLines(@NotNull BaseComponent[]... lines) {
         if (lore == null) lore = new ArrayList<>();
         
-        lore.addAll(Arrays.stream(lines).map(ComponentUtils::withoutPreFormatting).collect(Collectors.toList()));
+        lore.addAll(
+            Arrays.stream(lines)
+                .map(line -> new BaseComponentWrapper(ComponentUtils.withoutPreFormatting(line)))
+                .collect(Collectors.toList())
+        );
+        
+        return getThis();
+    }
+    
+    public T addLoreLines(@NotNull ComponentWrapper... lines) {
+        if (lore == null) lore = new ArrayList<>();
+        
+        lore.addAll(Arrays.asList(lines));
+        
         return getThis();
     }
     
@@ -257,25 +272,30 @@ abstract class BaseItemBuilder<T> implements ItemProvider {
         return getThis();
     }
     
-    public BaseComponent[] getDisplayName() {
+    public ComponentWrapper getDisplayName() {
         return displayName;
     }
     
     public T setDisplayName(String displayName) {
-        this.displayName = ComponentUtils.withoutPreFormatting(displayName);
+        this.displayName = new BaseComponentWrapper(ComponentUtils.withoutPreFormatting(displayName));
         return getThis();
     }
     
     public T setDisplayName(BaseComponent... displayName) {
-        this.displayName = ComponentUtils.withoutPreFormatting(displayName);
+        this.displayName = new BaseComponentWrapper(ComponentUtils.withoutPreFormatting(displayName));
         return getThis();
     }
     
-    public List<BaseComponent[]> getLore() {
+    public T setDisplayName(ComponentWrapper component) {
+        this.displayName = component;
+        return getThis();
+    }
+    
+    public List<ComponentWrapper> getLore() {
         return lore;
     }
     
-    public T setLore(List<BaseComponent[]> lore) {
+    public T setLore(List<ComponentWrapper> lore) {
         this.lore = lore;
         return getThis();
     }

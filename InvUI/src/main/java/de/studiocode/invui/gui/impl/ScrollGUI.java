@@ -2,7 +2,6 @@ package de.studiocode.invui.gui.impl;
 
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement;
-import de.studiocode.invui.gui.structure.Markers;
 import de.studiocode.invui.gui.structure.Structure;
 import de.studiocode.invui.util.SlotUtils;
 

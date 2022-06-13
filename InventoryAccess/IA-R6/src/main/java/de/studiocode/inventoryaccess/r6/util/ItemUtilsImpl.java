@@ -1,10 +1,9 @@
 package de.studiocode.inventoryaccess.r6.util;
 
 import de.studiocode.inventoryaccess.abstraction.util.ItemUtils;
+import de.studiocode.inventoryaccess.component.ComponentWrapper;
 import de.studiocode.inventoryaccess.util.ReflectionRegistry;
 import de.studiocode.inventoryaccess.util.ReflectionUtils;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.chat.ComponentSerializer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.world.item.ItemStack;
@@ -72,20 +71,20 @@ public class ItemUtilsImpl implements ItemUtils {
     }
     
     @Override
-    public void setDisplayName(@NotNull ItemMeta itemMeta, BaseComponent[] name) {
+    public void setDisplayName(@NotNull ItemMeta itemMeta, @NotNull ComponentWrapper name) {
         ReflectionUtils.setFieldValue(
             ReflectionRegistry.CB_CRAFT_META_ITEM_DISPLAY_NAME_FIELD,
             itemMeta,
-            ComponentSerializer.toString(name)
+            name.serializeToJson()
         );
     }
     
     @Override
-    public void setLore(@NotNull ItemMeta itemMeta, @NotNull List<@NotNull BaseComponent[]> lore) {
+    public void setLore(@NotNull ItemMeta itemMeta, @NotNull List<@NotNull ComponentWrapper> lore) {
         ReflectionUtils.setFieldValue(
             ReflectionRegistry.CB_CRAFT_META_ITEM_LORE_FIELD,
             itemMeta,
-            lore.stream().map(ComponentSerializer::toString).collect(Collectors.toList())
+            lore.stream().map(ComponentWrapper::serializeToJson).collect(Collectors.toList())
         );
     }
     

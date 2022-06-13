@@ -1,5 +1,7 @@
 package de.studiocode.invui.resourcepack;
 
+import de.studiocode.inventoryaccess.component.BaseComponentWrapper;
+import de.studiocode.inventoryaccess.component.ComponentWrapper;
 import de.studiocode.inventoryaccess.util.ReflectionRegistry;
 import de.studiocode.inventoryaccess.util.VersionUtils;
 import de.studiocode.inventoryaccess.version.InventoryAccess;
@@ -37,7 +39,7 @@ public class ForceResourcePack implements Listener {
     private final HashMap<Player, BukkitTask> tasks = new HashMap<>();
     
     private String resourcePackUrl;
-    private BaseComponent[] prompt;
+    private ComponentWrapper prompt;
     private byte[] hash;
     
     private ForceResourcePack() {
@@ -63,8 +65,19 @@ public class ForceResourcePack implements Listener {
      * @param resourcePackUrl The ResourcePack URL String
      * @param prompt          The prompt to be displayed (since 1.17)
      */
-    public void setResourcePack(@Nullable String resourcePackUrl, @Nullable BaseComponent[] prompt) {
+    public void setResourcePack(@Nullable String resourcePackUrl, @Nullable ComponentWrapper prompt) {
         setResourcePack(resourcePackUrl, prompt, true);
+    }
+    
+    /**
+     * Sets the URL String for the custom ResourcePack every {@link Player} is required to download.
+     * Can be set to null to stop forcing the Resource Pack.
+     *
+     * @param resourcePackUrl The ResourcePack URL String
+     * @param prompt          The prompt to be displayed (since 1.17)
+     */
+    public void setResourcePack(@Nullable String resourcePackUrl, @Nullable BaseComponent[] prompt) {
+        setResourcePack(resourcePackUrl, new BaseComponentWrapper(prompt), true);
     }
     
     /**
@@ -75,7 +88,7 @@ public class ForceResourcePack implements Listener {
      * @param prompt              The prompt to be displayed (since 1.17)
      * @param sendToOnlinePlayers If the resource pack should also be sent to all currently online players
      */
-    public void setResourcePack(@Nullable String resourcePackUrl, @Nullable BaseComponent[] prompt, boolean sendToOnlinePlayers) {
+    public void setResourcePack(@Nullable String resourcePackUrl, @Nullable ComponentWrapper prompt, boolean sendToOnlinePlayers) {
         this.prompt = prompt;
         
         if (resourcePackUrl != null) {
@@ -91,6 +104,18 @@ public class ForceResourcePack implements Listener {
         } else {
             this.resourcePackUrl = null;
         }
+    }
+    
+    /**
+     * Sets the URL String for the custom ResourcePack every {@link Player} is required to download.
+     * Can be set to null to stop forcing the Resource Pack.
+     *
+     * @param resourcePackUrl     The ResourcePack URL String
+     * @param prompt              The prompt to be displayed (since 1.17)
+     * @param sendToOnlinePlayers If the resource pack should also be sent to all currently online players
+     */
+    public void setResourcePack(@Nullable String resourcePackUrl, @Nullable BaseComponent[] prompt, boolean sendToOnlinePlayers) {
+        setResourcePack(resourcePackUrl, new BaseComponentWrapper(prompt), sendToOnlinePlayers);
     }
     
     public void sendResourcePack(Player player) {

@@ -1,5 +1,6 @@
 package de.studiocode.invui.window;
 
+import de.studiocode.inventoryaccess.component.ComponentWrapper;
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.GUIParent;
 import de.studiocode.invui.item.Item;
@@ -175,6 +176,13 @@ public interface Window extends GUIParent {
      * @param closeable If the player should be able to close the {@link Inventory}.
      */
     void setCloseable(boolean closeable);
+    
+    /**
+     * Changes the title of the {@link Inventory}.
+     *
+     * @param title The new title
+     */
+    void changeTitle(@NotNull ComponentWrapper title);
     
     /**
      * Changes the title of the {@link Inventory}.

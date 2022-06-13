@@ -1,5 +1,7 @@
 package de.studiocode.inventoryaccess.map;
 
+import de.studiocode.inventoryaccess.component.BaseComponentWrapper;
+import de.studiocode.inventoryaccess.component.ComponentWrapper;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -10,18 +12,22 @@ public class MapIcon {
     private final byte x;
     private final byte y;
     private final byte rot;
-    private final BaseComponent[] components;
+    private final ComponentWrapper component;
     
-    public MapIcon(@NotNull MapIconType type, int x, int y, int rot, @Nullable BaseComponent[] components) {
+    public MapIcon(@NotNull MapIconType type, int x, int y, int rot, @Nullable ComponentWrapper component) {
         this.type = type;
         this.x = (byte) (x - 128);
         this.y = (byte) (y - 128);
         this.rot = (byte) rot;
-        this.components = components;
+        this.component = component;
+    }
+    
+    public MapIcon(@NotNull MapIconType type, int x, int y, int rot, @Nullable BaseComponent[] component) {
+        this(type, x, y, rot, new BaseComponentWrapper(component));
     }
     
     public MapIcon(MapIconType type, byte x, byte y, byte rot) {
-        this(type, x, y, rot, null);
+        this(type, x, y, rot, (ComponentWrapper) null);
     }
     
     @NotNull
@@ -42,8 +48,8 @@ public class MapIcon {
     }
     
     @Nullable
-    public BaseComponent[] getComponents() {
-        return components;
+    public ComponentWrapper getComponent() {
+        return component;
     }
     
     public enum MapIconType {

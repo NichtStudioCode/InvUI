@@ -1,9 +1,9 @@
 package de.studiocode.inventoryaccess.r10.inventory;
 
 import de.studiocode.inventoryaccess.abstraction.inventory.CartographyInventory;
+import de.studiocode.inventoryaccess.component.ComponentWrapper;
 import de.studiocode.inventoryaccess.r10.util.InventoryUtilsImpl;
 import de.studiocode.inventoryaccess.util.ReflectionUtils;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
@@ -40,7 +40,7 @@ public class CartographyInventoryImpl extends CartographyTableMenu implements Ca
     
     private boolean open;
     
-    public CartographyInventoryImpl(Player player, @NotNull BaseComponent[] title) {
+    public CartographyInventoryImpl(Player player, @NotNull ComponentWrapper title) {
         this(((CraftPlayer) player).getHandle(), InventoryUtilsImpl.createNMSComponent(title));
     }
     

@@ -1,12 +1,12 @@
 package de.studiocode.invui.window.impl.merged.combined;
 
+import de.studiocode.inventoryaccess.component.ComponentWrapper;
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.util.Pair;
 import de.studiocode.invui.util.SlotUtils;
 import de.studiocode.invui.window.Window;
 import de.studiocode.invui.window.impl.merged.MergedWindow;
-import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -18,7 +18,7 @@ public abstract class CombinedWindow extends MergedWindow {
     
     private final GUI gui;
     
-    public CombinedWindow(Player player, BaseComponent[] title, GUI gui, Inventory upperInventory, boolean closeable, boolean removeOnClose) {
+    public CombinedWindow(Player player, ComponentWrapper title, GUI gui, Inventory upperInventory, boolean closeable, boolean removeOnClose) {
         super(player, title, gui.getSize(), upperInventory, closeable, removeOnClose);
         this.gui = gui;
         

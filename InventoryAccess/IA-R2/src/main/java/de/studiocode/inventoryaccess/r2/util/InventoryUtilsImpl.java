@@ -1,8 +1,7 @@
 package de.studiocode.inventoryaccess.r2.util;
 
 import de.studiocode.inventoryaccess.abstraction.util.InventoryUtils;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.chat.ComponentSerializer;
+import de.studiocode.inventoryaccess.component.ComponentWrapper;
 import net.minecraft.server.v1_15_R1.*;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_15_R1.event.CraftEventFactory;
@@ -11,12 +10,12 @@ import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftInventory;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class InventoryUtilsImpl implements InventoryUtils {
     
-    public static IChatBaseComponent createNMSComponent(BaseComponent[] components) {
-        String json = ComponentSerializer.toString(components);
-        return IChatBaseComponent.ChatSerializer.a(json);
+    public static IChatBaseComponent createNMSComponent(ComponentWrapper component) {
+        return IChatBaseComponent.ChatSerializer.a(component.serializeToJson());
     }
     
     public static int getActiveWindowId(EntityPlayer player) {
@@ -30,7 +29,7 @@ public class InventoryUtilsImpl implements InventoryUtils {
     }
     
     @Override
-    public void openCustomInventory(@NotNull Player player, @NotNull Inventory inventory, @NotNull BaseComponent[] title) {
+    public void openCustomInventory(@NotNull Player player, @NotNull Inventory inventory, @Nullable ComponentWrapper title) {
         EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
         Containers<?> windowType = CraftContainer.getNotchInventoryType(inventory);
         
@@ -54,7 +53,7 @@ public class InventoryUtilsImpl implements InventoryUtils {
     }
     
     @Override
-    public void updateOpenInventoryTitle(@NotNull Player player, @NotNull BaseComponent[] title) {
+    public void updateOpenInventoryTitle(@NotNull Player player, @NotNull ComponentWrapper title) {
         EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
         Container container = entityPlayer.activeContainer;
         entityPlayer.playerConnection.sendPacket(new PacketPlayOutOpenWindow(container.windowId, container.getType(), createNMSComponent(title)));

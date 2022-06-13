@@ -1,8 +1,7 @@
 package de.studiocode.inventoryaccess.r8.util;
 
 import de.studiocode.inventoryaccess.abstraction.util.InventoryUtils;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.chat.ComponentSerializer;
+import de.studiocode.inventoryaccess.component.ComponentWrapper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
 import net.minecraft.server.level.ServerPlayer;
@@ -18,14 +17,13 @@ import org.bukkit.craftbukkit.v1_18_R1.util.CraftChatMessage;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class InventoryUtilsImpl implements InventoryUtils {
     
-    public static Component createNMSComponent(BaseComponent[] components) {
-        if (components == null) return null;
-        
-        String json = ComponentSerializer.toString(components);
-        return CraftChatMessage.fromJSON(json);
+    public static Component createNMSComponent(ComponentWrapper component) {
+        if (component == null) return null;
+        return CraftChatMessage.fromJSON(component.serializeToJson());
     }
     
     public static int getActiveWindowId(ServerPlayer player) {
@@ -39,7 +37,7 @@ public class InventoryUtilsImpl implements InventoryUtils {
     }
     
     @Override
-    public void openCustomInventory(@NotNull Player player, @NotNull Inventory inventory, @NotNull BaseComponent[] title) {
+    public void openCustomInventory(@NotNull Player player, @NotNull Inventory inventory, @Nullable ComponentWrapper title) {
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
         MenuType<?> menuType = CraftContainer.getNotchInventoryType(inventory);
         
@@ -65,7 +63,7 @@ public class InventoryUtilsImpl implements InventoryUtils {
     }
     
     @Override
-    public void updateOpenInventoryTitle(@NotNull Player player, @NotNull BaseComponent[] title) {
+    public void updateOpenInventoryTitle(@NotNull Player player, @NotNull ComponentWrapper title) {
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
         AbstractContainerMenu menu = serverPlayer.containerMenu;
         serverPlayer.connection.send(new ClientboundOpenScreenPacket(menu.containerId, menu.getType(), createNMSComponent(title)));

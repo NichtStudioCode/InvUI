@@ -1,5 +1,6 @@
 package de.studiocode.invui.window.impl.merged;
 
+import de.studiocode.inventoryaccess.component.ComponentWrapper;
 import de.studiocode.inventoryaccess.version.InventoryAccess;
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement;
@@ -7,7 +8,6 @@ import de.studiocode.invui.util.Pair;
 import de.studiocode.invui.util.SlotUtils;
 import de.studiocode.invui.window.Window;
 import de.studiocode.invui.window.impl.BaseWindow;
-import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -28,7 +28,7 @@ public abstract class MergedWindow extends BaseWindow {
     protected Inventory upperInventory;
     private boolean isCurrentlyOpened;
     
-    public MergedWindow(Player player, BaseComponent[] title, int size, Inventory upperInventory, boolean closeable, boolean removeOnClose) {
+    public MergedWindow(Player player, ComponentWrapper title, int size, Inventory upperInventory, boolean closeable, boolean removeOnClose) {
         super(player.getUniqueId(), title, size, closeable, removeOnClose);
         this.upperInventory = upperInventory;
         this.playerInventory = player.getInventory();

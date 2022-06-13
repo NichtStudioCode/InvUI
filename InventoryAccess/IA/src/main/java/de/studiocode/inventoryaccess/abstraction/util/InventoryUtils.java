@@ -1,10 +1,11 @@
 package de.studiocode.inventoryaccess.abstraction.util;
 
-import net.md_5.bungee.api.chat.BaseComponent;
+import de.studiocode.inventoryaccess.component.ComponentWrapper;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface InventoryUtils {
     
@@ -30,7 +31,7 @@ public interface InventoryUtils {
      * @param inventory The {@link Inventory}
      * @param title     The title of the inventory
      */
-    void openCustomInventory(@NotNull Player player, @NotNull Inventory inventory, @NotNull BaseComponent[] title);
+    void openCustomInventory(@NotNull Player player, @NotNull Inventory inventory, @Nullable ComponentWrapper title);
     
     /**
      * Changes the title of the {@link Inventory} the player is currently viewing.
@@ -38,6 +39,6 @@ public interface InventoryUtils {
      * @param player The {@link Player}
      * @param title  The new title
      */
-    void updateOpenInventoryTitle(@NotNull Player player, @NotNull BaseComponent[] title);
+    void updateOpenInventoryTitle(@NotNull Player player, @NotNull ComponentWrapper title);
     
 }

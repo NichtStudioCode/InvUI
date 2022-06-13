@@ -1,12 +1,12 @@
 package de.studiocode.invui.window.impl.merged.split;
 
+import de.studiocode.inventoryaccess.component.ComponentWrapper;
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.util.Pair;
 import de.studiocode.invui.util.SlotUtils;
 import de.studiocode.invui.window.Window;
 import de.studiocode.invui.window.impl.merged.MergedWindow;
-import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -19,7 +19,7 @@ public abstract class SplitWindow extends MergedWindow {
     private final GUI upperGui;
     private final GUI lowerGui;
     
-    public SplitWindow(Player player, BaseComponent[] title, GUI upperGui, GUI lowerGui, Inventory upperInventory, boolean initItems, boolean closeable, boolean removeOnClose) {
+    public SplitWindow(Player player, ComponentWrapper title, GUI upperGui, GUI lowerGui, Inventory upperInventory, boolean initItems, boolean closeable, boolean removeOnClose) {
         super(player, title, upperGui.getSize() + lowerGui.getSize(), upperInventory, closeable, removeOnClose);
         this.upperGui = upperGui;
         this.lowerGui = lowerGui;

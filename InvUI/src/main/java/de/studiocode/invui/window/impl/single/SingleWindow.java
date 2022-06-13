@@ -1,12 +1,12 @@
 package de.studiocode.invui.window.impl.single;
 
+import de.studiocode.inventoryaccess.component.ComponentWrapper;
 import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.util.InventoryUtils;
 import de.studiocode.invui.util.Pair;
 import de.studiocode.invui.window.Window;
 import de.studiocode.invui.window.impl.BaseWindow;
-import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -24,7 +24,7 @@ public abstract class SingleWindow extends BaseWindow {
     private final int size;
     protected Inventory inventory;
     
-    public SingleWindow(UUID viewerUUID, BaseComponent[] title, GUI gui, Inventory inventory, boolean initItems, boolean closeable, boolean removeOnClose) {
+    public SingleWindow(UUID viewerUUID, ComponentWrapper title, GUI gui, Inventory inventory, boolean initItems, boolean closeable, boolean removeOnClose) {
         super(viewerUUID, title, gui.getSize(), closeable, removeOnClose);
         this.gui = gui;
         this.size = gui.getSize();

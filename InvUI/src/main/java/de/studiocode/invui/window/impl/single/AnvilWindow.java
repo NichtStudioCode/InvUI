@@ -1,6 +1,8 @@
 package de.studiocode.invui.window.impl.single;
 
 import de.studiocode.inventoryaccess.abstraction.inventory.AnvilInventory;
+import de.studiocode.inventoryaccess.component.BaseComponentWrapper;
+import de.studiocode.inventoryaccess.component.ComponentWrapper;
 import de.studiocode.inventoryaccess.version.InventoryAccess;
 import de.studiocode.invui.gui.GUI;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -14,7 +16,7 @@ public final class AnvilWindow extends SingleWindow {
     
     private final AnvilInventory anvilInventory;
     
-    public AnvilWindow(Player player, BaseComponent[] title, GUI gui, boolean closable, Consumer<String> renameHandler) {
+    public AnvilWindow(Player player, ComponentWrapper title, GUI gui, boolean closable, Consumer<String> renameHandler) {
         super(player.getUniqueId(), title, gui, null, false, closable, true);
         anvilInventory = InventoryAccess.createAnvilInventory(player, title, renameHandler);
         inventory = anvilInventory.getBukkitInventory();
@@ -23,15 +25,23 @@ public final class AnvilWindow extends SingleWindow {
         register();
     }
     
+    public AnvilWindow(Player player, ComponentWrapper title, GUI gui, Consumer<String> renameHandler) {
+        this(player, title, gui, true, renameHandler);
+    }
+    
+    public AnvilWindow(Player player, BaseComponent[] title, GUI gui, boolean closeable, Consumer<String> renameHandler) {
+        this(player, new BaseComponentWrapper(title), gui, closeable, renameHandler);
+    }
+    
+    public AnvilWindow(Player player, BaseComponent[] title, GUI gui, Consumer<String> renameHandler) {
+        this(player, title, gui, true, renameHandler);
+    }
+    
     public AnvilWindow(Player player, String title, GUI gui, boolean closeable, Consumer<String> renameHandler) {
         this(player, TextComponent.fromLegacyText(title), gui, closeable, renameHandler);
     }
     
     public AnvilWindow(Player player, String title, GUI gui, Consumer<String> renameHandler) {
-        this(player, title, gui, true, renameHandler);
-    }
-    
-    public AnvilWindow(Player player, BaseComponent[] title, GUI gui, Consumer<String> renameHandler) {
         this(player, title, gui, true, renameHandler);
     }
     

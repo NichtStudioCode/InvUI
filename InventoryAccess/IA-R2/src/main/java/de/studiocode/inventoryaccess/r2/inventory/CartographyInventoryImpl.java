@@ -1,9 +1,9 @@
 package de.studiocode.inventoryaccess.r2.inventory;
 
 import de.studiocode.inventoryaccess.abstraction.inventory.CartographyInventory;
+import de.studiocode.inventoryaccess.component.ComponentWrapper;
 import de.studiocode.inventoryaccess.r2.util.InventoryUtilsImpl;
 import de.studiocode.inventoryaccess.util.ReflectionUtils;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.minecraft.server.v1_15_R1.*;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_15_R1.event.CraftEventFactory;
@@ -27,7 +27,7 @@ public class CartographyInventoryImpl extends ContainerCartography implements Ca
     
     private boolean open;
     
-    public CartographyInventoryImpl(Player player, @NotNull BaseComponent[] title) {
+    public CartographyInventoryImpl(Player player, @NotNull ComponentWrapper title) {
         this(((CraftPlayer) player).getHandle(), InventoryUtilsImpl.createNMSComponent(title));
     }
     

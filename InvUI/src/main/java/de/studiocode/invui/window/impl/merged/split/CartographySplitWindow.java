@@ -1,6 +1,8 @@
 package de.studiocode.invui.window.impl.merged.split;
 
 import de.studiocode.inventoryaccess.abstraction.inventory.CartographyInventory;
+import de.studiocode.inventoryaccess.component.BaseComponentWrapper;
+import de.studiocode.inventoryaccess.component.ComponentWrapper;
 import de.studiocode.inventoryaccess.map.MapIcon;
 import de.studiocode.inventoryaccess.map.MapPatch;
 import de.studiocode.inventoryaccess.version.InventoryAccess;
@@ -22,19 +24,7 @@ public final class CartographySplitWindow extends SplitWindow {
     private final CartographyInventory cartographyInventory;
     private int mapId;
     
-    public CartographySplitWindow(Player player, String title, GUI upperGui, GUI lowerGui) {
-        this(player, TextComponent.fromLegacyText(title), upperGui, lowerGui, true);
-    }
-    
-    public CartographySplitWindow(Player player, String title, GUI upperGui, GUI lowerGui, boolean closeable) {
-        this(player, TextComponent.fromLegacyText(title), upperGui, lowerGui, closeable);
-    }
-    
-    public CartographySplitWindow(Player player, BaseComponent[] title, GUI upperGui, GUI lowerGui) {
-        this(player, title, upperGui, lowerGui, true);
-    }
-    
-    public CartographySplitWindow(Player player, BaseComponent[] title, GUI upperGui, GUI lowerGui, boolean closeable) {
+    public CartographySplitWindow(Player player, ComponentWrapper title, GUI upperGui, GUI lowerGui, boolean closeable) {
         super(player, title, createWrappingGUI(upperGui), lowerGui, null, false, closeable, true);
         
         cartographyInventory = InventoryAccess.createCartographyInventory(player, title);
@@ -43,6 +33,26 @@ public final class CartographySplitWindow extends SplitWindow {
         initUpperItems();
         resetMap();
         register();
+    }
+    
+    public CartographySplitWindow(Player player, ComponentWrapper title, GUI upperGui, GUI lowerGui) {
+        this(player, title, upperGui, lowerGui, true);
+    }
+    
+    public CartographySplitWindow(Player player, BaseComponent[] title, GUI upperGui, GUI lowerGui) {
+        this(player, new BaseComponentWrapper(title), upperGui, lowerGui, true);
+    }
+    
+    public CartographySplitWindow(Player player, BaseComponent[] title, GUI upperGui, GUI lowerGui, boolean closeable) {
+        this(player, new BaseComponentWrapper(title), upperGui, lowerGui, closeable);
+    }
+    
+    public CartographySplitWindow(Player player, String title, GUI upperGui, GUI lowerGui) {
+        this(player, TextComponent.fromLegacyText(title), upperGui, lowerGui, true);
+    }
+    
+    public CartographySplitWindow(Player player, String title, GUI upperGui, GUI lowerGui, boolean closeable) {
+        this(player, TextComponent.fromLegacyText(title), upperGui, lowerGui, closeable);
     }
     
     private static GUI createWrappingGUI(GUI upperGui) {
