@@ -19,6 +19,6 @@ public class Markers {
      * The marker for vertical item list slots in {@link PagedGUI PagedGUIs},
      * {@link ScrollGUI ScrollGUIs} and {@link TabGUI TabGUIs}
      */
-    public static final Marker ITEM_LIST_SLOT_VERTICAL = new Marker(true);
+    public static final Marker ITEM_LIST_SLOT_VERTICAL = new Marker(false);
     
 }
