@@ -29,10 +29,10 @@ public abstract class ScrollGUI extends BaseGUI {
         this.lineLength = SlotUtils.getLongestLineLength(itemListSlots, width);
         this.lineAmount = (int) Math.ceil((double) itemListSlots.length / (double) lineLength);
         
-        if (lineLength == 0)
-            throw new IllegalArgumentException("Line length can't be 0");
         if (itemListSlots.length == 0)
             throw new IllegalArgumentException("No item list slots provided");
+        if (lineLength == 0)
+            throw new IllegalArgumentException("Line length can't be 0");
         if (itemListSlots.length % lineLength != 0)
             throw new IllegalArgumentException("itemListSlots has to be a multiple of lineLength");
     }
