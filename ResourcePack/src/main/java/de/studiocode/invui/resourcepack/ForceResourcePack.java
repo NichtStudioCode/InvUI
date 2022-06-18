@@ -18,8 +18,8 @@ import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 
 import static org.bukkit.event.player.PlayerResourcePackStatusEvent.Status.DECLINED;
@@ -64,8 +64,9 @@ public class ForceResourcePack implements Listener {
      *
      * @param resourcePackUrl The ResourcePack URL String
      * @param prompt          The prompt to be displayed (since 1.17)
+     * @throws IOException If the connection was not successful
      */
-    public void setResourcePack(@Nullable String resourcePackUrl, @Nullable ComponentWrapper prompt) {
+    public void setResourcePack(@Nullable String resourcePackUrl, @Nullable ComponentWrapper prompt) throws IOException {
         setResourcePack(resourcePackUrl, prompt, true);
     }
     
@@ -75,8 +76,9 @@ public class ForceResourcePack implements Listener {
      *
      * @param resourcePackUrl The ResourcePack URL String
      * @param prompt          The prompt to be displayed (since 1.17)
+     * @throws IOException If the connection was not successful
      */
-    public void setResourcePack(@Nullable String resourcePackUrl, @Nullable BaseComponent[] prompt) {
+    public void setResourcePack(@Nullable String resourcePackUrl, @Nullable BaseComponent[] prompt) throws IOException {
         setResourcePack(resourcePackUrl, new BaseComponentWrapper(prompt), true);
     }
     
@@ -87,18 +89,19 @@ public class ForceResourcePack implements Listener {
      * @param resourcePackUrl     The ResourcePack URL String
      * @param prompt              The prompt to be displayed (since 1.17)
      * @param sendToOnlinePlayers If the resource pack should also be sent to all currently online players
+     * @throws IOException If the connection was not successful
      */
-    public void setResourcePack(@Nullable String resourcePackUrl, @Nullable ComponentWrapper prompt, boolean sendToOnlinePlayers) {
+    public void setResourcePack(@Nullable String resourcePackUrl, @Nullable ComponentWrapper prompt, boolean sendToOnlinePlayers) throws IOException {
         this.prompt = prompt;
         
         if (resourcePackUrl != null) {
-            try {
-                URL url = new URL(resourcePackUrl);
+            URL url = new URL(resourcePackUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            int response = connection.getResponseCode();
+            if (response >= 200 && response < 300) {
                 hash = DataUtils.createSha1Hash(url.openStream());
                 this.resourcePackUrl = resourcePackUrl;
-            } catch (IOException | NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            }
+            } else throw new IOException("Service returned response code " + response);
             
             if (sendToOnlinePlayers) Bukkit.getOnlinePlayers().forEach(this::sendResourcePack);
         } else {
@@ -113,8 +116,9 @@ public class ForceResourcePack implements Listener {
      * @param resourcePackUrl     The ResourcePack URL String
      * @param prompt              The prompt to be displayed (since 1.17)
      * @param sendToOnlinePlayers If the resource pack should also be sent to all currently online players
+     * @throws IOException If the connection was not successful
      */
-    public void setResourcePack(@Nullable String resourcePackUrl, @Nullable BaseComponent[] prompt, boolean sendToOnlinePlayers) {
+    public void setResourcePack(@Nullable String resourcePackUrl, @Nullable BaseComponent[] prompt, boolean sendToOnlinePlayers) throws IOException {
         setResourcePack(resourcePackUrl, new BaseComponentWrapper(prompt), sendToOnlinePlayers);
     }
     

@@ -77,15 +77,21 @@ public class DataUtils {
         return array2d;
     }
     
-    public static byte[] createSha1Hash(InputStream in) throws NoSuchAlgorithmException, IOException {
-        MessageDigest md = MessageDigest.getInstance("SHA1");
-        int len;
-        byte[] buffer = new byte[4096];
-        while ((len = in.read(buffer)) != -1) {
-            md.update(buffer, 0, len);
+    public static byte[] createSha1Hash(InputStream in) throws IOException {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA1");
+            int len;
+            byte[] buffer = new byte[4096];
+            while ((len = in.read(buffer)) != -1) {
+                md.update(buffer, 0, len);
+            }
+            in.close();
+            return md.digest();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
         }
-        in.close();
-        return md.digest();
+        
+        return null;
     }
     
 }
