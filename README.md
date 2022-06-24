@@ -9,7 +9,7 @@
 An Inventory API for Minecraft Spigot servers.  
 Supports all versions from 1.14 to 1.19.
 
-[Wiki](https://github.com/NichtStudioCode/InvUI/wiki)
+[Documentation](https://xenondevs.xyz/docs/invui/)
 
 ## Features
 
