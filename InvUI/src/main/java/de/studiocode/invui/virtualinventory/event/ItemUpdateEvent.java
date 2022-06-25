@@ -11,6 +11,8 @@ import org.jetbrains.annotations.Nullable;
  */
 public class ItemUpdateEvent extends UpdateEvent {
     
+    private boolean cancelled;
+    
     /**
      * Creates a new {@link ItemUpdateEvent}.
      *
@@ -29,7 +31,16 @@ public class ItemUpdateEvent extends UpdateEvent {
         super(virtualInventory, slot, updateReason, previousItemStack, newItemStack);
     }
     
-    private boolean cancelled;
+    /**
+     * Change the {@link ItemStack} that will appear in the {@link VirtualInventory}
+     * to a different one.
+     *
+     * @param newItemStack The {@link ItemStack} to appear in the {@link VirtualInventory}
+     *                     if the {@link ItemUpdateEvent} is not cancelled.
+     */
+    public void setNewItemStack(@Nullable ItemStack newItemStack) {
+        this.newItemStack = newItemStack;
+    }
     
     /**
      * Gets the cancellation state of this event.

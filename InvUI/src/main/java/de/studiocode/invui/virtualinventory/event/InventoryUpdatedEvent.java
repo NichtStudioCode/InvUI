@@ -6,12 +6,10 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-// TODO: better solution?
-
 /**
  * An event that is called after the {@link VirtualInventory} has been updated.
  */
-public class InventoryUpdatedEvent extends ItemUpdateEvent {
+public class InventoryUpdatedEvent extends UpdateEvent {
     
     /**
      * Creates a new {@link ItemUpdateEvent}.

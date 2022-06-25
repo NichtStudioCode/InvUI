@@ -9,10 +9,10 @@ import org.jetbrains.annotations.Nullable;
 abstract class UpdateEvent {
     
     private final VirtualInventory virtualInventory;
-    private final ItemStack previousItemStack;
     private final UpdateReason updateReason;
     private final int slot;
-    private ItemStack newItemStack;
+    private final ItemStack previousItemStack;
+    protected ItemStack newItemStack;
     
     /**
      * Creates a new {@link ItemUpdateEvent}.
@@ -32,8 +32,8 @@ abstract class UpdateEvent {
         this.virtualInventory = virtualInventory;
         this.slot = slot;
         this.updateReason = updateReason;
-        this.previousItemStack = previousItemStack;
-        this.newItemStack = newItemStack;
+        this.previousItemStack = previousItemStack != null ? previousItemStack.clone() : null;
+        this.newItemStack = newItemStack != null ? newItemStack.clone() : null;
     }
     
     /**
@@ -55,7 +55,7 @@ abstract class UpdateEvent {
     }
     
     /**
-     * Gets the {@link ItemStack} that was there previously.
+     * Gets a clone of the {@link ItemStack} that was there previously.
      *
      * @return The {@link ItemStack}
      */
@@ -64,23 +64,12 @@ abstract class UpdateEvent {
     }
     
     /**
-     * The new {@link ItemStack} that will be there if the event isn't cancelled.
+     * Gets clone of the new {@link ItemStack} that will be there if the event isn't cancelled.
      *
      * @return The new {@link ItemStack}
      */
     public ItemStack getNewItemStack() {
         return newItemStack;
-    }
-    
-    /**
-     * Change the {@link ItemStack} that will appear in the {@link VirtualInventory}
-     * to a different one.
-     *
-     * @param newItemStack The {@link ItemStack} to appear in the {@link VirtualInventory}
-     *                     if the {@link ItemUpdateEvent} is not cancelled.
-     */
-    public void setNewItemStack(@Nullable ItemStack newItemStack) {
-        this.newItemStack = newItemStack;
     }
     
     /**
