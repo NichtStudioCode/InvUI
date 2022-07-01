@@ -320,7 +320,13 @@ public class VirtualInventory {
      */
     public ItemUpdateEvent callPreUpdateEvent(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
         ItemUpdateEvent event = new ItemUpdateEvent(this, slot, updateReason, previousItemStack, newItemStack);
-        if (itemUpdateHandler != null) itemUpdateHandler.accept(event);
+        if (itemUpdateHandler != null) {
+            try {
+                itemUpdateHandler.accept(event);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         return event;
     }
     
@@ -335,7 +341,13 @@ public class VirtualInventory {
      */
     public InventoryUpdatedEvent callAfterUpdateEvent(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
         InventoryUpdatedEvent event = new InventoryUpdatedEvent(this, slot, updateReason, previousItemStack, newItemStack);
-        if (inventoryUpdatedHandler != null) inventoryUpdatedHandler.accept(event);
+        if (inventoryUpdatedHandler != null) {
+            try {
+                inventoryUpdatedHandler.accept(event);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         return event;
     }
     
