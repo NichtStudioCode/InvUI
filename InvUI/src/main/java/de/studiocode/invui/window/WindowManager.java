@@ -141,12 +141,13 @@ public class WindowManager implements Listener {
     
     @EventHandler(priority = EventPriority.HIGHEST)
     private void handleInventoryClose(InventoryCloseEvent event) {
+        Player player = (Player) event.getPlayer();
+        
         Window window = getWindow(event.getInventory());
-        if (window != null) {
-            Player player = (Player) event.getPlayer();
+        if (window != null)
             window.handleClose(player);
-            openWindows.remove(player);
-        }
+        
+        openWindows.remove(player);
     }
     
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
