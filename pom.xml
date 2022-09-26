@@ -6,7 +6,7 @@
 
     <groupId>de.studiocode.invui</groupId>
     <artifactId>InvUI-Parent</artifactId>
-    <version>0.8-SNAPSHOT</version>
+    <version>0.8</version>
     <packaging>pom</packaging>
 
     <properties>
