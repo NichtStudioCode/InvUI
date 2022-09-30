@@ -7,6 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -53,7 +54,13 @@ public class InventoryUtils {
     @Nullable
     public static ItemStack getFirstPartialStack(Inventory inventory, @NotNull ItemStack type) {
         int maxStackSize = stackSizeProvider.getMaxStackSize(type);
-        for (ItemStack item : inventory.getStorageContents()) {
+        
+        ItemStack[] storageContents = inventory.getStorageContents();
+        for (int i = 0; i < storageContents.length; i++) {
+            if (isInvalidSlot(inventory, i))
+                continue;
+            
+            ItemStack item = storageContents[i];
             if (type.isSimilar(item)) {
                 int amount = item.getAmount();
                 if (amount < maxStackSize)
@@ -67,11 +74,24 @@ public class InventoryUtils {
     public static int getFirstEmptySlot(Inventory inventory) {
         ItemStack[] storageContents = inventory.getStorageContents();
         for (int i = 0; i < storageContents.length; i++) {
-            if (storageContents[i] == null)
+            if (isInvalidSlot(inventory, i))
+                continue;
+            
+            ItemStack item = storageContents[i];
+            if (item == null || item.getType().isAir())
                 return i;
         }
         
         return -1;
+    }
+    
+    private static boolean isInvalidSlot(Inventory inventory, int slot) {
+        if (inventory instanceof CraftingInventory) {
+            // craft result slot
+            return slot == 0;
+        }
+        
+        return false;
     }
     
     public static Inventory createMatchingInventory(GUI gui, String title) {
