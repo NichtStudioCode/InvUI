@@ -17,13 +17,17 @@ public class InventoryUtils {
     
     public static StackSizeProvider stackSizeProvider = ItemStack::getMaxStackSize;
     
-    public static int addItemCorrectly(Inventory inventory, ItemStack itemStack) {
+    public static int addItemCorrectly(@NotNull Inventory inventory, @NotNull ItemStack itemStack) {
+        return addItemCorrectly(inventory, itemStack, new boolean[inventory.getSize()]);
+    }
+    
+    public static int addItemCorrectly(@NotNull Inventory inventory, @NotNull ItemStack itemStack, boolean @NotNull [] blockedSlots) {
         int maxStackSize = Math.min(inventory.getMaxStackSize(), stackSizeProvider.getMaxStackSize(itemStack));
         int amountLeft = itemStack.getAmount();
         
         // add to partial stacks
         while (amountLeft > 0) {
-            ItemStack partialStack = getFirstPartialStack(inventory, itemStack);
+            ItemStack partialStack = getFirstPartialStack(inventory, itemStack, blockedSlots);
             if (partialStack == null)
                 break;
             
@@ -35,7 +39,7 @@ public class InventoryUtils {
         
         // add to empty slots
         while (amountLeft > 0) {
-            int emptySlot = getFirstEmptySlot(inventory);
+            int emptySlot = getFirstEmptySlot(inventory, blockedSlots);
             if (emptySlot == -1)
                 break;
             
@@ -52,12 +56,17 @@ public class InventoryUtils {
     }
     
     @Nullable
-    public static ItemStack getFirstPartialStack(Inventory inventory, @NotNull ItemStack type) {
+    public static ItemStack getFirstPartialStack(@NotNull Inventory inventory, @NotNull ItemStack type) {
+        return getFirstPartialStack(inventory, type, new boolean[inventory.getSize()]);
+    }
+    
+    @Nullable
+    public static ItemStack getFirstPartialStack(@NotNull Inventory inventory, @NotNull ItemStack type, boolean @NotNull [] blockedSlots) {
         int maxStackSize = stackSizeProvider.getMaxStackSize(type);
         
         ItemStack[] storageContents = inventory.getStorageContents();
         for (int i = 0; i < storageContents.length; i++) {
-            if (isInvalidSlot(inventory, i))
+            if (blockedSlots[i] || isInvalidSlot(inventory, i))
                 continue;
             
             ItemStack item = storageContents[i];
@@ -71,10 +80,14 @@ public class InventoryUtils {
         return null;
     }
     
-    public static int getFirstEmptySlot(Inventory inventory) {
+    public static int getFirstEmptySlot(@NotNull Inventory inventory) {
+        return getFirstEmptySlot(inventory, new boolean[inventory.getSize()]);
+    }
+    
+    public static int getFirstEmptySlot(@NotNull Inventory inventory, boolean @NotNull [] blockedSlots) {
         ItemStack[] storageContents = inventory.getStorageContents();
         for (int i = 0; i < storageContents.length; i++) {
-            if (isInvalidSlot(inventory, i))
+            if (blockedSlots[i] || isInvalidSlot(inventory, i))
                 continue;
             
             ItemStack item = storageContents[i];
@@ -85,7 +98,7 @@ public class InventoryUtils {
         return -1;
     }
     
-    private static boolean isInvalidSlot(Inventory inventory, int slot) {
+    private static boolean isInvalidSlot(@NotNull Inventory inventory, int slot) {
         if (inventory instanceof CraftingInventory) {
             // craft result slot
             return slot == 0;
@@ -94,7 +107,7 @@ public class InventoryUtils {
         return false;
     }
     
-    public static Inventory createMatchingInventory(GUI gui, String title) {
+    public static Inventory createMatchingInventory(@NotNull GUI gui, @NotNull String title) {
         InventoryType type;
         
         if (gui.getWidth() == 9) type = null;
@@ -106,7 +119,7 @@ public class InventoryUtils {
         else return Bukkit.createInventory(null, type, title);
     }
     
-    public static boolean containsSimilar(Inventory inventory, ItemStack itemStack) {
+    public static boolean containsSimilar(@NotNull Inventory inventory, @Nullable ItemStack itemStack) {
         for (int i = 0; i < inventory.getSize(); i++) {
             ItemStack currentStack = inventory.getItem(i);
             if (currentStack != null && currentStack.getType().isAir()) currentStack = null;
@@ -118,7 +131,7 @@ public class InventoryUtils {
         return false;
     }
     
-    public static void dropItemLikePlayer(Player player, ItemStack itemStack) {
+    public static void dropItemLikePlayer(@NotNull Player player, @NotNull ItemStack itemStack) {
         Location location = player.getLocation();
         location.add(0, 1.5, 0); // not the eye location
         Item item = location.getWorld().dropItem(location, itemStack);
