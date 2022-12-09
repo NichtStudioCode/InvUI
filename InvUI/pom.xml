@@ -7,7 +7,7 @@
     <parent>
         <groupId>de.studiocode.invui</groupId>
         <artifactId>InvUI-Parent</artifactId>
-        <version>0.8.2</version>
+        <version>0.9</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -22,7 +22,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.18.1-R0.1-SNAPSHOT</version>
+            <version>1.19.3-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -95,6 +95,11 @@
         <dependency>
             <groupId>de.studiocode.invui</groupId>
             <artifactId>IA-R11</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>de.studiocode.invui</groupId>
+            <artifactId>IA-R12</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
