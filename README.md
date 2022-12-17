@@ -26,6 +26,23 @@ Supports all versions from 1.14 to 1.19.
 * GUI Animations
 * GUI Builder
 
+# Maven
+```xml
+<repository>
+    <id>xenondevs</id>
+    <url>https://repo.xenondevs.xyz/releases</url>
+</repository>
+```
+```xml
+<dependency>
+    <groupId>de.studiocode.invui</groupId>
+    <artifactId>InvUI</artifactId>
+    <version>VERSION</version>
+</dependency>
+```
+
+Check out the [InvUI documentation](https://xenondevs.xyz/docs/invui/) for more information.
+
 ## Examples
 
 ![1](https://i.imgur.com/uaqjHSS.gif)
