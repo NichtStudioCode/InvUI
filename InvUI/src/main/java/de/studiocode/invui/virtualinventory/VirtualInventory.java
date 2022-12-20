@@ -319,6 +319,9 @@ public class VirtualInventory {
      * @return The {@link ItemUpdateEvent} after it has been handled by the {@link #itemUpdateHandler}
      */
     public ItemUpdateEvent callPreUpdateEvent(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
+        if (updateReason == UpdateReason.SUPPRESSED)
+            throw new IllegalArgumentException("Cannot call ItemUpdateEvent with UpdateReason.SUPPRESSED");
+        
         ItemUpdateEvent event = new ItemUpdateEvent(this, slot, updateReason, previousItemStack, newItemStack);
         if (itemUpdateHandler != null) {
             try {
@@ -337,9 +340,11 @@ public class VirtualInventory {
      * @param slot              The slot of the affected {@link ItemStack}
      * @param previousItemStack The {@link ItemStack} that was on that slot previously.
      * @param newItemStack      The {@link ItemStack} that is on that slot now.
-     * @return The {@link InventoryUpdatedEvent} after it has been handled by the {@link #inventoryUpdatedHandler}
      */
-    public InventoryUpdatedEvent callAfterUpdateEvent(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
+    public void callAfterUpdateEvent(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
+        if (updateReason == UpdateReason.SUPPRESSED)
+            throw new IllegalArgumentException("Cannot call InventoryUpdatedEvent with UpdateReason.SUPPRESSED");
+        
         InventoryUpdatedEvent event = new InventoryUpdatedEvent(this, slot, updateReason, previousItemStack, newItemStack);
         if (inventoryUpdatedHandler != null) {
             try {
@@ -348,7 +353,6 @@ public class VirtualInventory {
                 e.printStackTrace();
             }
         }
-        return event;
     }
     
     /**
@@ -395,15 +399,20 @@ public class VirtualInventory {
      * @return If the action was successful
      */
     public boolean forceSetItemStack(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack itemStack) {
-        ItemStack previousStack = items[slot];
-        ItemUpdateEvent event = callPreUpdateEvent(updateReason, slot, previousStack, itemStack);
-        if (!event.isCancelled()) {
-            ItemStack newStack = event.getNewItemStack();
-            setItemStackSilently(slot, newStack);
-            callAfterUpdateEvent(updateReason, slot, previousStack, newStack);
+        if (updateReason == UpdateReason.SUPPRESSED) {
+            setItemStackSilently(slot, itemStack);
             return true;
+        } else {
+            ItemStack previousStack = items[slot];
+            ItemUpdateEvent event = callPreUpdateEvent(updateReason, slot, previousStack, itemStack);
+            if (!event.isCancelled()) {
+                ItemStack newStack = event.getNewItemStack();
+                setItemStackSilently(slot, newStack);
+                callAfterUpdateEvent(updateReason, slot, previousStack, newStack);
+                return true;
+            }
+            return false;
         }
-        return false;
     }
     
     /**
@@ -438,19 +447,28 @@ public class VirtualInventory {
             int currentAmount = currentStack == null ? 0 : currentStack.getAmount();
             int maxStackSize = getMaxStackSize(slot, itemStack.getMaxStackSize());
             if (currentAmount < maxStackSize) {
-                ItemStack newItemStack = itemStack.clone();
-                newItemStack.setAmount(min(currentAmount + itemStack.getAmount(), maxStackSize));
+                int additionalAmount = itemStack.getAmount();
+                int newAmount = min(currentAmount + additionalAmount, maxStackSize);
                 
-                ItemUpdateEvent event = callPreUpdateEvent(updateReason, slot, currentStack, newItemStack);
-                if (!event.isCancelled()) {
-                    newItemStack = event.getNewItemStack();
+                ItemStack newItemStack = itemStack.clone();
+                newItemStack.setAmount(newAmount);
+                
+                if (updateReason != UpdateReason.SUPPRESSED) {
+                    ItemUpdateEvent event = callPreUpdateEvent(updateReason, slot, currentStack, newItemStack);
+                    if (!event.isCancelled()) {
+                        newItemStack = event.getNewItemStack();
+                        items[slot] = newItemStack;
+                        notifyWindows();
+                        
+                        callAfterUpdateEvent(updateReason, slot, currentStack, newItemStack);
+                        
+                        int newAmountEvent = newItemStack != null ? newItemStack.getAmount() : 0;
+                        return itemStack.getAmount() - (newAmountEvent - currentAmount);
+                    }
+                } else {
                     items[slot] = newItemStack;
                     notifyWindows();
-                    
-                    callAfterUpdateEvent(updateReason, slot, currentStack, newItemStack);
-                    
-                    int newAmount = newItemStack != null ? newItemStack.getAmount() : 0;
-                    return itemStack.getAmount() - (newAmount - currentAmount);
+                    return additionalAmount - (newAmount - currentAmount);
                 }
             }
         }
@@ -481,15 +499,21 @@ public class VirtualInventory {
             newItemStack = null;
         }
         
-        ItemUpdateEvent event = callPreUpdateEvent(updateReason, slot, currentStack, newItemStack);
-        if (!event.isCancelled()) {
-            newItemStack = event.getNewItemStack();
+        if (updateReason != UpdateReason.SUPPRESSED) {
+            ItemUpdateEvent event = callPreUpdateEvent(updateReason, slot, currentStack, newItemStack);
+            if (!event.isCancelled()) {
+                newItemStack = event.getNewItemStack();
+                items[slot] = newItemStack;
+                notifyWindows();
+                
+                callAfterUpdateEvent(updateReason, slot, currentStack, newItemStack);
+                
+                return newItemStack != null ? newItemStack.getAmount() : 0;
+            }
+        } else {
             items[slot] = newItemStack;
             notifyWindows();
-            
-            callAfterUpdateEvent(updateReason, slot, currentStack, newItemStack);
-            
-            return newItemStack != null ? newItemStack.getAmount() : 0;
+            return amount;
         }
         
         return currentStack.getAmount();
@@ -731,13 +755,19 @@ public class VirtualInventory {
             newStack.setAmount(amount - take);
         } else newStack = null;
         
-        ItemUpdateEvent event = callPreUpdateEvent(updateReason, index, itemStack, newStack);
-        if (!event.isCancelled()) {
-            newStack = event.getNewItemStack();
+        if (updateReason != UpdateReason.SUPPRESSED) {
+            ItemUpdateEvent event = callPreUpdateEvent(updateReason, index, itemStack, newStack);
+            if (!event.isCancelled()) {
+                newStack = event.getNewItemStack();
+                items[index] = newStack;
+                notifyWindows();
+                
+                callAfterUpdateEvent(updateReason, index, itemStack, newStack);
+                return itemStack.getAmount() - (newStack == null ? 0 : newStack.getAmount());
+            }
+        } else {
             items[index] = newStack;
             notifyWindows();
-            
-            callAfterUpdateEvent(updateReason, index, itemStack, newStack);
             return take;
         }
         
