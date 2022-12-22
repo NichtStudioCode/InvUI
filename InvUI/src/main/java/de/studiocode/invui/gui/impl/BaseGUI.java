@@ -526,7 +526,7 @@ public abstract class BaseGUI implements GUI, Controllable {
     @Override
     public void addItems(@NotNull Item... items) {
         for (Item item : items) {
-            int emptyIndex = ArrayUtils.findFirstEmptyIndex(items);
+            int emptyIndex = ArrayUtils.findFirstEmptyIndex(slotElements);
             if (emptyIndex == -1) break;
             setItem(emptyIndex, item);
         }
