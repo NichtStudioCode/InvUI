@@ -26,7 +26,7 @@ Supports all versions from 1.14 to 1.19.
 * GUI Animations
 * GUI Builder
 
-# Maven
+## Maven
 ```xml
 <repository>
     <id>xenondevs</id>
