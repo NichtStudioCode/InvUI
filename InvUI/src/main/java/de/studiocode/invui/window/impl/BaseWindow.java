@@ -65,19 +65,7 @@ public abstract class BaseWindow implements Window {
     protected void redrawItem(int index, SlotElement element, boolean setItem) {
         // put ItemStack in inventory
         ItemStack itemStack;
-        if (element instanceof ItemSlotElement) {
-            itemStack = element.getItemStack(viewerUUID);
-            
-            // This makes every item unique to prevent Shift-DoubleClick "clicking" multiple items at the same time.
-            if (itemStack.hasItemMeta()) {
-                // clone ItemStack in order to not modify the original
-                itemStack = itemStack.clone();
-                
-                ItemMeta itemMeta = itemStack.getItemMeta();
-                itemMeta.getPersistentDataContainer().set(SLOT_KEY, PersistentDataType.BYTE, (byte) index);
-                itemStack.setItemMeta(itemMeta);
-            }
-        } else if (element == null || (element instanceof VISlotElement && element.getItemStack(viewerUUID) == null)) {
+        if (element == null || (element instanceof VISlotElement && element.getItemStack(viewerUUID) == null)) {
             ItemProvider background = getGuiAt(index).getFirst().getBackground();
             itemStack = background == null ? null : background.getFor(viewerUUID);
         } else if (element instanceof LinkedSlotElement && element.getHoldingElement() == null) {
@@ -92,7 +80,19 @@ public abstract class BaseWindow implements Window {
             }
             
             itemStack = background == null ? null : background.getFor(viewerUUID);
-        } else itemStack = element.getItemStack(viewerUUID);
+        } else {
+            itemStack = element.getItemStack(viewerUUID);
+            
+            // This makes every item unique to prevent Shift-DoubleClick "clicking" multiple items at the same time.
+            if (itemStack.hasItemMeta()) {
+                // clone ItemStack in order to not modify the original
+                itemStack = itemStack.clone();
+                
+                ItemMeta itemMeta = itemStack.getItemMeta();
+                itemMeta.getPersistentDataContainer().set(SLOT_KEY, PersistentDataType.BYTE, (byte) index);
+                itemStack.setItemMeta(itemMeta);
+            }
+        }
         setInvItem(index, itemStack);
         
         if (setItem) {
