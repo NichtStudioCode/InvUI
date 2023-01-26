@@ -57,21 +57,22 @@
     </dependencies>
 
     <modules>
-        <module>InventoryAccess/IA-R1</module>
-        <module>InventoryAccess/IA-R2</module>
-        <module>InventoryAccess/IA-R3</module>
-        <module>InventoryAccess/IA-R4</module>
-        <module>InventoryAccess/IA-R5</module>
-        <module>InventoryAccess/IA-R6</module>
-        <module>InventoryAccess/IA-R7</module>
-        <module>InventoryAccess/IA-R8</module>
-        <module>InventoryAccess/IA-R9</module>
-        <module>InventoryAccess/IA-R10</module>
-        <module>InventoryAccess/IA-R11</module>
-        <module>InventoryAccess/IA-R12</module>
-        <module>InventoryAccess/IA</module>
-        <module>InvUI</module>
-        <module>ResourcePack</module>
+        <module>inventoryaccess/inventory-access</module>
+        <module>inventoryaccess/inventory-access-r1</module>
+        <module>inventoryaccess/inventory-access-r2</module>
+        <module>inventoryaccess/inventory-access-r3</module>
+        <module>inventoryaccess/inventory-access-r4</module>
+        <module>inventoryaccess/inventory-access-r5</module>
+        <module>inventoryaccess/inventory-access-r6</module>
+        <module>inventoryaccess/inventory-access-r7</module>
+        <module>inventoryaccess/inventory-access-r8</module>
+        <module>inventoryaccess/inventory-access-r9</module>
+        <module>inventoryaccess/inventory-access-r10</module>
+        <module>inventoryaccess/inventory-access-r11</module>
+        <module>inventoryaccess/inventory-access-r12</module>
+        <module>invui</module>
+        <module>invui-resourcepack</module>
+        <module>invui-kotlin</module>
     </modules>
 
     <build>

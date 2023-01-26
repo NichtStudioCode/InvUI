@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>IA-R2</artifactId>
+    <artifactId>inventory-access-r3</artifactId>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -21,12 +21,12 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.15.2-R0.1-SNAPSHOT</version>
+            <version>1.16.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>de.studiocode.invui</groupId>
-            <artifactId>IA</artifactId>
+            <artifactId>inventory-access</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>

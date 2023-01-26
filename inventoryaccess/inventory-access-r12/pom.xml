@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>de.studiocode.invui</groupId>
@@ -10,12 +10,12 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>IA-R7</artifactId>
+    <artifactId>inventory-access-r12</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <spigot.version>1.17.1-R0.1-SNAPSHOT</spigot.version>
+        <spigot.version>1.19.3-R0.1-SNAPSHOT</spigot.version>
     </properties>
 
     <dependencies>
@@ -28,7 +28,7 @@
         </dependency>
         <dependency>
             <groupId>de.studiocode.invui</groupId>
-            <artifactId>IA</artifactId>
+            <artifactId>inventory-access</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
@@ -76,7 +76,7 @@
                     </execution>
                 </executions>
             </plugin>
-
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>

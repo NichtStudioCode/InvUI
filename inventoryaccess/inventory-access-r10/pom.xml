@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>IA-R10</artifactId>
+    <artifactId>inventory-access-r10</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -28,7 +28,7 @@
         </dependency>
         <dependency>
             <groupId>de.studiocode.invui</groupId>
-            <artifactId>IA</artifactId>
+            <artifactId>inventory-access</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>

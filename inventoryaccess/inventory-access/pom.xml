@@ -10,24 +10,38 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>IA-R3</artifactId>
+    <artifactId>inventory-access</artifactId>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>papermc</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
+        </repository>
+    </repositories>
+    
     <dependencies>
         <dependency>
             <groupId>org.spigotmc</groupId>
-            <artifactId>spigot</artifactId>
-            <version>1.16.1-R0.1-SNAPSHOT</version>
+            <artifactId>spigot-api</artifactId>
+            <version>1.16.4-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>de.studiocode.invui</groupId>
-            <artifactId>IA</artifactId>
-            <version>${project.parent.version}</version>
+            <groupId>net.kyori</groupId>
+            <artifactId>adventure-api</artifactId>
+            <version>4.12.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.kyori</groupId>
+            <artifactId>adventure-text-serializer-gson</artifactId>
+            <version>4.12.0</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

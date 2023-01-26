@@ -11,7 +11,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>InvUI</artifactId>
+    <artifactId>invui</artifactId>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -39,67 +39,67 @@
         </dependency>
         <dependency>
             <groupId>de.studiocode.invui</groupId>
-            <artifactId>IA</artifactId>
+            <artifactId>inventory-access</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>de.studiocode.invui</groupId>
-            <artifactId>IA-R1</artifactId>
+            <artifactId>inventory-access-r1</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>de.studiocode.invui</groupId>
-            <artifactId>IA-R2</artifactId>
+            <artifactId>inventory-access-r2</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>de.studiocode.invui</groupId>
-            <artifactId>IA-R3</artifactId>
+            <artifactId>inventory-access-r3</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>de.studiocode.invui</groupId>
-            <artifactId>IA-R4</artifactId>
+            <artifactId>inventory-access-r4</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>de.studiocode.invui</groupId>
-            <artifactId>IA-R5</artifactId>
+            <artifactId>inventory-access-r5</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>de.studiocode.invui</groupId>
-            <artifactId>IA-R6</artifactId>
+            <artifactId>inventory-access-r6</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>de.studiocode.invui</groupId>
-            <artifactId>IA-R7</artifactId>
+            <artifactId>inventory-access-r7</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>de.studiocode.invui</groupId>
-            <artifactId>IA-R8</artifactId>
+            <artifactId>inventory-access-r8</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>de.studiocode.invui</groupId>
-            <artifactId>IA-R9</artifactId>
+            <artifactId>inventory-access-r9</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>de.studiocode.invui</groupId>
-            <artifactId>IA-R10</artifactId>
+            <artifactId>inventory-access-r10</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>de.studiocode.invui</groupId>
-            <artifactId>IA-R11</artifactId>
+            <artifactId>inventory-access-r11</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>de.studiocode.invui</groupId>
-            <artifactId>IA-R12</artifactId>
+            <artifactId>inventory-access-r12</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

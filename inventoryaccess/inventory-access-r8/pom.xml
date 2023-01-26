@@ -10,12 +10,12 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>IA-R9</artifactId>
+    <artifactId>inventory-access-r8</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <spigot.version>1.18.2-R0.1-SNAPSHOT</spigot.version>
+        <spigot.version>1.18-R0.1-SNAPSHOT</spigot.version>
     </properties>
 
     <dependencies>
@@ -28,7 +28,7 @@
         </dependency>
         <dependency>
             <groupId>de.studiocode.invui</groupId>
-            <artifactId>IA</artifactId>
+            <artifactId>inventory-access</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
@@ -76,7 +76,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
