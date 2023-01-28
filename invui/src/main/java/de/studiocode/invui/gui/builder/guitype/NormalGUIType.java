@@ -1,30 +1,16 @@
 package de.studiocode.invui.gui.builder.guitype;
 
+import de.studiocode.invui.gui.GUI;
 import de.studiocode.invui.gui.builder.GUIContext;
-import de.studiocode.invui.gui.impl.SimpleGUI;
+import de.studiocode.invui.gui.impl.NormalGUIImpl;
 
-class NormalGUIType implements GUIType<SimpleGUI> {
+class NormalGUIType implements GUIType<GUI, Void> {
     
     @Override
-    public SimpleGUI createGUI(GUIContext context) {
-        SimpleGUI gui = new SimpleGUI(context.getStructure());
+    public NormalGUIImpl createGUI(GUIContext<Void> context) {
+        NormalGUIImpl gui = new NormalGUIImpl(context.getStructure());
         gui.setBackground(context.getBackground());
         return gui;
-    }
-    
-    @Override
-    public boolean acceptsGUIs() {
-        return false;
-    }
-    
-    @Override
-    public boolean acceptsItems() {
-        return false;
-    }
-    
-    @Override
-    public boolean acceptsInventory() {
-        return false;
     }
     
 }

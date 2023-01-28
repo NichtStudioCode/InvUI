@@ -21,12 +21,12 @@ public abstract class ControlItem<G extends GUI> extends BaseItem {
         return getItemProvider(gui);
     }
     
-    public G getGui() {
+    public G getGUI() {
         return gui;
     }
     
     @SuppressWarnings("unchecked")
-    public void setGui(Object gui) {
+    public void setGUI(Object gui) {
         if (this.gui == null) this.gui = (G) gui;
     }
     

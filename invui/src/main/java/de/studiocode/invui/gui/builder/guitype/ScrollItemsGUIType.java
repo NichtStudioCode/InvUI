@@ -1,30 +1,17 @@
 package de.studiocode.invui.gui.builder.guitype;
 
+import de.studiocode.invui.gui.ScrollGUI;
 import de.studiocode.invui.gui.builder.GUIContext;
-import de.studiocode.invui.gui.impl.SimpleScrollItemsGUI;
+import de.studiocode.invui.gui.impl.ScrollItemsGUIImpl;
+import de.studiocode.invui.item.Item;
 
-class ScrollItemsGUIType implements GUIType<SimpleScrollItemsGUI> {
+class ScrollItemsGUIType implements GUIType<ScrollGUI<Item>, Item> {
     
     @Override
-    public SimpleScrollItemsGUI createGUI(GUIContext context) {
-        SimpleScrollItemsGUI gui = new SimpleScrollItemsGUI(context.getItems(), context.getStructure());
+    public ScrollItemsGUIImpl createGUI(GUIContext<Item> context) {
+        ScrollItemsGUIImpl gui = new ScrollItemsGUIImpl(context.getContent(), context.getStructure());
         gui.setBackground(context.getBackground());
         return gui;
-    }
-    
-    @Override
-    public boolean acceptsGUIs() {
-        return false;
-    }
-    
-    @Override
-    public boolean acceptsItems() {
-        return true;
-    }
-    
-    @Override
-    public boolean acceptsInventory() {
-        return false;
     }
     
 }

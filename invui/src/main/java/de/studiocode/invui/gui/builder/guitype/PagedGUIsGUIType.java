@@ -1,30 +1,17 @@
 package de.studiocode.invui.gui.builder.guitype;
 
+import de.studiocode.invui.gui.GUI;
+import de.studiocode.invui.gui.PagedGUI;
 import de.studiocode.invui.gui.builder.GUIContext;
-import de.studiocode.invui.gui.impl.SimplePagedNestedGUI;
+import de.studiocode.invui.gui.impl.PageNestedGUIImpl;
 
-class PagedGUIsGUIType implements GUIType<SimplePagedNestedGUI> {
+class PagedGUIsGUIType implements GUIType<PagedGUI<GUI>, GUI> {
     
     @Override
-    public SimplePagedNestedGUI createGUI(GUIContext context) {
-        SimplePagedNestedGUI gui = new SimplePagedNestedGUI(context.getGuis(), context.getStructure());
+    public PageNestedGUIImpl createGUI(GUIContext<GUI> context) {
+        PageNestedGUIImpl gui = new PageNestedGUIImpl(context.getContent(), context.getStructure());
         gui.setBackground(context.getBackground());
         return gui;
-    }
-    
-    @Override
-    public boolean acceptsGUIs() {
-        return true;
-    }
-    
-    @Override
-    public boolean acceptsItems() {
-        return false;
-    }
-    
-    @Override
-    public boolean acceptsInventory() {
-        return false;
     }
     
 }

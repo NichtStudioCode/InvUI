@@ -1,6 +1,6 @@
 package de.studiocode.invui.virtualinventory;
 
-import de.studiocode.inventoryaccess.version.InventoryAccess;
+import de.studiocode.inventoryaccess.InventoryAccess;
 import de.studiocode.invui.InvUI;
 import de.studiocode.invui.util.DataUtils;
 import org.bukkit.inventory.ItemStack;

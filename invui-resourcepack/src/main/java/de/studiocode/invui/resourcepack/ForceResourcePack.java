@@ -1,10 +1,10 @@
 package de.studiocode.invui.resourcepack;
 
+import de.studiocode.inventoryaccess.InventoryAccess;
 import de.studiocode.inventoryaccess.component.BaseComponentWrapper;
 import de.studiocode.inventoryaccess.component.ComponentWrapper;
 import de.studiocode.inventoryaccess.util.ReflectionRegistry;
 import de.studiocode.inventoryaccess.util.VersionUtils;
-import de.studiocode.inventoryaccess.version.InventoryAccess;
 import de.studiocode.invui.InvUI;
 import de.studiocode.invui.resourcepack.auth.AuthenticationServiceManager;
 import de.studiocode.invui.util.DataUtils;

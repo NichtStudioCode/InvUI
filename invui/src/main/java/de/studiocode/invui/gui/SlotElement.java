@@ -99,11 +99,14 @@ public interface SlotElement {
         private final int slot;
         
         public LinkedSlotElement(GUI gui, int slot) {
+            if (!(gui instanceof AbstractGUI))
+                throw new IllegalArgumentException("Illegal GUI implementation");
+            
             this.gui = gui;
             this.slot = slot;
         }
         
-        public GUI getGui() {
+        public GUI getGUI() {
             return gui;
         }
         
@@ -115,18 +118,18 @@ public interface SlotElement {
         public SlotElement getHoldingElement() {
             LinkedSlotElement element = this;
             while (true) {
-                SlotElement below = element.getGui().getSlotElement(element.getSlotIndex());
+                SlotElement below = element.getGUI().getSlotElement(element.getSlotIndex());
                 if (below instanceof LinkedSlotElement) element = (LinkedSlotElement) below;
                 else return below;
             }
         }
         
-        public List<GUI> getGuiList() {
+        public List<GUI> getGUIList() {
             ArrayList<GUI> guis = new ArrayList<>();
             LinkedSlotElement element = this;
             while (true) {
-                guis.add(element.getGui());
-                SlotElement below = element.getGui().getSlotElement(element.getSlotIndex());
+                guis.add(element.getGUI());
+                SlotElement below = element.getGUI().getSlotElement(element.getSlotIndex());
                 if (below instanceof LinkedSlotElement)
                     element = (LinkedSlotElement) below;
                 else break;

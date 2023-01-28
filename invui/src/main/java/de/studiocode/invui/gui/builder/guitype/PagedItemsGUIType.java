@@ -1,30 +1,17 @@
 package de.studiocode.invui.gui.builder.guitype;
 
+import de.studiocode.invui.gui.PagedGUI;
 import de.studiocode.invui.gui.builder.GUIContext;
-import de.studiocode.invui.gui.impl.SimplePagedItemsGUI;
+import de.studiocode.invui.gui.impl.PagedItemsGUIImpl;
+import de.studiocode.invui.item.Item;
 
-class PagedItemsGUIType implements GUIType<SimplePagedItemsGUI> {
+class PagedItemsGUIType implements GUIType<PagedGUI<Item>, Item> {
     
     @Override
-    public SimplePagedItemsGUI createGUI(GUIContext context) {
-        SimplePagedItemsGUI gui = new SimplePagedItemsGUI(context.getItems(), context.getStructure());
+    public PagedItemsGUIImpl createGUI(GUIContext<Item> context) {
+        PagedItemsGUIImpl gui = new PagedItemsGUIImpl(context.getContent(), context.getStructure());
         gui.setBackground(context.getBackground());
         return gui;
-    }
-    
-    @Override
-    public boolean acceptsGUIs() {
-        return false;
-    }
-    
-    @Override
-    public boolean acceptsItems() {
-        return true;
-    }
-    
-    @Override
-    public boolean acceptsInventory() {
-        return false;
     }
     
 }

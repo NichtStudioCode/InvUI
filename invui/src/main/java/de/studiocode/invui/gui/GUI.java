@@ -7,14 +7,10 @@ import de.studiocode.invui.gui.structure.Structure;
 import de.studiocode.invui.item.Item;
 import de.studiocode.invui.item.ItemProvider;
 import de.studiocode.invui.virtualinventory.VirtualInventory;
-import de.studiocode.invui.virtualinventory.event.UpdateReason;
 import de.studiocode.invui.window.Window;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,24 +19,29 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 /**
- * A GUI is a container for width * height {@link SlotElement}s.<br>
+ * A GUI is a container for width * height {@link SlotElement SlotElements}.<br>
  * Each {@link SlotElement} can either be an {@link Item},
  * a reference to a {@link VirtualInventory}'s or another {@link GUI}'s
  * slot index.<br>
  * A {@link GUI} is not an {@link Inventory}, nor does
- * it access one. It just contains {@link SlotElement}s and their positions.<br>
+ * it access one. It just contains {@link SlotElement SlotElements} and their positions.<br>
  * In order to create an {@link Inventory} which is visible
  * to players, you will need to use a {@link Window}.
  *
- * @see BaseGUI
- * @see PagedGUI
- * @see SimpleGUI
- * @see SimplePagedItemsGUI
- * @see SimplePagedNestedGUI
- * @see SimpleTabGUI
  * @see GUIBuilder
+ * @see AbstractGUI
+ * @see AbstractPagedGUI
+ * @see AbstractScrollGUI
+ * @see AbstractTabGUI
+ * @see NormalGUIImpl
+ * @see PagedItemsGUIImpl
+ * @see PageNestedGUIImpl
+ * @see ScrollItemsGUIImpl
+ * @see ScrollNestedGUIImpl
+ * @see ScrollVIGUIImpl
+ * @see TabGUIImpl
  */
-public interface GUI extends GUIParent {
+public interface GUI {
     
     /**
      * Gets the size of the {@link GUI}.
@@ -83,6 +84,13 @@ public interface GUI extends GUIParent {
     void setSlotElement(int index, @Nullable SlotElement slotElement);
     
     /**
+     * Adds {@link SlotElement SlotElements} to the {@link GUI}.
+     *
+     * @param slotElements The {@link SlotElement SlotElements} to add.
+     */
+    void addSlotElements(@NotNull SlotElement... slotElements);
+    
+    /**
      * Gets the {@link SlotElement} on these coordinates.
      *
      * @param x The x coordinate
@@ -117,11 +125,12 @@ public interface GUI extends GUIParent {
     boolean hasSlotElement(int index);
     
     /**
-     * Gets all {@link SlotElement}s of this {@link GUI} in an Array.
+     * Gets all {@link SlotElement SlotElements} of this {@link GUI} in an Array.
      *
-     * @return All {@link SlotElement}s of this {@link GUI}
+     * @return All {@link SlotElement SlotElements} of this {@link GUI}
      */
-    SlotElement[] getSlotElements();
+    @Nullable
+    SlotElement @NotNull [] getSlotElements();
     
     /**
      * Sets the {@link Item} on these coordinates.
@@ -131,7 +140,7 @@ public interface GUI extends GUIParent {
      * @param item The {@link Item} that should be placed on these coordinates
      *             or null to remove the {@link Item} that is currently there.
      */
-    void setItem(int x, int y, Item item);
+    void setItem(int x, int y, @Nullable Item item);
     
     /**
      * Sets the {@link Item} on that slot
@@ -140,7 +149,14 @@ public interface GUI extends GUIParent {
      * @param item  The {@link Item} that should be placed on that slot or null
      *              to remove the {@link Item} that is currently there.
      */
-    void setItem(int index, Item item);
+    void setItem(int index, @Nullable Item item);
+    
+    /**
+     * Adds {@link Item Items} to the gui.
+     *
+     * @param items The {@link Item Items} that should be added to the gui
+     */
+    void addItems(@NotNull Item... items);
     
     /**
      * Gets the {@link Item} on these coordinates.
@@ -149,6 +165,7 @@ public interface GUI extends GUIParent {
      * @param y The y coordinate
      * @return The {@link Item} which is placed on that slot or null if there isn't one
      */
+    @Nullable
     Item getItem(int x, int y);
     
     /**
@@ -157,14 +174,8 @@ public interface GUI extends GUIParent {
      * @param index The slot index
      * @return The {@link Item} which is placed on that slot or null if there isn't one
      */
+    @Nullable
     Item getItem(int index);
-    
-    /**
-     * Adds {@link Item}s to the gui.
-     *
-     * @param items The {@link Item}s that should be added to the gui
-     */
-    void addItems(@NotNull Item... items);
     
     /**
      * Gets the {@link ItemProvider} that will be used if nothing else
@@ -172,6 +183,7 @@ public interface GUI extends GUIParent {
      *
      * @return The {@link ItemProvider}
      */
+    @Nullable
     ItemProvider getBackground();
     
     /**
@@ -193,7 +205,7 @@ public interface GUI extends GUIParent {
     /**
      * Remove the {@link Item} which are placed on these slots.
      *
-     * @param index The slot index of the {@link Item}s that should be removed
+     * @param index The slot index of the {@link Item Items} that should be removed
      */
     void remove(int index);
     
@@ -202,76 +214,26 @@ public interface GUI extends GUIParent {
      *
      * @param structure The structure
      */
-    void applyStructure(Structure structure);
+    void applyStructure(@NotNull Structure structure);
     
     /**
-     * A method called if a slot in the {@link Inventory} has been clicked.
-     *
-     * @param slot      The slot that has been clicked
-     * @param player    The {@link Player} that clicked
-     * @param clickType The {@link ClickType}
-     * @param event     The {@link InventoryClickEvent}
-     */
-    void handleClick(int slot, Player player, ClickType clickType, InventoryClickEvent event);
-    
-    /**
-     * A method called when an {@link ItemStack} has been shift-clicked into this
-     * {@link GUI}.
-     *
-     * @param event The {@link InventoryClickEvent} associated with this action
-     */
-    void handleItemShift(InventoryClickEvent event);
-    
-    /**
-     * A method called when an {@link ItemStack} has been dragged over the {@link GUI}.
-     *
-     * @param updateReason The reason for this item update.
-     * @param slot         The slot index
-     * @param oldStack     The {@link ItemStack} that was previously on that slot
-     * @param newStack     The new {@link ItemStack} that would be there if the action isn't cancelled
-     * @return If the action has been cancelled
-     */
-    boolean handleItemDrag(UpdateReason updateReason, int slot, ItemStack oldStack, ItemStack newStack);
-    
-    /**
-     * Adds a {@link GUIParent} to the set of {@link GUIParent}s.
-     *
-     * @param parent The {@link GUIParent} to add
-     */
-    void addParent(@NotNull GUIParent parent);
-    
-    /**
-     * Removes a {@link GUIParent} from the set of {@link GUIParent}s
-     *
-     * @param parent The {@link GUIParent} to remove
-     */
-    void removeParent(@NotNull GUIParent parent);
-    
-    /**
-     * Gets all {@link GUIParent}s.
-     *
-     * @return The {@link GUIParent}s of this {@link GUI}
-     */
-    Set<GUIParent> getParents();
-    
-    /**
-     * Finds all {@link Window}s that show this {@link GUI}.
+     * Finds all {@link Window Windows} that show this {@link GUI}.
      *
      * @return The list of {@link Window} that show this {@link GUI}
      */
     List<Window> findAllWindows();
     
     /**
-     * Finds all {@link Player}s that are currently seeing this {@link Window}.
+     * Finds all {@link Player Players} that are currently seeing this {@link Window}.
      *
-     * @return The list of {@link Player}s that are currently seeing this {@link Window}
+     * @return The list of {@link Player Players} that are currently seeing this {@link Window}
      */
     Set<Player> findAllCurrentViewers();
     
     /**
-     * Closes the open {@link Inventory} for all viewers of {@link Window}s
+     * Closes the open {@link Inventory} for all viewers of {@link Window Windows}
      * where this {@link GUI} is displayed.
-     * Does not actually call the {@link Window#close(boolean)} method, which will
+     * Does not actually call the {@link Window#remove(boolean)} method, which will
      * be indirectly invoked by the {@link InventoryCloseEvent} if the {@link Window}
      * is set to close on that event.
      */
@@ -281,7 +243,7 @@ public interface GUI extends GUIParent {
      * Plays an {@link Animation}.
      *
      * @param animation The {@link Animation} to play.
-     * @param filter    The filter that selects which {@link SlotElement}s should be animated.
+     * @param filter    The filter that selects which {@link SlotElement SlotElements} should be animated.
      */
     void playAnimation(@NotNull Animation animation, @Nullable Predicate<SlotElement> filter);
     
@@ -290,23 +252,23 @@ public interface GUI extends GUIParent {
      */
     void cancelAnimation();
     
-    // ---- fill methods ----
+    //<editor-fold desc="fill methods">
     
     /**
-     * Fills the {@link GUI} with {@link Item}s.
+     * Fills the {@link GUI} with {@link Item Items}.
      *
      * @param start           The start index of the fill (inclusive)
      * @param end             The end index of the fill (exclusive)
      * @param item            The {@link Item} that should be used or null to remove an existing item.
-     * @param replaceExisting If existing {@link Item}s should be replaced.
+     * @param replaceExisting If existing {@link Item Items} should be replaced.
      */
     void fill(int start, int end, @Nullable Item item, boolean replaceExisting);
     
     /**
-     * Fills the entire {@link GUI} with {@link Item}s.
+     * Fills the entire {@link GUI} with {@link Item Items}.
      *
      * @param item            The {@link Item} that should be used or null to remove an existing item.
-     * @param replaceExisting If existing {@link Item}s should be replaced.
+     * @param replaceExisting If existing {@link Item Items} should be replaced.
      */
     void fill(@Nullable Item item, boolean replaceExisting);
     
@@ -315,7 +277,7 @@ public interface GUI extends GUIParent {
      *
      * @param row             The row
      * @param item            The {@link Item} that should be used or null to remove an existing item.
-     * @param replaceExisting If existing {@link Item}s should be replaced.
+     * @param replaceExisting If existing {@link Item Items} should be replaced.
      */
     void fillRow(int row, @Nullable Item item, boolean replaceExisting);
     
@@ -324,7 +286,7 @@ public interface GUI extends GUIParent {
      *
      * @param column          The column
      * @param item            The {@link Item} that should be used or null to remove an existing item.
-     * @param replaceExisting If existing {@link Item}s should be replaced.
+     * @param replaceExisting If existing {@link Item Items} should be replaced.
      */
     void fillColumn(int column, @Nullable Item item, boolean replaceExisting);
     
@@ -332,7 +294,7 @@ public interface GUI extends GUIParent {
      * Fills the borders of this {@link GUI} with a specific {@link Item}
      *
      * @param item            The {@link Item} that should be used or null to remove an existing item.
-     * @param replaceExisting If existing {@link Item}s should be replaced.
+     * @param replaceExisting If existing {@link Item Items} should be replaced.
      */
     void fillBorders(@Nullable Item item, boolean replaceExisting);
     
@@ -344,41 +306,43 @@ public interface GUI extends GUIParent {
      * @param width           The width of the rectangle.
      * @param height          The height of the rectangle
      * @param item            The {@link Item} that should be used or null to remove an existing item.
-     * @param replaceExisting If existing {@link Item}s should be replaced.
+     * @param replaceExisting If existing {@link Item Items} should be replaced.
      */
     void fillRectangle(int x, int y, int width, int height, @Nullable Item item, boolean replaceExisting);
     
     /**
-     * Fills a rectangle of another {@link GUI} in this {@link GUI}.
+     * Fills a rectangle with another {@link GUI} in this {@link GUI}.
      *
      * @param x               The x coordinate where the rectangle should start
      * @param y               The y coordinate where the rectangle should start
      * @param gui             The {@link GUI} to be put into this {@link GUI}
-     * @param replaceExisting If existing {@link SlotElement}s should be replaced.
+     * @param replaceExisting If existing {@link SlotElement SlotElements} should be replaced.
      */
     void fillRectangle(int x, int y, @NotNull GUI gui, boolean replaceExisting);
     
     /**
-     * Fills a rectangle of a {@link VirtualInventory} in this {@link GUI}.
+     * Fills a rectangle with a {@link VirtualInventory} in this {@link GUI}.
      *
      * @param x                The x coordinate where the rectangle should start
      * @param y                The y coordinate where the rectangle should start
      * @param width            The line length of the rectangle. (VirtualInventory does not define a width)
      * @param virtualInventory The {@link VirtualInventory} to be put into this {@link GUI}.
-     * @param replaceExisting  If existing {@link SlotElement}s should be replaced.
+     * @param replaceExisting  If existing {@link SlotElement SlotElements} should be replaced.
      */
     void fillRectangle(int x, int y, int width, @NotNull VirtualInventory virtualInventory, boolean replaceExisting);
     
     /**
-     * Fills a rectangle of a {@link VirtualInventory} in this {@link GUI}.
+     * Fills a rectangle with a {@link VirtualInventory} in this {@link GUI}.
      *
      * @param x                The x coordinate where the rectangle should start
      * @param y                The y coordinate where the rectangle should start
      * @param width            The line length of the rectangle. (VirtualInventory does not define a width)
      * @param virtualInventory The {@link VirtualInventory} to be put into this {@link GUI}.
      * @param background       The {@link ItemProvider} for empty slots of the {@link VirtualInventory}
-     * @param replaceExisting  If existing {@link SlotElement}s should be replaced.
+     * @param replaceExisting  If existing {@link SlotElement SlotElements} should be replaced.
      */
     void fillRectangle(int x, int y, int width, @NotNull VirtualInventory virtualInventory, @Nullable ItemProvider background, boolean replaceExisting);
+    
+    //</editor-fold>
     
 }

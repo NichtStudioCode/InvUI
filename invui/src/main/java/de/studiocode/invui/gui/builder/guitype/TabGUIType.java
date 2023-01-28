@@ -1,30 +1,17 @@
 package de.studiocode.invui.gui.builder.guitype;
 
+import de.studiocode.invui.gui.GUI;
+import de.studiocode.invui.gui.TabGUI;
 import de.studiocode.invui.gui.builder.GUIContext;
-import de.studiocode.invui.gui.impl.SimpleTabGUI;
+import de.studiocode.invui.gui.impl.TabGUIImpl;
 
-class TabGUIType implements GUIType<SimpleTabGUI> {
+class TabGUIType implements GUIType<TabGUI, GUI> {
     
     @Override
-    public SimpleTabGUI createGUI(GUIContext context) {
-        SimpleTabGUI gui = new SimpleTabGUI(context.getGuis(), context.getStructure());
+    public TabGUIImpl createGUI(GUIContext<GUI> context) {
+        TabGUIImpl gui = new TabGUIImpl(context.getContent(), context.getStructure());
         gui.setBackground(context.getBackground());
         return gui;
-    }
-    
-    @Override
-    public boolean acceptsGUIs() {
-        return true;
-    }
-    
-    @Override
-    public boolean acceptsItems() {
-        return false;
-    }
-    
-    @Override
-    public boolean acceptsInventory() {
-        return false;
     }
     
 }

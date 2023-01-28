@@ -1,6 +1,5 @@
 package de.studiocode.inventoryaccess.util;
 
-import com.google.common.base.Preconditions;
 import org.bukkit.Bukkit;
 
 public class VersionUtils {
@@ -54,7 +53,8 @@ public class VersionUtils {
      * @throws IllegalArgumentException If the version array does not have a size of 3
      */
     public static boolean isHigherOrEqualThanServer(int... version) {
-        Preconditions.checkArgument(version.length == 3);
+        if (version.length != 3)
+            throw new IllegalArgumentException("Version array must have a size of 3");
         
         return version[0] > major
             || (version[0] == major && version[1] > minor)
@@ -79,7 +79,8 @@ public class VersionUtils {
      * @throws IllegalArgumentException If the version array does not have a size of 3
      */
     public static boolean isServerHigherOrEqual(int... version) {
-        Preconditions.checkArgument(version.length == 3);
+        if (version.length != 3)
+            throw new IllegalArgumentException("Version array must have a size of 3");
         
         return major > version[0]
             || (major == version[0] && minor > version[1])

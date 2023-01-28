@@ -1,8 +1,8 @@
 package de.studiocode.invui.gui.structure;
 
-import de.studiocode.invui.gui.impl.PagedGUI;
-import de.studiocode.invui.gui.impl.ScrollGUI;
-import de.studiocode.invui.gui.impl.TabGUI;
+import de.studiocode.invui.gui.AbstractPagedGUI;
+import de.studiocode.invui.gui.AbstractScrollGUI;
+import de.studiocode.invui.gui.AbstractTabGUI;
 
 /**
  * Registry class for default markers
@@ -10,15 +10,15 @@ import de.studiocode.invui.gui.impl.TabGUI;
 public class Markers {
     
     /**
-     * The marker for horizontal item list slots in {@link PagedGUI PagedGUIs},
-     * {@link ScrollGUI ScrollGUIs} and {@link TabGUI TabGUIs}
+     * The marker for horizontal content list slots in {@link AbstractPagedGUI PagedGUIs},
+     * {@link AbstractScrollGUI ScrollGUIs} and {@link AbstractTabGUI TabGUIs}
      */
-    public static final Marker ITEM_LIST_SLOT_HORIZONTAL = new Marker(true);
+    public static final Marker CONTENT_LIST_SLOT_HORIZONTAL = new Marker(true);
     
     /**
-     * The marker for vertical item list slots in {@link PagedGUI PagedGUIs},
-     * {@link ScrollGUI ScrollGUIs} and {@link TabGUI TabGUIs}
+     * The marker for vertical content list slots in {@link AbstractPagedGUI PagedGUIs},
+     * {@link AbstractScrollGUI ScrollGUIs} and {@link AbstractTabGUI TabGUIs}
      */
-    public static final Marker ITEM_LIST_SLOT_VERTICAL = new Marker(false);
+    public static final Marker CONTENT_LIST_SLOT_VERTICAL = new Marker(false);
     
 }

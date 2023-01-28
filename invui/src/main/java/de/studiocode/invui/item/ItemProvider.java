@@ -1,6 +1,6 @@
 package de.studiocode.invui.item;
 
-import de.studiocode.invui.window.impl.BaseWindow;
+import de.studiocode.invui.window.AbstractWindow;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -22,7 +22,7 @@ public interface ItemProvider extends Supplier<ItemStack>, Cloneable {
     
     /**
      * Gets the {@link ItemStack} for a specific player.
-     * This is the method called by {@link BaseWindow} which gives you
+     * This is the method called by {@link AbstractWindow} which gives you
      * the option to (for example) create a subclass of {@link ItemProvider} that automatically
      * translates the item's name into the player's language.
      *

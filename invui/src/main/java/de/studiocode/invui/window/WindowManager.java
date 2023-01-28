@@ -1,7 +1,6 @@
 package de.studiocode.invui.window;
 
 import de.studiocode.invui.InvUI;
-import de.studiocode.invui.window.impl.merged.MergedWindow;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -27,12 +26,12 @@ public class WindowManager implements Listener {
     
     private static WindowManager instance;
     
-    private final Map<Inventory, Window> windows = new HashMap<>();
-    private final Map<Player, Window> openWindows = new HashMap<>();
+    private final Map<Inventory, AbstractWindow> windows = new HashMap<>();
+    private final Map<Player, AbstractWindow> openWindows = new HashMap<>();
     
     private WindowManager() {
         Bukkit.getPluginManager().registerEvents(this, InvUI.getInstance().getPlugin());
-        InvUI.getInstance().addDisableHandler(() -> getWindows().forEach(window -> window.close(true)));
+        InvUI.getInstance().addDisableHandler(() -> windows.values().forEach(window -> window.remove(true)));
     }
     
     /**
@@ -51,7 +50,11 @@ public class WindowManager implements Listener {
      * @param window The {@link Window} to add
      */
     public void addWindow(Window window) {
-        windows.put(window.getInventories()[0], window);
+        if (!(window instanceof AbstractWindow))
+            throw new IllegalArgumentException("Illegal window implementation");
+            
+        AbstractWindow abstractWindow = (AbstractWindow) window;
+        windows.put(abstractWindow.getInventories()[0], abstractWindow);
     }
     
     /**
@@ -61,7 +64,11 @@ public class WindowManager implements Listener {
      * @param window The {@link Window} to remove
      */
     public void removeWindow(Window window) {
-        windows.remove(window.getInventories()[0]);
+        if (!(window instanceof AbstractWindow))
+            throw new IllegalArgumentException("Illegal window implementation");
+        
+        AbstractWindow abstractWindow = (AbstractWindow) window;
+        windows.remove(abstractWindow.getInventories()[0]);
     }
     
     /**
@@ -107,7 +114,7 @@ public class WindowManager implements Listener {
     @EventHandler
     private void handleInventoryClick(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
-        Window window = getOpenWindow(player);
+        AbstractWindow window = (AbstractWindow) getOpenWindow(player);
         
         if (window != null) {
             Inventory clicked = event.getClickedInventory();
@@ -133,7 +140,7 @@ public class WindowManager implements Listener {
     
     @EventHandler
     private void handleInventoryDrag(InventoryDragEvent event) {
-        Window window = getOpenWindow((Player) event.getWhoClicked());
+        AbstractWindow window = (AbstractWindow) getOpenWindow((Player) event.getWhoClicked());
         if (window != null) {
             window.handleDrag(event);
         }
@@ -143,7 +150,7 @@ public class WindowManager implements Listener {
     private void handleInventoryClose(InventoryCloseEvent event) {
         Player player = (Player) event.getPlayer();
         
-        Window window = getWindow(event.getInventory());
+        AbstractWindow window = (AbstractWindow) getWindow(event.getInventory());
         if (window != null)
             window.handleClose(player);
         
@@ -152,7 +159,7 @@ public class WindowManager implements Listener {
     
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     private void handleInventoryOpen(InventoryOpenEvent event) {
-        Window window = getWindow(event.getInventory());
+        AbstractWindow window = (AbstractWindow) getWindow(event.getInventory());
         if (window != null) {
             window.handleOpen(event);
             openWindows.put((Player) event.getPlayer(), window);
@@ -162,7 +169,7 @@ public class WindowManager implements Listener {
     @EventHandler
     private void handlePlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        Window window = getOpenWindow(player);
+        AbstractWindow window = (AbstractWindow) getOpenWindow(player);
         if (window != null) {
             window.handleClose(player);
             openWindows.remove(player);
@@ -172,7 +179,7 @@ public class WindowManager implements Listener {
     @EventHandler
     private void handlePlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
-        Window window = getOpenWindow(player);
+        AbstractWindow window = (AbstractWindow) getOpenWindow(player);
         if (window != null) {
             window.handleViewerDeath(event);
         }
@@ -183,7 +190,7 @@ public class WindowManager implements Listener {
         Entity entity = event.getEntity();
         if (entity instanceof Player) {
             Window window = getOpenWindow((Player) entity);
-            if (window instanceof MergedWindow)
+            if (window instanceof AbstractDoubleWindow)
                 event.setCancelled(true);
         }
     }

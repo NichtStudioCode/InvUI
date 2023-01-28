@@ -72,10 +72,10 @@ public class IngredientList extends ArrayList<Ingredient> {
         return indices.stream().mapToInt(Integer::intValue).toArray();
     }
     
-    public int[] findItemListSlots() {
+    public int[] findContentListSlots() {
         return Stream.concat(
-            findIndicesOfHorizontalMarker(Markers.ITEM_LIST_SLOT_HORIZONTAL).stream(),
-            findIndicesOfVerticalMarker(Markers.ITEM_LIST_SLOT_VERTICAL).stream()
+            findIndicesOfHorizontalMarker(Markers.CONTENT_LIST_SLOT_HORIZONTAL).stream(),
+            findIndicesOfVerticalMarker(Markers.CONTENT_LIST_SLOT_VERTICAL).stream()
         ).mapToInt(Integer::intValue).toArray();
     }
     

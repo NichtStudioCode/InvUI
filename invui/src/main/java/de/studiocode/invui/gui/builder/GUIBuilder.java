@@ -23,119 +23,92 @@ import java.util.function.Supplier;
  * It provides similar functionality to Bukkit's {@link ShapedRecipe}, as it
  * allows for a structure String which defines the layout of the {@link GUI}.
  */
-public class GUIBuilder<G extends GUI> {
+public class GUIBuilder<G extends GUI, C> {
     
-    private final GUIType<G> guiType;
-    private final GUIContext context;
+    protected final GUIType<G, C> guiType;
+    protected final GUIContext<C> context;
     
-    public GUIBuilder(@NotNull GUIType<G> guiType) {
+    public GUIBuilder(@NotNull GUIType<G, C> guiType) {
         this.guiType = guiType;
-        this.context = new GUIContext();
+        this.context = new GUIContext<>();
     }
     
-    public GUIBuilder<G> setStructure(int width, int height, @NotNull String structureData) {
+    public GUIBuilder<G, C> setStructure(int width, int height, @NotNull String structureData) {
         context.setStructure(new Structure(width, height, structureData));
         return this;
     }
     
-    public GUIBuilder<G> setStructure(@NotNull String... structureData) {
+    public GUIBuilder<G, C> setStructure(@NotNull String... structureData) {
         return setStructure(new Structure(structureData));
     }
     
-    public GUIBuilder<G> setStructure(@NotNull Structure structure) {
+    public GUIBuilder<G, C> setStructure(@NotNull Structure structure) {
         context.setStructure(structure);
         return this;
     }
     
-    public GUIBuilder<G> addIngredient(char key, @NotNull ItemStack itemStack) {
+    public GUIBuilder<G, C> addIngredient(char key, @NotNull ItemStack itemStack) {
         context.getStructure().addIngredient(key, itemStack);
         return this;
     }
     
-    public GUIBuilder<G> addIngredient(char key, @NotNull ItemProvider itemProvider) {
+    public GUIBuilder<G, C> addIngredient(char key, @NotNull ItemProvider itemProvider) {
         context.getStructure().addIngredient(key, itemProvider);
         return this;
     }
     
-    public GUIBuilder<G> addIngredient(char key, @NotNull Item item) {
+    public GUIBuilder<G, C> addIngredient(char key, @NotNull Item item) {
         context.getStructure().addIngredient(key, item);
         return this;
     }
     
-    public GUIBuilder<G> addIngredient(char key, @NotNull VirtualInventory inventory) {
+    public GUIBuilder<G, C> addIngredient(char key, @NotNull VirtualInventory inventory) {
         context.getStructure().addIngredient(key, inventory);
         return this;
     }
     
-    public GUIBuilder<G> addIngredient(char key, @NotNull VirtualInventory inventory, @Nullable ItemProvider background) {
+    public GUIBuilder<G, C> addIngredient(char key, @NotNull VirtualInventory inventory, @Nullable ItemProvider background) {
         context.getStructure().addIngredient(key, inventory, background);
         return this;
     }
     
-    public GUIBuilder<G> addIngredient(char key, @NotNull SlotElement element) {
+    public GUIBuilder<G, C> addIngredient(char key, @NotNull SlotElement element) {
         context.getStructure().addIngredient(key, element);
         return this;
     }
     
-    public GUIBuilder<G> addIngredient(char key, @NotNull Marker marker) {
+    public GUIBuilder<G, C> addIngredient(char key, @NotNull Marker marker) {
         context.getStructure().addIngredient(key, marker);
         return this;
     }
     
-    public GUIBuilder<G> addIngredient(char key, @NotNull Supplier<? extends Item> itemSupplier) {
+    public GUIBuilder<G, C> addIngredient(char key, @NotNull Supplier<? extends Item> itemSupplier) {
         context.getStructure().addIngredient(key, itemSupplier);
         return this;
     }
     
-    public GUIBuilder<G> addIngredientElementSupplier(char key, @NotNull Supplier<? extends SlotElement> elementSupplier) {
+    public GUIBuilder<G, C> addIngredientElementSupplier(char key, @NotNull Supplier<? extends SlotElement> elementSupplier) {
         context.getStructure().addIngredientElementSupplier(key, elementSupplier);
         return this;
     }
     
-    public GUIBuilder<G> setItems(@NotNull List<Item> items) {
-        if (!guiType.acceptsItems())
-            throw new UnsupportedOperationException("Items cannot be set in this gui type.");
-        context.setItems(items);
+    public GUIBuilder<G, C> setContent(@NotNull List<C> content) {
+        context.setContent(content);
         return this;
     }
     
-    public GUIBuilder<G> addItem(@NotNull Item item) {
-        if (!guiType.acceptsItems())
-            throw new UnsupportedOperationException("Items cannot be set in this gui type.");
-        if (context.getItems() == null) context.setItems(new ArrayList<>());
-        context.getItems().add(item);
-        return this;
-    }
-    
-    public GUIBuilder<G> setGUIs(@NotNull List<GUI> guis) {
-        if (!guiType.acceptsGUIs())
-            throw new UnsupportedOperationException("GUIs cannot be set in this gui type.");
-        context.setGuis(guis);
-        return this;
-    }
-    
-    public GUIBuilder<G> addGUI(@NotNull GUI gui) {
-        if (!guiType.acceptsGUIs())
-            throw new UnsupportedOperationException("GUIs cannot be set in this gui type.");
-        if (context.getGuis() == null) context.setGuis(new ArrayList<>());
-        context.getGuis().add(gui);
-        return this;
-    }
-    
-    public GUIBuilder<G> setInventory(@NotNull VirtualInventory inventory) {
-        if (!guiType.acceptsInventory())
-            throw new UnsupportedOperationException("An inventory cannot be set in this gui type.");
-        context.setInventory(inventory);
-        return this;
-    }
-    
-    public GUIBuilder<G> setBackground(@Nullable ItemProvider background) {
-        context.setBackground(background);
+    public GUIBuilder<G, C> addContent(@NotNull C content) {
+        if (context.getContent() == null)
+            context.setContent(new ArrayList<>());
+        
+        context.getContent().add(content);
         return this;
     }
     
     public G build() {
-        if (context.getStructure() == null) throw new IllegalStateException("GUIContext has not been set yet.");
+        if (context.getStructure() == null)
+            throw new IllegalStateException("GUIContext has not been set yet.");
+        
         return guiType.createGUI(context);
     }
     

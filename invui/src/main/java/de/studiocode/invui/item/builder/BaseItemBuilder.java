@@ -1,12 +1,12 @@
 package de.studiocode.invui.item.builder;
 
+import de.studiocode.inventoryaccess.InventoryAccess;
 import de.studiocode.inventoryaccess.component.BaseComponentWrapper;
 import de.studiocode.inventoryaccess.component.ComponentWrapper;
-import de.studiocode.inventoryaccess.version.InventoryAccess;
 import de.studiocode.invui.item.ItemProvider;
 import de.studiocode.invui.util.ComponentUtils;
 import de.studiocode.invui.util.Pair;
-import de.studiocode.invui.window.impl.BaseWindow;
+import de.studiocode.invui.window.AbstractWindow;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -21,7 +21,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-abstract class BaseItemBuilder<T> implements ItemProvider {
+public abstract class BaseItemBuilder<T> implements ItemProvider {
     
     protected ItemStack base;
     protected Material material;
@@ -129,7 +129,7 @@ abstract class BaseItemBuilder<T> implements ItemProvider {
     
     /**
      * Builds the {@link ItemStack} for a specific player.
-     * This is the method called by {@link BaseWindow} which gives you
+     * This is the method called by {@link AbstractWindow} which gives you
      * the option to (for example) create a subclass of {@link BaseItemBuilder} that automatically
      * translates the item's name into the player's language.
      *
@@ -142,41 +142,6 @@ abstract class BaseItemBuilder<T> implements ItemProvider {
         return get();
     }
     
-    public T setLegacyLore(@NotNull List<String> lore) {
-        this.lore = lore.stream()
-            .map(line -> new BaseComponentWrapper(ComponentUtils.withoutPreFormatting(line)))
-            .collect(Collectors.toList());
-        return getThis();
-    }
-    
-    public T addLoreLines(@NotNull String... lines) {
-        if (lore == null) lore = new ArrayList<>();
-        
-        for (String line : lines)
-            lore.add(new BaseComponentWrapper(ComponentUtils.withoutPreFormatting(line)));
-        return getThis();
-    }
-    
-    public T addLoreLines(@NotNull BaseComponent[]... lines) {
-        if (lore == null) lore = new ArrayList<>();
-        
-        lore.addAll(
-            Arrays.stream(lines)
-                .map(line -> new BaseComponentWrapper(ComponentUtils.withoutPreFormatting(line)))
-                .collect(Collectors.toList())
-        );
-        
-        return getThis();
-    }
-    
-    public T addLoreLines(@NotNull ComponentWrapper... lines) {
-        if (lore == null) lore = new ArrayList<>();
-        
-        lore.addAll(Arrays.asList(lines));
-        
-        return getThis();
-    }
-    
     public T removeLoreLine(int index) {
         if (lore != null) lore.remove(index);
         return getThis();
@@ -184,51 +149,6 @@ abstract class BaseItemBuilder<T> implements ItemProvider {
     
     public T clearLore() {
         if (lore != null) lore.clear();
-        return getThis();
-    }
-    
-    public T addItemFlags(@NotNull ItemFlag... itemFlags) {
-        if (this.itemFlags == null) this.itemFlags = new ArrayList<>();
-        this.itemFlags.addAll(Arrays.asList(itemFlags));
-        return getThis();
-    }
-    
-    public T removeItemFlags(@NotNull ItemFlag... itemFlags) {
-        if (this.itemFlags != null)
-            this.itemFlags.removeAll(Arrays.asList(itemFlags));
-        return getThis();
-    }
-    
-    public T clearItemFlags() {
-        if (itemFlags != null) itemFlags.clear();
-        return getThis();
-    }
-    
-    public T addEnchantment(Enchantment enchantment, int level, boolean ignoreLevelRestriction) {
-        if (enchantments == null) enchantments = new HashMap<>();
-        enchantments.put(enchantment, new Pair<>(level, ignoreLevelRestriction));
-        return getThis();
-    }
-    
-    public T removeEnchantment(Enchantment enchantment) {
-        if (enchantments == null) enchantments = new HashMap<>();
-        enchantments.remove(enchantment);
-        return getThis();
-    }
-    
-    public T clearEnchantments() {
-        if (enchantments != null) enchantments.clear();
-        return getThis();
-    }
-    
-    public T addModifier(Function<ItemStack, ItemStack> modifier) {
-        if (modifiers == null) modifiers = new ArrayList<>();
-        modifiers.add(modifier);
-        return getThis();
-    }
-    
-    public T clearModifiers() {
-        if (modifiers != null) modifiers.clear();
         return getThis();
     }
     
@@ -291,6 +211,7 @@ abstract class BaseItemBuilder<T> implements ItemProvider {
         return getThis();
     }
     
+    //<editor-fold desc="lore">
     public List<ComponentWrapper> getLore() {
         return lore;
     }
@@ -300,6 +221,43 @@ abstract class BaseItemBuilder<T> implements ItemProvider {
         return getThis();
     }
     
+    public T setLegacyLore(@NotNull List<String> lore) {
+        this.lore = lore.stream()
+            .map(line -> new BaseComponentWrapper(ComponentUtils.withoutPreFormatting(line)))
+            .collect(Collectors.toList());
+        return getThis();
+    }
+    
+    public T addLoreLines(@NotNull String... lines) {
+        if (lore == null) lore = new ArrayList<>();
+        
+        for (String line : lines)
+            lore.add(new BaseComponentWrapper(ComponentUtils.withoutPreFormatting(line)));
+        return getThis();
+    }
+    
+    public T addLoreLines(@NotNull BaseComponent[]... lines) {
+        if (lore == null) lore = new ArrayList<>();
+        
+        lore.addAll(
+            Arrays.stream(lines)
+                .map(line -> new BaseComponentWrapper(ComponentUtils.withoutPreFormatting(line)))
+                .collect(Collectors.toList())
+        );
+        
+        return getThis();
+    }
+    
+    public T addLoreLines(@NotNull ComponentWrapper... lines) {
+        if (lore == null) lore = new ArrayList<>();
+        
+        lore.addAll(Arrays.asList(lines));
+        
+        return getThis();
+    }
+    //</editor-fold>
+    
+    //<editor-fold desc="item flags">
     public List<ItemFlag> getItemFlags() {
         return itemFlags;
     }
@@ -309,6 +267,25 @@ abstract class BaseItemBuilder<T> implements ItemProvider {
         return getThis();
     }
     
+    public T addItemFlags(@NotNull ItemFlag... itemFlags) {
+        if (this.itemFlags == null) this.itemFlags = new ArrayList<>();
+        this.itemFlags.addAll(Arrays.asList(itemFlags));
+        return getThis();
+    }
+    
+    public T removeItemFlags(@NotNull ItemFlag... itemFlags) {
+        if (this.itemFlags != null)
+            this.itemFlags.removeAll(Arrays.asList(itemFlags));
+        return getThis();
+    }
+    
+    public T clearItemFlags() {
+        if (itemFlags != null) itemFlags.clear();
+        return getThis();
+    }
+    //</editor-fold>
+    
+    //<editor-fold desc="enchantments">
     public HashMap<Enchantment, Pair<Integer, Boolean>> getEnchantments() {
         return enchantments;
     }
@@ -318,9 +295,40 @@ abstract class BaseItemBuilder<T> implements ItemProvider {
         return getThis();
     }
     
+    public T addEnchantment(Enchantment enchantment, int level, boolean ignoreLevelRestriction) {
+        if (enchantments == null) enchantments = new HashMap<>();
+        enchantments.put(enchantment, new Pair<>(level, ignoreLevelRestriction));
+        return getThis();
+    }
+    
+    public T removeEnchantment(Enchantment enchantment) {
+        if (enchantments == null) enchantments = new HashMap<>();
+        enchantments.remove(enchantment);
+        return getThis();
+    }
+    
+    public T clearEnchantments() {
+        if (enchantments != null) enchantments.clear();
+        return getThis();
+    }
+    //</editor-fold>
+    
+    //<editor-fold desc="modifiers">
     public List<Function<ItemStack, ItemStack>> getModifiers() {
         return modifiers;
     }
+    
+    public T addModifier(Function<ItemStack, ItemStack> modifier) {
+        if (modifiers == null) modifiers = new ArrayList<>();
+        modifiers.add(modifier);
+        return getThis();
+    }
+    
+    public T clearModifiers() {
+        if (modifiers != null) modifiers.clear();
+        return getThis();
+    }
+    //</editor-fold>
     
     @SuppressWarnings("unchecked")
     @Override

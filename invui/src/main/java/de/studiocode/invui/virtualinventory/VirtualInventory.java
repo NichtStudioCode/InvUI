@@ -1,11 +1,12 @@
 package de.studiocode.invui.virtualinventory;
 
 import de.studiocode.invui.gui.GUI;
-import de.studiocode.invui.util.ArrayUtils;
 import de.studiocode.invui.util.InventoryUtils;
+import de.studiocode.invui.util.ArrayUtils;
 import de.studiocode.invui.virtualinventory.event.InventoryUpdatedEvent;
 import de.studiocode.invui.virtualinventory.event.ItemUpdateEvent;
 import de.studiocode.invui.virtualinventory.event.UpdateReason;
+import de.studiocode.invui.window.AbstractWindow;
 import de.studiocode.invui.window.Window;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -16,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.OutputStream;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static java.lang.Math.max;
@@ -24,7 +26,7 @@ import static java.lang.Math.min;
 public class VirtualInventory {
     
     private final UUID uuid;
-    private final Set<Window> windows = new HashSet<>();
+    private final Set<AbstractWindow> windows = new HashSet<>();
     private int size;
     private ItemStack[] items;
     private int[] stackSizes;
@@ -81,7 +83,10 @@ public class VirtualInventory {
      * @param window The {@link Window} to be added.
      */
     public void addWindow(Window window) {
-        windows.add(window);
+        if (!(window instanceof AbstractWindow))
+            throw new IllegalArgumentException("Illegal window implementation");
+        
+        windows.add((AbstractWindow) window);
     }
     
     /**
@@ -91,6 +96,9 @@ public class VirtualInventory {
      * @param window The {@link Window} to be removed.
      */
     public void removeWindow(Window window) {
+        if (!(window instanceof AbstractWindow))
+            throw new IllegalArgumentException("Illegal window implementation");
+        
         windows.remove(window);
     }
     
@@ -253,15 +261,104 @@ public class VirtualInventory {
     }
     
     /**
-     * Checks if the {@link VirtualInventory} is empty.
+     * Checks if all slots have an {@link ItemStack} with their max stack size on them.
      *
-     * @return If there are no {@link ItemStack ItemStacks} in this {@link VirtualInventory}
+     * @return Whether this {@link VirtualInventory} is full.
      */
-    public boolean isEmpty() {
-        for (ItemStack itemStack : items)
-            if (itemStack != null) return false;
+    public boolean isFull() {
+        for (int slot = 0; slot < size; slot++) {
+            ItemStack item = items[slot];
+            if (item == null || item.getAmount() < getMaxStackSize(slot, -1))
+                return false;
+        }
         
         return true;
+    }
+    
+    /**
+     * Checks if there are no {@link ItemStack ItemStacks} in this {@link VirtualInventory}.
+     *
+     * @return Whether this {@link VirtualInventory} is empty.
+     */
+    public boolean isEmpty() {
+        for (ItemStack item : items)
+            if (item != null) return false;
+        
+        return true;
+    }
+    
+    /**
+     * Checks whether this {@link VirtualInventory} has at least one empty slot.
+     *
+     * @return Whether this {@link VirtualInventory} has at least one empty slot.
+     */
+    public boolean hasEmptySlot() {
+        for (ItemStack item : items)
+            if (item == null) return true;
+        
+        return false;
+    }
+    
+    /**
+     * Checks if there is any {@link ItemStack} in this {@link VirtualInventory} matching the given {@link Predicate}.
+     *
+     * @param predicate The {@link Predicate} to check.
+     * @return Whether there is any {@link ItemStack} in this {@link VirtualInventory} matching the given {@link Predicate}.
+     */
+    public boolean contains(Predicate<ItemStack> predicate) {
+        for (ItemStack item : items) {
+            if (item != null && predicate.test(item.clone()))
+                return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Checks if there is any {@link ItemStack} in this {@link VirtualInventory} similar to the given {@link ItemStack}.
+     *
+     * @param itemStack The {@link ItemStack} to match against.
+     * @return Whether there is any {@link ItemStack} in this {@link VirtualInventory} similar to the given {@link ItemStack}.
+     */
+    public boolean containsSimilar(ItemStack itemStack) {
+        for (ItemStack item : items) {
+            if (item != null && item.isSimilar(itemStack))
+                return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Counts the amount of {@link ItemStack ItemStacks} in this {@link VirtualInventory} matching the given {@link Predicate}.
+     *
+     * @param predicate The {@link Predicate} to check.
+     * @return The amount of {@link ItemStack ItemStacks} in this {@link VirtualInventory} matching the given {@link Predicate}.
+     */
+    public int count(Predicate<ItemStack> predicate) {
+        int count = 0;
+        for (ItemStack item : items) {
+            if (item != null && predicate.test(item.clone()))
+                count++;
+        }
+        
+        return count;
+    }
+    
+    /**
+     * Counts the amount of {@link ItemStack ItemStacks} in this {@link VirtualInventory} similar to the given {@link ItemStack}.
+     *
+     * @param itemStack The {@link ItemStack} to match against.
+     * @return The amount of {@link ItemStack ItemStacks} in this {@link VirtualInventory} similar to the given {@link ItemStack}.
+     */
+    public int countSimilar(ItemStack itemStack) {
+        int count = 0;
+        for (ItemStack item : items) {
+            if (item != null && item.isSimilar(itemStack))
+                count++;
+        }
+        
+        return count;
     }
     
     /**
@@ -616,11 +713,11 @@ public class VirtualInventory {
      *
      * @return If all provided {@link ItemStack}s would fit if added.
      */
-    public boolean canHold(@NotNull ItemStack itemStack, @NotNull ItemStack... itemStacks) {
-        if (itemStacks.length == 0) {
-            return simulateSingleAdd(itemStack) == 0;
+    public boolean canHold(@NotNull ItemStack first, @NotNull ItemStack... rest) {
+        if (rest.length == 0) {
+            return simulateSingleAdd(first) == 0;
         } else {
-            ItemStack[] allStacks = Stream.concat(Stream.of(itemStack), Arrays.stream(itemStacks)).toArray(ItemStack[]::new);
+            ItemStack[] allStacks = Stream.concat(Stream.of(first), Arrays.stream(rest)).toArray(ItemStack[]::new);
             return Arrays.stream(simulateMultiAdd(Arrays.asList(allStacks))).allMatch(i -> i == 0);
         }
     }
@@ -698,7 +795,7 @@ public class VirtualInventory {
      * @param itemStack    The {@link ItemStack} to find matches to
      * @return The amount of collected items
      */
-    public int collectToCursor(@Nullable UpdateReason updateReason, ItemStack itemStack) {
+    public int collectSimilar(@Nullable UpdateReason updateReason, ItemStack itemStack) {
         int amount = itemStack.getAmount();
         int maxStackSize = itemStack.getMaxStackSize();
         if (amount < itemStack.getMaxStackSize()) {
@@ -716,6 +813,86 @@ public class VirtualInventory {
         }
         
         return amount;
+    }
+    
+    /**
+     * Removes all {@link ItemStack ItemStacks} matching the given {@link Predicate}.
+     *
+     * @param updateReason The reason used in the {@link ItemUpdateEvent}.
+     * @param predicate    The {@link Predicate} to use.
+     * @return The amount of items that were removed.
+     */
+    public int removeIf(@Nullable UpdateReason updateReason, @NotNull Predicate<@NotNull ItemStack> predicate) {
+        int removed = 0;
+        for (int slot = 0; slot < items.length; slot++) {
+            ItemStack item = items[slot];
+            if (item != null && predicate.test(item.clone()) && setItemStack(updateReason, slot, null)) {
+                removed += item.getAmount();
+            }
+        }
+        
+        return removed;
+    }
+    
+    /**
+     * Removes the first n {@link ItemStack ItemStacks} matching the given {@link Predicate}.
+     *
+     * @param updateReason The reason used in the {@link ItemUpdateEvent}.
+     * @param amount       The maximum amount of {@link ItemStack ItemStacks} to remove.
+     * @param predicate    The {@link Predicate} to use.
+     * @return The amount of items that were removed.
+     */
+    public int removeFirst(@Nullable UpdateReason updateReason, int amount, @NotNull Predicate<@NotNull ItemStack> predicate) {
+        int leftOver = amount;
+        for (int slot = 0; slot < items.length; slot++) {
+            ItemStack item = items[slot];
+            if (item != null && predicate.test(item.clone())) {
+                leftOver -= takeFrom(updateReason, slot, leftOver);
+                if (leftOver == 0) return 0;
+            }
+        }
+        
+        return amount - leftOver;
+    }
+    
+    /**
+     * Removes all {@link ItemStack ItemStacks} that are similar to the specified {@link ItemStack}.
+     *
+     * @param updateReason The reason used in the {@link ItemUpdateEvent}.
+     * @param itemStack    The {@link ItemStack} to match against.
+     * @return The amount of items that were removed.
+     */
+    public int removeSimilar(@Nullable UpdateReason updateReason, @NotNull ItemStack itemStack) {
+        int removed = 0;
+        for (int slot = 0; slot < items.length; slot++) {
+            ItemStack item = items[slot];
+            if (item != null && item.isSimilar(itemStack) && setItemStack(updateReason, slot, null)) {
+                removed += item.getAmount();
+            }
+        }
+        
+        return removed;
+    }
+    
+    /**
+     * Removes the first n {@link ItemStack ItemStacks} that are similar to the specified {@link ItemStack}.
+     *
+     * @param updateReason The reason used in the {@link ItemUpdateEvent}.
+     * @param amount       The maximum amount of {@link ItemStack ItemStacks} to remove.
+     * @param itemStack    The {@link ItemStack} to match against.
+     * @return The amount of items that were removed.
+     */
+    public int removeFirstSimilar(@Nullable UpdateReason updateReason, int amount, @NotNull ItemStack itemStack) {
+        int leftOver = amount;
+        for (int slot = 0; slot < items.length; slot++) {
+            ItemStack item = items[slot];
+            if (item != null && item.isSimilar(itemStack)) {
+                leftOver -= takeFrom(updateReason, slot, leftOver);
+                if (leftOver == 0) return 0;
+            }
+        }
+        
+        return amount - leftOver;
     }
     
     private List<Integer> findPartialSlots(ItemStack itemStack) {
