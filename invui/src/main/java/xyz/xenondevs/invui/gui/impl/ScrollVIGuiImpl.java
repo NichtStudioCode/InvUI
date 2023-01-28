@@ -45,8 +45,8 @@ public final class ScrollVIGuiImpl extends AbstractScrollGui<VirtualInventory> {
     }
     
     @Override
-    public void setContent(@NotNull List<VirtualInventory> inventory) {
-        this.inventories = inventory;
+    public void setContent(@NotNull List<VirtualInventory> inventories) {
+        this.inventories = inventories != null ? inventories : new ArrayList<>();
         updateElements();
         update();
     }

@@ -60,7 +60,7 @@ public final class PagedItemsGuiImpl extends AbstractPagedGui<Item> {
     }
     
     @Override
-    public void setContent(List<@Nullable Item> content) {
+    public void setContent(List<@Nullable Item> items) {
         this.items = items != null ? items : new ArrayList<>();
         update();
     }
