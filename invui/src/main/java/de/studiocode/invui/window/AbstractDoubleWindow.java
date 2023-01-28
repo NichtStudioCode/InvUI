@@ -2,7 +2,7 @@ package de.studiocode.invui.window;
 
 import de.studiocode.inventoryaccess.InventoryAccess;
 import de.studiocode.inventoryaccess.component.ComponentWrapper;
-import de.studiocode.invui.gui.AbstractGUI;
+import de.studiocode.invui.gui.AbstractGui;
 import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.util.Pair;
 import de.studiocode.invui.util.SlotUtils;
@@ -120,7 +120,7 @@ public abstract class AbstractDoubleWindow extends AbstractWindow {
     
     @Override
     public void handleClick(InventoryClickEvent event) {
-        Pair<AbstractGUI, Integer> clicked = getWhereClicked(event);
+        Pair<AbstractGui, Integer> clicked = getWhereClicked(event);
         clicked.getFirst().handleClick(clicked.getSecond(), (Player) event.getWhoClicked(), event.getClick(), event);
     }
     
@@ -149,6 +149,6 @@ public abstract class AbstractDoubleWindow extends AbstractWindow {
     
     protected abstract SlotElement getSlotElement(int index);
     
-    protected abstract Pair<AbstractGUI, Integer> getWhereClicked(InventoryClickEvent event);
+    protected abstract Pair<AbstractGui, Integer> getWhereClicked(InventoryClickEvent event);
     
 }

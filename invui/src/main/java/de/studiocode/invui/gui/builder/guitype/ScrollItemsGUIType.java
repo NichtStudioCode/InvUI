@@ -1,15 +1,15 @@
 package de.studiocode.invui.gui.builder.guitype;
 
-import de.studiocode.invui.gui.ScrollGUI;
-import de.studiocode.invui.gui.builder.GUIContext;
-import de.studiocode.invui.gui.impl.ScrollItemsGUIImpl;
+import de.studiocode.invui.gui.ScrollGui;
+import de.studiocode.invui.gui.builder.GuiContext;
+import de.studiocode.invui.gui.impl.ScrollItemsGuiImpl;
 import de.studiocode.invui.item.Item;
 
-class ScrollItemsGUIType implements GUIType<ScrollGUI<Item>, Item> {
+class ScrollItemsGuiType implements GuiType<ScrollGui<Item>, Item> {
     
     @Override
-    public ScrollItemsGUIImpl createGUI(GUIContext<Item> context) {
-        ScrollItemsGUIImpl gui = new ScrollItemsGUIImpl(context.getContent(), context.getStructure());
+    public ScrollItemsGuiImpl createGui(GuiContext<Item> context) {
+        ScrollItemsGuiImpl gui = new ScrollItemsGuiImpl(context.getContent(), context.getStructure());
         gui.setBackground(context.getBackground());
         return gui;
     }

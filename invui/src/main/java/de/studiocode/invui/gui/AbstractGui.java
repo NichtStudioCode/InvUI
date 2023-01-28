@@ -30,20 +30,20 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public abstract class AbstractGUI implements GUI, GUIParent {
+public abstract class AbstractGui implements Gui, GuiParent {
     
     private final int width;
     private final int height;
     private final int size;
     private final SlotElement[] slotElements;
-    private final Set<GUIParent> parents = new HashSet<>();
+    private final Set<GuiParent> parents = new HashSet<>();
     
     private SlotElement[] animationElements;
     private Animation animation;
     
     private ItemProvider background;
     
-    public AbstractGUI(int width, int height) {
+    public AbstractGui(int width, int height) {
         this.width = width;
         this.height = height;
         this.size = width * height;
@@ -60,7 +60,7 @@ public abstract class AbstractGUI implements GUI, GUIParent {
         SlotElement slotElement = slotElements[slotNumber];
         if (slotElement instanceof LinkedSlotElement) {
             LinkedSlotElement linkedElement = (LinkedSlotElement) slotElement;
-            AbstractGUI gui = (AbstractGUI) linkedElement.getGUI();
+            AbstractGui gui = (AbstractGui) linkedElement.getGui();
             gui.handleClick(linkedElement.getSlotIndex(), player, clickType, event);
         } else if (slotElement instanceof ItemSlotElement) {
             event.setCancelled(true); // if it is an Item, don't let the player move it
@@ -208,16 +208,16 @@ public abstract class AbstractGUI implements GUI, GUIParent {
         if (!updateEvent.isCancelled()) {
             int leftOverAmount;
             if (window instanceof AbstractDoubleWindow) {
-                GUI otherGui;
+                Gui otherGui;
                 if (window instanceof AbstractSplitWindow) {
                     AbstractSplitWindow splitWindow = (AbstractSplitWindow) window;
-                    GUI[] guis = splitWindow.getGUIs();
+                    Gui[] guis = splitWindow.getGuis();
                     otherGui = guis[0] == this ? guis[1] : guis[0];
                 } else {
                     otherGui = this;
                 }
                 
-                leftOverAmount = ((AbstractGUI) otherGui).putIntoFirstVirtualInventory(updateReason, clicked, inventory);
+                leftOverAmount = ((AbstractGui) otherGui).putIntoFirstVirtualInventory(updateReason, clicked, inventory);
             } else {
                 leftOverAmount = InventoryUtils.addItemCorrectly(event.getWhoClicked().getInventory(), inventory.getItemStack(slot));
             }
@@ -345,40 +345,40 @@ public abstract class AbstractGUI implements GUI, GUIParent {
     // endregion
     
     @Override
-    public void handleSlotElementUpdate(GUI child, int slotIndex) {
-        // find all SlotElements that link to this slotIndex in this child GUI and notify all parents
+    public void handleSlotElementUpdate(Gui child, int slotIndex) {
+        // find all SlotElements that link to this slotIndex in this child Gui and notify all parents
         for (int index = 0; index < size; index++) {
             SlotElement element = slotElements[index];
             if (element instanceof LinkedSlotElement) {
                 LinkedSlotElement linkedSlotElement = (LinkedSlotElement) element;
-                if (linkedSlotElement.getGUI() == child && linkedSlotElement.getSlotIndex() == slotIndex)
-                    for (GUIParent parent : parents) parent.handleSlotElementUpdate(this, index);
+                if (linkedSlotElement.getGui() == child && linkedSlotElement.getSlotIndex() == slotIndex)
+                    for (GuiParent parent : parents) parent.handleSlotElementUpdate(this, index);
             }
         }
     }
     
-    public void addParent(@NotNull GUIParent parent) {
+    public void addParent(@NotNull GuiParent parent) {
         parents.add(parent);
     }
     
-    public void removeParent(@NotNull GUIParent parent) {
+    public void removeParent(@NotNull GuiParent parent) {
         parents.remove(parent);
     }
     
-    public Set<GUIParent> getParents() {
+    public Set<GuiParent> getParents() {
         return parents;
     }
     
     @Override
-    public List<Window> findAllWindows() {
+    public @NotNull List<@NotNull Window> findAllWindows() {
         List<Window> windows = new ArrayList<>();
-        List<GUIParent> unexploredParents = new ArrayList<>(this.parents);
+        List<GuiParent> unexploredParents = new ArrayList<>(this.parents);
         
         while (!unexploredParents.isEmpty()) {
-            List<GUIParent> parents = new ArrayList<>(unexploredParents);
+            List<GuiParent> parents = new ArrayList<>(unexploredParents);
             unexploredParents.clear();
-            for (GUIParent parent : parents) {
-                if (parent instanceof AbstractGUI) unexploredParents.addAll(((AbstractGUI) parent).getParents());
+            for (GuiParent parent : parents) {
+                if (parent instanceof AbstractGui) unexploredParents.addAll(((AbstractGui) parent).getParents());
                 else if (parent instanceof Window) windows.add((Window) parent);
             }
         }
@@ -387,7 +387,7 @@ public abstract class AbstractGUI implements GUI, GUIParent {
     }
     
     @Override
-    public Set<Player> findAllCurrentViewers() {
+    public @NotNull Set<@NotNull Player> findAllCurrentViewers() {
         return findAllWindows().stream()
             .map(Window::getCurrentViewer)
             .filter(Objects::nonNull)
@@ -400,7 +400,7 @@ public abstract class AbstractGUI implements GUI, GUIParent {
     }
     
     @Override
-    public void playAnimation(@NotNull Animation animation, @Nullable Predicate<SlotElement> filter) {
+    public void playAnimation(@NotNull Animation animation, @Nullable Predicate<@NotNull SlotElement> filter) {
         if (animation != null) cancelAnimation();
         
         this.animation = animation;
@@ -416,7 +416,7 @@ public abstract class AbstractGUI implements GUI, GUIParent {
         }
         
         animation.setSlots(slots);
-        animation.setGUI(this);
+        animation.setGui(this);
         animation.setWindows(findAllWindows());
         animation.addShowHandler((frame, index) -> setSlotElement(index, animationElements[index]));
         animation.addFinishHandler(() -> {
@@ -461,28 +461,28 @@ public abstract class AbstractGUI implements GUI, GUIParent {
         if (slotElement instanceof ItemSlotElement) {
             Item item = ((ItemSlotElement) slotElement).getItem();
             if (item instanceof ControlItem<?>)
-                ((ControlItem<?>) item).setGUI(this);
+                ((ControlItem<?>) item).setGui(this);
         }
         
         // notify parents that a SlotElement has been changed
         parents.forEach(parent -> parent.handleSlotElementUpdate(this, index));
         
-        AbstractGUI oldLink = oldElement instanceof LinkedSlotElement ? (AbstractGUI) ((LinkedSlotElement) oldElement).getGUI() : null;
-        AbstractGUI newLink = slotElement instanceof LinkedSlotElement ? (AbstractGUI) ((LinkedSlotElement) slotElement).getGUI() : null;
+        AbstractGui oldLink = oldElement instanceof LinkedSlotElement ? (AbstractGui) ((LinkedSlotElement) oldElement).getGui() : null;
+        AbstractGui newLink = slotElement instanceof LinkedSlotElement ? (AbstractGui) ((LinkedSlotElement) slotElement).getGui() : null;
         
         // if newLink is the same as oldLink, there isn't anything to be done
         if (newLink == oldLink) return;
         
-        // if the slot previously linked to GUI
+        // if the slot previously linked to Gui
         if (oldLink != null) {
-            // If no other slot still links to that GUI, remove this GUI from parents
+            // If no other slot still links to that Gui, remove this Gui from parents
             if (Arrays.stream(slotElements)
                 .filter(element -> element instanceof LinkedSlotElement)
-                .map(element -> ((LinkedSlotElement) element).getGUI())
+                .map(element -> ((LinkedSlotElement) element).getGui())
                 .noneMatch(gui -> gui == oldLink)) oldLink.removeParent(this);
         }
         
-        // if the slot now links to a GUI add this as parent
+        // if the slot now links to a Gui add this as parent
         if (newLink != null) {
             newLink.addParent(this);
         }
@@ -498,7 +498,7 @@ public abstract class AbstractGUI implements GUI, GUIParent {
     }
     
     @Override
-    public SlotElement getSlotElement(int index) {
+    public @Nullable SlotElement getSlotElement(int index) {
         return slotElements[index];
     }
     
@@ -559,7 +559,7 @@ public abstract class AbstractGUI implements GUI, GUIParent {
     
     @Override
     public void applyStructure(@NotNull Structure structure) {
-        structure.getIngredientList().insertIntoGUI(this);
+        structure.getIngredientList().insertIntoGui(this);
     }
     
     @Override
@@ -574,7 +574,7 @@ public abstract class AbstractGUI implements GUI, GUIParent {
     }
     
     @Override
-    public SlotElement getSlotElement(int x, int y) {
+    public @Nullable SlotElement getSlotElement(int x, int y) {
         return getSlotElement(convToIndex(x, y));
     }
     
@@ -656,7 +656,7 @@ public abstract class AbstractGUI implements GUI, GUIParent {
     }
     
     @Override
-    public void fillRectangle(int x, int y, @NotNull GUI gui, boolean replaceExisting) {
+    public void fillRectangle(int x, int y, @NotNull Gui gui, boolean replaceExisting) {
         int slotIndex = 0;
         for (int slot : SlotUtils.getSlotsRect(x, y, gui.getWidth(), gui.getHeight(), this.width)) {
             if (hasSlotElement(slot) && !replaceExisting) continue;

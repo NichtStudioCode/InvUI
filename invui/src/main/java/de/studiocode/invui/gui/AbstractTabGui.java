@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-public abstract class AbstractTabGUI extends AbstractGUI implements TabGUI {
+public abstract class AbstractTabGui extends AbstractGui implements TabGui {
     
     private final int tabAmount;
     private final int[] listSlots;
@@ -17,13 +17,13 @@ public abstract class AbstractTabGUI extends AbstractGUI implements TabGUI {
     
     private List<BiConsumer<Integer, Integer>> tabChangeHandlers;
     
-    public AbstractTabGUI(int width, int height, int tabAmount, int... listSlots) {
+    public AbstractTabGui(int width, int height, int tabAmount, int... listSlots) {
         super(width, height);
         this.tabAmount = tabAmount;
         this.listSlots = listSlots;
     }
     
-    public AbstractTabGUI(int width, int height, int tabAmount, Structure structure) {
+    public AbstractTabGui(int width, int height, int tabAmount, Structure structure) {
         this(width, height, tabAmount, structure.getIngredientList().findContentListSlots());
         applyStructure(structure);
     }
@@ -73,13 +73,12 @@ public abstract class AbstractTabGUI extends AbstractGUI implements TabGUI {
     
     
     @Override
-    @Nullable
-    public List<BiConsumer<Integer, Integer>> getTabChangeHandlers() {
+    public @Nullable List<@NotNull BiConsumer<Integer, Integer>> getTabChangeHandlers() {
         return tabChangeHandlers;
     }
     
     @Override
-    public void setTabChangeHandlers(@Nullable List<BiConsumer<Integer, Integer>> tabChangeHandlers) {
+    public void setTabChangeHandlers(@Nullable List<@NotNull BiConsumer<Integer, Integer>> tabChangeHandlers) {
         this.tabChangeHandlers = tabChangeHandlers;
     }
     

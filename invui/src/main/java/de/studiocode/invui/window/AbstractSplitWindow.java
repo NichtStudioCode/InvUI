@@ -1,8 +1,8 @@
 package de.studiocode.invui.window;
 
 import de.studiocode.inventoryaccess.component.ComponentWrapper;
-import de.studiocode.invui.gui.AbstractGUI;
-import de.studiocode.invui.gui.GUI;
+import de.studiocode.invui.gui.AbstractGui;
+import de.studiocode.invui.gui.Gui;
 import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.util.Pair;
 import de.studiocode.invui.util.SlotUtils;
@@ -11,14 +11,14 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 
 /**
- * A {@link Window} where top and player {@link Inventory} are affected by different {@link GUI}s.
+ * A {@link Window} where top and player {@link Inventory} are affected by different {@link Gui}s.
  */
 public abstract class AbstractSplitWindow extends AbstractDoubleWindow {
     
-    private final AbstractGUI upperGui;
-    private final AbstractGUI lowerGui;
+    private final AbstractGui upperGui;
+    private final AbstractGui lowerGui;
     
-    public AbstractSplitWindow(Player player, ComponentWrapper title, AbstractGUI upperGui, AbstractGUI lowerGui, Inventory upperInventory, boolean initItems, boolean closeable, boolean retain) {
+    public AbstractSplitWindow(Player player, ComponentWrapper title, AbstractGui upperGui, AbstractGui lowerGui, Inventory upperInventory, boolean initItems, boolean closeable, boolean retain) {
         super(player, title, upperGui.getSize() + lowerGui.getSize(), upperInventory, closeable, retain);
         this.upperGui = upperGui;
         this.lowerGui = lowerGui;
@@ -29,7 +29,7 @@ public abstract class AbstractSplitWindow extends AbstractDoubleWindow {
     }
     
     @Override
-    public void handleSlotElementUpdate(GUI child, int slotIndex) {
+    public void handleSlotElementUpdate(Gui child, int slotIndex) {
         redrawItem(child == upperGui ? slotIndex : upperGui.getSize() + slotIndex,
             child.getSlotElement(slotIndex), true);
     }
@@ -41,7 +41,7 @@ public abstract class AbstractSplitWindow extends AbstractDoubleWindow {
     }
     
     @Override
-    protected Pair<AbstractGUI, Integer> getWhereClicked(InventoryClickEvent event) {
+    protected Pair<AbstractGui, Integer> getWhereClicked(InventoryClickEvent event) {
         Inventory clicked = event.getClickedInventory();
         if (clicked == getUpperInventory()) {
             return new Pair<>(upperGui, event.getSlot());
@@ -52,7 +52,7 @@ public abstract class AbstractSplitWindow extends AbstractDoubleWindow {
     }
     
     @Override
-    protected Pair<AbstractGUI, Integer> getGUIAt(int index) {
+    protected Pair<AbstractGui, Integer> getGuiAt(int index) {
         if (index < upperGui.getSize()) return new Pair<>(upperGui, index);
         else if (index < (upperGui.getSize() + lowerGui.getSize()))
             return new Pair<>(lowerGui, index - upperGui.getSize());
@@ -60,8 +60,8 @@ public abstract class AbstractSplitWindow extends AbstractDoubleWindow {
     }
     
     @Override
-    public AbstractGUI[] getGUIs() {
-        return new AbstractGUI[] {upperGui, lowerGui};
+    public AbstractGui[] getGuis() {
+        return new AbstractGui[] {upperGui, lowerGui};
     }
     
 }

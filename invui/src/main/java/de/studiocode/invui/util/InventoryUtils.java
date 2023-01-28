@@ -1,6 +1,6 @@
 package de.studiocode.invui.util;
 
-import de.studiocode.invui.gui.GUI;
+import de.studiocode.invui.gui.Gui;
 import de.studiocode.invui.virtualinventory.StackSizeProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -107,13 +107,13 @@ public class InventoryUtils {
         return false;
     }
     
-    public static Inventory createMatchingInventory(@NotNull GUI gui, @NotNull String title) {
+    public static Inventory createMatchingInventory(@NotNull Gui gui, @NotNull String title) {
         InventoryType type;
         
         if (gui.getWidth() == 9) type = null;
         else if (gui.getWidth() == 3 && gui.getHeight() == 3) type = InventoryType.DROPPER;
         else if (gui.getWidth() == 5 && gui.getHeight() == 1) type = InventoryType.HOPPER;
-        else throw new UnsupportedOperationException("Invalid bounds of GUI");
+        else throw new UnsupportedOperationException("Invalid bounds of Gui");
         
         if (type == null) return Bukkit.createInventory(null, gui.getSize(), title);
         else return Bukkit.createInventory(null, type, title);

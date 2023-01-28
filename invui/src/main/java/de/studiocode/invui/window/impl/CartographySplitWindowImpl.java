@@ -5,9 +5,9 @@ import de.studiocode.inventoryaccess.abstraction.inventory.CartographyInventory;
 import de.studiocode.inventoryaccess.component.ComponentWrapper;
 import de.studiocode.inventoryaccess.map.MapIcon;
 import de.studiocode.inventoryaccess.map.MapPatch;
-import de.studiocode.invui.gui.AbstractGUI;
-import de.studiocode.invui.gui.GUI;
-import de.studiocode.invui.gui.impl.NormalGUIImpl;
+import de.studiocode.invui.gui.AbstractGui;
+import de.studiocode.invui.gui.Gui;
+import de.studiocode.invui.gui.impl.NormalGuiImpl;
 import de.studiocode.invui.util.MathUtils;
 import de.studiocode.invui.window.AbstractSplitWindow;
 import de.studiocode.invui.window.CartographyWindow;
@@ -24,8 +24,8 @@ public final class CartographySplitWindowImpl extends AbstractSplitWindow implem
     private final CartographyInventory cartographyInventory;
     private int mapId;
     
-    public CartographySplitWindowImpl(Player player, ComponentWrapper title, AbstractGUI upperGui, AbstractGUI lowerGui, boolean closeable, boolean retain) {
-        super(player, title, createWrappingGUI(upperGui), lowerGui, null, false, closeable, retain);
+    public CartographySplitWindowImpl(Player player, ComponentWrapper title, AbstractGui upperGui, AbstractGui lowerGui, boolean closeable, boolean retain) {
+        super(player, title, createWrappingGui(upperGui), lowerGui, null, false, closeable, retain);
         
         cartographyInventory = InventoryAccess.createCartographyInventory(player, title);
         upperInventory = cartographyInventory.getBukkitInventory();
@@ -35,13 +35,13 @@ public final class CartographySplitWindowImpl extends AbstractSplitWindow implem
         register();
     }
     
-    private static AbstractGUI createWrappingGUI(GUI upperGui) {
+    private static AbstractGui createWrappingGui(Gui upperGui) {
         if (upperGui.getWidth() != 2 || upperGui.getHeight() != 1)
-            throw new IllegalArgumentException("GUI has to be 2x1");
+            throw new IllegalArgumentException("Gui has to be 2x1");
         
-        NormalGUIImpl wrapperGUI = new NormalGUIImpl(3, 1);
-        wrapperGUI.fillRectangle(1, 0, upperGui, true);
-        return wrapperGUI;
+        NormalGuiImpl wrapperGui = new NormalGuiImpl(3, 1);
+        wrapperGui.fillRectangle(1, 0, upperGui, true);
+        return wrapperGui;
     }
     
     @Override

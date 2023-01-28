@@ -1,7 +1,7 @@
 package de.studiocode.invui.gui.builder;
 
-import de.studiocode.invui.gui.GUI;
-import de.studiocode.invui.gui.builder.guitype.GUIType;
+import de.studiocode.invui.gui.Gui;
+import de.studiocode.invui.gui.builder.guitype.GuiType;
 import de.studiocode.invui.gui.structure.Structure;
 import de.studiocode.invui.item.ItemProvider;
 import org.jetbrains.annotations.NotNull;
@@ -9,10 +9,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 /**
- * The {@link GUIContext} contains all information from the {@link GUIBuilder} to be passed to
- * an instance of {@link GUIType} to create a new {@link GUI}.
+ * The {@link GuiContext} contains all information from the {@link GuiBuilder} to be passed to
+ * an instance of {@link GuiType} to create a new {@link Gui}.
  */
-public class GUIContext<C> {
+public class GuiContext<C> {
     
     private Structure structure;
     private ItemProvider background;

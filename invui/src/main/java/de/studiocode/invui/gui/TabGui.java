@@ -1,12 +1,39 @@
 package de.studiocode.invui.gui;
 
+import de.studiocode.invui.gui.impl.TabGuiImpl;
+import de.studiocode.invui.gui.structure.Structure;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.BiConsumer;
 
-public interface TabGUI extends GUI {
+@SuppressWarnings("deprecation")
+public interface TabGui extends Gui {
+    
+    /**
+     * Creates a new {@link TabGui}.
+     *
+     * @param width            The width of the {@link TabGui}.
+     * @param height           The height of the {@link TabGui}.
+     * @param tabs             The {@link Gui Guis} to use as tabs.
+     * @param contentListSlots The slots where content should be displayed.
+     * @return The created {@link TabGui}.
+     */
+    static @NotNull TabGui of(int width, int height, @NotNull List<@Nullable Gui> tabs, int... contentListSlots) {
+        return new TabGuiImpl(width, height, tabs, contentListSlots);
+    }
+    
+    /**
+     * Creates a new {@link TabGui}.
+     *
+     * @param structure The {@link Structure} to use.
+     * @param tabs      The {@link Gui Guis} to use as tabs.
+     * @return The created {@link TabGui}.
+     */
+    static @NotNull TabGui of(Structure structure, @NotNull List<@Nullable Gui> tabs) {
+        return new TabGuiImpl(tabs, structure);
+    }
     
     /**
      * Gets the current tab index.
@@ -32,24 +59,24 @@ public interface TabGUI extends GUI {
     
     /**
      * Gets the configured tabs.
+     *
      * @return The configured tabs.
      */
-    List<GUI> getTabs();
+    @NotNull List<@Nullable Gui> getTabs();
     
     /**
      * Gets the registered tab change handlers.
      *
      * @return The registered tab change handlers.
      */
-    @Nullable
-    List<BiConsumer<Integer, Integer>> getTabChangeHandlers();
+    @Nullable List<@NotNull BiConsumer<Integer, Integer>> getTabChangeHandlers();
     
     /**
      * Replaces the currently registered tab change handlers with the given list.
      *
      * @param handlers The new page change handlers.
      */
-    void setTabChangeHandlers(@Nullable List<BiConsumer<Integer, Integer>> handlers);
+    void setTabChangeHandlers(@Nullable List<@NotNull BiConsumer<Integer, Integer>> handlers);
     
     /**
      * Registers a page change handler.

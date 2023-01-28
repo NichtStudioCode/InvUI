@@ -1,13 +1,6 @@
 package de.studiocode.invui.window;
 
 import de.studiocode.inventoryaccess.component.ComponentWrapper;
-import de.studiocode.invui.window.impl.AnvilSingleWindowImpl;
-import de.studiocode.invui.window.impl.AnvilSplitWindowImpl;
-import de.studiocode.invui.window.impl.CartographySingleWindowImpl;
-import de.studiocode.invui.window.impl.CartographySplitWindowImpl;
-import de.studiocode.invui.window.impl.NormalMergedWindowImpl;
-import de.studiocode.invui.window.impl.NormalSingleWindowImpl;
-import de.studiocode.invui.window.impl.NormalSplitWindowImpl;
 import de.studiocode.invui.window.type.WindowType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.entity.Player;
@@ -18,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 
 /**
- * A Window is the way to show a player a GUI. Windows can only have one viewer.
+ * A Window is the way to show a player a Gui. Windows can only have one viewer.
  * The default Window implementations can be instantiated using {@link WindowType}.
  *
  * @see WindowType
@@ -27,13 +20,6 @@ import java.util.UUID;
  * @see AbstractDoubleWindow
  * @see AbstractSplitWindow
  * @see AbstractMergedWindow
- * @see NormalSingleWindowImpl
- * @see NormalSplitWindowImpl
- * @see NormalMergedWindowImpl
- * @see AnvilSingleWindowImpl
- * @see AnvilSplitWindowImpl
- * @see CartographySingleWindowImpl
- * @see CartographySplitWindowImpl
  */
 public interface Window {
     

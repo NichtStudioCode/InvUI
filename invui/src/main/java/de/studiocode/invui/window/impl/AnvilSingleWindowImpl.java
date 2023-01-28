@@ -3,7 +3,7 @@ package de.studiocode.invui.window.impl;
 import de.studiocode.inventoryaccess.InventoryAccess;
 import de.studiocode.inventoryaccess.abstraction.inventory.AnvilInventory;
 import de.studiocode.inventoryaccess.component.ComponentWrapper;
-import de.studiocode.invui.gui.AbstractGUI;
+import de.studiocode.invui.gui.AbstractGui;
 import de.studiocode.invui.window.AbstractSingleWindow;
 import de.studiocode.invui.window.AnvilWindow;
 import org.bukkit.entity.Player;
@@ -15,7 +15,7 @@ public final class AnvilSingleWindowImpl extends AbstractSingleWindow implements
     
     private final AnvilInventory anvilInventory;
     
-    public AnvilSingleWindowImpl(Player player, ComponentWrapper title, AbstractGUI gui, Consumer<String> renameHandler, boolean closable, boolean retain) {
+    public AnvilSingleWindowImpl(Player player, ComponentWrapper title, AbstractGui gui, Consumer<String> renameHandler, boolean closable, boolean retain) {
         super(player.getUniqueId(), title, gui, null, false, closable, retain);
         anvilInventory = InventoryAccess.createAnvilInventory(player, title, renameHandler);
         inventory = anvilInventory.getBukkitInventory();

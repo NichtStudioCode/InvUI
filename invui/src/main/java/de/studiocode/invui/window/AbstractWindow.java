@@ -4,9 +4,9 @@ import de.studiocode.inventoryaccess.InventoryAccess;
 import de.studiocode.inventoryaccess.component.BaseComponentWrapper;
 import de.studiocode.inventoryaccess.component.ComponentWrapper;
 import de.studiocode.invui.InvUI;
-import de.studiocode.invui.gui.AbstractGUI;
-import de.studiocode.invui.gui.GUI;
-import de.studiocode.invui.gui.GUIParent;
+import de.studiocode.invui.gui.AbstractGui;
+import de.studiocode.invui.gui.Gui;
+import de.studiocode.invui.gui.GuiParent;
 import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.gui.SlotElement.ItemSlotElement;
 import de.studiocode.invui.gui.SlotElement.LinkedSlotElement;
@@ -38,7 +38,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public abstract class AbstractWindow implements Window, GUIParent {
+public abstract class AbstractWindow implements Window, GuiParent {
     
     private static final NamespacedKey SLOT_KEY = new NamespacedKey(InvUI.getInstance().getPlugin(), "slot");
     
@@ -70,13 +70,13 @@ public abstract class AbstractWindow implements Window, GUIParent {
         // put ItemStack in inventory
         ItemStack itemStack;
         if (element == null || (element instanceof VISlotElement && element.getItemStack(viewerUUID) == null)) {
-            ItemProvider background = getGUIAt(index).getFirst().getBackground();
+            ItemProvider background = getGuiAt(index).getFirst().getBackground();
             itemStack = background == null ? null : background.getFor(viewerUUID);
         } else if (element instanceof LinkedSlotElement && element.getHoldingElement() == null) {
             ItemProvider background = null;
             
-            List<GUI> guis = ((LinkedSlotElement) element).getGUIList();
-            guis.add(0, getGUIAt(index).getFirst());
+            List<Gui> guis = ((LinkedSlotElement) element).getGuiList();
+            guis.add(0, getGuiAt(index).getFirst());
             
             for (int i = guis.size() - 1; i >= 0; i--) {
                 background = guis.get(i).getBackground();
@@ -146,8 +146,8 @@ public abstract class AbstractWindow implements Window, GUIParent {
             ItemStack currentStack = event.getView().getItem(rawSlot);
             if (currentStack != null && currentStack.getType() == Material.AIR) currentStack = null;
             
-            // get the GUI at that slot and ask for permission to drag an Item there
-            Pair<AbstractGUI, Integer> pair = getGUIAt(rawSlot);
+            // get the Gui at that slot and ask for permission to drag an Item there
+            Pair<AbstractGui, Integer> pair = getGuiAt(rawSlot);
             if (pair != null && !pair.getFirst().handleItemDrag(updateReason, pair.getSecond(), currentStack, newItems.get(rawSlot))) {
                 // the drag was cancelled
                 int currentAmount = currentStack == null ? 0 : currentStack.getAmount();
@@ -160,7 +160,7 @@ public abstract class AbstractWindow implements Window, GUIParent {
         // Redraw all items after the event so there won't be any Items that aren't actually there
         Bukkit.getScheduler().runTask(InvUI.getInstance().getPlugin(),
             () -> event.getRawSlots().forEach(rawSlot -> {
-                if (getGUIAt(rawSlot) != null) redrawItem(rawSlot);
+                if (getGuiAt(rawSlot) != null) redrawItem(rawSlot);
             })
         );
         
@@ -232,7 +232,7 @@ public abstract class AbstractWindow implements Window, GUIParent {
                 }
             });
         
-        Arrays.stream(getGUIs())
+        Arrays.stream(getGuis())
             .forEach(gui -> gui.removeParent(this));
         
         if (closeForViewer) close();
@@ -322,9 +322,9 @@ public abstract class AbstractWindow implements Window, GUIParent {
     
     protected abstract SlotElement getSlotElement(int index);
     
-    protected abstract Pair<AbstractGUI, Integer> getGUIAt(int index);
+    protected abstract Pair<AbstractGui, Integer> getGuiAt(int index);
     
-    protected abstract AbstractGUI[] getGUIs();
+    protected abstract AbstractGui[] getGuis();
     
     protected abstract Inventory[] getInventories();
     

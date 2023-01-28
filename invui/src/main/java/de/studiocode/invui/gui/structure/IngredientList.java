@@ -1,6 +1,6 @@
 package de.studiocode.invui.gui.structure;
 
-import de.studiocode.invui.gui.GUI;
+import de.studiocode.invui.gui.Gui;
 import de.studiocode.invui.util.SlotUtils;
 
 import java.util.ArrayList;
@@ -24,9 +24,9 @@ public class IngredientList extends ArrayList<Ingredient> {
         }
     }
     
-    public void insertIntoGUI(GUI gui) {
+    public void insertIntoGui(Gui gui) {
         if (size() != gui.getSize())
-            throw new IllegalArgumentException("Structure size does not match GUI size");
+            throw new IllegalArgumentException("Structure size does not match Gui size");
         
         for (int i = 0; i < size(); i++) {
             Ingredient ingredient = get(i);

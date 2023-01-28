@@ -2,7 +2,7 @@ package de.studiocode.invui.animation.impl;
 
 import de.studiocode.invui.InvUI;
 import de.studiocode.invui.animation.Animation;
-import de.studiocode.invui.gui.GUI;
+import de.studiocode.invui.gui.Gui;
 import de.studiocode.invui.util.SlotUtils;
 import de.studiocode.invui.window.Window;
 import org.bukkit.Bukkit;
@@ -23,7 +23,7 @@ public abstract class BaseAnimation implements Animation {
     private final List<Runnable> finishHandlers = new ArrayList<>();
     private final int tickDelay;
     
-    private GUI gui;
+    private Gui gui;
     private int width;
     private int height;
     
@@ -40,7 +40,7 @@ public abstract class BaseAnimation implements Animation {
     }
     
     @Override
-    public void setGUI(GUI gui) {
+    public void setGui(Gui gui) {
         this.gui = gui;
         this.width = gui.getWidth();
         this.height = gui.getHeight();

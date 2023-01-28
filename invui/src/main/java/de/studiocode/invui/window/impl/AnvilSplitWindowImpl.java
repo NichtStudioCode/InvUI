@@ -3,7 +3,7 @@ package de.studiocode.invui.window.impl;
 import de.studiocode.inventoryaccess.InventoryAccess;
 import de.studiocode.inventoryaccess.abstraction.inventory.AnvilInventory;
 import de.studiocode.inventoryaccess.component.ComponentWrapper;
-import de.studiocode.invui.gui.AbstractGUI;
+import de.studiocode.invui.gui.AbstractGui;
 import de.studiocode.invui.window.AbstractSplitWindow;
 import de.studiocode.invui.window.AnvilWindow;
 import org.bukkit.entity.Player;
@@ -15,7 +15,7 @@ public final class AnvilSplitWindowImpl extends AbstractSplitWindow implements A
     
     private final AnvilInventory anvilInventory;
     
-    public AnvilSplitWindowImpl(Player player, ComponentWrapper title, AbstractGUI upperGui, AbstractGUI lowerGui, Consumer<String> renameHandler, boolean closeable, boolean retain) {
+    public AnvilSplitWindowImpl(Player player, ComponentWrapper title, AbstractGui upperGui, AbstractGui lowerGui, Consumer<String> renameHandler, boolean closeable, boolean retain) {
         super(player, title, upperGui, lowerGui, null, false, closeable, retain);
         
         anvilInventory = InventoryAccess.createAnvilInventory(player, title, renameHandler);

@@ -1,6 +1,6 @@
 package de.studiocode.invui.gui.structure;
 
-import de.studiocode.invui.gui.GUI;
+import de.studiocode.invui.gui.Gui;
 import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.gui.SlotElement.ItemSlotElement;
 import de.studiocode.invui.item.Item;
@@ -17,9 +17,9 @@ import java.util.HashMap;
 import java.util.function.Supplier;
 
 /**
- * Provides an easy way to design {@link GUI}s.
+ * Provides an easy way to design {@link Gui}s.
  * Inspired by Bukkit's {@link ShapedRecipe}, {@link Structure Structures} will let you
- * design a {@link GUI} in a similar way.
+ * design a {@link Gui} in a similar way.
  */
 public class Structure implements Cloneable {
     

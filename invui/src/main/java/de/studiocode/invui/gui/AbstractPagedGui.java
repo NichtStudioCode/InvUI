@@ -1,8 +1,8 @@
 package de.studiocode.invui.gui;
 
-import de.studiocode.invui.gui.builder.GUIBuilder;
-import de.studiocode.invui.gui.impl.PageNestedGUIImpl;
-import de.studiocode.invui.gui.impl.PagedItemsGUIImpl;
+import de.studiocode.invui.gui.builder.GuiBuilder;
+import de.studiocode.invui.gui.impl.PagedNestedGuiImpl;
+import de.studiocode.invui.gui.impl.PagedItemsGuiImpl;
 import de.studiocode.invui.gui.structure.Structure;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -12,13 +12,13 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 /**
- * A {@link GUI} with pages.
+ * A {@link Gui} with pages.
  *
- * @see GUIBuilder
- * @see PagedItemsGUIImpl
- * @see PageNestedGUIImpl
+ * @see GuiBuilder
+ * @see PagedItemsGuiImpl
+ * @see PagedNestedGuiImpl
  */
-public abstract class AbstractPagedGUI<C> extends AbstractGUI implements PagedGUI<C> {
+public abstract class AbstractPagedGui<C> extends AbstractGui implements PagedGui<C> {
     
     private final boolean infinitePages;
     private final int[] contentListSlots;
@@ -26,13 +26,13 @@ public abstract class AbstractPagedGUI<C> extends AbstractGUI implements PagedGU
     
     private List<BiConsumer<Integer, Integer>> pageChangeHandlers;
     
-    public AbstractPagedGUI(int width, int height, boolean infinitePages, int... contentListSlots) {
+    public AbstractPagedGui(int width, int height, boolean infinitePages, int... contentListSlots) {
         super(width, height);
         this.infinitePages = infinitePages;
         this.contentListSlots = contentListSlots;
     }
     
-    public AbstractPagedGUI(int width, int height, boolean infinitePages, Structure structure) {
+    public AbstractPagedGui(int width, int height, boolean infinitePages, Structure structure) {
         this(width, height, infinitePages, structure.getIngredientList().findContentListSlots());
         applyStructure(structure);
     }
@@ -124,7 +124,7 @@ public abstract class AbstractPagedGUI<C> extends AbstractGUI implements PagedGU
     }
     
     @Override
-    public void setPageChangeHandlers(@Nullable List<BiConsumer<Integer, Integer>> handlers) {
+    public void setPageChangeHandlers(@Nullable List<@NotNull BiConsumer<Integer, Integer>> handlers) {
         this.pageChangeHandlers = handlers;
     }
     

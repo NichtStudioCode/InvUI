@@ -1,8 +1,8 @@
 package de.studiocode.invui.window;
 
 import de.studiocode.inventoryaccess.component.ComponentWrapper;
-import de.studiocode.invui.gui.AbstractGUI;
-import de.studiocode.invui.gui.GUI;
+import de.studiocode.invui.gui.AbstractGui;
+import de.studiocode.invui.gui.Gui;
 import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.util.InventoryUtils;
 import de.studiocode.invui.util.Pair;
@@ -19,11 +19,11 @@ import java.util.UUID;
  */
 public abstract class AbstractSingleWindow extends AbstractWindow {
     
-    private final AbstractGUI gui;
+    private final AbstractGui gui;
     private final int size;
     protected Inventory inventory;
     
-    public AbstractSingleWindow(UUID viewerUUID, ComponentWrapper title, AbstractGUI gui, Inventory inventory, boolean initItems, boolean closeable, boolean retain) {
+    public AbstractSingleWindow(UUID viewerUUID, ComponentWrapper title, AbstractGui gui, Inventory inventory, boolean initItems, boolean closeable, boolean retain) {
         super(viewerUUID, title, gui.getSize(), closeable, retain);
         this.gui = gui;
         this.size = gui.getSize();
@@ -56,7 +56,7 @@ public abstract class AbstractSingleWindow extends AbstractWindow {
     }
     
     @Override
-    public void handleSlotElementUpdate(GUI child, int slotIndex) {
+    public void handleSlotElementUpdate(Gui child, int slotIndex) {
         redrawItem(slotIndex, gui.getSlotElement(slotIndex), true);
     }
     
@@ -78,7 +78,7 @@ public abstract class AbstractSingleWindow extends AbstractWindow {
     }
     
     @Override
-    protected Pair<AbstractGUI, Integer> getGUIAt(int index) {
+    protected Pair<AbstractGui, Integer> getGuiAt(int index) {
         return index < gui.getSize() ? new Pair<>(gui, index) : null;
     }
     
@@ -98,11 +98,11 @@ public abstract class AbstractSingleWindow extends AbstractWindow {
     }
     
     @Override
-    public AbstractGUI[] getGUIs() {
-        return new AbstractGUI[] {gui};
+    public AbstractGui[] getGuis() {
+        return new AbstractGui[] {gui};
     }
     
-    public AbstractGUI getGUI() {
+    public AbstractGui getGui() {
         return gui;
     }
     

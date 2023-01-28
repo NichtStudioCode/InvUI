@@ -90,23 +90,23 @@ public interface SlotElement {
     }
     
     /**
-     * Links to a slot in another {@link GUI}
+     * Links to a slot in another {@link Gui}
      */
     class LinkedSlotElement implements SlotElement {
         
-        private final GUI gui;
+        private final Gui gui;
         
         private final int slot;
         
-        public LinkedSlotElement(GUI gui, int slot) {
-            if (!(gui instanceof AbstractGUI))
-                throw new IllegalArgumentException("Illegal GUI implementation");
+        public LinkedSlotElement(Gui gui, int slot) {
+            if (!(gui instanceof AbstractGui))
+                throw new IllegalArgumentException("Illegal Gui implementation");
             
             this.gui = gui;
             this.slot = slot;
         }
         
-        public GUI getGUI() {
+        public Gui getGui() {
             return gui;
         }
         
@@ -118,18 +118,18 @@ public interface SlotElement {
         public SlotElement getHoldingElement() {
             LinkedSlotElement element = this;
             while (true) {
-                SlotElement below = element.getGUI().getSlotElement(element.getSlotIndex());
+                SlotElement below = element.getGui().getSlotElement(element.getSlotIndex());
                 if (below instanceof LinkedSlotElement) element = (LinkedSlotElement) below;
                 else return below;
             }
         }
         
-        public List<GUI> getGUIList() {
-            ArrayList<GUI> guis = new ArrayList<>();
+        public List<Gui> getGuiList() {
+            ArrayList<Gui> guis = new ArrayList<>();
             LinkedSlotElement element = this;
             while (true) {
-                guis.add(element.getGUI());
-                SlotElement below = element.getGUI().getSlotElement(element.getSlotIndex());
+                guis.add(element.getGui());
+                SlotElement below = element.getGui().getSlotElement(element.getSlotIndex());
                 if (below instanceof LinkedSlotElement)
                     element = (LinkedSlotElement) below;
                 else break;

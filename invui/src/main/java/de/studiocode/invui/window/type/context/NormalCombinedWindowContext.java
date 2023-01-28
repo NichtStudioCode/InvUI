@@ -1,7 +1,7 @@
 package de.studiocode.invui.window.type.context;
 
-import de.studiocode.invui.gui.GUI;
-import de.studiocode.invui.gui.builder.GUIBuilder;
+import de.studiocode.invui.gui.Gui;
+import de.studiocode.invui.gui.builder.GuiBuilder;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -10,21 +10,21 @@ import java.util.function.Supplier;
 
 public final class NormalCombinedWindowContext extends AbstractWindowContext<Player> {
     
-    private Supplier<GUI> guiSupplier;
+    private Supplier<Gui> guiSupplier;
     
-    public @Nullable GUI getGUI() {
+    public @Nullable Gui getGui() {
         return guiSupplier.get();
     }
     
-    public void setGUI(@NotNull Supplier<GUI> guiSupplier) {
+    public void setGui(@NotNull Supplier<Gui> guiSupplier) {
         this.guiSupplier = guiSupplier;
     }
     
-    public void setGUI(@NotNull GUI gui) {
+    public void setGui(@NotNull Gui gui) {
         this.guiSupplier = () -> gui;
     }
     
-    public void setGUI(@NotNull GUIBuilder<?, ?> builder) {
+    public void setGui(@NotNull GuiBuilder<?, ?> builder) {
         this.guiSupplier = builder::build;
     }
     

@@ -1,15 +1,15 @@
 package de.studiocode.invui.gui.builder.guitype;
 
-import de.studiocode.invui.gui.PagedGUI;
-import de.studiocode.invui.gui.builder.GUIContext;
-import de.studiocode.invui.gui.impl.PagedItemsGUIImpl;
+import de.studiocode.invui.gui.PagedGui;
+import de.studiocode.invui.gui.builder.GuiContext;
+import de.studiocode.invui.gui.impl.PagedItemsGuiImpl;
 import de.studiocode.invui.item.Item;
 
-class PagedItemsGUIType implements GUIType<PagedGUI<Item>, Item> {
+class PagedItemsGuiType implements GuiType<PagedGui<Item>, Item> {
     
     @Override
-    public PagedItemsGUIImpl createGUI(GUIContext<Item> context) {
-        PagedItemsGUIImpl gui = new PagedItemsGUIImpl(context.getContent(), context.getStructure());
+    public PagedItemsGuiImpl createGui(GuiContext<Item> context) {
+        PagedItemsGuiImpl gui = new PagedItemsGuiImpl(context.getContent(), context.getStructure());
         gui.setBackground(context.getBackground());
         return gui;
     }

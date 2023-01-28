@@ -1,7 +1,8 @@
 package de.studiocode.invui.gui.impl;
 
-import de.studiocode.invui.gui.AbstractScrollGUI;
-import de.studiocode.invui.gui.GUI;
+import de.studiocode.invui.gui.AbstractScrollGui;
+import de.studiocode.invui.gui.Gui;
+import de.studiocode.invui.gui.ScrollGui;
 import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.gui.structure.Structure;
 import org.jetbrains.annotations.NotNull;
@@ -10,23 +11,42 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class ScrollNestedGUIImpl extends AbstractScrollGUI<GUI> {
+@SuppressWarnings("DeprecatedIsStillUsed")
+public final class ScrollNestedGuiImpl extends AbstractScrollGui<Gui> {
     
-    private List<GUI> guis;
+    private List<Gui> guis;
     private List<SlotElement.LinkedSlotElement> elements;
     
-    public ScrollNestedGUIImpl(int width, int height, @Nullable List<GUI> guis, int... contentListSlots) {
+    /**
+     * Creates a new {@link ScrollNestedGuiImpl}.
+     *
+     * @param width            The width of this Gui.
+     * @param height           The height of this Gui.
+     * @param guis             The {@link Gui Guis} to use.
+     * @param contentListSlots The slots where content should be displayed.
+     * @deprecated Use {@link ScrollGui#ofGuis(int, int, List, int...)} instead.
+     */
+    @Deprecated
+    public ScrollNestedGuiImpl(int width, int height, @Nullable List<Gui> guis, int... contentListSlots) {
         super(width, height, false, contentListSlots);
         setContent(guis);
     }
     
-    public ScrollNestedGUIImpl(@Nullable List<GUI> guis, @NotNull Structure structure) {
+    /**
+     * Creates a new {@link ScrollNestedGuiImpl}.
+     *
+     * @param guis      The {@link Gui Guis} to use.
+     * @param structure The {@link Structure} to use.
+     * @deprecated Use {@link ScrollGui#ofGuis(Structure, List)} instead.
+     */
+    @Deprecated
+    public ScrollNestedGuiImpl(@Nullable List<Gui> guis, @NotNull Structure structure) {
         super(structure.getWidth(), structure.getHeight(), false, structure);
         setContent(guis);
     }
     
     @Override
-    public void setContent(@Nullable List<GUI> guis) {
+    public void setContent(@NotNull List<Gui> guis) {
         this.guis = guis != null ? guis : new ArrayList<>();
         updateElements();
         update();
@@ -34,7 +54,7 @@ public final class ScrollNestedGUIImpl extends AbstractScrollGUI<GUI> {
     
     private void updateElements() {
         elements = new ArrayList<>();
-        for (GUI gui : guis) {
+        for (Gui gui : guis) {
             for (int i = 0; i < gui.getSize(); i++) {
                 elements.add(new SlotElement.LinkedSlotElement(gui, i));
             }

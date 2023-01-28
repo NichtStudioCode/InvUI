@@ -1,6 +1,6 @@
 package de.studiocode.invui.animation;
 
-import de.studiocode.invui.gui.GUI;
+import de.studiocode.invui.gui.Gui;
 import de.studiocode.invui.window.Window;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,11 +10,11 @@ import java.util.function.BiConsumer;
 public interface Animation {
     
     /**
-     * Sets the {@link GUI} this {@link Animation} will take place in.
+     * Sets the {@link Gui} this {@link Animation} will take place in.
      *
-     * @param gui The {@link GUI} this {@link Animation} will take place in
+     * @param gui The {@link Gui} this {@link Animation} will take place in
      */
-    void setGUI(GUI gui);
+    void setGui(Gui gui);
     
     /**
      * Sets the {@link Window}s that will see this animation.

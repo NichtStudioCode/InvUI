@@ -1,6 +1,6 @@
 package de.studiocode.invui.window.type;
 
-import de.studiocode.invui.gui.AbstractGUI;
+import de.studiocode.invui.gui.AbstractGui;
 import de.studiocode.invui.window.AnvilWindow;
 import de.studiocode.invui.window.CartographyWindow;
 import de.studiocode.invui.window.Window;
@@ -24,7 +24,7 @@ public interface WindowType<W extends Window, C extends WindowContext> {
             return new NormalSingleWindowImpl(
                 context.getViewer(),
                 context.getTitle(),
-                (AbstractGUI) context.getGUI(),
+                (AbstractGui) context.getGui(),
                 context.isCloseable(),
                 context.isRetain()
             );
@@ -44,7 +44,7 @@ public interface WindowType<W extends Window, C extends WindowContext> {
             return new NormalMergedWindowImpl(
                 context.getViewer(),
                 context.getTitle(),
-                (AbstractGUI) context.getGUI(),
+                (AbstractGui) context.getGui(),
                 context.isCloseable(),
                 context.isRetain()
             );
@@ -64,8 +64,8 @@ public interface WindowType<W extends Window, C extends WindowContext> {
             return new NormalSplitWindowImpl(
                 context.getViewer(),
                 context.getTitle(),
-                (AbstractGUI) context.getUpperGUI(),
-                (AbstractGUI) context.getLowerGUI(),
+                (AbstractGui) context.getUpperGui(),
+                (AbstractGui) context.getLowerGui(),
                 context.isCloseable(),
                 context.isRetain()
             );
@@ -85,7 +85,7 @@ public interface WindowType<W extends Window, C extends WindowContext> {
             return new AnvilSingleWindowImpl(
                 context.getViewer(),
                 context.getTitle(),
-                (AbstractGUI) context.getGUI(),
+                (AbstractGui) context.getGui(),
                 context.getRenameHandler(),
                 context.isCloseable(),
                 context.isRetain()
@@ -106,8 +106,8 @@ public interface WindowType<W extends Window, C extends WindowContext> {
             return new AnvilSplitWindowImpl(
                 context.getViewer(),
                 context.getTitle(),
-                (AbstractGUI) context.getUpperGUI(),
-                (AbstractGUI) context.getLowerGUI(),
+                (AbstractGui) context.getUpperGui(),
+                (AbstractGui) context.getLowerGui(),
                 context.getRenameHandler(),
                 context.isCloseable(),
                 context.isRetain()
@@ -128,7 +128,7 @@ public interface WindowType<W extends Window, C extends WindowContext> {
             return new CartographySingleWindowImpl(
                 context.getViewer(),
                 context.getTitle(),
-                (AbstractGUI) context.getGUI(),
+                (AbstractGui) context.getGui(),
                 context.isCloseable(),
                 context.isRetain()
             );
@@ -148,8 +148,8 @@ public interface WindowType<W extends Window, C extends WindowContext> {
             return new CartographySplitWindowImpl(
                 context.getViewer(),
                 context.getTitle(),
-                (AbstractGUI) context.getUpperGUI(),
-                (AbstractGUI) context.getLowerGUI(),
+                (AbstractGui) context.getUpperGui(),
+                (AbstractGui) context.getLowerGui(),
                 context.isCloseable(),
                 context.isRetain()
             );

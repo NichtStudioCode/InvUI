@@ -1,19 +1,19 @@
 package de.studiocode.invui.gui;
 
-import de.studiocode.invui.gui.impl.ScrollItemsGUIImpl;
-import de.studiocode.invui.gui.impl.ScrollNestedGUIImpl;
+import de.studiocode.invui.gui.impl.ScrollItemsGuiImpl;
+import de.studiocode.invui.gui.impl.ScrollNestedGuiImpl;
 import de.studiocode.invui.gui.structure.Structure;
 import de.studiocode.invui.util.SlotUtils;
 
 import java.util.List;
 
 /**
- * A scrollable {@link GUI}
+ * A scrollable {@link Gui}
  *
- * @see ScrollItemsGUIImpl
- * @see ScrollNestedGUIImpl
+ * @see ScrollItemsGuiImpl
+ * @see ScrollNestedGuiImpl
  */
-public abstract class AbstractScrollGUI<C> extends AbstractGUI implements ScrollGUI<C> {
+public abstract class AbstractScrollGui<C> extends AbstractGui implements ScrollGui<C> {
     
     private final boolean infiniteLines;
     private final int lineLength;
@@ -22,7 +22,7 @@ public abstract class AbstractScrollGUI<C> extends AbstractGUI implements Scroll
     
     protected int offset;
     
-    public AbstractScrollGUI(int width, int height, boolean infiniteLines, int... contentListSlots) {
+    public AbstractScrollGui(int width, int height, boolean infiniteLines, int... contentListSlots) {
         super(width, height);
         this.infiniteLines = infiniteLines;
         this.contentListSlots = contentListSlots;
@@ -37,7 +37,7 @@ public abstract class AbstractScrollGUI<C> extends AbstractGUI implements Scroll
             throw new IllegalArgumentException("contentListSlots has to be a multiple of lineLength");
     }
     
-    public AbstractScrollGUI(int width, int height, boolean infiniteLines, Structure structure) {
+    public AbstractScrollGui(int width, int height, boolean infiniteLines, Structure structure) {
         this(width, height, infiniteLines, structure.getIngredientList().findContentListSlots());
         applyStructure(structure);
     }

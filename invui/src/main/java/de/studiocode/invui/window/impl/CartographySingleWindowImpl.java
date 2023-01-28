@@ -5,7 +5,7 @@ import de.studiocode.inventoryaccess.abstraction.inventory.CartographyInventory;
 import de.studiocode.inventoryaccess.component.ComponentWrapper;
 import de.studiocode.inventoryaccess.map.MapIcon;
 import de.studiocode.inventoryaccess.map.MapPatch;
-import de.studiocode.invui.gui.AbstractGUI;
+import de.studiocode.invui.gui.AbstractGui;
 import de.studiocode.invui.util.MathUtils;
 import de.studiocode.invui.window.AbstractSingleWindow;
 import de.studiocode.invui.window.CartographyWindow;
@@ -24,9 +24,9 @@ public final class CartographySingleWindowImpl extends AbstractSingleWindow impl
     private final CartographyInventory cartographyInventory;
     private int mapId;
     
-    public CartographySingleWindowImpl(Player player, ComponentWrapper title, AbstractGUI gui, boolean closeable, boolean retain) {
+    public CartographySingleWindowImpl(Player player, ComponentWrapper title, AbstractGui gui, boolean closeable, boolean retain) {
         super(player.getUniqueId(), title, gui, null, false, closeable, retain);
-        if (gui.getWidth() != 2 || gui.getHeight() != 1) throw new IllegalArgumentException("GUI has to be 2x1");
+        if (gui.getWidth() != 2 || gui.getHeight() != 1) throw new IllegalArgumentException("Gui has to be 2x1");
         
         cartographyInventory = InventoryAccess.createCartographyInventory(player, title);
         inventory = cartographyInventory.getBukkitInventory();
@@ -60,7 +60,7 @@ public final class CartographySingleWindowImpl extends AbstractSingleWindow impl
     @Override
     public void handleClick(InventoryClickEvent event) {
         if (event.getSlot() != 0) {
-            getGUI().handleClick(event.getSlot() - 1, (Player) event.getWhoClicked(), event.getClick(), event);
+            getGui().handleClick(event.getSlot() - 1, (Player) event.getWhoClicked(), event.getClick(), event);
         } else {
             event.setCancelled(true);
         }

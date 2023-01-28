@@ -1,15 +1,15 @@
 package de.studiocode.invui.gui.builder.guitype;
 
-import de.studiocode.invui.gui.GUI;
-import de.studiocode.invui.gui.TabGUI;
-import de.studiocode.invui.gui.builder.GUIContext;
-import de.studiocode.invui.gui.impl.TabGUIImpl;
+import de.studiocode.invui.gui.Gui;
+import de.studiocode.invui.gui.TabGui;
+import de.studiocode.invui.gui.builder.GuiContext;
+import de.studiocode.invui.gui.impl.TabGuiImpl;
 
-class TabGUIType implements GUIType<TabGUI, GUI> {
+class TabGuiType implements GuiType<TabGui, Gui> {
     
     @Override
-    public TabGUIImpl createGUI(GUIContext<GUI> context) {
-        TabGUIImpl gui = new TabGUIImpl(context.getContent(), context.getStructure());
+    public TabGuiImpl createGui(GuiContext<Gui> context) {
+        TabGuiImpl gui = new TabGuiImpl(context.getContent(), context.getStructure());
         gui.setBackground(context.getBackground());
         return gui;
     }

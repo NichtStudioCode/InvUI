@@ -1,6 +1,6 @@
 package de.studiocode.invui.virtualinventory;
 
-import de.studiocode.invui.gui.GUI;
+import de.studiocode.invui.gui.Gui;
 import de.studiocode.invui.util.InventoryUtils;
 import de.studiocode.invui.util.ArrayUtils;
 import de.studiocode.invui.virtualinventory.event.InventoryUpdatedEvent;
@@ -144,7 +144,7 @@ public class VirtualInventory {
     }
     
     /**
-     * Gets the priority for shift-clicking {@link ItemStack ItemStacks} into a {@link GUI}
+     * Gets the priority for shift-clicking {@link ItemStack ItemStacks} into a {@link Gui}
      *
      * @return The priority for shift-clicking, {@link VirtualInventory VirtualInventories} with
      * a higher priority get prioritized.
@@ -154,7 +154,7 @@ public class VirtualInventory {
     }
     
     /**
-     * Sets the priority for shift-clicking {@link ItemStack ItemStacks} into a {@link GUI}
+     * Sets the priority for shift-clicking {@link ItemStack ItemStacks} into a {@link Gui}
      * with multiple {@link VirtualInventory}.
      * Not serialized with {@link VirtualInventoryManager#serializeInventory(VirtualInventory, OutputStream)}.
      *

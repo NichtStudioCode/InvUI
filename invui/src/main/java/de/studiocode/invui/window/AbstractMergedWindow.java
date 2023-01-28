@@ -1,8 +1,8 @@
 package de.studiocode.invui.window;
 
 import de.studiocode.inventoryaccess.component.ComponentWrapper;
-import de.studiocode.invui.gui.AbstractGUI;
-import de.studiocode.invui.gui.GUI;
+import de.studiocode.invui.gui.AbstractGui;
+import de.studiocode.invui.gui.Gui;
 import de.studiocode.invui.gui.SlotElement;
 import de.studiocode.invui.util.Pair;
 import de.studiocode.invui.util.SlotUtils;
@@ -11,13 +11,13 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 
 /**
- * A {@link Window} where top and player {@link Inventory} are affected by the same {@link GUI}.
+ * A {@link Window} where top and player {@link Inventory} are affected by the same {@link Gui}.
  */
 public abstract class AbstractMergedWindow extends AbstractDoubleWindow {
     
-    private final AbstractGUI gui;
+    private final AbstractGui gui;
     
-    public AbstractMergedWindow(Player player, ComponentWrapper title, AbstractGUI gui, Inventory upperInventory, boolean closeable, boolean retain) {
+    public AbstractMergedWindow(Player player, ComponentWrapper title, AbstractGui gui, Inventory upperInventory, boolean closeable, boolean retain) {
         super(player, title, gui.getSize(), upperInventory, closeable, retain);
         this.gui = gui;
         
@@ -26,7 +26,7 @@ public abstract class AbstractMergedWindow extends AbstractDoubleWindow {
     }
     
     @Override
-    public void handleSlotElementUpdate(GUI child, int slotIndex) {
+    public void handleSlotElementUpdate(Gui child, int slotIndex) {
         redrawItem(slotIndex, gui.getSlotElement(slotIndex), true);
     }
     
@@ -36,7 +36,7 @@ public abstract class AbstractMergedWindow extends AbstractDoubleWindow {
     }
     
     @Override
-    protected Pair<AbstractGUI, Integer> getWhereClicked(InventoryClickEvent event) {
+    protected Pair<AbstractGui, Integer> getWhereClicked(InventoryClickEvent event) {
         Inventory clicked = event.getClickedInventory();
         int slot = event.getSlot();
         int clickedIndex = clicked == getUpperInventory() ? slot
@@ -45,13 +45,13 @@ public abstract class AbstractMergedWindow extends AbstractDoubleWindow {
     }
     
     @Override
-    protected Pair<AbstractGUI, Integer> getGUIAt(int index) {
+    protected Pair<AbstractGui, Integer> getGuiAt(int index) {
         return index < gui.getSize() ? new Pair<>(gui, index) : null;
     }
     
     @Override
-    public AbstractGUI[] getGUIs() {
-        return new AbstractGUI[] {gui};
+    public AbstractGui[] getGuis() {
+        return new AbstractGui[] {gui};
     }
     
 }

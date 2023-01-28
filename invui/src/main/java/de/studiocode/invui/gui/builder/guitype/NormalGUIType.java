@@ -1,14 +1,14 @@
 package de.studiocode.invui.gui.builder.guitype;
 
-import de.studiocode.invui.gui.GUI;
-import de.studiocode.invui.gui.builder.GUIContext;
-import de.studiocode.invui.gui.impl.NormalGUIImpl;
+import de.studiocode.invui.gui.Gui;
+import de.studiocode.invui.gui.builder.GuiContext;
+import de.studiocode.invui.gui.impl.NormalGuiImpl;
 
-class NormalGUIType implements GUIType<GUI, Void> {
+class NormalGuiType implements GuiType<Gui, Void> {
     
     @Override
-    public NormalGUIImpl createGUI(GUIContext<Void> context) {
-        NormalGUIImpl gui = new NormalGUIImpl(context.getStructure());
+    public NormalGuiImpl createGui(GuiContext<Void> context) {
+        NormalGuiImpl gui = new NormalGuiImpl(context.getStructure());
         gui.setBackground(context.getBackground());
         return gui;
     }
