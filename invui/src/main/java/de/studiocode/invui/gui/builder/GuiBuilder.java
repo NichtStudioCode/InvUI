@@ -7,6 +7,7 @@ import de.studiocode.invui.gui.structure.Marker;
 import de.studiocode.invui.gui.structure.Structure;
 import de.studiocode.invui.item.Item;
 import de.studiocode.invui.item.ItemProvider;
+import de.studiocode.invui.item.ItemWrapper;
 import de.studiocode.invui.virtualinventory.VirtualInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
@@ -89,6 +90,16 @@ public class GuiBuilder<G extends Gui, C> {
     
     public GuiBuilder<G, C> addIngredientElementSupplier(char key, @NotNull Supplier<? extends SlotElement> elementSupplier) {
         context.getStructure().addIngredientElementSupplier(key, elementSupplier);
+        return this;
+    }
+    
+    public GuiBuilder<G, C> setBackground(@NotNull ItemProvider itemProvider) {
+        context.setBackground(itemProvider);
+        return this;
+    }
+    
+    public GuiBuilder<G, C> setBackground(@NotNull ItemStack itemStack) {
+        context.setBackground(new ItemWrapper(itemStack));
         return this;
     }
     
