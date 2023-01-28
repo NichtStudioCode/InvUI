@@ -65,7 +65,9 @@ public class ReflectionUtils {
     
     public static <T> Constructor<T> getConstructor(Class<T> clazz, boolean declared, Class<?>... parameterTypes) {
         try {
-            return declared ? clazz.getDeclaredConstructor(parameterTypes) : clazz.getConstructor(parameterTypes);
+            Constructor<T> constructor = declared ? clazz.getDeclaredConstructor(parameterTypes) : clazz.getConstructor(parameterTypes);
+            if (declared) constructor.setAccessible(true);
+            return constructor;
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
@@ -75,7 +77,7 @@ public class ReflectionUtils {
     
     public static <T> T constructEmpty(Class<?> clazz) {
         try {
-            return (T) clazz.getConstructor().newInstance();
+            return (T) getConstructor(clazz, true).newInstance();
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
