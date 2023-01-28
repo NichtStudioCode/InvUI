@@ -12,10 +12,10 @@ public interface GuiType<G extends Gui, C> {
     
     GuiType<Gui, Void> NORMAL = new NormalGuiType();
     GuiType<PagedGui<Item>, Item> PAGED_ITEMS = new PagedItemsGuiType();
-    GuiType<PagedGui<Gui>, Gui> PAGED_Guis = new PagedGuisGuiType();
+    GuiType<PagedGui<Gui>, Gui> PAGED_GUIS = new PagedGuisGuiType();
     GuiType<TabGui, Gui> TAB = new TabGuiType();
     GuiType<ScrollGui<Item>, Item> SCROLL_ITEMS = new ScrollItemsGuiType();
-    GuiType<ScrollGui<Gui>, Gui> SCROLL_GuiS = new ScrollGuisGuiType();
+    GuiType<ScrollGui<Gui>, Gui> SCROLL_GUIS = new ScrollGuisGuiType();
     GuiType<ScrollGui<VirtualInventory>, VirtualInventory> SCROLL_INVENTORY = new ScrollVIGuiType();
     
     /**
