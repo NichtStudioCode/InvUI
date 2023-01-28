@@ -6,7 +6,7 @@ import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
-import xyz.xenondevs.invui.window.type.WindowType;
+import xyz.xenondevs.invui.window.builder.WindowType;
 
 import java.util.UUID;
 

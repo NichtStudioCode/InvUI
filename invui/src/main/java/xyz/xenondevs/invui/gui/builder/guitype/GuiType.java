@@ -1,9 +1,11 @@
 package xyz.xenondevs.invui.gui.builder.guitype;
 
+import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.PagedGui;
 import xyz.xenondevs.invui.gui.ScrollGui;
 import xyz.xenondevs.invui.gui.TabGui;
+import xyz.xenondevs.invui.gui.builder.GuiBuilder;
 import xyz.xenondevs.invui.gui.builder.GuiContext;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.virtualinventory.VirtualInventory;
@@ -19,11 +21,20 @@ public interface GuiType<G extends Gui, C> {
     GuiType<ScrollGui<VirtualInventory>, VirtualInventory> SCROLL_INVENTORY = new ScrollVIGuiType();
     
     /**
-     * Creates a {@link Gui} of type {@link G} with the given {@link GuiContext}
+     * Creates a {@link Gui} of type {@link G} with the given {@link GuiContext}.
      *
-     * @param context The {@link GuiContext} to create the {@link G} from.
-     * @return The created {@link G}
+     * @param context The {@link GuiContext} to create the {@link Gui} from.
+     * @return The created {@link Gui}
      */
-    G createGui(GuiContext<C> context);
+    @NotNull G createGui(@NotNull GuiContext<C> context);
+    
+    /**
+     * Creates a new {@link GuiBuilder} for this {@link GuiType}.
+     *
+     * @return The created {@link GuiBuilder}.
+     */
+    default @NotNull GuiBuilder<G, C> builder() {
+        return new GuiBuilder<>(this);
+    }
     
 }

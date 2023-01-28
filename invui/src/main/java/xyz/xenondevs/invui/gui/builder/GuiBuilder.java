@@ -116,7 +116,7 @@ public class GuiBuilder<G extends Gui, C> {
         return this;
     }
     
-    public G build() {
+    public @NotNull G build() {
         if (context.getStructure() == null)
             throw new IllegalStateException("GuiContext has not been set yet.");
         
