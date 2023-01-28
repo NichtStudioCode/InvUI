@@ -506,7 +506,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
     
     @Override
     @Nullable
-    public SlotElement @NotNull[] getSlotElements() {
+    public SlotElement @NotNull [] getSlotElements() {
         return slotElements.clone();
     }
     
@@ -533,7 +533,8 @@ public abstract class AbstractGui implements Gui, GuiParent {
             return ((SlotElement.ItemSlotElement) slotElement).getItem();
         } else if (slotElement instanceof SlotElement.LinkedSlotElement) {
             SlotElement holdingElement = slotElement.getHoldingElement();
-            if (holdingElement instanceof SlotElement.ItemSlotElement) return ((SlotElement.ItemSlotElement) holdingElement).getItem();
+            if (holdingElement instanceof SlotElement.ItemSlotElement)
+                return ((SlotElement.ItemSlotElement) holdingElement).getItem();
         }
         
         return null;

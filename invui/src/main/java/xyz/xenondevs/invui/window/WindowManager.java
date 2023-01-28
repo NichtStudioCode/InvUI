@@ -52,7 +52,7 @@ public class WindowManager implements Listener {
     public void addWindow(Window window) {
         if (!(window instanceof AbstractWindow))
             throw new IllegalArgumentException("Illegal window implementation");
-            
+        
         AbstractWindow abstractWindow = (AbstractWindow) window;
         windows.put(abstractWindow.getInventories()[0], abstractWindow);
     }

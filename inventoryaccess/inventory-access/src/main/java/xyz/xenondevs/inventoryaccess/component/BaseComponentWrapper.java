@@ -15,5 +15,5 @@ public class BaseComponentWrapper implements ComponentWrapper {
     public String serializeToJson() {
         return ComponentSerializer.toString(components);
     }
-
+    
 }

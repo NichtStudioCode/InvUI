@@ -27,10 +27,10 @@ public final class PagedNestedGuiImpl extends AbstractPagedGui<Gui> {
     
     /**
      * Creates a new {@link PagedNestedGuiImpl}.
-     * 
-     * @param width The width of this Gui.
-     * @param height The height of this Gui.
-     * @param guis The {@link Gui Guis} to use as pages.
+     *
+     * @param width            The width of this Gui.
+     * @param height           The height of this Gui.
+     * @param guis             The {@link Gui Guis} to use as pages.
      * @param contentListSlots The slots where content should be displayed.
      * @deprecated Use {@link PagedGui#ofGuis(int, int, List, int...)} instead.
      */

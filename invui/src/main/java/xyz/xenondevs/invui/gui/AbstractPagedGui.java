@@ -55,10 +55,10 @@ public abstract class AbstractPagedGui<C> extends AbstractGui implements PagedGu
         currentPage = page;
         update();
         if (previous != currentPage) {
-            pageChangeHandlers.forEach(handler -> handler.accept(previous,  page));
+            pageChangeHandlers.forEach(handler -> handler.accept(previous, page));
         }
     }
-
+    
     @Override
     public boolean hasNextPage() {
         return currentPage < getPageAmount() - 1 || infinitePages;

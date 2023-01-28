@@ -243,8 +243,8 @@ public interface Gui {
     
     /**
      * Closes the open {@link Inventory} for all viewers of {@link Window Windows}
-     * where this {@link Gui} is displayed. 
-     * <p> 
+     * where this {@link Gui} is displayed.
+     * <p>
      * If the {@link Window Windows} are not marked as "retain",
      * they will be removed from the {@link WindowManager} automatically.
      */

@@ -37,7 +37,7 @@ public abstract class AbstractTabGui extends AbstractGui implements TabGui {
         int previous = currentTab;
         currentTab = tab;
         update();
-    
+        
         if (tabChangeHandlers != null) {
             tabChangeHandlers.forEach(handler -> handler.accept(previous, tab));
         }

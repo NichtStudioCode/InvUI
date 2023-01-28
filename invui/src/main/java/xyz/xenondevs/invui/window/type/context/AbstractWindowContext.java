@@ -39,7 +39,7 @@ public abstract class AbstractWindowContext<V> implements WindowContext {
         this.title = title;
     }
     
-    public void setTitle(@NotNull BaseComponent @NotNull[] title) {
+    public void setTitle(@NotNull BaseComponent @NotNull [] title) {
         this.title = new BaseComponentWrapper(title);
     }
     
