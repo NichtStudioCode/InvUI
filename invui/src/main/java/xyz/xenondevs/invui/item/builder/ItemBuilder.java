@@ -5,10 +5,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
-public final class ItemBuilder extends BaseItemBuilder<ItemBuilder> {
+public final class ItemBuilder extends AbstractItemBuilder<ItemBuilder> {
     
     /**
-     * Constructs a new {@link BaseItemBuilder} based on the given {@link Material}.
+     * Creates a new {@link ItemBuilder} based on the given {@link Material}.
      *
      * @param material The {@link Material}
      */
@@ -17,7 +17,7 @@ public final class ItemBuilder extends BaseItemBuilder<ItemBuilder> {
     }
     
     /**
-     * Constructs a new {@link BaseItemBuilder} based on the given {@link Material} and amount.
+     * Creates a new {@link ItemBuilder} based on the given {@link Material} and amount.
      *
      * @param material The {@link Material}
      * @param amount   The amount
@@ -27,7 +27,7 @@ public final class ItemBuilder extends BaseItemBuilder<ItemBuilder> {
     }
     
     /**
-     * Constructs a new {@link BaseItemBuilder} based on the give {@link ItemStack}.
+     * Constructs a new {@link ItemBuilder} based on the give {@link ItemStack}.
      * This will keep the {@link ItemStack} and uses it's {@link ItemMeta}
      *
      * @param base The {@link ItemStack to use as a base}

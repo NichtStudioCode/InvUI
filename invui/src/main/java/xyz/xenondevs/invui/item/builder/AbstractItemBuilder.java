@@ -21,7 +21,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public abstract class BaseItemBuilder<T> implements ItemProvider {
+public abstract class AbstractItemBuilder<T> implements ItemProvider {
     
     protected ItemStack base;
     protected Material material;
@@ -35,32 +35,32 @@ public abstract class BaseItemBuilder<T> implements ItemProvider {
     protected List<Function<ItemStack, ItemStack>> modifiers;
     
     /**
-     * Constructs a new {@link BaseItemBuilder} based on the given {@link Material}.
+     * Constructs a new {@link AbstractItemBuilder} based on the given {@link Material}.
      *
      * @param material The {@link Material}
      */
-    public BaseItemBuilder(@NotNull Material material) {
+    public AbstractItemBuilder(@NotNull Material material) {
         this.material = material;
     }
     
     /**
-     * Constructs a new {@link BaseItemBuilder} based on the given {@link Material} and amount.
+     * Constructs a new {@link AbstractItemBuilder} based on the given {@link Material} and amount.
      *
      * @param material The {@link Material}
      * @param amount   The amount
      */
-    public BaseItemBuilder(@NotNull Material material, int amount) {
+    public AbstractItemBuilder(@NotNull Material material, int amount) {
         this.material = material;
         this.amount = amount;
     }
     
     /**
-     * Constructs a new {@link BaseItemBuilder} based on the give {@link ItemStack}.
+     * Constructs a new {@link AbstractItemBuilder} based on the give {@link ItemStack}.
      * This will keep the {@link ItemStack} and uses it's {@link ItemMeta}
      *
      * @param base The {@link ItemStack to use as a base}
      */
-    public BaseItemBuilder(@NotNull ItemStack base) {
+    public AbstractItemBuilder(@NotNull ItemStack base) {
         this.base = base.clone();
         this.amount = base.getAmount();
     }
@@ -130,7 +130,7 @@ public abstract class BaseItemBuilder<T> implements ItemProvider {
     /**
      * Builds the {@link ItemStack} for a specific player.
      * This is the method called by {@link AbstractWindow} which gives you
-     * the option to (for example) create a subclass of {@link BaseItemBuilder} that automatically
+     * the option to (for example) create a subclass of {@link AbstractItemBuilder} that automatically
      * translates the item's name into the player's language.
      *
      * @param playerUUID The {@link UUID} of the {@link Player}
@@ -334,7 +334,7 @@ public abstract class BaseItemBuilder<T> implements ItemProvider {
     @Override
     public T clone() {
         try {
-            BaseItemBuilder<T> clone = ((BaseItemBuilder<T>) super.clone());
+            AbstractItemBuilder<T> clone = ((AbstractItemBuilder<T>) super.clone());
             if (base != null) clone.base = base.clone();
             if (lore != null) clone.lore = new ArrayList<>(lore);
             if (itemFlags != null) clone.itemFlags = new ArrayList<>(itemFlags);

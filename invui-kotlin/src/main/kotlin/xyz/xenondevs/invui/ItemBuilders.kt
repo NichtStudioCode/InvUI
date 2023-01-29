@@ -9,4 +9,4 @@ import xyz.xenondevs.invui.util.ComponentUtils
 /**
  * Sets the lore of the item stack.
  */
-fun <T> BaseItemBuilder<T>.setLore(lore: List<Array<BaseComponent>>): T = setLore(lore.map { BaseComponentWrapper(ComponentUtils.withoutPreFormatting(*it)) })
+fun <T> AbstractItemBuilder<T>.setLore(lore: List<Array<BaseComponent>>): T = setLore(lore.map { BaseComponentWrapper(ComponentUtils.withoutPreFormatting(*it)) })

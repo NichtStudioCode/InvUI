@@ -21,7 +21,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-public final class SkullBuilder extends BaseItemBuilder<SkullBuilder> {
+public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
     
     private GameProfile gameProfile;
     

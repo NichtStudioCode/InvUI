@@ -10,7 +10,7 @@ import org.bukkit.potion.PotionEffect;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class PotionBuilder extends BaseItemBuilder<PotionBuilder> {
+public final class PotionBuilder extends AbstractItemBuilder<PotionBuilder> {
     
     private List<PotionEffect> effects = new ArrayList<>();
     private Color color;
