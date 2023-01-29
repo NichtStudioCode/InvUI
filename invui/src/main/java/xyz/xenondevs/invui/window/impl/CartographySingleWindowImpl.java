@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.MapMeta;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.InventoryAccess;
 import xyz.xenondevs.inventoryaccess.abstraction.inventory.CartographyInventory;
@@ -18,13 +19,18 @@ import xyz.xenondevs.invui.window.CartographyWindow;
 
 import java.util.List;
 
-@SuppressWarnings("deprecation")
 public final class CartographySingleWindowImpl extends AbstractSingleWindow implements CartographyWindow {
     
     private final CartographyInventory cartographyInventory;
     private int mapId;
     
-    public CartographySingleWindowImpl(Player player, ComponentWrapper title, AbstractGui gui, boolean closeable, boolean retain) {
+    public CartographySingleWindowImpl(
+        @NotNull Player player,
+        @Nullable ComponentWrapper title,
+        @NotNull AbstractGui gui,
+        boolean closeable,
+        boolean retain
+    ) {
         super(player.getUniqueId(), title, gui, null, false, closeable, retain);
         if (gui.getWidth() != 2 || gui.getHeight() != 1) throw new IllegalArgumentException("Gui has to be 2x1");
         
@@ -41,7 +47,7 @@ public final class CartographySingleWindowImpl extends AbstractSingleWindow impl
         InventoryAccess.getPlayerUtils().sendMapUpdate(getViewer(), mapId, (byte) 0, false, patch, icons);
     }
     
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({"deprecation", "DuplicatedCode"})
     @Override
     public void resetMap() {
         mapId = -MathUtils.RANDOM.nextInt(Integer.MAX_VALUE);

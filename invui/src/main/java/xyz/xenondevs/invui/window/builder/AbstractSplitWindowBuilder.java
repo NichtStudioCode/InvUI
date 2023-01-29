@@ -1,5 +1,6 @@
 package xyz.xenondevs.invui.window.builder;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.builder.GuiBuilder;
@@ -12,32 +13,38 @@ public abstract class AbstractSplitWindowBuilder<W extends Window, V, S extends 
     protected Supplier<Gui> upperGuiSupplier;
     protected Supplier<Gui> lowerGuiSupplier;
     
+    @Contract("_ -> this")
     public S setUpperGui(@NotNull Supplier<Gui> guiSupplier) {
         this.upperGuiSupplier = guiSupplier;
         return getThis();
     }
     
+    @Contract("_ -> this")
     public S setUpperGui(@NotNull Gui gui) {
         this.upperGuiSupplier = () -> gui;
         return getThis();
     }
     
-    public S setUpperGui(@NotNull GuiBuilder<?, ?> builder) {
+    @Contract("_ -> this")
+    public S setUpperGui(@NotNull GuiBuilder<?> builder) {
         this.upperGuiSupplier = builder::build;
         return getThis();
     }
     
+    @Contract("_ -> this")
     public S setLowerGui(@NotNull Supplier<Gui> guiSupplier) {
         this.lowerGuiSupplier = guiSupplier;
         return getThis();
     }
     
+    @Contract("_ -> this")
     public S setLowerGui(@NotNull Gui gui) {
         this.lowerGuiSupplier = () -> gui;
         return getThis();
     }
     
-    public S setLowerGui(@NotNull GuiBuilder<?, ?> builder) {
+    @Contract("_ -> this")
+    public S setLowerGui(@NotNull GuiBuilder<?> builder) {
         this.lowerGuiSupplier = builder::build;
         return getThis();
     }

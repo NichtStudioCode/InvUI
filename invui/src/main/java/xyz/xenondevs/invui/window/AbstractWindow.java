@@ -42,7 +42,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
     private final UUID viewerUUID;
     private final boolean retain;
     private final SlotElement[] elementsDisplayed;
-    private final ArrayList<Runnable> closeHandlers = new ArrayList<>();
+    private List<Runnable> closeHandlers;
     private ComponentWrapper title;
     private boolean closeable;
     private boolean removed;
@@ -180,7 +180,10 @@ public abstract class AbstractWindow implements Window, GuiParent {
             }
             
             handleClosed();
-            closeHandlers.forEach(Runnable::run);
+            
+            if (closeHandlers != null) {
+                closeHandlers.forEach(Runnable::run);
+            }
         } else {
             if (player.equals(getViewer()))
                 Bukkit.getScheduler().runTaskLater(InvUI.getInstance().getPlugin(), this::show, 0);
@@ -275,13 +278,22 @@ public abstract class AbstractWindow implements Window, GuiParent {
     }
     
     @Override
+    public void setCloseHandlers(@NotNull List<@NotNull Runnable> closeHandlers) {
+        this.closeHandlers = closeHandlers;
+    }
+    
+    @Override
     public void addCloseHandler(@NotNull Runnable closeHandler) {
+        if (closeHandlers == null)
+            closeHandlers = new ArrayList<>();
+        
         closeHandlers.add(closeHandler);
     }
     
     @Override
     public void removeCloseHandler(@NotNull Runnable closeHandler) {
-        closeHandlers.remove(closeHandler);
+        if (closeHandlers != null)
+            closeHandlers.remove(closeHandler);
     }
     
     @Override

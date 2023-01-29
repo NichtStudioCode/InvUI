@@ -2,6 +2,8 @@ package xyz.xenondevs.invui.window.impl;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.InventoryAccess;
 import xyz.xenondevs.inventoryaccess.abstraction.inventory.AnvilInventory;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
@@ -9,15 +11,23 @@ import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.window.AbstractSingleWindow;
 import xyz.xenondevs.invui.window.AnvilWindow;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 public final class AnvilSingleWindowImpl extends AbstractSingleWindow implements AnvilWindow {
     
     private final AnvilInventory anvilInventory;
     
-    public AnvilSingleWindowImpl(Player player, ComponentWrapper title, AbstractGui gui, Consumer<String> renameHandler, boolean closable, boolean retain) {
+    public AnvilSingleWindowImpl(
+        @NotNull Player player,
+        @Nullable ComponentWrapper title,
+        @NotNull AbstractGui gui,
+        @Nullable List<@NotNull Consumer<@NotNull String>> renameHandlers,
+        boolean closable,
+        boolean retain
+    ) {
         super(player.getUniqueId(), title, gui, null, false, closable, retain);
-        anvilInventory = InventoryAccess.createAnvilInventory(player, title, renameHandler);
+        anvilInventory = InventoryAccess.createAnvilInventory(player, title, renameHandlers);
         inventory = anvilInventory.getBukkitInventory();
         
         initItems();

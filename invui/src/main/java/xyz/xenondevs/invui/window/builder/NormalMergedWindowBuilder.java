@@ -13,6 +13,11 @@ public final class NormalMergedWindowBuilder extends AbstractSingleWindowBuilder
     
     @Override
     public @NotNull Window build() {
+        if (viewer == null)
+            throw new IllegalStateException("Viewer is not defined.");
+        if (guiSupplier == null)
+            throw new IllegalStateException("Gui is not defined.");
+        
         var window = new NormalMergedWindowImpl(
             viewer,
             title,
@@ -21,7 +26,7 @@ public final class NormalMergedWindowBuilder extends AbstractSingleWindowBuilder
             retain
         );
         
-        applyChanges(window);
+        applyModifiers(window);
         
         return window;
     }
@@ -29,6 +34,11 @@ public final class NormalMergedWindowBuilder extends AbstractSingleWindowBuilder
     @Override
     protected NormalMergedWindowBuilder getThis() {
         return this;
+    }
+    
+    @Override
+    public @NotNull NormalMergedWindowBuilder clone() {
+        return (NormalMergedWindowBuilder) super.clone();
     }
     
 }

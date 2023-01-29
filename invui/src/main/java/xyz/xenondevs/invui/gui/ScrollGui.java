@@ -1,14 +1,16 @@
 package xyz.xenondevs.invui.gui;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.invui.gui.impl.ScrollItemsGuiImpl;
 import xyz.xenondevs.invui.gui.impl.ScrollNestedGuiImpl;
-import xyz.xenondevs.invui.gui.impl.ScrollVIGuiImpl;
+import xyz.xenondevs.invui.gui.impl.ScrollInventoryGuiImpl;
 import xyz.xenondevs.invui.gui.structure.Structure;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.virtualinventory.VirtualInventory;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 
 @SuppressWarnings("deprecation")
 public interface ScrollGui<C> extends Gui {
@@ -71,7 +73,7 @@ public interface ScrollGui<C> extends Gui {
      * @return The created {@link ScrollGui}.
      */
     static @NotNull ScrollGui<VirtualInventory> ofInventories(int width, int height, @NotNull List<@NotNull VirtualInventory> inventories, int... contentListSlots) {
-        return new ScrollVIGuiImpl(width, height, inventories, contentListSlots);
+        return new ScrollInventoryGuiImpl(width, height, inventories, contentListSlots);
     }
     
     /**
@@ -82,7 +84,7 @@ public interface ScrollGui<C> extends Gui {
      * @return The created {@link ScrollGui}.
      */
     static @NotNull ScrollGui<VirtualInventory> ofInventories(@NotNull Structure structure, @NotNull List<@NotNull VirtualInventory> inventories) {
-        return new ScrollVIGuiImpl(inventories, structure);
+        return new ScrollInventoryGuiImpl(inventories, structure);
     }
     
     /**
@@ -125,6 +127,27 @@ public interface ScrollGui<C> extends Gui {
      *
      * @param content The content to set.
      */
-    void setContent(@NotNull List<@NotNull C> content);
+    void setContent(@Nullable List<@NotNull C> content);
+    
+    /**
+     * Replaces the currently registered scroll handlers with the specified ones.
+     *
+     * @param scrollHandlers The new scroll handlers.
+     */
+    void setScrollHandlers(@NotNull List<@NotNull BiConsumer<Integer, Integer>> scrollHandlers);
+    
+    /**
+     * Adds a scroll handler to this {@link ScrollGui}.
+     *
+     * @param scrollHandler The scroll handler to add.
+     */
+    void addScrollHandler(@NotNull BiConsumer<Integer, Integer> scrollHandler);
+    
+    /**
+     * Removes the specified scroll handler from this {@link ScrollGui}.
+     *
+     * @param scrollHandler The scroll handler to remove.
+     */
+    void removeScrollHandler(@NotNull BiConsumer<Integer, Integer> scrollHandler);
     
 }

@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.invui.window.builder.WindowType;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -102,6 +103,13 @@ public interface Window {
      * @return The viewer's {@link UUID}
      */
     @NotNull UUID getViewerUUID();
+    
+    /**
+     * Replaces the currently registered close handlers with the given list.
+     *
+     * @param closeHandlers The new close handlers
+     */
+    void setCloseHandlers(@NotNull List<@NotNull Runnable> closeHandlers);
     
     /**
      * Adds a close handler that will be called when this window gets closed.

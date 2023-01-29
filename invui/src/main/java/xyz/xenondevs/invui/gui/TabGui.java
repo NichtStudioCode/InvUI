@@ -83,13 +83,13 @@ public interface TabGui extends Gui {
      *
      * @param handler The handler to register.
      */
-    void registerTabChangeHandler(@NotNull BiConsumer<Integer, Integer> handler);
+    void addTabChangeHandler(@NotNull BiConsumer<Integer, Integer> handler);
     
     /**
      * Unregisters a page change handler.
      *
      * @param handler The handler to unregister.
      */
-    void unregisterTabChangeHandler(@NotNull BiConsumer<Integer, Integer> handler);
+    void removeTabChangeHandler(@NotNull BiConsumer<Integer, Integer> handler);
     
 }

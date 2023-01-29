@@ -1,11 +1,14 @@
 package xyz.xenondevs.invui.gui;
 
+import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.invui.gui.impl.ScrollItemsGuiImpl;
 import xyz.xenondevs.invui.gui.impl.ScrollNestedGuiImpl;
 import xyz.xenondevs.invui.gui.structure.Structure;
 import xyz.xenondevs.invui.util.SlotUtils;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 /**
  * A scrollable {@link Gui}
@@ -19,8 +22,9 @@ public abstract class AbstractScrollGui<C> extends AbstractGui implements Scroll
     private final int lineLength;
     private final int lineAmount;
     private final int[] contentListSlots;
+    private int offset;
     
-    protected int offset;
+    private List<BiConsumer<Integer, Integer>> scrollHandlers;
     
     public AbstractScrollGui(int width, int height, boolean infiniteLines, int... contentListSlots) {
         super(width, height);
@@ -107,6 +111,25 @@ public abstract class AbstractScrollGui<C> extends AbstractGui implements Scroll
             if (slotElements.size() > i) setSlotElement(contentListSlots[i], slotElements.get(i));
             else remove(contentListSlots[i]);
         }
+    }
+    
+    @Override
+    public void setScrollHandlers(@NotNull List<@NotNull BiConsumer<Integer, Integer>> scrollHandlers) {
+        this.scrollHandlers = scrollHandlers;
+    }
+    
+    @Override
+    public void addScrollHandler(@NotNull BiConsumer<Integer, Integer> scrollHandler) {
+        if (scrollHandlers == null)
+            scrollHandlers = new ArrayList<>();
+        
+        scrollHandlers.add(scrollHandler);
+    }
+    
+    @Override
+    public void removeScrollHandler(@NotNull BiConsumer<Integer, Integer> scrollHandler) {
+        if (scrollHandlers != null)
+            scrollHandlers.remove(scrollHandler);
     }
     
     protected abstract List<? extends SlotElement> getElements(int from, int to);

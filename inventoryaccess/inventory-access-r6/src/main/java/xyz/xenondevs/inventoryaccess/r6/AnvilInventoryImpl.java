@@ -24,28 +24,29 @@ import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.inventoryaccess.abstraction.inventory.AnvilInventory;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
     
     private final Component title;
-    private final Consumer<String> renameHandler;
+    private final List<Consumer<String>> renameHandlers;
     private final CraftInventoryView view;
     private final ServerPlayer player;
     
     private String text;
     private boolean open;
     
-    public AnvilInventoryImpl(org.bukkit.entity.Player player, @NotNull ComponentWrapper title, Consumer<String> renameHandler) {
-        this(((CraftPlayer) player).getHandle(), InventoryUtilsImpl.createNMSComponent(title), renameHandler);
+    public AnvilInventoryImpl(org.bukkit.entity.Player player, @NotNull ComponentWrapper title, List<Consumer<String>> renameHandlers) {
+        this(((CraftPlayer) player).getHandle(), InventoryUtilsImpl.createNMSComponent(title), renameHandlers);
     }
     
-    public AnvilInventoryImpl(ServerPlayer player, Component title, Consumer<String> renameHandler) {
+    public AnvilInventoryImpl(ServerPlayer player, Component title, List<Consumer<String>> renameHandlers) {
         super(player.nextContainerCounter(), player.getInventory(),
             ContainerLevelAccess.create(player.level, new BlockPos(0, 0, 0)));
         
         this.title = title;
-        this.renameHandler = renameHandler;
+        this.renameHandlers = renameHandlers;
         this.player = player;
         
         CraftInventoryAnvil inventory = new CraftInventoryAnvil(access.getLocation(),
@@ -139,8 +140,9 @@ class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
         // save rename text
         text = s;
         
-        // call the rename handler
-        if (renameHandler != null) renameHandler.accept(s);
+        // call rename handlers
+        if (renameHandlers != null)
+            renameHandlers.forEach(handler -> handler.accept(s));
         
         // the client expects the item to change to it's new name and removes it from the inventory, so it needs to be sent again
         sendItem(2);

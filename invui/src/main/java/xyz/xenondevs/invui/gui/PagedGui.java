@@ -125,7 +125,7 @@ public interface PagedGui<C> extends Gui {
      *
      * @param content The content to set.
      */
-    void setContent(List<@Nullable C> content);
+    void setContent(@Nullable List<@NotNull C> content);
     
     /**
      * Gets the registered page change handlers.
@@ -146,13 +146,13 @@ public interface PagedGui<C> extends Gui {
      *
      * @param handler The handler to register.
      */
-    void registerPageChangeHandler(@NotNull BiConsumer<Integer, Integer> handler);
+    void addPageChangeHandler(@NotNull BiConsumer<Integer, Integer> handler);
     
     /**
      * Unregisters a page change handler.
      *
      * @param handler The handler to unregister.
      */
-    void unregisterPageChangeHandler(@NotNull BiConsumer<Integer, Integer> handler);
+    void removePageChangeHandler(@NotNull BiConsumer<Integer, Integer> handler);
     
 }

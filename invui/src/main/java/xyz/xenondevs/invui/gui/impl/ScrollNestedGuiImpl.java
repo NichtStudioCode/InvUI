@@ -6,11 +6,19 @@ import xyz.xenondevs.invui.gui.AbstractScrollGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.ScrollGui;
 import xyz.xenondevs.invui.gui.SlotElement;
+import xyz.xenondevs.invui.gui.builder.GuiType;
 import xyz.xenondevs.invui.gui.structure.Structure;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A {@link AbstractScrollGui} that uses {@link Gui Guis} as content.
+ *
+ * @see GuiType
+ * @see ScrollItemsGuiImpl
+ * @see ScrollInventoryGuiImpl
+ */
 @SuppressWarnings("DeprecatedIsStillUsed")
 public final class ScrollNestedGuiImpl extends AbstractScrollGui<Gui> {
     
@@ -27,7 +35,7 @@ public final class ScrollNestedGuiImpl extends AbstractScrollGui<Gui> {
      * @deprecated Use {@link ScrollGui#ofGuis(int, int, List, int...)} instead.
      */
     @Deprecated
-    public ScrollNestedGuiImpl(int width, int height, @Nullable List<Gui> guis, int... contentListSlots) {
+    public ScrollNestedGuiImpl(int width, int height, @Nullable List<@NotNull Gui> guis, int... contentListSlots) {
         super(width, height, false, contentListSlots);
         setContent(guis);
     }
@@ -40,13 +48,13 @@ public final class ScrollNestedGuiImpl extends AbstractScrollGui<Gui> {
      * @deprecated Use {@link ScrollGui#ofGuis(Structure, List)} instead.
      */
     @Deprecated
-    public ScrollNestedGuiImpl(@Nullable List<Gui> guis, @NotNull Structure structure) {
+    public ScrollNestedGuiImpl(@Nullable List<@NotNull Gui> guis, @NotNull Structure structure) {
         super(structure.getWidth(), structure.getHeight(), false, structure);
         setContent(guis);
     }
     
     @Override
-    public void setContent(@NotNull List<Gui> guis) {
+    public void setContent(@Nullable List<@NotNull Gui> guis) {
         this.guis = guis != null ? guis : new ArrayList<>();
         updateElements();
         update();

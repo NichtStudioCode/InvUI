@@ -13,6 +13,13 @@ public final class NormalSplitWindowBuilder extends AbstractSplitWindowBuilder<W
     
     @Override
     public @NotNull Window build() {
+        if (viewer == null)
+            throw new IllegalStateException("Viewer is not defined.");
+        if (upperGuiSupplier == null)
+            throw new IllegalStateException("Upper Gui is not defined.");
+        if (lowerGuiSupplier == null)
+            throw new IllegalStateException("Lower Gui is not defined.");
+        
         var window = new NormalSplitWindowImpl(
             viewer,
             title,
@@ -22,7 +29,7 @@ public final class NormalSplitWindowBuilder extends AbstractSplitWindowBuilder<W
             retain
         );
         
-        applyChanges(window);
+        applyModifiers(window);
         
         return window;
     }
@@ -30,6 +37,11 @@ public final class NormalSplitWindowBuilder extends AbstractSplitWindowBuilder<W
     @Override
     protected NormalSplitWindowBuilder getThis() {
         return this;
+    }
+    
+    @Override
+    public @NotNull NormalSplitWindowBuilder clone() {
+        return (NormalSplitWindowBuilder) super.clone();
     }
     
 }

@@ -2,7 +2,7 @@ package xyz.xenondevs.invui.gui;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import xyz.xenondevs.invui.gui.builder.GuiBuilder;
+import xyz.xenondevs.invui.gui.builder.GuiType;
 import xyz.xenondevs.invui.gui.impl.PagedItemsGuiImpl;
 import xyz.xenondevs.invui.gui.impl.PagedNestedGuiImpl;
 import xyz.xenondevs.invui.gui.structure.Structure;
@@ -14,7 +14,7 @@ import java.util.function.BiConsumer;
 /**
  * A {@link Gui} with pages.
  *
- * @see GuiBuilder
+ * @see GuiType
  * @see PagedItemsGuiImpl
  * @see PagedNestedGuiImpl
  */
@@ -108,7 +108,7 @@ public abstract class AbstractPagedGui<C> extends AbstractGui implements PagedGu
     }
     
     @Override
-    public void registerPageChangeHandler(@NotNull BiConsumer<Integer, Integer> pageChangeHandler) {
+    public void addPageChangeHandler(@NotNull BiConsumer<Integer, Integer> pageChangeHandler) {
         if (pageChangeHandlers == null) {
             pageChangeHandlers = new ArrayList<>();
         }
@@ -117,7 +117,7 @@ public abstract class AbstractPagedGui<C> extends AbstractGui implements PagedGu
     }
     
     @Override
-    public void unregisterPageChangeHandler(@NotNull BiConsumer<Integer, Integer> pageChangeHandler) {
+    public void removePageChangeHandler(@NotNull BiConsumer<Integer, Integer> pageChangeHandler) {
         if (pageChangeHandlers != null) {
             pageChangeHandlers.remove(pageChangeHandler);
         }

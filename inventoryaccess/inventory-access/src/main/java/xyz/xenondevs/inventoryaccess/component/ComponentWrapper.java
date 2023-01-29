@@ -1,7 +1,11 @@
 package xyz.xenondevs.inventoryaccess.component;
 
-public interface ComponentWrapper {
+import org.jetbrains.annotations.NotNull;
+
+public interface ComponentWrapper extends Cloneable {
     
-    String serializeToJson();
+    @NotNull String serializeToJson();
+    
+    @NotNull ComponentWrapper clone();
     
 }

@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractScrollGui;
 import xyz.xenondevs.invui.gui.ScrollGui;
 import xyz.xenondevs.invui.gui.SlotElement;
+import xyz.xenondevs.invui.gui.builder.GuiType;
 import xyz.xenondevs.invui.gui.structure.Structure;
 import xyz.xenondevs.invui.item.Item;
 
@@ -12,6 +13,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * A {@link AbstractScrollGui} that uses {@link Item Items} as content.
+ *
+ * @see GuiType
+ * @see ScrollInventoryGuiImpl
+ * @see ScrollNestedGuiImpl
+ */
 @SuppressWarnings("DeprecatedIsStillUsed")
 public final class ScrollItemsGuiImpl extends AbstractScrollGui<Item> {
     
@@ -27,7 +35,7 @@ public final class ScrollItemsGuiImpl extends AbstractScrollGui<Item> {
      * @deprecated Use {@link ScrollGui#ofItems(int, int, List, int...)} instead.
      */
     @Deprecated
-    public ScrollItemsGuiImpl(int width, int height, @Nullable List<Item> items, int... contentListSlots) {
+    public ScrollItemsGuiImpl(int width, int height, @Nullable List<@NotNull Item> items, int... contentListSlots) {
         super(width, height, false, contentListSlots);
         setContent(items);
     }
@@ -40,13 +48,13 @@ public final class ScrollItemsGuiImpl extends AbstractScrollGui<Item> {
      * @deprecated Use {@link ScrollGui#ofItems(Structure, List)} instead.
      */
     @Deprecated
-    public ScrollItemsGuiImpl(@Nullable List<Item> items, @NotNull Structure structure) {
+    public ScrollItemsGuiImpl(@Nullable List<@NotNull Item> items, @NotNull Structure structure) {
         super(structure.getWidth(), structure.getHeight(), false, structure);
         setContent(items);
     }
     
     @Override
-    public void setContent(@NotNull List<Item> items) {
+    public void setContent(@Nullable List<@NotNull Item> items) {
         this.items = items != null ? items : new ArrayList<>();
         update();
     }

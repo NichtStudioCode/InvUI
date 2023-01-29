@@ -5,7 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractPagedGui;
 import xyz.xenondevs.invui.gui.PagedGui;
 import xyz.xenondevs.invui.gui.SlotElement;
-import xyz.xenondevs.invui.gui.builder.GuiBuilder;
+import xyz.xenondevs.invui.gui.builder.GuiType;
 import xyz.xenondevs.invui.gui.structure.Structure;
 import xyz.xenondevs.invui.item.Item;
 
@@ -15,9 +15,9 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 /**
- * A {@link AbstractPagedGui} that is filled with {@link Item}s.
+ * A {@link AbstractPagedGui} that is filled with {@link Item Items}.
  *
- * @see GuiBuilder
+ * @see GuiType
  * @see PagedNestedGuiImpl
  */
 @SuppressWarnings("DeprecatedIsStillUsed")
@@ -36,7 +36,7 @@ public final class PagedItemsGuiImpl extends AbstractPagedGui<Item> {
      * @deprecated Use {@link PagedGui#ofItems(int, int, List, int...)} instead.
      */
     @Deprecated
-    public PagedItemsGuiImpl(int width, int height, @Nullable List<Item> items, int... contentListSlots) {
+    public PagedItemsGuiImpl(int width, int height, @Nullable List<@NotNull Item> items, int... contentListSlots) {
         super(width, height, false, contentListSlots);
         setContent(items);
     }
@@ -49,7 +49,7 @@ public final class PagedItemsGuiImpl extends AbstractPagedGui<Item> {
      * @deprecated Use {@link PagedGui#ofItems(Structure, List)} instead.
      */
     @Deprecated
-    public PagedItemsGuiImpl(@Nullable List<Item> items, @NotNull Structure structure) {
+    public PagedItemsGuiImpl(@Nullable List<@NotNull Item> items, @NotNull Structure structure) {
         super(structure.getWidth(), structure.getHeight(), false, structure);
         setContent(items);
     }
@@ -60,7 +60,7 @@ public final class PagedItemsGuiImpl extends AbstractPagedGui<Item> {
     }
     
     @Override
-    public void setContent(List<@Nullable Item> items) {
+    public void setContent(@Nullable List<@NotNull Item> items) {
         this.items = items != null ? items : new ArrayList<>();
         update();
     }

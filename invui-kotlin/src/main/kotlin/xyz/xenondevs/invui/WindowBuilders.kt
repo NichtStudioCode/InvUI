@@ -1,10 +1,8 @@
 @file:Suppress("PackageDirectoryMismatch")
 
-package xyz.xenondevs.invui.window.type
+package xyz.xenondevs.invui.window.builder
 
 import xyz.xenondevs.invui.window.Window
-import xyz.xenondevs.invui.window.builder.WindowBuilder
-import xyz.xenondevs.invui.window.builder.WindowType
 
 fun <W : Window, B : WindowBuilder<W>> WindowType<W, B>.create(builderConsumer: B.() -> Unit): W {
     val builder = builder()

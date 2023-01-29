@@ -13,6 +13,11 @@ public final class CartographySingleWindowBuilder extends AbstractSingleWindowBu
     
     @Override
     public @NotNull CartographyWindow build() {
+        if (viewer == null)
+            throw new IllegalStateException("Viewer is not defined.");
+        if (guiSupplier == null)
+            throw new IllegalStateException("Gui is not defined.");
+        
         var window = new CartographySingleWindowImpl(
             viewer,
             title,
@@ -21,7 +26,7 @@ public final class CartographySingleWindowBuilder extends AbstractSingleWindowBu
             retain
         );
         
-        applyChanges(window);
+        applyModifiers(window);
         
         return window;
     }
@@ -29,6 +34,11 @@ public final class CartographySingleWindowBuilder extends AbstractSingleWindowBu
     @Override
     protected CartographySingleWindowBuilder getThis() {
         return this;
+    }
+    
+    @Override
+    public @NotNull CartographySingleWindowBuilder clone() {
+        return (CartographySingleWindowBuilder) super.clone();
     }
     
 }

@@ -2,6 +2,7 @@ package xyz.xenondevs.inventoryaccess;
 
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.abstraction.inventory.AnvilInventory;
 import xyz.xenondevs.inventoryaccess.abstraction.inventory.CartographyInventory;
 import xyz.xenondevs.inventoryaccess.abstraction.util.InventoryUtils;
@@ -11,6 +12,7 @@ import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.inventoryaccess.util.ReflectionUtils;
 
 import java.lang.reflect.Constructor;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class InventoryAccess {
@@ -62,12 +64,12 @@ public class InventoryAccess {
      *
      * @param player        The {@link Player} that should see this {@link AnvilInventory}
      * @param title         The inventory title
-     * @param renameHandler A {@link Consumer} that is called whenever the {@link Player}
-     *                      types something in the renaming section of the anvil
+     * @param renameHandlers A list of {@link Consumer}s that are called whenever the {@link Player}
+     *                       types something in the renaming section of the anvil.
      * @return The {@link AnvilInventory}
      */
-    public static AnvilInventory createAnvilInventory(@NotNull Player player, @NotNull ComponentWrapper title, Consumer<String> renameHandler) {
-        return ReflectionUtils.construct(ANVIL_INVENTORY_CONSTRUCTOR, player, title, renameHandler);
+    public static AnvilInventory createAnvilInventory(@NotNull Player player, @NotNull ComponentWrapper title, @Nullable List<@NotNull Consumer<String>> renameHandlers) {
+        return ReflectionUtils.construct(ANVIL_INVENTORY_CONSTRUCTOR, player, title, renameHandlers);
     }
     
     /**

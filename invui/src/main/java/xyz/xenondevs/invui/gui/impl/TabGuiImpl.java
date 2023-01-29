@@ -6,7 +6,7 @@ import xyz.xenondevs.invui.gui.AbstractTabGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.gui.TabGui;
-import xyz.xenondevs.invui.gui.builder.GuiBuilder;
+import xyz.xenondevs.invui.gui.builder.GuiType;
 import xyz.xenondevs.invui.gui.structure.Structure;
 
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 /**
  * A {@link Gui} that has multiple tabs with which users can switch between {@link Gui}s.
  *
- * @see GuiBuilder
+ * @see GuiType
  */
 @SuppressWarnings("DeprecatedIsStillUsed")
 public final class TabGuiImpl extends AbstractTabGui {

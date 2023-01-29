@@ -13,6 +13,11 @@ public final class CartographySplitWindowBuilder extends AbstractSplitWindowBuil
     
     @Override
     public @NotNull CartographyWindow build() {
+        if (viewer == null)
+            throw new IllegalStateException("Viewer is not defined.");
+        if (upperGuiSupplier == null)
+            throw new IllegalStateException("Upper Gui is not defined.");
+        
         var window = new CartographySplitWindowImpl(
             viewer,
             title,
@@ -22,7 +27,7 @@ public final class CartographySplitWindowBuilder extends AbstractSplitWindowBuil
             retain
         );
     
-        applyChanges(window);
+        applyModifiers(window);
     
         return window;
     }
@@ -30,6 +35,11 @@ public final class CartographySplitWindowBuilder extends AbstractSplitWindowBuil
     @Override
     protected CartographySplitWindowBuilder getThis() {
         return this;
+    }
+    
+    @Override
+    public @NotNull CartographySplitWindowBuilder clone() {
+        return (CartographySplitWindowBuilder) super.clone();
     }
     
 }

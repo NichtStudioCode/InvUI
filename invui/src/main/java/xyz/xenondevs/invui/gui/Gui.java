@@ -5,7 +5,7 @@ import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.invui.animation.Animation;
-import xyz.xenondevs.invui.gui.builder.GuiBuilder;
+import xyz.xenondevs.invui.gui.builder.GuiType;
 import xyz.xenondevs.invui.gui.impl.NormalGuiImpl;
 import xyz.xenondevs.invui.gui.structure.Structure;
 import xyz.xenondevs.invui.item.Item;
@@ -28,7 +28,7 @@ import java.util.function.Predicate;
  * In order to create an {@link Inventory} which is visible
  * to players, you will need to use a {@link Window}.
  *
- * @see GuiBuilder
+ * @see GuiType
  * @see AbstractGui
  * @see AbstractPagedGui
  * @see AbstractScrollGui

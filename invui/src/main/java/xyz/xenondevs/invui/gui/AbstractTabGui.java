@@ -82,13 +82,13 @@ public abstract class AbstractTabGui extends AbstractGui implements TabGui {
         this.tabChangeHandlers = tabChangeHandlers;
     }
     
-    public void registerTabChangeHandler(@NotNull BiConsumer<Integer, Integer> tabChangeHandler) {
+    public void addTabChangeHandler(@NotNull BiConsumer<Integer, Integer> tabChangeHandler) {
         if (tabChangeHandlers == null) tabChangeHandlers = new ArrayList<>();
         tabChangeHandlers.add(tabChangeHandler);
     }
     
     @Override
-    public void unregisterTabChangeHandler(@NotNull BiConsumer<Integer, Integer> tabChangeHandler) {
+    public void removeTabChangeHandler(@NotNull BiConsumer<Integer, Integer> tabChangeHandler) {
         if (tabChangeHandlers != null) tabChangeHandlers.remove(tabChangeHandler);
     }
     

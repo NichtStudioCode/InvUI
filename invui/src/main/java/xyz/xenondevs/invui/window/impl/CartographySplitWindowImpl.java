@@ -4,6 +4,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.MapMeta;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.InventoryAccess;
 import xyz.xenondevs.inventoryaccess.abstraction.inventory.CartographyInventory;
@@ -24,7 +25,14 @@ public final class CartographySplitWindowImpl extends AbstractSplitWindow implem
     private final CartographyInventory cartographyInventory;
     private int mapId;
     
-    public CartographySplitWindowImpl(Player player, ComponentWrapper title, AbstractGui upperGui, AbstractGui lowerGui, boolean closeable, boolean retain) {
+    public CartographySplitWindowImpl(
+        @NotNull Player player,
+        @Nullable ComponentWrapper title,
+        @NotNull AbstractGui upperGui,
+        @NotNull AbstractGui lowerGui,
+        boolean closeable,
+        boolean retain
+    ) {
         super(player, title, createWrappingGui(upperGui), lowerGui, null, false, closeable, retain);
         
         cartographyInventory = InventoryAccess.createCartographyInventory(player, title);
@@ -35,6 +43,7 @@ public final class CartographySplitWindowImpl extends AbstractSplitWindow implem
         register();
     }
     
+    @SuppressWarnings("deprecation")
     private static AbstractGui createWrappingGui(Gui upperGui) {
         if (upperGui.getWidth() != 2 || upperGui.getHeight() != 1)
             throw new IllegalArgumentException("Gui has to be 2x1");
@@ -50,7 +59,7 @@ public final class CartographySplitWindowImpl extends AbstractSplitWindow implem
     }
     
     @Override
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({"deprecation", "DuplicatedCode"})
     public void resetMap() {
         mapId = -MathUtils.RANDOM.nextInt(Integer.MAX_VALUE);
         ItemStack map = new ItemStack(Material.FILLED_MAP);

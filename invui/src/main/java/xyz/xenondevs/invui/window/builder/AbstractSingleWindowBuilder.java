@@ -1,5 +1,6 @@
 package xyz.xenondevs.invui.window.builder;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.builder.GuiBuilder;
@@ -11,20 +12,22 @@ public abstract class AbstractSingleWindowBuilder<W extends Window, V, S extends
     
     protected Supplier<Gui> guiSupplier;
     
+    @Contract("_ -> this")
     public S setGui(@NotNull Supplier<Gui> guiSupplier) {
         this.guiSupplier = guiSupplier;
         return getThis();
     }
     
+    @Contract("_ -> this")
     public S setGui(@NotNull Gui gui) {
         this.guiSupplier = () -> gui;
         return getThis();
     }
     
-    public S setGui(@NotNull GuiBuilder<?, ?> builder) {
+    @Contract("_ -> this")
+    public S setGui(@NotNull GuiBuilder<?> builder) {
         this.guiSupplier = builder::build;
         return getThis();
     }    
-    
     
 }

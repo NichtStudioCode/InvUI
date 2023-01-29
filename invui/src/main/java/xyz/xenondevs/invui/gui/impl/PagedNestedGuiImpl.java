@@ -6,7 +6,7 @@ import xyz.xenondevs.invui.gui.AbstractPagedGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.PagedGui;
 import xyz.xenondevs.invui.gui.SlotElement;
-import xyz.xenondevs.invui.gui.builder.GuiBuilder;
+import xyz.xenondevs.invui.gui.builder.GuiType;
 import xyz.xenondevs.invui.gui.structure.Structure;
 
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ import java.util.stream.IntStream;
 /**
  * A {@link AbstractPagedGui} where every page is its own {@link Gui}.
  *
- * @see GuiBuilder
+ * @see GuiType
  * @see PagedItemsGuiImpl
  */
 @SuppressWarnings("DeprecatedIsStillUsed")
@@ -35,7 +35,7 @@ public final class PagedNestedGuiImpl extends AbstractPagedGui<Gui> {
      * @deprecated Use {@link PagedGui#ofGuis(int, int, List, int...)} instead.
      */
     @Deprecated
-    public PagedNestedGuiImpl(int width, int height, @Nullable List<Gui> guis, int... contentListSlots) {
+    public PagedNestedGuiImpl(int width, int height, @Nullable List<@NotNull Gui> guis, int... contentListSlots) {
         super(width, height, false, contentListSlots);
         setContent(guis);
     }
@@ -48,7 +48,7 @@ public final class PagedNestedGuiImpl extends AbstractPagedGui<Gui> {
      * @deprecated Use {@link PagedGui#ofGuis(Structure, List)} instead.
      */
     @Deprecated
-    public PagedNestedGuiImpl(@Nullable List<Gui> guis, @NotNull Structure structure) {
+    public PagedNestedGuiImpl(@Nullable List<@NotNull Gui> guis, @NotNull Structure structure) {
         super(structure.getWidth(), structure.getHeight(), false, structure);
         setContent(guis);
     }
@@ -59,7 +59,7 @@ public final class PagedNestedGuiImpl extends AbstractPagedGui<Gui> {
     }
     
     @Override
-    public void setContent(@Nullable List<Gui> guis) {
+    public void setContent(@Nullable List<@NotNull Gui> guis) {
         this.guis = guis == null ? new ArrayList<>() : guis;
         update();
     }
