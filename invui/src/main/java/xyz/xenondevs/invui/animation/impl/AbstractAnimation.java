@@ -18,7 +18,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-public abstract class BaseAnimation implements Animation {
+public abstract class AbstractAnimation implements Animation {
     
     private final List<Runnable> finishHandlers = new ArrayList<>();
     private final int tickDelay;
@@ -35,7 +35,7 @@ public abstract class BaseAnimation implements Animation {
     private int frame;
     private int noViewerTicks;
     
-    public BaseAnimation(int tickDelay) {
+    public AbstractAnimation(int tickDelay) {
         this.tickDelay = tickDelay;
     }
     

@@ -2,7 +2,7 @@ package xyz.xenondevs.invui.animation.impl;
 
 import java.util.List;
 
-public class SplitSequentialAnimation extends SoundAnimation {
+public class SplitSequentialAnimation extends AbstractSoundAnimation {
     
     public SplitSequentialAnimation(int tickDelay, boolean sound) {
         super(tickDelay, sound);

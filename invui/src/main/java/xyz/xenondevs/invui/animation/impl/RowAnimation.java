@@ -1,6 +1,6 @@
 package xyz.xenondevs.invui.animation.impl;
 
-public class RowAnimation extends SoundAnimation {
+public class RowAnimation extends AbstractSoundAnimation {
     
     private int row;
     

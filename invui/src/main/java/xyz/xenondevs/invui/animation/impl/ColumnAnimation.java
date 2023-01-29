@@ -1,6 +1,6 @@
 package xyz.xenondevs.invui.animation.impl;
 
-public class ColumnAnimation extends SoundAnimation {
+public class ColumnAnimation extends AbstractSoundAnimation {
     
     private int column;
     

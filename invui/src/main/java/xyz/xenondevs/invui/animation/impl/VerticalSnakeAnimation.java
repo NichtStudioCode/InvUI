@@ -1,6 +1,6 @@
 package xyz.xenondevs.invui.animation.impl;
 
-public class VerticalSnakeAnimation extends SoundAnimation {
+public class VerticalSnakeAnimation extends AbstractSoundAnimation {
     
     private int x;
     private int y;

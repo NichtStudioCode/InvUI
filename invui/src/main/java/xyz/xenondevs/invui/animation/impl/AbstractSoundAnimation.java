@@ -2,9 +2,9 @@ package xyz.xenondevs.invui.animation.impl;
 
 import org.bukkit.Sound;
 
-public abstract class SoundAnimation extends BaseAnimation {
+public abstract class AbstractSoundAnimation extends AbstractAnimation {
     
-    public SoundAnimation(int tickDelay, boolean sound) {
+    public AbstractSoundAnimation(int tickDelay, boolean sound) {
         super(tickDelay);
         
         if (sound) addShowHandler((frame, index) -> getCurrentViewers().forEach(player ->
