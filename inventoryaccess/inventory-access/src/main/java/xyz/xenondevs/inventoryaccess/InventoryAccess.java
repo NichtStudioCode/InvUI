@@ -24,7 +24,7 @@ public class InventoryAccess {
     private static final Class<CartographyInventory> CARTOGRAPHY_INVENTORY_CLASS = ReflectionUtils.getImplClass("CartographyInventoryImpl");
     
     private static final Constructor<AnvilInventory> ANVIL_INVENTORY_CONSTRUCTOR =
-        ReflectionUtils.getConstructor(ANVIL_INVENTORY_CLASS, true, Player.class, ComponentWrapper.class, Consumer.class);
+        ReflectionUtils.getConstructor(ANVIL_INVENTORY_CLASS, true, Player.class, ComponentWrapper.class, List.class);
     private static final Constructor<CartographyInventory> CARTOGRAPHY_INVENTORY_CONSTRUCTOR =
         ReflectionUtils.getConstructor(CARTOGRAPHY_INVENTORY_CLASS, true, Player.class, ComponentWrapper.class);
     
