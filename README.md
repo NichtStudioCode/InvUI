@@ -35,7 +35,7 @@ Supports all versions from 1.14 to 1.19.
 ```
 ```xml
 <dependency>
-    <groupId>xyz.xenondevs.invui</groupId>
+    <groupId>de.studiocode.invui</groupId>
     <artifactId>InvUI</artifactId>
     <version>VERSION</version>
 </dependency>
