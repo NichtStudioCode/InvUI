@@ -41,6 +41,21 @@ Supports all versions from 1.14 to 1.19.
 </dependency>
 ```
 
+## Gradle
+```groovy
+repositories {
+    maven {
+        name = "xenondevs"
+        url = "https://repo.xenondevs.xyz/releases"
+    }
+}
+```
+```groovy
+dependencies {
+    implementation 'de.studiocode.invui:InvUI:VERSION'
+}
+```
+
 Check out the [InvUI documentation](https://xenondevs.xyz/docs/invui/) for more information.
 
 ## Examples
