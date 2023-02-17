@@ -3,6 +3,7 @@
 [![Stars](https://img.shields.io/github/stars/NichtStudioCode/InvUI?color=ffa200)](https://github.com/NichtStudioCode/InvUI/stargazers)
 ![GitHub issues](https://img.shields.io/github/issues/NichtStudioCode/InvUI)
 ![License](https://img.shields.io/github/license/NichtStudioCode/InvUI)
+![Version](https://img.shields.io/maven-metadata/v?color=%2333333&label=version&metadataUrl=https%3A%2F%2Frepo.xenondevs.xyz%2Freleases%2Fde%2Fstudiocode%2Finvui%2FInvUI%2Fmaven-metadata.xml)
 
 # InvUI
 
