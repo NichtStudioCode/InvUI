@@ -3,21 +3,23 @@ package xyz.xenondevs.invui.item.builder;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.InventoryAccess;
 import xyz.xenondevs.inventoryaccess.component.BaseComponentWrapper;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.util.ComponentUtils;
 import xyz.xenondevs.invui.util.Pair;
-import xyz.xenondevs.invui.window.AbstractWindow;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -71,7 +73,7 @@ public abstract class AbstractItemBuilder<T> implements ItemProvider {
      * @return The {@link ItemStack}
      */
     @Override
-    public ItemStack get() {
+    public ItemStack get(@Nullable String lang) {
         ItemStack itemStack;
         if (base != null) {
             itemStack = base;
@@ -83,12 +85,25 @@ public abstract class AbstractItemBuilder<T> implements ItemProvider {
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta != null) {
             // display name
-            if (displayName != null)
-                InventoryAccess.getItemUtils().setDisplayName(itemMeta, displayName);
+            if (displayName != null) {
+                InventoryAccess.getItemUtils().setDisplayName(
+                    itemMeta,
+                    (lang != null) ? displayName.localized(lang) : displayName
+                );
+            }
             
             // lore
-            if (lore != null)
-                InventoryAccess.getItemUtils().setLore(itemMeta, lore);
+            if (lore != null) {
+                if (lang != null) {
+                    var translatedLore = lore.stream()
+                        .map(wrapper -> wrapper.localized(lang))
+                        .collect(Collectors.toList());
+                    
+                    InventoryAccess.getItemUtils().setLore(itemMeta, translatedLore);
+                } else {
+                    InventoryAccess.getItemUtils().setLore(itemMeta, lore);
+                }
+            }
             
             // damage
             if (itemMeta instanceof Damageable)
@@ -125,21 +140,6 @@ public abstract class AbstractItemBuilder<T> implements ItemProvider {
         }
         
         return itemStack;
-    }
-    
-    /**
-     * Builds the {@link ItemStack} for a specific player.
-     * This is the method called by {@link AbstractWindow} which gives you
-     * the option to (for example) create a subclass of {@link AbstractItemBuilder} that automatically
-     * translates the item's name into the player's language.
-     *
-     * @param playerUUID The {@link UUID} of the {@link Player}
-     *                   for whom this {@link ItemStack} should be built.
-     * @return The {@link ItemStack}
-     */
-    @Override
-    public ItemStack getFor(@NotNull UUID playerUUID) {
-        return get();
     }
     
     public T removeLoreLine(int index) {

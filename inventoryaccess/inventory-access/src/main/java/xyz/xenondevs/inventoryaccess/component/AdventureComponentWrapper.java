@@ -3,6 +3,8 @@ package xyz.xenondevs.inventoryaccess.component;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jetbrains.annotations.NotNull;
+import xyz.xenondevs.inventoryaccess.component.i18n.AdventureComponentLocalizer;
+import xyz.xenondevs.inventoryaccess.component.i18n.Languages;
 
 public class AdventureComponentWrapper implements ComponentWrapper {
     
@@ -18,9 +20,17 @@ public class AdventureComponentWrapper implements ComponentWrapper {
     }
     
     @Override
-    public @NotNull ComponentWrapper clone() {
+    public @NotNull AdventureComponentWrapper localized(@NotNull String lang) {
+        if (!Languages.getInstance().doesServerSideTranslations())
+            return this;
+        
+        return new AdventureComponentWrapper(AdventureComponentLocalizer.getInstance().localize(lang, component));
+    }
+    
+    @Override
+    public @NotNull AdventureComponentWrapper clone() {
         try {
-            return (ComponentWrapper) super.clone();
+            return (AdventureComponentWrapper) super.clone();
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }

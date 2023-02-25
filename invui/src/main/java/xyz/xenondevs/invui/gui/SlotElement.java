@@ -7,11 +7,10 @@ import xyz.xenondevs.invui.virtualinventory.VirtualInventory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public interface SlotElement {
     
-    ItemStack getItemStack(UUID viewerUUID);
+    ItemStack getItemStack(String lang);
     
     SlotElement getHoldingElement();
     
@@ -31,8 +30,8 @@ public interface SlotElement {
         }
         
         @Override
-        public ItemStack getItemStack(UUID viewerUUID) {
-            return item.getItemProvider().getFor(viewerUUID);
+        public ItemStack getItemStack(String lang) {
+            return item.getItemProvider().get(lang);
         }
         
         @Override
@@ -76,9 +75,9 @@ public interface SlotElement {
         }
         
         @Override
-        public ItemStack getItemStack(UUID viewerUUID) {
+        public ItemStack getItemStack(String lang) {
             ItemStack itemStack = virtualInventory.getUnsafeItemStack(slot);
-            if (itemStack == null && background != null) itemStack = background.getFor(viewerUUID);
+            if (itemStack == null && background != null) itemStack = background.get(lang);
             return itemStack;
         }
         
@@ -139,9 +138,9 @@ public interface SlotElement {
         }
         
         @Override
-        public ItemStack getItemStack(UUID viewerUUID) {
+        public ItemStack getItemStack(String lang) {
             SlotElement holdingElement = getHoldingElement();
-            return holdingElement != null ? holdingElement.getItemStack(viewerUUID) : null;
+            return holdingElement != null ? holdingElement.getItemStack(lang) : null;
         }
         
     }

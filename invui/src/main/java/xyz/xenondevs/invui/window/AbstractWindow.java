@@ -66,9 +66,9 @@ public abstract class AbstractWindow implements Window, GuiParent {
     protected void redrawItem(int index, SlotElement element, boolean setItem) {
         // put ItemStack in inventory
         ItemStack itemStack;
-        if (element == null || (element instanceof SlotElement.VISlotElement && element.getItemStack(viewerUUID) == null)) {
+        if (element == null || (element instanceof SlotElement.VISlotElement && element.getItemStack(getLang()) == null)) {
             ItemProvider background = getGuiAt(index).getFirst().getBackground();
-            itemStack = background == null ? null : background.getFor(viewerUUID);
+            itemStack = background == null ? null : background.get(getLang());
         } else if (element instanceof SlotElement.LinkedSlotElement && element.getHoldingElement() == null) {
             ItemProvider background = null;
             
@@ -80,9 +80,9 @@ public abstract class AbstractWindow implements Window, GuiParent {
                 if (background != null) break;
             }
             
-            itemStack = background == null ? null : background.getFor(viewerUUID);
+            itemStack = background == null ? null : background.get(getLang());
         } else {
-            itemStack = element.getItemStack(viewerUUID);
+            itemStack = element.getItemStack(getLang());
             
             // This makes every item unique to prevent Shift-DoubleClick "clicking" multiple items at the same time.
             if (itemStack.hasItemMeta()) {
@@ -255,7 +255,11 @@ public abstract class AbstractWindow implements Window, GuiParent {
         
         Player viewer = getViewer();
         if (viewer == null) throw new IllegalStateException("The player is not online.");
-        InventoryAccess.getInventoryUtils().openCustomInventory(viewer, getInventories()[0], title);
+        InventoryAccess.getInventoryUtils().openCustomInventory(
+            viewer,
+            getInventories()[0],
+            title.localized(viewer.getLocale())
+        );
     }
     
     @Override
@@ -263,7 +267,10 @@ public abstract class AbstractWindow implements Window, GuiParent {
         this.title = title;
         Player currentViewer = getCurrentViewer();
         if (currentViewer != null) {
-            InventoryAccess.getInventoryUtils().updateOpenInventoryTitle(currentViewer, title);
+            InventoryAccess.getInventoryUtils().updateOpenInventoryTitle(
+                currentViewer,
+                title.localized(currentViewer.getLocale())
+            );
         }
     }
     
@@ -305,6 +312,15 @@ public abstract class AbstractWindow implements Window, GuiParent {
     @Override
     public @Nullable Player getViewer() {
         return Bukkit.getPlayer(viewerUUID);
+    }
+    
+    // TODO: could also return null / "en_us"
+    public @NotNull String getLang() {
+        var player = getViewer();
+        if (player == null)
+            throw new IllegalStateException("Tried to receive the language from a viewer that is not online.");
+        
+        return player.getLocale();
     }
     
     @Override

@@ -124,13 +124,13 @@ public abstract class AbstractGui implements Gui, GuiParent {
     }
     
     private boolean didClickBackgroundItem(Player player, SlotElement.VISlotElement element, VirtualInventory inventory, int slot, ItemStack clicked) {
-        UUID uuid = player.getUniqueId();
+        String lang = player.getLocale();
         return inventory.getUnsafeItemStack(slot) == null
-            && (isBuilderSimilar(background, uuid, clicked) || isBuilderSimilar(element.getBackground(), uuid, clicked));
+            && (isBuilderSimilar(background, lang, clicked) || isBuilderSimilar(element.getBackground(), lang, clicked));
     }
     
-    private boolean isBuilderSimilar(ItemProvider builder, UUID uuid, ItemStack expected) {
-        return builder != null && builder.getFor(uuid).isSimilar(expected);
+    private boolean isBuilderSimilar(ItemProvider builder, String lang, ItemStack expected) {
+        return builder != null && builder.get(lang).isSimilar(expected);
     }
     
     @SuppressWarnings("deprecation")

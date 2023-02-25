@@ -1,35 +1,33 @@
 package xyz.xenondevs.invui.item;
 
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
-import xyz.xenondevs.invui.window.AbstractWindow;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.UUID;
 import java.util.function.Supplier;
 
 public interface ItemProvider extends Supplier<ItemStack>, Cloneable {
     
+    /**
+     * An {@link ItemProvider} for an {@link ItemStack}.
+     */
     ItemProvider EMPTY = new ItemWrapper(new ItemStack(Material.AIR));
     
     /**
-     * Builds the {@link ItemStack}
+     * Gets the {@link ItemStack} translated in the specified language.
      *
+     * @param lang The language to translate the item in.
      * @return The {@link ItemStack}
      */
-    ItemStack get();
+    ItemStack get(@Nullable String lang);
     
     /**
-     * Gets the {@link ItemStack} for a specific player.
-     * This is the method called by {@link AbstractWindow} which gives you
-     * the option to (for example) create a subclass of {@link ItemProvider} that automatically
-     * translates the item's name into the player's language.
+     * Gets the {@link ItemStack} without requesting a specific language.
      *
-     * @param playerUUID The {@link UUID} of the {@link Player}
-     *                   for whom this {@link ItemStack} should be made.
      * @return The {@link ItemStack}
      */
-    ItemStack getFor(@NotNull UUID playerUUID);
+    default ItemStack get() {
+        return get(null);
+    }
     
 }
