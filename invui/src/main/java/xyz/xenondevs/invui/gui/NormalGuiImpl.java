@@ -1,24 +1,19 @@
-package xyz.xenondevs.invui.gui.impl;
+package xyz.xenondevs.invui.gui;
 
 import org.jetbrains.annotations.NotNull;
-import xyz.xenondevs.invui.gui.AbstractGui;
-import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.structure.Structure;
 
 /**
  * A normal {@link Gui} without any special features.
  */
-@SuppressWarnings("DeprecatedIsStillUsed")
-public final class NormalGuiImpl extends AbstractGui {
+final class NormalGuiImpl extends AbstractGui {
     
     /**
      * Creates a new {@link NormalGuiImpl}.
      *
      * @param width  The width of this Gui.
      * @param height The height of this Gui.
-     * @deprecated Use {@link Gui#empty(int, int)} instead.
      */
-    @Deprecated
     public NormalGuiImpl(int width, int height) {
         super(width, height);
     }
@@ -27,12 +22,24 @@ public final class NormalGuiImpl extends AbstractGui {
      * Creates a new {@link NormalGuiImpl}.
      *
      * @param structure The {@link Structure} to use.
-     * @deprecated Use {@link Gui#of(Structure)} instead.
      */
-    @Deprecated
     public NormalGuiImpl(@NotNull Structure structure) {
         super(structure.getWidth(), structure.getHeight());
         applyStructure(structure);
+    }
+    
+    public static class Builder extends AbstractBuilder<Gui, Gui.Builder.Normal> implements Gui.Builder.Normal {
+        
+        @Override
+        public @NotNull Gui build() {
+            if (structure == null)
+                throw new IllegalStateException("Structure is not defined.");
+        
+            var gui = new NormalGuiImpl(structure);
+            applyModifiers(gui);
+            return gui;
+        }
+    
     }
     
 }

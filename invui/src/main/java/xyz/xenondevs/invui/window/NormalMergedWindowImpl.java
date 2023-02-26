@@ -1,4 +1,4 @@
-package xyz.xenondevs.invui.window.impl;
+package xyz.xenondevs.invui.window;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -8,9 +8,8 @@ import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
-import xyz.xenondevs.invui.window.AbstractMergedWindow;
 
-public final class NormalMergedWindowImpl extends AbstractMergedWindow {
+final class NormalMergedWindowImpl extends AbstractMergedWindow {
     
     public NormalMergedWindowImpl(
         @NotNull Player player,
@@ -30,6 +29,32 @@ public final class NormalMergedWindowImpl extends AbstractMergedWindow {
             throw new IllegalArgumentException("Gui height has to be bigger than 4");
         
         return Bukkit.createInventory(null, gui.getSize() - 36);
+    }
+    
+    public static final class BuilderImpl
+        extends AbstractSingleWindow.AbstractBuilder<Window, Player, Window.Builder.Normal.Merged>
+        implements Window.Builder.Normal.Merged
+    {
+        
+        @Override
+        public @NotNull Window build() {
+            if (viewer == null)
+                throw new IllegalStateException("Viewer is not defined.");
+            if (guiSupplier == null)
+                throw new IllegalStateException("Gui is not defined.");
+            
+            var window = new NormalMergedWindowImpl(
+                viewer,
+                title,
+                (AbstractGui) guiSupplier.get(),
+                closeable,
+                retain
+            );
+            
+            applyModifiers(window);
+            
+            return window;
+        }
     }
     
 }

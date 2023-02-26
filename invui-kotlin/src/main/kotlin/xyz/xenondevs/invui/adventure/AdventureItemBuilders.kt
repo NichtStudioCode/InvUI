@@ -8,14 +8,14 @@ import xyz.xenondevs.inventoryaccess.component.AdventureComponentWrapper
 /**
  * Sets the display name of the item stack.
  */
-fun <T> AbstractItemBuilder<T>.setDisplayName(displayName: Component): T = setDisplayName(AdventureComponentWrapper(displayName))
+fun <T : AbstractItemBuilder<T>> T.setDisplayName(displayName: Component): T = setDisplayName(AdventureComponentWrapper(displayName))
 
 /**
  * Sets the lore the item stack.
  */
-fun <T> AbstractItemBuilder<T>.setLore(lore: List<Component>): T = setLore(lore.map { AdventureComponentWrapper(it) })
+fun <T : AbstractItemBuilder<T>> T.setLore(lore: List<Component>): T = setLore(lore.map { AdventureComponentWrapper(it) })
 
 /**
  * Adds lore lines to the item stack.
  */
-fun <T> AbstractItemBuilder<T>.addLoreLines(vararg components: Component): T = addLoreLines(*components.map { AdventureComponentWrapper(it) }.toTypedArray())
+fun <T : AbstractItemBuilder<T>> T.addLoreLines(vararg components: Component): T = addLoreLines(*components.map { AdventureComponentWrapper(it) }.toTypedArray())

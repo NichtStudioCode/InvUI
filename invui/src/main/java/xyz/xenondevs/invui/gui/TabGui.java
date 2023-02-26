@@ -1,15 +1,36 @@
 package xyz.xenondevs.invui.gui;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import xyz.xenondevs.invui.gui.impl.TabGuiImpl;
 import xyz.xenondevs.invui.gui.structure.Structure;
 
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
-@SuppressWarnings("deprecation")
 public interface TabGui extends Gui {
+    
+    /**
+     * Creates a new {@link Builder Gui Builder} for a {@link TabGui}.
+     *
+     * @return The new {@link Builder Gui Builder}.
+     */
+    static @NotNull Builder normal() {
+        return new TabGuiImpl.BuilderImpl();
+    }
+    
+    /**
+     * Creates a new {@link TabGui} after configuring a {@link Builder Gui Builder} using the given {@link Consumer}.
+     *
+     * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
+     * @return The created {@link TabGui}.
+     */
+    static @NotNull TabGui normal(@NotNull Consumer<@NotNull Builder> consumer) {
+        Builder builder = normal();
+        consumer.accept(builder);
+        return builder.build();
+    }
     
     /**
      * Creates a new {@link TabGui}.
@@ -91,5 +112,50 @@ public interface TabGui extends Gui {
      * @param handler The handler to unregister.
      */
     void removeTabChangeHandler(@NotNull BiConsumer<Integer, Integer> handler);
+    
+    /**
+     * A {@link TabGui} builder.
+     */
+    interface Builder extends Gui.Builder<TabGui, Builder> {
+        
+        /**
+         * Sets the tabs of the {@link TabGui}.
+         * Individual tabs can be null to disable them, but there must at least one tab.
+         *
+         * @param tabs The tabs of the {@link TabGui}.
+         * @return This {@link Builder Gui Builder}.
+         */
+        @Contract("_ -> this")
+        Builder setTabs(@NotNull List<@Nullable Gui> tabs);
+        
+        /**
+         * Adds a tab to the {@link TabGui}.
+         * Individual tabs can be null to disable them, but there must at least one tab.
+         *
+         * @param tab The tab to add.
+         * @return This {@link Builder Gui Builder}.
+         */
+        @Contract("_ -> this")
+        Builder addTab(@Nullable Gui tab);
+        
+        /**
+         * Sets the tab change handlers of the {@link TabGui}.
+         *
+         * @param handlers The tab change handlers of the {@link TabGui}.
+         * @return This {@link Builder Gui Builder}.
+         */
+        @Contract("_ -> this")
+        Builder setTabChangeHandlers(@NotNull List<@NotNull BiConsumer<Integer, Integer>> handlers);
+        
+        /**
+         * Adds a tab change handler to the {@link TabGui}.
+         *
+         * @param handler The tab change handler to add.
+         * @return This {@link Builder Gui Builder}.
+         */
+        @Contract("_ -> this")
+        Builder addTabChangeHandler(@NotNull BiConsumer<Integer, Integer> handler);
+        
+    }
     
 }

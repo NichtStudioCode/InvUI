@@ -2,11 +2,12 @@ package xyz.xenondevs.invui.gui;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.invui.animation.Animation;
-import xyz.xenondevs.invui.gui.builder.GuiType;
-import xyz.xenondevs.invui.gui.impl.NormalGuiImpl;
+import xyz.xenondevs.invui.gui.structure.Marker;
 import xyz.xenondevs.invui.gui.structure.Structure;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
@@ -16,7 +17,9 @@ import xyz.xenondevs.invui.window.WindowManager;
 
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * A Gui is a container for width * height {@link SlotElement SlotElements}.<br>
@@ -28,14 +31,32 @@ import java.util.function.Predicate;
  * In order to create an {@link Inventory} which is visible
  * to players, you will need to use a {@link Window}.
  *
- * @see GuiType
- * @see AbstractGui
- * @see AbstractPagedGui
- * @see AbstractScrollGui
- * @see AbstractTabGui
+ * @see PagedGui
+ * @see ScrollGui
+ * @see TabGui
  */
-@SuppressWarnings("deprecation")
 public interface Gui {
+    
+    /**
+     * Creates a new {@link Builder.Normal Gui Builder} for a normal {@link Gui}.
+     *
+     * @return The new {@link Builder.Normal Gui Builder}.
+     */
+    static @NotNull Builder.Normal normal() {
+        return new NormalGuiImpl.Builder();
+    }
+    
+    /**
+     * Creates a new normal {@link Gui} after configuring a {@link Builder.Normal Gui Builder} with the given {@link Consumer}.
+     *
+     * @param consumer The {@link Consumer} to configure the {@link Builder.Normal Gui Builder}.
+     * @return The created {@link Gui}.
+     */
+    static @NotNull Gui normal(@NotNull Consumer<Builder.@NotNull Normal> consumer) {
+        Builder.Normal builder = normal();
+        consumer.accept(builder);
+        return builder.build();
+    }
     
     /**
      * Creates a new empty {@link Gui}.
@@ -355,5 +376,196 @@ public interface Gui {
     void fillRectangle(int x, int y, int width, @NotNull VirtualInventory virtualInventory, @Nullable ItemProvider background, boolean replaceExisting);
     
     //</editor-fold>
+    
+    /**
+     * A {@link Gui} builder.
+     *
+     * @param <G> The type of the {@link Gui}
+     * @param <S> The type of the builder
+     */
+    interface Builder<G extends Gui, S extends Builder<G, S>> extends Cloneable {
+        
+        /**
+         * Sets the {@link Structure} of the {@link Gui}.
+         *
+         * @param structure The {@link Structure} of the {@link Gui}
+         * @return This {@link Builder}
+         */
+        @Contract("_ -> this")
+        S setStructure(@NotNull Structure structure);
+        
+        /**
+         * Sets the {@link Structure} of the {@link Gui} using the given structure data Strings.
+         * Each String is interpreted as a row of the {@link Gui}. All Strings must have the same length.
+         *
+         * @param structureData The structure data
+         * @return This {@link Builder Gui Builder}
+         */
+        @Contract("_ -> this")
+        S setStructure(@NotNull String... structureData);
+        
+        /**
+         * Sets the {@link Structure} of the {@link Gui} using the given structure data, width and height.
+         *
+         * @param width         The width of the {@link Gui}
+         * @param height        The height of the {@link Gui}
+         * @param structureData The structure data
+         * @return This {@link Builder Gui Builder}
+         */
+        @Contract("_, _, _, -> this")
+        S setStructure(int width, int height, @NotNull String structureData);
+        
+        /**
+         * Adds an {@link ItemStack} ingredient under the given key.
+         *
+         * @param key       The key
+         * @param itemStack The {@link ItemStack}
+         * @return This {@link Builder Gui Builder}
+         */
+        @Contract("_, _ -> this")
+        S addIngredient(char key, @NotNull ItemStack itemStack);
+        
+        /**
+         * Adds an {@link ItemProvider} ingredient under the given key.
+         *
+         * @param key          The key
+         * @param itemProvider The {@link ItemProvider}
+         * @return This {@link Builder Gui Builder}
+         */
+        @Contract("_, _ -> this")
+        S addIngredient(char key, @NotNull ItemProvider itemProvider);
+        
+        /**
+         * Adds an {@link Item} ingredient under the given key.
+         *
+         * @param key  The key
+         * @param item The {@link Item}
+         * @return This {@link Builder Gui Builder}
+         */
+        @Contract("_, _ -> this")
+        S addIngredient(char key, @NotNull Item item);
+        
+        /**
+         * Adds an {@link VirtualInventory} ingredient under the given key.
+         *
+         * @param key       The key
+         * @param inventory The {@link VirtualInventory}
+         * @return This {@link Builder Gui Builder}
+         */
+        @Contract("_, _ -> this")
+        S addIngredient(char key, @NotNull VirtualInventory inventory);
+        
+        /**
+         * Adds an {@link VirtualInventory} ingredient under the given key.
+         *
+         * @param key        The key
+         * @param inventory  The {@link VirtualInventory}
+         * @param background The {@link ItemProvider} for empty slots of the {@link VirtualInventory}
+         * @return This {@link Builder Gui Builder}
+         */
+        @Contract("_, _, _ -> this")
+        S addIngredient(char key, @NotNull VirtualInventory inventory, @Nullable ItemProvider background);
+        
+        /**
+         * Adds a {@link SlotElement} ingredient under the given key.
+         *
+         * @param key     The key
+         * @param element The {@link SlotElement}
+         * @return This {@link Builder Gui Builder}
+         */
+        @Contract("_, _ -> this")
+        S addIngredient(char key, @NotNull SlotElement element);
+        
+        /**
+         * Adds a {@link Marker} ingredient under the given key.
+         *
+         * @param key    The key
+         * @param marker The {@link Marker}
+         * @return This {@link Builder Gui Builder}
+         */
+        @Contract("_, _ -> this")
+        S addIngredient(char key, @NotNull Marker marker);
+        
+        /**
+         * Adds a {@link Supplier} of {@link Item Items} ingredient under the given key.
+         *
+         * @param key          The key
+         * @param itemSupplier The {@link Supplier} of {@link Item Items}
+         * @return This {@link Builder Gui Builder}
+         */
+        @Contract("_, _ -> this")
+        S addIngredient(char key, @NotNull Supplier<? extends Item> itemSupplier);
+        
+        /**
+         * Adds a {@link Supplier} of {@link SlotElement SlotElements} ingredient under the given key.
+         *
+         * @param key             The key
+         * @param elementSupplier The {@link Supplier} of {@link SlotElement SlotElements}
+         * @return This {@link Builder Gui Builder}
+         */
+        @Contract("_, _ -> this")
+        S addIngredientElementSupplier(char key, @NotNull Supplier<? extends SlotElement> elementSupplier);
+        
+        /**
+         * Sets the background of the {@link Gui}.
+         *
+         * @param itemProvider The {@link ItemProvider} for the background
+         * @return This {@link Builder Gui Builder}
+         */
+        @Contract("_ -> this")
+        S setBackground(@NotNull ItemProvider itemProvider);
+        
+        /**
+         * Sets the background of the {@link Gui}.
+         *
+         * @param itemStack The {@link ItemStack} for the background
+         * @return This {@link Builder Gui Builder}
+         */
+        @Contract("_ -> this")
+        S setBackground(@NotNull ItemStack itemStack);
+        
+        /**
+         * Sets the background of the {@link Gui}.
+         *
+         * @param modifier The {@link Consumer} for the background
+         * @return This {@link Builder Gui Builder}
+         */
+        @Contract("_ -> this")
+        S addModifier(@NotNull Consumer<@NotNull Gui> modifier);
+        
+        /**
+         * Sets the background of the {@link Gui}.
+         *
+         * @param modifiers The {@link Consumer Consumers} for the background
+         * @return This {@link Builder Gui Builder}
+         */
+        @Contract("_ -> this")
+        S setModifiers(@NotNull List<@NotNull Consumer<@NotNull Gui>> modifiers);
+        
+        /**
+         * Builds the {@link Gui}.
+         *
+         * @return The {@link Gui}
+         */
+        @Contract("-> new")
+        @NotNull G build();
+        
+        /**
+         * Clones the Gui Builder.
+         *
+         * @return The cloned Gui Builder
+         */
+        @Contract("-> new")
+        @NotNull S clone();
+    
+        /**
+         * A normal {@link Gui} builder.
+         * 
+         * @see PagedGui.Builder
+         * @see ScrollGui.Builder
+         * @see TabGui.Builder
+         */
+        interface Normal extends Builder<Gui, Normal> {}
+    }
     
 }

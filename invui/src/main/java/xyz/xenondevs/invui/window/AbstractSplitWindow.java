@@ -3,12 +3,15 @@ package xyz.xenondevs.invui.window;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
+import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.util.Pair;
 import xyz.xenondevs.invui.util.SlotUtils;
+
+import java.util.function.Supplier;
 
 /**
  * A {@link Window} where top and player {@link Inventory} are affected by different {@link Gui}s.
@@ -62,6 +65,53 @@ public abstract class AbstractSplitWindow extends AbstractDoubleWindow {
     @Override
     public AbstractGui[] getGuis() {
         return new AbstractGui[] {upperGui, lowerGui};
+    }
+    
+    @SuppressWarnings("unchecked")
+    public static abstract class AbstractBuilder<W extends Window, V, S extends Window.Builder.Double<W, V, S>>
+        extends AbstractWindow.AbstractBuilder<W, V, S>
+        implements Window.Builder.Double<W, V, S>
+    {
+        
+        protected Supplier<Gui> upperGuiSupplier;
+        protected Supplier<Gui> lowerGuiSupplier;
+        
+        @Override
+        public S setUpperGui(@NotNull Supplier<Gui> guiSupplier) {
+            this.upperGuiSupplier = guiSupplier;
+            return (S) this;
+        }
+        
+        @Override
+        public S setUpperGui(@NotNull Gui gui) {
+            this.upperGuiSupplier = () -> gui;
+            return (S) this;
+        }
+        
+        @Override
+        public S setUpperGui(@NotNull Gui.Builder<?, ?> builder) {
+            this.upperGuiSupplier = builder::build;
+            return (S) this;
+        }
+        
+        @Override
+        public S setLowerGui(@NotNull Supplier<Gui> guiSupplier) {
+            this.lowerGuiSupplier = guiSupplier;
+            return (S) this;
+        }
+        
+        @Override
+        public S setLowerGui(@NotNull Gui gui) {
+            this.lowerGuiSupplier = () -> gui;
+            return (S) this;
+        }
+        
+        @Override
+        public S setLowerGui(@NotNull Gui.Builder<?, ?> builder) {
+            this.lowerGuiSupplier = builder::build;
+            return (S) this;
+        }
+        
     }
     
 }

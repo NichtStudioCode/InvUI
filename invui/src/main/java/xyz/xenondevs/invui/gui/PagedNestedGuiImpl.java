@@ -1,12 +1,7 @@
-package xyz.xenondevs.invui.gui.impl;
+package xyz.xenondevs.invui.gui;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import xyz.xenondevs.invui.gui.AbstractPagedGui;
-import xyz.xenondevs.invui.gui.Gui;
-import xyz.xenondevs.invui.gui.PagedGui;
-import xyz.xenondevs.invui.gui.SlotElement;
-import xyz.xenondevs.invui.gui.builder.GuiType;
 import xyz.xenondevs.invui.gui.structure.Structure;
 
 import java.util.ArrayList;
@@ -17,11 +12,9 @@ import java.util.stream.IntStream;
 /**
  * A {@link AbstractPagedGui} where every page is its own {@link Gui}.
  *
- * @see GuiType
  * @see PagedItemsGuiImpl
  */
-@SuppressWarnings("DeprecatedIsStillUsed")
-public final class PagedNestedGuiImpl extends AbstractPagedGui<Gui> {
+final class PagedNestedGuiImpl extends AbstractPagedGui<Gui> {
     
     private List<Gui> guis;
     
@@ -32,9 +25,7 @@ public final class PagedNestedGuiImpl extends AbstractPagedGui<Gui> {
      * @param height           The height of this Gui.
      * @param guis             The {@link Gui Guis} to use as pages.
      * @param contentListSlots The slots where content should be displayed.
-     * @deprecated Use {@link PagedGui#ofGuis(int, int, List, int...)} instead.
      */
-    @Deprecated
     public PagedNestedGuiImpl(int width, int height, @Nullable List<@NotNull Gui> guis, int... contentListSlots) {
         super(width, height, false, contentListSlots);
         setContent(guis);
@@ -45,9 +36,7 @@ public final class PagedNestedGuiImpl extends AbstractPagedGui<Gui> {
      *
      * @param guis      The {@link Gui Guis} to use as pages.
      * @param structure The {@link Structure} to use.
-     * @deprecated Use {@link PagedGui#ofGuis(Structure, List)} instead.
      */
-    @Deprecated
     public PagedNestedGuiImpl(@Nullable List<@NotNull Gui> guis, @NotNull Structure structure) {
         super(structure.getWidth(), structure.getHeight(), false, structure);
         setContent(guis);
@@ -74,6 +63,20 @@ public final class PagedNestedGuiImpl extends AbstractPagedGui<Gui> {
         return IntStream.range(0, size)
             .mapToObj(i -> new SlotElement.LinkedSlotElement(gui, i))
             .collect(Collectors.toList());
+    }
+    
+    public static final class Builder extends AbstractBuilder<Gui> {
+        
+        @Override
+        public @NotNull PagedGui<Gui> build() {
+            if (structure == null)
+                throw new IllegalStateException("Structure is not defined.");
+            
+            var gui = new PagedNestedGuiImpl(content, structure);
+            applyModifiers(gui);
+            return gui;
+        }
+        
     }
     
 }

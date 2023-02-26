@@ -1,17 +1,42 @@
 package xyz.xenondevs.invui.gui;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import xyz.xenondevs.invui.gui.impl.PagedItemsGuiImpl;
-import xyz.xenondevs.invui.gui.impl.PagedNestedGuiImpl;
 import xyz.xenondevs.invui.gui.structure.Structure;
 import xyz.xenondevs.invui.item.Item;
 
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
-@SuppressWarnings("deprecation")
+/**
+ * A {@link Gui} that can display multiple pages of content.
+ *
+ * @param <C> The content type
+ */
 public interface PagedGui<C> extends Gui {
+    
+    /**
+     * Creates a new {@link Builder Gui Builder} for a {@link PagedGui} that uses {@link Item Items} as content.
+     *
+     * @return The new {@link Builder Gui Builder}.
+     */
+    static @NotNull Builder<@NotNull Item> items() {
+        return new PagedItemsGuiImpl.Builder();
+    }
+    
+    /**
+     * Creates a new {@link PagedGui} after configuring a {@link Builder Gui Builder} using the given {@link Consumer}.
+     *
+     * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
+     * @return The created {@link PagedGui}.
+     */
+    static @NotNull PagedGui<@NotNull Item> items(@NotNull Consumer<@NotNull Builder<@NotNull Item>> consumer) {
+        Builder<@NotNull Item> builder = items();
+        consumer.accept(builder);
+        return builder.build();
+    }
     
     /**
      * Creates a new {@link PagedGui}.
@@ -22,7 +47,7 @@ public interface PagedGui<C> extends Gui {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link PagedGui}.
      */
-    static @NotNull PagedGui<Item> ofItems(int width, int height, @NotNull List<@NotNull Item> items, int... contentListSlots) {
+    static @NotNull PagedGui<@NotNull Item> ofItems(int width, int height, @NotNull List<@NotNull Item> items, int... contentListSlots) {
         return new PagedItemsGuiImpl(width, height, items, contentListSlots);
     }
     
@@ -33,8 +58,29 @@ public interface PagedGui<C> extends Gui {
      * @param items     The {@link Item Items} to use as in pages.
      * @return The created {@link PagedGui}.
      */
-    static @NotNull PagedGui<Item> ofItems(Structure structure, @NotNull List<@NotNull Item> items) {
+    static @NotNull PagedGui<@NotNull Item> ofItems(@NotNull Structure structure, @NotNull List<@NotNull Item> items) {
         return new PagedItemsGuiImpl(items, structure);
+    }
+    
+    /**
+     * Creates a new {@link Builder Gui Builder} for a {@link PagedGui} that uses {@link Gui Guis} as content.
+     *
+     * @return The new {@link Builder Gui Builder}.
+     */
+    static @NotNull Builder<@NotNull Gui> guis() {
+        return new PagedNestedGuiImpl.Builder();
+    }
+    
+    /**
+     * Creates a new {@link PagedGui} after configuring a {@link Builder Gui Builder} using the given {@link Consumer}.
+     *
+     * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
+     * @return The created {@link PagedGui}.
+     */
+    static @NotNull PagedGui<@NotNull Gui> guis(@NotNull Consumer<@NotNull Builder<@NotNull Gui>> consumer) {
+        Builder<@NotNull Gui> builder = guis();
+        consumer.accept(builder);
+        return builder.build();
     }
     
     /**
@@ -46,7 +92,7 @@ public interface PagedGui<C> extends Gui {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link PagedGui}.
      */
-    static @NotNull PagedGui<Gui> ofGuis(int width, int height, @NotNull List<@NotNull Gui> guis, int... contentListSlots) {
+    static @NotNull PagedGui<@NotNull Gui> ofGuis(int width, int height, @NotNull List<@NotNull Gui> guis, int... contentListSlots) {
         return new PagedNestedGuiImpl(width, height, guis, contentListSlots);
     }
     
@@ -57,7 +103,7 @@ public interface PagedGui<C> extends Gui {
      * @param guis      The {@link Gui Guis} to use as pages.
      * @return The created {@link PagedGui}.
      */
-    static @NotNull PagedGui<Gui> ofGuis(Structure structure, @NotNull List<@NotNull Gui> guis) {
+    static @NotNull PagedGui<@NotNull Gui> ofGuis(@NotNull Structure structure, @NotNull List<@NotNull Gui> guis) {
         return new PagedNestedGuiImpl(guis, structure);
     }
     
@@ -154,5 +200,50 @@ public interface PagedGui<C> extends Gui {
      * @param handler The handler to unregister.
      */
     void removePageChangeHandler(@NotNull BiConsumer<Integer, Integer> handler);
+    
+    /**
+     * A {@link PagedGui} builder.
+     *
+     * @param <C> The content type.
+     */
+    interface Builder<C> extends Gui.Builder<PagedGui<C>, Builder<C>> {
+        
+        /**
+         * Sets the content of the {@link PagedGui} for all pages.
+         *
+         * @param content The content to set.
+         * @return This {@link Builder Gui Builder}.
+         */
+        @Contract("_ -> this")
+        Builder<C> setContent(@NotNull List<@NotNull C> content);
+        
+        /**
+         * Adds content to the {@link PagedGui}.
+         *
+         * @param content The content to add.
+         * @return This {@link Builder Gui Builder}.
+         */
+        @Contract("_ -> this")
+        Builder<C> addContent(@NotNull C content);
+        
+        /**
+         * Sets the page change handlers of the {@link PagedGui}.
+         *
+         * @param handlers The page change handlers to set.
+         * @return This {@link Builder Gui Builder}.
+         */
+        @Contract("_ -> this")
+        Builder<C> setPageChangeHandlers(@NotNull List<@NotNull BiConsumer<Integer, Integer>> handlers);
+        
+        /**
+         * Adds a page change handler to the {@link PagedGui}.
+         *
+         * @param handler The page change handler to add.
+         * @return This {@link Builder Gui Builder}.
+         */
+        @Contract("_ -> this")
+        Builder<C> addPageChangeHandler(@NotNull BiConsumer<Integer, Integer> handler);
+        
+    }
     
 }

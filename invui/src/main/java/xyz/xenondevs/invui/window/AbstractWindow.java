@@ -34,6 +34,7 @@ import xyz.xenondevs.invui.virtualinventory.event.PlayerUpdateReason;
 import xyz.xenondevs.invui.virtualinventory.event.UpdateReason;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 public abstract class AbstractWindow implements Window, GuiParent {
     
@@ -364,5 +365,109 @@ public abstract class AbstractWindow implements Window, GuiParent {
     public abstract void handleCursorCollect(InventoryClickEvent event);
     
     public abstract void handleViewerDeath(PlayerDeathEvent event);
+    
+    @SuppressWarnings("unchecked")
+    public static abstract class AbstractBuilder<W extends Window, V, S extends Window.Builder<W, V, S>> implements Window.Builder<W, V, S> {
+        
+        protected V viewer;
+        protected ComponentWrapper title;
+        protected boolean closeable = true;
+        protected boolean retain = false;
+        protected List<Runnable> closeHandlers;
+        protected List<Consumer<Window>> modifiers;
+        
+        @Override
+        public S setViewer(@NotNull V viewer) {
+            this.viewer = viewer;
+            return (S) this;
+        }
+        
+        @Override
+        public S setTitle(@NotNull ComponentWrapper title) {
+            this.title = title;
+            return (S) this;
+        }
+        
+        @Override
+        public S setTitle(@NotNull BaseComponent @NotNull [] title) {
+            this.title = new BaseComponentWrapper(title);
+            return (S) this;
+        }
+        
+        @Override
+        public S setTitle(@NotNull String title) {
+            this.title = new BaseComponentWrapper(TextComponent.fromLegacyText(title));
+            return (S) this;
+        }
+        
+        @Override
+        public S setCloseable(boolean closeable) {
+            this.closeable = closeable;
+            return (S) this;
+        }
+        
+        @Override
+        public S setRetain(boolean retain) {
+            this.retain = retain;
+            return (S) this;
+        }
+        
+        @Override
+        public S setCloseHandlers(List<Runnable> closeHandlers) {
+            this.closeHandlers = closeHandlers;
+            return (S) this;
+        }
+        
+        @Override
+        public S addCloseHandler(Runnable closeHandler) {
+            if (closeHandlers == null)
+                closeHandlers = new ArrayList<>();
+            
+            closeHandlers.add(closeHandler);
+            return (S) this;
+        }
+        
+        @Override
+        public S setModifiers(List<Consumer<Window>> modifiers) {
+            this.modifiers = modifiers;
+            return (S) this;
+        }
+        
+        @Override
+        public S addModifier(Consumer<Window> modifier) {
+            if (modifiers == null)
+                modifiers = new ArrayList<>();
+            
+            modifiers.add(modifier);
+            return (S) this;
+        }
+        
+        protected void applyModifiers(W window) {
+            if (closeHandlers != null)
+                window.setCloseHandlers(closeHandlers);
+            
+            if (modifiers != null)
+                modifiers.forEach(modifier -> modifier.accept(window));
+        }
+        
+        @SuppressWarnings("unchecked")
+        @Override
+        public @NotNull S clone() {
+            try {
+                var clone = (AbstractBuilder<W, V, S>) super.clone();
+                if (title != null)
+                    clone.title = title.clone();
+                if (closeHandlers != null)
+                    clone.closeHandlers = new ArrayList<>(closeHandlers);
+                if (modifiers != null)
+                    clone.modifiers = new ArrayList<>(modifiers);
+                return (S) clone;
+            } catch (CloneNotSupportedException e) {
+                throw new AssertionError();
+            }
+        }
+        
+    }
+    
     
 }

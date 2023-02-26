@@ -1,4 +1,4 @@
-package xyz.xenondevs.invui.window.impl;
+package xyz.xenondevs.invui.window;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -14,12 +14,10 @@ import xyz.xenondevs.inventoryaccess.map.MapIcon;
 import xyz.xenondevs.inventoryaccess.map.MapPatch;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.util.MathUtils;
-import xyz.xenondevs.invui.window.AbstractSingleWindow;
-import xyz.xenondevs.invui.window.CartographyWindow;
 
 import java.util.List;
 
-public final class CartographySingleWindowImpl extends AbstractSingleWindow implements CartographyWindow {
+final class CartographySingleWindowImpl extends AbstractSingleWindow implements CartographyWindow {
     
     private final CartographyInventory cartographyInventory;
     private int mapId;
@@ -81,6 +79,33 @@ public final class CartographySingleWindowImpl extends AbstractSingleWindow impl
         if (viewer == null)
             throw new IllegalStateException("The player is not online.");
         cartographyInventory.open();
+    }
+    
+    public static final class BuilderImpl 
+        extends AbstractSingleWindow.AbstractBuilder<CartographyWindow, Player, CartographyWindow.Builder.Single>
+        implements CartographyWindow.Builder.Single
+    {
+        
+        @Override
+        public @NotNull CartographyWindow build() {
+            if (viewer == null)
+                throw new IllegalStateException("Viewer is not defined.");
+            if (guiSupplier == null)
+                throw new IllegalStateException("Gui is not defined.");
+            
+            var window = new CartographySingleWindowImpl(
+                viewer,
+                title,
+                (AbstractGui) guiSupplier.get(),
+                closeable,
+                retain
+            );
+            
+            applyModifiers(window);
+            
+            return window;
+        }
+        
     }
     
 }

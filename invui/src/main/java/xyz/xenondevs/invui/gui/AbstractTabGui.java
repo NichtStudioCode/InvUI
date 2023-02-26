@@ -96,5 +96,58 @@ public abstract class AbstractTabGui extends AbstractGui implements TabGui {
     
     protected abstract List<SlotElement> getSlotElements(int tab);
     
+    public static abstract class AbstractBuilder
+        extends AbstractGui.AbstractBuilder<TabGui, TabGui.Builder>
+        implements TabGui.Builder
+    {
+        
+        protected List<Gui> tabs;
+        protected List<BiConsumer<Integer, Integer>> tabChangeHandlers;
+        
+        @Override
+        public TabGui.Builder setTabs(@NotNull List<@Nullable Gui> tabs) {
+            this.tabs = tabs;
+            return this;
+        }
+        
+        @Override
+        public TabGui.Builder addTab(@Nullable Gui tab) {
+            if (this.tabs == null)
+                this.tabs = new ArrayList<>();
+            
+            this.tabs.add(tab);
+            return this;
+        }
+        
+        @Override
+        public TabGui.Builder addTabChangeHandler(@NotNull BiConsumer<Integer, Integer> handler) {
+            if (tabChangeHandlers == null)
+                tabChangeHandlers = new ArrayList<>(1);
+            
+            tabChangeHandlers.add(handler);
+            return this;
+        }
+        
+        @Override
+        public TabGui.Builder setTabChangeHandlers(@NotNull List<@NotNull BiConsumer<Integer, Integer>> handlers) {
+            tabChangeHandlers = handlers;
+            return this;
+        }
+        
+        @Override
+        protected void applyModifiers(@NotNull TabGui gui) {
+            super.applyModifiers(gui);
+            gui.setTabChangeHandlers(tabChangeHandlers);
+        }
+        
+        @Override
+        public @NotNull TabGui.Builder clone() {
+            var clone = (AbstractBuilder) super.clone();
+            clone.tabs = new ArrayList<>(tabs);
+            clone.tabChangeHandlers = new ArrayList<>(tabChangeHandlers);
+            return clone;
+        }
+        
+    }
     
 }

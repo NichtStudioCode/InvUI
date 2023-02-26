@@ -5,6 +5,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
@@ -13,6 +14,7 @@ import xyz.xenondevs.invui.util.InventoryUtils;
 import xyz.xenondevs.invui.util.Pair;
 
 import java.util.UUID;
+import java.util.function.Supplier;
 
 /**
  * A {@link Window} that just uses the top {@link Inventory}.
@@ -104,6 +106,34 @@ public abstract class AbstractSingleWindow extends AbstractWindow {
     
     public AbstractGui getGui() {
         return gui;
+    }
+    
+    @SuppressWarnings("unchecked")
+    public abstract static class AbstractBuilder<W extends Window, V, S extends Builder.Single<W, V, S>>
+        extends AbstractWindow.AbstractBuilder<W, V, S>
+        implements Builder.Single<W, V, S>
+    {
+        
+        protected Supplier<Gui> guiSupplier;
+        
+        @Override
+        public S setGui(@NotNull Supplier<Gui> guiSupplier) {
+            this.guiSupplier = guiSupplier;
+            return (S) this;
+        }
+        
+        @Override
+        public S setGui(@NotNull Gui gui) {
+            this.guiSupplier = () -> gui;
+            return (S) this;
+        }
+        
+        @Override
+        public S setGui(@NotNull Gui.Builder<?, ?> builder) {
+            this.guiSupplier = builder::build;
+            return (S) this;
+        }
+        
     }
     
 }

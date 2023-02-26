@@ -1,4 +1,4 @@
-package xyz.xenondevs.invui.window.impl;
+package xyz.xenondevs.invui.window;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -13,14 +13,11 @@ import xyz.xenondevs.inventoryaccess.map.MapIcon;
 import xyz.xenondevs.inventoryaccess.map.MapPatch;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
-import xyz.xenondevs.invui.gui.impl.NormalGuiImpl;
 import xyz.xenondevs.invui.util.MathUtils;
-import xyz.xenondevs.invui.window.AbstractSplitWindow;
-import xyz.xenondevs.invui.window.CartographyWindow;
 
 import java.util.List;
 
-public final class CartographySplitWindowImpl extends AbstractSplitWindow implements CartographyWindow {
+final class CartographySplitWindowImpl extends AbstractSplitWindow implements CartographyWindow {
     
     private final CartographyInventory cartographyInventory;
     private int mapId;
@@ -43,14 +40,13 @@ public final class CartographySplitWindowImpl extends AbstractSplitWindow implem
         register();
     }
     
-    @SuppressWarnings("deprecation")
     private static AbstractGui createWrappingGui(Gui upperGui) {
         if (upperGui.getWidth() != 2 || upperGui.getHeight() != 1)
             throw new IllegalArgumentException("Gui has to be 2x1");
         
-        NormalGuiImpl wrapperGui = new NormalGuiImpl(3, 1);
+        Gui wrapperGui = Gui.empty(3, 1);
         wrapperGui.fillRectangle(1, 0, upperGui, true);
-        return wrapperGui;
+        return (AbstractGui) wrapperGui;
     }
     
     @Override
@@ -79,5 +75,34 @@ public final class CartographySplitWindowImpl extends AbstractSplitWindow implem
             throw new IllegalStateException("The player is not online.");
         cartographyInventory.open();
     }
+    
+    public static final class BuilderImpl
+        extends AbstractSplitWindow.AbstractBuilder<CartographyWindow, Player, CartographyWindow.Builder.Split>
+        implements CartographyWindow.Builder.Split
+    {
+        
+        @Override
+        public @NotNull CartographyWindow build() {
+            if (viewer == null)
+                throw new IllegalStateException("Viewer is not defined.");
+            if (upperGuiSupplier == null)
+                throw new IllegalStateException("Upper Gui is not defined.");
+            
+            var window = new CartographySplitWindowImpl(
+                viewer,
+                title,
+                (AbstractGui) upperGuiSupplier.get(),
+                (AbstractGui) lowerGuiSupplier.get(),
+                closeable,
+                retain
+            );
+            
+            applyModifiers(window);
+            
+            return window;
+        }
+        
+    }
+    
     
 }

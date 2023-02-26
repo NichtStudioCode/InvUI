@@ -1,12 +1,7 @@
-package xyz.xenondevs.invui.gui.impl;
+package xyz.xenondevs.invui.gui;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import xyz.xenondevs.invui.gui.AbstractTabGui;
-import xyz.xenondevs.invui.gui.Gui;
-import xyz.xenondevs.invui.gui.SlotElement;
-import xyz.xenondevs.invui.gui.TabGui;
-import xyz.xenondevs.invui.gui.builder.GuiType;
 import xyz.xenondevs.invui.gui.structure.Structure;
 
 import java.util.ArrayList;
@@ -16,11 +11,8 @@ import java.util.stream.Collectors;
 
 /**
  * A {@link Gui} that has multiple tabs with which users can switch between {@link Gui}s.
- *
- * @see GuiType
  */
-@SuppressWarnings("DeprecatedIsStillUsed")
-public final class TabGuiImpl extends AbstractTabGui {
+final class TabGuiImpl extends AbstractTabGui {
     
     private final List<Gui> tabs;
     private final List<List<SlotElement>> linkingElements;
@@ -32,9 +24,7 @@ public final class TabGuiImpl extends AbstractTabGui {
      * @param height           The height of this Gui.
      * @param tabs             The {@link Gui Guis} to use as tabs.
      * @param contentListSlots The slots where content should be displayed.
-     * @deprecated Use {@link TabGui#of(int, int, List, int...)} instead.
      */
-    @Deprecated
     public TabGuiImpl(int width, int height, @NotNull List<@Nullable Gui> tabs, int[] contentListSlots) {
         super(width, height, tabs.size(), contentListSlots);
         this.linkingElements = tabs.stream().map(this::getLinkingElements).collect(Collectors.toList());
@@ -48,9 +38,7 @@ public final class TabGuiImpl extends AbstractTabGui {
      *
      * @param tabs      The {@link Gui Guis} to use as tabs.
      * @param structure The {@link Structure} to use.
-     * @deprecated Use {@link TabGui#of(Structure, List)} instead.
      */
-    @Deprecated
     public TabGuiImpl(@NotNull List<@Nullable Gui> tabs, @NotNull Structure structure) {
         super(structure.getWidth(), structure.getHeight(), tabs.size(), structure);
         this.linkingElements = tabs.stream().map(this::getLinkingElements).collect(Collectors.toList());
@@ -83,6 +71,21 @@ public final class TabGuiImpl extends AbstractTabGui {
     @Override
     protected List<SlotElement> getSlotElements(int tab) {
         return linkingElements.get(tab);
+    }
+    
+    public static final class BuilderImpl extends AbstractBuilder implements TabGui.Builder {
+        
+        @Override
+        public @NotNull TabGui build() {
+            if (structure == null)
+                throw new IllegalStateException("Structure is not defined.");
+            if (tabs == null)
+                throw new IllegalStateException("Tabs are not defined.");
+            var gui = new TabGuiImpl(tabs, structure);
+            applyModifiers(gui);
+            return gui;
+        }
+        
     }
     
 }

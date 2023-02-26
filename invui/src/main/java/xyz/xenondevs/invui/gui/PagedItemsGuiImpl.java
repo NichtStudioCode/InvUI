@@ -1,11 +1,7 @@
-package xyz.xenondevs.invui.gui.impl;
+package xyz.xenondevs.invui.gui;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import xyz.xenondevs.invui.gui.AbstractPagedGui;
-import xyz.xenondevs.invui.gui.PagedGui;
-import xyz.xenondevs.invui.gui.SlotElement;
-import xyz.xenondevs.invui.gui.builder.GuiType;
 import xyz.xenondevs.invui.gui.structure.Structure;
 import xyz.xenondevs.invui.item.Item;
 
@@ -17,11 +13,9 @@ import java.util.stream.Collectors;
 /**
  * A {@link AbstractPagedGui} that is filled with {@link Item Items}.
  *
- * @see GuiType
  * @see PagedNestedGuiImpl
  */
-@SuppressWarnings("DeprecatedIsStillUsed")
-public final class PagedItemsGuiImpl extends AbstractPagedGui<Item> {
+final class PagedItemsGuiImpl extends AbstractPagedGui<Item> {
     
     private List<Item> items;
     private List<BiConsumer<Integer, Integer>> pageChangeHandlers;
@@ -33,9 +27,7 @@ public final class PagedItemsGuiImpl extends AbstractPagedGui<Item> {
      * @param height           The height of this Gui.
      * @param items            The {@link Item Items} to use as pages.
      * @param contentListSlots The slots where content should be displayed.
-     * @deprecated Use {@link PagedGui#ofItems(int, int, List, int...)} instead.
      */
-    @Deprecated
     public PagedItemsGuiImpl(int width, int height, @Nullable List<@NotNull Item> items, int... contentListSlots) {
         super(width, height, false, contentListSlots);
         setContent(items);
@@ -46,9 +38,7 @@ public final class PagedItemsGuiImpl extends AbstractPagedGui<Item> {
      *
      * @param items     The {@link Item Items} to use as pages.
      * @param structure The {@link Structure} to use.
-     * @deprecated Use {@link PagedGui#ofItems(Structure, List)} instead.
      */
-    @Deprecated
     public PagedItemsGuiImpl(@Nullable List<@NotNull Item> items, @NotNull Structure structure) {
         super(structure.getWidth(), structure.getHeight(), false, structure);
         setContent(items);
@@ -72,6 +62,20 @@ public final class PagedItemsGuiImpl extends AbstractPagedGui<Item> {
         int to = Math.min(from + length, items.size());
         
         return items.subList(from, to).stream().map(SlotElement.ItemSlotElement::new).collect(Collectors.toList());
+    }
+    
+    public static final class Builder extends AbstractBuilder<Item> {
+        
+        @Override
+        public @NotNull PagedGui<Item> build() {
+            if (structure == null)
+                throw new IllegalStateException("Structure is not defined.");
+            
+            var gui = new PagedItemsGuiImpl(content, structure);
+            applyModifiers(gui);
+            return gui;
+        }
+        
     }
     
 }

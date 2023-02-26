@@ -1,8 +1,6 @@
 package xyz.xenondevs.invui.gui;
 
 import org.jetbrains.annotations.NotNull;
-import xyz.xenondevs.invui.gui.impl.ScrollItemsGuiImpl;
-import xyz.xenondevs.invui.gui.impl.ScrollNestedGuiImpl;
 import xyz.xenondevs.invui.gui.structure.Structure;
 import xyz.xenondevs.invui.util.SlotUtils;
 
@@ -133,5 +131,59 @@ public abstract class AbstractScrollGui<C> extends AbstractGui implements Scroll
     }
     
     protected abstract List<? extends SlotElement> getElements(int from, int to);
+    
+    public abstract static class AbstractBuilder<C>
+        extends AbstractGui.AbstractBuilder<ScrollGui<C>, ScrollGui.Builder<C>>
+        implements ScrollGui.Builder<C>
+    {
+        
+        protected List<C> content;
+        protected List<BiConsumer<Integer, Integer>> scrollHandlers;
+        
+        @Override
+        public ScrollGui.Builder<C> setContent(@NotNull List<@NotNull C> content) {
+            this.content = content;
+            return this;
+        }
+        
+        @Override
+        public ScrollGui.Builder<C> addContent(@NotNull C content) {
+            if (this.content == null)
+                this.content = new ArrayList<>();
+            
+            this.content.add(content);
+            return this;
+        }
+        
+        @Override
+        public ScrollGui.Builder<C> setScrollHandlers(@NotNull List<@NotNull BiConsumer<Integer, Integer>> handlers) {
+            scrollHandlers = handlers;
+            return this;
+        }
+        
+        @Override
+        public ScrollGui.Builder<C> addScrollHandler(@NotNull BiConsumer<Integer, Integer> handler) {
+            if (scrollHandlers == null)
+                scrollHandlers = new ArrayList<>(1);
+            
+            scrollHandlers.add(handler);
+            return this;
+        }
+        
+        @Override
+        protected void applyModifiers(@NotNull ScrollGui<C> gui) {
+            super.applyModifiers(gui);
+            gui.setScrollHandlers(scrollHandlers);
+        }
+        
+        @Override
+        public @NotNull ScrollGui.Builder<C> clone() {
+            var clone = (AbstractBuilder<C>) super.clone();
+            clone.content = new ArrayList<>(content);
+            clone.scrollHandlers = new ArrayList<>(scrollHandlers);
+            return clone;
+        }
+        
+    }
     
 }
