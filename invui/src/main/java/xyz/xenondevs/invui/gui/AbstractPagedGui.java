@@ -140,13 +140,13 @@ public abstract class AbstractPagedGui<C> extends AbstractGui implements PagedGu
         protected List<BiConsumer<Integer, Integer>> pageChangeHandlers;
         
         @Override
-        public PagedGui.Builder<C> setContent(@NotNull List<@NotNull C> content) {
+        public PagedGui.@NotNull Builder<C> setContent(@NotNull List<@NotNull C> content) {
             this.content = content;
             return this;
         }
         
         @Override
-        public PagedGui.Builder<C> addContent(@NotNull C content) {
+        public PagedGui.@NotNull Builder<C> addContent(@NotNull C content) {
             if (this.content == null)
                 this.content = new ArrayList<>();
             
@@ -155,13 +155,13 @@ public abstract class AbstractPagedGui<C> extends AbstractGui implements PagedGu
         }
         
         @Override
-        public PagedGui.Builder<C> setPageChangeHandlers(@NotNull List<@NotNull BiConsumer<Integer, Integer>> handlers) {
+        public PagedGui.@NotNull Builder<C> setPageChangeHandlers(@NotNull List<@NotNull BiConsumer<Integer, Integer>> handlers) {
             pageChangeHandlers = handlers;
             return this;
         }
         
         @Override
-        public PagedGui.Builder<C> addPageChangeHandler(@NotNull BiConsumer<Integer, Integer> handler) {
+        public PagedGui.@NotNull Builder<C> addPageChangeHandler(@NotNull BiConsumer<Integer, Integer> handler) {
             if (pageChangeHandlers == null)
                 pageChangeHandlers = new ArrayList<>(1);
             

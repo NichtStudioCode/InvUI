@@ -105,13 +105,13 @@ public abstract class AbstractTabGui extends AbstractGui implements TabGui {
         protected List<BiConsumer<Integer, Integer>> tabChangeHandlers;
         
         @Override
-        public TabGui.Builder setTabs(@NotNull List<@Nullable Gui> tabs) {
+        public TabGui.@NotNull Builder setTabs(@NotNull List<@Nullable Gui> tabs) {
             this.tabs = tabs;
             return this;
         }
         
         @Override
-        public TabGui.Builder addTab(@Nullable Gui tab) {
+        public TabGui.@NotNull Builder addTab(@Nullable Gui tab) {
             if (this.tabs == null)
                 this.tabs = new ArrayList<>();
             
@@ -120,7 +120,7 @@ public abstract class AbstractTabGui extends AbstractGui implements TabGui {
         }
         
         @Override
-        public TabGui.Builder addTabChangeHandler(@NotNull BiConsumer<Integer, Integer> handler) {
+        public TabGui.@NotNull Builder addTabChangeHandler(@NotNull BiConsumer<Integer, Integer> handler) {
             if (tabChangeHandlers == null)
                 tabChangeHandlers = new ArrayList<>(1);
             
@@ -129,7 +129,7 @@ public abstract class AbstractTabGui extends AbstractGui implements TabGui {
         }
         
         @Override
-        public TabGui.Builder setTabChangeHandlers(@NotNull List<@NotNull BiConsumer<Integer, Integer>> handlers) {
+        public TabGui.@NotNull Builder setTabChangeHandlers(@NotNull List<@NotNull BiConsumer<Integer, Integer>> handlers) {
             tabChangeHandlers = handlers;
             return this;
         }

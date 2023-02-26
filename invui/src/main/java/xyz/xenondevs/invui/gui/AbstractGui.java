@@ -694,91 +694,91 @@ public abstract class AbstractGui implements Gui, GuiParent {
         protected List<Consumer<Gui>> modifiers;
         
         @Override
-        public S setStructure(int width, int height, @NotNull String structureData) {
+        public @NotNull S setStructure(int width, int height, @NotNull String structureData) {
             structure = new Structure(width, height, structureData);
             return (S) this;
         }
         
         @Override
-        public S setStructure(@NotNull String... structureData) {
+        public @NotNull S setStructure(@NotNull String... structureData) {
             structure = new Structure(structureData);
             return (S) this;
         }
         
         @Override
-        public S setStructure(@NotNull Structure structure) {
+        public @NotNull S setStructure(@NotNull Structure structure) {
             this.structure = structure;
             return (S) this;
         }
         
         @Override
-        public S addIngredient(char key, @NotNull ItemStack itemStack) {
+        public @NotNull S addIngredient(char key, @NotNull ItemStack itemStack) {
             structure.addIngredient(key, itemStack);
             return (S) this;
         }
         
         @Override
-        public S addIngredient(char key, @NotNull ItemProvider itemProvider) {
+        public @NotNull S addIngredient(char key, @NotNull ItemProvider itemProvider) {
             structure.addIngredient(key, itemProvider);
             return (S) this;
         }
         
         @Override
-        public S addIngredient(char key, @NotNull Item item) {
+        public @NotNull S addIngredient(char key, @NotNull Item item) {
             structure.addIngredient(key, item);
             return (S) this;
         }
         
         @Override
-        public S addIngredient(char key, @NotNull VirtualInventory inventory) {
+        public @NotNull S addIngredient(char key, @NotNull VirtualInventory inventory) {
             structure.addIngredient(key, inventory);
             return (S) this;
         }
         
         @Override
-        public S addIngredient(char key, @NotNull VirtualInventory inventory, @Nullable ItemProvider background) {
+        public @NotNull S addIngredient(char key, @NotNull VirtualInventory inventory, @Nullable ItemProvider background) {
             structure.addIngredient(key, inventory, background);
             return (S) this;
         }
         
         @Override
-        public S addIngredient(char key, @NotNull SlotElement element) {
+        public @NotNull S addIngredient(char key, @NotNull SlotElement element) {
             structure.addIngredient(key, element);
             return (S) this;
         }
         
         @Override
-        public S addIngredient(char key, @NotNull Marker marker) {
+        public @NotNull S addIngredient(char key, @NotNull Marker marker) {
             structure.addIngredient(key, marker);
             return (S) this;
         }
         
         @Override
-        public S addIngredient(char key, @NotNull Supplier<? extends Item> itemSupplier) {
+        public @NotNull S addIngredient(char key, @NotNull Supplier<? extends Item> itemSupplier) {
             structure.addIngredient(key, itemSupplier);
             return (S) this;
         }
         
         @Override
-        public S addIngredientElementSupplier(char key, @NotNull Supplier<? extends SlotElement> elementSupplier) {
+        public @NotNull S addIngredientElementSupplier(char key, @NotNull Supplier<? extends SlotElement> elementSupplier) {
             structure.addIngredientElementSupplier(key, elementSupplier);
             return (S) this;
         }
         
         @Override
-        public S setBackground(@NotNull ItemProvider itemProvider) {
+        public @NotNull S setBackground(@NotNull ItemProvider itemProvider) {
             background = itemProvider;
             return (S) this;
         }
         
         @Override
-        public S setBackground(@NotNull ItemStack itemStack) {
+        public @NotNull S setBackground(@NotNull ItemStack itemStack) {
             background = new ItemWrapper(itemStack);
             return (S) this;
         }
         
         @Override
-        public S addModifier(@NotNull Consumer<@NotNull Gui> modifier) {
+        public @NotNull S addModifier(@NotNull Consumer<@NotNull Gui> modifier) {
             if (modifiers == null)
                 modifiers = new ArrayList<>();
             
@@ -787,7 +787,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
         }
         
         @Override
-        public S setModifiers(@NotNull List<@NotNull Consumer<@NotNull Gui>> modifiers) {
+        public @NotNull S setModifiers(@NotNull List<@NotNull Consumer<@NotNull Gui>> modifiers) {
             this.modifiers = modifiers;
             return (S) this;
         }

@@ -141,13 +141,13 @@ public abstract class AbstractScrollGui<C> extends AbstractGui implements Scroll
         protected List<BiConsumer<Integer, Integer>> scrollHandlers;
         
         @Override
-        public ScrollGui.Builder<C> setContent(@NotNull List<@NotNull C> content) {
+        public ScrollGui.@NotNull Builder<C> setContent(@NotNull List<@NotNull C> content) {
             this.content = content;
             return this;
         }
         
         @Override
-        public ScrollGui.Builder<C> addContent(@NotNull C content) {
+        public ScrollGui.@NotNull Builder<C> addContent(@NotNull C content) {
             if (this.content == null)
                 this.content = new ArrayList<>();
             
@@ -156,13 +156,13 @@ public abstract class AbstractScrollGui<C> extends AbstractGui implements Scroll
         }
         
         @Override
-        public ScrollGui.Builder<C> setScrollHandlers(@NotNull List<@NotNull BiConsumer<Integer, Integer>> handlers) {
+        public ScrollGui.@NotNull Builder<C> setScrollHandlers(@NotNull List<@NotNull BiConsumer<Integer, Integer>> handlers) {
             scrollHandlers = handlers;
             return this;
         }
         
         @Override
-        public ScrollGui.Builder<C> addScrollHandler(@NotNull BiConsumer<Integer, Integer> handler) {
+        public ScrollGui.@NotNull Builder<C> addScrollHandler(@NotNull BiConsumer<Integer, Integer> handler) {
             if (scrollHandlers == null)
                 scrollHandlers = new ArrayList<>(1);
             

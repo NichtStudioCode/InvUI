@@ -228,7 +228,7 @@ public interface ScrollGui<C> extends Gui {
          * @return This {@link Builder Gui Builder}.
          */
         @Contract("_ -> this")
-        Builder<C> setContent(@NotNull List<@NotNull C> content);
+        @NotNull Builder<C> setContent(@NotNull List<@NotNull C> content);
         
         /**
          * Adds content to the {@link ScrollGui}.
@@ -237,7 +237,7 @@ public interface ScrollGui<C> extends Gui {
          * @return This {@link Builder Gui Builder}.
          */
         @Contract("_ -> this")
-        Builder<C> addContent(@NotNull C content);
+        @NotNull Builder<C> addContent(@NotNull C content);
         
         /**
          * Adds content to the {@link ScrollGui}.
@@ -246,7 +246,7 @@ public interface ScrollGui<C> extends Gui {
          * @return This {@link Builder Gui Builder}.
          */
         @Contract("_ -> this")
-        Builder<C> setScrollHandlers(@NotNull List<@NotNull BiConsumer<Integer, Integer>> handlers);
+        @NotNull Builder<C> setScrollHandlers(@NotNull List<@NotNull BiConsumer<Integer, Integer>> handlers);
         
         /**
          * Adds a scroll handler to the {@link ScrollGui}.
@@ -255,7 +255,7 @@ public interface ScrollGui<C> extends Gui {
          * @return This {@link Builder Gui Builder}.
          */
         @Contract("_ -> this")
-        Builder<C> addScrollHandler(@NotNull BiConsumer<Integer, Integer> handler);
+        @NotNull Builder<C> addScrollHandler(@NotNull BiConsumer<Integer, Integer> handler);
         
     }
     

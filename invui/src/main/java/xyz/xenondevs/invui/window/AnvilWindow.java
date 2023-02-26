@@ -35,10 +35,10 @@ public interface AnvilWindow extends Window {
     interface Builder<S extends Builder<S>> extends Window.Builder<AnvilWindow, Player, S> {
         
         @Contract("_ -> this")
-        S setRenameHandlers(@NotNull List<@NotNull Consumer<String>> renameHandlers);
+        @NotNull S setRenameHandlers(@NotNull List<@NotNull Consumer<String>> renameHandlers);
         
         @Contract("_ -> this")
-        S addRenameHandler(@NotNull Consumer<String> renameHandler);
+        @NotNull S addRenameHandler(@NotNull Consumer<String> renameHandler);
         
         interface Single extends Builder<Single>, Window.Builder.Single<AnvilWindow, Player, Single> {}
         

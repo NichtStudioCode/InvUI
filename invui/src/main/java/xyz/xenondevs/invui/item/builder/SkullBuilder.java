@@ -11,6 +11,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.inventoryaccess.util.ReflectionRegistry;
 import xyz.xenondevs.inventoryaccess.util.ReflectionUtils;
@@ -30,7 +31,7 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
      *
      * @param uuid The {@link UUID} of the skull owner.
      */
-    public SkullBuilder(UUID uuid) {
+    public SkullBuilder(@NotNull UUID uuid) {
         this(HeadTexture.of(uuid));
     }
     
@@ -39,7 +40,7 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
      *
      * @param username The username of the skull owner.
      */
-    public SkullBuilder(String username) {
+    public SkullBuilder(@NotNull String username) {
         this(HeadTexture.of(username));
     }
     
@@ -48,19 +49,20 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
      *
      * @param headTexture The {@link HeadTexture} to be applied to the skull.
      */
-    public SkullBuilder(HeadTexture headTexture) {
+    public SkullBuilder(@NotNull HeadTexture headTexture) {
         super(Material.PLAYER_HEAD);
         setGameProfile(headTexture);
     }
     
-    private void setGameProfile(HeadTexture texture) {
+    private void setGameProfile(@NotNull HeadTexture texture) {
         gameProfile = new GameProfile(UUID.randomUUID(), null);
         PropertyMap propertyMap = gameProfile.getProperties();
         propertyMap.put("textures", new Property("textures", texture.getTextureValue()));
     }
     
+    @Contract(value = "-> new", pure = true)
     @Override
-    public ItemStack get() {
+    public @NotNull ItemStack get() {
         ItemStack item = super.get();
         ItemMeta meta = item.getItemMeta();
         
@@ -72,14 +74,16 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
         return item;
     }
     
+    @Contract("_ -> this")
     @Override
-    public SkullBuilder setMaterial(@NotNull Material material) {
+    public @NotNull SkullBuilder setMaterial(@NotNull Material material) {
         return this;
     }
     
+    @Contract(value = "-> new", pure = true)
     @Override
-    protected SkullBuilder getThis() {
-        return this;
+    public @NotNull SkullBuilder clone() {
+        return super.clone();
     }
     
     /**
@@ -185,7 +189,7 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
          *
          * @return The stored texture value.
          */
-        public String getTextureValue() {
+        public @NotNull String getTextureValue() {
             return textureValue;
         }
         

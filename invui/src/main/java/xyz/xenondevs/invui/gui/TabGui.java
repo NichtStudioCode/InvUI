@@ -126,7 +126,7 @@ public interface TabGui extends Gui {
          * @return This {@link Builder Gui Builder}.
          */
         @Contract("_ -> this")
-        Builder setTabs(@NotNull List<@Nullable Gui> tabs);
+        @NotNull Builder setTabs(@NotNull List<@Nullable Gui> tabs);
         
         /**
          * Adds a tab to the {@link TabGui}.
@@ -136,7 +136,7 @@ public interface TabGui extends Gui {
          * @return This {@link Builder Gui Builder}.
          */
         @Contract("_ -> this")
-        Builder addTab(@Nullable Gui tab);
+        @NotNull Builder addTab(@Nullable Gui tab);
         
         /**
          * Sets the tab change handlers of the {@link TabGui}.
@@ -145,7 +145,7 @@ public interface TabGui extends Gui {
          * @return This {@link Builder Gui Builder}.
          */
         @Contract("_ -> this")
-        Builder setTabChangeHandlers(@NotNull List<@NotNull BiConsumer<Integer, Integer>> handlers);
+        @NotNull Builder setTabChangeHandlers(@NotNull List<@NotNull BiConsumer<Integer, Integer>> handlers);
         
         /**
          * Adds a tab change handler to the {@link TabGui}.
@@ -154,7 +154,7 @@ public interface TabGui extends Gui {
          * @return This {@link Builder Gui Builder}.
          */
         @Contract("_ -> this")
-        Builder addTabChangeHandler(@NotNull BiConsumer<Integer, Integer> handler);
+        @NotNull Builder addTabChangeHandler(@NotNull BiConsumer<Integer, Integer> handler);
         
     }
     

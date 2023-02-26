@@ -36,9 +36,4 @@ public final class ItemBuilder extends AbstractItemBuilder<ItemBuilder> {
         super(base);
     }
     
-    @Override
-    protected ItemBuilder getThis() {
-        return this;
-    }
-    
 }

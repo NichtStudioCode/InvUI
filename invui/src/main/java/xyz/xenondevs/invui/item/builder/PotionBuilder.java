@@ -6,6 +6,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,36 +18,41 @@ public final class PotionBuilder extends AbstractItemBuilder<PotionBuilder> {
     private Color color;
     private PotionData basePotionData;
     
-    public PotionBuilder(PotionType type) {
+    public PotionBuilder(@NotNull PotionType type) {
         super(type.getMaterial());
     }
     
-    public PotionBuilder(ItemStack base) {
+    public PotionBuilder(@NotNull ItemStack base) {
         super(base);
     }
     
-    public PotionBuilder setColor(Color color) {
+    @Contract("_ -> this")
+    public @NotNull PotionBuilder setColor(@NotNull Color color) {
         this.color = color;
         return this;
     }
     
-    public PotionBuilder setColor(java.awt.Color color) {
+    @Contract("_ -> this")
+    public @NotNull PotionBuilder setColor(@NotNull java.awt.Color color) {
         this.color = Color.fromRGB(color.getRed(), color.getGreen(), color.getBlue());
         return this;
     }
     
-    public PotionBuilder setBasePotionData(PotionData basePotionData) {
+    @Contract("_ -> this")
+    public @NotNull PotionBuilder setBasePotionData(@NotNull PotionData basePotionData) {
         this.basePotionData = basePotionData;
         return this;
     }
     
-    public PotionBuilder addEffect(PotionEffect effect) {
+    @Contract("_ -> this")
+    public @NotNull PotionBuilder addEffect(@NotNull PotionEffect effect) {
         effects.add(effect);
         return this;
     }
     
+    @Contract(value = "-> new", pure = true)
     @Override
-    public ItemStack get() {
+    public @NotNull ItemStack get() {
         ItemStack item = super.get();
         PotionMeta meta = (PotionMeta) item.getItemMeta();
         
@@ -59,15 +66,10 @@ public final class PotionBuilder extends AbstractItemBuilder<PotionBuilder> {
     }
     
     @Override
-    public PotionBuilder clone() {
+    public @NotNull PotionBuilder clone() {
         PotionBuilder builder = super.clone();
         builder.effects = new ArrayList<>(effects);
         return builder;
-    }
-    
-    @Override
-    protected PotionBuilder getThis() {
-        return this;
     }
     
     public enum PotionType {
@@ -76,13 +78,13 @@ public final class PotionBuilder extends AbstractItemBuilder<PotionBuilder> {
         SPLASH(Material.SPLASH_POTION),
         LINGERING(Material.LINGERING_POTION);
         
-        private final Material material;
+        private final @NotNull Material material;
         
-        PotionType(Material material) {
+        PotionType(@NotNull Material material) {
             this.material = material;
         }
         
-        public Material getMaterial() {
+        public @NotNull Material getMaterial() {
             return material;
         }
         

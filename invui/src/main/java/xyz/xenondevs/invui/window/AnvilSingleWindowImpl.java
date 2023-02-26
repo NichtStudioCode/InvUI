@@ -60,13 +60,13 @@ final class AnvilSingleWindowImpl extends AbstractSingleWindow implements AnvilW
         private List<Consumer<String>> renameHandlers;
         
         @Override
-        public BuilderImpl setRenameHandlers(@NotNull List<@NotNull Consumer<String>> renameHandlers) {
+        public @NotNull BuilderImpl setRenameHandlers(@NotNull List<@NotNull Consumer<String>> renameHandlers) {
             this.renameHandlers = renameHandlers;
             return this;
         }
         
         @Override
-        public BuilderImpl addRenameHandler(@NotNull Consumer<String> renameHandler) {
+        public @NotNull BuilderImpl addRenameHandler(@NotNull Consumer<String> renameHandler) {
             if (renameHandlers == null)
                 renameHandlers = new ArrayList<>();
             

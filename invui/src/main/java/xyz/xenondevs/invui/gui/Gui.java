@@ -392,7 +392,7 @@ public interface Gui {
          * @return This {@link Builder}
          */
         @Contract("_ -> this")
-        S setStructure(@NotNull Structure structure);
+        @NotNull S setStructure(@NotNull Structure structure);
         
         /**
          * Sets the {@link Structure} of the {@link Gui} using the given structure data Strings.
@@ -402,7 +402,7 @@ public interface Gui {
          * @return This {@link Builder Gui Builder}
          */
         @Contract("_ -> this")
-        S setStructure(@NotNull String... structureData);
+        @NotNull S setStructure(@NotNull String... structureData);
         
         /**
          * Sets the {@link Structure} of the {@link Gui} using the given structure data, width and height.
@@ -413,7 +413,7 @@ public interface Gui {
          * @return This {@link Builder Gui Builder}
          */
         @Contract("_, _, _, -> this")
-        S setStructure(int width, int height, @NotNull String structureData);
+        @NotNull S setStructure(int width, int height, @NotNull String structureData);
         
         /**
          * Adds an {@link ItemStack} ingredient under the given key.
@@ -423,7 +423,7 @@ public interface Gui {
          * @return This {@link Builder Gui Builder}
          */
         @Contract("_, _ -> this")
-        S addIngredient(char key, @NotNull ItemStack itemStack);
+        @NotNull S addIngredient(char key, @NotNull ItemStack itemStack);
         
         /**
          * Adds an {@link ItemProvider} ingredient under the given key.
@@ -433,7 +433,7 @@ public interface Gui {
          * @return This {@link Builder Gui Builder}
          */
         @Contract("_, _ -> this")
-        S addIngredient(char key, @NotNull ItemProvider itemProvider);
+        @NotNull S addIngredient(char key, @NotNull ItemProvider itemProvider);
         
         /**
          * Adds an {@link Item} ingredient under the given key.
@@ -443,7 +443,7 @@ public interface Gui {
          * @return This {@link Builder Gui Builder}
          */
         @Contract("_, _ -> this")
-        S addIngredient(char key, @NotNull Item item);
+        @NotNull S addIngredient(char key, @NotNull Item item);
         
         /**
          * Adds an {@link VirtualInventory} ingredient under the given key.
@@ -453,7 +453,7 @@ public interface Gui {
          * @return This {@link Builder Gui Builder}
          */
         @Contract("_, _ -> this")
-        S addIngredient(char key, @NotNull VirtualInventory inventory);
+        @NotNull S addIngredient(char key, @NotNull VirtualInventory inventory);
         
         /**
          * Adds an {@link VirtualInventory} ingredient under the given key.
@@ -464,7 +464,7 @@ public interface Gui {
          * @return This {@link Builder Gui Builder}
          */
         @Contract("_, _, _ -> this")
-        S addIngredient(char key, @NotNull VirtualInventory inventory, @Nullable ItemProvider background);
+        @NotNull S addIngredient(char key, @NotNull VirtualInventory inventory, @Nullable ItemProvider background);
         
         /**
          * Adds a {@link SlotElement} ingredient under the given key.
@@ -474,7 +474,7 @@ public interface Gui {
          * @return This {@link Builder Gui Builder}
          */
         @Contract("_, _ -> this")
-        S addIngredient(char key, @NotNull SlotElement element);
+        @NotNull S addIngredient(char key, @NotNull SlotElement element);
         
         /**
          * Adds a {@link Marker} ingredient under the given key.
@@ -484,7 +484,7 @@ public interface Gui {
          * @return This {@link Builder Gui Builder}
          */
         @Contract("_, _ -> this")
-        S addIngredient(char key, @NotNull Marker marker);
+        @NotNull S addIngredient(char key, @NotNull Marker marker);
         
         /**
          * Adds a {@link Supplier} of {@link Item Items} ingredient under the given key.
@@ -494,7 +494,7 @@ public interface Gui {
          * @return This {@link Builder Gui Builder}
          */
         @Contract("_, _ -> this")
-        S addIngredient(char key, @NotNull Supplier<? extends Item> itemSupplier);
+        @NotNull S addIngredient(char key, @NotNull Supplier<? extends Item> itemSupplier);
         
         /**
          * Adds a {@link Supplier} of {@link SlotElement SlotElements} ingredient under the given key.
@@ -504,7 +504,7 @@ public interface Gui {
          * @return This {@link Builder Gui Builder}
          */
         @Contract("_, _ -> this")
-        S addIngredientElementSupplier(char key, @NotNull Supplier<? extends SlotElement> elementSupplier);
+        @NotNull S addIngredientElementSupplier(char key, @NotNull Supplier<? extends SlotElement> elementSupplier);
         
         /**
          * Sets the background of the {@link Gui}.
@@ -513,7 +513,7 @@ public interface Gui {
          * @return This {@link Builder Gui Builder}
          */
         @Contract("_ -> this")
-        S setBackground(@NotNull ItemProvider itemProvider);
+        @NotNull S setBackground(@NotNull ItemProvider itemProvider);
         
         /**
          * Sets the background of the {@link Gui}.
@@ -522,7 +522,7 @@ public interface Gui {
          * @return This {@link Builder Gui Builder}
          */
         @Contract("_ -> this")
-        S setBackground(@NotNull ItemStack itemStack);
+        @NotNull S setBackground(@NotNull ItemStack itemStack);
         
         /**
          * Sets the background of the {@link Gui}.
@@ -531,7 +531,7 @@ public interface Gui {
          * @return This {@link Builder Gui Builder}
          */
         @Contract("_ -> this")
-        S addModifier(@NotNull Consumer<@NotNull Gui> modifier);
+        @NotNull S addModifier(@NotNull Consumer<@NotNull Gui> modifier);
         
         /**
          * Sets the background of the {@link Gui}.
@@ -540,7 +540,7 @@ public interface Gui {
          * @return This {@link Builder Gui Builder}
          */
         @Contract("_ -> this")
-        S setModifiers(@NotNull List<@NotNull Consumer<@NotNull Gui>> modifiers);
+        @NotNull S setModifiers(@NotNull List<@NotNull Consumer<@NotNull Gui>> modifiers);
         
         /**
          * Builds the {@link Gui}.
@@ -557,10 +557,10 @@ public interface Gui {
          */
         @Contract("-> new")
         @NotNull S clone();
-    
+        
         /**
          * A normal {@link Gui} builder.
-         * 
+         *
          * @see PagedGui.Builder
          * @see ScrollGui.Builder
          * @see TabGui.Builder

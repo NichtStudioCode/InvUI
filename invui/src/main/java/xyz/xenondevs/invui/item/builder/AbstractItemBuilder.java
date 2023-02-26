@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.InventoryAccess;
@@ -23,7 +24,8 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public abstract class AbstractItemBuilder<T> implements ItemProvider {
+@SuppressWarnings("unchecked")
+public abstract class AbstractItemBuilder<S> implements ItemProvider {
     
     protected ItemStack base;
     protected Material material;
@@ -72,8 +74,9 @@ public abstract class AbstractItemBuilder<T> implements ItemProvider {
      *
      * @return The {@link ItemStack}
      */
+    @Contract(value = "_ -> new", pure = true)
     @Override
-    public ItemStack get(@Nullable String lang) {
+    public @NotNull ItemStack get(@Nullable String lang) {
         ItemStack itemStack;
         if (base != null) {
             itemStack = base;
@@ -142,101 +145,114 @@ public abstract class AbstractItemBuilder<T> implements ItemProvider {
         return itemStack;
     }
     
-    public T removeLoreLine(int index) {
+    @Contract("_ -> this")
+    public @NotNull S removeLoreLine(int index) {
         if (lore != null) lore.remove(index);
-        return getThis();
+        return (S) this;
     }
     
-    public T clearLore() {
+    @Contract("-> this")
+    public @NotNull S clearLore() {
         if (lore != null) lore.clear();
-        return getThis();
+        return (S) this;
     }
     
-    public ItemStack getBase() {
+    public @Nullable ItemStack getBase() {
         return base;
     }
     
-    public Material getMaterial() {
+    public @Nullable Material getMaterial() {
         return material;
     }
     
-    public T setMaterial(@NotNull Material material) {
+    @Contract("_ -> this")
+    public @NotNull S setMaterial(@NotNull Material material) {
         this.material = material;
-        return getThis();
+        return (S) this;
     }
     
     public int getAmount() {
         return amount;
     }
     
-    public T setAmount(int amount) {
+    @Contract("_ -> this")
+    public @NotNull S setAmount(int amount) {
         this.amount = amount;
-        return getThis();
+        return (S) this;
     }
     
     public int getDamage() {
         return damage;
     }
     
-    public T setDamage(int damage) {
+    @Contract("_ -> this")
+    public @NotNull S setDamage(int damage) {
         this.damage = damage;
-        return getThis();
+        return (S) this;
     }
     
     public int getCustomModelData() {
         return customModelData;
     }
     
-    public T setCustomModelData(int customModelData) {
+    @Contract("_ -> this")
+    public @NotNull S setCustomModelData(int customModelData) {
         this.customModelData = customModelData;
-        return getThis();
+        return (S) this;
     }
     
-    public ComponentWrapper getDisplayName() {
+    public @Nullable ComponentWrapper getDisplayName() {
         return displayName;
     }
     
-    public T setDisplayName(String displayName) {
+    @Contract("_ -> this")
+    public @NotNull S setDisplayName(String displayName) {
         this.displayName = new BaseComponentWrapper(ComponentUtils.withoutPreFormatting(displayName));
-        return getThis();
+        return (S) this;
     }
     
-    public T setDisplayName(BaseComponent... displayName) {
+    @Contract("_ -> this")
+    public @NotNull S setDisplayName(BaseComponent... displayName) {
         this.displayName = new BaseComponentWrapper(ComponentUtils.withoutPreFormatting(displayName));
-        return getThis();
+        return (S) this;
     }
     
-    public T setDisplayName(ComponentWrapper component) {
+    @Contract("_ -> this")
+    public @NotNull S setDisplayName(ComponentWrapper component) {
         this.displayName = component;
-        return getThis();
+        return (S) this;
     }
     
     //<editor-fold desc="lore">
-    public List<ComponentWrapper> getLore() {
+    public @Nullable List<ComponentWrapper> getLore() {
         return lore;
     }
     
-    public T setLore(List<ComponentWrapper> lore) {
+    @Contract("_ -> this")
+    public @NotNull S setLore(List<ComponentWrapper> lore) {
         this.lore = lore;
-        return getThis();
+        return (S) this;
     }
     
-    public T setLegacyLore(@NotNull List<String> lore) {
+    @Contract("_ -> this")
+    public @NotNull S setLegacyLore(@NotNull List<String> lore) {
         this.lore = lore.stream()
             .map(line -> new BaseComponentWrapper(ComponentUtils.withoutPreFormatting(line)))
             .collect(Collectors.toList());
-        return getThis();
+        return (S) this;
     }
     
-    public T addLoreLines(@NotNull String... lines) {
+    @Contract("_ -> this")
+    public @NotNull S addLoreLines(@NotNull String... lines) {
         if (lore == null) lore = new ArrayList<>();
         
         for (String line : lines)
             lore.add(new BaseComponentWrapper(ComponentUtils.withoutPreFormatting(line)));
-        return getThis();
+        return (S) this;
     }
     
-    public T addLoreLines(@NotNull BaseComponent[]... lines) {
+    @Contract("_ -> this")
+    public @NotNull S addLoreLines(@NotNull BaseComponent[]... lines) {
         if (lore == null) lore = new ArrayList<>();
         
         lore.addAll(
@@ -245,108 +261,118 @@ public abstract class AbstractItemBuilder<T> implements ItemProvider {
                 .collect(Collectors.toList())
         );
         
-        return getThis();
+        return (S) this;
     }
     
-    public T addLoreLines(@NotNull ComponentWrapper... lines) {
+    @Contract("_ -> this")
+    public @NotNull S addLoreLines(@NotNull ComponentWrapper... lines) {
         if (lore == null) lore = new ArrayList<>();
         
         lore.addAll(Arrays.asList(lines));
         
-        return getThis();
+        return (S) this;
     }
     //</editor-fold>
     
     //<editor-fold desc="item flags">
-    public List<ItemFlag> getItemFlags() {
+    public @Nullable List<ItemFlag> getItemFlags() {
         return itemFlags;
     }
     
-    public T setItemFlags(@NotNull List<ItemFlag> itemFlags) {
+    @Contract("_ -> this")
+    public @NotNull S setItemFlags(@NotNull List<ItemFlag> itemFlags) {
         this.itemFlags = itemFlags;
-        return getThis();
+        return (S) this;
     }
     
-    public T addItemFlags(@NotNull ItemFlag... itemFlags) {
+    @Contract("_ -> this")
+    public @NotNull S addItemFlags(@NotNull ItemFlag... itemFlags) {
         if (this.itemFlags == null) this.itemFlags = new ArrayList<>();
         this.itemFlags.addAll(Arrays.asList(itemFlags));
-        return getThis();
+        return (S) this;
     }
     
-    public T removeItemFlags(@NotNull ItemFlag... itemFlags) {
+    @Contract("_ -> this")
+    public @NotNull S removeItemFlags(@NotNull ItemFlag... itemFlags) {
         if (this.itemFlags != null)
             this.itemFlags.removeAll(Arrays.asList(itemFlags));
-        return getThis();
+        return (S) this;
     }
     
-    public T clearItemFlags() {
+    @Contract("-> this")
+    public @NotNull S clearItemFlags() {
         if (itemFlags != null) itemFlags.clear();
-        return getThis();
+        return (S) this;
     }
     //</editor-fold>
     
     //<editor-fold desc="enchantments">
-    public HashMap<Enchantment, Pair<Integer, Boolean>> getEnchantments() {
+    public @Nullable HashMap<Enchantment, Pair<Integer, Boolean>> getEnchantments() {
         return enchantments;
     }
     
-    public T setEnchantments(@NotNull HashMap<Enchantment, Pair<Integer, Boolean>> enchantments) {
+    @Contract("_ -> this")
+    public @NotNull S setEnchantments(@NotNull HashMap<Enchantment, Pair<Integer, Boolean>> enchantments) {
         this.enchantments = enchantments;
-        return getThis();
+        return (S) this;
     }
     
-    public T addEnchantment(Enchantment enchantment, int level, boolean ignoreLevelRestriction) {
+    @Contract("_, _, _ -> this")
+    public @NotNull S addEnchantment(Enchantment enchantment, int level, boolean ignoreLevelRestriction) {
         if (enchantments == null) enchantments = new HashMap<>();
         enchantments.put(enchantment, new Pair<>(level, ignoreLevelRestriction));
-        return getThis();
+        return (S) this;
     }
     
-    public T removeEnchantment(Enchantment enchantment) {
+    @Contract("_ -> this")
+    public @NotNull S removeEnchantment(Enchantment enchantment) {
         if (enchantments == null) enchantments = new HashMap<>();
         enchantments.remove(enchantment);
-        return getThis();
+        return (S) this;
     }
     
-    public T clearEnchantments() {
+    @Contract("-> this")
+    public @NotNull S clearEnchantments() {
         if (enchantments != null) enchantments.clear();
-        return getThis();
+        return (S) this;
     }
     //</editor-fold>
     
     //<editor-fold desc="modifiers">
-    public List<Function<ItemStack, ItemStack>> getModifiers() {
+    public @Nullable List<Function<ItemStack, ItemStack>> getModifiers() {
         return modifiers;
     }
     
-    public T addModifier(Function<ItemStack, ItemStack> modifier) {
+    @Contract("_ -> this")
+    public @NotNull S addModifier(Function<ItemStack, ItemStack> modifier) {
         if (modifiers == null) modifiers = new ArrayList<>();
         modifiers.add(modifier);
-        return getThis();
+        return (S) this;
     }
     
-    public T clearModifiers() {
+    @Contract("-> this")
+    public @NotNull S clearModifiers() {
         if (modifiers != null) modifiers.clear();
-        return getThis();
+        return (S) this;
     }
     //</editor-fold>
     
     @SuppressWarnings("unchecked")
+    @Contract(value = "-> new", pure = true)
     @Override
-    public T clone() {
+    public @NotNull S clone() {
         try {
-            AbstractItemBuilder<T> clone = ((AbstractItemBuilder<T>) super.clone());
+            AbstractItemBuilder<S> clone = ((AbstractItemBuilder<S>) super.clone());
             if (base != null) clone.base = base.clone();
             if (lore != null) clone.lore = new ArrayList<>(lore);
             if (itemFlags != null) clone.itemFlags = new ArrayList<>(itemFlags);
             if (enchantments != null) clone.enchantments = new HashMap<>(enchantments);
             if (modifiers != null) clone.modifiers = new ArrayList<>(modifiers);
             
-            return (T) clone;
+            return (S) clone;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError(e);
         }
     }
-    
-    protected abstract T getThis();
     
 }

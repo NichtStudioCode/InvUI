@@ -215,7 +215,7 @@ public interface PagedGui<C> extends Gui {
          * @return This {@link Builder Gui Builder}.
          */
         @Contract("_ -> this")
-        Builder<C> setContent(@NotNull List<@NotNull C> content);
+        @NotNull Builder<C> setContent(@NotNull List<@NotNull C> content);
         
         /**
          * Adds content to the {@link PagedGui}.
@@ -224,7 +224,7 @@ public interface PagedGui<C> extends Gui {
          * @return This {@link Builder Gui Builder}.
          */
         @Contract("_ -> this")
-        Builder<C> addContent(@NotNull C content);
+        @NotNull Builder<C> addContent(@NotNull C content);
         
         /**
          * Sets the page change handlers of the {@link PagedGui}.
@@ -233,7 +233,7 @@ public interface PagedGui<C> extends Gui {
          * @return This {@link Builder Gui Builder}.
          */
         @Contract("_ -> this")
-        Builder<C> setPageChangeHandlers(@NotNull List<@NotNull BiConsumer<Integer, Integer>> handlers);
+        @NotNull Builder<C> setPageChangeHandlers(@NotNull List<@NotNull BiConsumer<Integer, Integer>> handlers);
         
         /**
          * Adds a page change handler to the {@link PagedGui}.
@@ -242,7 +242,7 @@ public interface PagedGui<C> extends Gui {
          * @return This {@link Builder Gui Builder}.
          */
         @Contract("_ -> this")
-        Builder<C> addPageChangeHandler(@NotNull BiConsumer<Integer, Integer> handler);
+        @NotNull Builder<C> addPageChangeHandler(@NotNull BiConsumer<Integer, Integer> handler);
         
     }
     
