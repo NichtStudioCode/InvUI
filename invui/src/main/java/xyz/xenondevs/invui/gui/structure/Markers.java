@@ -1,5 +1,6 @@
 package xyz.xenondevs.invui.gui.structure;
 
+import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.invui.gui.AbstractPagedGui;
 import xyz.xenondevs.invui.gui.AbstractScrollGui;
 import xyz.xenondevs.invui.gui.AbstractTabGui;
@@ -13,12 +14,12 @@ public class Markers {
      * The marker for horizontal content list slots in {@link AbstractPagedGui PagedGuis},
      * {@link AbstractScrollGui ScrollGuis} and {@link AbstractTabGui TabGuis}
      */
-    public static final Marker CONTENT_LIST_SLOT_HORIZONTAL = new Marker(true);
+    public static final @NotNull Marker CONTENT_LIST_SLOT_HORIZONTAL = new Marker(true);
     
     /**
      * The marker for vertical content list slots in {@link AbstractPagedGui PagedGuis},
      * {@link AbstractScrollGui ScrollGuis} and {@link AbstractTabGui TabGuis}
      */
-    public static final Marker CONTENT_LIST_SLOT_VERTICAL = new Marker(false);
+    public static final @NotNull Marker CONTENT_LIST_SLOT_VERTICAL = new Marker(false);
     
 }

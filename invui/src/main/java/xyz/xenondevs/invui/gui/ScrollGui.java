@@ -30,7 +30,7 @@ public interface ScrollGui<C> extends Gui {
      * @return The created {@link ScrollGui}.
      */
     static @NotNull ScrollGui<@NotNull Item> items(@NotNull Consumer<@NotNull Builder<@NotNull Item>> consumer) {
-        Builder<@NotNull Item> builder = items();
+        Builder<Item> builder = items();
         consumer.accept(builder);
         return builder.build();
     }
@@ -76,7 +76,7 @@ public interface ScrollGui<C> extends Gui {
      * @return The created {@link ScrollGui}.
      */
     static @NotNull ScrollGui<@NotNull Gui> guis(@NotNull Consumer<@NotNull Builder<@NotNull Gui>> consumer) {
-        Builder<@NotNull Gui> builder = guis();
+        Builder<Gui> builder = guis();
         consumer.accept(builder);
         return builder.build();
     }
@@ -122,7 +122,7 @@ public interface ScrollGui<C> extends Gui {
      * @return The created {@link ScrollGui}.
      */
     static @NotNull ScrollGui<@NotNull VirtualInventory> inventories(@NotNull Consumer<@NotNull Builder<@NotNull VirtualInventory>> consumer) {
-        Builder<@NotNull VirtualInventory> builder = inventories();
+        Builder<VirtualInventory> builder = inventories();
         consumer.accept(builder);
         return builder.build();
     }

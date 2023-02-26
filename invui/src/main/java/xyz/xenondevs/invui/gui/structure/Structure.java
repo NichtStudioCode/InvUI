@@ -2,6 +2,7 @@ package xyz.xenondevs.invui.gui.structure;
 
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
@@ -32,11 +33,24 @@ public class Structure implements Cloneable {
     private HashMap<Character, Ingredient> ingredientMap = new HashMap<>();
     private IngredientList ingredientList;
     
-    public Structure(String... structureData) {
+    /**
+     * Sets the {@link Structure} of the {@link Gui} using the given structure data Strings.
+     * Each String is interpreted as a row of the {@link Gui}. All Strings must have the same length.
+     *
+     * @param structureData The structure data
+     */
+    public Structure(@NotNull String @NotNull ... structureData) {
         this(sanitize(structureData[0]).length(), structureData.length, String.join("", structureData));
     }
     
-    public Structure(int width, int height, String structureData) {
+    /**
+     * Sets the {@link Structure} of the {@link Gui} using the given structure data, width and height.
+     *
+     * @param width         The width of the {@link Gui}
+     * @param height        The height of the {@link Gui}
+     * @param structureData The structure data
+     */
+    public Structure(int width, int height, @NotNull String structureData) {
         this.width = width;
         this.height = height;
         this.structureData = sanitize(structureData);
@@ -49,84 +63,219 @@ public class Structure implements Cloneable {
         return s.replace(" ", "").replace("\n", "");
     }
     
+    /**
+     * Adds a global {@link ItemStack} ingredient under the given key.
+     * Global ingredients will be used for all {@link Structure Structures} which do not have an ingredient defined for
+     * that key.
+     *
+     * @param key       The key of the ingredient
+     * @param itemStack The {@link ItemStack} ingredient
+     */
     public static void addGlobalIngredient(char key, @NotNull ItemStack itemStack) {
         addGlobalIngredient(key, new ItemWrapper(itemStack));
     }
     
+    /**
+     * Adds a global {@link ItemProvider} ingredient under the given key.
+     * Global ingredients will be used for all {@link Structure Structures} which do not have an ingredient defined for
+     * that key.
+     *
+     * @param key          The key of the ingredient
+     * @param itemProvider The {@link ItemProvider} ingredient
+     */
     public static void addGlobalIngredient(char key, @NotNull ItemProvider itemProvider) {
         addGlobalIngredient(key, new SimpleItem(itemProvider));
     }
     
+    /**
+     * Adds a global {@link Item} ingredient under the given key.
+     * Global ingredients will be used for all {@link Structure Structures} which do not have an ingredient defined for
+     * that key.
+     *
+     * @param key  The key of the ingredient
+     * @param item The {@link Item} ingredient
+     */
     public static void addGlobalIngredient(char key, @NotNull Item item) {
         addGlobalIngredient(key, new ItemSlotElement(item));
     }
     
+    /**
+     * Adds a global {@link Item} {@link Supplier} ingredient under the given key.
+     * Global ingredients will be used for all {@link Structure Structures} which do not have an ingredient defined for
+     * that key.
+     *
+     * @param key          The key of the ingredient
+     * @param itemSupplier The {@link Item} {@link Supplier} ingredient
+     */
     public static void addGlobalIngredient(char key, @NotNull Supplier<? extends Item> itemSupplier) {
         addGlobalIngredientElementSupplier(key, () -> new ItemSlotElement(itemSupplier.get()));
     }
     
+    /**
+     * Adds a global {@link SlotElement} ingredient under the given key.
+     * Global ingredients will be used for all {@link Structure Structures} which do not have an ingredient defined for
+     * that key.
+     *
+     * @param key     The key of the ingredient
+     * @param element The {@link SlotElement} ingredient
+     */
     public static void addGlobalIngredient(char key, @NotNull SlotElement element) {
         globalIngredientMap.put(key, new Ingredient(element));
     }
     
+    /**
+     * Adds a global {@link Marker} ingredient under the given key.
+     * Global ingredients will be used for all {@link Structure Structures} which do not have an ingredient defined for
+     * that key.
+     *
+     * @param key    The key of the ingredient
+     * @param marker The {@link Marker} ingredient
+     */
     public static void addGlobalIngredient(char key, @NotNull Marker marker) {
         globalIngredientMap.put(key, new Ingredient(marker));
     }
     
+    /**
+     * Adds a global {@link SlotElement} {@link Supplier} ingredient under the given key.
+     * Global ingredients will be used for all {@link Structure Structures} which do not have an ingredient defined for
+     * that key.
+     *
+     * @param key             The key of the ingredient
+     * @param elementSupplier The {@link SlotElement} {@link Supplier} ingredient
+     */
     public static void addGlobalIngredientElementSupplier(char key, @NotNull Supplier<? extends SlotElement> elementSupplier) {
         globalIngredientMap.put(key, new Ingredient(elementSupplier));
     }
     
-    public Structure addIngredient(char key, @NotNull ItemStack itemStack) {
+    /**
+     * Adds an {@link ItemStack} ingredient under the given key.
+     *
+     * @param key       The key of the ingredient
+     * @param itemStack The {@link ItemStack} ingredient
+     * @return This {@link Structure}
+     */
+    @Contract("_, _ -> this")
+    public @NotNull Structure addIngredient(char key, @NotNull ItemStack itemStack) {
         if (ingredientList != null) throw new IllegalStateException("Structure is locked");
         return addIngredient(key, new ItemWrapper(itemStack));
     }
     
-    public Structure addIngredient(char key, @NotNull ItemProvider itemProvider) {
+    /**
+     * Adds an {@link ItemProvider} ingredient under the given key.
+     *
+     * @param key          The key of the ingredient
+     * @param itemProvider The {@link ItemProvider} ingredient
+     * @return This {@link Structure}
+     */
+    @Contract("_, _ -> this")
+    public @NotNull Structure addIngredient(char key, @NotNull ItemProvider itemProvider) {
         if (ingredientList != null) throw new IllegalStateException("Structure is locked");
         return addIngredient(key, new SimpleItem(itemProvider));
     }
     
-    public Structure addIngredient(char key, @NotNull Item item) {
+    /**
+     * Adds an {@link Item} ingredient under the given key.
+     *
+     * @param key  The key of the ingredient
+     * @param item The {@link Item} ingredient
+     * @return This {@link Structure}
+     */
+    @Contract("_, _ -> this")
+    public @NotNull Structure addIngredient(char key, @NotNull Item item) {
         if (ingredientList != null) throw new IllegalStateException("Structure is locked");
         return addIngredient(key, new ItemSlotElement(item));
     }
     
-    public Structure addIngredient(char key, @NotNull VirtualInventory inventory) {
+    /**
+     * Adds a {@link VirtualInventory} ingredient under the given key.
+     *
+     * @param key       The key of the ingredient
+     * @param inventory The {@link VirtualInventory} ingredient
+     * @return This {@link Structure}
+     */
+    @Contract("_, _ -> this")
+    public @NotNull Structure addIngredient(char key, @NotNull VirtualInventory inventory) {
         if (ingredientList != null) throw new IllegalStateException("Structure is locked");
         return addIngredientElementSupplier(key, new VISlotElementSupplier(inventory));
     }
     
-    public Structure addIngredient(char key, @NotNull VirtualInventory inventory, @Nullable ItemProvider background) {
+    /**
+     * Adds a {@link VirtualInventory} ingredient under the given key.
+     *
+     * @param key        The key of the ingredient
+     * @param inventory  The {@link VirtualInventory} ingredient
+     * @param background The background {@link ItemProvider} for the {@link VirtualInventory}
+     * @return This {@link Structure}
+     */
+    @Contract("_, _, _ -> this")
+    public @NotNull Structure addIngredient(char key, @NotNull VirtualInventory inventory, @Nullable ItemProvider background) {
         if (ingredientList != null) throw new IllegalStateException("Structure is locked");
         return addIngredientElementSupplier(key, new VISlotElementSupplier(inventory, background));
     }
     
-    public Structure addIngredient(char key, @NotNull SlotElement element) {
+    /**
+     * Adds a {@link VirtualInventory} ingredient under the given key.
+     *
+     * @param key     The key of the ingredient
+     * @param element The {@link SlotElement} ingredient
+     * @return This {@link Structure}
+     */
+    @Contract("_, _ -> this")
+    public @NotNull Structure addIngredient(char key, @NotNull SlotElement element) {
         if (ingredientList != null) throw new IllegalStateException("Structure is locked");
         ingredientMap.put(key, new Ingredient(element));
         return this;
     }
     
-    public Structure addIngredient(char key, @NotNull Marker marker) {
+    /**
+     * Adds a {@link Marker} ingredient under the given key.
+     *
+     * @param key    The key of the ingredient
+     * @param marker The {@link Marker} ingredient
+     * @return This {@link Structure}
+     */
+    @Contract("_, _ -> this")
+    public @NotNull Structure addIngredient(char key, @NotNull Marker marker) {
         if (ingredientList != null) throw new IllegalStateException("Structure is locked");
         ingredientMap.put(key, new Ingredient(marker));
         return this;
     }
     
-    public Structure addIngredient(char key, @NotNull Supplier<? extends Item> itemSupplier) {
+    /**
+     * Adds an {@link ItemStack} {@link Supplier} ingredient under the given key.
+     *
+     * @param key          The key of the ingredient
+     * @param itemSupplier The {@link ItemStack} {@link Supplier} ingredient
+     * @return This {@link Structure}
+     */
+    @Contract("_, _ -> this")
+    public @NotNull Structure addIngredient(char key, @NotNull Supplier<? extends Item> itemSupplier) {
         if (ingredientList != null) throw new IllegalStateException("Structure is locked");
         ingredientMap.put(key, new Ingredient(() -> new ItemSlotElement(itemSupplier.get())));
         return this;
     }
     
-    public Structure addIngredientElementSupplier(char key, @NotNull Supplier<? extends SlotElement> elementSupplier) {
+    /**
+     * Adds a {@link SlotElement} {@link Supplier} ingredient under the given key.
+     *
+     * @param key             The key of the ingredient
+     * @param elementSupplier The {@link SlotElement} {@link Supplier} ingredient
+     * @return This {@link Structure}
+     */
+    @Contract("_, _ -> this")
+    public @NotNull Structure addIngredientElementSupplier(char key, @NotNull Supplier<? extends SlotElement> elementSupplier) {
         if (ingredientList != null) throw new IllegalStateException("Structure is locked");
         ingredientMap.put(key, new Ingredient(elementSupplier));
         return this;
     }
     
-    public IngredientList getIngredientList() {
+    /**
+     * Gets the {@link IngredientList} for this {@link Structure}.
+     * Calling this method will lock the {@link Structure} and prevent further changes.
+     *
+     * @return The {@link IngredientList}
+     */
+    public @NotNull IngredientList getIngredientList() {
         if (ingredientList != null) return ingredientList;
         
         HashMap<Character, Ingredient> ingredients = new HashMap<>(globalIngredientMap);
@@ -134,16 +283,32 @@ public class Structure implements Cloneable {
         return ingredientList = new IngredientList(width, height, structureData, ingredients);
     }
     
+    /**
+     * Gets the width of this {@link Structure}.
+     *
+     * @return The width
+     */
     public int getWidth() {
         return width;
     }
     
+    /**
+     * Gets the height of this {@link Structure}.
+     *
+     * @return The height
+     */
     public int getHeight() {
         return height;
     }
     
+    /**
+     * Clones this {@link Structure}.
+     *
+     * @return The cloned {@link Structure}
+     */
+    @Contract(value = "-> new", pure = true)
     @Override
-    public Structure clone() {
+    public @NotNull Structure clone() {
         try {
             Structure clone = (Structure) super.clone();
             clone.ingredientMap = new HashMap<>(ingredientMap);

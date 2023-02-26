@@ -33,7 +33,7 @@ public interface PagedGui<C> extends Gui {
      * @return The created {@link PagedGui}.
      */
     static @NotNull PagedGui<@NotNull Item> items(@NotNull Consumer<@NotNull Builder<@NotNull Item>> consumer) {
-        Builder<@NotNull Item> builder = items();
+        Builder<Item> builder = items();
         consumer.accept(builder);
         return builder.build();
     }
@@ -78,7 +78,7 @@ public interface PagedGui<C> extends Gui {
      * @return The created {@link PagedGui}.
      */
     static @NotNull PagedGui<@NotNull Gui> guis(@NotNull Consumer<@NotNull Builder<@NotNull Gui>> consumer) {
-        Builder<@NotNull Gui> builder = guis();
+        Builder<Gui> builder = guis();
         consumer.accept(builder);
         return builder.build();
     }
