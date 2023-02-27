@@ -29,7 +29,7 @@ public interface Item {
     void addWindow(Window window);
     
     /**
-     * Removes an {@link Window} from the window set, telling the {@link Item} that it
+     * Removes a {@link Window} from the window set, telling the {@link Item} that it
      * is no longer being displayed in that {@link Window}.
      *
      * @param window The {@link Window} the {@link Item} is no longer displayed in.
@@ -46,19 +46,19 @@ public interface Item {
     Set<Window> getWindows();
     
     /**
-     * Calls the {@link Window#handleItemProviderUpdate(Item)} method on every {@link Window}
-     * in the set, notifying them that the {@link ItemProvider} has been updated
-     * and the {@link ItemStack} inside the {@link Window}'s {@link Inventory} should
+     * Calls a refresh method on every {@link Window} in which this {@link Item} is displayed,
+     * notifying them that the {@link ItemProvider} has been updated,
+     * thus the {@link ItemStack} inside the {@link Window}'s {@link Inventory} should
      * be replaced.
      */
     void notifyWindows();
     
     /**
-     * A method called if the the {@link ItemStack} associated to this {@link Item}
+     * A method called if the {@link ItemStack} associated to this {@link Item}
      * has been clicked by a player.
      *
-     * @param clickType The {@link ClickType} the {@link Player} did.
-     * @param player    The {@link Player} who clicked on the {@link ItemStack}
+     * @param clickType The {@link ClickType} the {@link Player} performed.
+     * @param player    The {@link Player} who clicked on the {@link ItemStack}.
      * @param event     The {@link InventoryClickEvent} associated with this click.
      */
     void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event);
