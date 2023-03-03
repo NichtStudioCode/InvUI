@@ -13,7 +13,7 @@ import java.util.function.BiConsumer;
 /**
  * An {@link Item} that cycles through a predefined array of {@link ItemProvider}s when clicked.
  */
-public class CycleItem extends BaseItem {
+public class CycleItem extends AbstractItem {
     
     private final ItemProvider[] states;
     

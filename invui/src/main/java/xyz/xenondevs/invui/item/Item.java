@@ -6,6 +6,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import xyz.xenondevs.invui.window.AbstractWindow;
 import xyz.xenondevs.invui.window.Window;
 
 import java.util.Set;
@@ -21,20 +22,20 @@ public interface Item {
     ItemProvider getItemProvider();
     
     /**
-     * Adds a {@link Window} to the window set, telling the {@link Item} that it is
-     * currently being displayed in that {@link Window}.
+     * Adds an {@link AbstractWindow} to the window set, telling the {@link Item} that it is
+     * currently being displayed in that {@link AbstractWindow}.
      *
-     * @param window The {@link Window} the {@link Item} is currently displayed in.
+     * @param window The {@link AbstractWindow} the {@link Item} is currently displayed in.
      */
-    void addWindow(Window window);
+    void addWindow(AbstractWindow window);
     
     /**
-     * Removes a {@link Window} from the window set, telling the {@link Item} that it
-     * is no longer being displayed in that {@link Window}.
+     * Removes an {@link AbstractWindow} from the window set, telling the {@link Item} that it
+     * is no longer being displayed in that {@link AbstractWindow}.
      *
-     * @param window The {@link Window} the {@link Item} is no longer displayed in.
+     * @param window The {@link AbstractWindow} the {@link Item} is no longer displayed in.
      */
-    void removeWindow(Window window);
+    void removeWindow(AbstractWindow window);
     
     /**
      * Gets an immutable {@link Set} of all the {@link Window}s where this

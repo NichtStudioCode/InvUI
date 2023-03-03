@@ -77,28 +77,22 @@ public class VirtualInventory {
     }
     
     /**
-     * Adds a {@link Window} to the set of {@link Window}s, telling the {@link VirtualInventory} that
-     * its contents are now being displayed in that {@link Window}.
+     * Adds an {@link AbstractWindow} to the set of {@link AbstractWindow AbstractWindows}, telling the {@link VirtualInventory} that
+     * its contents are now being displayed in that {@link AbstractWindow}.
      *
      * @param window The {@link Window} to be added.
      */
-    public void addWindow(Window window) {
-        if (!(window instanceof AbstractWindow))
-            throw new IllegalArgumentException("Illegal window implementation");
-        
-        windows.add((AbstractWindow) window);
+    public void addWindow(AbstractWindow window) {
+        windows.add(window);
     }
     
     /**
-     * Removes a {@link Window} from the set of {@link Window}s, telling the {@link VirtualInventory} that
-     * its contents are no longer being displayed in that {@link Window}.
+     * Removes an {@link AbstractWindow} from the set of {@link AbstractWindow AbstractWindows}, telling the {@link VirtualInventory} that
+     * its contents are no longer being displayed in that {@link AbstractWindow}.
      *
-     * @param window The {@link Window} to be removed.
+     * @param window The {@link AbstractWindow} to be removed.
      */
-    public void removeWindow(Window window) {
-        if (!(window instanceof AbstractWindow))
-            throw new IllegalArgumentException("Illegal window implementation");
-        
+    public void removeWindow(AbstractWindow window) {
         windows.remove(window);
     }
     

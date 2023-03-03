@@ -9,25 +9,19 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * The base for all {@link Item}s.
+ * An abstract implementation of the {@link Item} interface.
  */
-public abstract class BaseItem implements Item {
+public abstract class AbstractItem implements Item {
     
     private final Set<AbstractWindow> windows = new HashSet<>();
     
     @Override
-    public void addWindow(Window window) {
-        if (!(window instanceof AbstractWindow))
-            throw new IllegalArgumentException("Illegal window implementation");
-        
-        windows.add((AbstractWindow) window);
+    public void addWindow(AbstractWindow window) {
+        windows.add(window);
     }
     
     @Override
-    public void removeWindow(Window window) {
-        if (!(window instanceof AbstractWindow))
-            throw new IllegalArgumentException("Illegal window implementation");
-        
+    public void removeWindow(AbstractWindow window) {
         windows.remove(window);
     }
     

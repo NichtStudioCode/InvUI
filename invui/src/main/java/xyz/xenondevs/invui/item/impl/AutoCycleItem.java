@@ -15,7 +15,7 @@ import xyz.xenondevs.invui.window.Window;
  * An {@link Item} that automatically cycles through a predefined array of
  * {@link ItemProvider} at a predefined speed.
  */
-public class AutoCycleItem extends BaseItem {
+public class AutoCycleItem extends AbstractItem {
     
     private final ItemProvider[] itemProviders;
     private final int period;

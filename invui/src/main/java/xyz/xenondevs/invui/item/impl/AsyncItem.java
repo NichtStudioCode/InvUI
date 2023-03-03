@@ -19,7 +19,7 @@ import java.util.function.Supplier;
  * An {@link Item} that creates it's {@link ItemProvider} asynchronously and displays
  * a placeholder {@link ItemProvider} until the actual {@link ItemProvider} has been created.
  */
-public class AsyncItem extends BaseItem {
+public class AsyncItem extends AbstractItem {
     
     private volatile ItemProvider itemProvider;
     

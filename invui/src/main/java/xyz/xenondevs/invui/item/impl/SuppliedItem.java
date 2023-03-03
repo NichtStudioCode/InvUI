@@ -11,7 +11,7 @@ import xyz.xenondevs.invui.item.ItemProvider;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class SuppliedItem extends BaseItem {
+public class SuppliedItem extends AbstractItem {
     
     private final Supplier<? extends ItemProvider> builderSupplier;
     private final Function<Click, Boolean> clickHandler;

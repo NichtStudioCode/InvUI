@@ -44,31 +44,23 @@ public class WindowManager implements Listener {
     }
     
     /**
-     * Adds a {@link Window} to the list of windows.
+     * Adds an {@link AbstractWindow} to the list of windows.
      * This method is usually called by the {@link Window} itself.
      *
-     * @param window The {@link Window} to add
+     * @param window The {@link AbstractWindow} to add
      */
-    public void addWindow(Window window) {
-        if (!(window instanceof AbstractWindow))
-            throw new IllegalArgumentException("Illegal window implementation");
-        
-        AbstractWindow abstractWindow = (AbstractWindow) window;
-        windows.put(abstractWindow.getInventories()[0], abstractWindow);
+    public void addWindow(AbstractWindow window) {
+        windows.put(window.getInventories()[0], window);
     }
     
     /**
-     * Removes a {@link Window} from the list of windows.
+     * Removes an {@link AbstractWindow} from the list of windows.
      * This method is usually called by the {@link Window} itself.
      *
-     * @param window The {@link Window} to remove
+     * @param window The {@link AbstractWindow} to remove
      */
-    public void removeWindow(Window window) {
-        if (!(window instanceof AbstractWindow))
-            throw new IllegalArgumentException("Illegal window implementation");
-        
-        AbstractWindow abstractWindow = (AbstractWindow) window;
-        windows.remove(abstractWindow.getInventories()[0]);
+    public void removeWindow(AbstractWindow window) {
+        windows.remove(window.getInventories()[0]);
     }
     
     /**

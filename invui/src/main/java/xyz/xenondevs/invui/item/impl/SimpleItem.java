@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 /**
  * A simple {@link Item} that does nothing.
  */
-public class SimpleItem extends BaseItem {
+public class SimpleItem extends AbstractItem {
     
     private final ItemProvider itemProvider;
     private final Consumer<Click> clickHandler;
