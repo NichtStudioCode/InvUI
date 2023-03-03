@@ -14,20 +14,18 @@ final class NormalSplitWindowImpl extends AbstractSplitWindow {
         @Nullable ComponentWrapper title,
         @NotNull AbstractGui upperGui,
         @NotNull AbstractGui lowerGui,
-        boolean closeable,
-        boolean retain
+        boolean closeable
     ) {
-        super(player, title, upperGui, lowerGui, InventoryUtils.createMatchingInventory(upperGui, ""), true, closeable, retain);
-        register();
+        super(player, title, upperGui, lowerGui, InventoryUtils.createMatchingInventory(upperGui, ""), closeable);
     }
     
     public static final class BuilderImpl
-        extends AbstractSplitWindow.AbstractBuilder<Window, Player, Window.Builder.Normal.Split>
+        extends AbstractSplitWindow.AbstractBuilder<Window, Window.Builder.Normal.Split>
         implements Window.Builder.Normal.Split
     {
         
         @Override
-        public @NotNull Window build() {
+        public @NotNull Window build(Player viewer) {
             if (viewer == null)
                 throw new IllegalStateException("Viewer is not defined.");
             if (upperGuiSupplier == null)
@@ -40,8 +38,7 @@ final class NormalSplitWindowImpl extends AbstractSplitWindow {
                 title,
                 (AbstractGui) upperGuiSupplier.get(),
                 (AbstractGui) lowerGuiSupplier.get(),
-                closeable,
-                retain
+                closeable
             );
             
             applyModifiers(window);

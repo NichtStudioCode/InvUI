@@ -20,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.InventoryAccess;
 import xyz.xenondevs.inventoryaccess.component.BaseComponentWrapper;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
+import xyz.xenondevs.inventoryaccess.component.i18n.Languages;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
@@ -41,23 +42,18 @@ public abstract class AbstractWindow implements Window, GuiParent {
     private static final NamespacedKey SLOT_KEY = new NamespacedKey(InvUI.getInstance().getPlugin(), "slot");
     
     private final UUID viewerUUID;
-    private final boolean retain;
     private final SlotElement[] elementsDisplayed;
+    private List<Runnable> openHandlers;
     private List<Runnable> closeHandlers;
     private ComponentWrapper title;
     private boolean closeable;
-    private boolean removed;
+    private boolean currentlyOpen;
     
-    public AbstractWindow(UUID viewerUUID, ComponentWrapper title, int size, boolean closeable, boolean retain) {
+    public AbstractWindow(UUID viewerUUID, ComponentWrapper title, int size, boolean closeable) {
         this.viewerUUID = viewerUUID;
         this.title = title;
         this.closeable = closeable;
-        this.retain = retain;
         this.elementsDisplayed = new SlotElement[size];
-    }
-    
-    protected void register() {
-        WindowManager.getInstance().addWindow(this);
     }
     
     protected void redrawItem(int index) {
@@ -168,18 +164,29 @@ public abstract class AbstractWindow implements Window, GuiParent {
         event.setCursor(cursorStack);
     }
     
-    public void handleOpen(InventoryOpenEvent event) {
-        if (!event.getPlayer().equals(getViewer()))
+    public void handleOpenEvent(InventoryOpenEvent event) {
+        if (!event.getPlayer().equals(getViewer())) {
             event.setCancelled(true);
-        else handleOpened();
+        } else {
+            if (currentlyOpen)
+                throw new IllegalStateException("Window is already opened!");
+            
+            currentlyOpen = true;
+            handleOpened();
+            
+            if (openHandlers != null) {
+                openHandlers.forEach(Runnable::run);
+            }
+        }
     }
     
-    public void handleClose(Player player) {
+    public void handleCloseEvent(Player player) {
         if (closeable) {
-            if (!retain) {
-                remove(false);
-            }
+            if (!currentlyOpen)
+                throw new IllegalStateException("Window is already closed!");
             
+            currentlyOpen = false;
+            remove(false);
             handleClosed();
             
             if (closeHandlers != null) {
@@ -211,15 +218,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
             && ((SlotElement.VISlotElement) element).getVirtualInventory() == virtualInventory);
     }
     
-    public void remove() {
-        remove(true);
-    }
-    
     public void remove(boolean closeForViewer) {
-        if (removed)
-            return;
-        removed = true;
-        
         WindowManager.getInstance().removeWindow(this);
         
         Arrays.stream(elementsDisplayed)
@@ -252,14 +251,20 @@ public abstract class AbstractWindow implements Window, GuiParent {
     
     @Override
     public void show() {
-        if (removed) throw new IllegalStateException("The Window has already been closed.");
-        
         Player viewer = getViewer();
-        if (viewer == null) throw new IllegalStateException("The player is not online.");
+        if (viewer == null)
+            throw new IllegalStateException("The player is not online.");
+        
+        initItems();
+        WindowManager.getInstance().addWindow(this);
+        openInventory(viewer);
+    }
+    
+    protected void openInventory(@NotNull Player viewer) {
         InventoryAccess.getInventoryUtils().openCustomInventory(
             viewer,
             getInventories()[0],
-            title.localized(viewer.getLocale())
+            title.localized(viewer)
         );
     }
     
@@ -270,7 +275,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
         if (currentViewer != null) {
             InventoryAccess.getInventoryUtils().updateOpenInventoryTitle(
                 currentViewer,
-                title.localized(currentViewer.getLocale())
+                title.localized(currentViewer)
             );
         }
     }
@@ -283,6 +288,19 @@ public abstract class AbstractWindow implements Window, GuiParent {
     @Override
     public void changeTitle(@NotNull String title) {
         changeTitle(TextComponent.fromLegacyText(title));
+    }
+    
+    @Override
+    public void setOpenHandlers(@NotNull List<@NotNull Runnable> openHandlers) {
+        this.openHandlers = openHandlers;
+    }
+    
+    @Override
+    public void addOpenHandler(@NotNull Runnable openHandler) {
+        if (openHandlers == null)
+            openHandlers = new ArrayList<>();
+        
+        openHandlers.add(openHandler);
     }
     
     @Override
@@ -321,7 +339,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
         if (player == null)
             throw new IllegalStateException("Tried to receive the language from a viewer that is not online.");
         
-        return player.getLocale();
+        return Languages.getInstance().getLanguage(player);
     }
     
     @Override
@@ -340,8 +358,8 @@ public abstract class AbstractWindow implements Window, GuiParent {
     }
     
     @Override
-    public boolean isRemoved() {
-        return removed;
+    public boolean isOpen() {
+        return currentlyOpen;
     }
     
     protected abstract void setInvItem(int slot, ItemStack itemStack);
@@ -353,6 +371,8 @@ public abstract class AbstractWindow implements Window, GuiParent {
     protected abstract AbstractGui[] getGuis();
     
     protected abstract Inventory[] getInventories();
+    
+    protected abstract void initItems();
     
     protected abstract void handleOpened();
     
@@ -367,59 +387,68 @@ public abstract class AbstractWindow implements Window, GuiParent {
     public abstract void handleViewerDeath(PlayerDeathEvent event);
     
     @SuppressWarnings("unchecked")
-    public static abstract class AbstractBuilder<W extends Window, V, S extends Window.Builder<W, V, S>> implements Window.Builder<W, V, S> {
+    public static abstract class AbstractBuilder<W extends Window, S extends Window.Builder<W, S>> implements Window.Builder<W, S> {
         
-        protected V viewer;
+        protected Player viewer;
         protected ComponentWrapper title;
         protected boolean closeable = true;
-        protected boolean retain = false;
+        protected List<Runnable> openHandlers;
         protected List<Runnable> closeHandlers;
         protected List<Consumer<Window>> modifiers;
         
         @Override
-        public S setViewer(@NotNull V viewer) {
+        public @NotNull S setViewer(@NotNull Player viewer) {
             this.viewer = viewer;
             return (S) this;
         }
         
         @Override
-        public S setTitle(@NotNull ComponentWrapper title) {
+        public @NotNull S setTitle(@NotNull ComponentWrapper title) {
             this.title = title;
             return (S) this;
         }
         
         @Override
-        public S setTitle(@NotNull BaseComponent @NotNull [] title) {
+        public @NotNull S setTitle(@NotNull BaseComponent @NotNull [] title) {
             this.title = new BaseComponentWrapper(title);
             return (S) this;
         }
         
         @Override
-        public S setTitle(@NotNull String title) {
+        public @NotNull S setTitle(@NotNull String title) {
             this.title = new BaseComponentWrapper(TextComponent.fromLegacyText(title));
             return (S) this;
         }
         
         @Override
-        public S setCloseable(boolean closeable) {
+        public @NotNull S setCloseable(boolean closeable) {
             this.closeable = closeable;
             return (S) this;
         }
         
         @Override
-        public S setRetain(boolean retain) {
-            this.retain = retain;
+        public @NotNull S setOpenHandlers(List<Runnable> openHandlers) {
+            this.openHandlers = openHandlers;
             return (S) this;
         }
         
         @Override
-        public S setCloseHandlers(List<Runnable> closeHandlers) {
+        public @NotNull S addOpenHandler(Runnable openHandler) {
+            if (openHandlers == null)
+                openHandlers = new ArrayList<>();
+            
+            openHandlers.add(openHandler);
+            return (S) this;
+        }
+        
+        @Override
+        public @NotNull S setCloseHandlers(List<Runnable> closeHandlers) {
             this.closeHandlers = closeHandlers;
             return (S) this;
         }
         
         @Override
-        public S addCloseHandler(Runnable closeHandler) {
+        public @NotNull S addCloseHandler(Runnable closeHandler) {
             if (closeHandlers == null)
                 closeHandlers = new ArrayList<>();
             
@@ -428,13 +457,13 @@ public abstract class AbstractWindow implements Window, GuiParent {
         }
         
         @Override
-        public S setModifiers(List<Consumer<Window>> modifiers) {
+        public @NotNull S setModifiers(List<Consumer<Window>> modifiers) {
             this.modifiers = modifiers;
             return (S) this;
         }
         
         @Override
-        public S addModifier(Consumer<Window> modifier) {
+        public @NotNull S addModifier(Consumer<Window> modifier) {
             if (modifiers == null)
                 modifiers = new ArrayList<>();
             
@@ -450,11 +479,21 @@ public abstract class AbstractWindow implements Window, GuiParent {
                 modifiers.forEach(modifier -> modifier.accept(window));
         }
         
+        @Override
+        public @NotNull W build() {
+            return build(viewer);
+        }
+        
+        @Override
+        public void show(Player viewer) {
+            build(viewer).show();
+        }
+        
         @SuppressWarnings("unchecked")
         @Override
         public @NotNull S clone() {
             try {
-                var clone = (AbstractBuilder<W, V, S>) super.clone();
+                var clone = (AbstractBuilder<W, S>) super.clone();
                 if (title != null)
                     clone.title = title.clone();
                 if (closeHandlers != null)
@@ -468,6 +507,5 @@ public abstract class AbstractWindow implements Window, GuiParent {
         }
         
     }
-    
     
 }

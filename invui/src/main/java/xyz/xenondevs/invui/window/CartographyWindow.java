@@ -95,21 +95,21 @@ public interface CartographyWindow extends Window {
      * @see Window.Builder.Normal
      * @see Window.Builder
      */
-    interface Builder<S extends Builder<S>> extends Window.Builder<CartographyWindow, Player, S> {
+    interface Builder<S extends Builder<S>> extends Window.Builder<CartographyWindow, S> {
         
         /**
          * A single {@link CartographyWindow} builder. Combines both {@link CartographyWindow.Builder} an
          * {@link Window.Builder.Single} for a {@link CartographyWindow} with only one {@link Gui} that does not
          * access the {@link Player Player's} inventory.
          */
-        interface Single extends Builder<Single>, Window.Builder.Single<CartographyWindow, Player, Single> {}
+        interface Single extends Builder<Single>, Window.Builder.Single<CartographyWindow, Single> {}
         
         /**
          * A split {@link CartographyWindow} builder. Combines both {@link CartographyWindow.Builder} an
          * {@link Window.Builder.Double} for a {@link CartographyWindow} with two {@link Gui Guis}, where the lower
          * {@link Gui} is used to fill the {@link Player Player's} inventory.
          */
-        interface Split extends Builder<Split>, Window.Builder.Double<CartographyWindow, Player, Split> {}
+        interface Split extends Builder<Split>, Window.Builder.Double<CartographyWindow, Split> {}
         
     }
     

@@ -23,16 +23,12 @@ final class AnvilSplitWindowImpl extends AbstractSplitWindow implements AnvilWin
         @NotNull AbstractGui upperGui,
         @NotNull AbstractGui lowerGui,
         @Nullable List<@NotNull Consumer<@NotNull String>> renameHandlers,
-        boolean closeable,
-        boolean retain
+        boolean closeable
     ) {
-        super(player, title, upperGui, lowerGui, null, false, closeable, retain);
+        super(player, title, upperGui, lowerGui, null, closeable);
         
-        anvilInventory = InventoryAccess.createAnvilInventory(player, title, renameHandlers);
+        anvilInventory = InventoryAccess.createAnvilInventory(player, title.localized(player), renameHandlers);
         upperInventory = anvilInventory.getBukkitInventory();
-        
-        initUpperItems();
-        register();
     }
     
     @Override
@@ -41,11 +37,7 @@ final class AnvilSplitWindowImpl extends AbstractSplitWindow implements AnvilWin
     }
     
     @Override
-    public void show() {
-        if (isRemoved()) throw new IllegalStateException("The Window has already been closed.");
-        
-        Player viewer = getViewer();
-        if (viewer == null) throw new IllegalStateException("The player is not online.");
+    protected void openInventory(@NotNull Player viewer) {
         anvilInventory.open();
     }
     
@@ -55,7 +47,7 @@ final class AnvilSplitWindowImpl extends AbstractSplitWindow implements AnvilWin
     }
     
     public static final class BuilderImpl
-        extends AbstractSplitWindow.AbstractBuilder<AnvilWindow, Player, AnvilWindow.Builder.Split>
+        extends AbstractSplitWindow.AbstractBuilder<AnvilWindow, AnvilWindow.Builder.Split>
         implements AnvilWindow.Builder.Split
     {
         
@@ -77,7 +69,7 @@ final class AnvilSplitWindowImpl extends AbstractSplitWindow implements AnvilWin
         }
         
         @Override
-        public @NotNull AnvilWindow build() {
+        public @NotNull AnvilWindow build(Player viewer) {
             if (viewer == null)
                 throw new IllegalStateException("Viewer is not defined.");
             if (upperGuiSupplier == null)
@@ -91,8 +83,7 @@ final class AnvilSplitWindowImpl extends AbstractSplitWindow implements AnvilWin
                 (AbstractGui) upperGuiSupplier.get(),
                 (AbstractGui) lowerGuiSupplier.get(),
                 renameHandlers,
-                closeable,
-                retain
+                closeable
             );
             
             applyModifiers(window);

@@ -27,17 +27,14 @@ final class CartographySplitWindowImpl extends AbstractSplitWindow implements Ca
         @Nullable ComponentWrapper title,
         @NotNull AbstractGui upperGui,
         @NotNull AbstractGui lowerGui,
-        boolean closeable,
-        boolean retain
+        boolean closeable
     ) {
-        super(player, title, createWrappingGui(upperGui), lowerGui, null, false, closeable, retain);
+        super(player, title, createWrappingGui(upperGui), lowerGui, null, closeable);
         
-        cartographyInventory = InventoryAccess.createCartographyInventory(player, title);
+        cartographyInventory = InventoryAccess.createCartographyInventory(player, title.localized(player));
         upperInventory = cartographyInventory.getBukkitInventory();
         
-        initUpperItems();
         resetMap();
-        register();
     }
     
     private static AbstractGui createWrappingGui(Gui upperGui) {
@@ -66,23 +63,17 @@ final class CartographySplitWindowImpl extends AbstractSplitWindow implements Ca
     }
     
     @Override
-    public void show() {
-        if (isRemoved())
-            throw new IllegalStateException("The Window has already been closed.");
-        
-        Player viewer = getViewer();
-        if (viewer == null)
-            throw new IllegalStateException("The player is not online.");
+    protected void openInventory(@NotNull Player viewer) {
         cartographyInventory.open();
     }
     
     public static final class BuilderImpl
-        extends AbstractSplitWindow.AbstractBuilder<CartographyWindow, Player, CartographyWindow.Builder.Split>
+        extends AbstractSplitWindow.AbstractBuilder<CartographyWindow, CartographyWindow.Builder.Split>
         implements CartographyWindow.Builder.Split
     {
         
         @Override
-        public @NotNull CartographyWindow build() {
+        public @NotNull CartographyWindow build(Player viewer) {
             if (viewer == null)
                 throw new IllegalStateException("Viewer is not defined.");
             if (upperGuiSupplier == null)
@@ -93,8 +84,7 @@ final class CartographySplitWindowImpl extends AbstractSplitWindow implements Ca
                 title,
                 (AbstractGui) upperGuiSupplier.get(),
                 (AbstractGui) lowerGuiSupplier.get(),
-                closeable,
-                retain
+                closeable
             );
             
             applyModifiers(window);

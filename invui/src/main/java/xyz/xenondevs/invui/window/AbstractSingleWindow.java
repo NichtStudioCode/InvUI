@@ -25,16 +25,16 @@ public abstract class AbstractSingleWindow extends AbstractWindow {
     private final int size;
     protected Inventory inventory;
     
-    public AbstractSingleWindow(UUID viewerUUID, ComponentWrapper title, AbstractGui gui, Inventory inventory, boolean initItems, boolean closeable, boolean retain) {
-        super(viewerUUID, title, gui.getSize(), closeable, retain);
+    public AbstractSingleWindow(UUID viewerUUID, ComponentWrapper title, AbstractGui gui, Inventory inventory, boolean closeable) {
+        super(viewerUUID, title, gui.getSize(), closeable);
         this.gui = gui;
         this.size = gui.getSize();
         this.inventory = inventory;
         
         gui.addParent(this);
-        if (initItems) initItems();
     }
     
+    @Override
     protected void initItems() {
         for (int i = 0; i < size; i++) {
             SlotElement element = gui.getSlotElement(i);
@@ -109,27 +109,27 @@ public abstract class AbstractSingleWindow extends AbstractWindow {
     }
     
     @SuppressWarnings("unchecked")
-    public abstract static class AbstractBuilder<W extends Window, V, S extends Builder.Single<W, V, S>>
-        extends AbstractWindow.AbstractBuilder<W, V, S>
-        implements Builder.Single<W, V, S>
+    public abstract static class AbstractBuilder<W extends Window, S extends Builder.Single<W, S>>
+        extends AbstractWindow.AbstractBuilder<W, S>
+        implements Builder.Single<W, S>
     {
         
         protected Supplier<Gui> guiSupplier;
         
         @Override
-        public S setGui(@NotNull Supplier<Gui> guiSupplier) {
+        public @NotNull S setGui(@NotNull Supplier<Gui> guiSupplier) {
             this.guiSupplier = guiSupplier;
             return (S) this;
         }
         
         @Override
-        public S setGui(@NotNull Gui gui) {
+        public @NotNull S setGui(@NotNull Gui gui) {
             this.guiSupplier = () -> gui;
             return (S) this;
         }
         
         @Override
-        public S setGui(@NotNull Gui.Builder<?, ?> builder) {
+        public @NotNull S setGui(@NotNull Gui.Builder<?, ?> builder) {
             this.guiSupplier = builder::build;
             return (S) this;
         }

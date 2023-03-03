@@ -14,4 +14,4 @@ import xyz.xenondevs.invui.window.Window
  * @return This Window Builder
  */
 @Contract("_ -> this")
-fun <B : Window.Builder<*, *, B>> B.setTitle(title: Component): B = setTitle(AdventureComponentWrapper(title))
+fun <B : Window.Builder<*, B>> B.setTitle(title: Component): B = setTitle(AdventureComponentWrapper(title))

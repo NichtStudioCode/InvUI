@@ -152,7 +152,7 @@ public class WindowManager implements Listener {
         
         AbstractWindow window = (AbstractWindow) getWindow(event.getInventory());
         if (window != null)
-            window.handleClose(player);
+            window.handleCloseEvent(player);
         
         openWindows.remove(player);
     }
@@ -161,7 +161,7 @@ public class WindowManager implements Listener {
     private void handleInventoryOpen(InventoryOpenEvent event) {
         AbstractWindow window = (AbstractWindow) getWindow(event.getInventory());
         if (window != null) {
-            window.handleOpen(event);
+            window.handleOpenEvent(event);
             openWindows.put((Player) event.getPlayer(), window);
         }
     }
@@ -171,7 +171,7 @@ public class WindowManager implements Listener {
         Player player = event.getPlayer();
         AbstractWindow window = (AbstractWindow) getOpenWindow(player);
         if (window != null) {
-            window.handleClose(player);
+            window.handleCloseEvent(player);
             openWindows.remove(player);
         }
     }

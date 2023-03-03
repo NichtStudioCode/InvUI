@@ -22,15 +22,11 @@ final class AnvilSingleWindowImpl extends AbstractSingleWindow implements AnvilW
         @Nullable ComponentWrapper title,
         @NotNull AbstractGui gui,
         @Nullable List<@NotNull Consumer<@NotNull String>> renameHandlers,
-        boolean closable,
-        boolean retain
+        boolean closable
     ) {
-        super(player.getUniqueId(), title, gui, null, false, closable, retain);
-        anvilInventory = InventoryAccess.createAnvilInventory(player, title, renameHandlers);
+        super(player.getUniqueId(), title, gui, null, closable);
+        anvilInventory = InventoryAccess.createAnvilInventory(player, title.localized(player), renameHandlers);
         inventory = anvilInventory.getBukkitInventory();
-        
-        initItems();
-        register();
     }
     
     @Override
@@ -39,11 +35,7 @@ final class AnvilSingleWindowImpl extends AbstractSingleWindow implements AnvilW
     }
     
     @Override
-    public void show() {
-        if (isRemoved()) throw new IllegalStateException("The Window has already been closed.");
-        
-        Player viewer = getViewer();
-        if (viewer == null) throw new IllegalStateException("The player is not online.");
+    protected void openInventory(@NotNull Player viewer) {
         anvilInventory.open();
     }
     
@@ -53,7 +45,7 @@ final class AnvilSingleWindowImpl extends AbstractSingleWindow implements AnvilW
     }
     
     public static final class BuilderImpl
-        extends AbstractSingleWindow.AbstractBuilder<AnvilWindow, Player, AnvilWindow.Builder.Single>
+        extends AbstractSingleWindow.AbstractBuilder<AnvilWindow, AnvilWindow.Builder.Single>
         implements AnvilWindow.Builder.Single
     {
         
@@ -75,7 +67,7 @@ final class AnvilSingleWindowImpl extends AbstractSingleWindow implements AnvilW
         }
         
         @Override
-        public @NotNull AnvilWindow build() {
+        public @NotNull AnvilWindow build(Player viewer) {
             if (viewer == null)
                 throw new IllegalStateException("Viewer is not defined.");
             if (guiSupplier == null)
@@ -86,8 +78,7 @@ final class AnvilSingleWindowImpl extends AbstractSingleWindow implements AnvilW
                 title,
                 (AbstractGui) guiSupplier.get(),
                 renameHandlers,
-                closeable,
-                retain
+                closeable
             );
             
             applyModifiers(window);

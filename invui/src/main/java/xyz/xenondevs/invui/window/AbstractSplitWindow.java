@@ -21,14 +21,13 @@ public abstract class AbstractSplitWindow extends AbstractDoubleWindow {
     private final AbstractGui upperGui;
     private final AbstractGui lowerGui;
     
-    public AbstractSplitWindow(Player player, ComponentWrapper title, AbstractGui upperGui, AbstractGui lowerGui, Inventory upperInventory, boolean initItems, boolean closeable, boolean retain) {
-        super(player, title, upperGui.getSize() + lowerGui.getSize(), upperInventory, closeable, retain);
+    public AbstractSplitWindow(Player player, ComponentWrapper title, AbstractGui upperGui, AbstractGui lowerGui, Inventory upperInventory, boolean closeable) {
+        super(player, title, upperGui.getSize() + lowerGui.getSize(), upperInventory, closeable);
         this.upperGui = upperGui;
         this.lowerGui = lowerGui;
         
         upperGui.addParent(this);
         lowerGui.addParent(this);
-        if (initItems) initUpperItems();
     }
     
     @Override
@@ -68,46 +67,46 @@ public abstract class AbstractSplitWindow extends AbstractDoubleWindow {
     }
     
     @SuppressWarnings("unchecked")
-    public static abstract class AbstractBuilder<W extends Window, V, S extends Window.Builder.Double<W, V, S>>
-        extends AbstractWindow.AbstractBuilder<W, V, S>
-        implements Window.Builder.Double<W, V, S>
+    public static abstract class AbstractBuilder<W extends Window, S extends Window.Builder.Double<W, S>>
+        extends AbstractWindow.AbstractBuilder<W, S>
+        implements Window.Builder.Double<W, S>
     {
         
         protected Supplier<Gui> upperGuiSupplier;
         protected Supplier<Gui> lowerGuiSupplier;
         
         @Override
-        public S setUpperGui(@NotNull Supplier<Gui> guiSupplier) {
+        public @NotNull S setUpperGui(@NotNull Supplier<Gui> guiSupplier) {
             this.upperGuiSupplier = guiSupplier;
             return (S) this;
         }
         
         @Override
-        public S setUpperGui(@NotNull Gui gui) {
+        public @NotNull S setUpperGui(@NotNull Gui gui) {
             this.upperGuiSupplier = () -> gui;
             return (S) this;
         }
         
         @Override
-        public S setUpperGui(@NotNull Gui.Builder<?, ?> builder) {
+        public @NotNull S setUpperGui(@NotNull Gui.Builder<?, ?> builder) {
             this.upperGuiSupplier = builder::build;
             return (S) this;
         }
         
         @Override
-        public S setLowerGui(@NotNull Supplier<Gui> guiSupplier) {
+        public @NotNull S setLowerGui(@NotNull Supplier<Gui> guiSupplier) {
             this.lowerGuiSupplier = guiSupplier;
             return (S) this;
         }
         
         @Override
-        public S setLowerGui(@NotNull Gui gui) {
+        public @NotNull S setLowerGui(@NotNull Gui gui) {
             this.lowerGuiSupplier = () -> gui;
             return (S) this;
         }
         
         @Override
-        public S setLowerGui(@NotNull Gui.Builder<?, ?> builder) {
+        public @NotNull S setLowerGui(@NotNull Gui.Builder<?, ?> builder) {
             this.lowerGuiSupplier = builder::build;
             return (S) this;
         }

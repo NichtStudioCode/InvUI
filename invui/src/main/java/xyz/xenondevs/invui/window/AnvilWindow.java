@@ -65,7 +65,7 @@ public interface AnvilWindow extends Window {
      * @see Window.Builder.Normal
      * @see CartographyWindow.Builder
      */
-    interface Builder<S extends Builder<S>> extends Window.Builder<AnvilWindow, Player, S> {
+    interface Builder<S extends Builder<S>> extends Window.Builder<AnvilWindow, S> {
     
         /**
          * Sets the rename handlers of the {@link AnvilWindow}.
@@ -90,7 +90,7 @@ public interface AnvilWindow extends Window {
          * @see Window.Builder.Normal.Single
          * @see CartographyWindow.Builder.Single
          */
-        interface Single extends Builder<Single>, Window.Builder.Single<AnvilWindow, Player, Single> {}
+        interface Single extends Builder<Single>, Window.Builder.Single<AnvilWindow, Single> {}
     
         /**
          * A split {@link AnvilWindow} builder. Combines both {@link AnvilWindow.Builder} and {@link Window.Builder.Double}
@@ -100,7 +100,7 @@ public interface AnvilWindow extends Window {
          * @see Window.Builder.Normal.Split
          * @see CartographyWindow.Builder.Split
          */
-        interface Split extends Builder<Split>, Window.Builder.Double<AnvilWindow, Player, Split> {}
+        interface Split extends Builder<Split>, Window.Builder.Double<AnvilWindow, Split> {}
         
     }
     

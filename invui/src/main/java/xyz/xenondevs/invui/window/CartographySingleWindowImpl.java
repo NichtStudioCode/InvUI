@@ -26,18 +26,15 @@ final class CartographySingleWindowImpl extends AbstractSingleWindow implements 
         @NotNull Player player,
         @Nullable ComponentWrapper title,
         @NotNull AbstractGui gui,
-        boolean closeable,
-        boolean retain
+        boolean closeable
     ) {
-        super(player.getUniqueId(), title, gui, null, false, closeable, retain);
+        super(player.getUniqueId(), title, gui, null, closeable);
         if (gui.getWidth() != 2 || gui.getHeight() != 1) throw new IllegalArgumentException("Gui has to be 2x1");
         
-        cartographyInventory = InventoryAccess.createCartographyInventory(player, title);
+        cartographyInventory = InventoryAccess.createCartographyInventory(player, title.localized(player));
         inventory = cartographyInventory.getBukkitInventory();
         
-        initItems();
         resetMap();
-        register();
     }
     
     @Override
@@ -71,23 +68,17 @@ final class CartographySingleWindowImpl extends AbstractSingleWindow implements 
     }
     
     @Override
-    public void show() {
-        if (isRemoved())
-            throw new IllegalStateException("The Window has already been closed.");
-        
-        Player viewer = getViewer();
-        if (viewer == null)
-            throw new IllegalStateException("The player is not online.");
+    protected void openInventory(@NotNull Player viewer) {
         cartographyInventory.open();
     }
     
     public static final class BuilderImpl 
-        extends AbstractSingleWindow.AbstractBuilder<CartographyWindow, Player, CartographyWindow.Builder.Single>
+        extends AbstractSingleWindow.AbstractBuilder<CartographyWindow, CartographyWindow.Builder.Single>
         implements CartographyWindow.Builder.Single
     {
         
         @Override
-        public @NotNull CartographyWindow build() {
+        public @NotNull CartographyWindow build(Player viewer) {
             if (viewer == null)
                 throw new IllegalStateException("Viewer is not defined.");
             if (guiSupplier == null)
@@ -97,8 +88,7 @@ final class CartographySingleWindowImpl extends AbstractSingleWindow implements 
                 viewer,
                 title,
                 (AbstractGui) guiSupplier.get(),
-                closeable,
-                retain
+                closeable
             );
             
             applyModifiers(window);

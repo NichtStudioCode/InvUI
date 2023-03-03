@@ -17,12 +17,11 @@ public abstract class AbstractMergedWindow extends AbstractDoubleWindow {
     
     private final AbstractGui gui;
     
-    public AbstractMergedWindow(Player player, ComponentWrapper title, AbstractGui gui, Inventory upperInventory, boolean closeable, boolean retain) {
-        super(player, title, gui.getSize(), upperInventory, closeable, retain);
+    public AbstractMergedWindow(Player player, ComponentWrapper title, AbstractGui gui, Inventory upperInventory, boolean closeable) {
+        super(player, title, gui.getSize(), upperInventory, closeable);
         this.gui = gui;
         
         gui.addParent(this);
-        initUpperItems();
     }
     
     @Override

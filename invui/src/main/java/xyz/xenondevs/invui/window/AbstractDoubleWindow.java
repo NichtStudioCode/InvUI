@@ -24,33 +24,32 @@ public abstract class AbstractDoubleWindow extends AbstractWindow {
     private final Inventory playerInventory;
     private final ItemStack[] playerItems = new ItemStack[36];
     protected Inventory upperInventory;
-    private boolean isCurrentlyOpened;
     
-    public AbstractDoubleWindow(Player player, ComponentWrapper title, int size, Inventory upperInventory, boolean closeable, boolean retain) {
-        super(player.getUniqueId(), title, size, closeable, retain);
+    public AbstractDoubleWindow(Player player, ComponentWrapper title, int size, Inventory upperInventory, boolean closeable) {
+        super(player.getUniqueId(), title, size, closeable);
         this.upperInventory = upperInventory;
         this.playerInventory = player.getInventory();
     }
     
-    protected void initUpperItems() {
+    @Override
+    protected void initItems() {
+        // init upper inventory
         for (int i = 0; i < upperInventory.getSize(); i++) {
             SlotElement element = getSlotElement(i);
             redrawItem(i, element, true);
         }
-    }
-    
-    private void initPlayerItems() {
-        for (int i = upperInventory.getSize(); i < upperInventory.getSize() + 36; i++) {
-            SlotElement element = getSlotElement(i);
-            redrawItem(i, element, true);
-        }
-    }
-    
-    private void clearPlayerInventory() {
+        
+        // store and clear player inventory
         Inventory inventory = getViewer().getInventory();
         for (int i = 0; i < 36; i++) {
             playerItems[i] = inventory.getItem(i);
             inventory.setItem(i, null);
+        }
+        
+        // init player inventory
+        for (int i = upperInventory.getSize(); i < upperInventory.getSize() + 36; i++) {
+            SlotElement element = getSlotElement(i);
+            redrawItem(i, element, true);
         }
     }
     
@@ -71,7 +70,7 @@ public abstract class AbstractDoubleWindow extends AbstractWindow {
     @Override
     protected void setInvItem(int slot, ItemStack itemStack) {
         if (slot >= upperInventory.getSize()) {
-            if (isCurrentlyOpened) {
+            if (isOpen()) {
                 int invSlot = SlotUtils.translateGuiToPlayerInv(slot - upperInventory.getSize());
                 setPlayerInvItem(invSlot, itemStack);
             }
@@ -88,7 +87,7 @@ public abstract class AbstractDoubleWindow extends AbstractWindow {
     
     @Override
     public void handleViewerDeath(PlayerDeathEvent event) {
-        if (isCurrentlyOpened) {
+        if (isOpen()) {
             List<ItemStack> drops = event.getDrops();
             if (!event.getKeepInventory()) {
                 drops.clear();
@@ -103,15 +102,10 @@ public abstract class AbstractDoubleWindow extends AbstractWindow {
     protected void handleOpened() {
         // Prevent players from receiving advancements from UI items
         InventoryAccess.getPlayerUtils().stopAdvancementListening(getViewer());
-        
-        isCurrentlyOpened = true;
-        clearPlayerInventory();
-        initPlayerItems();
     }
     
     @Override
     protected void handleClosed() {
-        isCurrentlyOpened = false;
         restorePlayerInventory();
         
         // Start the advancement listeners again
@@ -136,7 +130,7 @@ public abstract class AbstractDoubleWindow extends AbstractWindow {
     
     @Override
     public Inventory[] getInventories() {
-        return isCurrentlyOpened ? new Inventory[] {upperInventory, playerInventory} : new Inventory[] {upperInventory};
+        return isOpen() ? new Inventory[] {upperInventory, playerInventory} : new Inventory[] {upperInventory};
     }
     
     public Inventory getUpperInventory() {
@@ -146,8 +140,6 @@ public abstract class AbstractDoubleWindow extends AbstractWindow {
     public Inventory getPlayerInventory() {
         return playerInventory;
     }
-    
-    protected abstract SlotElement getSlotElement(int index);
     
     protected abstract Pair<AbstractGui, Integer> getWhereClicked(InventoryClickEvent event);
     

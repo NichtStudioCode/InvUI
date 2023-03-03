@@ -15,11 +15,9 @@ final class NormalMergedWindowImpl extends AbstractMergedWindow {
         @NotNull Player player,
         @Nullable ComponentWrapper title,
         @NotNull AbstractGui gui,
-        boolean closeable,
-        boolean retain
+        boolean closeable
     ) {
-        super(player, title, gui, createInventory(gui), closeable, retain);
-        register();
+        super(player, title, gui, createInventory(gui), closeable);
     }
     
     private static Inventory createInventory(Gui gui) {
@@ -32,12 +30,12 @@ final class NormalMergedWindowImpl extends AbstractMergedWindow {
     }
     
     public static final class BuilderImpl
-        extends AbstractSingleWindow.AbstractBuilder<Window, Player, Window.Builder.Normal.Merged>
+        extends AbstractSingleWindow.AbstractBuilder<Window, Window.Builder.Normal.Merged>
         implements Window.Builder.Normal.Merged
     {
         
         @Override
-        public @NotNull Window build() {
+        public @NotNull Window build(Player viewer) {
             if (viewer == null)
                 throw new IllegalStateException("Viewer is not defined.");
             if (guiSupplier == null)
@@ -47,8 +45,7 @@ final class NormalMergedWindowImpl extends AbstractMergedWindow {
                 viewer,
                 title,
                 (AbstractGui) guiSupplier.get(),
-                closeable,
-                retain
+                closeable
             );
             
             applyModifiers(window);
