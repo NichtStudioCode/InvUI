@@ -1,5 +1,6 @@
 package xyz.xenondevs.inventoryaccess.component;
 
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.inventoryaccess.component.i18n.Languages;
 
@@ -23,6 +24,18 @@ public interface ComponentWrapper extends Cloneable {
      * if {@link Languages} is disabled.
      */
     @NotNull ComponentWrapper localized(@NotNull String lang);
+    
+    /**
+     * Creates a localized version of the component by replacing all translatable components with text components
+     * of the {@link Player Player's} language.
+     *
+     * @param player The player to get the language from. Uses {@link Languages#getLanguage(Player)}.
+     * @return A new {@link ComponentWrapper} of the localized component or the same {@link ComponentWrapper}
+     * if {@link Languages} is disabled.
+     */
+    default @NotNull ComponentWrapper localized(@NotNull Player player) {
+        return localized(Languages.getInstance().getLanguage(player));
+    }
     
     /**
      * Clones this {@link ComponentWrapper}.

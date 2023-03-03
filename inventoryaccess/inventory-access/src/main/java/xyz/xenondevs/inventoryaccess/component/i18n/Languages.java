@@ -1,19 +1,25 @@
 package xyz.xenondevs.inventoryaccess.component.i18n;
 
 import com.google.gson.stream.JsonReader;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 public class Languages {
     
     private static final Languages INSTANCE = new Languages();
     private final Map<String, Map<String, String>> translations = new HashMap<>();
+    private Function<Player, String> languageProvider = Player::getLocale;
     private boolean serverSideTranslations = true;
     
     private Languages() {
@@ -62,6 +68,20 @@ public class Languages {
     }
     
     /**
+     * Adds a language under the given lang code after reading it from the given file.
+     *
+     * @param lang    The lang code of the language.
+     * @param file    The file to read the language from.
+     * @param charset The charset to use.
+     * @throws IOException If an error occurs while reading.
+     */
+    public void loadLanguage(@NotNull String lang, @NotNull File file, @NotNull Charset charset) throws IOException {
+        try (var reader = new FileReader(file, charset)) {
+            loadLanguage(lang, reader);
+        }
+    }
+    
+    /**
      * Retrieves the format string for the given key under the given language.
      *
      * @param lang The language to use.
@@ -73,6 +93,26 @@ public class Languages {
         if (map == null)
             return null;
         return map.get(key);
+    }
+    
+    /**
+     * Sets the way the language is determined for a player.
+     * By default, the language is determined using {@link Player#getLocale()}.
+     *
+     * @param languageProvider The language provider.
+     */
+    public void setLanguageProvider(@NotNull Function<@NotNull Player, @NotNull String> languageProvider) {
+        this.languageProvider = languageProvider;
+    }
+    
+    /**
+     * Gets the language for the given player by invoking the configured language provider.
+     *
+     * @param player The player to get the language for.
+     * @return The language of the player.
+     */
+    public @NotNull String getLanguage(@NotNull Player player) {
+        return languageProvider.apply(player);
     }
     
     /**
