@@ -20,7 +20,7 @@ public abstract class TabItem extends ControlItem<TabGui> {
     
     @Override
     public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
-        if (clickType == ClickType.LEFT) getGui().showTab(tab);
+        if (clickType == ClickType.LEFT) getGui().setTab(tab);
     }
     
 }

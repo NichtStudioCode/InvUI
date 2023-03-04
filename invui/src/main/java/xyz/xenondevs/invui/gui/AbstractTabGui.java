@@ -28,7 +28,7 @@ public abstract class AbstractTabGui extends AbstractGui implements TabGui {
         applyStructure(structure);
     }
     
-    public void showTab(int tab) {
+    public void setTab(int tab) {
         if (tab < 0 || tab >= tabAmount)
             throw new IllegalArgumentException("Tab out of bounds");
         if (!isTabAvailable(tab))

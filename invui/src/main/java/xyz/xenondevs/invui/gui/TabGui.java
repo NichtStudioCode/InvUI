@@ -68,7 +68,7 @@ public interface TabGui extends Gui {
      *
      * @param tab The index of the tab to show.
      */
-    void showTab(int tab);
+    void setTab(int tab);
     
     /**
      * Checks if the given tab is available.
