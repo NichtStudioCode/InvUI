@@ -79,16 +79,19 @@ public abstract class AbstractWindow implements Window, GuiParent {
             
             itemStack = background == null ? null : background.get(getLang());
         } else {
-            itemStack = element.getItemStack(getLang());
+            SlotElement holdingElement = element.getHoldingElement();
+            itemStack = holdingElement.getItemStack(getLang());
             
-            // This makes every item unique to prevent Shift-DoubleClick "clicking" multiple items at the same time.
-            if (itemStack.hasItemMeta()) {
-                // clone ItemStack in order to not modify the original
-                itemStack = itemStack.clone();
-                
-                ItemMeta itemMeta = itemStack.getItemMeta();
-                itemMeta.getPersistentDataContainer().set(SLOT_KEY, PersistentDataType.BYTE, (byte) index);
-                itemStack.setItemMeta(itemMeta);
+            if (holdingElement instanceof SlotElement.ItemSlotElement) {
+                // This makes every item unique to prevent Shift-DoubleClick "clicking" multiple items at the same time.
+                if (itemStack.hasItemMeta()) {
+                    // clone ItemStack in order to not modify the original
+                    itemStack = itemStack.clone();
+                    
+                    ItemMeta itemMeta = itemStack.getItemMeta();
+                    itemMeta.getPersistentDataContainer().set(SLOT_KEY, PersistentDataType.BYTE, (byte) index);
+                    itemStack.setItemMeta(itemMeta);
+                }
             }
         }
         setInvItem(index, itemStack);
