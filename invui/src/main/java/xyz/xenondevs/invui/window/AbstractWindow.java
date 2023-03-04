@@ -194,7 +194,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
             }
         } else {
             if (player.equals(getViewer()))
-                Bukkit.getScheduler().runTaskLater(InvUI.getInstance().getPlugin(), this::show, 0);
+                Bukkit.getScheduler().runTaskLater(InvUI.getInstance().getPlugin(), this::open, 0);
         }
     }
     
@@ -250,7 +250,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
     }
     
     @Override
-    public void show() {
+    public void open() {
         Player viewer = getViewer();
         if (viewer == null)
             throw new IllegalStateException("The player is not online.");
@@ -485,8 +485,8 @@ public abstract class AbstractWindow implements Window, GuiParent {
         }
         
         @Override
-        public void show(Player viewer) {
-            build(viewer).show();
+        public void open(Player viewer) {
+            build(viewer).open();
         }
         
         @SuppressWarnings("unchecked")

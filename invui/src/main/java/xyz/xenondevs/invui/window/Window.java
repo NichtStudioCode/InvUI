@@ -90,7 +90,7 @@ public interface Window {
     /**
      * Shows the window to the player.
      */
-    void show();
+    void open();
     
     /**
      * Gets if the player is able to close the {@link Inventory}.
@@ -326,7 +326,7 @@ public interface Window {
          *
          * @param viewer The {@link Player} to show the {@link Window} to.
          */
-        void show(Player viewer);
+        void open(Player viewer);
         
         /**
          * Clones the {@link Builder Window Builder}.
