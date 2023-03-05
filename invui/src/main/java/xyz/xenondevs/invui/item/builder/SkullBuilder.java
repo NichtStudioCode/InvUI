@@ -13,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.util.ReflectionRegistry;
 import xyz.xenondevs.inventoryaccess.util.ReflectionUtils;
 import xyz.xenondevs.invui.util.MojangApiUtils;
@@ -60,10 +61,10 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
         propertyMap.put("textures", new Property("textures", texture.getTextureValue()));
     }
     
-    @Contract(value = "-> new", pure = true)
+    @Contract(value = "_ -> new", pure = true)
     @Override
-    public @NotNull ItemStack get() {
-        ItemStack item = super.get();
+    public @NotNull ItemStack get(@Nullable String lang) {
+        ItemStack item = super.get(lang);
         ItemMeta meta = item.getItemMeta();
         
         if (gameProfile != null)

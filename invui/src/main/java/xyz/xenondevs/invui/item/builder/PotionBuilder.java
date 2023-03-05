@@ -8,6 +8,7 @@ import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,10 +51,10 @@ public final class PotionBuilder extends AbstractItemBuilder<PotionBuilder> {
         return this;
     }
     
-    @Contract(value = "-> new", pure = true)
+    @Contract(value = "_ -> new", pure = true)
     @Override
-    public @NotNull ItemStack get() {
-        ItemStack item = super.get();
+    public @NotNull ItemStack get(@Nullable String lang) {
+        ItemStack item = super.get(lang);
         PotionMeta meta = (PotionMeta) item.getItemMeta();
         
         meta.clearCustomEffects();
