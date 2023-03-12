@@ -171,10 +171,6 @@ public abstract class AbstractWindow implements Window, GuiParent {
         if (!event.getPlayer().equals(getViewer())) {
             event.setCancelled(true);
         } else {
-            if (currentlyOpen)
-                throw new IllegalStateException("Window is already opened!");
-            
-            currentlyOpen = true;
             handleOpened();
             
             if (openHandlers != null) {
@@ -257,7 +253,10 @@ public abstract class AbstractWindow implements Window, GuiParent {
         Player viewer = getViewer();
         if (viewer == null)
             throw new IllegalStateException("The player is not online.");
+        if (currentlyOpen)
+            throw new IllegalStateException("Window is already opened!");
         
+        currentlyOpen = true;
         initItems();
         WindowManager.getInstance().addWindow(this);
         openInventory(viewer);
