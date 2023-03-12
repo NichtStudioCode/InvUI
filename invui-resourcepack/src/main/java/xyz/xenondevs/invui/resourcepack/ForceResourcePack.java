@@ -9,7 +9,7 @@ import org.bukkit.event.player.PlayerResourcePackStatusEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.InventoryAccess;
-import xyz.xenondevs.inventoryaccess.component.BaseComponentWrapper;
+import xyz.xenondevs.inventoryaccess.component.BungeeComponentWrapper;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.inventoryaccess.util.ReflectionRegistry;
 import xyz.xenondevs.inventoryaccess.util.VersionUtils;
@@ -79,7 +79,7 @@ public class ForceResourcePack implements Listener {
      * @throws IOException If the connection was not successful
      */
     public void setResourcePack(@Nullable String resourcePackUrl, @Nullable BaseComponent[] prompt) throws IOException {
-        setResourcePack(resourcePackUrl, new BaseComponentWrapper(prompt), true);
+        setResourcePack(resourcePackUrl, new BungeeComponentWrapper(prompt), true);
     }
     
     /**
@@ -119,7 +119,7 @@ public class ForceResourcePack implements Listener {
      * @throws IOException If the connection was not successful
      */
     public void setResourcePack(@Nullable String resourcePackUrl, @Nullable BaseComponent[] prompt, boolean sendToOnlinePlayers) throws IOException {
-        setResourcePack(resourcePackUrl, new BaseComponentWrapper(prompt), sendToOnlinePlayers);
+        setResourcePack(resourcePackUrl, new BungeeComponentWrapper(prompt), sendToOnlinePlayers);
     }
     
     public void sendResourcePack(Player player) {

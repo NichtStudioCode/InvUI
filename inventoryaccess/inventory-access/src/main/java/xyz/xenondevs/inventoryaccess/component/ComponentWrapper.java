@@ -26,6 +26,14 @@ public interface ComponentWrapper extends Cloneable {
     @NotNull ComponentWrapper localized(@NotNull String lang);
     
     /**
+     * Creates a new {@link ComponentWrapper} that forces the default formatting (white color, no decorations),
+     * unless configured otherwise.
+     *
+     * @return A new {@link ComponentWrapper} with the default formatting.
+     */
+    @NotNull ComponentWrapper withoutPreFormatting();
+    
+    /**
      * Creates a localized version of the component by replacing all translatable components with text components
      * of the {@link Player Player's} language.
      *

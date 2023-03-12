@@ -3,23 +3,29 @@ package xyz.xenondevs.inventoryaccess.component;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.jetbrains.annotations.NotNull;
-import xyz.xenondevs.inventoryaccess.component.i18n.BaseComponentLocalizer;
+import xyz.xenondevs.inventoryaccess.component.i18n.BungeeComponentLocalizer;
 import xyz.xenondevs.inventoryaccess.component.i18n.Languages;
+import xyz.xenondevs.inventoryaccess.util.BungeeComponentUtils;
 
-public class BaseComponentWrapper implements ComponentWrapper {
+public class BungeeComponentWrapper implements ComponentWrapper {
     
     private final BaseComponent[] components;
     
-    public BaseComponentWrapper(BaseComponent[] components) {
+    public BungeeComponentWrapper(BaseComponent[] components) {
         this.components = components;
     }
     
     @Override
-    public @NotNull ComponentWrapper localized(@NotNull String lang) {
+    public @NotNull BungeeComponentWrapper localized(@NotNull String lang) {
         if (!Languages.getInstance().doesServerSideTranslations())
             return this;
         
-        return new BaseComponentWrapper(BaseComponentLocalizer.getInstance().localize(lang, components));
+        return new BungeeComponentWrapper(BungeeComponentLocalizer.getInstance().localize(lang, components));
+    }
+    
+    @Override
+    public @NotNull BungeeComponentWrapper withoutPreFormatting() {
+        return new BungeeComponentWrapper(BungeeComponentUtils.withoutPreFormatting(components));
     }
     
     @Override
@@ -28,9 +34,9 @@ public class BaseComponentWrapper implements ComponentWrapper {
     }
     
     @Override
-    public @NotNull BaseComponentWrapper clone() {
+    public @NotNull BungeeComponentWrapper clone() {
         try {
-            var clone = (BaseComponentWrapper) super.clone();
+            var clone = (BungeeComponentWrapper) super.clone();
             for (int i = 0; i < clone.components.length; i++) {
                 clone.components[i] = clone.components[i].duplicate();
             }

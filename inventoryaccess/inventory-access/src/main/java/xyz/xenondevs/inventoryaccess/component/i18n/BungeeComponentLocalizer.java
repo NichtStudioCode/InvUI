@@ -6,14 +6,14 @@ import net.md_5.bungee.api.chat.TranslatableComponent;
 
 import java.util.stream.Collectors;
 
-public class BaseComponentLocalizer extends ComponentLocalizer<BaseComponent> {
+public class BungeeComponentLocalizer extends ComponentLocalizer<BaseComponent> {
     
-    private static final BaseComponentLocalizer INSTANCE = new BaseComponentLocalizer();
+    private static final BungeeComponentLocalizer INSTANCE = new BungeeComponentLocalizer();
     
-    private BaseComponentLocalizer() {
+    private BungeeComponentLocalizer() {
     }
     
-    public static BaseComponentLocalizer getInstance() {
+    public static BungeeComponentLocalizer getInstance() {
         return INSTANCE;
     }
     

@@ -5,6 +5,7 @@ import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.inventoryaccess.component.i18n.AdventureComponentLocalizer;
 import xyz.xenondevs.inventoryaccess.component.i18n.Languages;
+import xyz.xenondevs.inventoryaccess.util.AdventureComponentUtils;
 
 public class AdventureComponentWrapper implements ComponentWrapper {
     
@@ -25,6 +26,11 @@ public class AdventureComponentWrapper implements ComponentWrapper {
             return this;
         
         return new AdventureComponentWrapper(AdventureComponentLocalizer.getInstance().localize(lang, component));
+    }
+    
+    @Override
+    public @NotNull ComponentWrapper withoutPreFormatting() {
+        return new AdventureComponentWrapper(AdventureComponentUtils.withoutPreFormatting(component));
     }
     
     @Override

@@ -1,6 +1,7 @@
 package xyz.xenondevs.invui.item.builder;
 
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
@@ -11,10 +12,9 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.InventoryAccess;
-import xyz.xenondevs.inventoryaccess.component.BaseComponentWrapper;
+import xyz.xenondevs.inventoryaccess.component.BungeeComponentWrapper;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.invui.item.ItemProvider;
-import xyz.xenondevs.invui.util.ComponentUtils;
 import xyz.xenondevs.invui.util.Pair;
 
 import java.util.ArrayList;
@@ -207,19 +207,19 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
     
     @Contract("_ -> this")
     public @NotNull S setDisplayName(String displayName) {
-        this.displayName = new BaseComponentWrapper(ComponentUtils.withoutPreFormatting(displayName));
+        this.displayName = new BungeeComponentWrapper(TextComponent.fromLegacyText(displayName)).withoutPreFormatting();
         return (S) this;
     }
     
     @Contract("_ -> this")
     public @NotNull S setDisplayName(BaseComponent... displayName) {
-        this.displayName = new BaseComponentWrapper(ComponentUtils.withoutPreFormatting(displayName));
+        this.displayName = new BungeeComponentWrapper(displayName).withoutPreFormatting();
         return (S) this;
     }
     
     @Contract("_ -> this")
     public @NotNull S setDisplayName(ComponentWrapper component) {
-        this.displayName = component;
+        this.displayName = component.withoutPreFormatting();
         return (S) this;
     }
     
@@ -230,14 +230,16 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
     
     @Contract("_ -> this")
     public @NotNull S setLore(List<ComponentWrapper> lore) {
-        this.lore = lore;
+        this.lore = lore.stream()
+            .map(ComponentWrapper::withoutPreFormatting)
+            .collect(Collectors.toList());
         return (S) this;
     }
     
     @Contract("_ -> this")
     public @NotNull S setLegacyLore(@NotNull List<String> lore) {
         this.lore = lore.stream()
-            .map(line -> new BaseComponentWrapper(ComponentUtils.withoutPreFormatting(line)))
+            .map(line -> new BungeeComponentWrapper(TextComponent.fromLegacyText(line)).withoutPreFormatting())
             .collect(Collectors.toList());
         return (S) this;
     }
@@ -247,7 +249,8 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
         if (lore == null) lore = new ArrayList<>();
         
         for (String line : lines)
-            lore.add(new BaseComponentWrapper(ComponentUtils.withoutPreFormatting(line)));
+            lore.add(new BungeeComponentWrapper(TextComponent.fromLegacyText(line)).withoutPreFormatting());
+        
         return (S) this;
     }
     
@@ -255,11 +258,8 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
     public @NotNull S addLoreLines(@NotNull BaseComponent[]... lines) {
         if (lore == null) lore = new ArrayList<>();
         
-        lore.addAll(
-            Arrays.stream(lines)
-                .map(line -> new BaseComponentWrapper(ComponentUtils.withoutPreFormatting(line)))
-                .collect(Collectors.toList())
-        );
+        for (BaseComponent[] line : lines)
+            lore.add(new BungeeComponentWrapper(line).withoutPreFormatting());
         
         return (S) this;
     }
@@ -268,7 +268,8 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
     public @NotNull S addLoreLines(@NotNull ComponentWrapper... lines) {
         if (lore == null) lore = new ArrayList<>();
         
-        lore.addAll(Arrays.asList(lines));
+        for (ComponentWrapper line : lines)
+            lore.add(line.withoutPreFormatting());
         
         return (S) this;
     }

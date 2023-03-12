@@ -18,7 +18,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.InventoryAccess;
-import xyz.xenondevs.inventoryaccess.component.BaseComponentWrapper;
+import xyz.xenondevs.inventoryaccess.component.BungeeComponentWrapper;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.inventoryaccess.component.i18n.Languages;
 import xyz.xenondevs.invui.InvUI;
@@ -285,7 +285,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
     
     @Override
     public void changeTitle(@NotNull BaseComponent[] title) {
-        changeTitle(new BaseComponentWrapper(title));
+        changeTitle(new BungeeComponentWrapper(title));
     }
     
     @Override
@@ -413,13 +413,13 @@ public abstract class AbstractWindow implements Window, GuiParent {
         
         @Override
         public @NotNull S setTitle(@NotNull BaseComponent @NotNull [] title) {
-            this.title = new BaseComponentWrapper(title);
+            this.title = new BungeeComponentWrapper(title);
             return (S) this;
         }
         
         @Override
         public @NotNull S setTitle(@NotNull String title) {
-            this.title = new BaseComponentWrapper(TextComponent.fromLegacyText(title));
+            this.title = new BungeeComponentWrapper(TextComponent.fromLegacyText(title));
             return (S) this;
         }
         
