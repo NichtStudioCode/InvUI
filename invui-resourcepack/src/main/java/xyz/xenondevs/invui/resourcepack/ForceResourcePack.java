@@ -38,8 +38,12 @@ public class ForceResourcePack implements Listener {
     
     private final HashMap<Player, BukkitTask> tasks = new HashMap<>();
     
-    private String resourcePackUrl;
+    private boolean forced = true;
+    private String forceBypassPermission;
+    private String promptBypassPermission;
     private ComponentWrapper prompt;
+    
+    private String resourcePackUrl;
     private byte[] hash;
     
     private ForceResourcePack() {
@@ -63,23 +67,10 @@ public class ForceResourcePack implements Listener {
      * Can be set to null to stop forcing the Resource Pack.
      *
      * @param resourcePackUrl The ResourcePack URL String
-     * @param prompt          The prompt to be displayed (since 1.17)
      * @throws IOException If the connection was not successful
      */
-    public void setResourcePack(@Nullable String resourcePackUrl, @Nullable ComponentWrapper prompt) throws IOException {
-        setResourcePack(resourcePackUrl, prompt, true);
-    }
-    
-    /**
-     * Sets the URL String for the custom ResourcePack every {@link Player} is required to download.
-     * Can be set to null to stop forcing the Resource Pack.
-     *
-     * @param resourcePackUrl The ResourcePack URL String
-     * @param prompt          The prompt to be displayed (since 1.17)
-     * @throws IOException If the connection was not successful
-     */
-    public void setResourcePack(@Nullable String resourcePackUrl, @Nullable BaseComponent[] prompt) throws IOException {
-        setResourcePack(resourcePackUrl, new BungeeComponentWrapper(prompt), true);
+    public void setResourcePack(@Nullable String resourcePackUrl) throws IOException {
+        setResourcePack(resourcePackUrl, true);
     }
     
     /**
@@ -87,13 +78,10 @@ public class ForceResourcePack implements Listener {
      * Can be set to null to stop forcing the Resource Pack.
      *
      * @param resourcePackUrl     The ResourcePack URL String
-     * @param prompt              The prompt to be displayed (since 1.17)
      * @param sendToOnlinePlayers If the resource pack should also be sent to all currently online players
      * @throws IOException If the connection was not successful
      */
-    public void setResourcePack(@Nullable String resourcePackUrl, @Nullable ComponentWrapper prompt, boolean sendToOnlinePlayers) throws IOException {
-        this.prompt = prompt;
-        
+    public void setResourcePack(@Nullable String resourcePackUrl, boolean sendToOnlinePlayers) throws IOException {
         if (resourcePackUrl != null) {
             URL url = new URL(resourcePackUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -110,25 +98,107 @@ public class ForceResourcePack implements Listener {
     }
     
     /**
-     * Sets the URL String for the custom ResourcePack every {@link Player} is required to download.
-     * Can be set to null to stop forcing the Resource Pack.
+     * Gets the resource pack prompt message. (Since 1.17)
      *
-     * @param resourcePackUrl     The ResourcePack URL String
-     * @param prompt              The prompt to be displayed (since 1.17)
-     * @param sendToOnlinePlayers If the resource pack should also be sent to all currently online players
-     * @throws IOException If the connection was not successful
+     * @return The resource pack prompt message.
      */
-    public void setResourcePack(@Nullable String resourcePackUrl, @Nullable BaseComponent[] prompt, boolean sendToOnlinePlayers) throws IOException {
-        setResourcePack(resourcePackUrl, new BungeeComponentWrapper(prompt), sendToOnlinePlayers);
+    public ComponentWrapper getPrompt() {
+        return prompt;
+    }
+    
+    /**
+     * Sets the resource pack prompt message. (Since 1.17)
+     *
+     * @param prompt The resource pack prompt message.
+     */
+    public void setPrompt(ComponentWrapper prompt) {
+        this.prompt = prompt;
+    }
+    
+    /**
+     * Sets the resource pack prompt message. (Since 1.17)
+     *
+     * @param prompt The resource pack prompt message.
+     */
+    public void setPrompt(BaseComponent[] prompt) {
+        this.prompt = new BungeeComponentWrapper(prompt);
+    }
+    
+    /**
+     * Gets whether {@link Player Players} are be forced to download the resource pack.
+     *
+     * @return Whether the resource pack is forced.
+     */
+    public boolean isForced() {
+        return forced;
+    }
+    
+    /**
+     * Sets whether {@link Player Players} should be forced to download the resource pack.
+     *
+     * @param forced Whether the resource pack should be forced.
+     */
+    public void setForced(boolean forced) {
+        this.forced = forced;
+    }
+    
+    /**
+     * Gets the bypass permission a {@link Player} needs to have to not be forced to download the ResourcePack.
+     * <p>
+     * {@link Player Players} with this permission will still get the resource pack prompt, but they can choose to not
+     * download the resource pack.
+     *
+     * @return The bypass permission
+     */
+    public String getForceBypassPermission() {
+        return forceBypassPermission;
+    }
+    
+    /**
+     * Sets the bypass permission a {@link Player} needs to have to not be forced to download the ResourcePack.
+     * <p>
+     * {@link Player Players} with this permission will still get the resource pack prompt, but they can choose to not
+     * download the resource pack.
+     *
+     * @param forceBypassPermission The bypass permission
+     */
+    public void setForceBypassPermission(String forceBypassPermission) {
+        this.forceBypassPermission = forceBypassPermission;
+    }
+    
+    /**
+     * Gets the bypass permission which exempts {@link Player Players} from receiving the resource pack prompt.
+     *
+     * @return The bypass permission.
+     */
+    public String getPromptBypassPermission() {
+        return promptBypassPermission;
+    }
+    
+    /**
+     * Sets the bypass permission which exempts {@link Player Players} from receiving the resource pack prompt.
+     *
+     * @param promptBypassPermission The bypass permission.
+     */
+    public void setPromptBypassPermission(String promptBypassPermission) {
+        this.promptBypassPermission = promptBypassPermission;
     }
     
     public void sendResourcePack(Player player) {
+        // player is exempted from the resource pack prompt
+        if (promptBypassPermission != null && player.hasPermission(promptBypassPermission))
+            return;
+        
+        boolean forced = this.forced && (forceBypassPermission == null || !player.hasPermission(forceBypassPermission));
+        
         if (VersionUtils.isServerHigherOrEqual("1.17.0")) {
-            InventoryAccess.getPlayerUtils().sendResourcePack(player, resourcePackUrl, hash, prompt, true);
+            InventoryAccess.getPlayerUtils().sendResourcePack(player, resourcePackUrl, hash, prompt, forced);
         } else {
             player.setResourcePack(resourcePackUrl);
-            tasks.put(player, Bukkit.getScheduler().runTaskLater(InvUI.getInstance().getPlugin(),
-                () -> kickPlayer(player), 20 * 5));
+            if (forced) {
+                tasks.put(player, Bukkit.getScheduler().runTaskLater(InvUI.getInstance().getPlugin(),
+                    () -> kickPlayer(player), 20 * 5));
+            }
         }
     }
     
