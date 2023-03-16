@@ -5,6 +5,7 @@ import xyz.xenondevs.inventoryaccess.util.VersionUtils;
 public enum InventoryAccessRevision {
     
     // this order is required
+    R13("r13", "1.19.4"),
     R12("r12", "1.19.3"),
     R11("r11", "1.19.1"),
     R10("r10", "1.19.0"),
