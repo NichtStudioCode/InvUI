@@ -45,6 +45,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
     private final SlotElement[] elementsDisplayed;
     private List<Runnable> openHandlers;
     private List<Runnable> closeHandlers;
+    private List<Consumer<InventoryClickEvent>> outsideClickHandlers;
     private ComponentWrapper title;
     private boolean closeable;
     private boolean currentlyOpen;
@@ -172,18 +173,26 @@ public abstract class AbstractWindow implements Window, GuiParent {
             event.setCancelled(true);
         } else {
             handleOpened();
-            
+
             if (openHandlers != null) {
                 openHandlers.forEach(Runnable::run);
             }
         }
     }
-    
+
+    public void handleOutsideClick(InventoryClickEvent event) {
+        if (outsideClickHandlers == null)
+            return;
+        for (Consumer<InventoryClickEvent> handler : outsideClickHandlers) {
+            handler.accept(event);
+        }
+    }
+
     public void handleCloseEvent(Player player) {
         if (closeable) {
             if (!currentlyOpen)
                 throw new IllegalStateException("Window is already closed!");
-            
+
             currentlyOpen = false;
             remove(false);
             handleClosed();
@@ -314,22 +323,41 @@ public abstract class AbstractWindow implements Window, GuiParent {
     public void addCloseHandler(@NotNull Runnable closeHandler) {
         if (closeHandlers == null)
             closeHandlers = new ArrayList<>();
-        
+
         closeHandlers.add(closeHandler);
     }
-    
+
     @Override
     public void removeCloseHandler(@NotNull Runnable closeHandler) {
         if (closeHandlers != null)
             closeHandlers.remove(closeHandler);
     }
-    
+
+    @Override
+    public void addOutsideClickHandler(@NotNull Consumer<InventoryClickEvent> outsideHandler) {
+        if (outsideClickHandlers == null)
+            outsideClickHandlers = new ArrayList<>();
+
+        outsideClickHandlers.add(outsideHandler);
+    }
+
+    @Override
+    public void removeOutsideClickHandler(@NotNull Consumer<InventoryClickEvent> outsideHandler) {
+        if (outsideClickHandlers != null)
+            outsideClickHandlers.remove(outsideHandler);
+    }
+
+    @Override
+    public void setOutsideClickHandlers(@NotNull List<@NotNull Consumer<InventoryClickEvent>>  outsideHandlers) {
+        this.outsideClickHandlers = outsideHandlers;
+    }
+
     @Override
     public @Nullable Player getCurrentViewer() {
         List<HumanEntity> viewers = getInventories()[0].getViewers();
         return viewers.isEmpty() ? null : (Player) viewers.get(0);
     }
-    
+
     @Override
     public @Nullable Player getViewer() {
         return Bukkit.getPlayer(viewerUUID);

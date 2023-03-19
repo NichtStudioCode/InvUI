@@ -2,6 +2,7 @@ package xyz.xenondevs.invui.window;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -188,14 +189,35 @@ public interface Window {
      * @param closeHandler The close handler to add
      */
     void addCloseHandler(@NotNull Runnable closeHandler);
-    
+
     /**
      * Removes a close handler that has been added previously.
      *
      * @param closeHandler The close handler to remove
      */
     void removeCloseHandler(@NotNull Runnable closeHandler);
-    
+
+    /**
+     * Adds a outside click handler that will be called when player click outside window
+     *
+     * @param outsideHandler - The outside click handler to add
+     */
+    void addOutsideClickHandler(@NotNull Consumer<InventoryClickEvent> outsideHandler);
+
+    /**
+     * Removes a outside click handler that will be called when player click outside window
+     *
+     * @param outsideHandler - The outside click handler to remove
+     */
+    void removeOutsideClickHandler(@NotNull Consumer<InventoryClickEvent> outsideHandler);
+
+    /**
+     * Replaces the currently outside click handlers with the given list.
+     *
+     * @param outsideHandlers - The new outside click handlers
+     */
+    void setOutsideClickHandlers(@NotNull List<@NotNull Consumer<InventoryClickEvent>> outsideHandlers);
+
     /**
      * A {@link Window} builder.
      *
@@ -203,7 +225,7 @@ public interface Window {
      * @param <S> The builder type
      */
     interface Builder<W extends Window, S extends Builder<W, S>> extends Cloneable {
-        
+
         /**
          * Sets the viewer of the {@link Window}.
          *

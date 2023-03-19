@@ -8,10 +8,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.Nullable;
@@ -115,12 +112,16 @@ public class WindowManager implements Listener {
                 // The inventory that was clicked is part of the open window
                 window.handleClick(event);
             } else {
+                if (event.getSlotType() == InventoryType.SlotType.OUTSIDE) {
+                    window.handleOutsideClick(event);
+                    return;
+                }
                 // The inventory that was clicked is not part of the open window, so it is the player inventory
                 switch (event.getAction()) {
                     case MOVE_TO_OTHER_INVENTORY:
                         window.handleItemShift(event);
                         break;
-                    
+
                     // items have been collected by clicking a slot in the player inv
                     case COLLECT_TO_CURSOR:
                         window.handleCursorCollect(event);
