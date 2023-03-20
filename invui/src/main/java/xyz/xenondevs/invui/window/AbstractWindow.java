@@ -11,6 +11,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -45,6 +46,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
     private final SlotElement[] elementsDisplayed;
     private List<Runnable> openHandlers;
     private List<Runnable> closeHandlers;
+    private List<Consumer<InventoryClickEvent>> outsideClickHandlers;
     private ComponentWrapper title;
     private boolean closeable;
     private boolean currentlyOpen;
@@ -133,7 +135,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
         }
     }
     
-    public void handleDrag(InventoryDragEvent event) {
+    public void handleDragEvent(InventoryDragEvent event) {
         Player player = ((Player) event.getWhoClicked()).getPlayer();
         UpdateReason updateReason = new PlayerUpdateReason(player, event);
         Map<Integer, ItemStack> newItems = event.getNewItems();
@@ -194,6 +196,32 @@ public abstract class AbstractWindow implements Window, GuiParent {
         } else {
             if (player.equals(getViewer()))
                 Bukkit.getScheduler().runTaskLater(InvUI.getInstance().getPlugin(), this::open, 0);
+        }
+    }
+    
+    public void handleClickEvent(InventoryClickEvent event) {
+        if (Arrays.asList(getInventories()).contains(event.getClickedInventory())) {
+            // The inventory that was clicked is part of the open window
+            handleClick(event);
+        } else if (event.getSlotType() == InventoryType.SlotType.OUTSIDE) {
+            // The player clicked outside the inventory
+            if (outsideClickHandlers != null) {
+                for (var handler : outsideClickHandlers) {
+                    handler.accept(event);
+                }
+            }
+        } else {
+            switch (event.getAction()) {
+                // The inventory that was clicked is not part of the open window, so it is the player inventory
+                case MOVE_TO_OTHER_INVENTORY:
+                    handleItemShift(event);
+                    break;
+                
+                // items have been collected by clicking a slot in the player inv
+                case COLLECT_TO_CURSOR:
+                    handleCursorCollect(event);
+                    break;
+            }
         }
     }
     
@@ -325,6 +353,25 @@ public abstract class AbstractWindow implements Window, GuiParent {
     }
     
     @Override
+    public void setOutsideClickHandlers(@NotNull List<@NotNull Consumer<@NotNull InventoryClickEvent>> outsideClickHandlers) {
+        this.outsideClickHandlers = outsideClickHandlers;
+    }
+    
+    @Override
+    public void addOutsideClickHandler(@NotNull Consumer<@NotNull InventoryClickEvent> outsideClickHandlers) {
+        if (this.outsideClickHandlers == null)
+            this.outsideClickHandlers = new ArrayList<>();
+        
+        this.outsideClickHandlers.add(outsideClickHandlers);
+    }
+    
+    @Override
+    public void removeOutsideClickHandler(@NotNull Consumer<@NotNull InventoryClickEvent> outsideClickHandlers) {
+        if (this.outsideClickHandlers != null)
+            this.outsideClickHandlers.remove(outsideClickHandlers);
+    }
+    
+    @Override
     public @Nullable Player getCurrentViewer() {
         List<HumanEntity> viewers = getInventories()[0].getViewers();
         return viewers.isEmpty() ? null : (Player) viewers.get(0);
@@ -380,11 +427,11 @@ public abstract class AbstractWindow implements Window, GuiParent {
     
     protected abstract void handleClosed();
     
-    public abstract void handleClick(InventoryClickEvent event);
+    protected abstract void handleClick(InventoryClickEvent event);
     
-    public abstract void handleItemShift(InventoryClickEvent event);
+    protected abstract void handleItemShift(InventoryClickEvent event);
     
-    public abstract void handleCursorCollect(InventoryClickEvent event);
+    protected abstract void handleCursorCollect(InventoryClickEvent event);
     
     public abstract void handleViewerDeath(PlayerDeathEvent event);
     
@@ -396,6 +443,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
         protected boolean closeable = true;
         protected List<Runnable> openHandlers;
         protected List<Runnable> closeHandlers;
+        protected List<Consumer<InventoryClickEvent>> outsideClickHandlers;
         protected List<Consumer<Window>> modifiers;
         
         @Override
@@ -459,6 +507,21 @@ public abstract class AbstractWindow implements Window, GuiParent {
         }
         
         @Override
+        public @NotNull S setOutsideClickHandlers(@NotNull List<@NotNull Consumer<@NotNull InventoryClickEvent>> outsideClickHandlers) {
+            this.outsideClickHandlers = outsideClickHandlers;
+            return (S) this;
+        }
+        
+        @Override
+        public @NotNull S addOutsideClickHandler(@NotNull Consumer<@NotNull InventoryClickEvent> outsideClickHandler) {
+            if (outsideClickHandlers == null)
+                outsideClickHandlers = new ArrayList<>();
+            
+            outsideClickHandlers.add(outsideClickHandler);
+            return (S) this;
+        }
+        
+        @Override
         public @NotNull S setModifiers(List<Consumer<Window>> modifiers) {
             this.modifiers = modifiers;
             return (S) this;
@@ -476,6 +539,9 @@ public abstract class AbstractWindow implements Window, GuiParent {
         protected void applyModifiers(W window) {
             if (closeHandlers != null)
                 window.setCloseHandlers(closeHandlers);
+            
+            if (outsideClickHandlers != null)
+                window.setOutsideClickHandlers(outsideClickHandlers);
             
             if (modifiers != null)
                 modifiers.forEach(modifier -> modifier.accept(window));

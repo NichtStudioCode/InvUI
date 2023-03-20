@@ -2,6 +2,7 @@ package xyz.xenondevs.invui.window;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -197,6 +198,26 @@ public interface Window {
     void removeCloseHandler(@NotNull Runnable closeHandler);
     
     /**
+     * Replaces the currently registered outside click handlers with the given list.
+     * @param outsideClickHandlers The new outside click handlers
+     */
+    void setOutsideClickHandlers(@NotNull List<@NotNull Consumer<@NotNull InventoryClickEvent>> outsideClickHandlers);
+    
+    /**
+     * Adds an outside click handler that will be called when a player clicks outside the inventory.
+     *
+     * @param outsideClickHandlers The outside click handler to add
+     */
+    void addOutsideClickHandler(@NotNull Consumer<@NotNull InventoryClickEvent> outsideClickHandlers);
+    
+    /**
+     * Removes an outside click handler that has been added previously.
+     *
+     * @param outsideClickHandlers The outside click handler to remove
+     */
+    void removeOutsideClickHandler(@NotNull Consumer<@NotNull InventoryClickEvent> outsideClickHandlers);
+    
+    /**
      * A {@link Window} builder.
      *
      * @param <W> The window type
@@ -284,6 +305,24 @@ public interface Window {
          */
         @Contract("_ -> this")
         @NotNull S addCloseHandler(Runnable closeHandler);
+        
+        /**
+         * Sets the outside click handlers of the {@link Window}.
+         *
+         * @param outsideClickHandlers The outside click handlers of the {@link Window}
+         * @return This {@link Builder Window Builder}
+         */
+        @Contract("_ -> this")
+        @NotNull S setOutsideClickHandlers(@NotNull List<@NotNull Consumer<@NotNull InventoryClickEvent>> outsideClickHandlers);
+        
+        /**
+         * Adds an outside click handler to the {@link Window}.
+         *
+         * @param outsideClickHandler The outside click handler to add
+         * @return This {@link Builder Window Builder}
+         */
+        @Contract("_ -> this")
+        @NotNull S addOutsideClickHandler(@NotNull Consumer<@NotNull InventoryClickEvent> outsideClickHandler);
         
         /**
          * Sets the modifiers of the {@link Window}.

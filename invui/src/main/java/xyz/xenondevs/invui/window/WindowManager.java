@@ -105,28 +105,9 @@ public class WindowManager implements Listener {
     
     @EventHandler
     private void handleInventoryClick(InventoryClickEvent event) {
-        Player player = (Player) event.getWhoClicked();
-        AbstractWindow window = (AbstractWindow) getOpenWindow(player);
-        
+        AbstractWindow window = (AbstractWindow) getOpenWindow((Player) event.getWhoClicked());
         if (window != null) {
-            Inventory clicked = event.getClickedInventory();
-            
-            if (Arrays.asList(window.getInventories()).contains(clicked)) {
-                // The inventory that was clicked is part of the open window
-                window.handleClick(event);
-            } else {
-                // The inventory that was clicked is not part of the open window, so it is the player inventory
-                switch (event.getAction()) {
-                    case MOVE_TO_OTHER_INVENTORY:
-                        window.handleItemShift(event);
-                        break;
-                    
-                    // items have been collected by clicking a slot in the player inv
-                    case COLLECT_TO_CURSOR:
-                        window.handleCursorCollect(event);
-                        break;
-                }
-            }
+            window.handleClickEvent(event);
         }
     }
     
@@ -134,17 +115,17 @@ public class WindowManager implements Listener {
     private void handleInventoryDrag(InventoryDragEvent event) {
         AbstractWindow window = (AbstractWindow) getOpenWindow((Player) event.getWhoClicked());
         if (window != null) {
-            window.handleDrag(event);
+            window.handleDragEvent(event);
         }
     }
     
     @EventHandler(priority = EventPriority.HIGHEST)
     private void handleInventoryClose(InventoryCloseEvent event) {
         Player player = (Player) event.getPlayer();
-        
         AbstractWindow window = (AbstractWindow) getWindow(event.getInventory());
-        if (window != null)
+        if (window != null) {
             window.handleCloseEvent(player);
+        }
         
         openWindows.remove(player);
     }
