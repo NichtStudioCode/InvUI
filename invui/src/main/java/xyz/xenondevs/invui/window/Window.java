@@ -167,7 +167,7 @@ public interface Window {
      *
      * @param openHandlers The new open handlers
      */
-    void setOpenHandlers(@NotNull List<@NotNull Runnable> openHandlers);
+    void setOpenHandlers(@Nullable List<@NotNull Runnable> openHandlers);
     
     /**
      * Adds an open handler that will be called when this window gets opened.
@@ -181,7 +181,7 @@ public interface Window {
      *
      * @param closeHandlers The new close handlers
      */
-    void setCloseHandlers(@NotNull List<@NotNull Runnable> closeHandlers);
+    void setCloseHandlers(@Nullable List<@NotNull Runnable> closeHandlers);
     
     /**
      * Adds a close handler that will be called when this window gets closed.
@@ -199,9 +199,10 @@ public interface Window {
     
     /**
      * Replaces the currently registered outside click handlers with the given list.
+     *
      * @param outsideClickHandlers The new outside click handlers
      */
-    void setOutsideClickHandlers(@NotNull List<@NotNull Consumer<@NotNull InventoryClickEvent>> outsideClickHandlers);
+    void setOutsideClickHandlers(@Nullable List<@NotNull Consumer<@NotNull InventoryClickEvent>> outsideClickHandlers);
     
     /**
      * Adds an outside click handler that will be called when a player clicks outside the inventory.
@@ -277,7 +278,7 @@ public interface Window {
          * @return This {@link Builder Window Builder}
          */
         @Contract("_ -> this")
-        @NotNull S setOpenHandlers(List<Runnable> openHandlers);
+        @NotNull S setOpenHandlers(@Nullable List<@NotNull Runnable> openHandlers);
         
         /**
          * Adds an open handler to the {@link Window}.
@@ -286,7 +287,7 @@ public interface Window {
          * @return This {@link Builder Window Builder}
          */
         @Contract("_ -> this")
-        @NotNull S addOpenHandler(Runnable openHandler);
+        @NotNull S addOpenHandler(@NotNull Runnable openHandler);
         
         /**
          * Sets the close handlers of the {@link Window}.
@@ -295,7 +296,7 @@ public interface Window {
          * @return This {@link Builder Window Builder}
          */
         @Contract("_ -> this")
-        @NotNull S setCloseHandlers(List<Runnable> closeHandlers);
+        @NotNull S setCloseHandlers(@Nullable List<@NotNull Runnable> closeHandlers);
         
         /**
          * Adds a close handler to the {@link Window}.
@@ -304,7 +305,7 @@ public interface Window {
          * @return This {@link Builder Window Builder}
          */
         @Contract("_ -> this")
-        @NotNull S addCloseHandler(Runnable closeHandler);
+        @NotNull S addCloseHandler(@NotNull Runnable closeHandler);
         
         /**
          * Sets the outside click handlers of the {@link Window}.
@@ -331,7 +332,7 @@ public interface Window {
          * @return This {@link Builder Window Builder}
          */
         @Contract("_ -> this")
-        @NotNull S setModifiers(List<Consumer<Window>> modifiers);
+        @NotNull S setModifiers(@Nullable List<@NotNull Consumer<@NotNull Window>> modifiers);
         
         /**
          * Adds a modifier to the {@link Window}.
@@ -340,7 +341,7 @@ public interface Window {
          * @return This {@link Builder Window Builder}
          */
         @Contract("_ -> this")
-        @NotNull S addModifier(Consumer<Window> modifier);
+        @NotNull S addModifier(@NotNull Consumer<@NotNull Window> modifier);
         
         /**
          * Builds the {@link Window}.

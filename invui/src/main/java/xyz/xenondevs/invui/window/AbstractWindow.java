@@ -321,7 +321,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
     }
     
     @Override
-    public void setOpenHandlers(@NotNull List<@NotNull Runnable> openHandlers) {
+    public void setOpenHandlers(@Nullable List<@NotNull Runnable> openHandlers) {
         this.openHandlers = openHandlers;
     }
     
@@ -334,7 +334,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
     }
     
     @Override
-    public void setCloseHandlers(@NotNull List<@NotNull Runnable> closeHandlers) {
+    public void setCloseHandlers(@Nullable List<@NotNull Runnable> closeHandlers) {
         this.closeHandlers = closeHandlers;
     }
     
@@ -353,7 +353,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
     }
     
     @Override
-    public void setOutsideClickHandlers(@NotNull List<@NotNull Consumer<@NotNull InventoryClickEvent>> outsideClickHandlers) {
+    public void setOutsideClickHandlers(@Nullable List<@NotNull Consumer<@NotNull InventoryClickEvent>> outsideClickHandlers) {
         this.outsideClickHandlers = outsideClickHandlers;
     }
     
@@ -477,13 +477,13 @@ public abstract class AbstractWindow implements Window, GuiParent {
         }
         
         @Override
-        public @NotNull S setOpenHandlers(List<Runnable> openHandlers) {
+        public @NotNull S setOpenHandlers(@Nullable List<@NotNull Runnable> openHandlers) {
             this.openHandlers = openHandlers;
             return (S) this;
         }
         
         @Override
-        public @NotNull S addOpenHandler(Runnable openHandler) {
+        public @NotNull S addOpenHandler(@NotNull Runnable openHandler) {
             if (openHandlers == null)
                 openHandlers = new ArrayList<>();
             
@@ -492,13 +492,13 @@ public abstract class AbstractWindow implements Window, GuiParent {
         }
         
         @Override
-        public @NotNull S setCloseHandlers(List<Runnable> closeHandlers) {
+        public @NotNull S setCloseHandlers(@Nullable List<@NotNull Runnable> closeHandlers) {
             this.closeHandlers = closeHandlers;
             return (S) this;
         }
         
         @Override
-        public @NotNull S addCloseHandler(Runnable closeHandler) {
+        public @NotNull S addCloseHandler(@NotNull Runnable closeHandler) {
             if (closeHandlers == null)
                 closeHandlers = new ArrayList<>();
             
@@ -522,13 +522,13 @@ public abstract class AbstractWindow implements Window, GuiParent {
         }
         
         @Override
-        public @NotNull S setModifiers(List<Consumer<Window>> modifiers) {
+        public @NotNull S setModifiers(@Nullable List<@NotNull Consumer<@NotNull Window>> modifiers) {
             this.modifiers = modifiers;
             return (S) this;
         }
         
         @Override
-        public @NotNull S addModifier(Consumer<Window> modifier) {
+        public @NotNull S addModifier(@NotNull Consumer<@NotNull Window> modifier) {
             if (modifiers == null)
                 modifiers = new ArrayList<>();
             
