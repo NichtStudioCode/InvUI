@@ -102,6 +102,11 @@
             <artifactId>inventory-access-r12</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>xyz.xenondevs.invui</groupId>
+            <artifactId>inventory-access-r13</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>
