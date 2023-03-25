@@ -4,6 +4,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -161,6 +162,16 @@ public interface Window {
      * @return The viewer's {@link UUID}
      */
     @NotNull UUID getViewerUUID();
+    
+    /**
+     * Gets the contents of the {@link Window#getCurrentViewer() viewer's} inventory.
+     * This method will always return the actual inventory contents and will not be affected by double windows placing
+     * gui items in the {@link Player's} inventory.
+     * 
+     * @return The contents of the {@link Window#getCurrentViewer() viewer's} inventory,
+     * or null if the {@link Window} {@link Window#isOpen() isn't open}.
+     */
+    @Nullable ItemStack @Nullable[] getPlayerItems();
     
     /**
      * Replaces the currently registered open handlers with the given list.

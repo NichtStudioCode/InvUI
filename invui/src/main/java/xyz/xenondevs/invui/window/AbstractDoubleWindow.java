@@ -5,6 +5,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.InventoryAccess;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.invui.gui.AbstractGui;
@@ -51,6 +52,13 @@ public abstract class AbstractDoubleWindow extends AbstractWindow {
             SlotElement element = getSlotElement(i);
             redrawItem(i, element, true);
         }
+    }
+    
+    @Override
+    public @Nullable ItemStack @Nullable [] getPlayerItems() {
+        if (isOpen())
+            return playerItems;
+        return null;
     }
     
     private void restorePlayerInventory() {

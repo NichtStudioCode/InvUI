@@ -6,6 +6,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
@@ -106,6 +107,16 @@ public abstract class AbstractSingleWindow extends AbstractWindow {
     
     public AbstractGui getGui() {
         return gui;
+    }
+    
+    @Override
+    public @Nullable ItemStack @Nullable [] getPlayerItems() {
+        Player viewer = getCurrentViewer();
+        if (viewer != null) {
+            return viewer.getInventory().getContents();
+        }
+        
+        return null;
     }
     
     @SuppressWarnings("unchecked")
