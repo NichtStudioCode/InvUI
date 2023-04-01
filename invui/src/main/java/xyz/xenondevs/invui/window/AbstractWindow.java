@@ -50,6 +50,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
     private ComponentWrapper title;
     private boolean closeable;
     private boolean currentlyOpen;
+    private boolean hasHandledClose;
     
     public AbstractWindow(UUID viewerUUID, ComponentWrapper title, int size, boolean closeable) {
         this.viewerUUID = viewerUUID;
@@ -188,7 +189,12 @@ public abstract class AbstractWindow implements Window, GuiParent {
             
             currentlyOpen = false;
             remove(false);
-            handleClosed();
+            
+            // handleClosed() might have already been called by open() if the window was replaced by another one
+            if (!hasHandledClose) {
+                handleClosed();
+                hasHandledClose = true;
+            }
             
             if (closeHandlers != null) {
                 closeHandlers.forEach(Runnable::run);
@@ -272,7 +278,6 @@ public abstract class AbstractWindow implements Window, GuiParent {
         Player viewer = getCurrentViewer();
         if (viewer != null) {
             viewer.closeInventory();
-            handleClosed();
         }
     }
     
@@ -284,7 +289,15 @@ public abstract class AbstractWindow implements Window, GuiParent {
         if (currentlyOpen)
             throw new IllegalStateException("Window is already opened!");
         
+        // call handleClosed() close for currently open window
+        AbstractWindow openWindow = (AbstractWindow) WindowManager.getInstance().getOpenWindow(viewer);
+        if (openWindow != null) {
+            openWindow.handleClosed();
+            openWindow.hasHandledClose = true;
+        }
+        
         currentlyOpen = true;
+        hasHandledClose = false;
         initItems();
         WindowManager.getInstance().addWindow(this);
         openInventory(viewer);
