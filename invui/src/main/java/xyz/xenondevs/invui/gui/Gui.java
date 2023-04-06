@@ -284,6 +284,21 @@ public interface Gui {
      */
     void cancelAnimation();
     
+    /**
+     * Freezes or unfreezes the {@link Gui}.
+     * A frozen {@link Gui} will not allow any clicks.
+     *
+     * @param frozen If the {@link Gui} should be frozen or not.
+     */
+    void setFrozen(boolean frozen);
+    
+    /**
+     * Gets if the {@link Gui} is frozen.
+     *
+     * @return If the {@link Gui} is frozen.
+     */
+    boolean isFrozen();
+    
     //<editor-fold desc="fill methods">
     
     /**
@@ -523,6 +538,15 @@ public interface Gui {
          */
         @Contract("_ -> this")
         @NotNull S setBackground(@NotNull ItemStack itemStack);
+        
+        /**
+         * Sets whether the {@link Gui} should be frozen.
+         *
+         * @param frozen Whether the {@link Gui} should be frozen
+         * @return This {@link Builder Gui Builder}
+         */
+        @Contract("_ -> this")
+        @NotNull S setFrozen(boolean frozen);
         
         /**
          * Sets the background of the {@link Gui}.

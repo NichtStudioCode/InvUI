@@ -39,10 +39,10 @@ public abstract class AbstractGui implements Gui, GuiParent {
     private final SlotElement[] slotElements;
     private final Set<GuiParent> parents = new HashSet<>();
     
-    private SlotElement[] animationElements;
-    private Animation animation;
-    
+    private boolean frozen;
     private ItemProvider background;
+    private Animation animation;
+    private SlotElement[] animationElements;
     
     public AbstractGui(int width, int height) {
         this.width = width;
@@ -52,8 +52,8 @@ public abstract class AbstractGui implements Gui, GuiParent {
     }
     
     public void handleClick(int slotNumber, Player player, ClickType clickType, InventoryClickEvent event) {
-        if (animation != null) {
-            // cancel all clicks if an animation is running
+        // cancel all clicks if the gui is frozen or an animation is running
+        if (frozen || animation != null) {
             event.setCancelled(true);
             return;
         }
@@ -287,6 +287,10 @@ public abstract class AbstractGui implements Gui, GuiParent {
     }
     
     public boolean handleItemDrag(UpdateReason updateReason, int slot, ItemStack oldStack, ItemStack newStack) {
+        // cancel all clicks if the gui is frozen or an animation is running
+        if (frozen || animation != null)
+            return false;
+        
         SlotElement element = getSlotElement(slot);
         if (element != null) element = element.getHoldingElement();
         if (element instanceof SlotElement.VISlotElement) {
@@ -304,7 +308,9 @@ public abstract class AbstractGui implements Gui, GuiParent {
     public void handleItemShift(InventoryClickEvent event) {
         event.setCancelled(true);
         
-        if (animation != null) return; // cancel all clicks if an animation is running
+        // cancel all clicks if the gui is frozen or an animation is running
+        if (frozen || animation != null)
+            return;
         
         Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
@@ -570,6 +576,16 @@ public abstract class AbstractGui implements Gui, GuiParent {
         return size;
     }
     
+    @Override
+    public void setFrozen(boolean frozen) {
+        this.frozen = frozen;
+    }
+    
+    @Override
+    public boolean isFrozen() {
+        return frozen;
+    }
+    
     // region coordinate-based methods
     @Override
     public void setSlotElement(int x, int y, SlotElement slotElement) {
@@ -693,6 +709,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
         protected Structure structure;
         protected ItemProvider background;
         protected List<Consumer<Gui>> modifiers;
+        protected boolean frozen;
         
         @Override
         public @NotNull S setStructure(int width, int height, @NotNull String structureData) {
@@ -779,6 +796,12 @@ public abstract class AbstractGui implements Gui, GuiParent {
         }
         
         @Override
+        public @NotNull S setFrozen(boolean frozen) {
+            this.frozen = frozen;
+            return (S) this;
+        }
+        
+        @Override
         public @NotNull S addModifier(@NotNull Consumer<@NotNull Gui> modifier) {
             if (modifiers == null)
                 modifiers = new ArrayList<>();
@@ -794,12 +817,9 @@ public abstract class AbstractGui implements Gui, GuiParent {
         }
         
         protected void applyModifiers(@NotNull G gui) {
-            if (background != null) {
-                gui.setBackground(background);
-            }
-            if (modifiers != null) {
-                modifiers.forEach(modifier -> modifier.accept(gui));
-            }
+            gui.setFrozen(frozen);
+            if (background != null) gui.setBackground(background);
+            if (modifiers != null) modifiers.forEach(modifier -> modifier.accept(gui));
         }
         
         @SuppressWarnings("unchecked")
