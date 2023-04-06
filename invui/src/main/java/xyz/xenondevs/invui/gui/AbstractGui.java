@@ -451,6 +451,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
         }
     }
     
+    @SuppressWarnings("unchecked")
     @Override
     public void setSlotElement(int index, SlotElement slotElement) {
         SlotElement oldElement = slotElements[index];
@@ -462,7 +463,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
         if (slotElement instanceof SlotElement.ItemSlotElement) {
             Item item = ((SlotElement.ItemSlotElement) slotElement).getItem();
             if (item instanceof ControlItem<?>)
-                ((ControlItem<?>) item).setGui(this);
+                ((ControlItem<Gui>) item).setGui(this);
         }
         
         // notify parents that a SlotElement has been changed

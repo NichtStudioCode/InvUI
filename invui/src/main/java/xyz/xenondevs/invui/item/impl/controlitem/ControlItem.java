@@ -25,9 +25,10 @@ public abstract class ControlItem<G extends Gui> extends AbstractItem {
         return gui;
     }
     
-    @SuppressWarnings("unchecked")
-    public void setGui(Object gui) {
-        if (this.gui == null) this.gui = (G) gui;
+    public void setGui(G gui) {
+        if (this.gui == null) {
+            this.gui = gui;
+        }
     }
     
 }
