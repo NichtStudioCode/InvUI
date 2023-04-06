@@ -32,7 +32,7 @@ public class VirtualInventory {
     private int[] stackSizes;
     private Consumer<ItemUpdateEvent> itemUpdateHandler;
     private Consumer<InventoryUpdatedEvent> inventoryUpdatedHandler;
-    private int guiShiftPriority = 0;
+    private int guiPriority = 0;
     
     /**
      * Constructs a new {@link VirtualInventory}
@@ -40,9 +40,9 @@ public class VirtualInventory {
      * @param uuid       The {@link UUID} of this {@link VirtualInventory}. Can be null, only used for serialization.
      * @param size       The amount of slots this {@link VirtualInventory} has.
      * @param items      A predefined array of content. Can be null. Will not get copied!
-     * @param stackSizes An array of maximum allowed stack sizes for each slot in the {@link VirtualInventory}.
+     * @param stackSizes An array of maximum allowed stack sizes for each slot in the {@link VirtualInventory}. Can be null for 64.
      */
-    public VirtualInventory(@Nullable UUID uuid, int size, @Nullable ItemStack[] items, int[] stackSizes) {
+    public VirtualInventory(@Nullable UUID uuid, int size, @Nullable ItemStack @Nullable [] items, int @Nullable [] stackSizes) {
         this.uuid = uuid == null ? new UUID(0L, 0L) : uuid;
         this.size = size;
         this.items = items == null ? new ItemStack[size] : items;
@@ -138,25 +138,27 @@ public class VirtualInventory {
     }
     
     /**
-     * Gets the priority for shift-clicking {@link ItemStack ItemStacks} into a {@link Gui}
+     * Gets the priority for click actions in a {@link Gui}, such as shift clicking or cursor collection
+     * with multiple {@link VirtualInventory VirtualInventories}.
      *
-     * @return The priority for shift-clicking, {@link VirtualInventory VirtualInventories} with
+     * @return The priority for click actions, {@link VirtualInventory VirtualInventories} with
      * a higher priority get prioritized.
      */
-    public int getGuiShiftPriority() {
-        return guiShiftPriority;
+    public int getGuiPriority() {
+        return guiPriority;
     }
     
     /**
-     * Sets the priority for shift-clicking {@link ItemStack ItemStacks} into a {@link Gui}
-     * with multiple {@link VirtualInventory}.
+     * Sets the priority for click actions in a {@link Gui}, such as shift-clicking or cursor collection
+     * with multiple {@link VirtualInventory VirtualInventories}.
+     * <p>
      * Not serialized with {@link VirtualInventoryManager#serializeInventory(VirtualInventory, OutputStream)}.
      *
-     * @param guiShiftPriority The priority for shift-clicking, {@link VirtualInventory VirtualInventories} with
-     *                         a higher priority get prioritized.
+     * @param guiPriority The priority for click actions, {@link VirtualInventory VirtualInventories} with
+     *                    a higher priority get prioritized.
      */
-    public void setGuiShiftPriority(int guiShiftPriority) {
-        this.guiShiftPriority = guiShiftPriority;
+    public void setGuiPriority(int guiPriority) {
+        this.guiPriority = guiPriority;
     }
     
     /**
@@ -262,7 +264,7 @@ public class VirtualInventory {
     public boolean isFull() {
         for (int slot = 0; slot < size; slot++) {
             ItemStack item = items[slot];
-            if (item == null || item.getAmount() < getMaxStackSize(slot, -1))
+            if (item == null || item.getAmount() < getMaxStackSize(slot))
                 return false;
         }
         
@@ -356,8 +358,31 @@ public class VirtualInventory {
     }
     
     /**
-     * Gets the maximum stack size for a specific slot. If there is an {@link ItemStack} on that
-     * slot, the returned value will be the minimum of both the slot limit and {@link Material#getMaxStackSize()}.
+     * Gets the maximum stack size for a specific slot.
+     * <p>
+     * If there is an {@link ItemStack} on that slot, the returned value will be the minimum of both the slot's max stack
+     * size and the {@link ItemStack ItemStack's} max stack size retrieved using {@link InventoryUtils#stackSizeProvider}.
+     *
+     * @param slot The slot
+     * @return The current maximum allowed stack size on the specific slot.
+     */
+    public int getMaxStackSize(int slot) {
+        int slotMaxStackSize = stackSizes == null ? 64 : stackSizes[slot];
+        ItemStack currentItem = items[slot];
+        if (currentItem != null) {
+            return min(InventoryUtils.stackSizeProvider.getMaxStackSize(currentItem), slotMaxStackSize);
+        } else {
+            return slotMaxStackSize;
+        }
+    }
+    
+    /**
+     * Gets the maximum stack size for a specific slot.
+     * <p>
+     * If there is an {@link ItemStack} on that slot, the returned value will be the minimum of both the slot's
+     * max stack size and the {@link ItemStack ItemStack's} max stack size retrieved using {@link InventoryUtils#stackSizeProvider}.
+     * <p>
+     * If there is no {@link ItemStack} on that slot, the alternative parameter will be used as a potential maximum stack size.
      *
      * @param slot        The slot
      * @param alternative The alternative maximum stack size if no {@link ItemStack} is placed on that slot.
@@ -367,7 +392,48 @@ public class VirtualInventory {
     public int getMaxStackSize(int slot, int alternative) {
         ItemStack currentItem = items[slot];
         int slotMaxStackSize = stackSizes == null ? 64 : stackSizes[slot];
-        return min(currentItem != null ? InventoryUtils.stackSizeProvider.getMaxStackSize(currentItem) : alternative != -1 ? alternative : slotMaxStackSize, slotMaxStackSize);
+        return min(currentItem != null ? InventoryUtils.stackSizeProvider.getMaxStackSize(currentItem) : alternative, slotMaxStackSize);
+    }
+    
+    /**
+     * Gets the maximum stack size for a specific slot. If there is an {@link ItemStack} on that slot,
+     * the returned value will be the minimum of both the slot's and the {@link ItemStack ItemStack's} max stack size retrieved
+     * using {@link InventoryUtils#stackSizeProvider}. If there is no {@link ItemStack} on that slot, the alternativeFrom
+     * parameter will be used to determine a potential maximum stack size.
+     *
+     * @param slot            The slot
+     * @param alternativeFrom The alternative {@link ItemStack} to determine the potential maximum stack size. Uses 64 if null.
+     * @return The current maximum allowed stack size on the specific slot.
+     */
+    public int getMaxStackSize(int slot, @Nullable ItemStack alternativeFrom) {
+        int itemMaxStackSize = alternativeFrom == null ? 64 : InventoryUtils.stackSizeProvider.getMaxStackSize(alternativeFrom);
+        return getMaxStackSize(slot, itemMaxStackSize);
+    }
+    
+    /**
+     * Gets the maximum stack size for a specific slot while ignoring the {@link ItemStack} on it.
+     * The returned value will be a minimum of the slot's maximum stack size and the alternative parameter.
+     *
+     * @param slot        The slot
+     * @param alternative The alternative maximum stack size. Should probably be the max stack size of the {@link Material} that will be added.
+     * @return The maximum stack size on that slot
+     */
+    public int getMaxSlotStackSize(int slot, int alternative) {
+        int slotMaxStackSize = stackSizes == null ? 64 : stackSizes[slot];
+        return min(alternative, slotMaxStackSize);
+    }
+    
+    /**
+     * Gets the maximum stack size for a specific slot while ignoring the {@link ItemStack} on it.
+     * The returned value will be a minimum of the maximum stack size of both the slot and the alternativeFrom parameter.
+     *
+     * @param slot            The slot
+     * @param alternativeFrom The alternative {@link ItemStack} to determine the potential maximum stack size. Uses 64 if null.
+     * @return The maximum stack size on that slot
+     */
+    public int getMaxSlotStackSize(int slot, @Nullable ItemStack alternativeFrom) {
+        int itemMaxStackSize = alternativeFrom == null ? 64 : InventoryUtils.stackSizeProvider.getMaxStackSize(alternativeFrom);
+        return getMaxSlotStackSize(slot, itemMaxStackSize);
     }
     
     /**
@@ -519,7 +585,7 @@ public class VirtualInventory {
      * @return If the action was successful
      */
     public boolean setItemStack(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack itemStack) {
-        int maxStackSize = min(getMaxSlotStackSize(slot), itemStack != null ? itemStack.getMaxStackSize() : 64);
+        int maxStackSize = getMaxSlotStackSize(slot, itemStack);
         if (itemStack != null && itemStack.getAmount() > maxStackSize) return false;
         return forceSetItemStack(updateReason, slot, itemStack);
     }
@@ -536,7 +602,7 @@ public class VirtualInventory {
         ItemStack currentStack = items[slot];
         if (currentStack == null || currentStack.isSimilar(itemStack)) {
             int currentAmount = currentStack == null ? 0 : currentStack.getAmount();
-            int maxStackSize = getMaxStackSize(slot, itemStack.getMaxStackSize());
+            int maxStackSize = getMaxStackSize(slot, itemStack);
             if (currentAmount < maxStackSize) {
                 int additionalAmount = itemStack.getAmount();
                 int newAmount = min(currentAmount + additionalAmount, maxStackSize);
@@ -580,7 +646,7 @@ public class VirtualInventory {
     public int setItemAmount(@Nullable UpdateReason updateReason, int slot, int amount) {
         ItemStack currentStack = items[slot];
         if (currentStack == null) throw new IllegalStateException("There is no ItemStack on that slot");
-        int maxStackSize = getMaxStackSize(slot, -1);
+        int maxStackSize = getMaxStackSize(slot);
         
         ItemStack newItemStack;
         if (amount > 0) {
@@ -748,7 +814,7 @@ public class VirtualInventory {
             if (amountLeft == 0) break;
             
             ItemStack partialItem = items[partialSlot];
-            int maxStackSize = getMaxStackSize(partialSlot, -1);
+            int maxStackSize = getMaxStackSize(partialSlot);
             amountLeft = max(0, amountLeft - (maxStackSize - partialItem.getAmount()));
         }
         
@@ -756,7 +822,7 @@ public class VirtualInventory {
         for (int emptySlot : ArrayUtils.findEmptyIndices(items)) {
             if (amountLeft == 0) break;
             
-            int maxStackSize = getMaxStackSize(emptySlot, itemStack.getMaxStackSize());
+            int maxStackSize = getMaxStackSize(emptySlot, itemStack);
             amountLeft -= min(amountLeft, maxStackSize);
         }
         
@@ -783,24 +849,39 @@ public class VirtualInventory {
     
     /**
      * Finds all {@link ItemStack}s similar to the provided {@link ItemStack} and removes them from
+     * their slot until the amount of the given {@link ItemStack} reaches its maximum stack size.
+     *
+     * @param updateReason The reason used in the {@link ItemUpdateEvent}.
+     * @param itemStack    The {@link ItemStack} to match against and to use for the base amount.
+     * @return The amount of collected items plus the amount of the provided {@link ItemStack}.
+     * At most the max stack size of the given {@link ItemStack}.
+     */
+    public int collectSimilar(@Nullable UpdateReason updateReason, ItemStack itemStack) {
+        return collectSimilar(updateReason, itemStack, itemStack.getAmount());
+    }
+    
+    /**
+     * Finds all {@link ItemStack}s similar to the provided {@link ItemStack} and removes them from
      * their slot until the maximum stack size of the {@link Material} is reached.
      *
      * @param updateReason The reason used in the {@link ItemUpdateEvent}.
-     * @param itemStack    The {@link ItemStack} to find matches to
-     * @return The amount of collected items
+     * @param template     The {@link ItemStack} to match against.
+     * @param baseAmount   The base item amount to assume. For example, with a base amount of 32 and a max stack size of 64,
+     *                     this method will at most collect 32 other items.
+     * @return The amount of collected items plus the base amount. At most the max stack size of the template {@link ItemStack}.
      */
-    public int collectSimilar(@Nullable UpdateReason updateReason, ItemStack itemStack) {
-        int amount = itemStack.getAmount();
-        int maxStackSize = itemStack.getMaxStackSize();
-        if (amount < itemStack.getMaxStackSize()) {
+    public int collectSimilar(@Nullable UpdateReason updateReason, ItemStack template, int baseAmount) {
+        int amount = baseAmount;
+        int maxStackSize = InventoryUtils.stackSizeProvider.getMaxStackSize(template);
+        if (amount < maxStackSize) {
             // find partial slots and take items from there
-            for (int partialSlot : findPartialSlots(itemStack)) {
+            for (int partialSlot : findPartialSlots(template)) {
                 amount += takeFrom(updateReason, partialSlot, maxStackSize - amount);
                 if (amount == maxStackSize) return amount;
             }
             
             // only taking from partial stacks wasn't enough, take from a full slot
-            for (int fullSlot : findFullSlots(itemStack)) {
+            for (int fullSlot : findFullSlots(template)) {
                 amount += takeFrom(updateReason, fullSlot, maxStackSize - amount);
                 if (amount == maxStackSize) return amount;
             }
@@ -894,7 +975,7 @@ public class VirtualInventory {
         for (int slot = 0; slot < size; slot++) {
             ItemStack currentStack = items[slot];
             if (itemStack.isSimilar(currentStack)) {
-                int maxStackSize = getMaxStackSize(slot, -1);
+                int maxStackSize = getMaxStackSize(slot);
                 if (currentStack.getAmount() < maxStackSize) partialSlots.add(slot);
             }
         }
@@ -907,7 +988,7 @@ public class VirtualInventory {
         for (int slot = 0; slot < size; slot++) {
             ItemStack currentStack = items[slot];
             if (itemStack.isSimilar(currentStack)) {
-                int maxStackSize = getMaxStackSize(slot, -1);
+                int maxStackSize = getMaxStackSize(slot);
                 if (currentStack.getAmount() == maxStackSize) fullSlots.add(slot);
             }
         }

@@ -339,14 +339,14 @@ public abstract class AbstractGui implements Gui, GuiParent {
         return originalAmount;
     }
     
-    protected LinkedHashSet<VirtualInventory> getAllVirtualInventories(VirtualInventory... ignored) {
+    public LinkedHashSet<VirtualInventory> getAllVirtualInventories(VirtualInventory... ignored) {
         return Arrays.stream(slotElements)
             .filter(Objects::nonNull)
             .map(SlotElement::getHoldingElement)
             .filter(element -> element instanceof SlotElement.VISlotElement)
             .map(element -> ((SlotElement.VISlotElement) element).getVirtualInventory())
             .filter(vi -> Arrays.stream(ignored).noneMatch(vi::equals))
-            .sorted((vi1, vi2) -> -Integer.compare(vi1.getGuiShiftPriority(), vi2.getGuiShiftPriority()))
+            .sorted((vi1, vi2) -> -Integer.compare(vi1.getGuiPriority(), vi2.getGuiPriority()))
             .collect(Collectors.toCollection(LinkedHashSet::new));
     }
     // endregion

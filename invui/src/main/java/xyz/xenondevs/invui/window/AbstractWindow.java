@@ -395,7 +395,6 @@ public abstract class AbstractWindow implements Window, GuiParent {
         return Bukkit.getPlayer(viewerUUID);
     }
     
-    // TODO: could also return null / "en_us"
     public @NotNull String getLang() {
         var player = getViewer();
         if (player == null)

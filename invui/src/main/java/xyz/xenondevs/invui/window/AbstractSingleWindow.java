@@ -5,6 +5,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
@@ -13,7 +14,11 @@ import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.util.InventoryUtils;
 import xyz.xenondevs.invui.util.Pair;
+import xyz.xenondevs.invui.virtualinventory.VirtualInventory;
+import xyz.xenondevs.invui.virtualinventory.event.PlayerUpdateReason;
+import xyz.xenondevs.invui.virtualinventory.event.UpdateReason;
 
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -73,11 +78,42 @@ public abstract class AbstractSingleWindow extends AbstractWindow {
         gui.handleItemShift(event);
     }
     
+    @SuppressWarnings("deprecation")
     @Override
     public void handleCursorCollect(InventoryClickEvent event) {
-        // TODO: Allow collecting from player inventory and VirtualInventory
-        // only cancel when this would affect the window inventory
-        if (InventoryUtils.containsSimilar(inventory, event.getCursor())) event.setCancelled(true);
+        // cancel event as we do the collection logic ourselves
+        event.setCancelled(true);
+        
+        Player player = (Player) event.getWhoClicked();
+        
+        // the template item stack that is used to collect similar items
+        ItemStack template = event.getCursor();
+        int maxStackSize = InventoryUtils.stackSizeProvider.getMaxStackSize(template);
+        
+        // retrieve all inventories that are (partially) displayed in the gui, sorted by their gui shift priority
+        Set<VirtualInventory> inventories = gui.getAllVirtualInventories();
+        
+        // add the player inventory to the list of available inventories
+        PlayerInventory playerInventory = player.getInventory();
+        VirtualInventory virtualPlayerInventory = new VirtualInventory(null, 36, playerInventory.getStorageContents(), null);
+        inventories.add(virtualPlayerInventory);
+        
+        // collect items from inventories until the cursor is full
+        UpdateReason updateReason = new PlayerUpdateReason(player, event);
+        int amount = template.getAmount();
+        for (VirtualInventory inventory : inventories) {
+            amount = inventory.collectSimilar(updateReason, template, amount);
+            
+            if (amount >= maxStackSize)
+                break;
+        }
+        
+        // sync player inventory with virtual player inventory
+        playerInventory.setStorageContents(virtualPlayerInventory.getUnsafeItems());
+        
+        // put collected items on cursor
+        template.setAmount(amount);
+        event.setCursor(template);
     }
     
     @Override
