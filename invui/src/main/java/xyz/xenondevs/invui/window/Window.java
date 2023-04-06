@@ -220,14 +220,14 @@ public interface Window {
      *
      * @param outsideClickHandlers The outside click handler to add
      */
-    void addOutsideClickHandler(@NotNull Consumer<@NotNull InventoryClickEvent> outsideClickHandlers);
+    void addOutsideClickHandler(@NotNull Consumer<@NotNull InventoryClickEvent> outsideClickHandler);
     
     /**
      * Removes an outside click handler that has been added previously.
      *
      * @param outsideClickHandlers The outside click handler to remove
      */
-    void removeOutsideClickHandler(@NotNull Consumer<@NotNull InventoryClickEvent> outsideClickHandlers);
+    void removeOutsideClickHandler(@NotNull Consumer<@NotNull InventoryClickEvent> outsideClickHandler);
     
     /**
      * A {@link Window} builder.

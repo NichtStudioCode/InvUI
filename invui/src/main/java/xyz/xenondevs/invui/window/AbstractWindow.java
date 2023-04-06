@@ -371,17 +371,17 @@ public abstract class AbstractWindow implements Window, GuiParent {
     }
     
     @Override
-    public void addOutsideClickHandler(@NotNull Consumer<@NotNull InventoryClickEvent> outsideClickHandlers) {
+    public void addOutsideClickHandler(@NotNull Consumer<@NotNull InventoryClickEvent> outsideClickHandler) {
         if (this.outsideClickHandlers == null)
             this.outsideClickHandlers = new ArrayList<>();
         
-        this.outsideClickHandlers.add(outsideClickHandlers);
+        this.outsideClickHandlers.add(outsideClickHandler);
     }
     
     @Override
-    public void removeOutsideClickHandler(@NotNull Consumer<@NotNull InventoryClickEvent> outsideClickHandlers) {
+    public void removeOutsideClickHandler(@NotNull Consumer<@NotNull InventoryClickEvent> outsideClickHandler) {
         if (this.outsideClickHandlers != null)
-            this.outsideClickHandlers.remove(outsideClickHandlers);
+            this.outsideClickHandlers.remove(outsideClickHandler);
     }
     
     @Override
