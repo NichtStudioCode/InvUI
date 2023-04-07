@@ -47,12 +47,27 @@ public abstract class AbstractPagedGui<C> extends AbstractGui implements PagedGu
     
     @Override
     public void setPage(int page) {
-        int previous = currentPage;
-        currentPage = page;
+        int previousPage = currentPage;
+        int newPage = correctPage(page);
+        
+        if (previousPage == newPage)
+            return;
+        
+        currentPage = newPage;
         update();
-        if (previous != currentPage) {
-            pageChangeHandlers.forEach(handler -> handler.accept(previous, page));
+        
+        if (pageChangeHandlers != null) {
+            pageChangeHandlers.forEach(handler -> handler.accept(previousPage, newPage));
         }
+    }
+    
+    private int correctPage(int page) {
+        // page 0 always exist, every positive page exist for infinite pages
+        if (page == 0 || (infinitePages && page > 0))
+            return page;
+        
+        // 0 <= page < pageAmount
+        return Math.max(0, Math.min(page, getPageAmount() - 1));
     }
     
     @Override
@@ -66,17 +81,8 @@ public abstract class AbstractPagedGui<C> extends AbstractGui implements PagedGu
     }
     
     protected void update() {
-        correctPage();
         updateControlItems();
         updatePageContent();
-    }
-    
-    private void correctPage() {
-        if (currentPage == 0 || infinitePages) return;
-        
-        int pageAmount = getPageAmount();
-        if (currentPage < 0 || pageAmount <= 0) currentPage = 0;
-        else if (currentPage >= pageAmount) currentPage = pageAmount - 1;
     }
     
     private void updatePageContent() {

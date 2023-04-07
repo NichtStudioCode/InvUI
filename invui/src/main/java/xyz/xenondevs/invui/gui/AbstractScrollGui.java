@@ -20,6 +20,7 @@ public abstract class AbstractScrollGui<C> extends AbstractGui implements Scroll
     private final int lineLength;
     private final int lineAmount;
     private final int[] contentListSlots;
+    private int currentLine;
     private int offset;
     
     private List<BiConsumer<Integer, Integer>> scrollHandlers;
@@ -50,12 +51,33 @@ public abstract class AbstractScrollGui<C> extends AbstractGui implements Scroll
     
     @Override
     public int getCurrentLine() {
-        return offset / lineLength;
+        return currentLine;
     }
     
     @Override
     public void setCurrentLine(int line) {
+        int previousLine = currentLine;
+        int newLine = correctLine(line);
+        
+        if (previousLine == newLine)
+            return;
+        
+        this.currentLine = line;
         this.offset = line * lineLength;
+        update();
+        
+        if (scrollHandlers != null) {
+            scrollHandlers.forEach(handler -> handler.accept(previousLine, newLine));
+        }
+    }
+    
+    private int correctLine(int line) {
+        // line 0 always exists, every positive line exists for infinite lines
+        if (line == 0 || (infiniteLines && line > 0))
+            return 0;
+        
+        // 0 <= line <= maxLine
+        return Math.max(0, Math.min(line, getMaxLine()));
     }
     
     @Override
@@ -69,37 +91,21 @@ public abstract class AbstractScrollGui<C> extends AbstractGui implements Scroll
     
     @Override
     public void scroll(int lines) {
-        if (lines == 0) return;
+        if (lines == 0)
+            return;
         
         if (canScroll(lines)) {
             setCurrentLine(getCurrentLine() + lines);
-            update();
         } else if (lines > 1) {
             setCurrentLine(getMaxLine());
-            update();
         } else if (lines < -1) {
             setCurrentLine(0);
-            update();
         }
-        
     }
     
     protected void update() {
-        correctLine();
         updateControlItems();
         updateContent();
-    }
-    
-    private void correctLine() {
-        if (offset == 0 || infiniteLines) return;
-        
-        if (offset < 0) {
-            offset = 0;
-        } else {
-            int currentLine = getCurrentLine();
-            int maxLineIndex = getMaxLine();
-            if (currentLine >= maxLineIndex) setCurrentLine(maxLineIndex);
-        }
     }
     
     private void updateContent() {
