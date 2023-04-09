@@ -11,7 +11,6 @@ import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.InventoryAccess;
 import xyz.xenondevs.inventoryaccess.component.BungeeComponentWrapper;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
-import xyz.xenondevs.inventoryaccess.util.ReflectionRegistry;
 import xyz.xenondevs.inventoryaccess.util.VersionUtils;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.resourcepack.auth.AuthenticationServiceManager;
@@ -25,24 +24,17 @@ import java.util.HashMap;
 import static org.bukkit.event.player.PlayerResourcePackStatusEvent.Status.DECLINED;
 
 /**
- * Forces {@link Player}s to use a custom ResourcePack and kicks them if they don't accept it.
+ * Forces {@link Player Players} to use a custom resource pack.
  */
 public class ForceResourcePack implements Listener {
     
-    private static final String RP_VERSION = "v0.8";
     private static final ForceResourcePack INSTANCE = new ForceResourcePack();
     
-    public static final String RESOURCE_PACK_URL =
-        "https://github.com/NichtStudioCode/InvUIRP/releases/download/"
-            + RP_VERSION + (ReflectionRegistry.VERSION > 14 ? "" : "-legacy") + "/InvUIRP.zip";
-    
     private final HashMap<Player, BukkitTask> tasks = new HashMap<>();
-    
     private boolean forced = true;
     private String forceBypassPermission;
     private String promptBypassPermission;
     private ComponentWrapper prompt;
-    
     private String resourcePackUrl;
     private byte[] hash;
     
@@ -54,11 +46,20 @@ public class ForceResourcePack implements Listener {
         });
     }
     
+    /**
+     * Gets the instance of this class.
+     * @return The instance of this class.
+     */
     public static ForceResourcePack getInstance() {
         return INSTANCE;
     }
     
-    public String getResourcePackUrl() {
+    /**
+     * Gets the configured resource pack URL.
+     *
+     * @return The resource pack URL or null if no resource pack is configured.
+     */
+    public @Nullable String getResourcePackUrl() {
         return resourcePackUrl;
     }
     
