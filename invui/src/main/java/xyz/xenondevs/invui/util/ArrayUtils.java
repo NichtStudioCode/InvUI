@@ -1,16 +1,14 @@
 package xyz.xenondevs.invui.util;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Predicate;
 
 public class ArrayUtils {
     
-    public static int findFirstEmptyIndex(@NotNull Object[] array) {
+    public static int findFirstEmptyIndex(@Nullable Object @NotNull [] array) {
         for (int index = 0; index < array.length; index++) {
             if (array[index] == null) return index;
         }
@@ -18,8 +16,7 @@ public class ArrayUtils {
         return -1;
     }
     
-    @NotNull
-    public static List<Integer> findEmptyIndices(@NotNull Object[] array) {
+    public static @NotNull List<Integer> findEmptyIndices(@Nullable Object @NotNull [] array) {
         List<Integer> emptyIndices = new ArrayList<>();
         for (int index = 0; index < array.length; index++) {
             if (array[index] == null) emptyIndices.add(index);
@@ -28,8 +25,7 @@ public class ArrayUtils {
         return emptyIndices;
     }
     
-    @NotNull
-    public static <T> Map<Integer, T> findAllOccurrences(@NotNull T[] array, Predicate<T> predicate) {
+    public static <T> @NotNull Map<Integer, T> findAllOccurrences(@Nullable T @NotNull [] array, Predicate<T> predicate) {
         Map<Integer, T> occurrences = new HashMap<>();
         
         for (int index = 0; index < array.length; index++) {

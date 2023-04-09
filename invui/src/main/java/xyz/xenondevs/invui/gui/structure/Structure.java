@@ -12,7 +12,7 @@ import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.item.ItemWrapper;
 import xyz.xenondevs.invui.item.impl.SimpleItem;
-import xyz.xenondevs.invui.virtualinventory.VirtualInventory;
+import xyz.xenondevs.invui.inventory.Inventory;
 
 import java.util.HashMap;
 import java.util.function.Supplier;
@@ -187,34 +187,34 @@ public class Structure implements Cloneable {
     }
     
     /**
-     * Adds a {@link VirtualInventory} ingredient under the given key.
+     * Adds a {@link Inventory} ingredient under the given key.
      *
      * @param key       The key of the ingredient
-     * @param inventory The {@link VirtualInventory} ingredient
+     * @param inventory The {@link Inventory} ingredient
      * @return This {@link Structure}
      */
     @Contract("_, _ -> this")
-    public @NotNull Structure addIngredient(char key, @NotNull VirtualInventory inventory) {
+    public @NotNull Structure addIngredient(char key, @NotNull Inventory inventory) {
         if (ingredientList != null) throw new IllegalStateException("Structure is locked");
-        return addIngredientElementSupplier(key, new VISlotElementSupplier(inventory));
+        return addIngredientElementSupplier(key, new InventorySlotElementSupplier(inventory));
     }
     
     /**
-     * Adds a {@link VirtualInventory} ingredient under the given key.
+     * Adds a {@link Inventory} ingredient under the given key.
      *
      * @param key        The key of the ingredient
-     * @param inventory  The {@link VirtualInventory} ingredient
-     * @param background The background {@link ItemProvider} for the {@link VirtualInventory}
+     * @param inventory  The {@link Inventory} ingredient
+     * @param background The background {@link ItemProvider} for the {@link Inventory}
      * @return This {@link Structure}
      */
     @Contract("_, _, _ -> this")
-    public @NotNull Structure addIngredient(char key, @NotNull VirtualInventory inventory, @Nullable ItemProvider background) {
+    public @NotNull Structure addIngredient(char key, @NotNull Inventory inventory, @Nullable ItemProvider background) {
         if (ingredientList != null) throw new IllegalStateException("Structure is locked");
-        return addIngredientElementSupplier(key, new VISlotElementSupplier(inventory, background));
+        return addIngredientElementSupplier(key, new InventorySlotElementSupplier(inventory, background));
     }
     
     /**
-     * Adds a {@link VirtualInventory} ingredient under the given key.
+     * Adds a {@link Inventory} ingredient under the given key.
      *
      * @param key     The key of the ingredient
      * @param element The {@link SlotElement} ingredient

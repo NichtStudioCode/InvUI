@@ -1,4 +1,4 @@
-package xyz.xenondevs.invui.virtualinventory;
+package xyz.xenondevs.invui.inventory;
 
 import org.bukkit.inventory.ItemStack;
 

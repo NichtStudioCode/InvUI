@@ -1,4 +1,4 @@
-package xyz.xenondevs.invui.virtualinventory.event;
+package xyz.xenondevs.invui.inventory.event;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryEvent;

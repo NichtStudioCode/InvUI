@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.invui.gui.structure.Structure;
 import xyz.xenondevs.invui.item.Item;
-import xyz.xenondevs.invui.virtualinventory.VirtualInventory;
+import xyz.xenondevs.invui.inventory.Inventory;
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -106,23 +106,23 @@ public interface ScrollGui<C> extends Gui {
     }
     
     /**
-     * Creates a new {@link Builder Gui Builder} for a {@link ScrollGui} that uses {@link VirtualInventory VirtualInventories} as content.
+     * Creates a new {@link Builder Gui Builder} for a {@link ScrollGui} that uses {@link Inventory VirtualInventories} as content.
      *
      * @return The new {@link Builder Gui Builder}.
      */
-    static @NotNull Builder<@NotNull VirtualInventory> inventories() {
+    static @NotNull Builder<@NotNull Inventory> inventories() {
         return new ScrollInventoryGuiImpl.Builder();
     }
     
     /**
-     * Creates a new {@link ScrollGui} that uses {@link VirtualInventory VirtualInventories} as content after configuring a
+     * Creates a new {@link ScrollGui} that uses {@link Inventory VirtualInventories} as content after configuring a
      * {@link Builder Gui Builder} using the given {@link Consumer}.
      *
      * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
      * @return The created {@link ScrollGui}.
      */
-    static @NotNull ScrollGui<@NotNull VirtualInventory> inventories(@NotNull Consumer<@NotNull Builder<@NotNull VirtualInventory>> consumer) {
-        Builder<VirtualInventory> builder = inventories();
+    static @NotNull ScrollGui<@NotNull Inventory> inventories(@NotNull Consumer<@NotNull Builder<@NotNull Inventory>> consumer) {
+        Builder<Inventory> builder = inventories();
         consumer.accept(builder);
         return builder.build();
     }
@@ -132,11 +132,11 @@ public interface ScrollGui<C> extends Gui {
      *
      * @param width            The width of the {@link ScrollGui}.
      * @param height           The height of the {@link ScrollGui}.
-     * @param inventories      The {@link VirtualInventory VirtualInventories} to use.
+     * @param inventories      The {@link Inventory VirtualInventories} to use.
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link ScrollGui}.
      */
-    static @NotNull ScrollGui<@NotNull VirtualInventory> ofInventories(int width, int height, @NotNull List<@NotNull VirtualInventory> inventories, int... contentListSlots) {
+    static @NotNull ScrollGui<@NotNull Inventory> ofInventories(int width, int height, @NotNull List<@NotNull Inventory> inventories, int... contentListSlots) {
         return new ScrollInventoryGuiImpl(width, height, inventories, contentListSlots);
     }
     
@@ -144,10 +144,10 @@ public interface ScrollGui<C> extends Gui {
      * Creates a new {@link ScrollGui}.
      *
      * @param structure   The {@link Structure} to use.
-     * @param inventories The {@link VirtualInventory VirtualInventories} to use.
+     * @param inventories The {@link Inventory VirtualInventories} to use.
      * @return The created {@link ScrollGui}.
      */
-    static @NotNull ScrollGui<@NotNull VirtualInventory> ofInventories(@NotNull Structure structure, @NotNull List<@NotNull VirtualInventory> inventories) {
+    static @NotNull ScrollGui<@NotNull Inventory> ofInventories(@NotNull Structure structure, @NotNull List<@NotNull Inventory> inventories) {
         return new ScrollInventoryGuiImpl(inventories, structure);
     }
     

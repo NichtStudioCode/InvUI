@@ -1,4 +1,4 @@
-package xyz.xenondevs.invui.virtualinventory.event;
+package xyz.xenondevs.invui.inventory.event;
 
 public interface UpdateReason {
     

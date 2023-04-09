@@ -1,48 +1,48 @@
-package xyz.xenondevs.invui.virtualinventory.event;
+package xyz.xenondevs.invui.inventory.event;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import xyz.xenondevs.invui.virtualinventory.VirtualInventory;
+import xyz.xenondevs.invui.inventory.Inventory;
 
-abstract class UpdateEvent {
+abstract class ItemUpdateEvent {
     
-    private final VirtualInventory virtualInventory;
+    private final Inventory inventory;
     private final UpdateReason updateReason;
     private final int slot;
     private final ItemStack previousItemStack;
     protected ItemStack newItemStack;
     
     /**
-     * Creates a new {@link ItemUpdateEvent}.
+     * Creates a new {@link ItemPreUpdateEvent}.
      *
-     * @param virtualInventory  The {@link VirtualInventory} where this action takes place.
+     * @param inventory  The {@link Inventory} where this action takes place.
      * @param updateReason      The {@link UpdateReason} for the calling of this event.
      *                          This will probably be a {@link PlayerUpdateReason} in most cases but can be a custom one
-     *                          if you called the methods in the {@link VirtualInventory} yourself.
+     *                          if you called the methods in the {@link Inventory} yourself.
      *                          if it wasn't a {@link Player}
      * @param slot              The slot that is affected
-     * @param previousItemStack The {@link ItemStack} that was there previously
-     * @param newItemStack      The {@link ItemStack} that will be there if the event isn't cancelled
+     * @param previousItem The {@link ItemStack} that was there previously
+     * @param newItem      The {@link ItemStack} that will be there if the event isn't cancelled
      */
-    public UpdateEvent(@NotNull VirtualInventory virtualInventory, int slot, @Nullable UpdateReason updateReason,
-                       @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
+    public ItemUpdateEvent(@NotNull Inventory inventory, int slot, @Nullable UpdateReason updateReason,
+                           @Nullable ItemStack previousItem, @Nullable ItemStack newItem) {
         
-        this.virtualInventory = virtualInventory;
+        this.inventory = inventory;
         this.slot = slot;
         this.updateReason = updateReason;
-        this.previousItemStack = previousItemStack != null ? previousItemStack.clone() : null;
-        this.newItemStack = newItemStack != null ? newItemStack.clone() : null;
+        this.previousItemStack = previousItem;
+        this.newItemStack = newItem;
     }
     
     /**
-     * Gets the {@link VirtualInventory} where this action takes place.
+     * Gets the {@link Inventory} where this action takes place.
      *
-     * @return The {@link VirtualInventory}
+     * @return The {@link Inventory}
      */
-    public VirtualInventory getVirtualInventory() {
-        return virtualInventory;
+    public Inventory getInventory() {
+        return inventory;
     }
     
     /**
@@ -59,7 +59,7 @@ abstract class UpdateEvent {
      *
      * @return The {@link ItemStack}
      */
-    public ItemStack getPreviousItemStack() {
+    public ItemStack getPreviousItem() {
         return previousItemStack;
     }
     
@@ -68,7 +68,7 @@ abstract class UpdateEvent {
      *
      * @return The new {@link ItemStack}
      */
-    public ItemStack getNewItemStack() {
+    public ItemStack getNewItem() {
         return newItemStack;
     }
     
@@ -83,9 +83,9 @@ abstract class UpdateEvent {
     
     /**
      * Gets if the action resulted in items being added to
-     * the {@link VirtualInventory}.
+     * the {@link Inventory}.
      *
-     * @return If items were added to the {@link VirtualInventory}
+     * @return If items were added to the {@link Inventory}
      */
     public boolean isAdd() {
         if (newItemStack != null && previousItemStack != null && newItemStack.isSimilar(previousItemStack)) {
@@ -95,9 +95,9 @@ abstract class UpdateEvent {
     
     /**
      * Gets if the action resulted in items being removed
-     * from the {@link VirtualInventory}.
+     * from the {@link Inventory}.
      *
-     * @return If items were removed from the {@link VirtualInventory}
+     * @return If items were removed from the {@link Inventory}
      */
     public boolean isRemove() {
         if (newItemStack != null && previousItemStack != null && newItemStack.isSimilar(previousItemStack)) {

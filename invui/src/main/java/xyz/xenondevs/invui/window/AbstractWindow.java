@@ -12,7 +12,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -31,9 +30,9 @@ import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.util.ArrayUtils;
 import xyz.xenondevs.invui.util.Pair;
-import xyz.xenondevs.invui.virtualinventory.VirtualInventory;
-import xyz.xenondevs.invui.virtualinventory.event.PlayerUpdateReason;
-import xyz.xenondevs.invui.virtualinventory.event.UpdateReason;
+import xyz.xenondevs.invui.inventory.Inventory;
+import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason;
+import xyz.xenondevs.invui.inventory.event.UpdateReason;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -66,7 +65,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
     protected void redrawItem(int index, SlotElement element, boolean setItem) {
         // put ItemStack in inventory
         ItemStack itemStack;
-        if (element == null || (element instanceof SlotElement.VISlotElement && element.getItemStack(getLang()) == null)) {
+        if (element == null || (element instanceof SlotElement.InventorySlotElement && element.getItemStack(getLang()) == null)) {
             ItemProvider background = getGuiAt(index).getFirst().getBackground();
             itemStack = background == null ? null : background.get(getLang());
         } else if (element instanceof SlotElement.LinkedSlotElement && element.getHoldingElement() == null) {
@@ -110,23 +109,23 @@ public abstract class AbstractWindow implements Window, GuiParent {
                     // only if not, remove Window from list in Item
                     item.removeWindow(this);
                 }
-            } else if (previousElement instanceof SlotElement.VISlotElement) {
-                SlotElement.VISlotElement viSlotElement = (SlotElement.VISlotElement) previousElement;
-                VirtualInventory virtualInventory = viSlotElement.getVirtualInventory();
-                // check if the VirtualInventory isn't still present on another index
-                if (getVISlotElements(viSlotElement.getVirtualInventory()).size() == 1) {
-                    // only if not, remove Window from list in VirtualInventory
-                    virtualInventory.removeWindow(this);
+            } else if (previousElement instanceof SlotElement.InventorySlotElement) {
+                SlotElement.InventorySlotElement invSlotElement = (SlotElement.InventorySlotElement) previousElement;
+                Inventory inventory = invSlotElement.getInventory();
+                // check if the InvUI-Inventory isn't still present on another index
+                if (getInvSlotElements(invSlotElement.getInventory()).size() == 1) {
+                    // only if not, remove Window from list in Inventory
+                    inventory.removeWindow(this);
                 }
             }
             
             if (element != null) {
-                // tell the Item or VirtualInventory that it is being displayed in this Window
+                // tell the Item or InvUI-Inventory that it is being displayed in this Window
                 SlotElement holdingElement = element.getHoldingElement();
                 if (holdingElement instanceof SlotElement.ItemSlotElement) {
                     ((SlotElement.ItemSlotElement) holdingElement).getItem().addWindow(this);
-                } else if (holdingElement instanceof SlotElement.VISlotElement) {
-                    ((SlotElement.VISlotElement) holdingElement).getVirtualInventory().addWindow(this);
+                } else if (holdingElement instanceof SlotElement.InventorySlotElement) {
+                    ((SlotElement.InventorySlotElement) holdingElement).getInventory().addWindow(this);
                 }
                 
                 elementsDisplayed[index] = holdingElement;
@@ -236,8 +235,8 @@ public abstract class AbstractWindow implements Window, GuiParent {
             redrawItem(index, slotElement, false));
     }
     
-    public void handleVirtualInventoryUpdate(VirtualInventory virtualInventory) {
-        getVISlotElements(virtualInventory).forEach((index, slotElement) ->
+    public void handleInventoryUpdate(Inventory inventory) {
+        getInvSlotElements(inventory).forEach((index, slotElement) ->
             redrawItem(index, slotElement, false));
     }
     
@@ -246,9 +245,9 @@ public abstract class AbstractWindow implements Window, GuiParent {
             && ((SlotElement.ItemSlotElement) element).getItem() == item);
     }
     
-    protected Map<Integer, SlotElement> getVISlotElements(VirtualInventory virtualInventory) {
-        return ArrayUtils.findAllOccurrences(elementsDisplayed, element -> element instanceof SlotElement.VISlotElement
-            && ((SlotElement.VISlotElement) element).getVirtualInventory() == virtualInventory);
+    protected Map<Integer, SlotElement> getInvSlotElements(Inventory inventory) {
+        return ArrayUtils.findAllOccurrences(elementsDisplayed, element -> element instanceof SlotElement.InventorySlotElement
+            && ((SlotElement.InventorySlotElement) element).getInventory() == inventory);
     }
     
     public void remove(boolean closeForViewer) {
@@ -260,8 +259,8 @@ public abstract class AbstractWindow implements Window, GuiParent {
             .forEach(slotElement -> {
                 if (slotElement instanceof SlotElement.ItemSlotElement) {
                     ((SlotElement.ItemSlotElement) slotElement).getItem().removeWindow(this);
-                } else if (slotElement instanceof SlotElement.VISlotElement) {
-                    ((SlotElement.VISlotElement) slotElement).getVirtualInventory().removeWindow(this);
+                } else if (slotElement instanceof SlotElement.InventorySlotElement) {
+                    ((SlotElement.InventorySlotElement) slotElement).getInventory().removeWindow(this);
                 }
             });
         
@@ -431,7 +430,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
     
     protected abstract AbstractGui[] getGuis();
     
-    protected abstract Inventory[] getInventories();
+    protected abstract org.bukkit.inventory.Inventory[] getInventories();
     
     protected abstract void initItems();
     

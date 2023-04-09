@@ -4,7 +4,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
@@ -19,10 +18,10 @@ import xyz.xenondevs.invui.item.impl.controlitem.ControlItem;
 import xyz.xenondevs.invui.util.ArrayUtils;
 import xyz.xenondevs.invui.util.InventoryUtils;
 import xyz.xenondevs.invui.util.SlotUtils;
-import xyz.xenondevs.invui.virtualinventory.VirtualInventory;
-import xyz.xenondevs.invui.virtualinventory.event.ItemUpdateEvent;
-import xyz.xenondevs.invui.virtualinventory.event.PlayerUpdateReason;
-import xyz.xenondevs.invui.virtualinventory.event.UpdateReason;
+import xyz.xenondevs.invui.inventory.Inventory;
+import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
+import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason;
+import xyz.xenondevs.invui.inventory.event.UpdateReason;
 import xyz.xenondevs.invui.window.*;
 
 import java.util.*;
@@ -67,13 +66,13 @@ public abstract class AbstractGui implements Gui, GuiParent {
             event.setCancelled(true); // if it is an Item, don't let the player move it
             SlotElement.ItemSlotElement itemElement = (SlotElement.ItemSlotElement) slotElement;
             itemElement.getItem().handleClick(clickType, player, event);
-        } else if (slotElement instanceof SlotElement.VISlotElement) {
-            handleVISlotElementClick((SlotElement.VISlotElement) slotElement, event);
-        } else event.setCancelled(true); // Only VISlotElements have allowed interactions
+        } else if (slotElement instanceof SlotElement.InventorySlotElement) {
+            handleInvSlotElementClick((SlotElement.InventorySlotElement) slotElement, event);
+        } else event.setCancelled(true); // Only InventorySlotElements have allowed interactions
     }
     
-    // region virtual inventories
-    protected void handleVISlotElementClick(SlotElement.VISlotElement element, InventoryClickEvent event) {
+    // region inventories
+    protected void handleInvSlotElementClick(SlotElement.InventorySlotElement element, InventoryClickEvent event) {
         // these actions are ignored as they don't modify the inventory
         InventoryAction action = event.getAction();
         if (action != InventoryAction.CLONE_STACK
@@ -82,7 +81,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
         ) {
             event.setCancelled(true);
             
-            VirtualInventory inventory = element.getVirtualInventory();
+            Inventory inventory = element.getInventory();
             int slot = element.getSlot();
             
             Player player = (Player) event.getWhoClicked();
@@ -93,44 +92,43 @@ public abstract class AbstractGui implements Gui, GuiParent {
             ItemStack clicked = event.getCurrentItem();
             if (clicked != null && clicked.getType().isAir()) clicked = null;
             
-            ItemStack technicallyClicked = inventory.getItemStack(slot);
+            ItemStack technicallyClicked = inventory.getItem(slot);
             if (inventory.isSynced(slot, clicked) || didClickBackgroundItem(player, element, inventory, slot, clicked)) {
                 
                 switch (event.getClick()) {
                     case LEFT:
-                        handleVILeftClick(event, inventory, slot, player, technicallyClicked, cursor);
+                        handleInvLeftClick(event, inventory, slot, player, technicallyClicked, cursor);
                         break;
                     case RIGHT:
-                        handleVIRightClick(event, inventory, slot, player, technicallyClicked, cursor);
+                        handleInvRightClick(event, inventory, slot, player, technicallyClicked, cursor);
                         break;
                     case SHIFT_RIGHT:
                     case SHIFT_LEFT:
-                        handleVIItemShift(event, inventory, slot, player, technicallyClicked);
+                        handleInvItemShift(event, inventory, slot, player, technicallyClicked);
                         break;
                     case NUMBER_KEY:
-                        handleVINumberKey(event, inventory, slot, player, technicallyClicked);
+                        handleInvNumberKey(event, inventory, slot, player, technicallyClicked);
                         break;
                     case SWAP_OFFHAND:
-                        handleVIOffHandKey(event, inventory, slot, player, technicallyClicked);
+                        handleInvOffHandKey(event, inventory, slot, player, technicallyClicked);
                         break;
                     case DROP:
-                        handleVIDrop(false, event, inventory, slot, player, technicallyClicked);
+                        handleInvDrop(false, event, inventory, slot, player, technicallyClicked);
                         break;
                     case CONTROL_DROP:
-                        handleVIDrop(true, event, inventory, slot, player, technicallyClicked);
+                        handleInvDrop(true, event, inventory, slot, player, technicallyClicked);
                         break;
                     case DOUBLE_CLICK:
-                        handleVIDoubleClick(event, inventory, player, cursor);
+                        handleInvDoubleClick(event, inventory, player, cursor);
                         break;
                 }
             }
         }
     }
     
-    private boolean didClickBackgroundItem(Player player, SlotElement.VISlotElement element, VirtualInventory inventory, int slot, ItemStack clicked) {
+    private boolean didClickBackgroundItem(Player player, SlotElement.InventorySlotElement element, Inventory inventory, int slot, ItemStack clicked) {
         String lang = player.getLocale();
-        return inventory.getUnsafeItemStack(slot) == null
-            && (isBuilderSimilar(background, lang, clicked) || isBuilderSimilar(element.getBackground(), lang, clicked));
+        return !inventory.hasItem(slot) && (isBuilderSimilar(background, lang, clicked) || isBuilderSimilar(element.getBackground(), lang, clicked));
     }
     
     private boolean isBuilderSimilar(ItemProvider builder, String lang, ItemStack expected) {
@@ -138,7 +136,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
     }
     
     @SuppressWarnings("deprecation")
-    protected void handleVILeftClick(InventoryClickEvent event, VirtualInventory inventory, int slot, Player player, ItemStack clicked, ItemStack cursor) {
+    protected void handleInvLeftClick(InventoryClickEvent event, Inventory inventory, int slot, Player player, ItemStack clicked, ItemStack cursor) {
         // nothing happens if both cursor and clicked stack are empty
         if (clicked == null && cursor == null) return;
         
@@ -146,11 +144,11 @@ public abstract class AbstractGui implements Gui, GuiParent {
         
         if (cursor == null) {
             // if the cursor is empty, pick the stack up
-            if (inventory.setItemStack(updateReason, slot, null))
+            if (inventory.setItem(updateReason, slot, null))
                 event.setCursor(clicked);
         } else if (clicked == null || cursor.isSimilar(clicked)) {
             // if there are no items, or they're similar to the cursor, add the cursor items to the stack
-            int remains = inventory.putItemStack(updateReason, slot, cursor);
+            int remains = inventory.putItem(updateReason, slot, cursor);
             if (remains == 0) {
                 event.setCursor(null);
             } else {
@@ -159,13 +157,13 @@ public abstract class AbstractGui implements Gui, GuiParent {
             }
         } else if (!cursor.isSimilar(clicked)) {
             // if the stacks are not similar, swap them
-            if (inventory.setItemStack(updateReason, slot, cursor))
+            if (inventory.setItem(updateReason, slot, cursor))
                 event.setCursor(clicked);
         }
     }
     
     @SuppressWarnings("deprecation")
-    protected void handleVIRightClick(InventoryClickEvent event, VirtualInventory inventory, int slot, Player player, ItemStack clicked, ItemStack cursor) {
+    protected void handleInvRightClick(InventoryClickEvent event, Inventory inventory, int slot, Player player, ItemStack clicked, ItemStack cursor) {
         // nothing happens if both cursor and clicked stack are empty
         if (clicked == null && cursor == null) return;
         
@@ -183,13 +181,13 @@ public abstract class AbstractGui implements Gui, GuiParent {
             clicked.setAmount(newClickedAmount);
             cursor.setAmount(newCursorAmount);
             
-            if (inventory.setItemStack(updateReason, slot, clicked))
+            if (inventory.setItem(updateReason, slot, clicked))
                 event.setCursor(cursor);
         } else {
             // put one item from the cursor in the inventory
             ItemStack toAdd = cursor.clone();
             toAdd.setAmount(1);
-            int remains = inventory.putItemStack(updateReason, slot, toAdd);
+            int remains = inventory.putItem(updateReason, slot, toAdd);
             if (remains == 0) {
                 cursor.setAmount(cursor.getAmount() - 1);
                 event.setCursor(cursor);
@@ -197,14 +195,14 @@ public abstract class AbstractGui implements Gui, GuiParent {
         }
     }
     
-    protected void handleVIItemShift(InventoryClickEvent event, VirtualInventory inventory, int slot, Player player, ItemStack clicked) {
+    protected void handleInvItemShift(InventoryClickEvent event, Inventory inventory, int slot, Player player, ItemStack clicked) {
         if (clicked == null) return;
         
         ItemStack previousStack = clicked.clone();
         
         UpdateReason updateReason = new PlayerUpdateReason(player, event);
         Window window = WindowManager.getInstance().getOpenWindow(player);
-        ItemUpdateEvent updateEvent = inventory.callPreUpdateEvent(updateReason, slot, previousStack, null);
+        ItemPreUpdateEvent updateEvent = inventory.callPreUpdateEvent(updateReason, slot, previousStack, null);
         
         if (!updateEvent.isCancelled()) {
             int leftOverAmount;
@@ -218,36 +216,36 @@ public abstract class AbstractGui implements Gui, GuiParent {
                     otherGui = this;
                 }
                 
-                leftOverAmount = ((AbstractGui) otherGui).putIntoFirstVirtualInventory(updateReason, clicked, inventory);
+                leftOverAmount = ((AbstractGui) otherGui).putIntoFirstInventory(updateReason, clicked, inventory);
             } else {
-                leftOverAmount = InventoryUtils.addItemCorrectly(event.getWhoClicked().getInventory(), inventory.getItemStack(slot));
+                leftOverAmount = InventoryUtils.addItemCorrectly(event.getWhoClicked().getInventory(), inventory.getItem(slot));
             }
             
             clicked.setAmount(leftOverAmount);
-            inventory.setItemStackSilently(slot, clicked);
+            inventory.setItemSilently(slot, clicked);
             
-            inventory.callAfterUpdateEvent(updateReason, slot, previousStack, clicked);
+            inventory.callPostUpdateEvent(updateReason, slot, previousStack, clicked);
         }
     }
     
     // TODO: add support for merged windows
-    protected void handleVINumberKey(InventoryClickEvent event, VirtualInventory inventory, int slot, Player player, ItemStack clicked) {
+    protected void handleInvNumberKey(InventoryClickEvent event, Inventory inventory, int slot, Player player, ItemStack clicked) {
         Window window = WindowManager.getInstance().getOpenWindow(player);
         if (window instanceof AbstractSingleWindow) {
-            Inventory playerInventory = player.getInventory();
+            org.bukkit.inventory.Inventory playerInventory = player.getInventory();
             int hotbarButton = event.getHotbarButton();
             ItemStack hotbarItem = playerInventory.getItem(hotbarButton);
             if (hotbarItem != null && hotbarItem.getType().isAir()) hotbarItem = null;
             
             UpdateReason updateReason = new PlayerUpdateReason(player, event);
             
-            if (inventory.setItemStack(updateReason, slot, hotbarItem))
+            if (inventory.setItem(updateReason, slot, hotbarItem))
                 playerInventory.setItem(hotbarButton, clicked);
         }
     }
     
     // TODO: add support for merged windows
-    protected void handleVIOffHandKey(InventoryClickEvent event, VirtualInventory inventory, int slot, Player player, ItemStack clicked) {
+    protected void handleInvOffHandKey(InventoryClickEvent event, Inventory inventory, int slot, Player player, ItemStack clicked) {
         Window window = WindowManager.getInstance().getOpenWindow(player);
         if (window instanceof AbstractSingleWindow) {
             PlayerInventory playerInventory = player.getInventory();
@@ -256,18 +254,18 @@ public abstract class AbstractGui implements Gui, GuiParent {
             
             UpdateReason updateReason = new PlayerUpdateReason(player, event);
             
-            if (inventory.setItemStack(updateReason, slot, offhandItem))
+            if (inventory.setItem(updateReason, slot, offhandItem))
                 playerInventory.setItemInOffHand(clicked);
         }
     }
     
-    protected void handleVIDrop(boolean ctrl, InventoryClickEvent event, VirtualInventory inventory, int slot, Player player, ItemStack clicked) {
+    protected void handleInvDrop(boolean ctrl, InventoryClickEvent event, Inventory inventory, int slot, Player player, ItemStack clicked) {
         if (clicked == null) return;
         
         UpdateReason updateReason = new PlayerUpdateReason(player, event);
         
         if (ctrl) {
-            if (inventory.setItemStack(updateReason, slot, null)) {
+            if (inventory.setItem(updateReason, slot, null)) {
                 InventoryUtils.dropItemLikePlayer(player, clicked);
             }
         } else if (inventory.addItemAmount(updateReason, slot, -1) == -1) {
@@ -278,7 +276,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
     }
     
     @SuppressWarnings("deprecation")
-    protected void handleVIDoubleClick(InventoryClickEvent event, VirtualInventory inventory, Player player, ItemStack cursor) {
+    protected void handleInvDoubleClick(InventoryClickEvent event, Inventory inventory, Player player, ItemStack cursor) {
         if (cursor == null) return;
         
         UpdateReason updateReason = new PlayerUpdateReason(player, event);
@@ -293,12 +291,12 @@ public abstract class AbstractGui implements Gui, GuiParent {
         
         SlotElement element = getSlotElement(slot);
         if (element != null) element = element.getHoldingElement();
-        if (element instanceof SlotElement.VISlotElement) {
-            SlotElement.VISlotElement viSlotElement = ((SlotElement.VISlotElement) element);
-            VirtualInventory virtualInventory = viSlotElement.getVirtualInventory();
-            int viSlot = viSlotElement.getSlot();
-            if (virtualInventory.isSynced(viSlot, oldStack)) {
-                return virtualInventory.setItemStack(updateReason, viSlot, newStack);
+        if (element instanceof SlotElement.InventorySlotElement) {
+            SlotElement.InventorySlotElement invSlotElement = ((SlotElement.InventorySlotElement) element);
+            Inventory inventory = invSlotElement.getInventory();
+            int viSlot = invSlotElement.getSlot();
+            if (inventory.isSynced(viSlot, oldStack)) {
+                return inventory.setItem(updateReason, viSlot, newStack);
             }
         }
         
@@ -317,19 +315,19 @@ public abstract class AbstractGui implements Gui, GuiParent {
         
         UpdateReason updateReason = new PlayerUpdateReason(player, event);
         
-        int amountLeft = putIntoFirstVirtualInventory(updateReason, clicked);
+        int amountLeft = putIntoFirstInventory(updateReason, clicked);
         if (amountLeft != clicked.getAmount()) {
             if (amountLeft != 0) event.getCurrentItem().setAmount(amountLeft);
             else event.getClickedInventory().setItem(event.getSlot(), null);
         }
     }
     
-    protected int putIntoFirstVirtualInventory(UpdateReason updateReason, ItemStack itemStack, VirtualInventory... ignored) {
-        LinkedHashSet<VirtualInventory> inventories = getAllVirtualInventories(ignored);
+    protected int putIntoFirstInventory(UpdateReason updateReason, ItemStack itemStack, Inventory... ignored) {
+        LinkedHashSet<Inventory> inventories = getAllInventories(ignored);
         int originalAmount = itemStack.getAmount();
         
         if (inventories.size() > 0) {
-            for (VirtualInventory inventory : inventories) {
+            for (Inventory inventory : inventories) {
                 int amountLeft = inventory.addItem(updateReason, itemStack);
                 if (originalAmount != amountLeft)
                     return amountLeft;
@@ -339,12 +337,12 @@ public abstract class AbstractGui implements Gui, GuiParent {
         return originalAmount;
     }
     
-    public LinkedHashSet<VirtualInventory> getAllVirtualInventories(VirtualInventory... ignored) {
+    public LinkedHashSet<Inventory> getAllInventories(Inventory... ignored) {
         return Arrays.stream(slotElements)
             .filter(Objects::nonNull)
             .map(SlotElement::getHoldingElement)
-            .filter(element -> element instanceof SlotElement.VISlotElement)
-            .map(element -> ((SlotElement.VISlotElement) element).getVirtualInventory())
+            .filter(element -> element instanceof SlotElement.InventorySlotElement)
+            .map(element -> ((SlotElement.InventorySlotElement) element).getInventory())
             .filter(vi -> Arrays.stream(ignored).noneMatch(vi::equals))
             .sorted((vi1, vi2) -> -Integer.compare(vi1.getGuiPriority(), vi2.getGuiPriority()))
             .collect(Collectors.toCollection(LinkedHashSet::new));
@@ -685,19 +683,19 @@ public abstract class AbstractGui implements Gui, GuiParent {
     }
     
     @Override
-    public void fillRectangle(int x, int y, int width, @NotNull VirtualInventory virtualInventory, boolean replaceExisting) {
-        fillRectangle(x, y, width, virtualInventory, null, replaceExisting);
+    public void fillRectangle(int x, int y, int width, @NotNull Inventory inventory, boolean replaceExisting) {
+        fillRectangle(x, y, width, inventory, null, replaceExisting);
     }
     
     @Override
-    public void fillRectangle(int x, int y, int width, @NotNull VirtualInventory virtualInventory, @Nullable ItemProvider background, boolean replaceExisting) {
-        int height = (int) Math.ceil((double) virtualInventory.getSize() / (double) width);
+    public void fillRectangle(int x, int y, int width, @NotNull Inventory inventory, @Nullable ItemProvider background, boolean replaceExisting) {
+        int height = (int) Math.ceil((double) inventory.getSize() / (double) width);
         
         int slotIndex = 0;
         for (int slot : SlotUtils.getSlotsRect(x, y, width, height, this.width)) {
-            if (slotIndex >= virtualInventory.getSize()) return;
+            if (slotIndex >= inventory.getSize()) return;
             if (hasSlotElement(slot) && !replaceExisting) continue;
-            setSlotElement(slot, new SlotElement.VISlotElement(virtualInventory, slotIndex, background));
+            setSlotElement(slot, new SlotElement.InventorySlotElement(inventory, slotIndex, background));
             slotIndex++;
         }
     }
@@ -748,13 +746,13 @@ public abstract class AbstractGui implements Gui, GuiParent {
         }
         
         @Override
-        public @NotNull S addIngredient(char key, @NotNull VirtualInventory inventory) {
+        public @NotNull S addIngredient(char key, @NotNull Inventory inventory) {
             structure.addIngredient(key, inventory);
             return (S) this;
         }
         
         @Override
-        public @NotNull S addIngredient(char key, @NotNull VirtualInventory inventory, @Nullable ItemProvider background) {
+        public @NotNull S addIngredient(char key, @NotNull Inventory inventory, @Nullable ItemProvider background) {
             structure.addIngredient(key, inventory, background);
             return (S) this;
         }

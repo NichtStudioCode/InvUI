@@ -3,35 +3,35 @@ package xyz.xenondevs.invui.window;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
+import xyz.xenondevs.invui.inventory.CompositeInventory;
+import xyz.xenondevs.invui.inventory.Inventory;
+import xyz.xenondevs.invui.inventory.ReferencingInventory;
+import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason;
+import xyz.xenondevs.invui.inventory.event.UpdateReason;
 import xyz.xenondevs.invui.util.InventoryUtils;
 import xyz.xenondevs.invui.util.Pair;
-import xyz.xenondevs.invui.virtualinventory.VirtualInventory;
-import xyz.xenondevs.invui.virtualinventory.event.PlayerUpdateReason;
-import xyz.xenondevs.invui.virtualinventory.event.UpdateReason;
 
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
 
 /**
- * A {@link Window} that just uses the top {@link Inventory}.
+ * A {@link Window} that just uses the top {@link org.bukkit.inventory.Inventory}.
  */
 public abstract class AbstractSingleWindow extends AbstractWindow {
     
     private final AbstractGui gui;
     private final int size;
-    protected Inventory inventory;
+    protected org.bukkit.inventory.Inventory inventory;
     
-    public AbstractSingleWindow(UUID viewerUUID, ComponentWrapper title, AbstractGui gui, Inventory inventory, boolean closeable) {
+    public AbstractSingleWindow(UUID viewerUUID, ComponentWrapper title, AbstractGui gui, org.bukkit.inventory.Inventory inventory, boolean closeable) {
         super(viewerUUID, title, gui.getSize(), closeable);
         this.gui = gui;
         this.size = gui.getSize();
@@ -90,26 +90,14 @@ public abstract class AbstractSingleWindow extends AbstractWindow {
         ItemStack template = event.getCursor();
         int maxStackSize = InventoryUtils.stackSizeProvider.getMaxStackSize(template);
         
-        // retrieve all inventories that are (partially) displayed in the gui, sorted by their gui shift priority
-        Set<VirtualInventory> inventories = gui.getAllVirtualInventories();
-        
-        // add the player inventory to the list of available inventories
-        PlayerInventory playerInventory = player.getInventory();
-        VirtualInventory virtualPlayerInventory = new VirtualInventory(null, 36, playerInventory.getStorageContents(), null);
-        inventories.add(virtualPlayerInventory);
+        // create a composite inventory consisting of all the gui's inventories and the player's inventory
+        Set<Inventory> inventories = gui.getAllInventories();
+        inventories.add(ReferencingInventory.fromStorageContents(player.getInventory()));
+        Inventory inventory = new CompositeInventory(inventories);
         
         // collect items from inventories until the cursor is full
         UpdateReason updateReason = new PlayerUpdateReason(player, event);
-        int amount = template.getAmount();
-        for (VirtualInventory inventory : inventories) {
-            amount = inventory.collectSimilar(updateReason, template, amount);
-            
-            if (amount >= maxStackSize)
-                break;
-        }
-        
-        // sync player inventory with virtual player inventory
-        playerInventory.setStorageContents(virtualPlayerInventory.getUnsafeItems());
+        int amount = inventory.collectSimilar(updateReason, template);
         
         // put collected items on cursor
         template.setAmount(amount);
@@ -132,8 +120,8 @@ public abstract class AbstractSingleWindow extends AbstractWindow {
     }
     
     @Override
-    public Inventory[] getInventories() {
-        return new Inventory[] {inventory};
+    public org.bukkit.inventory.Inventory[] getInventories() {
+        return new org.bukkit.inventory.Inventory[] {inventory};
     }
     
     @Override

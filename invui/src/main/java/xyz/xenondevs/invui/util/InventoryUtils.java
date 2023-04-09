@@ -11,7 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
-import xyz.xenondevs.invui.virtualinventory.StackSizeProvider;
+import xyz.xenondevs.invui.inventory.StackSizeProvider;
 
 public class InventoryUtils {
     

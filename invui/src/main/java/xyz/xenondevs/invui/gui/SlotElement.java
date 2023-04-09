@@ -3,7 +3,7 @@ package xyz.xenondevs.invui.gui;
 import org.bukkit.inventory.ItemStack;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
-import xyz.xenondevs.invui.virtualinventory.VirtualInventory;
+import xyz.xenondevs.invui.inventory.Inventory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,28 +42,28 @@ public interface SlotElement {
     }
     
     /**
-     * Links to a slot in a {@link VirtualInventory}
+     * Links to a slot in a {@link Inventory}
      */
-    class VISlotElement implements SlotElement {
+    class InventorySlotElement implements SlotElement {
         
-        private final VirtualInventory virtualInventory;
+        private final Inventory inventory;
         private final int slot;
         private final ItemProvider background;
         
-        public VISlotElement(VirtualInventory virtualInventory, int slot) {
-            this.virtualInventory = virtualInventory;
+        public InventorySlotElement(Inventory inventory, int slot) {
+            this.inventory = inventory;
             this.slot = slot;
             this.background = null;
         }
         
-        public VISlotElement(VirtualInventory virtualInventory, int slot, ItemProvider background) {
-            this.virtualInventory = virtualInventory;
+        public InventorySlotElement(Inventory inventory, int slot, ItemProvider background) {
+            this.inventory = inventory;
             this.slot = slot;
             this.background = background;
         }
         
-        public VirtualInventory getVirtualInventory() {
-            return virtualInventory;
+        public Inventory getInventory() {
+            return inventory;
         }
         
         public int getSlot() {
@@ -76,7 +76,7 @@ public interface SlotElement {
         
         @Override
         public ItemStack getItemStack(String lang) {
-            ItemStack itemStack = virtualInventory.getUnsafeItemStack(slot);
+            ItemStack itemStack = inventory.getUnsafeItem(slot);
             if (itemStack == null && background != null) itemStack = background.get(lang);
             return itemStack;
         }

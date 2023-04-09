@@ -10,6 +10,7 @@ import xyz.xenondevs.inventoryaccess.util.ReflectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import static xyz.xenondevs.inventoryaccess.util.ReflectionRegistry.PLUGIN_CLASS_LOADER_PLUGIN_FIELD;
 
@@ -23,12 +24,11 @@ public class InvUI implements Listener {
     private InvUI() {
     }
     
-    public static InvUI getInstance() {
+    public static @NotNull InvUI getInstance() {
         return instance == null ? instance = new InvUI() : instance;
     }
     
-    @NotNull
-    public Plugin getPlugin() {
+    public @NotNull Plugin getPlugin() {
         if (plugin == null) {
             // get plugin from class loader if it wasn't set manually
             plugin = ReflectionUtils.getFieldValue(PLUGIN_CLASS_LOADER_PLUGIN_FIELD, getClass().getClassLoader());
@@ -44,6 +44,10 @@ public class InvUI implements Listener {
         
         Bukkit.getPluginManager().registerEvents(this, plugin);
         this.plugin = plugin;
+    }
+    
+    public @NotNull Logger getLogger() {
+        return getPlugin().getLogger();
     }
     
     public void addDisableHandler(@NotNull Runnable runnable) {

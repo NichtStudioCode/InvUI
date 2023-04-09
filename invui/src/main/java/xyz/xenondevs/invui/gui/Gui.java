@@ -1,7 +1,6 @@
 package xyz.xenondevs.invui.gui;
 
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -11,7 +10,7 @@ import xyz.xenondevs.invui.gui.structure.Marker;
 import xyz.xenondevs.invui.gui.structure.Structure;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
-import xyz.xenondevs.invui.virtualinventory.VirtualInventory;
+import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.window.Window;
 import xyz.xenondevs.invui.window.WindowManager;
 
@@ -24,11 +23,11 @@ import java.util.function.Supplier;
 /**
  * A Gui is a container for width * height {@link SlotElement SlotElements}.<br>
  * Each {@link SlotElement} can either be an {@link Item},
- * a reference to a {@link VirtualInventory}'s or another {@link Gui}'s
+ * a reference to a {@link Inventory}'s or another {@link Gui}'s
  * slot index.<br>
- * A {@link Gui} is not an {@link Inventory}, nor does
+ * A {@link Gui} is not an {@link org.bukkit.inventory.Inventory}, nor does
  * it access one. It just contains {@link SlotElement SlotElements} and their positions.<br>
- * In order to create an {@link Inventory} which is visible
+ * In order to create an {@link org.bukkit.inventory.Inventory} which is visible
  * to players, you will need to use a {@link Window}.
  *
  * @see PagedGui
@@ -263,7 +262,7 @@ public interface Gui {
     @NotNull Set<@NotNull Player> findAllCurrentViewers();
     
     /**
-     * Closes the open {@link Inventory} for all viewers of {@link Window Windows}
+     * Closes the open {@link org.bukkit.inventory.Inventory} for all viewers of {@link Window Windows}
      * where this {@link Gui} is displayed.
      * <p>
      * If the {@link Window Windows} are not marked as "retain",
@@ -368,27 +367,27 @@ public interface Gui {
     void fillRectangle(int x, int y, @NotNull Gui gui, boolean replaceExisting);
     
     /**
-     * Fills a rectangle with a {@link VirtualInventory} in this {@link Gui}.
+     * Fills a rectangle with a {@link Inventory} in this {@link Gui}.
      *
      * @param x                The x coordinate where the rectangle should start
      * @param y                The y coordinate where the rectangle should start
-     * @param width            The line length of the rectangle. (VirtualInventory does not define a width)
-     * @param virtualInventory The {@link VirtualInventory} to be put into this {@link Gui}.
+     * @param width            The line length of the rectangle.
+     * @param inventory The {@link Inventory} to be put into this {@link Gui}.
      * @param replaceExisting  If existing {@link SlotElement SlotElements} should be replaced.
      */
-    void fillRectangle(int x, int y, int width, @NotNull VirtualInventory virtualInventory, boolean replaceExisting);
+    void fillRectangle(int x, int y, int width, @NotNull Inventory inventory, boolean replaceExisting);
     
     /**
-     * Fills a rectangle with a {@link VirtualInventory} in this {@link Gui}.
+     * Fills a rectangle with a {@link Inventory} in this {@link Gui}.
      *
      * @param x                The x coordinate where the rectangle should start
      * @param y                The y coordinate where the rectangle should start
-     * @param width            The line length of the rectangle. (VirtualInventory does not define a width)
-     * @param virtualInventory The {@link VirtualInventory} to be put into this {@link Gui}.
-     * @param background       The {@link ItemProvider} for empty slots of the {@link VirtualInventory}
+     * @param width            The line length of the rectangle.
+     * @param inventory The {@link Inventory} to be put into this {@link Gui}.
+     * @param background       The {@link ItemProvider} for empty slots of the {@link Inventory}
      * @param replaceExisting  If existing {@link SlotElement SlotElements} should be replaced.
      */
-    void fillRectangle(int x, int y, int width, @NotNull VirtualInventory virtualInventory, @Nullable ItemProvider background, boolean replaceExisting);
+    void fillRectangle(int x, int y, int width, @NotNull Inventory inventory, @Nullable ItemProvider background, boolean replaceExisting);
     
     //</editor-fold>
     
@@ -461,25 +460,25 @@ public interface Gui {
         @NotNull S addIngredient(char key, @NotNull Item item);
         
         /**
-         * Adds an {@link VirtualInventory} ingredient under the given key.
+         * Adds an {@link Inventory} ingredient under the given key.
          *
          * @param key       The key
-         * @param inventory The {@link VirtualInventory}
+         * @param inventory The {@link Inventory}
          * @return This {@link Builder Gui Builder}
          */
         @Contract("_, _ -> this")
-        @NotNull S addIngredient(char key, @NotNull VirtualInventory inventory);
+        @NotNull S addIngredient(char key, @NotNull Inventory inventory);
         
         /**
-         * Adds an {@link VirtualInventory} ingredient under the given key.
+         * Adds an {@link Inventory} ingredient under the given key.
          *
          * @param key        The key
-         * @param inventory  The {@link VirtualInventory}
-         * @param background The {@link ItemProvider} for empty slots of the {@link VirtualInventory}
+         * @param inventory  The {@link Inventory}
+         * @param background The {@link ItemProvider} for empty slots of the {@link Inventory}
          * @return This {@link Builder Gui Builder}
          */
         @Contract("_, _, _ -> this")
-        @NotNull S addIngredient(char key, @NotNull VirtualInventory inventory, @Nullable ItemProvider background);
+        @NotNull S addIngredient(char key, @NotNull Inventory inventory, @Nullable ItemProvider background);
         
         /**
          * Adds a {@link SlotElement} ingredient under the given key.
