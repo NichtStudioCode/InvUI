@@ -31,7 +31,7 @@ public class WindowManager implements Listener {
     
     private WindowManager() {
         Bukkit.getPluginManager().registerEvents(this, InvUI.getInstance().getPlugin());
-        InvUI.getInstance().addDisableHandler(() -> windows.values().forEach(window -> window.remove(true)));
+        InvUI.getInstance().addDisableHandler(() -> new HashSet<>(windows.values()).forEach(window -> window.remove(true)));
     }
     
     /**
