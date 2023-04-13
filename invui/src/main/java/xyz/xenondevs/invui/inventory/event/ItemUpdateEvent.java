@@ -41,7 +41,7 @@ abstract class ItemUpdateEvent {
      *
      * @return The {@link Inventory}
      */
-    public Inventory getInventory() {
+    public @NotNull Inventory getInventory() {
         return inventory;
     }
     
@@ -50,7 +50,7 @@ abstract class ItemUpdateEvent {
      *
      * @return The reason why this event was called. Probably a {@link PlayerUpdateReason} in most cases.
      */
-    public UpdateReason getUpdateReason() {
+    public @Nullable UpdateReason getUpdateReason() {
         return updateReason;
     }
     
@@ -59,7 +59,7 @@ abstract class ItemUpdateEvent {
      *
      * @return The {@link ItemStack}
      */
-    public ItemStack getPreviousItem() {
+    public @Nullable ItemStack getPreviousItem() {
         return previousItemStack;
     }
     
@@ -68,7 +68,7 @@ abstract class ItemUpdateEvent {
      *
      * @return The new {@link ItemStack}
      */
-    public ItemStack getNewItem() {
+    public @Nullable ItemStack getNewItem() {
         return newItemStack;
     }
     
