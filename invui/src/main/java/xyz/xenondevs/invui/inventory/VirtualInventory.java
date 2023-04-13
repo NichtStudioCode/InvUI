@@ -13,6 +13,7 @@ import java.util.UUID;
 
 /**
  * A serializable {@link Inventory} implementation that is identified by a {@link UUID} and backed by a simple {@link ItemStack} array.
+ *
  * @see VirtualInventoryManager
  */
 public class VirtualInventory extends Inventory {
@@ -25,9 +26,9 @@ public class VirtualInventory extends Inventory {
     /**
      * Constructs a new {@link VirtualInventory}
      *
-     * @param uuid       The {@link UUID} of this {@link VirtualInventory}. Can be null, only used for serialization.
-     * @param size       The amount of slots this {@link VirtualInventory} has.
-     * @param items      A predefined array of content. Can be null. Will not get copied!
+     * @param uuid          The {@link UUID} of this {@link VirtualInventory}. Can be null, only used for serialization.
+     * @param size          The amount of slots this {@link VirtualInventory} has.
+     * @param items         A predefined array of content. Can be null. Will not get copied!
      * @param maxStackSizes An array of maximum allowed stack sizes for each slot in the {@link VirtualInventory}. Can be null for 64.
      * @throws IllegalArgumentException If the given size does not match the length of the items array or the length of the stackSizes array.
      */
@@ -52,8 +53,8 @@ public class VirtualInventory extends Inventory {
     /**
      * Constructs a new {@link VirtualInventory}
      *
-     * @param size       The amount of slots this {@link VirtualInventory} has.
-     * @param items      A predefined array of content. Can be null. Will not get copied!
+     * @param size          The amount of slots this {@link VirtualInventory} has.
+     * @param items         A predefined array of content. Can be null. Will not get copied!
      * @param maxStackSizes An array of maximum allowed stack sizes for each slot in the {@link VirtualInventory}. Can be null for 64.
      */
     public VirtualInventory(int size, @Nullable ItemStack @Nullable [] items, int @Nullable [] maxStackSizes) {
@@ -63,8 +64,8 @@ public class VirtualInventory extends Inventory {
     /**
      * Constructs a new {@link VirtualInventory}
      *
-     * @param uuid       The {@link UUID} of this {@link VirtualInventory}. Can be null, only used for serialization.
-     * @param items      A predefined array of content. Will not get copied!
+     * @param uuid          The {@link UUID} of this {@link VirtualInventory}. Can be null, only used for serialization.
+     * @param items         A predefined array of content. Will not get copied!
      * @param maxStackSizes An array of maximum allowed stack sizes for each slot in the {@link VirtualInventory}. Can be null for 64.
      */
     public VirtualInventory(@Nullable UUID uuid, @Nullable ItemStack @NotNull [] items, int @Nullable [] maxStackSizes) {
@@ -74,7 +75,7 @@ public class VirtualInventory extends Inventory {
     /**
      * Constructs a new {@link VirtualInventory}
      *
-     * @param items      A predefined array of content. Will not get copied!
+     * @param items         A predefined array of content. Will not get copied!
      * @param maxStackSizes An array of maximum allowed stack sizes for each slot in the {@link VirtualInventory}. Can be null for 64.
      */
     public VirtualInventory(@Nullable ItemStack @NotNull [] items, int @Nullable [] maxStackSizes) {
@@ -103,7 +104,7 @@ public class VirtualInventory extends Inventory {
     /**
      * Constructs a new {@link VirtualInventory}
      *
-     * @param uuid       The {@link UUID} of this {@link VirtualInventory}. Can be null, only used for serialization.
+     * @param uuid          The {@link UUID} of this {@link VirtualInventory}. Can be null, only used for serialization.
      * @param maxStackSizes An array of maximum allowed stack sizes for each slot in the {@link VirtualInventory}.
      */
     public VirtualInventory(@Nullable UUID uuid, int @NotNull [] maxStackSizes) {
@@ -136,6 +137,18 @@ public class VirtualInventory extends Inventory {
      */
     public VirtualInventory(int size) {
         this(null, size, null, null);
+    }
+    
+    /**
+     * Creates a copy of the given {@link VirtualInventory}.
+     *
+     * @param inventory The {@link VirtualInventory} to copy.
+     */
+    public VirtualInventory(VirtualInventory inventory) {
+        this(inventory.uuid, inventory.size, ItemUtils.clone(inventory.items), inventory.maxStackSizes.clone());
+        setGuiPriority(inventory.getGuiPriority());
+        setPreUpdateHandler(inventory.getPreUpdateHandler());
+        setPostUpdateHandler(inventory.getPostUpdateHandler());
     }
     
     /**

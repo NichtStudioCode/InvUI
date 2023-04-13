@@ -50,8 +50,8 @@ import java.util.stream.Stream;
 public abstract class Inventory {
     
     private final Set<AbstractWindow> windows = new HashSet<>();
-    private Consumer<ItemPreUpdateEvent> itemUpdateHandler;
-    private Consumer<ItemPostUpdateEvent> inventoryUpdatedHandler;
+    private Consumer<ItemPreUpdateEvent> preUpdateHandler;
+    private Consumer<ItemPostUpdateEvent> postUpdateHandler;
     private int guiPriority = 0;
     
     /**
@@ -179,12 +179,30 @@ public abstract class Inventory {
     }
     
     /**
+     * Gets the configured pre update handler.
+     *
+     * @return The pre update handler
+     */
+    public @Nullable Consumer<ItemPreUpdateEvent> getPreUpdateHandler() {
+        return preUpdateHandler;
+    }
+    
+    /**
      * Sets a handler which is called every time something gets updated in the {@link Inventory}.
      *
-     * @param itemUpdateHandler The new item update handler
+     * @param preUpdateHandler The new item update handler
      */
-    public void setPreUpdateHandler(Consumer<ItemPreUpdateEvent> itemUpdateHandler) {
-        this.itemUpdateHandler = itemUpdateHandler;
+    public void setPreUpdateHandler(@NotNull Consumer<@NotNull ItemPreUpdateEvent> preUpdateHandler) {
+        this.preUpdateHandler = preUpdateHandler;
+    }
+    
+    /**
+     * Gets the configured post update handler.
+     *
+     * @return The post update handler
+     */
+    public @Nullable Consumer<@NotNull ItemPostUpdateEvent> getPostUpdateHandler() {
+        return postUpdateHandler;
     }
     
     /**
@@ -192,27 +210,27 @@ public abstract class Inventory {
      *
      * @param inventoryUpdatedHandler The new handler
      */
-    public void setPostUpdateHandler(Consumer<ItemPostUpdateEvent> inventoryUpdatedHandler) {
-        this.inventoryUpdatedHandler = inventoryUpdatedHandler;
+    public void setPostUpdateHandler(@NotNull Consumer<@NotNull ItemPostUpdateEvent> inventoryUpdatedHandler) {
+        this.postUpdateHandler = inventoryUpdatedHandler;
     }
     
     /**
-     * Creates an {@link ItemPreUpdateEvent} and calls the {@link #itemUpdateHandler} to handle it.
+     * Creates an {@link ItemPreUpdateEvent} and calls the {@link #preUpdateHandler} to handle it.
      *
      * @param updateReason      The {@link UpdateReason}.
      * @param slot              The slot of the affected {@link ItemStack}.
      * @param previousItemStack The {@link ItemStack} that was previously on that slot.
      * @param newItemStack      The {@link ItemStack} that will be on that slot.
-     * @return The {@link ItemPreUpdateEvent} after it has been handled by the {@link #itemUpdateHandler}.
+     * @return The {@link ItemPreUpdateEvent} after it has been handled by the {@link #preUpdateHandler}.
      */
     public ItemPreUpdateEvent callPreUpdateEvent(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
         if (updateReason == UpdateReason.SUPPRESSED)
             throw new IllegalArgumentException("Cannot call ItemUpdateEvent with UpdateReason.SUPPRESSED");
         
         ItemPreUpdateEvent event = new ItemPreUpdateEvent(this, slot, updateReason, previousItemStack, newItemStack);
-        if (itemUpdateHandler != null) {
+        if (preUpdateHandler != null) {
             try {
-                itemUpdateHandler.accept(event);
+                preUpdateHandler.accept(event);
             } catch (Throwable t) {
                 InvUI.getInstance().getLogger().log(Level.SEVERE, "An exception occurred while handling an inventory event", t);
             }
@@ -221,7 +239,7 @@ public abstract class Inventory {
     }
     
     /**
-     * Creates an {@link ItemPostUpdateEvent} and calls the {@link #inventoryUpdatedHandler} to handle it.
+     * Creates an {@link ItemPostUpdateEvent} and calls the {@link #postUpdateHandler} to handle it.
      *
      * @param updateReason      The {@link UpdateReason}.
      * @param slot              The slot of the affected {@link ItemStack}.
@@ -233,9 +251,9 @@ public abstract class Inventory {
             throw new IllegalArgumentException("Cannot call InventoryUpdatedEvent with UpdateReason.SUPPRESSED");
         
         ItemPostUpdateEvent event = new ItemPostUpdateEvent(this, slot, updateReason, previousItemStack, newItemStack);
-        if (inventoryUpdatedHandler != null) {
+        if (postUpdateHandler != null) {
             try {
-                inventoryUpdatedHandler.accept(event);
+                postUpdateHandler.accept(event);
             } catch (Throwable t) {
                 InvUI.getInstance().getLogger().log(Level.SEVERE, "An exception occurred while handling an inventory event", t);
             }
