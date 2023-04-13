@@ -558,7 +558,7 @@ public abstract class Inventory {
      */
     public boolean setItem(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack itemStack) {
         if (ItemUtils.isEmpty(itemStack))
-            return forceSetItem(updateReason, 0, null);
+            return forceSetItem(updateReason, slot, null);
         
         int maxStackSize = getMaxSlotStackSize(slot, itemStack);
         if (itemStack.getAmount() > maxStackSize)
