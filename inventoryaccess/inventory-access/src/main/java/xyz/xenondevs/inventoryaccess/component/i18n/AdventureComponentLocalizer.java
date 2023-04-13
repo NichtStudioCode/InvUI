@@ -4,9 +4,10 @@ import net.kyori.adventure.text.*;
 
 public class AdventureComponentLocalizer extends ComponentLocalizer<Component> {
     
-    public static final AdventureComponentLocalizer INSTANCE = new AdventureComponentLocalizer();
+    private static final AdventureComponentLocalizer INSTANCE = new AdventureComponentLocalizer();
     
     private AdventureComponentLocalizer() {
+        super(Component::text);
     }
     
     public static AdventureComponentLocalizer getInstance() {
@@ -47,11 +48,6 @@ public class AdventureComponentLocalizer extends ComponentLocalizer<Component> {
         
         var children = decomposeFormatString(lang, formatString, component, component.args());
         return Component.textOfChildren(children.toArray(ComponentLike[]::new)).style(component.style());
-    }
-    
-    @Override
-    protected Component createTextComponent(String text) {
-        return Component.text(text);
     }
     
 }

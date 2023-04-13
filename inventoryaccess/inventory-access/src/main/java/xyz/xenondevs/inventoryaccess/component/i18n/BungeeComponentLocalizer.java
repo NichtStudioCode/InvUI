@@ -11,6 +11,7 @@ public class BungeeComponentLocalizer extends ComponentLocalizer<BaseComponent> 
     private static final BungeeComponentLocalizer INSTANCE = new BungeeComponentLocalizer();
     
     private BungeeComponentLocalizer() {
+        super(TextComponent::new);
     }
     
     public static BungeeComponentLocalizer getInstance() {
@@ -61,11 +62,6 @@ public class BungeeComponentLocalizer extends ComponentLocalizer<BaseComponent> 
             result.setExtra(extra);
         
         return result;
-    }
-    
-    @Override
-    protected BaseComponent createTextComponent(String text) {
-        return new TextComponent(text);
     }
     
 }
