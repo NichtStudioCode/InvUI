@@ -25,7 +25,7 @@
         </dependency>
         <dependency>
             <groupId>xyz.xenondevs.invui</groupId>
-            <artifactId>invui</artifactId>
+            <artifactId>invui-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

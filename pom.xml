@@ -70,9 +70,10 @@
         <module>inventoryaccess/inventory-access-r11</module>
         <module>inventoryaccess/inventory-access-r12</module>
         <module>inventoryaccess/inventory-access-r13</module>
-        <module>invui</module>
+        <module>invui-core</module>
         <module>invui-resourcepack</module>
         <module>invui-kotlin</module>
+        <module>invui</module>
     </modules>
 
     <build>
