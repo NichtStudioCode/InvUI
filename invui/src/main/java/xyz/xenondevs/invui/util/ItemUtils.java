@@ -19,6 +19,18 @@ public class ItemUtils {
     }
     
     /**
+     * Checks whether the given {@link ItemStack} is empty and returns null if it is.
+     * @param itemStack The {@link ItemStack} to check.
+     * @return The {@link ItemStack} if it is not empty or null otherwise.
+     */
+    public static @Nullable ItemStack takeUnlessEmpty(@Nullable ItemStack itemStack) {
+        if (isEmpty(itemStack))
+            return null;
+        
+        return itemStack;
+    }
+    
+    /**
      * Creates a new array with clones of the given {@link ItemStack ItemStacks}.
      *
      * @param array The array to clone.

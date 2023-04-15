@@ -11,17 +11,18 @@ import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.invui.animation.Animation;
 import xyz.xenondevs.invui.gui.structure.Marker;
 import xyz.xenondevs.invui.gui.structure.Structure;
+import xyz.xenondevs.invui.inventory.Inventory;
+import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
+import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason;
+import xyz.xenondevs.invui.inventory.event.UpdateReason;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.item.ItemWrapper;
 import xyz.xenondevs.invui.item.impl.controlitem.ControlItem;
 import xyz.xenondevs.invui.util.ArrayUtils;
 import xyz.xenondevs.invui.util.InventoryUtils;
+import xyz.xenondevs.invui.util.ItemUtils;
 import xyz.xenondevs.invui.util.SlotUtils;
-import xyz.xenondevs.invui.inventory.Inventory;
-import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
-import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason;
-import xyz.xenondevs.invui.inventory.event.UpdateReason;
 import xyz.xenondevs.invui.window.*;
 
 import java.util.*;
@@ -222,6 +223,9 @@ public abstract class AbstractGui implements Gui, GuiParent {
             }
             
             clicked.setAmount(leftOverAmount);
+            if (ItemUtils.isEmpty(clicked))
+                clicked = null;
+            
             inventory.setItemSilently(slot, clicked);
             
             inventory.callPostUpdateEvent(updateReason, slot, previousStack, clicked);
