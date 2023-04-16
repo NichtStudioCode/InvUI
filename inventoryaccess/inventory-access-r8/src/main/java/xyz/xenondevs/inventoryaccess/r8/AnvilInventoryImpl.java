@@ -76,7 +76,7 @@ class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
     }
     
     public void sendItem(int slot) {
-        player.connection.send(new ClientboundContainerSetSlotPacket(getActiveWindowId(player), slot, incrementStateId(), getItem(slot)));
+        player.connection.send(new ClientboundContainerSetSlotPacket(getActiveWindowId(player), incrementStateId(), slot, getItem(slot)));
     }
     
     public void setItem(int slot, ItemStack item) {
