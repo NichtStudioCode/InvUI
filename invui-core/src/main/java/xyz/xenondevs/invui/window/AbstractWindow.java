@@ -453,7 +453,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
         protected List<Runnable> openHandlers;
         protected List<Runnable> closeHandlers;
         protected List<Consumer<InventoryClickEvent>> outsideClickHandlers;
-        protected List<Consumer<Window>> modifiers;
+        protected List<Consumer<W>> modifiers;
         
         @Override
         public @NotNull S setViewer(@NotNull Player viewer) {
@@ -531,13 +531,13 @@ public abstract class AbstractWindow implements Window, GuiParent {
         }
         
         @Override
-        public @NotNull S setModifiers(@Nullable List<@NotNull Consumer<@NotNull Window>> modifiers) {
+        public @NotNull S setModifiers(@Nullable List<@NotNull Consumer<@NotNull W>> modifiers) {
             this.modifiers = modifiers;
             return (S) this;
         }
         
         @Override
-        public @NotNull S addModifier(@NotNull Consumer<@NotNull Window> modifier) {
+        public @NotNull S addModifier(@NotNull Consumer<@NotNull W> modifier) {
             if (modifiers == null)
                 modifiers = new ArrayList<>();
             

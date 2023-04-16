@@ -343,7 +343,7 @@ public interface Window {
          * @return This {@link Builder Window Builder}
          */
         @Contract("_ -> this")
-        @NotNull S setModifiers(@Nullable List<@NotNull Consumer<@NotNull Window>> modifiers);
+        @NotNull S setModifiers(@Nullable List<@NotNull Consumer<@NotNull W>> modifiers);
         
         /**
          * Adds a modifier to the {@link Window}.
@@ -352,7 +352,7 @@ public interface Window {
          * @return This {@link Builder Window Builder}
          */
         @Contract("_ -> this")
-        @NotNull S addModifier(@NotNull Consumer<@NotNull Window> modifier);
+        @NotNull S addModifier(@NotNull Consumer<@NotNull W> modifier);
         
         /**
          * Builds the {@link Window}.

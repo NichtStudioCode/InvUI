@@ -710,7 +710,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
         
         protected Structure structure;
         protected ItemProvider background;
-        protected List<Consumer<Gui>> modifiers;
+        protected List<Consumer<G>> modifiers;
         protected boolean frozen;
         
         @Override
@@ -804,7 +804,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
         }
         
         @Override
-        public @NotNull S addModifier(@NotNull Consumer<@NotNull Gui> modifier) {
+        public @NotNull S addModifier(@NotNull Consumer<@NotNull G> modifier) {
             if (modifiers == null)
                 modifiers = new ArrayList<>();
             
@@ -813,7 +813,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
         }
         
         @Override
-        public @NotNull S setModifiers(@NotNull List<@NotNull Consumer<@NotNull Gui>> modifiers) {
+        public @NotNull S setModifiers(@NotNull List<@NotNull Consumer<@NotNull G>> modifiers) {
             this.modifiers = modifiers;
             return (S) this;
         }

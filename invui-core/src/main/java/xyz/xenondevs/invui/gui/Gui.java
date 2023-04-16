@@ -554,7 +554,7 @@ public interface Gui {
          * @return This {@link Builder Gui Builder}
          */
         @Contract("_ -> this")
-        @NotNull S addModifier(@NotNull Consumer<@NotNull Gui> modifier);
+        @NotNull S addModifier(@NotNull Consumer<@NotNull G> modifier);
         
         /**
          * Sets the background of the {@link Gui}.
@@ -563,7 +563,7 @@ public interface Gui {
          * @return This {@link Builder Gui Builder}
          */
         @Contract("_ -> this")
-        @NotNull S setModifiers(@NotNull List<@NotNull Consumer<@NotNull Gui>> modifiers);
+        @NotNull S setModifiers(@NotNull List<@NotNull Consumer<@NotNull G>> modifiers);
         
         /**
          * Builds the {@link Gui}.
