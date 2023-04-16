@@ -26,12 +26,12 @@ public class WindowManager implements Listener {
     
     private static WindowManager instance;
     
-    private final Map<Inventory, AbstractWindow> windows = new HashMap<>();
-    private final Map<Player, AbstractWindow> openWindows = new HashMap<>();
+    private final Map<Inventory, AbstractWindow> windowsByInventory = new HashMap<>();
+    private final Map<Player, AbstractWindow> windowsByPlayer = new HashMap<>();
     
     private WindowManager() {
         Bukkit.getPluginManager().registerEvents(this, InvUI.getInstance().getPlugin());
-        InvUI.getInstance().addDisableHandler(() -> new HashSet<>(windows.values()).forEach(window -> window.remove(true)));
+        InvUI.getInstance().addDisableHandler(() -> new HashSet<>(windowsByPlayer.values()).forEach(AbstractWindow::close));
     }
     
     /**
@@ -50,7 +50,7 @@ public class WindowManager implements Listener {
      * @param window The {@link AbstractWindow} to add
      */
     public void addWindow(AbstractWindow window) {
-        windows.put(window.getInventories()[0], window);
+        windowsByInventory.put(window.getInventories()[0], window);
     }
     
     /**
@@ -60,7 +60,7 @@ public class WindowManager implements Listener {
      * @param window The {@link AbstractWindow} to remove
      */
     public void removeWindow(AbstractWindow window) {
-        windows.remove(window.getInventories()[0]);
+        windowsByInventory.remove(window.getInventories()[0]);
     }
     
     /**
@@ -71,7 +71,7 @@ public class WindowManager implements Listener {
      */
     @Nullable
     public Window getWindow(Inventory inventory) {
-        return windows.get(inventory);
+        return windowsByInventory.get(inventory);
     }
     
     /**
@@ -82,25 +82,25 @@ public class WindowManager implements Listener {
      */
     @Nullable
     public Window getOpenWindow(Player player) {
-        return openWindows.get(player);
+        return windowsByPlayer.get(player);
     }
     
     /**
-     * Gets a set of all registered {@link Window Windows}.
+     * Gets a set of all open {@link Window Windows}.
      *
      * @return A set of all {@link Window Windows}
      */
     public Set<Window> getWindows() {
-        return new HashSet<>(windows.values());
+        return new HashSet<>(windowsByInventory.values());
     }
     
     /**
-     * Gets a set of all currently opened {@link Window Windows}.
-     *
-     * @return A set of all opened {@link Window Windows}
+     * Gets a set of all open {@link Window Windows}.
+     * @deprecated Use {@link #getWindows()} instead
      */
+    @Deprecated
     public Set<Window> getOpenWindows() {
-        return new HashSet<>(openWindows.values());
+        return getWindows();
     }
     
     @EventHandler
@@ -127,7 +127,7 @@ public class WindowManager implements Listener {
             window.handleCloseEvent(player);
         }
         
-        openWindows.remove(player);
+        windowsByPlayer.remove(player);
     }
     
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -135,7 +135,7 @@ public class WindowManager implements Listener {
         AbstractWindow window = (AbstractWindow) getWindow(event.getInventory());
         if (window != null) {
             window.handleOpenEvent(event);
-            openWindows.put((Player) event.getPlayer(), window);
+            windowsByPlayer.put((Player) event.getPlayer(), window);
         }
     }
     
@@ -145,7 +145,7 @@ public class WindowManager implements Listener {
         AbstractWindow window = (AbstractWindow) getOpenWindow(player);
         if (window != null) {
             window.handleCloseEvent(player);
-            openWindows.remove(player);
+            windowsByPlayer.remove(player);
         }
     }
     

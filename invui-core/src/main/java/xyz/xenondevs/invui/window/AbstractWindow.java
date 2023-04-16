@@ -187,7 +187,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
                 throw new IllegalStateException("Window is already closed!");
             
             currentlyOpen = false;
-            remove(false);
+            remove();
             
             // handleClosed() might have already been called by open() if the window was replaced by another one
             if (!hasHandledClose) {
@@ -250,7 +250,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
             && ((SlotElement.InventorySlotElement) element).getInventory() == inventory);
     }
     
-    public void remove(boolean closeForViewer) {
+    private void remove() {
         WindowManager.getInstance().removeWindow(this);
         
         Arrays.stream(elementsDisplayed)
@@ -266,8 +266,6 @@ public abstract class AbstractWindow implements Window, GuiParent {
         
         Arrays.stream(getGuis())
             .forEach(gui -> gui.removeParent(this));
-        
-        if (closeForViewer) close();
     }
     
     @Override
