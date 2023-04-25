@@ -68,7 +68,7 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
         ItemMeta meta = item.getItemMeta();
         
         if (gameProfile != null)
-            ReflectionUtils.setFieldValue(ReflectionRegistry.CB_CRAFT_META_SKULL_PROFILE_FIELD, meta, gameProfile);
+            ReflectionUtils.invokeMethod(ReflectionRegistry.CB_CRAFT_META_SKULL_SET_PROFILE_METHOD, meta, gameProfile);
         
         item.setItemMeta(meta);
         
