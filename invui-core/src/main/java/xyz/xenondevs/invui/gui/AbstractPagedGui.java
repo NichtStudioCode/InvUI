@@ -70,6 +70,12 @@ public abstract class AbstractPagedGui<C> extends AbstractGui implements PagedGu
         return Math.max(0, Math.min(page, getPageAmount() - 1));
     }
     
+    private void correctCurrentPage() {
+        int correctedPage = correctPage(currentPage);
+        if (correctedPage != currentPage)
+            setPage(correctedPage);
+    }
+    
     @Override
     public boolean hasNextPage() {
         return currentPage < getPageAmount() - 1 || infinitePages;
@@ -81,6 +87,7 @@ public abstract class AbstractPagedGui<C> extends AbstractGui implements PagedGu
     }
     
     protected void update() {
+        correctCurrentPage();
         updateControlItems();
         updatePageContent();
     }

@@ -80,6 +80,12 @@ public abstract class AbstractScrollGui<C> extends AbstractGui implements Scroll
         return Math.max(0, Math.min(line, getMaxLine()));
     }
     
+    private void correctCurrentLine() {
+        int correctedLine = correctLine(currentLine);
+        if (correctedLine != currentLine)
+            setCurrentLine(correctedLine);
+    }
+    
     @Override
     public boolean canScroll(int lines) {
         if (lines == 0 || (infiniteLines && lines > 0) || (lines < 0 && getCurrentLine() > 0)) return true;
@@ -104,6 +110,7 @@ public abstract class AbstractScrollGui<C> extends AbstractGui implements Scroll
     }
     
     protected void update() {
+        correctCurrentLine();
         updateControlItems();
         updateContent();
     }
