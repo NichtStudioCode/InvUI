@@ -13,6 +13,7 @@ import xyz.xenondevs.inventoryaccess.map.MapIcon;
 import xyz.xenondevs.inventoryaccess.map.MapPatch;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
+import xyz.xenondevs.invui.item.impl.SimpleItem;
 import xyz.xenondevs.invui.util.MathUtils;
 
 import java.util.List;
@@ -59,7 +60,7 @@ final class CartographySplitWindowImpl extends AbstractSplitWindow implements Ca
         MapMeta mapMeta = (MapMeta) map.getItemMeta();
         mapMeta.setMapId(mapId);
         map.setItemMeta(mapMeta);
-        cartographyInventory.setItem(0, map);
+        getGuis()[0].setItem(0, new SimpleItem(map));
     }
     
     @Override
