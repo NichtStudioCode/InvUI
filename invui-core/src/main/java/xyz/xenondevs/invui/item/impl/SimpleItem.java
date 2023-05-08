@@ -3,11 +3,13 @@ package xyz.xenondevs.invui.item.impl;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.invui.item.Click;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
+import xyz.xenondevs.invui.item.ItemWrapper;
 
 import java.util.function.Consumer;
 
@@ -24,8 +26,18 @@ public class SimpleItem extends AbstractItem {
         this.clickHandler = null;
     }
     
-    public SimpleItem(@NotNull ItemProvider itemProvider, @Nullable Consumer<Click> clickHandler) {
+    public SimpleItem(@NotNull ItemStack itemStack) {
+        this.itemProvider = new ItemWrapper(itemStack);
+        this.clickHandler = null;
+    }
+    
+    public SimpleItem(@NotNull ItemProvider itemProvider, @Nullable Consumer<@NotNull Click> clickHandler) {
         this.itemProvider = itemProvider;
+        this.clickHandler = clickHandler;
+    }
+    
+    public SimpleItem(@NotNull ItemStack itemStack, @Nullable Consumer<@NotNull Click> clickHandler) {
+        this.itemProvider = new ItemWrapper(itemStack);
         this.clickHandler = clickHandler;
     }
     
