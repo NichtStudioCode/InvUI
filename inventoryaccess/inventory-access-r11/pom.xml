@@ -36,9 +36,9 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>xyz.xenondevs</groupId>
+                <groupId>xyz.xenondevs.string-remapper</groupId>
                 <artifactId>string-remapper-maven-plugin</artifactId>
-                <version>0.6</version>
+                <version>1.2</version>
 
                 <executions>
                     <execution>
@@ -47,14 +47,10 @@
                             <goal>remap</goal>
                         </goals>
                         <configuration>
-                            <remapGoal>spigot</remapGoal>
+                            <spigotVersion>${spigot.version}</spigotVersion>
+                            <goal>spigot</goal>
                             <classesIn>${project.build.directory}/classes</classesIn>
                             <classesOut>${project.build.directory}/classes-spigot</classesOut>
-                            <mapsMojang>org.spigotmc:minecraft-server:txt:maps-mojang:${spigot.version}</mapsMojang>
-                            <mapsSpigot>
-                                <classes>org.spigotmc:minecraft-server:csrg:maps-spigot:${spigot.version}</classes>
-                                <members>org.spigotmc:minecraft-server:csrg:maps-spigot-members:${spigot.version}</members>
-                            </mapsSpigot>
                         </configuration>
                     </execution>
 
@@ -64,14 +60,10 @@
                             <goal>remap</goal>
                         </goals>
                         <configuration>
-                            <remapGoal>mojang</remapGoal>
+                            <spigotVersion>${spigot.version}</spigotVersion>
+                            <goal>mojang</goal>
                             <classesIn>${project.build.directory}/classes</classesIn>
                             <classesOut>${project.build.directory}/classes-mojang</classesOut>
-                            <mapsMojang>org.spigotmc:minecraft-server:txt:maps-mojang:${spigot.version}</mapsMojang>
-                            <mapsSpigot>
-                                <classes>org.spigotmc:minecraft-server:csrg:maps-spigot:${spigot.version}</classes>
-                                <members>org.spigotmc:minecraft-server:csrg:maps-spigot-members:${spigot.version}</members>
-                            </mapsSpigot>
                         </configuration>
                     </execution>
                 </executions>

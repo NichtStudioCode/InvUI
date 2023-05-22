@@ -30,7 +30,7 @@ class PlayerUtilsImpl implements PlayerUtils {
     private static final Method REGISTER_LISTENERS_METHOD = ReflectionUtils.getMethod(
         PlayerAdvancements.class,
         true,
-        "SRM(net.minecraft.server.PlayerAdvancements registerListeners)",
+        "ASRM(net/minecraft/server/PlayerAdvancements.registerListeners(Lnet/minecraft/server/ServerAdvancementManager;)V)",
         ServerAdvancementManager.class
     );
     
