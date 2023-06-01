@@ -65,7 +65,7 @@ final class TabGuiImpl extends AbstractTabGui {
     
     @Override
     public boolean isTabAvailable(int tab) {
-        return tabs.get(tab) != null;
+        return tabs.size() > tab && tabs.get(tab) != null;
     }
     
     @Override
