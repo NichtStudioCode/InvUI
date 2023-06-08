@@ -6,7 +6,7 @@
 
     <groupId>xyz.xenondevs.invui</groupId>
     <artifactId>invui-parent</artifactId>
-    <version>1.9</version>
+    <version>1.10</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -70,6 +70,7 @@
         <module>inventoryaccess/inventory-access-r11</module>
         <module>inventoryaccess/inventory-access-r12</module>
         <module>inventoryaccess/inventory-access-r13</module>
+        <module>inventoryaccess/inventory-access-r14</module>
         <module>invui-core</module>
         <module>invui-resourcepack</module>
         <module>invui-kotlin</module>
