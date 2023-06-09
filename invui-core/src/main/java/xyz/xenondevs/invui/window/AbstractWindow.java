@@ -181,12 +181,14 @@ public abstract class AbstractWindow implements Window, GuiParent {
         }
     }
     
-    public void handleCloseEvent(Player player) {
-        if (closeable) {
+    public void handleCloseEvent(Player player, boolean forceClose) {
+        if (closeable || forceClose) {
             if (!currentlyOpen)
                 throw new IllegalStateException("Window is already closed!");
             
+            closeable = true;
             currentlyOpen = false;
+            
             remove();
             
             // handleClosed() might have already been called by open() if the window was replaced by another one
@@ -198,9 +200,8 @@ public abstract class AbstractWindow implements Window, GuiParent {
             if (closeHandlers != null) {
                 closeHandlers.forEach(Runnable::run);
             }
-        } else {
-            if (player.equals(getViewer()))
-                Bukkit.getScheduler().runTaskLater(InvUI.getInstance().getPlugin(), this::open, 0);
+        } else if (player.equals(getViewer())) {
+            Bukkit.getScheduler().runTaskLater(InvUI.getInstance().getPlugin(), () -> openInventory(player), 0);
         }
     }
     
@@ -282,9 +283,9 @@ public abstract class AbstractWindow implements Window, GuiParent {
     public void open() {
         Player viewer = getViewer();
         if (viewer == null)
-            throw new IllegalStateException("The player is not online.");
+            throw new IllegalStateException("Viewer is not online");
         if (currentlyOpen)
-            throw new IllegalStateException("Window is already opened!");
+            throw new IllegalStateException("Window is already open");
         
         // call handleClosed() close for currently open window
         AbstractWindow openWindow = (AbstractWindow) WindowManager.getInstance().getOpenWindow(viewer);

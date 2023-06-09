@@ -124,7 +124,7 @@ public class WindowManager implements Listener {
         Player player = (Player) event.getPlayer();
         AbstractWindow window = (AbstractWindow) getWindow(event.getInventory());
         if (window != null) {
-            window.handleCloseEvent(player);
+            window.handleCloseEvent(player, false);
         }
         
         windowsByPlayer.remove(player);
@@ -144,7 +144,7 @@ public class WindowManager implements Listener {
         Player player = event.getPlayer();
         AbstractWindow window = (AbstractWindow) getOpenWindow(player);
         if (window != null) {
-            window.handleCloseEvent(player);
+            window.handleCloseEvent(player, true);
             windowsByPlayer.remove(player);
         }
     }
