@@ -26,13 +26,13 @@ import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.GuiParent;
 import xyz.xenondevs.invui.gui.SlotElement;
+import xyz.xenondevs.invui.inventory.Inventory;
+import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason;
+import xyz.xenondevs.invui.inventory.event.UpdateReason;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.util.ArrayUtils;
 import xyz.xenondevs.invui.util.Pair;
-import xyz.xenondevs.invui.inventory.Inventory;
-import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason;
-import xyz.xenondevs.invui.inventory.event.UpdateReason;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -169,42 +169,6 @@ public abstract class AbstractWindow implements Window, GuiParent {
         event.setCursor(cursorStack);
     }
     
-    public void handleOpenEvent(InventoryOpenEvent event) {
-        if (!event.getPlayer().equals(getViewer())) {
-            event.setCancelled(true);
-        } else {
-            handleOpened();
-            
-            if (openHandlers != null) {
-                openHandlers.forEach(Runnable::run);
-            }
-        }
-    }
-    
-    public void handleCloseEvent(Player player, boolean forceClose) {
-        if (closeable || forceClose) {
-            if (!currentlyOpen)
-                throw new IllegalStateException("Window is already closed!");
-            
-            closeable = true;
-            currentlyOpen = false;
-            
-            remove();
-            
-            // handleClosed() might have already been called by open() if the window was replaced by another one
-            if (!hasHandledClose) {
-                handleClosed();
-                hasHandledClose = true;
-            }
-            
-            if (closeHandlers != null) {
-                closeHandlers.forEach(Runnable::run);
-            }
-        } else if (player.equals(getViewer())) {
-            Bukkit.getScheduler().runTaskLater(InvUI.getInstance().getPlugin(), () -> openInventory(player), 0);
-        }
-    }
-    
     public void handleClickEvent(InventoryClickEvent event) {
         if (Arrays.asList(getInventories()).contains(event.getClickedInventory())) {
             // The inventory that was clicked is part of the open window
@@ -251,34 +215,6 @@ public abstract class AbstractWindow implements Window, GuiParent {
             && ((SlotElement.InventorySlotElement) element).getInventory() == inventory);
     }
     
-    private void remove() {
-        WindowManager.getInstance().removeWindow(this);
-        
-        Arrays.stream(elementsDisplayed)
-            .filter(Objects::nonNull)
-            .map(SlotElement::getHoldingElement)
-            .forEach(slotElement -> {
-                if (slotElement instanceof SlotElement.ItemSlotElement) {
-                    ((SlotElement.ItemSlotElement) slotElement).getItem().removeWindow(this);
-                } else if (slotElement instanceof SlotElement.InventorySlotElement) {
-                    ((SlotElement.InventorySlotElement) slotElement).getInventory().removeWindow(this);
-                }
-            });
-        
-        Arrays.stream(getGuis())
-            .forEach(gui -> gui.removeParent(this));
-    }
-    
-    @Override
-    public void close() {
-        closeable = true;
-        
-        Player viewer = getCurrentViewer();
-        if (viewer != null) {
-            viewer.closeInventory();
-        }
-    }
-    
     @Override
     public void open() {
         Player viewer = getViewer();
@@ -307,6 +243,70 @@ public abstract class AbstractWindow implements Window, GuiParent {
             getInventories()[0],
             title.localized(viewer)
         );
+    }
+    
+    public void handleOpenEvent(InventoryOpenEvent event) {
+        if (!event.getPlayer().equals(getViewer())) {
+            event.setCancelled(true);
+        } else {
+            handleOpened();
+            
+            if (openHandlers != null) {
+                openHandlers.forEach(Runnable::run);
+            }
+        }
+    }
+    
+    @Override
+    public void close() {
+        closeable = true;
+        
+        Player viewer = getCurrentViewer();
+        if (viewer != null) {
+            viewer.closeInventory();
+        }
+    }
+    
+    public void handleCloseEvent(Player player, boolean forceClose) {
+        if (closeable || forceClose) {
+            if (!currentlyOpen)
+                throw new IllegalStateException("Window is already closed!");
+            
+            closeable = true;
+            currentlyOpen = false;
+            
+            remove();
+            
+            // handleClosed() might have already been called by open() if the window was replaced by another one
+            if (!hasHandledClose) {
+                handleClosed();
+                hasHandledClose = true;
+            }
+            
+            if (closeHandlers != null) {
+                closeHandlers.forEach(Runnable::run);
+            }
+        } else if (player.equals(getViewer())) {
+            Bukkit.getScheduler().runTaskLater(InvUI.getInstance().getPlugin(), () -> openInventory(player), 0);
+        }
+    }
+    
+    private void remove() {
+        WindowManager.getInstance().removeWindow(this);
+        
+        Arrays.stream(elementsDisplayed)
+            .filter(Objects::nonNull)
+            .map(SlotElement::getHoldingElement)
+            .forEach(slotElement -> {
+                if (slotElement instanceof SlotElement.ItemSlotElement) {
+                    ((SlotElement.ItemSlotElement) slotElement).getItem().removeWindow(this);
+                } else if (slotElement instanceof SlotElement.InventorySlotElement) {
+                    ((SlotElement.InventorySlotElement) slotElement).getInventory().removeWindow(this);
+                }
+            });
+        
+        Arrays.stream(getGuis())
+            .forEach(gui -> gui.removeParent(this));
     }
     
     @Override
