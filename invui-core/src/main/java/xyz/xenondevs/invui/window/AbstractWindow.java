@@ -41,6 +41,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
     
     private static final NamespacedKey SLOT_KEY = new NamespacedKey(InvUI.getInstance().getPlugin(), "slot");
     
+    private final Player viewer;
     private final UUID viewerUUID;
     private final SlotElement[] elementsDisplayed;
     private List<Runnable> openHandlers;
@@ -51,8 +52,9 @@ public abstract class AbstractWindow implements Window, GuiParent {
     private boolean currentlyOpen;
     private boolean hasHandledClose;
     
-    public AbstractWindow(UUID viewerUUID, ComponentWrapper title, int size, boolean closeable) {
-        this.viewerUUID = viewerUUID;
+    public AbstractWindow(Player viewer, ComponentWrapper title, int size, boolean closeable) {
+        this.viewer = viewer;
+        this.viewerUUID = viewer.getUniqueId();
         this.title = title;
         this.closeable = closeable;
         this.elementsDisplayed = new SlotElement[size];
@@ -389,8 +391,8 @@ public abstract class AbstractWindow implements Window, GuiParent {
     }
     
     @Override
-    public @Nullable Player getViewer() {
-        return Bukkit.getPlayer(viewerUUID);
+    public @NotNull Player getViewer() {
+        return viewer;
     }
     
     public @NotNull String getLang() {

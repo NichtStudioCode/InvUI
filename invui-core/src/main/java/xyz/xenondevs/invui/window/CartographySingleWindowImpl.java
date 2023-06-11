@@ -30,7 +30,7 @@ final class CartographySingleWindowImpl extends AbstractSingleWindow implements 
         @NotNull AbstractGui gui,
         boolean closeable
     ) {
-        super(player.getUniqueId(), title, createWrappingGui(gui), null, closeable);
+        super(player, title, createWrappingGui(gui), null, closeable);
         if (gui.getWidth() != 2 || gui.getHeight() != 1) throw new IllegalArgumentException("Gui has to be 2x1");
         
         cartographyInventory = InventoryAccess.createCartographyInventory(player, title.localized(player));

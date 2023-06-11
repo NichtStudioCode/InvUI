@@ -31,8 +31,8 @@ public abstract class AbstractSingleWindow extends AbstractWindow {
     private final int size;
     protected org.bukkit.inventory.Inventory inventory;
     
-    public AbstractSingleWindow(UUID viewerUUID, ComponentWrapper title, AbstractGui gui, org.bukkit.inventory.Inventory inventory, boolean closeable) {
-        super(viewerUUID, title, gui.getSize(), closeable);
+    public AbstractSingleWindow(Player viewer, ComponentWrapper title, AbstractGui gui, org.bukkit.inventory.Inventory inventory, boolean closeable) {
+        super(viewer, title, gui.getSize(), closeable);
         this.gui = gui;
         this.size = gui.getSize();
         this.inventory = inventory;

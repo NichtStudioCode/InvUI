@@ -27,7 +27,7 @@ public abstract class AbstractDoubleWindow extends AbstractWindow {
     protected Inventory upperInventory;
     
     public AbstractDoubleWindow(Player player, ComponentWrapper title, int size, Inventory upperInventory, boolean closeable) {
-        super(player.getUniqueId(), title, size, closeable);
+        super(player, title, size, closeable);
         this.upperInventory = upperInventory;
         this.playerInventory = player.getInventory();
     }

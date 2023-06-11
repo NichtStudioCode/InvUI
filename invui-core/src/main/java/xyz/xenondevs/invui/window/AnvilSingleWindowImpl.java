@@ -24,7 +24,7 @@ final class AnvilSingleWindowImpl extends AbstractSingleWindow implements AnvilW
         @Nullable List<@NotNull Consumer<@NotNull String>> renameHandlers,
         boolean closable
     ) {
-        super(player.getUniqueId(), title, gui, null, closable);
+        super(player, title, gui, null, closable);
         anvilInventory = InventoryAccess.createAnvilInventory(player, title.localized(player), renameHandlers);
         inventory = anvilInventory.getBukkitInventory();
     }
