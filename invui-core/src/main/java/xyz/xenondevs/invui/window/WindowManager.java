@@ -51,6 +51,7 @@ public class WindowManager implements Listener {
      */
     public void addWindow(AbstractWindow window) {
         windowsByInventory.put(window.getInventories()[0], window);
+        windowsByPlayer.put(window.getViewer(), window);
     }
     
     /**
@@ -61,6 +62,7 @@ public class WindowManager implements Listener {
      */
     public void removeWindow(AbstractWindow window) {
         windowsByInventory.remove(window.getInventories()[0]);
+        windowsByPlayer.remove(window.getViewer());
     }
     
     /**
@@ -124,10 +126,8 @@ public class WindowManager implements Listener {
         Player player = (Player) event.getPlayer();
         AbstractWindow window = (AbstractWindow) getWindow(event.getInventory());
         if (window != null) {
-            window.handleCloseEvent(player, false);
+            window.handleCloseEvent(false);
         }
-        
-        windowsByPlayer.remove(player);
     }
     
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -135,7 +135,6 @@ public class WindowManager implements Listener {
         AbstractWindow window = (AbstractWindow) getWindow(event.getInventory());
         if (window != null) {
             window.handleOpenEvent(event);
-            windowsByPlayer.put((Player) event.getPlayer(), window);
         }
     }
     
@@ -144,8 +143,7 @@ public class WindowManager implements Listener {
         Player player = event.getPlayer();
         AbstractWindow window = (AbstractWindow) getOpenWindow(player);
         if (window != null) {
-            window.handleCloseEvent(player, true);
-            windowsByPlayer.remove(player);
+            window.handleCloseEvent(true);
         }
     }
     

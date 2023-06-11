@@ -225,11 +225,10 @@ public abstract class AbstractWindow implements Window, GuiParent {
         if (currentlyOpen)
             throw new IllegalStateException("Window is already open");
         
-        // call handleClosed() close for currently open window
+        // call handleCloseEvent() close for currently open window
         AbstractWindow openWindow = (AbstractWindow) WindowManager.getInstance().getOpenWindow(viewer);
         if (openWindow != null) {
-            openWindow.handleClosed();
-            openWindow.hasHandledClose = true;
+            openWindow.handleCloseEvent(true);
         }
         
         currentlyOpen = true;
@@ -261,35 +260,34 @@ public abstract class AbstractWindow implements Window, GuiParent {
     
     @Override
     public void close() {
-        closeable = true;
-        
         Player viewer = getCurrentViewer();
         if (viewer != null) {
+            handleCloseEvent(true);
             viewer.closeInventory();
         }
     }
     
-    public void handleCloseEvent(Player player, boolean forceClose) {
+    public void handleCloseEvent(boolean forceClose) {
+        // handleCloseEvent might have already been called by close() or open() if the window was replaced by another one
+        if (hasHandledClose)
+            return;
+        
         if (closeable || forceClose) {
             if (!currentlyOpen)
                 throw new IllegalStateException("Window is already closed!");
             
             closeable = true;
             currentlyOpen = false;
+            hasHandledClose = true;
             
             remove();
-            
-            // handleClosed() might have already been called by open() if the window was replaced by another one
-            if (!hasHandledClose) {
-                handleClosed();
-                hasHandledClose = true;
-            }
+            handleClosed();
             
             if (closeHandlers != null) {
                 closeHandlers.forEach(Runnable::run);
             }
-        } else if (player.equals(getViewer())) {
-            Bukkit.getScheduler().runTaskLater(InvUI.getInstance().getPlugin(), () -> openInventory(player), 0);
+        } else {
+            Bukkit.getScheduler().runTaskLater(InvUI.getInstance().getPlugin(), () -> openInventory(viewer), 0);
         }
     }
     
