@@ -5,7 +5,6 @@ import xyz.xenondevs.inventoryaccess.version.InventoryAccessRevision;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 @SuppressWarnings({"unchecked", "unused"})
@@ -26,11 +25,9 @@ public class ReflectionUtils {
     public static <T> Class<T> getImplClass(String path) {
         try {
             return (Class<T>) Class.forName("xyz.xenondevs.inventoryaccess." + InventoryAccessRevision.REQUIRED_REVISION.getPackageName() + "." + path);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
         }
-        
-        return null;
     }
     
     public static <T> Class<T> getBukkitClass(String path) {
@@ -44,11 +41,17 @@ public class ReflectionUtils {
     public static <T> Class<T> getClass(String path) {
         try {
             return (Class<T>) Class.forName(path);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
         }
-        
-        return null;
+    }
+    
+    public static <T> Class<T> getClassOrNull(String path) {
+        try {
+            return (Class<T>) Class.forName(path);
+        } catch (Throwable t) {
+            return null;
+        }
     }
     
     public static Field getField(Class<?> clazz, boolean declared, String name) {
@@ -56,11 +59,9 @@ public class ReflectionUtils {
             Field field = declared ? clazz.getDeclaredField(name) : clazz.getField(name);
             if (declared) field.setAccessible(true);
             return field;
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
         }
-        
-        return null;
     }
     
     public static <T> Constructor<T> getConstructor(Class<T> clazz, boolean declared, Class<?>... parameterTypes) {
@@ -68,31 +69,25 @@ public class ReflectionUtils {
             Constructor<T> constructor = declared ? clazz.getDeclaredConstructor(parameterTypes) : clazz.getConstructor(parameterTypes);
             if (declared) constructor.setAccessible(true);
             return constructor;
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
         }
-        
-        return null;
     }
     
     public static <T> T constructEmpty(Class<?> clazz) {
         try {
             return (T) getConstructor(clazz, true).newInstance();
-        } catch (ReflectiveOperationException e) {
-            e.printStackTrace();
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
         }
-        
-        return null;
     }
     
     public static <T> T construct(Constructor<T> constructor, Object... args) {
         try {
             return constructor.newInstance(args);
-        } catch (ReflectiveOperationException e) {
-            e.printStackTrace();
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
         }
-        
-        return null;
     }
     
     public static Method getMethod(Class<?> clazz, boolean declared, String name, Class<?>... parameterTypes) {
@@ -100,28 +95,34 @@ public class ReflectionUtils {
             Method method = declared ? clazz.getDeclaredMethod(name, parameterTypes) : clazz.getMethod(name, parameterTypes);
             if (declared) method.setAccessible(true);
             return method;
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
         }
-        
-        return null;
+    }
+    
+    public static Method getMethodOrNull(Class<?> clazz, boolean declared, String name, Class<?>... parameterTypes) {
+        try {
+            Method method = declared ? clazz.getDeclaredMethod(name, parameterTypes) : clazz.getMethod(name, parameterTypes);
+            if (declared) method.setAccessible(true);
+            return method;
+        } catch (Throwable t) {
+            return null;
+        }
     }
     
     public static <T> T invokeMethod(Method method, Object obj, Object... args) {
         try {
             return (T) method.invoke(obj, args);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
         }
-        
-        return null;
     }
     
     public static void setFieldValue(Field field, Object obj, Object value) {
         try {
             field.set(obj, value);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
         }
     }
     
@@ -129,11 +130,9 @@ public class ReflectionUtils {
     public static <T> T getFieldValue(Field field, Object obj) {
         try {
             return (T) field.get(obj);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
         }
-        
-        return null;
     }
     
 }
