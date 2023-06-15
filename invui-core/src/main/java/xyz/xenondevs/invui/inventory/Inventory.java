@@ -6,7 +6,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Consumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Math;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
