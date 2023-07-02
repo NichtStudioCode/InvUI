@@ -547,6 +547,9 @@ public abstract class AbstractWindow implements Window, GuiParent {
         }
         
         protected void applyModifiers(W window) {
+            if (openHandlers != null)
+                window.setOpenHandlers(openHandlers);
+            
             if (closeHandlers != null)
                 window.setCloseHandlers(closeHandlers);
             
