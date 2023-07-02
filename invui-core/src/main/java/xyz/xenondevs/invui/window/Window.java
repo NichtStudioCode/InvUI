@@ -218,14 +218,14 @@ public interface Window {
     /**
      * Adds an outside click handler that will be called when a player clicks outside the inventory.
      *
-     * @param outsideClickHandlers The outside click handler to add
+     * @param outsideClickHandler The outside click handler to add
      */
     void addOutsideClickHandler(@NotNull Consumer<@NotNull InventoryClickEvent> outsideClickHandler);
     
     /**
      * Removes an outside click handler that has been added previously.
      *
-     * @param outsideClickHandlers The outside click handler to remove
+     * @param outsideClickHandler The outside click handler to remove
      */
     void removeOutsideClickHandler(@NotNull Consumer<@NotNull InventoryClickEvent> outsideClickHandler);
     
