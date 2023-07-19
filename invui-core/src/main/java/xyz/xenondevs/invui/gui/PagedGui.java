@@ -4,6 +4,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.invui.gui.structure.Structure;
+import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.Item;
 
 import java.util.List;
@@ -105,6 +106,51 @@ public interface PagedGui<C> extends Gui {
      */
     static @NotNull PagedGui<@NotNull Gui> ofGuis(@NotNull Structure structure, @NotNull List<@NotNull Gui> guis) {
         return new PagedNestedGuiImpl(guis, structure);
+    }
+    
+    /**
+     * Creates a new {@link Builder Gui Builder} for a {@link PagedGui} that uses {@link Inventory Inventories} as content.
+     *
+     * @return The new {@link Builder Gui Builder}.
+     */
+    static @NotNull Builder<@NotNull Inventory> inventories() {
+        return new PagedInventoriesGuiImpl.Builder();
+    }
+    
+    /**
+     * Creates a new {@link PagedGui} after configuring a {@link Builder Gui Builder} using the given {@link Consumer}.
+     *
+     * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
+     * @return The created {@link PagedGui}.
+     */
+    static @NotNull PagedGui<@NotNull Inventory> inventories(@NotNull Consumer<@NotNull Builder<@NotNull Inventory>> consumer) {
+        Builder<Inventory> builder = inventories();
+        consumer.accept(builder);
+        return builder.build();
+    }
+    
+    /**
+     * Creates a new {@link PagedGui}.
+     *
+     * @param width            The width of the {@link PagedGui}.
+     * @param height           The height of the {@link PagedGui}.
+     * @param inventories             The {@link Inventory Inventories} to use as pages.
+     * @param contentListSlots The slots where content should be displayed.
+     * @return The created {@link PagedGui}.
+     */
+    static @NotNull PagedGui<@NotNull Inventory> ofInventories(int width, int height, @NotNull List<@NotNull Inventory> inventories, int... contentListSlots) {
+        return new PagedInventoriesGuiImpl(width, height, inventories, contentListSlots);
+    }
+    
+    /**
+     * Creates a new {@link PagedGui}.
+     *
+     * @param structure The {@link Structure} to use.
+     * @param inventories      The {@link Inventory Inventories} to use as pages.
+     * @return The created {@link PagedGui}.
+     */
+    static @NotNull PagedGui<@NotNull Inventory> ofInventories(@NotNull Structure structure, @NotNull List<@NotNull Inventory> inventories) {
+        return new PagedInventoriesGuiImpl(inventories, structure);
     }
     
     /**

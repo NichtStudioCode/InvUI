@@ -10,9 +10,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
- * A {@link AbstractPagedGui} where every page is its own {@link Gui}.
+ * An {@link AbstractPagedGui} where every page is its own {@link Gui}.
  *
  * @see PagedItemsGuiImpl
+ * @see PagedInventoriesGuiImpl
  */
 final class PagedNestedGuiImpl extends AbstractPagedGui<Gui> {
     

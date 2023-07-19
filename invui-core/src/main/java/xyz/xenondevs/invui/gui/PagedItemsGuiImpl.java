@@ -11,9 +11,10 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 /**
- * A {@link AbstractPagedGui} that is filled with {@link Item Items}.
+ * An {@link AbstractPagedGui} that is filled with {@link Item Items}.
  *
  * @see PagedNestedGuiImpl
+ * @see PagedInventoriesGuiImpl
  */
 final class PagedItemsGuiImpl extends AbstractPagedGui<Item> {
     
