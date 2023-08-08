@@ -20,7 +20,7 @@ Supports all versions from 1.14.0 to 1.20.1.
 * VirtualInventory: Store real items inside GUIs, customize maximum stack size per slot, etc.
 * Easy way to add localization using the ItemProvider system and the built-in ItemBuilder
 * Supports custom textures (forced resource pack system, compatible with AuthMe)
-* Advanced ItemBuilder (Normal, Potion, Skull) with BaseComponent support
+* Advanced ItemBuilder (Normal, Potion, Skull, Banner, Firework) with BaseComponent support
 * Support for BaseComponents in inventory titles
 * Uncloseable inventories
 * GUI Animations
