@@ -29,7 +29,7 @@ public class AdventureComponentWrapper implements ComponentWrapper {
     }
     
     @Override
-    public @NotNull ComponentWrapper withoutPreFormatting() {
+    public @NotNull AdventureComponentWrapper withoutPreFormatting() {
         return new AdventureComponentWrapper(AdventureComponentUtils.withoutPreFormatting(component));
     }
     
