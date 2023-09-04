@@ -32,6 +32,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
     protected int amount = 1;
     protected int damage;
     protected int customModelData;
+    protected Boolean unbreakable;
     protected ComponentWrapper displayName;
     protected List<ComponentWrapper> lore;
     protected List<ItemFlag> itemFlags;
@@ -115,6 +116,10 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
             // custom model data
             if (customModelData != 0)
                 itemMeta.setCustomModelData(customModelData);
+            
+            // unbreakable
+            if (unbreakable != null)
+                itemMeta.setUnbreakable(unbreakable);
             
             // enchantments
             if (enchantments != null) {
@@ -201,6 +206,16 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
         return (S) this;
     }
     
+    public @Nullable Boolean isUnbreakable() {
+        return unbreakable;
+    }
+    
+    @Contract("_ -> this")
+    public @NotNull S setUnbreakable(boolean unbreakable) {
+        this.unbreakable = unbreakable;
+        return (S) this;
+    }
+    
     public @Nullable ComponentWrapper getDisplayName() {
         return displayName;
     }
@@ -229,7 +244,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
     }
     
     @Contract("_ -> this")
-    public @NotNull S setLore(List<ComponentWrapper> lore) {
+    public @NotNull S setLore(@NotNull List<@NotNull ComponentWrapper> lore) {
         this.lore = lore.stream()
             .map(ComponentWrapper::withoutPreFormatting)
             .collect(Collectors.toList());
@@ -237,7 +252,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
     }
     
     @Contract("_ -> this")
-    public @NotNull S setLegacyLore(@NotNull List<String> lore) {
+    public @NotNull S setLegacyLore(@NotNull List<@NotNull String> lore) {
         this.lore = lore.stream()
             .map(line -> new BungeeComponentWrapper(TextComponent.fromLegacyText(line)).withoutPreFormatting())
             .collect(Collectors.toList());
@@ -273,6 +288,26 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
         
         return (S) this;
     }
+    
+    @Contract("_ -> this")
+    public @NotNull S addLoreLines(@NotNull List<@NotNull ComponentWrapper> lines) {
+        if (lore == null) lore = new ArrayList<>();
+        
+        for (ComponentWrapper line : lines)
+            lore.add(line.withoutPreFormatting());
+        
+        return (S) this;
+    }
+    
+    @Contract("_ -> this")
+    public @NotNull S addLegacyLoreLines(@NotNull List<@NotNull String> lines) {
+        if (lore == null) lore = new ArrayList<>();
+        
+        for (String line : lines)
+            lore.add(new BungeeComponentWrapper(TextComponent.fromLegacyText(line)).withoutPreFormatting());
+        
+        return (S) this;
+    }
     //</editor-fold>
     
     //<editor-fold desc="item flags">
@@ -290,6 +325,12 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
     public @NotNull S addItemFlags(@NotNull ItemFlag... itemFlags) {
         if (this.itemFlags == null) this.itemFlags = new ArrayList<>();
         this.itemFlags.addAll(Arrays.asList(itemFlags));
+        return (S) this;
+    }
+    
+    @Contract("-> this")
+    public @NotNull S addAllItemFlags() {
+        this.itemFlags = new ArrayList<>(Arrays.asList(ItemFlag.values()));
         return (S) this;
     }
     
@@ -327,8 +368,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
     
     @Contract("_ -> this")
     public @NotNull S removeEnchantment(Enchantment enchantment) {
-        if (enchantments == null) enchantments = new HashMap<>();
-        enchantments.remove(enchantment);
+        if (enchantments != null) enchantments.remove(enchantment);
         return (S) this;
     }
     

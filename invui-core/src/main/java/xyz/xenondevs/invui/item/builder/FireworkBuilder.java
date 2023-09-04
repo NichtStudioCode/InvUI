@@ -7,12 +7,14 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Range;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public final class FireworkBuilder extends AbstractItemBuilder<FireworkBuilder> {
     
+    private int power = -1;
     private List<FireworkEffect> effects = new ArrayList<>();
     
     public FireworkBuilder() {
@@ -25,6 +27,12 @@ public final class FireworkBuilder extends AbstractItemBuilder<FireworkBuilder> 
     
     public FireworkBuilder(@NotNull ItemStack base) {
         super(base);
+    }
+    
+    @Contract("_ -> this")
+    public @NotNull FireworkBuilder setPower(@Range(from = 0, to = 127) int power) {
+        this.power = power;
+        return this;
     }
     
     @Contract("_ -> this")
@@ -57,6 +65,7 @@ public final class FireworkBuilder extends AbstractItemBuilder<FireworkBuilder> 
         ItemStack item = super.get(lang);
         FireworkMeta meta = (FireworkMeta) item.getItemMeta();
         
+        if (power != -1) meta.setPower(power);
         meta.clearEffects();
         meta.addEffects(effects);
         
