@@ -4,8 +4,8 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.invui.gui.structure.Structure;
-import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.inventory.Inventory;
+import xyz.xenondevs.invui.item.Item;
 
 import java.util.List;
 import java.util.function.BiConsumer;

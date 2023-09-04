@@ -1,9 +1,9 @@
 package xyz.xenondevs.invui.gui;
 
 import org.bukkit.inventory.ItemStack;
+import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
-import xyz.xenondevs.invui.inventory.Inventory;
 
 import java.util.ArrayList;
 import java.util.List;

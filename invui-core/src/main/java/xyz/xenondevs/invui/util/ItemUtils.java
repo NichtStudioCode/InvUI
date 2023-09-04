@@ -20,6 +20,7 @@ public class ItemUtils {
     
     /**
      * Checks whether the given {@link ItemStack} is empty and returns null if it is.
+     *
      * @param itemStack The {@link ItemStack} to check.
      * @return The {@link ItemStack} if it is not empty or null otherwise.
      */

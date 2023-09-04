@@ -18,8 +18,8 @@ final class NormalSingleWindowImpl extends AbstractSingleWindow {
         super(player, title, gui, InventoryUtils.createMatchingInventory(gui, ""), closeable);
     }
     
-    public static final class BuilderImpl 
-        extends AbstractSingleWindow.AbstractBuilder<Window, Window.Builder.Normal.Single> 
+    public static final class BuilderImpl
+        extends AbstractSingleWindow.AbstractBuilder<Window, Window.Builder.Normal.Single>
         implements Window.Builder.Normal.Single
     {
         

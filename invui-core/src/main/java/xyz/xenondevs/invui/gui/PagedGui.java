@@ -134,7 +134,7 @@ public interface PagedGui<C> extends Gui {
      *
      * @param width            The width of the {@link PagedGui}.
      * @param height           The height of the {@link PagedGui}.
-     * @param inventories             The {@link Inventory Inventories} to use as pages.
+     * @param inventories      The {@link Inventory Inventories} to use as pages.
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link PagedGui}.
      */
@@ -145,8 +145,8 @@ public interface PagedGui<C> extends Gui {
     /**
      * Creates a new {@link PagedGui}.
      *
-     * @param structure The {@link Structure} to use.
-     * @param inventories      The {@link Inventory Inventories} to use as pages.
+     * @param structure   The {@link Structure} to use.
+     * @param inventories The {@link Inventory Inventories} to use as pages.
      * @return The created {@link PagedGui}.
      */
     static @NotNull PagedGui<@NotNull Inventory> ofInventories(@NotNull Structure structure, @NotNull List<@NotNull Inventory> inventories) {

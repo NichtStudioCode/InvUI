@@ -25,7 +25,7 @@ final class PagedInventoriesGuiImpl extends AbstractPagedGui<Inventory> {
      *
      * @param width            The width of this Gui.
      * @param height           The height of this Gui.
-     * @param inventories             The {@link Inventory Inventories} to use as pages.
+     * @param inventories      The {@link Inventory Inventories} to use as pages.
      * @param contentListSlots The slots where content should be displayed.
      */
     public PagedInventoriesGuiImpl(int width, int height, @Nullable List<@NotNull Inventory> inventories, int... contentListSlots) {
@@ -36,8 +36,8 @@ final class PagedInventoriesGuiImpl extends AbstractPagedGui<Inventory> {
     /**
      * Creates a new {@link PagedInventoriesGuiImpl}.
      *
-     * @param inventories      The {@link Inventory Inventories} to use as pages.
-     * @param structure The {@link Structure} to use.
+     * @param inventories The {@link Inventory Inventories} to use as pages.
+     * @param structure   The {@link Structure} to use.
      */
     public PagedInventoriesGuiImpl(@Nullable List<@NotNull Inventory> inventories, @NotNull Structure structure) {
         super(structure.getWidth(), structure.getHeight(), false, structure);

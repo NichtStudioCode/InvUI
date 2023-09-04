@@ -167,11 +167,11 @@ public interface Window {
      * Gets the contents of the {@link Window#getCurrentViewer() viewer's} inventory.
      * This method will always return the actual inventory contents and will not be affected by double windows placing
      * gui items in the {@link Player's} inventory.
-     * 
+     *
      * @return The contents of the {@link Window#getCurrentViewer() viewer's} inventory,
      * or null if the {@link Window} {@link Window#isOpen() isn't open}.
      */
-    @Nullable ItemStack @Nullable[] getPlayerItems();
+    @Nullable ItemStack @Nullable [] getPlayerItems();
     
     /**
      * Replaces the currently registered open handlers with the given list.

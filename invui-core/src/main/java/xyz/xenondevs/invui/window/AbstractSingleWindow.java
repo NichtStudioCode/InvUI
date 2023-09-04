@@ -19,7 +19,6 @@ import xyz.xenondevs.invui.util.InventoryUtils;
 import xyz.xenondevs.invui.util.Pair;
 
 import java.util.Set;
-import java.util.UUID;
 import java.util.function.Supplier;
 
 /**

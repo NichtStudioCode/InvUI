@@ -17,12 +17,12 @@ abstract class ItemUpdateEvent {
     /**
      * Creates a new {@link ItemPreUpdateEvent}.
      *
-     * @param inventory  The {@link Inventory} where this action takes place.
-     * @param updateReason      The {@link UpdateReason} for the calling of this event.
-     *                          This will probably be a {@link PlayerUpdateReason} in most cases but can be a custom one
-     *                          if you called the methods in the {@link Inventory} yourself.
-     *                          if it wasn't a {@link Player}
-     * @param slot              The slot that is affected
+     * @param inventory    The {@link Inventory} where this action takes place.
+     * @param updateReason The {@link UpdateReason} for the calling of this event.
+     *                     This will probably be a {@link PlayerUpdateReason} in most cases but can be a custom one
+     *                     if you called the methods in the {@link Inventory} yourself.
+     *                     if it wasn't a {@link Player}
+     * @param slot         The slot that is affected
      * @param previousItem The {@link ItemStack} that was there previously
      * @param newItem      The {@link ItemStack} that will be there if the event isn't cancelled
      */

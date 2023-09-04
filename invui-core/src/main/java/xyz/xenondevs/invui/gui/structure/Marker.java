@@ -2,7 +2,7 @@ package xyz.xenondevs.invui.gui.structure;
 
 /**
  * Used to mark slots in a {@link Structure} as special slots.
- * 
+ *
  * @see Markers
  */
 public class Marker {

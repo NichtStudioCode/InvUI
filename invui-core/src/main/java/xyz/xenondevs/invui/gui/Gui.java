@@ -8,9 +8,9 @@ import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.invui.animation.Animation;
 import xyz.xenondevs.invui.gui.structure.Marker;
 import xyz.xenondevs.invui.gui.structure.Structure;
+import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
-import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.window.Window;
 import xyz.xenondevs.invui.window.WindowManager;
 
@@ -369,23 +369,23 @@ public interface Gui {
     /**
      * Fills a rectangle with a {@link Inventory} in this {@link Gui}.
      *
-     * @param x                The x coordinate where the rectangle should start
-     * @param y                The y coordinate where the rectangle should start
-     * @param width            The line length of the rectangle.
-     * @param inventory The {@link Inventory} to be put into this {@link Gui}.
-     * @param replaceExisting  If existing {@link SlotElement SlotElements} should be replaced.
+     * @param x               The x coordinate where the rectangle should start
+     * @param y               The y coordinate where the rectangle should start
+     * @param width           The line length of the rectangle.
+     * @param inventory       The {@link Inventory} to be put into this {@link Gui}.
+     * @param replaceExisting If existing {@link SlotElement SlotElements} should be replaced.
      */
     void fillRectangle(int x, int y, int width, @NotNull Inventory inventory, boolean replaceExisting);
     
     /**
      * Fills a rectangle with a {@link Inventory} in this {@link Gui}.
      *
-     * @param x                The x coordinate where the rectangle should start
-     * @param y                The y coordinate where the rectangle should start
-     * @param width            The line length of the rectangle.
-     * @param inventory The {@link Inventory} to be put into this {@link Gui}.
-     * @param background       The {@link ItemProvider} for empty slots of the {@link Inventory}
-     * @param replaceExisting  If existing {@link SlotElement SlotElements} should be replaced.
+     * @param x               The x coordinate where the rectangle should start
+     * @param y               The y coordinate where the rectangle should start
+     * @param width           The line length of the rectangle.
+     * @param inventory       The {@link Inventory} to be put into this {@link Gui}.
+     * @param background      The {@link ItemProvider} for empty slots of the {@link Inventory}
+     * @param replaceExisting If existing {@link SlotElement SlotElements} should be replaced.
      */
     void fillRectangle(int x, int y, int width, @NotNull Inventory inventory, @Nullable ItemProvider background, boolean replaceExisting);
     

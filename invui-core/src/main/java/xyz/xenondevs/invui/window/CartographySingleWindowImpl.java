@@ -69,7 +69,7 @@ final class CartographySingleWindowImpl extends AbstractSingleWindow implements 
         cartographyInventory.open();
     }
     
-    public static final class BuilderImpl 
+    public static final class BuilderImpl
         extends AbstractSingleWindow.AbstractBuilder<CartographyWindow, CartographyWindow.Builder.Single>
         implements CartographyWindow.Builder.Single
     {

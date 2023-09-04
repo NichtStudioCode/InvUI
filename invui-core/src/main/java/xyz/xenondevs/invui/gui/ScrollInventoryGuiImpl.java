@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * A {@link AbstractScrollGui} that uses {@link Inventory VirtualInventories} as content.
- * 
+ *
  * @see ScrollItemsGuiImpl
  * @see ScrollNestedGuiImpl
  */

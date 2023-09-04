@@ -16,12 +16,12 @@ public class ItemPreUpdateEvent extends ItemUpdateEvent {
     /**
      * Creates a new {@link ItemPreUpdateEvent}.
      *
-     * @param inventory  The {@link Inventory} where this action takes place.
-     * @param updateReason      The {@link UpdateReason} for the calling of this event.
-     *                          This will probably be a {@link PlayerUpdateReason} in most cases but can be a custom one
-     *                          if you called the methods in the {@link Inventory} yourself.
-     *                          if it wasn't a {@link Player}
-     * @param slot              The slot that is affected
+     * @param inventory    The {@link Inventory} where this action takes place.
+     * @param updateReason The {@link UpdateReason} for the calling of this event.
+     *                     This will probably be a {@link PlayerUpdateReason} in most cases but can be a custom one
+     *                     if you called the methods in the {@link Inventory} yourself.
+     *                     if it wasn't a {@link Player}
+     * @param slot         The slot that is affected
      * @param previousItem The {@link ItemStack} that was there previously
      * @param newItem      The {@link ItemStack} that will be there if the event isn't cancelled
      */
@@ -36,7 +36,7 @@ public class ItemPreUpdateEvent extends ItemUpdateEvent {
      * to a different one.
      *
      * @param newItem The {@link ItemStack} to appear in the {@link Inventory}
-     *                     if the {@link ItemPreUpdateEvent} is not cancelled.
+     *                if the {@link ItemPreUpdateEvent} is not cancelled.
      */
     public void setNewItem(@Nullable ItemStack newItem) {
         this.newItemStack = newItem;

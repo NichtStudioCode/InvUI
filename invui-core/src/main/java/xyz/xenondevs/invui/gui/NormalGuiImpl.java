@@ -34,12 +34,12 @@ final class NormalGuiImpl extends AbstractGui {
         public @NotNull Gui build() {
             if (structure == null)
                 throw new IllegalStateException("Structure is not defined.");
-        
+            
             var gui = new NormalGuiImpl(structure);
             applyModifiers(gui);
             return gui;
         }
-    
+        
     }
     
 }

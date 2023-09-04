@@ -17,7 +17,10 @@ import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Manages all {@link Window Windows} and provides methods for searching them.
@@ -98,6 +101,7 @@ public class WindowManager implements Listener {
     
     /**
      * Gets a set of all open {@link Window Windows}.
+     *
      * @deprecated Use {@link #getWindows()} instead
      */
     @Deprecated
