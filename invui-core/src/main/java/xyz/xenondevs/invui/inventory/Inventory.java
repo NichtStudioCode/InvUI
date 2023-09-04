@@ -567,6 +567,37 @@ public abstract class Inventory {
     }
     
     /**
+     * Changes the {@link ItemStack} on a specific slot based on the current {@link ItemStack} on that slot,
+     * using a modifier consumer.
+     *
+     * @param updateReason The reason used in the {@link ItemPreUpdateEvent} and {@link ItemPostUpdateEvent}.
+     * @param slot         The slot.
+     * @param modifier     The modifier consumer. Accepts the current {@link ItemStack} and modifies it.
+     * @return If the action was successful.
+     */
+    public boolean modifyItem(@Nullable UpdateReason updateReason, int slot, @NotNull Consumer<@Nullable ItemStack> modifier) {
+        ItemStack itemStack = getItem(slot);
+        modifier.accept(itemStack);
+        return setItem(updateReason, slot, itemStack);
+    }
+    
+    /**
+     * Replaces the {@link ItemStack} on a specific slot based on the current {@link ItemStack} on that slot,
+     * using a replace function.
+     *
+     * @param updateReason The reason used in the {@link ItemPreUpdateEvent} and {@link ItemPostUpdateEvent}.
+     * @param slot         The slot.
+     * @param function     The replace function. The argument is the current {@link ItemStack},
+     *                     the return value is the new {@link ItemStack}.
+     * @return If the action was successful.
+     */
+    public boolean replaceItem(@Nullable UpdateReason updateReason, int slot, @NotNull Function<@Nullable ItemStack, @Nullable ItemStack> function) {
+        ItemStack currentStack = getItem(slot);
+        ItemStack newStack = function.apply(currentStack);
+        return setItem(updateReason, slot, newStack);
+    }
+    
+    /**
      * Adds an {@link ItemStack} on a specific slot and returns the amount of items that did not fit on that slot.
      * <p>
      * This method will fail if there is an {@link ItemStack} on that slot that is not similar to the given one.
