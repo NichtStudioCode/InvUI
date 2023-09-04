@@ -18,6 +18,7 @@ import xyz.xenondevs.invui.window.AbstractWindow;
 import xyz.xenondevs.invui.window.Window;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.stream.Stream;
@@ -521,7 +522,7 @@ public abstract class Inventory {
      * <br>
      * This method ignores the maximum allowed stack size of both the {@link Material} and the slot.
      *
-     * @param updateReason The reason used in the {@link ItemPreUpdateEvent}.
+     * @param updateReason The reason used in the {@link ItemPreUpdateEvent} and {@link ItemPostUpdateEvent}.
      * @param slot         The slot
      * @param itemStack    The {@link ItemStack} to set.
      * @return If the action was successful
@@ -550,7 +551,7 @@ public abstract class Inventory {
      * This method will fail if the given {@link ItemStack} does not completely fit because of the
      * maximum allowed stack size.
      *
-     * @param updateReason The reason used in the {@link ItemPreUpdateEvent}.
+     * @param updateReason The reason used in the {@link ItemPreUpdateEvent} and {@link ItemPostUpdateEvent}.
      * @param slot         The slot
      * @param itemStack    The {@link ItemStack} to set.
      * @return If the action was successful
@@ -602,7 +603,7 @@ public abstract class Inventory {
      * <p>
      * This method will fail if there is an {@link ItemStack} on that slot that is not similar to the given one.
      *
-     * @param updateReason The reason used in the {@link ItemPreUpdateEvent}.
+     * @param updateReason The reason used in the {@link ItemPreUpdateEvent} and {@link ItemPostUpdateEvent}.
      * @param slot         The slot
      * @param itemStack    The {@link ItemStack} to add.
      * @return The amount of items that did not fit on that slot.
@@ -652,7 +653,7 @@ public abstract class Inventory {
      * Sets the amount of an {@link ItemStack} on a slot to the given value
      * while respecting the max allowed stack size on that slot.
      *
-     * @param updateReason The reason used in the {@link ItemPreUpdateEvent}.
+     * @param updateReason The reason used in the {@link ItemPreUpdateEvent} and {@link ItemPostUpdateEvent}.
      * @param slot         The slot
      * @param amount       The amount to change to.
      * @return The amount that it actually changed to.
@@ -701,7 +702,7 @@ public abstract class Inventory {
      * the maximum allowed stack size on that slot.
      * Returns 0 if there is no {@link ItemStack} on that slot.
      *
-     * @param updateReason The reason used in the {@link ItemPreUpdateEvent}.
+     * @param updateReason The reason used in the {@link ItemPreUpdateEvent} and {@link ItemPostUpdateEvent}.
      * @param slot         The slot
      * @param amount       The amount to add
      * @return The amount that was actually added.
@@ -720,7 +721,7 @@ public abstract class Inventory {
      * This method does not work the same way as Bukkit's addItem method
      * as it respects the max stack size of the item type.
      *
-     * @param updateReason The reason used in the {@link ItemPreUpdateEvent}.
+     * @param updateReason The reason used in the {@link ItemPreUpdateEvent} and {@link ItemPostUpdateEvent}.
      * @param itemStack    The {@link ItemStack} to add
      * @return The amount of items that didn't fit
      * @see #simulateAdd(ItemStack, ItemStack...)
@@ -880,7 +881,7 @@ public abstract class Inventory {
      * Finds all {@link ItemStack}s similar to the provided {@link ItemStack} and removes them from
      * their slot until the amount of the given {@link ItemStack} reaches its maximum stack size.
      *
-     * @param updateReason The reason used in the {@link ItemPreUpdateEvent}.
+     * @param updateReason The reason used in the {@link ItemPreUpdateEvent} and {@link ItemPostUpdateEvent}.
      * @param itemStack    The {@link ItemStack} to match against and to use for the base amount.
      * @return The amount of collected items plus the amount of the provided {@link ItemStack}.
      * At most the max stack size of the given {@link ItemStack}.
@@ -893,7 +894,7 @@ public abstract class Inventory {
      * Finds all {@link ItemStack}s similar to the provided {@link ItemStack} and removes them from
      * their slot until the maximum stack size of the {@link Material} is reached.
      *
-     * @param updateReason The reason used in the {@link ItemPreUpdateEvent}.
+     * @param updateReason The reason used in the {@link ItemPreUpdateEvent} and {@link ItemPostUpdateEvent}.
      * @param template     The {@link ItemStack} to match against.
      * @param baseAmount   The base item amount to assume. For example, with a base amount of 32 and a max stack size of 64,
      *                     this method will at most collect 32 other items.
@@ -922,7 +923,7 @@ public abstract class Inventory {
     /**
      * Removes all {@link ItemStack ItemStacks} matching the given {@link Predicate}.
      *
-     * @param updateReason The reason used in the {@link ItemPreUpdateEvent}.
+     * @param updateReason The reason used in the {@link ItemPreUpdateEvent} and {@link ItemPostUpdateEvent}.
      * @param predicate    The {@link Predicate} to use.
      * @return The amount of items that were removed.
      */
@@ -943,7 +944,7 @@ public abstract class Inventory {
     /**
      * Removes the first n {@link ItemStack ItemStacks} matching the given {@link Predicate}.
      *
-     * @param updateReason The reason used in the {@link ItemPreUpdateEvent}.
+     * @param updateReason The reason used in the {@link ItemPreUpdateEvent} and {@link ItemPostUpdateEvent}.
      * @param amount       The maximum amount of {@link ItemStack ItemStacks} to remove.
      * @param predicate    The {@link Predicate} to use.
      * @return The amount of items that were removed.
@@ -966,7 +967,7 @@ public abstract class Inventory {
     /**
      * Removes all {@link ItemStack ItemStacks} that are similar to the specified {@link ItemStack}.
      *
-     * @param updateReason The reason used in the {@link ItemPreUpdateEvent}.
+     * @param updateReason The reason used in the {@link ItemPreUpdateEvent} and {@link ItemPostUpdateEvent}.
      * @param itemStack    The {@link ItemStack} to match against.
      * @return The amount of items that were removed.
      */
@@ -987,7 +988,7 @@ public abstract class Inventory {
     /**
      * Removes the first n {@link ItemStack ItemStacks} that are similar to the specified {@link ItemStack}.
      *
-     * @param updateReason The reason used in the {@link ItemPreUpdateEvent}.
+     * @param updateReason The reason used in the {@link ItemPreUpdateEvent} and {@link ItemPostUpdateEvent}.
      * @param amount       The maximum amount of {@link ItemStack ItemStacks} to remove.
      * @param itemStack    The {@link ItemStack} to match against.
      * @return The amount of items that were removed.
@@ -1040,7 +1041,7 @@ public abstract class Inventory {
     /**
      * Tries to take the specified amount of items from the specified slot.
      *
-     * @param updateReason The reason used in the {@link ItemPreUpdateEvent}.
+     * @param updateReason The reason used in the {@link ItemPreUpdateEvent} and {@link ItemPostUpdateEvent}.
      * @param slot         The slot to take from.
      * @param maxTake      The maximum amount of items to take.
      * @return The amount of items that were taken.
