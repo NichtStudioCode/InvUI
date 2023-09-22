@@ -30,7 +30,7 @@ Supports all versions from 1.14.0 to 1.20.1.
 ```xml
 <repository>
     <id>xenondevs</id>
-    <url>https://repo.xenondevs.xyz/releases</url>
+    <url>https://repo.xenondevs.xyz/#/releases</url>
 </repository>
 ```
 ```xml
