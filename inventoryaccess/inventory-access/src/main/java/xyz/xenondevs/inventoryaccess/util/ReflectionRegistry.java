@@ -13,10 +13,9 @@ public class ReflectionRegistry {
     public static final int VERSION = getVersionNumber();
     
     public static final String CRAFT_BUKKIT_PACKAGE_PATH = getCB();
-    public static final String BUKKIT_PACKAGE_PATH = "org.bukkit.";
     
     // Classes
-    public static final Class<?> PLUGIN_CLASS_LOADER_CLASS = getBukkitClass("plugin.java.PluginClassLoader");
+    public static final Class<?> PLUGIN_CLASS_LOADER_CLASS = ReflectionUtils.getClass("org.bukkit.plugin.java.PluginClassLoader");
     public static final Class<?> PAPER_PLUGIN_CLASS_LOADER_CLASS = getClassOrNull("io.papermc.paper.plugin.entrypoint.classloader.PaperPluginClassLoader");
     public static final Class<?> CB_CRAFT_META_SKULL_CLASS = getCBClass("inventory.CraftMetaSkull");
     public static final Class<?> CB_CRAFT_META_ITEM_CLASS = getCBClass("inventory.CraftMetaItem");

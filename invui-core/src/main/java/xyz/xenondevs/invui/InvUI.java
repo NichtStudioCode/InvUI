@@ -7,15 +7,13 @@ import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import xyz.xenondevs.inventoryaccess.util.ReflectionRegistry;
 import xyz.xenondevs.inventoryaccess.util.ReflectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import static xyz.xenondevs.inventoryaccess.util.ReflectionRegistry.PAPER_PLUGIN_CLASS_LOADER_GET_LOADED_JAVA_PLUGIN_METHOD;
-import static xyz.xenondevs.inventoryaccess.util.ReflectionRegistry.PLUGIN_CLASS_LOADER_PLUGIN_FIELD;
+import static xyz.xenondevs.inventoryaccess.util.ReflectionRegistry.*;
 
 public class InvUI implements Listener {
     
@@ -45,10 +43,14 @@ public class InvUI implements Listener {
     private @Nullable Plugin tryFindPlugin() {
         ClassLoader loader = getClass().getClassLoader();
         
-        if (ReflectionRegistry.PLUGIN_CLASS_LOADER_CLASS.isInstance(loader)) {
-            return ReflectionUtils.getFieldValue(PLUGIN_CLASS_LOADER_PLUGIN_FIELD, loader);
-        } else if (ReflectionRegistry.PAPER_PLUGIN_CLASS_LOADER_CLASS.isInstance(loader)) {
-            return ReflectionUtils.invokeMethod(PAPER_PLUGIN_CLASS_LOADER_GET_LOADED_JAVA_PLUGIN_METHOD, loader);
+        try {
+            if (PLUGIN_CLASS_LOADER_CLASS.isInstance(loader)) {
+                return ReflectionUtils.getFieldValue(PLUGIN_CLASS_LOADER_PLUGIN_FIELD, loader);
+            } else if (PAPER_PLUGIN_CLASS_LOADER_CLASS != null && PAPER_PLUGIN_CLASS_LOADER_CLASS.isInstance(loader)) {
+                return ReflectionUtils.invokeMethod(PAPER_PLUGIN_CLASS_LOADER_GET_LOADED_JAVA_PLUGIN_METHOD, loader);
+            }
+        } catch (Throwable t) {
+            t.printStackTrace();
         }
         
         return null;

@@ -1,6 +1,8 @@
 package xyz.xenondevs.inventoryaccess.util;
 
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.version.InventoryAccessRevision;
 
 import java.lang.reflect.Constructor;
@@ -10,7 +12,7 @@ import java.lang.reflect.Method;
 @SuppressWarnings({"unchecked", "unused"})
 public class ReflectionUtils {
     
-    protected static String getCB() {
+    protected static @NotNull String getCB() {
         String path = Bukkit.getServer().getClass().getPackage().getName();
         String version = path.substring(path.lastIndexOf(".") + 1);
         return "org.bukkit.craftbukkit." + version + ".";
@@ -22,7 +24,7 @@ public class ReflectionUtils {
         return Integer.parseInt(version.split("\\.")[1]);
     }
     
-    public static <T> Class<T> getImplClass(String path) {
+    public static <T> @NotNull Class<T> getImplClass(@NotNull String path) {
         try {
             return (Class<T>) Class.forName("xyz.xenondevs.inventoryaccess." + InventoryAccessRevision.REQUIRED_REVISION.getPackageName() + "." + path);
         } catch (Throwable t) {
@@ -30,15 +32,11 @@ public class ReflectionUtils {
         }
     }
     
-    public static <T> Class<T> getBukkitClass(String path) {
-        return getClass(ReflectionRegistry.BUKKIT_PACKAGE_PATH + path);
-    }
-    
-    public static <T> Class<T> getCBClass(String path) {
+    public static <T> @NotNull Class<T> getCBClass(@NotNull String path) {
         return getClass(ReflectionRegistry.CRAFT_BUKKIT_PACKAGE_PATH + path);
     }
     
-    public static <T> Class<T> getClass(String path) {
+    public static <T> @NotNull Class<T> getClass(@NotNull String path) {
         try {
             return (Class<T>) Class.forName(path);
         } catch (Throwable t) {
@@ -46,7 +44,7 @@ public class ReflectionUtils {
         }
     }
     
-    public static <T> Class<T> getClassOrNull(String path) {
+    public static <T> @Nullable Class<T> getClassOrNull(@NotNull String path) {
         try {
             return (Class<T>) Class.forName(path);
         } catch (Throwable t) {
@@ -54,7 +52,7 @@ public class ReflectionUtils {
         }
     }
     
-    public static Field getField(Class<?> clazz, boolean declared, String name) {
+    public static @NotNull Field getField(@NotNull Class<?> clazz, boolean declared, @NotNull String name) {
         try {
             Field field = declared ? clazz.getDeclaredField(name) : clazz.getField(name);
             if (declared) field.setAccessible(true);
@@ -64,7 +62,7 @@ public class ReflectionUtils {
         }
     }
     
-    public static <T> Constructor<T> getConstructor(Class<T> clazz, boolean declared, Class<?>... parameterTypes) {
+    public static <T> @NotNull Constructor<T> getConstructor(@NotNull Class<T> clazz, boolean declared, @NotNull Class<?> @NotNull... parameterTypes) {
         try {
             Constructor<T> constructor = declared ? clazz.getDeclaredConstructor(parameterTypes) : clazz.getConstructor(parameterTypes);
             if (declared) constructor.setAccessible(true);
@@ -74,7 +72,7 @@ public class ReflectionUtils {
         }
     }
     
-    public static <T> T constructEmpty(Class<?> clazz) {
+    public static <T> @NotNull T constructEmpty(@NotNull Class<?> clazz) {
         try {
             return (T) getConstructor(clazz, true).newInstance();
         } catch (Throwable t) {
@@ -82,7 +80,7 @@ public class ReflectionUtils {
         }
     }
     
-    public static <T> T construct(Constructor<T> constructor, Object... args) {
+    public static <T> @NotNull T construct(@NotNull Constructor<T> constructor, @Nullable Object @Nullable... args) {
         try {
             return constructor.newInstance(args);
         } catch (Throwable t) {
@@ -90,7 +88,7 @@ public class ReflectionUtils {
         }
     }
     
-    public static Method getMethod(Class<?> clazz, boolean declared, String name, Class<?>... parameterTypes) {
+    public static @NotNull Method getMethod(@NotNull Class<?> clazz, boolean declared, @NotNull String name, @NotNull Class<?>@NotNull ... parameterTypes) {
         try {
             Method method = declared ? clazz.getDeclaredMethod(name, parameterTypes) : clazz.getMethod(name, parameterTypes);
             if (declared) method.setAccessible(true);
@@ -100,7 +98,7 @@ public class ReflectionUtils {
         }
     }
     
-    public static Method getMethodOrNull(Class<?> clazz, boolean declared, String name, Class<?>... parameterTypes) {
+    public static @Nullable Method getMethodOrNull(@NotNull Class<?> clazz, boolean declared, @NotNull String name, @NotNull Class<?> @NotNull... parameterTypes) {
         try {
             Method method = declared ? clazz.getDeclaredMethod(name, parameterTypes) : clazz.getMethod(name, parameterTypes);
             if (declared) method.setAccessible(true);
@@ -110,7 +108,7 @@ public class ReflectionUtils {
         }
     }
     
-    public static <T> T invokeMethod(Method method, Object obj, Object... args) {
+    public static <T> T invokeMethod(@NotNull Method method, @Nullable Object obj, @Nullable Object @Nullable... args) {
         try {
             return (T) method.invoke(obj, args);
         } catch (Throwable t) {
@@ -118,7 +116,7 @@ public class ReflectionUtils {
         }
     }
     
-    public static void setFieldValue(Field field, Object obj, Object value) {
+    public static void setFieldValue(@NotNull Field field, @Nullable Object obj, @Nullable Object value) {
         try {
             field.set(obj, value);
         } catch (Throwable t) {
@@ -127,7 +125,7 @@ public class ReflectionUtils {
     }
     
     @SuppressWarnings("unchecked")
-    public static <T> T getFieldValue(Field field, Object obj) {
+    public static <T> @Nullable T getFieldValue(@NotNull Field field, @Nullable Object obj) {
         try {
             return (T) field.get(obj);
         } catch (Throwable t) {
