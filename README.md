@@ -7,7 +7,7 @@
 # InvUI
 
 An Inventory API for Minecraft Spigot servers.  
-Supports all versions from 1.14.0 to 1.20.1.
+Supports all versions from 1.14.0 to 1.20.2.
 
 [Documentation](https://xenondevs.xyz/docs/invui/)
 
