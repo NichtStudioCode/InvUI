@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  * @see PagedNestedGuiImpl
  * @see PagedInventoriesGuiImpl
  */
-public final class PagedItemsGuiImpl extends AbstractPagedGui<Item> {
+public class PagedItemsGuiImpl extends AbstractPagedGui<Item> {
     
     private List<Item> items;
     private List<BiConsumer<Integer, Integer>> pageChangeHandlers;
