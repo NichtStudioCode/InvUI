@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 /**
  * A {@link Gui} that has multiple tabs with which users can switch between {@link Gui}s.
  */
-final class TabGuiImpl extends AbstractTabGui {
+public class TabGuiImpl extends AbstractTabGui {
     
     private final List<Gui> tabs;
     private final List<List<SlotElement>> linkingElements;

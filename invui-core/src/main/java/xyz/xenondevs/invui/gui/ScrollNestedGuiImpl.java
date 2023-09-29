@@ -13,7 +13,7 @@ import java.util.List;
  * @see ScrollItemsGuiImpl
  * @see ScrollInventoryGuiImpl
  */
-final class ScrollNestedGuiImpl extends AbstractScrollGui<Gui> {
+public class ScrollNestedGuiImpl extends AbstractScrollGui<Gui> {
     
     private List<Gui> guis;
     private List<SlotElement.LinkedSlotElement> elements;

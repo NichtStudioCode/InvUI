@@ -14,7 +14,7 @@ import java.util.List;
  * @see ScrollItemsGuiImpl
  * @see ScrollNestedGuiImpl
  */
-final class ScrollInventoryGuiImpl extends AbstractScrollGui<Inventory> {
+public class ScrollInventoryGuiImpl extends AbstractScrollGui<Inventory> {
     
     private List<Inventory> inventories;
     private List<SlotElement.InventorySlotElement> elements;

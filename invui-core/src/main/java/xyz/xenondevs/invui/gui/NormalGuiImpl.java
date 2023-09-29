@@ -6,7 +6,7 @@ import xyz.xenondevs.invui.gui.structure.Structure;
 /**
  * A normal {@link Gui} without any special features.
  */
-final class NormalGuiImpl extends AbstractGui {
+public class NormalGuiImpl extends AbstractGui {
     
     /**
      * Creates a new {@link NormalGuiImpl}.

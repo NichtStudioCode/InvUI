@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  * @see ScrollInventoryGuiImpl
  * @see ScrollNestedGuiImpl
  */
-final class ScrollItemsGuiImpl extends AbstractScrollGui<Item> {
+public class ScrollItemsGuiImpl extends AbstractScrollGui<Item> {
     
     private List<Item> items;
     
