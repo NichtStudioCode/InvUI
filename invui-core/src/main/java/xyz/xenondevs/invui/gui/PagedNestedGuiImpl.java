@@ -15,7 +15,7 @@ import java.util.stream.IntStream;
  * @see PagedItemsGuiImpl
  * @see PagedInventoriesGuiImpl
  */
-final class PagedNestedGuiImpl extends AbstractPagedGui<Gui> {
+public final class PagedNestedGuiImpl extends AbstractPagedGui<Gui> {
     
     private List<Gui> guis;
     
