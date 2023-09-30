@@ -256,7 +256,7 @@ public class VirtualInventory extends Inventory {
         
         // fill stackSizes with the last stack size if the array was extended
         if (size > previousSize) {
-            int stackSize = maxStackSizes[previousSize - 1];
+            int stackSize = previousSize != 0 ? maxStackSizes[previousSize - 1] : 64;
             Arrays.fill(maxStackSizes, previousSize, maxStackSizes.length, stackSize);
         }
     }
