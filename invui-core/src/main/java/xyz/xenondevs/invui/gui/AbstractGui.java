@@ -12,6 +12,7 @@ import xyz.xenondevs.invui.animation.Animation;
 import xyz.xenondevs.invui.gui.structure.Marker;
 import xyz.xenondevs.invui.gui.structure.Structure;
 import xyz.xenondevs.invui.inventory.Inventory;
+import xyz.xenondevs.invui.inventory.ReferencingInventory;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
@@ -219,7 +220,8 @@ public abstract class AbstractGui implements Gui, GuiParent {
                 
                 leftOverAmount = ((AbstractGui) otherGui).putIntoFirstInventory(updateReason, clicked, inventory);
             } else {
-                leftOverAmount = InventoryUtils.addItemCorrectly(event.getWhoClicked().getInventory(), inventory.getItem(slot));
+                Inventory playerInventory = ReferencingInventory.fromReversedPlayerStorageContents(player.getInventory());
+                leftOverAmount = playerInventory.addItem(null, inventory.getItem(slot));
             }
             
             clicked.setAmount(leftOverAmount);
@@ -330,7 +332,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
         LinkedHashSet<Inventory> inventories = getAllInventories(ignored);
         int originalAmount = itemStack.getAmount();
         
-        if (inventories.size() > 0) {
+        if (!inventories.isEmpty()) {
             for (Inventory inventory : inventories) {
                 int amountLeft = inventory.addItem(updateReason, itemStack);
                 if (originalAmount != amountLeft)
