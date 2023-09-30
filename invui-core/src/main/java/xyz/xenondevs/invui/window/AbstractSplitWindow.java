@@ -11,6 +11,8 @@ import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.util.Pair;
 import xyz.xenondevs.invui.util.SlotUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -64,6 +66,14 @@ public abstract class AbstractSplitWindow extends AbstractDoubleWindow {
     @Override
     public AbstractGui[] getGuis() {
         return new AbstractGui[] {upperGui, lowerGui};
+    }
+    
+    @Override
+    protected List<xyz.xenondevs.invui.inventory.Inventory> getContentInventories() {
+        List<xyz.xenondevs.invui.inventory.Inventory> inventories = new ArrayList<>();
+        inventories.addAll(upperGui.getAllInventories());
+        inventories.addAll(lowerGui.getAllInventories());
+        return inventories;
     }
     
     @SuppressWarnings("unchecked")

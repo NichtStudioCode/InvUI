@@ -7,8 +7,12 @@ import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
+import xyz.xenondevs.invui.inventory.ReferencingInventory;
 import xyz.xenondevs.invui.util.Pair;
 import xyz.xenondevs.invui.util.SlotUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A {@link Window} where top and player {@link Inventory} are affected by the same {@link Gui}.
@@ -51,6 +55,13 @@ public abstract class AbstractMergedWindow extends AbstractDoubleWindow {
     @Override
     public AbstractGui[] getGuis() {
         return new AbstractGui[] {gui};
+    }
+    
+    @Override
+    protected List<xyz.xenondevs.invui.inventory.Inventory> getContentInventories() {
+        List<xyz.xenondevs.invui.inventory.Inventory> inventories = new ArrayList<>(gui.getAllInventories());
+        inventories.add(ReferencingInventory.fromStorageContents(getViewer().getInventory()));
+        return inventories;
     }
     
 }

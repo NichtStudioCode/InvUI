@@ -132,11 +132,6 @@ public abstract class AbstractDoubleWindow extends AbstractWindow {
     }
     
     @Override
-    public void handleCursorCollect(InventoryClickEvent event) {
-        // empty, should not be called by the WindowManager
-    }
-    
-    @Override
     public Inventory[] getInventories() {
         return isOpen() ? new Inventory[] {upperInventory, playerInventory} : new Inventory[] {upperInventory};
     }

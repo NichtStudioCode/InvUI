@@ -10,15 +10,12 @@ import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
-import xyz.xenondevs.invui.inventory.CompositeInventory;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.inventory.ReferencingInventory;
-import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason;
-import xyz.xenondevs.invui.inventory.event.UpdateReason;
-import xyz.xenondevs.invui.util.InventoryUtils;
 import xyz.xenondevs.invui.util.Pair;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -77,30 +74,11 @@ public abstract class AbstractSingleWindow extends AbstractWindow {
         gui.handleItemShift(event);
     }
     
-    @SuppressWarnings("deprecation")
     @Override
-    public void handleCursorCollect(InventoryClickEvent event) {
-        // cancel event as we do the collection logic ourselves
-        event.setCancelled(true);
-        
-        Player player = (Player) event.getWhoClicked();
-        
-        // the template item stack that is used to collect similar items
-        ItemStack template = event.getCursor();
-        int maxStackSize = InventoryUtils.stackSizeProvider.getMaxStackSize(template);
-        
-        // create a composite inventory consisting of all the gui's inventories and the player's inventory
-        Set<Inventory> inventories = gui.getAllInventories();
-        inventories.add(ReferencingInventory.fromStorageContents(player.getInventory()));
-        Inventory inventory = new CompositeInventory(inventories);
-        
-        // collect items from inventories until the cursor is full
-        UpdateReason updateReason = new PlayerUpdateReason(player, event);
-        int amount = inventory.collectSimilar(updateReason, template);
-        
-        // put collected items on cursor
-        template.setAmount(amount);
-        event.setCursor(template);
+    protected List<Inventory> getContentInventories() {
+        List<Inventory> inventories = new ArrayList<>(gui.getAllInventories());
+        inventories.add(ReferencingInventory.fromStorageContents(getViewer().getInventory()));
+        return inventories;
     }
     
     @Override

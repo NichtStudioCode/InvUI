@@ -26,12 +26,14 @@ import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.GuiParent;
 import xyz.xenondevs.invui.gui.SlotElement;
+import xyz.xenondevs.invui.inventory.CompositeInventory;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.util.ArrayUtils;
+import xyz.xenondevs.invui.util.InventoryUtils;
 import xyz.xenondevs.invui.util.Pair;
 
 import java.util.*;
@@ -195,6 +197,30 @@ public abstract class AbstractWindow implements Window, GuiParent {
                     break;
             }
         }
+    }
+    
+    @SuppressWarnings("deprecation")
+    public void handleCursorCollect(InventoryClickEvent event) {
+        // cancel event as we do the collection logic ourselves
+        event.setCancelled(true);
+        
+        Player player = (Player) event.getWhoClicked();
+        
+        // the template item stack that is used to collect similar items
+        ItemStack template = event.getCursor();
+        int maxStackSize = InventoryUtils.stackSizeProvider.getMaxStackSize(template);
+        
+        // create a composite inventory consisting of all the gui's inventories and the player's inventory
+        List<Inventory> inventories = getContentInventories();
+        Inventory inventory = new CompositeInventory(inventories);
+        
+        // collect items from inventories until the cursor is full
+        UpdateReason updateReason = new PlayerUpdateReason(player, event);
+        int amount = inventory.collectSimilar(updateReason, template);
+        
+        // put collected items on cursor
+        template.setAmount(amount);
+        event.setCursor(template);
     }
     
     public void handleItemProviderUpdate(Item item) {
@@ -431,6 +457,8 @@ public abstract class AbstractWindow implements Window, GuiParent {
     
     protected abstract org.bukkit.inventory.Inventory[] getInventories();
     
+    protected abstract List<xyz.xenondevs.invui.inventory.Inventory> getContentInventories();
+    
     protected abstract void initItems();
     
     protected abstract void handleOpened();
@@ -440,8 +468,6 @@ public abstract class AbstractWindow implements Window, GuiParent {
     protected abstract void handleClick(InventoryClickEvent event);
     
     protected abstract void handleItemShift(InventoryClickEvent event);
-    
-    protected abstract void handleCursorCollect(InventoryClickEvent event);
     
     public abstract void handleViewerDeath(PlayerDeathEvent event);
     

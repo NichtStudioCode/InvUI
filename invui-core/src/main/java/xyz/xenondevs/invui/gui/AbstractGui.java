@@ -1,5 +1,7 @@
 package xyz.xenondevs.invui.gui;
 
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
@@ -12,6 +14,7 @@ import xyz.xenondevs.invui.animation.Animation;
 import xyz.xenondevs.invui.gui.structure.Marker;
 import xyz.xenondevs.invui.gui.structure.Structure;
 import xyz.xenondevs.invui.inventory.Inventory;
+import xyz.xenondevs.invui.inventory.ObscuredInventory;
 import xyz.xenondevs.invui.inventory.ReferencingInventory;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason;
@@ -41,6 +44,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
     private final Set<GuiParent> parents = new HashSet<>();
     
     private boolean frozen;
+    private boolean ignoreObscuredInventorySlots = true;
     private ItemProvider background;
     private Animation animation;
     private SlotElement[] animationElements;
@@ -281,13 +285,13 @@ public abstract class AbstractGui implements Gui, GuiParent {
         
     }
     
-    @SuppressWarnings("deprecation")
     protected void handleInvDoubleClick(InventoryClickEvent event, Inventory inventory, Player player, ItemStack cursor) {
-        if (cursor == null) return;
+        if (cursor == null)
+            return;
         
-        UpdateReason updateReason = new PlayerUpdateReason(player, event);
-        cursor.setAmount(inventory.collectSimilar(updateReason, cursor));
-        event.setCursor(cursor);
+        // windows handle cursor collect because it is a cross-inventory / cross-gui operation
+        Window window = WindowManager.getInstance().getOpenWindow(player);
+        ((AbstractWindow) window).handleCursorCollect(event);
     }
     
     public boolean handleItemDrag(UpdateReason updateReason, int slot, ItemStack oldStack, ItemStack newStack) {
@@ -329,7 +333,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
     }
     
     protected int putIntoFirstInventory(UpdateReason updateReason, ItemStack itemStack, Inventory... ignored) {
-        LinkedHashSet<Inventory> inventories = getAllInventories(ignored);
+        Collection<Inventory> inventories = getAllInventories(ignored);
         int originalAmount = itemStack.getAmount();
         
         if (!inventories.isEmpty()) {
@@ -343,15 +347,40 @@ public abstract class AbstractGui implements Gui, GuiParent {
         return originalAmount;
     }
     
-    public LinkedHashSet<Inventory> getAllInventories(Inventory... ignored) {
-        return Arrays.stream(slotElements)
-            .filter(Objects::nonNull)
-            .map(SlotElement::getHoldingElement)
-            .filter(element -> element instanceof SlotElement.InventorySlotElement)
-            .map(element -> ((SlotElement.InventorySlotElement) element).getInventory())
-            .filter(vi -> Arrays.stream(ignored).noneMatch(vi::equals))
-            .sorted((vi1, vi2) -> -Integer.compare(vi1.getGuiPriority(), vi2.getGuiPriority()))
-            .collect(Collectors.toCollection(LinkedHashSet::new));
+    public Map<Inventory, IntSet> getAllInventorySlots(Inventory... ignored) {
+        TreeMap<Inventory, IntSet> slots = new TreeMap<>(Comparator.comparingInt(Inventory::getGuiPriority).reversed());
+        Set<Inventory> ignoredSet = Arrays.stream(ignored).collect(Collectors.toSet());
+        
+        for (SlotElement element : slotElements) {
+            if (element == null)
+                continue;
+            
+            element = element.getHoldingElement();
+            if (element instanceof SlotElement.InventorySlotElement) {
+                SlotElement.InventorySlotElement invElement = (SlotElement.InventorySlotElement) element;
+                Inventory inventory = invElement.getInventory();
+                if (ignoredSet.contains(inventory))
+                    continue;
+                
+                slots.computeIfAbsent(inventory, i -> new IntOpenHashSet()).add(invElement.getSlot());
+            }
+        }
+        
+        return slots;
+    }
+    
+    public Collection<Inventory> getAllInventories(Inventory... ignored) {
+        if (!ignoreObscuredInventorySlots)
+            return getAllInventorySlots(ignored).keySet();
+        
+        ArrayList<Inventory> inventories = new ArrayList<>();
+        for (Map.Entry<Inventory, IntSet> entry : getAllInventorySlots(ignored).entrySet()) {
+            Inventory inventory = entry.getKey();
+            IntSet slots = entry.getValue();
+            inventories.add(new ObscuredInventory(inventory, slot -> !slots.contains(slot)));
+        }
+        
+        return inventories;
     }
     // endregion
     
@@ -590,6 +619,16 @@ public abstract class AbstractGui implements Gui, GuiParent {
         return frozen;
     }
     
+    @Override
+    public void setIgnoreObscuredInventorySlots(boolean ignoreObscuredInventorySlots) {
+        this.ignoreObscuredInventorySlots = ignoreObscuredInventorySlots;
+    }
+    
+    @Override
+    public boolean isIgnoreObscuredInventorySlots() {
+        return ignoreObscuredInventorySlots;
+    }
+    
     // region coordinate-based methods
     @Override
     public void setSlotElement(int x, int y, SlotElement slotElement) {
@@ -714,6 +753,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
         protected ItemProvider background;
         protected List<Consumer<G>> modifiers;
         protected boolean frozen;
+        protected boolean ignoreObscuredInventorySlots = true;
         
         @Override
         public @NotNull S setStructure(int width, int height, @NotNull String structureData) {
@@ -806,6 +846,12 @@ public abstract class AbstractGui implements Gui, GuiParent {
         }
         
         @Override
+        public @NotNull S setIgnoreObscuredInventorySlots(boolean ignoreObscuredInventorySlots) {
+            this.ignoreObscuredInventorySlots = ignoreObscuredInventorySlots;
+            return (S) this;
+        }
+        
+        @Override
         public @NotNull S addModifier(@NotNull Consumer<@NotNull G> modifier) {
             if (modifiers == null)
                 modifiers = new ArrayList<>();
@@ -822,6 +868,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
         
         protected void applyModifiers(@NotNull G gui) {
             gui.setFrozen(frozen);
+            gui.setIgnoreObscuredInventorySlots(ignoreObscuredInventorySlots);
             if (background != null) gui.setBackground(background);
             if (modifiers != null) modifiers.forEach(modifier -> modifier.accept(gui));
         }

@@ -298,6 +298,25 @@ public interface Gui {
      */
     boolean isFrozen();
     
+    /**
+     * Configures whether it is possible to shift-click items into and cursor collect items from all {@link Inventory}
+     * slots of partially obscured embedded {@link Inventory Inventories}.
+     * <p>
+     * Defaults to true.
+     *
+     * @param ignoreObscuredInventorySlots Whether obscured {@link Inventory} slots should be ignored when shift-clicking
+     *                                     and collecting to the cursor.
+     */
+    void setIgnoreObscuredInventorySlots(boolean ignoreObscuredInventorySlots);
+    
+    /**
+     * Gets whether it is possible to shift-click items into and cursor collect items from all {@link Inventory}
+     * slots of partially obscured embedded {@link Inventory Inventories}.
+     *
+     * @return Whether obscured {@link Inventory} slots are ignored when shift-clicking and collecting to the cursor.
+     */
+    boolean isIgnoreObscuredInventorySlots();
+    
     //<editor-fold desc="fill methods">
     
     /**
@@ -546,6 +565,17 @@ public interface Gui {
          */
         @Contract("_ -> this")
         @NotNull S setFrozen(boolean frozen);
+        
+        /**
+         * Sets whether it is possible to shift-click items into and cursor collect items from all {@link Inventory}
+         * slots of partially obscured embedded {@link Inventory Inventories}.
+         *
+         * @param ignoreObscuredInventorySlots Whether obscured {@link Inventory} slots should be ignored when shift-clicking
+         *                                     and collecting to the cursor.
+         * @return This {@link Builder Gui Builder}
+         */
+        @Contract("_ -> this")
+        @NotNull S setIgnoreObscuredInventorySlots(boolean ignoreObscuredInventorySlots);
         
         /**
          * Sets the background of the {@link Gui}.
