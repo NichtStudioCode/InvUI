@@ -194,6 +194,14 @@ public interface ScrollGui<C> extends Gui {
     void setContent(@Nullable List<@NotNull C> content);
     
     /**
+     * Bakes the elements of this {@link PagedGui} based on the current content.
+     * <p>
+     * This method does not need to be called when using {@link #setContent(List)},
+     * but is required when the size of the content itself changes.
+     */
+    void bake();
+    
+    /**
      * Replaces the currently registered scroll handlers with the specified ones.
      *
      * @param scrollHandlers The new scroll handlers.

@@ -220,6 +220,14 @@ public interface PagedGui<C> extends Gui {
     void setContent(@Nullable List<@NotNull C> content);
     
     /**
+     * Bakes and updates the pages of this {@link PagedGui} based on the current content.
+     * <p>
+     * This method does not need to be called when using {@link #setContent(List)},
+     * but is required when the size of the content itself changes.
+     */
+    void bake();
+    
+    /**
      * Gets the registered page change handlers.
      *
      * @return The registered page change handlers.

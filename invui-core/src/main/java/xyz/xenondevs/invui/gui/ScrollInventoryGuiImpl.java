@@ -4,9 +4,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.invui.gui.structure.Structure;
 import xyz.xenondevs.invui.inventory.Inventory;
+import xyz.xenondevs.invui.inventory.VirtualInventory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 /**
  * A {@link AbstractScrollGui} that uses {@link Inventory VirtualInventories} as content.
@@ -16,8 +18,7 @@ import java.util.List;
  */
 final class ScrollInventoryGuiImpl extends AbstractScrollGui<Inventory> {
     
-    private List<Inventory> inventories;
-    private List<SlotElement.InventorySlotElement> elements;
+    private final @NotNull BiConsumer<@NotNull Integer, @NotNull Integer> resizeHandler = (from, to) -> bake();
     
     /**
      * Creates a new {@link ScrollInventoryGuiImpl}.
@@ -43,31 +44,42 @@ final class ScrollInventoryGuiImpl extends AbstractScrollGui<Inventory> {
         setContent(inventories);
     }
     
+    @SuppressWarnings("DuplicatedCode")
     @Override
-    public void setContent(@Nullable List<@NotNull Inventory> inventories) {
-        this.inventories = inventories != null ? inventories : new ArrayList<>();
-        updateElements();
-        update();
-    }
-    
-    private void updateElements() {
-        elements = new ArrayList<>();
-        for (Inventory inventory : inventories) {
-            for (int i = 0; i < inventory.getSize(); i++) {
-                elements.add(new SlotElement.InventorySlotElement(inventory, i));
+    public void setContent(@Nullable List<Inventory> content) {
+        // remove resize handlers from previous inventories
+        if (this.content != null) {
+            for (Inventory inventory : this.content) {
+                if (inventory instanceof VirtualInventory) {
+                    ((VirtualInventory) inventory).removeResizeHandler(resizeHandler);
+                }
+            }
+        }
+        
+        // set content, bake pages, update
+        super.setContent(content);
+        
+        // add resize handlers to new inventories
+        if (this.content != null) {
+            for (Inventory inventory : this.content) {
+                if (inventory instanceof VirtualInventory) {
+                    ((VirtualInventory) inventory).addResizeHandler(resizeHandler);
+                }
             }
         }
     }
     
     @Override
-    protected List<SlotElement.InventorySlotElement> getElements(int from, int to) {
-        return elements.subList(from, Math.min(elements.size(), to));
-    }
-    
-    @Override
-    public int getMaxLine() {
-        if (elements == null) return 0;
-        return (int) Math.ceil((double) elements.size() / (double) getLineLength()) - 1;
+    public void bake() {
+        List<SlotElement> elements = new ArrayList<>();
+        for (Inventory inventory : content) {
+            for (int i = 0; i < inventory.getSize(); i++) {
+                elements.add(new SlotElement.InventorySlotElement(inventory, i));
+            }
+        }
+        
+        this.elements = elements;
+        update();
     }
     
     public static final class Builder extends AbstractBuilder<Inventory> {

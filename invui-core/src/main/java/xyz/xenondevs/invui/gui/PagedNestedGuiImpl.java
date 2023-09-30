@@ -6,8 +6,6 @@ import xyz.xenondevs.invui.gui.structure.Structure;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * An {@link AbstractPagedGui} where every page is its own {@link Gui}.
@@ -16,8 +14,6 @@ import java.util.stream.IntStream;
  * @see PagedInventoriesGuiImpl
  */
 final class PagedNestedGuiImpl extends AbstractPagedGui<Gui> {
-    
-    private List<Gui> guis;
     
     /**
      * Creates a new {@link PagedNestedGuiImpl}.
@@ -44,26 +40,19 @@ final class PagedNestedGuiImpl extends AbstractPagedGui<Gui> {
     }
     
     @Override
-    public int getPageAmount() {
-        return guis.size();
-    }
-    
-    @Override
-    public void setContent(@Nullable List<@NotNull Gui> guis) {
-        this.guis = guis == null ? new ArrayList<>() : guis;
+    public void bake() {
+        List<List<SlotElement>> pages = new ArrayList<>();
+        for (Gui gui : content) {
+            List<SlotElement> page = new ArrayList<>(gui.getSize());
+            for (int slot = 0; slot < gui.getSize(); slot++) {
+                page.add(new SlotElement.LinkedSlotElement(gui, slot));
+            }
+            
+            pages.add(page);
+        }
+        
+        this.pages = pages;
         update();
-    }
-    
-    @Override
-    protected List<SlotElement> getPageElements(int page) {
-        if (guis.size() <= page) return new ArrayList<>();
-        
-        Gui gui = guis.get(page);
-        int size = gui.getSize();
-        
-        return IntStream.range(0, size)
-            .mapToObj(i -> new SlotElement.LinkedSlotElement(gui, i))
-            .collect(Collectors.toList());
     }
     
     public static final class Builder extends AbstractBuilder<Gui> {

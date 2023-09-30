@@ -15,9 +15,6 @@ import java.util.List;
  */
 final class ScrollNestedGuiImpl extends AbstractScrollGui<Gui> {
     
-    private List<Gui> guis;
-    private List<SlotElement.LinkedSlotElement> elements;
-    
     /**
      * Creates a new {@link ScrollNestedGuiImpl}.
      *
@@ -43,30 +40,16 @@ final class ScrollNestedGuiImpl extends AbstractScrollGui<Gui> {
     }
     
     @Override
-    public void setContent(@Nullable List<@NotNull Gui> guis) {
-        this.guis = guis != null ? guis : new ArrayList<>();
-        updateElements();
-        update();
-    }
-    
-    private void updateElements() {
-        elements = new ArrayList<>();
-        for (Gui gui : guis) {
+    public void bake() {
+        ArrayList<SlotElement> elements = new ArrayList<>();
+        for (Gui gui : content) {
             for (int i = 0; i < gui.getSize(); i++) {
                 elements.add(new SlotElement.LinkedSlotElement(gui, i));
             }
         }
-    }
-    
-    @Override
-    protected List<SlotElement.LinkedSlotElement> getElements(int from, int to) {
-        return elements.subList(from, Math.min(elements.size(), to));
-    }
-    
-    @Override
-    public int getMaxLine() {
-        if (elements == null) return 0;
-        return (int) Math.ceil((double) elements.size() / (double) getLineLength()) - 1;
+        
+        this.elements = elements;
+        update();
     }
     
     public static final class Builder extends AbstractBuilder<Gui> {

@@ -21,6 +21,8 @@ public abstract class AbstractPagedGui<C> extends AbstractGui implements PagedGu
     private int currentPage;
     
     private List<BiConsumer<Integer, Integer>> pageChangeHandlers;
+    protected List<C> content;
+    protected List<List<SlotElement>> pages;
     
     public AbstractPagedGui(int width, int height, boolean infinitePages, int... contentListSlots) {
         super(width, height);
@@ -93,12 +95,29 @@ public abstract class AbstractPagedGui<C> extends AbstractGui implements PagedGu
     }
     
     private void updatePageContent() {
-        List<SlotElement> slotElements = getPageElements(currentPage);
+        List<SlotElement> slotElements = (pages != null && !pages.isEmpty()) ? pages.get(currentPage) : List.of();
         
         for (int i = 0; i < contentListSlots.length; i++) {
             if (slotElements.size() > i) setSlotElement(contentListSlots[i], slotElements.get(i));
             else remove(contentListSlots[i]);
         }
+    }
+    
+    @Override
+    public void setContent(@Nullable List<C> content) {
+        if (content == null || content.isEmpty()) {
+            this.content = List.of();
+            this.pages = List.of();
+            update();
+        } else {
+            this.content = content;
+            bake(); // calls update()
+        }
+    }
+    
+    @Override
+    public int getPageAmount() {
+        return pages != null ? pages.size() : 0;
     }
     
     @Override
@@ -141,8 +160,6 @@ public abstract class AbstractPagedGui<C> extends AbstractGui implements PagedGu
     public List<BiConsumer<Integer, Integer>> getPageChangeHandlers() {
         return pageChangeHandlers;
     }
-    
-    protected abstract List<SlotElement> getPageElements(int page);
     
     public static abstract class AbstractBuilder<C>
         extends AbstractGui.AbstractBuilder<PagedGui<C>, PagedGui.Builder<C>>

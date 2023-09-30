@@ -4,11 +4,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.invui.gui.structure.Structure;
 import xyz.xenondevs.invui.inventory.Inventory;
+import xyz.xenondevs.invui.inventory.VirtualInventory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.function.BiConsumer;
 
 /**
  * An {@link AbstractPagedGui} where every page is its own {@link Inventory}.
@@ -18,7 +18,7 @@ import java.util.stream.IntStream;
  */
 final class PagedInventoriesGuiImpl extends AbstractPagedGui<Inventory> {
     
-    private List<Inventory> inventories;
+    private final @NotNull BiConsumer<@NotNull Integer, @NotNull Integer> resizeHandler = (from, to) -> bake();
     
     /**
      * Creates a new {@link PagedInventoriesGuiImpl}.
@@ -44,27 +44,55 @@ final class PagedInventoriesGuiImpl extends AbstractPagedGui<Inventory> {
         setContent(inventories);
     }
     
+    @SuppressWarnings("DuplicatedCode")
     @Override
-    public int getPageAmount() {
-        return inventories.size();
+    public void setContent(@Nullable List<Inventory> content) {
+        // remove resize handlers from previous inventories
+        if (this.content != null) {
+            for (Inventory inventory : this.content) {
+                if (inventory instanceof VirtualInventory) {
+                    ((VirtualInventory) inventory).removeResizeHandler(resizeHandler);
+                }
+            }
+        }
+        
+        // set content, bake pages, update
+        super.setContent(content);
+        
+        // add resize handlers to new inventories
+        if (this.content != null) {
+            for (Inventory inventory : this.content) {
+                if (inventory instanceof VirtualInventory) {
+                    ((VirtualInventory) inventory).addResizeHandler(resizeHandler);
+                }
+            }
+        }
     }
     
     @Override
-    public void setContent(@Nullable List<@NotNull Inventory> inventories) {
-        this.inventories = inventories == null ? new ArrayList<>() : inventories;
+    public void bake() {
+        int contentSize = getContentListSlots().length;
+        
+        List<List<SlotElement>> pages = new ArrayList<>();
+        List<SlotElement> page = new ArrayList<>(contentSize);
+        
+        for (Inventory inventory : content) {
+            for (int slot = 0; slot < inventory.getSize(); slot++) {
+                page.add(new SlotElement.InventorySlotElement(inventory, slot));
+                
+                if (page.size() >= contentSize) {
+                    pages.add(page);
+                    page = new ArrayList<>(contentSize);
+                }
+            }
+        }
+        
+        if (!page.isEmpty()) {
+            pages.add(page);
+        }
+        
+        this.pages = pages;
         update();
-    }
-    
-    @Override
-    protected List<SlotElement> getPageElements(int page) {
-        if (inventories.size() <= page) return new ArrayList<>();
-        
-        Inventory inventory = inventories.get(page);
-        int size = inventory.getSize();
-        
-        return IntStream.range(0, size)
-            .mapToObj(i -> new SlotElement.InventorySlotElement(inventory, i))
-            .collect(Collectors.toList());
     }
     
     public static final class Builder extends AbstractBuilder<Inventory> {

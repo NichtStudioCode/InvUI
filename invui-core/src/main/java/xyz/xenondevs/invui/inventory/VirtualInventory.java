@@ -8,8 +8,11 @@ import xyz.xenondevs.invui.util.DataUtils;
 import xyz.xenondevs.invui.util.ItemUtils;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 
 /**
  * A serializable {@link Inventory} implementation that is identified by a {@link UUID} and backed by a simple {@link ItemStack} array.
@@ -22,6 +25,7 @@ public class VirtualInventory extends Inventory {
     private int size;
     private @Nullable ItemStack @NotNull [] items;
     private int @NotNull [] maxStackSizes;
+    private @Nullable List<@NotNull BiConsumer<@NotNull Integer, @NotNull Integer>> resizeHandlers;
     
     /**
      * Constructs a new {@link VirtualInventory}
@@ -149,6 +153,7 @@ public class VirtualInventory extends Inventory {
         setGuiPriority(inventory.getGuiPriority());
         setPreUpdateHandler(inventory.getPreUpdateHandler());
         setPostUpdateHandler(inventory.getPostUpdateHandler());
+        setResizeHandlers(inventory.getResizeHandlers());
     }
     
     /**
@@ -237,6 +242,46 @@ public class VirtualInventory extends Inventory {
     }
     
     /**
+     * Sets the handlers that are called every time this {@link VirtualInventory} is resized.
+     *
+     * @param resizeHandlers The handlers to set.
+     */
+    public void setResizeHandlers(@Nullable List<@NotNull BiConsumer<@NotNull Integer, @NotNull Integer>> resizeHandlers) {
+        this.resizeHandlers = resizeHandlers;
+    }
+    
+    /**
+     * Gets the handlers that are called every time this {@link VirtualInventory} is resized.
+     *
+     * @return The handlers.
+     */
+    public @Nullable List<@NotNull BiConsumer<@NotNull Integer, @NotNull Integer>> getResizeHandlers() {
+        return resizeHandlers;
+    }
+    
+    /**
+     * Adds a handler that is called every time this {@link VirtualInventory} is resized.
+     *
+     * @param resizeHandler The handler to add.
+     */
+    public void addResizeHandler(@NotNull BiConsumer<@NotNull Integer, @NotNull Integer> resizeHandler) {
+        if (resizeHandlers == null)
+            resizeHandlers = new ArrayList<>();
+        
+        resizeHandlers.add(resizeHandler);
+    }
+    
+    /**
+     * Removes a handler that is called every time this {@link VirtualInventory} is resized.
+     *
+     * @param resizeHandler The handler to remove.
+     */
+    public void removeResizeHandler(@NotNull BiConsumer<@NotNull Integer, @NotNull Integer> resizeHandler) {
+        if (resizeHandlers != null)
+            resizeHandlers.remove(resizeHandler);
+    }
+    
+    /**
      * Changes the size of the {@link VirtualInventory}.
      * <p>
      * {@link ItemStack ItemStacks} in slots which are no longer valid will be removed from the {@link VirtualInventory}.
@@ -258,6 +303,13 @@ public class VirtualInventory extends Inventory {
         if (size > previousSize) {
             int stackSize = previousSize != 0 ? maxStackSizes[previousSize - 1] : 64;
             Arrays.fill(maxStackSizes, previousSize, maxStackSizes.length, stackSize);
+        }
+        
+        // call resize handlers if present
+        if (resizeHandlers != null) {
+            for (BiConsumer<Integer, Integer> resizeHandler : resizeHandlers) {
+                resizeHandler.accept(previousSize, size);
+            }
         }
     }
     

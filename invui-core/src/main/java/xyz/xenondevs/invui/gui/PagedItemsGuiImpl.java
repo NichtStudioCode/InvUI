@@ -7,8 +7,6 @@ import xyz.xenondevs.invui.item.Item;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
 /**
  * An {@link AbstractPagedGui} that is filled with {@link Item Items}.
@@ -17,9 +15,6 @@ import java.util.stream.Collectors;
  * @see PagedInventoriesGuiImpl
  */
 final class PagedItemsGuiImpl extends AbstractPagedGui<Item> {
-    
-    private List<Item> items;
-    private List<BiConsumer<Integer, Integer>> pageChangeHandlers;
     
     /**
      * Creates a new {@link PagedItemsGuiImpl}.
@@ -46,23 +41,25 @@ final class PagedItemsGuiImpl extends AbstractPagedGui<Item> {
     }
     
     @Override
-    public int getPageAmount() {
-        return (int) Math.ceil((double) items.size() / (double) getContentListSlots().length);
-    }
-    
-    @Override
-    public void setContent(@Nullable List<@NotNull Item> items) {
-        this.items = items != null ? items : new ArrayList<>();
-        update();
-    }
-    
-    @Override
-    protected List<SlotElement> getPageElements(int page) {
-        int length = getContentListSlots().length;
-        int from = page * length;
-        int to = Math.min(from + length, items.size());
+    public void bake() {
+        List<Item> items = content;
+        int contentSize = getContentListSlots().length;
+        List<List<SlotElement>> pages = new ArrayList<>();
         
-        return items.subList(from, to).stream().map(SlotElement.ItemSlotElement::new).collect(Collectors.toList());
+        int pageAmount = items.size() / contentSize;
+        for (int pageIdx = 0; pageIdx < pageAmount; pageIdx++) {
+            int from = pageIdx * contentSize;
+            int to = Math.min(from + contentSize, items.size());
+            
+            ArrayList<SlotElement> page = new ArrayList<>(contentSize);
+            for (int i = from; i < to; i++) {
+                page.add(new SlotElement.ItemSlotElement(items.get(i)));
+            }
+            pages.add(page);
+        }
+        
+        this.pages = pages;
+        update();
     }
     
     public static final class Builder extends AbstractBuilder<Item> {

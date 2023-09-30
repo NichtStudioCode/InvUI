@@ -1,6 +1,7 @@
 package xyz.xenondevs.invui.gui;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.invui.gui.structure.Structure;
 import xyz.xenondevs.invui.util.SlotUtils;
 
@@ -24,6 +25,8 @@ public abstract class AbstractScrollGui<C> extends AbstractGui implements Scroll
     private int offset;
     
     private List<BiConsumer<Integer, Integer>> scrollHandlers;
+    protected List<C> content;
+    protected List<SlotElement> elements;
     
     public AbstractScrollGui(int width, int height, boolean infiniteLines, int... contentListSlots) {
         super(width, height);
@@ -109,6 +112,24 @@ public abstract class AbstractScrollGui<C> extends AbstractGui implements Scroll
         }
     }
     
+    @Override
+    public int getMaxLine() {
+        if (elements == null) return 0;
+        return (int) Math.ceil((double) elements.size() / (double) getLineLength()) - 1;
+    }
+    
+    @Override
+    public void setContent(@Nullable List<C> content) {
+        if (content == null || content.isEmpty()) {
+            this.content = List.of();
+            this.elements = List.of();
+            update();
+        } else {
+            this.content = content;
+            bake(); // calls update()
+        }
+    }
+    
     protected void update() {
         correctCurrentLine();
         updateControlItems();
@@ -116,12 +137,16 @@ public abstract class AbstractScrollGui<C> extends AbstractGui implements Scroll
     }
     
     private void updateContent() {
-        List<? extends SlotElement> slotElements = getElements(offset, contentListSlots.length + offset);
+        List<SlotElement> slotElements = getElements(offset, contentListSlots.length + offset);
         
         for (int i = 0; i < contentListSlots.length; i++) {
             if (slotElements.size() > i) setSlotElement(contentListSlots[i], slotElements.get(i));
             else remove(contentListSlots[i]);
         }
+    }
+    
+    protected List<SlotElement> getElements(int from, int to) {
+        return elements.subList(from, Math.min(elements.size(), to));
     }
     
     @Override
@@ -142,8 +167,6 @@ public abstract class AbstractScrollGui<C> extends AbstractGui implements Scroll
         if (scrollHandlers != null)
             scrollHandlers.remove(scrollHandler);
     }
-    
-    protected abstract List<? extends SlotElement> getElements(int from, int to);
     
     public abstract static class AbstractBuilder<C>
         extends AbstractGui.AbstractBuilder<ScrollGui<C>, ScrollGui.Builder<C>>

@@ -7,7 +7,6 @@ import xyz.xenondevs.invui.item.Item;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * A {@link AbstractScrollGui} that uses {@link Item Items} as content.
@@ -16,8 +15,6 @@ import java.util.stream.Collectors;
  * @see ScrollNestedGuiImpl
  */
 final class ScrollItemsGuiImpl extends AbstractScrollGui<Item> {
-    
-    private List<Item> items;
     
     /**
      * Creates a new {@link ScrollItemsGuiImpl}.
@@ -44,21 +41,14 @@ final class ScrollItemsGuiImpl extends AbstractScrollGui<Item> {
     }
     
     @Override
-    public void setContent(@Nullable List<@NotNull Item> items) {
-        this.items = items != null ? items : new ArrayList<>();
+    public void bake() {
+        ArrayList<SlotElement> elements = new ArrayList<>(content.size());
+        for (Item item : content) {
+            elements.add(new SlotElement.ItemSlotElement(item));
+        }
+        
+        this.elements = elements;
         update();
-    }
-    
-    @Override
-    protected List<SlotElement> getElements(int from, int to) {
-        return items.subList(from, Math.min(items.size(), to)).stream()
-            .map(SlotElement.ItemSlotElement::new)
-            .collect(Collectors.toList());
-    }
-    
-    @Override
-    public int getMaxLine() {
-        return (int) Math.ceil((double) items.size() / (double) getLineLength()) - 1;
     }
     
     public static final class Builder extends AbstractBuilder<Item> {
