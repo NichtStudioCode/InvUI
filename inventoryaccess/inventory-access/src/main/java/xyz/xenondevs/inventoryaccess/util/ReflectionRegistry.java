@@ -1,18 +1,16 @@
 package xyz.xenondevs.inventoryaccess.util;
 
 import com.mojang.authlib.GameProfile;
+import org.bukkit.Bukkit;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import static xyz.xenondevs.inventoryaccess.util.ReflectionUtils.*;
 
-
 public class ReflectionRegistry {
     
-    public static final int VERSION = getVersionNumber();
-    
-    public static final String CRAFT_BUKKIT_PACKAGE_PATH = getCB();
+    public static final String CRAFT_BUKKIT_PACKAGE_PATH = Bukkit.getServer().getClass().getPackage().getName();
     
     // Classes
     public static final Class<?> PLUGIN_CLASS_LOADER_CLASS = ReflectionUtils.getClass("org.bukkit.plugin.java.PluginClassLoader");

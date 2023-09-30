@@ -1,6 +1,5 @@
 package xyz.xenondevs.inventoryaccess.util;
 
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.version.InventoryAccessRevision;
@@ -12,18 +11,6 @@ import java.lang.reflect.Method;
 @SuppressWarnings({"unchecked", "unused"})
 public class ReflectionUtils {
     
-    protected static @NotNull String getCB() {
-        String path = Bukkit.getServer().getClass().getPackage().getName();
-        String version = path.substring(path.lastIndexOf(".") + 1);
-        return "org.bukkit.craftbukkit." + version + ".";
-    }
-    
-    protected static int getVersionNumber() {
-        String version = Bukkit.getVersion();
-        version = version.substring(version.indexOf("MC: "), version.length() - 1).substring(4);
-        return Integer.parseInt(version.split("\\.")[1]);
-    }
-    
     public static <T> @NotNull Class<T> getImplClass(@NotNull String path) {
         try {
             return (Class<T>) Class.forName("xyz.xenondevs.inventoryaccess." + InventoryAccessRevision.REQUIRED_REVISION.getPackageName() + "." + path);
@@ -33,7 +20,7 @@ public class ReflectionUtils {
     }
     
     public static <T> @NotNull Class<T> getCBClass(@NotNull String path) {
-        return getClass(ReflectionRegistry.CRAFT_BUKKIT_PACKAGE_PATH + path);
+        return getClass(ReflectionRegistry.CRAFT_BUKKIT_PACKAGE_PATH + "." + path);
     }
     
     public static <T> @NotNull Class<T> getClass(@NotNull String path) {
