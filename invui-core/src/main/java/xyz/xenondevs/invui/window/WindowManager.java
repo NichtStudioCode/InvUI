@@ -8,11 +8,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
@@ -114,6 +112,12 @@ public class WindowManager implements Listener {
         AbstractWindow window = (AbstractWindow) getOpenWindow((Player) event.getWhoClicked());
         if (window != null) {
             window.handleClickEvent(event);
+            
+            if (event.getClick() == ClickType.SWAP_OFFHAND && event.isCancelled()) {
+                EntityEquipment equipment = event.getWhoClicked().getEquipment();
+                System.out.println(equipment.getItemInOffHand());
+                equipment.setItemInOffHand(equipment.getItemInOffHand());
+            }
         }
     }
     
