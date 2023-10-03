@@ -42,19 +42,22 @@ final class PagedItemsGuiImpl extends AbstractPagedGui<Item> {
     
     @Override
     public void bake() {
-        List<Item> items = content;
         int contentSize = getContentListSlots().length;
-        List<List<SlotElement>> pages = new ArrayList<>();
+        List<Item> items = content;
         
-        int pageAmount = items.size() / contentSize;
-        for (int pageIdx = 0; pageIdx < pageAmount; pageIdx++) {
-            int from = pageIdx * contentSize;
-            int to = Math.min(from + contentSize, items.size());
+        List<List<SlotElement>> pages = new ArrayList<>();
+        List<SlotElement> page = new ArrayList<>(contentSize);
+        
+        for (Item item : content) {
+            page.add(new SlotElement.ItemSlotElement(item));
             
-            ArrayList<SlotElement> page = new ArrayList<>(contentSize);
-            for (int i = from; i < to; i++) {
-                page.add(new SlotElement.ItemSlotElement(items.get(i)));
+            if (page.size() >= contentSize) {
+                pages.add(page);
+                page = new ArrayList<>(contentSize);
             }
+        }
+        
+        if (!page.isEmpty()) {
             pages.add(page);
         }
         
