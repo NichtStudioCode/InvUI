@@ -32,7 +32,7 @@ final class CartographySplitWindowImpl extends AbstractSplitWindow implements Ca
     ) {
         super(player, title, createWrappingGui(upperGui), lowerGui, null, closeable);
         
-        cartographyInventory = InventoryAccess.createCartographyInventory(player, title.localized(player));
+        cartographyInventory = InventoryAccess.createCartographyInventory(player, title != null ? title.localized(player) : null);
         upperInventory = cartographyInventory.getBukkitInventory();
         
         resetMap();

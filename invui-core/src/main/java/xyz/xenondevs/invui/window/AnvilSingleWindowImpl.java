@@ -25,7 +25,7 @@ final class AnvilSingleWindowImpl extends AbstractSingleWindow implements AnvilW
         boolean closable
     ) {
         super(player, title, gui, null, closable);
-        anvilInventory = InventoryAccess.createAnvilInventory(player, title.localized(player), renameHandlers);
+        anvilInventory = InventoryAccess.createAnvilInventory(player, title != null ? title.localized(player) : null, renameHandlers);
         inventory = anvilInventory.getBukkitInventory();
     }
     

@@ -8,6 +8,7 @@ import xyz.xenondevs.inventoryaccess.abstraction.inventory.CartographyInventory;
 import xyz.xenondevs.inventoryaccess.abstraction.util.InventoryUtils;
 import xyz.xenondevs.inventoryaccess.abstraction.util.ItemUtils;
 import xyz.xenondevs.inventoryaccess.abstraction.util.PlayerUtils;
+import xyz.xenondevs.inventoryaccess.component.BungeeComponentWrapper;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.inventoryaccess.util.ReflectionUtils;
 
@@ -68,8 +69,8 @@ public class InventoryAccess {
      *                       types something in the renaming section of the anvil.
      * @return The {@link AnvilInventory}
      */
-    public static AnvilInventory createAnvilInventory(@NotNull Player player, @NotNull ComponentWrapper title, @Nullable List<@NotNull Consumer<String>> renameHandlers) {
-        return ReflectionUtils.construct(ANVIL_INVENTORY_CONSTRUCTOR, player, title, renameHandlers);
+    public static AnvilInventory createAnvilInventory(@NotNull Player player, @Nullable ComponentWrapper title, @Nullable List<@NotNull Consumer<String>> renameHandlers) {
+        return ReflectionUtils.construct(ANVIL_INVENTORY_CONSTRUCTOR, player, title == null ? BungeeComponentWrapper.EMPTY : title, renameHandlers);
     }
     
     /**
@@ -79,8 +80,8 @@ public class InventoryAccess {
      * @param title  The inventory title
      * @return The {@link CartographyInventory}
      */
-    public static CartographyInventory createCartographyInventory(@NotNull Player player, @NotNull ComponentWrapper title) {
-        return ReflectionUtils.construct(CARTOGRAPHY_INVENTORY_CONSTRUCTOR, player, title);
+    public static CartographyInventory createCartographyInventory(@NotNull Player player, @Nullable ComponentWrapper title) {
+        return ReflectionUtils.construct(CARTOGRAPHY_INVENTORY_CONSTRUCTOR, player, title == null ? BungeeComponentWrapper.EMPTY : title);
     }
     
 }

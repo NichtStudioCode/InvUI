@@ -268,7 +268,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
         InventoryAccess.getInventoryUtils().openCustomInventory(
             viewer,
             getInventories()[0],
-            title.localized(viewer)
+            title != null ? title.localized(viewer) : null
         );
     }
     

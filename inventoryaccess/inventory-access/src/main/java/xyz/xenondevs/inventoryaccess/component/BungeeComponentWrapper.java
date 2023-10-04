@@ -1,6 +1,7 @@
 package xyz.xenondevs.inventoryaccess.component;
 
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.inventoryaccess.component.i18n.BungeeComponentLocalizer;
@@ -8,6 +9,8 @@ import xyz.xenondevs.inventoryaccess.component.i18n.Languages;
 import xyz.xenondevs.inventoryaccess.util.BungeeComponentUtils;
 
 public class BungeeComponentWrapper implements ComponentWrapper {
+    
+    public static final BungeeComponentWrapper EMPTY = new BungeeComponentWrapper(new BaseComponent[] {new TextComponent("")});
     
     private final BaseComponent[] components;
     

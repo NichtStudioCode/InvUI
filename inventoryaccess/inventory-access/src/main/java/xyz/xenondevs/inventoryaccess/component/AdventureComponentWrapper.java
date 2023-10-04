@@ -9,6 +9,8 @@ import xyz.xenondevs.inventoryaccess.util.AdventureComponentUtils;
 
 public class AdventureComponentWrapper implements ComponentWrapper {
     
+    public static final AdventureComponentWrapper EMPTY = new AdventureComponentWrapper(Component.empty());
+    
     private final Component component;
     
     public AdventureComponentWrapper(Component component) {

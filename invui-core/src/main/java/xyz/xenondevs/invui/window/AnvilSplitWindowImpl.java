@@ -27,7 +27,7 @@ final class AnvilSplitWindowImpl extends AbstractSplitWindow implements AnvilWin
     ) {
         super(player, title, upperGui, lowerGui, null, closeable);
         
-        anvilInventory = InventoryAccess.createAnvilInventory(player, title.localized(player), renameHandlers);
+        anvilInventory = InventoryAccess.createAnvilInventory(player, title != null ? title.localized(player) : null, renameHandlers);
         upperInventory = anvilInventory.getBukkitInventory();
     }
     
