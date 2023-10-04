@@ -1,8 +1,12 @@
 package xyz.xenondevs.invui.inventory;
 
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Consumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
+import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
+import xyz.xenondevs.invui.inventory.event.UpdateReason;
 import xyz.xenondevs.invui.util.Pair;
 
 import java.util.Collection;
@@ -115,14 +119,6 @@ public class CompositeInventory extends Inventory {
         pair.getFirst().setDirectBackingItem(pair.getSecond(), itemStack);
     }
     
-    @Override
-    public void notifyWindows() {
-        super.notifyWindows();
-        for (Inventory inventory : inventories) {
-            inventory.notifyWindows();
-        }
-    }
-    
     private Pair<Inventory, Integer> findInventory(int slot) {
         int pos = 0;
         for (Inventory inv : inventories) {
@@ -135,6 +131,36 @@ public class CompositeInventory extends Inventory {
         }
         
         throw new IndexOutOfBoundsException(slot);
+    }
+    
+    @Override
+    public void notifyWindows() {
+        super.notifyWindows();
+        for (Inventory inventory : inventories) {
+            inventory.notifyWindows();
+        }
+    }
+    
+    @Override
+    public ItemPreUpdateEvent callPreUpdateEvent(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
+        var invSlot = findInventory(slot);
+        return invSlot.getFirst().callPreUpdateEvent(updateReason, invSlot.getSecond(), previousItemStack, newItemStack);
+    }
+    
+    @Override
+    public void callPostUpdateEvent(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
+        var invSlot = findInventory(slot);
+        invSlot.getFirst().callPostUpdateEvent(updateReason, invSlot.getSecond(), previousItemStack, newItemStack);
+    }
+    
+    @Override
+    public void setPostUpdateHandler(@NotNull Consumer<@NotNull ItemPostUpdateEvent> inventoryUpdatedHandler) {
+        throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
+    }
+    
+    @Override
+    public void setPreUpdateHandler(@NotNull Consumer<@NotNull ItemPreUpdateEvent> preUpdateHandler) {
+        throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
     }
     
 }

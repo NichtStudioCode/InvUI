@@ -2,8 +2,12 @@ package xyz.xenondevs.invui.inventory;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Consumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
+import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
+import xyz.xenondevs.invui.inventory.event.UpdateReason;
 
 import java.util.function.IntPredicate;
 
@@ -96,6 +100,26 @@ public class ObscuredInventory extends Inventory {
     public void notifyWindows() {
         super.notifyWindows();
         inventory.notifyWindows();
+    }
+    
+    @Override
+    public ItemPreUpdateEvent callPreUpdateEvent(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
+        return inventory.callPreUpdateEvent(updateReason, slots[slot], previousItemStack, newItemStack);
+    }
+    
+    @Override
+    public void callPostUpdateEvent(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
+        inventory.callPostUpdateEvent(updateReason, slots[slot], previousItemStack, newItemStack);
+    }
+    
+    @Override
+    public void setPostUpdateHandler(@NotNull Consumer<@NotNull ItemPostUpdateEvent> inventoryUpdatedHandler) {
+        throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
+    }
+    
+    @Override
+    public void setPreUpdateHandler(@NotNull Consumer<@NotNull ItemPreUpdateEvent> preUpdateHandler) {
+        throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
     }
     
 }
