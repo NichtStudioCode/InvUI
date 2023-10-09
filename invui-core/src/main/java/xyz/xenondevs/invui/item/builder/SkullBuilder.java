@@ -56,7 +56,7 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
     }
     
     private void setGameProfile(@NotNull HeadTexture texture) {
-        gameProfile = new GameProfile(UUID.randomUUID(), null);
+        gameProfile = new GameProfile(UUID.randomUUID(), "InvUI");
         PropertyMap propertyMap = gameProfile.getProperties();
         propertyMap.put("textures", new Property("textures", texture.getTextureValue()));
     }

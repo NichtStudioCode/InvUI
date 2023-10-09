@@ -3,7 +3,6 @@ package xyz.xenondevs.invui.util;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.mojang.util.UUIDTypeAdapter;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -46,10 +45,14 @@ public class MojangApiUtils {
         checkForError(jsonObject);
         if (jsonObject.has("id")) {
             String id = jsonObject.get("id").getAsString();
-            return UUIDTypeAdapter.fromString(id);
+            return fromUndashed(id);
         }
         
         return null;
+    }
+    
+    private static UUID fromUndashed(String undashed) {
+        return UUID.fromString(undashed.replaceFirst("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5"));
     }
     
     private static void checkForError(JsonObject jsonObject) throws MojangApiException {
