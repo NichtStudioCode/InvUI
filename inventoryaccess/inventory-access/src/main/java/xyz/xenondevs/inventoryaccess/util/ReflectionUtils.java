@@ -49,7 +49,7 @@ public class ReflectionUtils {
         }
     }
     
-    public static <T> @NotNull Constructor<T> getConstructor(@NotNull Class<T> clazz, boolean declared, @NotNull Class<?> @NotNull... parameterTypes) {
+    public static <T> @NotNull Constructor<T> getConstructor(@NotNull Class<T> clazz, boolean declared, @NotNull Class<?> @NotNull ... parameterTypes) {
         try {
             Constructor<T> constructor = declared ? clazz.getDeclaredConstructor(parameterTypes) : clazz.getConstructor(parameterTypes);
             if (declared) constructor.setAccessible(true);
@@ -67,7 +67,7 @@ public class ReflectionUtils {
         }
     }
     
-    public static <T> @NotNull T construct(@NotNull Constructor<T> constructor, @Nullable Object @Nullable... args) {
+    public static <T> @NotNull T construct(@NotNull Constructor<T> constructor, @Nullable Object @Nullable ... args) {
         try {
             return constructor.newInstance(args);
         } catch (Throwable t) {
@@ -75,7 +75,7 @@ public class ReflectionUtils {
         }
     }
     
-    public static @NotNull Method getMethod(@NotNull Class<?> clazz, boolean declared, @NotNull String name, @NotNull Class<?>@NotNull ... parameterTypes) {
+    public static @NotNull Method getMethod(@NotNull Class<?> clazz, boolean declared, @NotNull String name, @NotNull Class<?> @NotNull ... parameterTypes) {
         try {
             Method method = declared ? clazz.getDeclaredMethod(name, parameterTypes) : clazz.getMethod(name, parameterTypes);
             if (declared) method.setAccessible(true);
@@ -85,7 +85,7 @@ public class ReflectionUtils {
         }
     }
     
-    public static @Nullable Method getMethodOrNull(@NotNull Class<?> clazz, boolean declared, @NotNull String name, @NotNull Class<?> @NotNull... parameterTypes) {
+    public static @Nullable Method getMethodOrNull(@NotNull Class<?> clazz, boolean declared, @NotNull String name, @NotNull Class<?> @NotNull ... parameterTypes) {
         try {
             Method method = declared ? clazz.getDeclaredMethod(name, parameterTypes) : clazz.getMethod(name, parameterTypes);
             if (declared) method.setAccessible(true);
@@ -95,7 +95,7 @@ public class ReflectionUtils {
         }
     }
     
-    public static <T> T invokeMethod(@NotNull Method method, @Nullable Object obj, @Nullable Object @Nullable... args) {
+    public static <T> T invokeMethod(@NotNull Method method, @Nullable Object obj, @Nullable Object @Nullable ... args) {
         try {
             return (T) method.invoke(obj, args);
         } catch (Throwable t) {

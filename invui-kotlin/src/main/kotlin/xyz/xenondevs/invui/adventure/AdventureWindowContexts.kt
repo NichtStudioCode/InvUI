@@ -9,7 +9,7 @@ import xyz.xenondevs.invui.window.Window
 
 /**
  * Sets the title of the window.
- * 
+ *
  * @param title the new title
  * @return This Window Builder
  */

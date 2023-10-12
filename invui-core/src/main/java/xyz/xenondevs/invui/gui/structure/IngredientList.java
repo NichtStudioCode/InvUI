@@ -59,7 +59,6 @@ public class IngredientList extends ArrayList<Ingredient> {
         return indices;
     }
     
-    
     private List<Integer> findIndicesOfVerticalMarker(Marker marker) {
         List<Integer> indices = new ArrayList<>();
         for (int x = 0; x < width; x++) {

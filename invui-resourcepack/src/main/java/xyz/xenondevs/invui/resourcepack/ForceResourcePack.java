@@ -48,6 +48,7 @@ public class ForceResourcePack implements Listener {
     
     /**
      * Gets the instance of this class.
+     *
      * @return The instance of this class.
      */
     public static ForceResourcePack getInstance() {

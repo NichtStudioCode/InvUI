@@ -165,7 +165,6 @@ class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
         open = false;
     }
     
-    
     /**
      * Called when the container gets closed to put items back into a players
      * inventory or drop them in the world.

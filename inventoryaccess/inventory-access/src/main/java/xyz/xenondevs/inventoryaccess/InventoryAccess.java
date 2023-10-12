@@ -63,8 +63,8 @@ public class InventoryAccess {
     /**
      * Creates a new {@link AnvilInventory}.
      *
-     * @param player        The {@link Player} that should see this {@link AnvilInventory}
-     * @param title         The inventory title
+     * @param player         The {@link Player} that should see this {@link AnvilInventory}
+     * @param title          The inventory title
      * @param renameHandlers A list of {@link Consumer}s that are called whenever the {@link Player}
      *                       types something in the renaming section of the anvil.
      * @return The {@link AnvilInventory}

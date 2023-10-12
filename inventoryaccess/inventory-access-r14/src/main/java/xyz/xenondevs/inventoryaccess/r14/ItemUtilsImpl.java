@@ -21,7 +21,7 @@ class ItemUtilsImpl implements ItemUtils {
     
     private static final Method CRAFT_META_SKULL_SET_PROFILE_METHOD = ReflectionUtils.getMethod(
         ReflectionRegistry.CB_CRAFT_META_SKULL_CLASS, true, "setProfile", GameProfile.class
-    );  
+    );
     
     @Override
     public byte[] serializeItemStack(org.bukkit.inventory.@NotNull ItemStack itemStack, boolean compressed) {

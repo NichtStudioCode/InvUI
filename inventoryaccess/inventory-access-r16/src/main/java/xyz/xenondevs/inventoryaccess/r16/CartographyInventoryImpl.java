@@ -8,6 +8,7 @@ import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
@@ -20,7 +21,6 @@ import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.inventoryaccess.abstraction.inventory.CartographyInventory;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.inventoryaccess.util.ReflectionUtils;
-import net.minecraft.world.entity.player.Player;
 
 import java.lang.reflect.Field;
 

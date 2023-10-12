@@ -1,6 +1,5 @@
 package xyz.xenondevs.inventoryaccess.r5;
 
-import com.mojang.authlib.GameProfile;
 import net.minecraft.server.v1_16_R1.ItemStack;
 import net.minecraft.server.v1_16_R1.NBTCompressedStreamTools;
 import net.minecraft.server.v1_16_R1.NBTTagCompound;
@@ -13,12 +12,11 @@ import xyz.xenondevs.inventoryaccess.util.ReflectionRegistry;
 import xyz.xenondevs.inventoryaccess.util.ReflectionUtils;
 
 import java.io.*;
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Collectors;
 
 class ItemUtilsImpl implements ItemUtils {
-
+    
     @Override
     public byte[] serializeItemStack(org.bukkit.inventory.@NotNull ItemStack itemStack, boolean compressed) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();

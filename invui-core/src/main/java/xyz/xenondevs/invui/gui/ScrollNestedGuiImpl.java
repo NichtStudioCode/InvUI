@@ -66,5 +66,4 @@ final class ScrollNestedGuiImpl extends AbstractScrollGui<Gui> {
         
     }
     
-    
 }

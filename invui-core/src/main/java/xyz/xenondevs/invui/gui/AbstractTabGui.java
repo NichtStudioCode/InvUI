@@ -71,7 +71,6 @@ public abstract class AbstractTabGui extends AbstractGui implements TabGui {
         return currentTab;
     }
     
-    
     @Override
     public @Nullable List<@NotNull BiConsumer<Integer, Integer>> getTabChangeHandlers() {
         return tabChangeHandlers;

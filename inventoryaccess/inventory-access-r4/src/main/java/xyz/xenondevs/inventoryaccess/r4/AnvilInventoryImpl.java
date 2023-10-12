@@ -167,5 +167,4 @@ class AnvilInventoryImpl extends ContainerAnvil implements AnvilInventory {
         // no
     }
     
-    
 }
