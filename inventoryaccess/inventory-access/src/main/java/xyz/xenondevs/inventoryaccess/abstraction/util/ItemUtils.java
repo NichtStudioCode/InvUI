@@ -1,6 +1,5 @@
 package xyz.xenondevs.inventoryaccess.abstraction.util;
 
-import com.mojang.authlib.GameProfile;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
@@ -67,13 +66,5 @@ public interface ItemUtils {
      * @param lore     The lore
      */
     void setLore(@NotNull ItemMeta itemMeta, @NotNull List<@NotNull ComponentWrapper> lore);
-    
-    /**
-     * Sets the game profile of a player skull, thereby changing its owner and texture.
-     * 
-     * @param itemMeta The {@link ItemMeta} of the skull
-     * @param gameProfile The game profile to apply to the skull
-     */
-    void setSkullGameProfile(@NotNull ItemMeta itemMeta, @NotNull GameProfile gameProfile);
     
 }

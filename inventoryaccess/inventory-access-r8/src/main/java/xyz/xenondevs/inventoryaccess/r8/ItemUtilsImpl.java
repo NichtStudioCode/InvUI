@@ -94,9 +94,4 @@ class ItemUtilsImpl implements ItemUtils {
         );
     }
     
-    @Override
-    public void setSkullGameProfile(@NotNull ItemMeta itemMeta, @NotNull GameProfile gameProfile) {
-        ReflectionUtils.invokeMethod(CRAFT_META_SKULL_SET_PROFILE_METHOD, itemMeta, gameProfile);
-    }
-    
 }

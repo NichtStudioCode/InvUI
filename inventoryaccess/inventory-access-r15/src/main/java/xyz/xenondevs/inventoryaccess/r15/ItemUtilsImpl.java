@@ -1,6 +1,5 @@
 package xyz.xenondevs.inventoryaccess.r15;
 
-import com.mojang.authlib.GameProfile;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.world.item.ItemStack;
@@ -13,16 +12,11 @@ import xyz.xenondevs.inventoryaccess.util.ReflectionRegistry;
 import xyz.xenondevs.inventoryaccess.util.ReflectionUtils;
 
 import java.io.*;
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Collectors;
 
 class ItemUtilsImpl implements ItemUtils {
-    
-    private static final Method CRAFT_META_SKULL_SET_PROFILE_METHOD = ReflectionUtils.getMethod(
-        ReflectionRegistry.CB_CRAFT_META_SKULL_CLASS, true, "setProfile", GameProfile.class
-    );    
-    
+
     @Override
     public byte[] serializeItemStack(org.bukkit.inventory.@NotNull ItemStack itemStack, boolean compressed) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -92,11 +86,6 @@ class ItemUtilsImpl implements ItemUtils {
             itemMeta,
             lore.stream().map(ComponentWrapper::serializeToJson).collect(Collectors.toList())
         );
-    }
-    
-    @Override
-    public void setSkullGameProfile(@NotNull ItemMeta itemMeta, @NotNull GameProfile gameProfile) {
-        ReflectionUtils.invokeMethod(CRAFT_META_SKULL_SET_PROFILE_METHOD, itemMeta, gameProfile);
     }
     
 }

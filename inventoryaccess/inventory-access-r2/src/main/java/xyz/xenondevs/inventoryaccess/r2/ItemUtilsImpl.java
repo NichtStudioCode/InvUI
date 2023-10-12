@@ -1,6 +1,5 @@
 package xyz.xenondevs.inventoryaccess.r2;
 
-import com.mojang.authlib.GameProfile;
 import net.minecraft.server.v1_14_R1.ItemStack;
 import net.minecraft.server.v1_14_R1.NBTCompressedStreamTools;
 import net.minecraft.server.v1_14_R1.NBTTagCompound;
@@ -13,15 +12,10 @@ import xyz.xenondevs.inventoryaccess.util.ReflectionRegistry;
 import xyz.xenondevs.inventoryaccess.util.ReflectionUtils;
 
 import java.io.*;
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.stream.Collectors;
 
 class ItemUtilsImpl implements ItemUtils {
-    
-    private static final Field CRAFT_META_SKULL_GAME_PROFILE_FIELD = ReflectionUtils.getField(
-        ReflectionRegistry.CB_CRAFT_META_SKULL_CLASS, true, "profile"
-    );
     
     @Override
     public byte[] serializeItemStack(org.bukkit.inventory.@NotNull ItemStack itemStack, boolean compressed) {
@@ -92,11 +86,6 @@ class ItemUtilsImpl implements ItemUtils {
             itemMeta,
             lore.stream().map(InventoryUtilsImpl::createNMSComponent).collect(Collectors.toList())
         );
-    }
-    
-    @Override
-    public void setSkullGameProfile(@NotNull ItemMeta itemMeta, @NotNull GameProfile gameProfile) {
-        ReflectionUtils.setFieldValue(CRAFT_META_SKULL_GAME_PROFILE_FIELD, itemMeta, gameProfile);
     }
     
 }
