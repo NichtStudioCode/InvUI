@@ -1,9 +1,9 @@
 package xyz.xenondevs.inventoryaccess.r5;
 
-import net.minecraft.server.v1_16_R3.*;
+import net.minecraft.server.v1_16_R1.*;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_16_R3.CraftServer;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_16_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,7 +45,7 @@ class PlayerUtilsImpl implements PlayerUtils {
     
     @Override
     public void sendMapUpdate(@NotNull Player player, int mapId, byte scale, boolean locked, @Nullable MapPatch mapPatch, @Nullable List<xyz.xenondevs.inventoryaccess.map.MapIcon> icons) {
-        List<net.minecraft.server.v1_16_R3.MapIcon> decorations = icons != null
+        List<MapIcon> decorations = icons != null
             ? icons.stream().map(this::toMapDecoration).collect(Collectors.toCollection(ArrayList::new))
             : new ArrayList<>();
         

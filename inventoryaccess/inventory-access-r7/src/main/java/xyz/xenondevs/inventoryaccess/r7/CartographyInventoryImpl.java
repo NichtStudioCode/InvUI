@@ -1,20 +1,11 @@
 package xyz.xenondevs.inventoryaccess.r7;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.NonNullList;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
-import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
-import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.Container;
-import net.minecraft.world.inventory.*;
-import net.minecraft.world.item.ItemStack;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_17_R1.event.CraftEventFactory;
-import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftInventoryCartography;
-import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftInventoryView;
-import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
+import net.minecraft.server.v1_16_R3.*;
+import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_16_R3.event.CraftEventFactory;
+import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftInventoryCartography;
+import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftInventoryView;
+import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
@@ -24,18 +15,14 @@ import xyz.xenondevs.inventoryaccess.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 
-class CartographyInventoryImpl extends CartographyTableMenu implements CartographyInventory {
+class CartographyInventoryImpl extends ContainerCartography implements CartographyInventory {
     
-    private static final Field RESULT_CONTAINER_FIELD = ReflectionUtils.getField(
-        CartographyTableMenu.class,
-        true,
-        "SRF(net.minecraft.world.inventory.CartographyTableMenu resultContainer)"
-    );
+    private static final Field RESULT_CONTAINER_FIELD = ReflectionUtils.getField(ContainerCartography.class, true, "resultInventory");
     
-    private final ResultContainer resultContainer = ReflectionUtils.getFieldValue(RESULT_CONTAINER_FIELD, this);
-    private final Component title;
+    private final InventoryCraftResult resultInventory = ReflectionUtils.getFieldValue(RESULT_CONTAINER_FIELD, this);
+    private final IChatBaseComponent title;
     private final CraftInventoryView view;
-    private final ServerPlayer player;
+    private final EntityPlayer player;
     
     private boolean open;
     
@@ -43,12 +30,12 @@ class CartographyInventoryImpl extends CartographyTableMenu implements Cartograp
         this(((CraftPlayer) player).getHandle(), InventoryUtilsImpl.createNMSComponent(title));
     }
     
-    public CartographyInventoryImpl(ServerPlayer player, Component title) {
-        super(player.nextContainerCounter(), player.getInventory(), ContainerLevelAccess.create(player.level, new BlockPos(0, 0, 0)));
+    public CartographyInventoryImpl(EntityPlayer player, IChatBaseComponent title) {
+        super(player.nextContainerCounter(), player.inventory, ContainerAccess.at(player.getWorld(), new BlockPosition(0, 0, 0)));
         
         this.player = player;
         this.title = title;
-        CraftInventoryCartography inventory = new CraftInventoryCartography(container, resultContainer);
+        CraftInventoryCartography inventory = new CraftInventoryCartography(this.inventory, resultInventory);
         view = new CraftInventoryView(player.getBukkitEntity(), inventory, this);
     }
     
@@ -59,17 +46,14 @@ class CartographyInventoryImpl extends CartographyTableMenu implements Cartograp
         CraftEventFactory.callInventoryOpenEvent(player, this);
         
         // set active container
-        player.containerMenu = this;
+        player.activeContainer = this;
         
         // send open packet
-        player.connection.send(new ClientboundOpenScreenPacket(containerId, MenuType.CARTOGRAPHY_TABLE, title));
+        player.playerConnection.sendPacket(new PacketPlayOutOpenWindow(windowId, Containers.CARTOGRAPHY_TABLE, title));
         
         // send initial items
-        NonNullList<ItemStack> itemsList = NonNullList.of(ItemStack.EMPTY, getItem(0), getItem(1), getItem(2));
-        player.connection.send(new ClientboundContainerSetContentPacket(InventoryUtilsImpl.getActiveWindowId(player), incrementStateId(), itemsList, ItemStack.EMPTY));
-        
-        // init menu
-        player.initMenu(this);
+        NonNullList<ItemStack> itemsList = NonNullList.a(ItemStack.b, getItem(0), getItem(1), getItem(2));
+        player.playerConnection.sendPacket(new PacketPlayOutWindowItems(InventoryUtilsImpl.getActiveWindowId(player), itemsList));
     }
     
     @Override
@@ -78,19 +62,19 @@ class CartographyInventoryImpl extends CartographyTableMenu implements Cartograp
     }
     
     public void sendItem(int slot) {
-        player.connection.send(new ClientboundContainerSetSlotPacket(InventoryUtilsImpl.getActiveWindowId(player), slot, incrementStateId(), getItem(slot)));
+        player.playerConnection.sendPacket(new PacketPlayOutSetSlot(InventoryUtilsImpl.getActiveWindowId(player), slot, getItem(slot)));
     }
     
     public void setItem(int slot, ItemStack item) {
-        if (slot < 2) container.setItem(slot, item);
-        else resultContainer.setItem(0, item);
+        if (slot < 2) inventory.setItem(slot, item);
+        else resultInventory.setItem(0, item);
         
         if (open) sendItem(slot);
     }
     
     private ItemStack getItem(int slot) {
-        if (slot < 2) return container.getItem(slot);
-        else return resultContainer.getItem(0);
+        if (slot < 2) return inventory.getItem(slot);
+        else return resultInventory.getItem(0);
     }
     
     @Override
@@ -111,26 +95,26 @@ class CartographyInventoryImpl extends CartographyTableMenu implements Cartograp
     }
     
     @Override
-    public void slotsChanged(Container container) {
+    public void a(IInventory inventory) {
     }
     
     @Override
-    public ItemStack quickMoveStack(net.minecraft.world.entity.player.Player entityhuman, int i) {
-        return ItemStack.EMPTY;
+    public ItemStack shiftClick(EntityHuman entityhuman, int i) {
+        return ItemStack.b;
     }
     
     @Override
-    public boolean canTakeItemForPickAll(ItemStack itemstack, Slot slot) {
+    public boolean a(ItemStack itemstack, Slot slot) {
         return true;
     }
     
     @Override
-    public boolean stillValid(net.minecraft.world.entity.player.Player entityhuman) {
+    public boolean canUse(EntityHuman entityhuman) {
         return true;
     }
     
     @Override
-    protected void clearContainer(net.minecraft.world.entity.player.Player entityhuman, Container container) {
+    public void b(EntityHuman entityHuman) {
         // empty
     }
     

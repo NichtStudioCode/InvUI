@@ -1,9 +1,10 @@
 package xyz.xenondevs.inventoryaccess.r4;
 
-import net.minecraft.server.v1_16_R2.*;
-import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_16_R2.CraftServer;
-import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
+import net.minecraft.server.v1_15_R1.AdvancementDataPlayer;
+import net.minecraft.server.v1_15_R1.EntityPlayer;
+import net.minecraft.server.v1_15_R1.MapIcon;
+import net.minecraft.server.v1_15_R1.PacketPlayOutMap;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 class PlayerUtilsImpl implements PlayerUtils {
     
     private static final Method REGISTER_LISTENERS_METHOD =
-        ReflectionUtils.getMethod(AdvancementDataPlayer.class, true, "b", AdvancementDataWorld.class);
+        ReflectionUtils.getMethod(AdvancementDataPlayer.class, true, "d");
     
     @Override
     public void stopAdvancementListening(@NotNull Player player) {
@@ -39,8 +40,7 @@ class PlayerUtilsImpl implements PlayerUtils {
     @Override
     public void startAdvancementListening(@NotNull Object player) {
         AdvancementDataPlayer advancements = ((EntityPlayer) player).getAdvancementData();
-        AdvancementDataWorld manager = ((CraftServer) Bukkit.getServer()).getServer().getAdvancementData();
-        ReflectionUtils.invokeMethod(REGISTER_LISTENERS_METHOD, advancements, manager);
+        ReflectionUtils.invokeMethod(REGISTER_LISTENERS_METHOD, advancements);
     }
     
     @Override

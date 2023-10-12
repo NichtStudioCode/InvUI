@@ -1,23 +1,12 @@
 package xyz.xenondevs.inventoryaccess.r6;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.NonNullList;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
-import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
-import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AnvilMenu;
-import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.ItemStack;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_17_R1.event.CraftEventFactory;
-import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftInventoryAnvil;
-import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftInventoryView;
-import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
+import net.minecraft.server.v1_16_R2.*;
+import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_16_R2.event.CraftEventFactory;
+import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftInventoryAnvil;
+import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftInventoryView;
+import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftItemStack;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
@@ -27,30 +16,30 @@ import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import java.util.List;
 import java.util.function.Consumer;
 
-class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
+class AnvilInventoryImpl extends ContainerAnvil implements AnvilInventory {
     
-    private final Component title;
+    private final IChatBaseComponent title;
     private final List<Consumer<String>> renameHandlers;
     private final CraftInventoryView view;
-    private final ServerPlayer player;
+    private final EntityPlayer player;
     
     private String text;
     private boolean open;
     
-    public AnvilInventoryImpl(org.bukkit.entity.Player player, @NotNull ComponentWrapper title, List<Consumer<String>> renameHandlers) {
+    public AnvilInventoryImpl(Player player, @NotNull ComponentWrapper title, List<Consumer<String>> renameHandlers) {
         this(((CraftPlayer) player).getHandle(), InventoryUtilsImpl.createNMSComponent(title), renameHandlers);
     }
     
-    public AnvilInventoryImpl(ServerPlayer player, Component title, List<Consumer<String>> renameHandlers) {
-        super(player.nextContainerCounter(), player.getInventory(),
-            ContainerLevelAccess.create(player.level, new BlockPos(0, 0, 0)));
+    public AnvilInventoryImpl(EntityPlayer player, IChatBaseComponent title, List<Consumer<String>> renameHandlers) {
+        super(player.nextContainerCounter(), player.inventory,
+            ContainerAccess.at(player.getWorld(), new BlockPosition(0, 0, 0)));
         
         this.title = title;
         this.renameHandlers = renameHandlers;
         this.player = player;
         
-        CraftInventoryAnvil inventory = new CraftInventoryAnvil(access.getLocation(),
-            inputSlots, resultSlots, this);
+        CraftInventoryAnvil inventory = new CraftInventoryAnvil(containerAccess.getLocation(),
+            repairInventory, resultInventory, this);
         this.view = new CraftInventoryView(player.getBukkitEntity(), inventory, this);
     }
     
@@ -61,33 +50,30 @@ class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
         CraftEventFactory.callInventoryOpenEvent(player, this);
         
         // set active container
-        player.containerMenu = this;
+        player.activeContainer = this;
         
         // send open packet
-        player.connection.send(new ClientboundOpenScreenPacket(containerId, MenuType.ANVIL, title));
+        player.playerConnection.sendPacket(new PacketPlayOutOpenWindow(windowId, Containers.ANVIL, title));
         
         // send initial items
-        NonNullList<ItemStack> itemsList = NonNullList.of(ItemStack.EMPTY, getItem(0), getItem(1), getItem(2));
-        player.connection.send(new ClientboundContainerSetContentPacket(InventoryUtilsImpl.getActiveWindowId(player), itemsList));
-        
-        // init menu
-        player.initMenu(this);
+        NonNullList<ItemStack> itemsList = NonNullList.a(ItemStack.b, getItem(0), getItem(1), getItem(2));
+        player.playerConnection.sendPacket(new PacketPlayOutWindowItems(InventoryUtilsImpl.getActiveWindowId(player), itemsList));
     }
     
     public void sendItem(int slot) {
-        player.connection.send(new ClientboundContainerSetSlotPacket(InventoryUtilsImpl.getActiveWindowId(player), slot, getItem(slot)));
+        player.playerConnection.sendPacket(new PacketPlayOutSetSlot(InventoryUtilsImpl.getActiveWindowId(player), slot, getItem(slot)));
     }
     
     public void setItem(int slot, ItemStack item) {
-        if (slot < 2) inputSlots.setItem(slot, item);
-        else resultSlots.setItem(0, item);
+        if (slot < 2) repairInventory.setItem(slot, item);
+        else resultInventory.setItem(0, item);
         
         if (open) sendItem(slot);
     }
     
     private ItemStack getItem(int slot) {
-        if (slot < 2) return inputSlots.getItem(slot);
-        else return resultSlots.getItem(0);
+        if (slot < 2) return repairInventory.getItem(slot);
+        else return resultInventory.getItem(0);
     }
     
     @Override
@@ -118,15 +104,15 @@ class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
     }
     
     /**
-     * Called every tick to see if the {@link Player} can still use that container.
-     * (Used to for checking the distance between the {@link Player} and the container
+     * Called every tick to see if the {@link EntityHuman} can still use that container.
+     * (Used to for checking the distance between the {@link EntityHuman} and the container
      * and closing the window when the distance gets too big.)
      *
-     * @param player The {@link Player}
-     * @return If the {@link Player} can still use that container
+     * @param entityhuman The {@link EntityHuman}
+     * @return If the {@link EntityHuman} can still use that container
      */
     @Override
-    public boolean stillValid(Player player) {
+    public boolean canUse(EntityHuman entityhuman) {
         return true;
     }
     
@@ -136,7 +122,7 @@ class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
      * @param s The new rename text
      */
     @Override
-    public void setItemName(String s) {
+    public void a(String s) {
         // save rename text
         text = s;
         
@@ -151,33 +137,21 @@ class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
     /**
      * Called when the container is closed to give the items back.
      *
-     * @param player The {@link Player} that closed this container
+     * @param entityhuman The {@link EntityHuman} that closed this container
      */
     @Override
-    public void removed(Player player) {
+    public void b(EntityHuman entityhuman) {
         open = false;
-    }
-    
-    
-    /**
-     * Called when the container gets closed to put items back into a players
-     * inventory or drop them in the world.
-     *
-     * @param player    The {@link Player} that closed this container
-     * @param container The container
-     */
-    @Override
-    protected void clearContainer(Player player, Container container) {
-        open = false;
+        // don't give them the items, they don't own them
     }
     
     /**
-     * Called when both items in the {@link AnvilMenu#inputSlots} were set to create
+     * Called when both items in the {@link ContainerAnvil#repairInventory} were set to create
      * the resulting product, calculate the level cost and call the {@link PrepareAnvilEvent}.
      */
     @Override
-    public void createResult() {
-        // empty
+    public void e() {
+        // no
     }
     
     

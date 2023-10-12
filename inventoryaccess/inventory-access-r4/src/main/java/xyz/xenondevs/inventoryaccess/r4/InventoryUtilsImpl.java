@@ -1,11 +1,10 @@
 package xyz.xenondevs.inventoryaccess.r4;
 
-import net.minecraft.server.v1_16_R2.*;
-import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_16_R2.event.CraftEventFactory;
-import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftContainer;
-import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftInventory;
-import org.bukkit.craftbukkit.v1_16_R2.util.CraftChatMessage;
+import net.minecraft.server.v1_15_R1.*;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_15_R1.event.CraftEventFactory;
+import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftContainer;
+import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftInventory;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
@@ -43,7 +42,7 @@ class InventoryUtilsImpl implements InventoryUtils {
                 if (title == null) {
                     if (iinventory instanceof ITileInventory)
                         titleComponent = ((ITileInventory) iinventory).getScoreboardDisplayName();
-                    else titleComponent = CraftChatMessage.fromString(container.getBukkitView().getTitle())[0];
+                    else titleComponent = new ChatComponentText(container.getBukkitView().getTitle());
                 } else titleComponent = createNMSComponent(title);
                 
                 entityPlayer.playerConnection.sendPacket(new PacketPlayOutOpenWindow(container.windowId, windowType, titleComponent));

@@ -1,6 +1,5 @@
 package xyz.xenondevs.inventoryaccess.util;
 
-import com.mojang.authlib.GameProfile;
 import org.bukkit.Bukkit;
 
 import java.lang.reflect.Field;
@@ -20,7 +19,6 @@ public class ReflectionRegistry {
     
     // Methods
     public static final Method PAPER_PLUGIN_CLASS_LOADER_GET_LOADED_JAVA_PLUGIN_METHOD;
-    public static final Method CB_CRAFT_META_SKULL_SET_PROFILE_METHOD = getMethod(CB_CRAFT_META_SKULL_CLASS, true, "setProfile", GameProfile.class);
     
     // Fields
     public static final Field PLUGIN_CLASS_LOADER_PLUGIN_FIELD = getField(PLUGIN_CLASS_LOADER_CLASS, true, "plugin");

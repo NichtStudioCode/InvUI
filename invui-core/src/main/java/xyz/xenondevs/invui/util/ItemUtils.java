@@ -1,5 +1,6 @@
 package xyz.xenondevs.invui.util;
 
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -15,7 +16,11 @@ public class ItemUtils {
      * @return Whether the {@link ItemStack} is empty.
      */
     public static boolean isEmpty(@Nullable ItemStack itemStack) {
-        return itemStack == null || itemStack.getType().isAir() || itemStack.getAmount() <= 0;
+        if (itemStack == null || itemStack.getAmount() <= 0)
+            return true;
+        
+        Material type = itemStack.getType();
+        return type == Material.AIR || type == Material.CAVE_AIR || type == Material.VOID_AIR;
     }
     
     /**

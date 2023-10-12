@@ -17,7 +17,7 @@ import java.lang.reflect.Field;
 
 class CartographyInventoryImpl extends ContainerCartography implements CartographyInventory {
     
-    private static final Field RESULT_CONTAINER_FIELD = ReflectionUtils.getField(ContainerCartography.class, true, "resultInventory");
+    private static final Field RESULT_CONTAINER_FIELD = ReflectionUtils.getField(ContainerCartography.class, true, "f");
     
     private final InventoryCraftResult resultInventory = ReflectionUtils.getFieldValue(RESULT_CONTAINER_FIELD, this);
     private final IChatBaseComponent title;

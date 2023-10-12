@@ -1,10 +1,10 @@
 package xyz.xenondevs.inventoryaccess.r2;
 
-import net.minecraft.server.v1_15_R1.AdvancementDataPlayer;
-import net.minecraft.server.v1_15_R1.EntityPlayer;
-import net.minecraft.server.v1_15_R1.MapIcon;
-import net.minecraft.server.v1_15_R1.PacketPlayOutMap;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
+import net.minecraft.server.v1_14_R1.AdvancementDataPlayer;
+import net.minecraft.server.v1_14_R1.EntityPlayer;
+import net.minecraft.server.v1_14_R1.MapIcon;
+import net.minecraft.server.v1_14_R1.PacketPlayOutMap;
+import org.bukkit.craftbukkit.v1_14_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

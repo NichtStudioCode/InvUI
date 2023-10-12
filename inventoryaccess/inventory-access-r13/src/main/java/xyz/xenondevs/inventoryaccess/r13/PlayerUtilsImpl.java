@@ -8,8 +8,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.saveddata.maps.MapDecoration;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_19_R3.CraftServer;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_19_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -92,7 +92,7 @@ class PlayerUtilsImpl implements PlayerUtils {
             force,
             InventoryUtilsImpl.createNMSComponent(prompt)
         );
-        serverPlayer.connection.send(packet);
+        serverPlayer.connection.connection.send(packet);
     }
     
 }

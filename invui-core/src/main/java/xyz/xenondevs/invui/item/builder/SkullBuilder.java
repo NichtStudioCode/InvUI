@@ -14,8 +14,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import xyz.xenondevs.inventoryaccess.util.ReflectionRegistry;
-import xyz.xenondevs.inventoryaccess.util.ReflectionUtils;
+import xyz.xenondevs.inventoryaccess.InventoryAccess;
 import xyz.xenondevs.invui.util.MojangApiUtils;
 
 import java.io.Serializable;
@@ -68,7 +67,7 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
         ItemMeta meta = item.getItemMeta();
         
         if (gameProfile != null)
-            ReflectionUtils.invokeMethod(ReflectionRegistry.CB_CRAFT_META_SKULL_SET_PROFILE_METHOD, meta, gameProfile);
+            InventoryAccess.getItemUtils().setSkullGameProfile(meta, gameProfile);
         
         item.setItemMeta(meta);
         

@@ -1,11 +1,11 @@
 package xyz.xenondevs.inventoryaccess.r4;
 
-import net.minecraft.server.v1_16_R2.*;
-import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_16_R2.event.CraftEventFactory;
-import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftInventoryCartography;
-import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftInventoryView;
-import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftItemStack;
+import net.minecraft.server.v1_15_R1.*;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_15_R1.event.CraftEventFactory;
+import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftInventoryCartography;
+import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftInventoryView;
+import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
@@ -52,7 +52,7 @@ class CartographyInventoryImpl extends ContainerCartography implements Cartograp
         player.playerConnection.sendPacket(new PacketPlayOutOpenWindow(windowId, Containers.CARTOGRAPHY_TABLE, title));
         
         // send initial items
-        NonNullList<ItemStack> itemsList = NonNullList.a(ItemStack.b, getItem(0), getItem(1), getItem(2));
+        NonNullList<ItemStack> itemsList = NonNullList.a(ItemStack.a, getItem(0), getItem(1), getItem(2));
         player.playerConnection.sendPacket(new PacketPlayOutWindowItems(InventoryUtilsImpl.getActiveWindowId(player), itemsList));
     }
     
@@ -100,7 +100,7 @@ class CartographyInventoryImpl extends ContainerCartography implements Cartograp
     
     @Override
     public ItemStack shiftClick(EntityHuman entityhuman, int i) {
-        return ItemStack.b;
+        return ItemStack.a;
     }
     
     @Override

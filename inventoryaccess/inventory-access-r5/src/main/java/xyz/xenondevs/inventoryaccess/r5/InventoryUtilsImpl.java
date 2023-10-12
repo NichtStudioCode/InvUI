@@ -1,11 +1,11 @@
 package xyz.xenondevs.inventoryaccess.r5;
 
-import net.minecraft.server.v1_16_R3.*;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_16_R3.event.CraftEventFactory;
-import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftContainer;
-import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftInventory;
-import org.bukkit.craftbukkit.v1_16_R3.util.CraftChatMessage;
+import net.minecraft.server.v1_16_R1.*;
+import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_16_R1.event.CraftEventFactory;
+import org.bukkit.craftbukkit.v1_16_R1.inventory.CraftContainer;
+import org.bukkit.craftbukkit.v1_16_R1.inventory.CraftInventory;
+import org.bukkit.craftbukkit.v1_16_R1.util.CraftChatMessage;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;

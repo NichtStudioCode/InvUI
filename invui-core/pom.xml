@@ -22,13 +22,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.20.2-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>it.unimi.dsi</groupId>
-            <artifactId>fastutil</artifactId>
-            <version>8.5.12</version>
+            <version>1.14-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

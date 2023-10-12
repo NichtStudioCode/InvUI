@@ -1,6 +1,5 @@
 package xyz.xenondevs.invui.inventory;
 
-import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Consumer;
 import org.jetbrains.annotations.NotNull;
@@ -9,6 +8,7 @@ import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
 
+import java.util.ArrayList;
 import java.util.function.IntPredicate;
 
 /**
@@ -28,7 +28,7 @@ public class ObscuredInventory extends Inventory {
     public ObscuredInventory(@NotNull Inventory inventory, @NotNull IntPredicate isObscured) {
         this.inventory = inventory;
         
-        IntArrayList slots = new IntArrayList();
+        ArrayList<Integer> slots = new ArrayList<>();
         for (int slot = 0; slot < inventory.getSize(); slot++) {
             if (isObscured.test(slot))
                 continue;
@@ -36,7 +36,7 @@ public class ObscuredInventory extends Inventory {
             slots.add(slot);
         }
         
-        this.slots = slots.toIntArray();
+        this.slots = slots.stream().mapToInt(Integer::intValue).toArray();
     }
     
     @Override

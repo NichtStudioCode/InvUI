@@ -9,16 +9,15 @@ import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
-import org.bukkit.craftbukkit.v1_18_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_18_R1.event.CraftEventFactory;
-import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftInventoryAnvil;
-import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftInventoryView;
-import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_17_R1.event.CraftEventFactory;
+import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftInventoryAnvil;
+import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftInventoryView;
+import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
@@ -69,14 +68,14 @@ class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
         
         // send initial items
         NonNullList<ItemStack> itemsList = NonNullList.of(ItemStack.EMPTY, getItem(0), getItem(1), getItem(2));
-        player.connection.send(new ClientboundContainerSetContentPacket(getActiveWindowId(player), incrementStateId(), itemsList, ItemStack.EMPTY));
+        player.connection.send(new ClientboundContainerSetContentPacket(InventoryUtilsImpl.getActiveWindowId(player), itemsList));
         
         // init menu
         player.initMenu(this);
     }
     
     public void sendItem(int slot) {
-        player.connection.send(new ClientboundContainerSetSlotPacket(getActiveWindowId(player), incrementStateId(), slot, getItem(slot)));
+        player.connection.send(new ClientboundContainerSetSlotPacket(InventoryUtilsImpl.getActiveWindowId(player), slot, getItem(slot)));
     }
     
     public void setItem(int slot, ItemStack item) {
@@ -89,11 +88,6 @@ class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
     private ItemStack getItem(int slot) {
         if (slot < 2) return inputSlots.getItem(slot);
         else return resultSlots.getItem(0);
-    }
-    
-    private int getActiveWindowId(ServerPlayer player) {
-        AbstractContainerMenu container = player.containerMenu;
-        return container == null ? -1 : container.containerId;
     }
     
     @Override
@@ -116,7 +110,7 @@ class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
         return open;
     }
     
-    // --- AnvilMenu ---
+    // --- ContainerAnvil ---
     
     @Override
     public CraftInventoryView getBukkitView() {

@@ -1,7 +1,5 @@
 package xyz.xenondevs.invui.gui;
 
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.ints.IntSet;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
@@ -10,6 +8,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.animation.Animation;
 import xyz.xenondevs.invui.gui.structure.Marker;
 import xyz.xenondevs.invui.gui.structure.Structure;
@@ -92,40 +91,41 @@ public abstract class AbstractGui implements Gui, GuiParent {
             
             Player player = (Player) event.getWhoClicked();
             
-            ItemStack cursor = event.getCursor();
-            if (cursor != null && cursor.getType().isAir()) cursor = null;
-            
-            ItemStack clicked = event.getCurrentItem();
-            if (clicked != null && clicked.getType().isAir()) clicked = null;
+            ItemStack cursor = ItemUtils.takeUnlessEmpty(event.getCursor());
+            ItemStack clicked = ItemUtils.takeUnlessEmpty(event.getCurrentItem());
             
             ItemStack technicallyClicked = inventory.getItem(slot);
             if (inventory.isSynced(slot, clicked) || didClickBackgroundItem(player, element, inventory, slot, clicked)) {
                 
-                switch (event.getClick()) {
-                    case LEFT:
+                // using enum names because SWAP_OFFHAND does not exist on earlier versions 
+                switch (event.getClick().name()) {
+                    case "LEFT":
                         handleInvLeftClick(event, inventory, slot, player, technicallyClicked, cursor);
                         break;
-                    case RIGHT:
+                    case "RIGHT":
                         handleInvRightClick(event, inventory, slot, player, technicallyClicked, cursor);
                         break;
-                    case SHIFT_RIGHT:
-                    case SHIFT_LEFT:
+                    case "SHIFT_RIGHT":
+                    case "SHIFT_LEFT":
                         handleInvItemShift(event, inventory, slot, player, technicallyClicked);
                         break;
-                    case NUMBER_KEY:
+                    case "NUMBER_KEY":
                         handleInvNumberKey(event, inventory, slot, player, technicallyClicked);
                         break;
-                    case SWAP_OFFHAND:
+                    case "SWAP_OFFHAND":
                         handleInvOffHandKey(event, inventory, slot, player, technicallyClicked);
                         break;
-                    case DROP:
+                    case "DROP":
                         handleInvDrop(false, event, inventory, slot, player, technicallyClicked);
                         break;
-                    case CONTROL_DROP:
+                    case "CONTROL_DROP":
                         handleInvDrop(true, event, inventory, slot, player, technicallyClicked);
                         break;
-                    case DOUBLE_CLICK:
+                    case "DOUBLE_CLICK":
                         handleInvDoubleClick(event, inventory, player, cursor);
+                        break;
+                    default:
+                        InvUI.getInstance().getLogger().warning("Unknown click type: " + event.getClick().name());
                         break;
                 }
             }
@@ -244,8 +244,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
         if (window instanceof AbstractSingleWindow) {
             org.bukkit.inventory.Inventory playerInventory = player.getInventory();
             int hotbarButton = event.getHotbarButton();
-            ItemStack hotbarItem = playerInventory.getItem(hotbarButton);
-            if (hotbarItem != null && hotbarItem.getType().isAir()) hotbarItem = null;
+            ItemStack hotbarItem = ItemUtils.takeUnlessEmpty(playerInventory.getItem(hotbarButton));
             
             UpdateReason updateReason = new PlayerUpdateReason(player, event);
             
@@ -259,8 +258,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
         Window window = WindowManager.getInstance().getOpenWindow(player);
         if (window instanceof AbstractSingleWindow) {
             PlayerInventory playerInventory = player.getInventory();
-            ItemStack offhandItem = playerInventory.getItemInOffHand();
-            if (offhandItem != null && offhandItem.getType().isAir()) offhandItem = null;
+            ItemStack offhandItem = ItemUtils.takeUnlessEmpty(playerInventory.getItemInOffHand());
             
             UpdateReason updateReason = new PlayerUpdateReason(player, event);
             
@@ -347,8 +345,8 @@ public abstract class AbstractGui implements Gui, GuiParent {
         return originalAmount;
     }
     
-    public Map<Inventory, IntSet> getAllInventorySlots(Inventory... ignored) {
-        TreeMap<Inventory, IntSet> slots = new TreeMap<>(Comparator.comparingInt(Inventory::getGuiPriority).reversed());
+    public Map<Inventory, Set<Integer>> getAllInventorySlots(Inventory... ignored) {
+        TreeMap<Inventory, Set<Integer>> slots = new TreeMap<>(Comparator.comparingInt(Inventory::getGuiPriority).reversed());
         Set<Inventory> ignoredSet = Arrays.stream(ignored).collect(Collectors.toSet());
         
         for (SlotElement element : slotElements) {
@@ -362,7 +360,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
                 if (ignoredSet.contains(inventory))
                     continue;
                 
-                slots.computeIfAbsent(inventory, i -> new IntOpenHashSet()).add(invElement.getSlot());
+                slots.computeIfAbsent(inventory, i -> new HashSet<>()).add(invElement.getSlot());
             }
         }
         
@@ -374,9 +372,9 @@ public abstract class AbstractGui implements Gui, GuiParent {
             return getAllInventorySlots(ignored).keySet();
         
         ArrayList<Inventory> inventories = new ArrayList<>();
-        for (Map.Entry<Inventory, IntSet> entry : getAllInventorySlots(ignored).entrySet()) {
+        for (Map.Entry<Inventory, Set<Integer>> entry : getAllInventorySlots(ignored).entrySet()) {
             Inventory inventory = entry.getKey();
-            IntSet slots = entry.getValue();
+            Set<Integer> slots = entry.getValue();
             inventories.add(new ObscuredInventory(inventory, slot -> !slots.contains(slot)));
         }
         

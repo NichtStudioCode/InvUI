@@ -10,11 +10,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
-import org.bukkit.craftbukkit.v1_18_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_18_R1.event.CraftEventFactory;
-import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftInventoryCartography;
-import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftInventoryView;
-import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_17_R1.event.CraftEventFactory;
+import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftInventoryCartography;
+import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftInventoryView;
+import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
@@ -66,7 +66,7 @@ class CartographyInventoryImpl extends CartographyTableMenu implements Cartograp
         
         // send initial items
         NonNullList<ItemStack> itemsList = NonNullList.of(ItemStack.EMPTY, getItem(0), getItem(1), getItem(2));
-        player.connection.send(new ClientboundContainerSetContentPacket(InventoryUtilsImpl.getActiveWindowId(player), incrementStateId(), itemsList, ItemStack.EMPTY));
+        player.connection.send(new ClientboundContainerSetContentPacket(InventoryUtilsImpl.getActiveWindowId(player), itemsList));
         
         // init menu
         player.initMenu(this);
@@ -78,7 +78,7 @@ class CartographyInventoryImpl extends CartographyTableMenu implements Cartograp
     }
     
     public void sendItem(int slot) {
-        player.connection.send(new ClientboundContainerSetSlotPacket(InventoryUtilsImpl.getActiveWindowId(player), slot, incrementStateId(), getItem(slot)));
+        player.connection.send(new ClientboundContainerSetSlotPacket(InventoryUtilsImpl.getActiveWindowId(player), slot, getItem(slot)));
     }
     
     public void setItem(int slot, ItemStack item) {

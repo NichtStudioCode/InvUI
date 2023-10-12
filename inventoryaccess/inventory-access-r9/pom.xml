@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>xyz.xenondevs.invui</groupId>
@@ -15,7 +15,7 @@
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <spigot.version>1.18.2-R0.1-SNAPSHOT</spigot.version>
+        <spigot.version>1.17.1-R0.1-SNAPSHOT</spigot.version>
     </properties>
 
     <dependencies>
@@ -36,9 +36,9 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>xyz.xenondevs.string-remapper</groupId>
+                <groupId>xyz.xenondevs</groupId>
                 <artifactId>string-remapper-maven-plugin</artifactId>
-                <version>1.2</version>
+                <version>0.6</version>
 
                 <executions>
                     <execution>
@@ -47,10 +47,14 @@
                             <goal>remap</goal>
                         </goals>
                         <configuration>
-                            <spigotVersion>${spigot.version}</spigotVersion>
-                            <goal>spigot</goal>
+                            <remapGoal>spigot</remapGoal>
                             <classesIn>${project.build.directory}/classes</classesIn>
                             <classesOut>${project.build.directory}/classes-spigot</classesOut>
+                            <mapsMojang>org.spigotmc:minecraft-server:txt:maps-mojang:${spigot.version}</mapsMojang>
+                            <mapsSpigot>
+                                <classes>org.spigotmc:minecraft-server:csrg:maps-spigot:${spigot.version}</classes>
+                                <members>org.spigotmc:minecraft-server:csrg:maps-spigot-members:${spigot.version}</members>
+                            </mapsSpigot>
                         </configuration>
                     </execution>
 
@@ -60,10 +64,14 @@
                             <goal>remap</goal>
                         </goals>
                         <configuration>
-                            <spigotVersion>${spigot.version}</spigotVersion>
-                            <goal>mojang</goal>
+                            <remapGoal>mojang</remapGoal>
                             <classesIn>${project.build.directory}/classes</classesIn>
                             <classesOut>${project.build.directory}/classes-mojang</classesOut>
+                            <mapsMojang>org.spigotmc:minecraft-server:txt:maps-mojang:${spigot.version}</mapsMojang>
+                            <mapsSpigot>
+                                <classes>org.spigotmc:minecraft-server:csrg:maps-spigot:${spigot.version}</classes>
+                                <members>org.spigotmc:minecraft-server:csrg:maps-spigot-members:${spigot.version}</members>
+                            </mapsSpigot>
                         </configuration>
                     </execution>
                 </executions>

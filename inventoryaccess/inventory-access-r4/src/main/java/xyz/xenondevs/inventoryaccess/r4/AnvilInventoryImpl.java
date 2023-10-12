@@ -1,27 +1,36 @@
 package xyz.xenondevs.inventoryaccess.r4;
 
-import net.minecraft.server.v1_16_R2.*;
-import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_16_R2.event.CraftEventFactory;
-import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftInventoryAnvil;
-import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftInventoryView;
-import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftItemStack;
+import net.minecraft.server.v1_15_R1.*;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_15_R1.event.CraftEventFactory;
+import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftInventoryAnvil;
+import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftInventoryView;
+import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.inventoryaccess.abstraction.inventory.AnvilInventory;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
+import xyz.xenondevs.inventoryaccess.util.ReflectionUtils;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.function.Consumer;
 
 class AnvilInventoryImpl extends ContainerAnvil implements AnvilInventory {
     
+    private static final Field CONTAINER_ACCESS_FIELD = ReflectionUtils.getField(ContainerAnvil.class, true, "containerAccess");
+    private static final Field REPAIR_INVENTORY_FIELD = ReflectionUtils.getField(ContainerAnvil.class, true, "repairInventory");
+    private static final Field RESULT_INVENTORY_FIELD = ReflectionUtils.getField(ContainerAnvil.class, true, "resultInventory");
+    
     private final IChatBaseComponent title;
     private final List<Consumer<String>> renameHandlers;
     private final CraftInventoryView view;
     private final EntityPlayer player;
+    
+    private final IInventory repairInventory;
+    private final IInventory resultInventory;
     
     private String text;
     private boolean open;
@@ -37,6 +46,10 @@ class AnvilInventoryImpl extends ContainerAnvil implements AnvilInventory {
         this.title = title;
         this.renameHandlers = renameHandlers;
         this.player = player;
+        
+        repairInventory = ReflectionUtils.getFieldValue(REPAIR_INVENTORY_FIELD, this);
+        resultInventory = ReflectionUtils.getFieldValue(RESULT_INVENTORY_FIELD, this);
+        ContainerAccess containerAccess = ReflectionUtils.getFieldValue(CONTAINER_ACCESS_FIELD, this);
         
         CraftInventoryAnvil inventory = new CraftInventoryAnvil(containerAccess.getLocation(),
             repairInventory, resultInventory, this);
@@ -56,7 +69,7 @@ class AnvilInventoryImpl extends ContainerAnvil implements AnvilInventory {
         player.playerConnection.sendPacket(new PacketPlayOutOpenWindow(windowId, Containers.ANVIL, title));
         
         // send initial items
-        NonNullList<ItemStack> itemsList = NonNullList.a(ItemStack.b, getItem(0), getItem(1), getItem(2));
+        NonNullList<ItemStack> itemsList = NonNullList.a(ItemStack.a, getItem(0), getItem(1), getItem(2));
         player.playerConnection.sendPacket(new PacketPlayOutWindowItems(InventoryUtilsImpl.getActiveWindowId(player), itemsList));
     }
     
@@ -146,7 +159,7 @@ class AnvilInventoryImpl extends ContainerAnvil implements AnvilInventory {
     }
     
     /**
-     * Called when both items in the {@link ContainerAnvil#repairInventory} were set to create
+     * Called when both items in the {@link AnvilInventoryImpl#repairInventory} were set to create
      * the resulting product, calculate the level cost and call the {@link PrepareAnvilEvent}.
      */
     @Override

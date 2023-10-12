@@ -1,9 +1,10 @@
 package xyz.xenondevs.inventoryaccess.r7;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtIo;
-import net.minecraft.world.item.ItemStack;
-import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
+import com.mojang.authlib.GameProfile;
+import net.minecraft.server.v1_16_R3.ItemStack;
+import net.minecraft.server.v1_16_R3.NBTCompressedStreamTools;
+import net.minecraft.server.v1_16_R3.NBTTagCompound;
+import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.inventoryaccess.abstraction.util.ItemUtils;
@@ -12,10 +13,15 @@ import xyz.xenondevs.inventoryaccess.util.ReflectionRegistry;
 import xyz.xenondevs.inventoryaccess.util.ReflectionUtils;
 
 import java.io.*;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Collectors;
 
 class ItemUtilsImpl implements ItemUtils {
+    
+    private static final Method CRAFT_META_SKULL_SET_PROFILE_METHOD = ReflectionUtils.getMethod(
+        ReflectionRegistry.CB_CRAFT_META_SKULL_CLASS, true, "setProfile", GameProfile.class
+    );    
     
     @Override
     public byte[] serializeItemStack(org.bukkit.inventory.@NotNull ItemStack itemStack, boolean compressed) {
@@ -25,19 +31,19 @@ class ItemUtilsImpl implements ItemUtils {
     }
     
     @Override
-    public void serializeItemStack(org.bukkit.inventory.@NotNull ItemStack itemStack, @NotNull OutputStream outputStream, boolean compressed) {
+    public void serializeItemStack(org.bukkit.inventory.@NotNull ItemStack itemStack, @NotNull OutputStream out, boolean compressed) {
         try {
             ItemStack nmsStack = CraftItemStack.asNMSCopy(itemStack);
-            CompoundTag nbt = nmsStack.save(new CompoundTag());
+            NBTTagCompound nbt = nmsStack.save(new NBTTagCompound());
             
             if (compressed) {
-                NbtIo.writeCompressed(nbt, outputStream);
+                NBTCompressedStreamTools.a(nbt, out);
             } else {
-                DataOutputStream dataOut = new DataOutputStream(outputStream);
-                NbtIo.write(nbt, dataOut);
+                DataOutputStream dataOut = new DataOutputStream(out);
+                NBTCompressedStreamTools.a(nbt, (DataOutput) dataOut);
             }
             
-            outputStream.flush();
+            out.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -50,17 +56,17 @@ class ItemUtilsImpl implements ItemUtils {
     }
     
     @Override
-    public org.bukkit.inventory.ItemStack deserializeItemStack(@NotNull InputStream inputStream, boolean compressed) {
+    public org.bukkit.inventory.ItemStack deserializeItemStack(@NotNull InputStream in, boolean compressed) {
         try {
-            CompoundTag nbt;
+            NBTTagCompound nbt;
             if (compressed) {
-                nbt = NbtIo.readCompressed(inputStream);
+                nbt = NBTCompressedStreamTools.a(in);
             } else {
-                DataInputStream dataIn = new DataInputStream(inputStream);
-                nbt = NbtIo.read(dataIn);
+                DataInputStream dataIn = new DataInputStream(in);
+                nbt = NBTCompressedStreamTools.a((DataInput) dataIn);
             }
             
-            ItemStack itemStack = ItemStack.of(nbt);
+            ItemStack itemStack = ItemStack.a(nbt);
             
             return CraftItemStack.asCraftMirror(itemStack);
         } catch (IOException e) {
@@ -86,6 +92,11 @@ class ItemUtilsImpl implements ItemUtils {
             itemMeta,
             lore.stream().map(ComponentWrapper::serializeToJson).collect(Collectors.toList())
         );
+    }
+    
+    @Override
+    public void setSkullGameProfile(@NotNull ItemMeta itemMeta, @NotNull GameProfile gameProfile) {
+        ReflectionUtils.invokeMethod(CRAFT_META_SKULL_SET_PROFILE_METHOD, itemMeta, gameProfile);
     }
     
 }

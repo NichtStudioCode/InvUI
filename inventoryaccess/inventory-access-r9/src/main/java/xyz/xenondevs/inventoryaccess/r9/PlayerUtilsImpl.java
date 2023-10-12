@@ -8,8 +8,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.saveddata.maps.MapDecoration;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_18_R2.CraftServer;
-import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,7 +30,7 @@ class PlayerUtilsImpl implements PlayerUtils {
     private static final Method REGISTER_LISTENERS_METHOD = ReflectionUtils.getMethod(
         PlayerAdvancements.class,
         true,
-        "ASRM(net/minecraft/server/PlayerAdvancements.registerListeners(Lnet/minecraft/server/ServerAdvancementManager;)V)",
+        "SRM(net.minecraft.server.PlayerAdvancements registerListeners)",
         ServerAdvancementManager.class
     );
     

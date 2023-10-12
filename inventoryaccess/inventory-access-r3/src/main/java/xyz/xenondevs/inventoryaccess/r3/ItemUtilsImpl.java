@@ -1,9 +1,10 @@
 package xyz.xenondevs.inventoryaccess.r3;
 
-import net.minecraft.server.v1_16_R1.ItemStack;
-import net.minecraft.server.v1_16_R1.NBTCompressedStreamTools;
-import net.minecraft.server.v1_16_R1.NBTTagCompound;
-import org.bukkit.craftbukkit.v1_16_R1.inventory.CraftItemStack;
+import com.mojang.authlib.GameProfile;
+import net.minecraft.server.v1_14_R1.ItemStack;
+import net.minecraft.server.v1_14_R1.NBTCompressedStreamTools;
+import net.minecraft.server.v1_14_R1.NBTTagCompound;
+import org.bukkit.craftbukkit.v1_14_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.inventoryaccess.abstraction.util.ItemUtils;
@@ -12,10 +13,15 @@ import xyz.xenondevs.inventoryaccess.util.ReflectionRegistry;
 import xyz.xenondevs.inventoryaccess.util.ReflectionUtils;
 
 import java.io.*;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Collectors;
 
 class ItemUtilsImpl implements ItemUtils {
+    
+    private static final Method CRAFT_META_SKULL_SET_PROFILE_METHOD = ReflectionUtils.getMethod(
+        ReflectionRegistry.CB_CRAFT_META_SKULL_CLASS, true, "setProfile", GameProfile.class
+    );
     
     @Override
     public byte[] serializeItemStack(org.bukkit.inventory.@NotNull ItemStack itemStack, boolean compressed) {
@@ -86,6 +92,11 @@ class ItemUtilsImpl implements ItemUtils {
             itemMeta,
             lore.stream().map(InventoryUtilsImpl::createNMSComponent).collect(Collectors.toList())
         );
+    }
+    
+    @Override
+    public void setSkullGameProfile(@NotNull ItemMeta itemMeta, @NotNull GameProfile gameProfile) {
+        ReflectionUtils.invokeMethod(CRAFT_META_SKULL_SET_PROFILE_METHOD, itemMeta, gameProfile);
     }
     
 }

@@ -14,11 +14,11 @@ import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
-import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory;
-import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftInventoryAnvil;
-import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftInventoryView;
-import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_19_R2.event.CraftEventFactory;
+import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftInventoryAnvil;
+import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftInventoryView;
+import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
@@ -30,6 +30,7 @@ import java.util.function.Consumer;
 
 class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
     
+    private final Component title;
     private final List<Consumer<String>> renameHandlers;
     private final CraftInventoryView view;
     private final ServerPlayer player;
@@ -43,9 +44,9 @@ class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
     
     public AnvilInventoryImpl(ServerPlayer player, Component title, List<Consumer<String>> renameHandlers) {
         super(player.nextContainerCounter(), player.getInventory(),
-            ContainerLevelAccess.create(player.level(), new BlockPos(0, 0, 0)));
+            ContainerLevelAccess.create(player.level, new BlockPos(0, 0, 0)));
         
-        setTitle(title);
+        this.title = title;
         this.renameHandlers = renameHandlers;
         this.player = player;
         
@@ -64,7 +65,7 @@ class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
         player.containerMenu = this;
         
         // send open packet
-        player.connection.send(new ClientboundOpenScreenPacket(containerId, MenuType.ANVIL, getTitle()));
+        player.connection.send(new ClientboundOpenScreenPacket(containerId, MenuType.ANVIL, title));
         
         // send initial items
         NonNullList<ItemStack> itemsList = NonNullList.of(ItemStack.EMPTY, getItem(0), getItem(1), getItem(2));
@@ -141,7 +142,7 @@ class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
      * @param s The new rename text
      */
     @Override
-    public boolean setItemName(String s) {
+    public void setItemName(String s) {
         // save rename text
         text = s;
         
@@ -149,10 +150,8 @@ class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
         if (renameHandlers != null)
             renameHandlers.forEach(handler -> handler.accept(s));
         
-        // the client expects the item to change to its new name and removes it from the inventory, so it needs to be sent again
+        // the client expects the item to change to it's new name and removes it from the inventory, so it needs to be sent again
         sendItem(2);
-        
-        return false;
     }
     
     /**

@@ -113,7 +113,7 @@ public class WindowManager implements Listener {
         if (window != null) {
             window.handleClickEvent(event);
             
-            if (event.getClick() == ClickType.SWAP_OFFHAND && event.isCancelled()) {
+            if (event.getClick().name().equals("SWAP_OFFHAND") && event.isCancelled()) {
                 EntityEquipment equipment = event.getWhoClicked().getEquipment();
                 equipment.setItemInOffHand(equipment.getItemInOffHand());
             }

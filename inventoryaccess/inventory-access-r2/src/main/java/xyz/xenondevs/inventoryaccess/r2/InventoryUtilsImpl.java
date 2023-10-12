@@ -1,11 +1,12 @@
 package xyz.xenondevs.inventoryaccess.r2;
 
-import net.minecraft.server.v1_15_R1.*;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_15_R1.event.CraftEventFactory;
-import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftContainer;
-import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftInventory;
+import net.minecraft.server.v1_14_R1.*;
+import org.bukkit.craftbukkit.v1_14_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_14_R1.event.CraftEventFactory;
+import org.bukkit.craftbukkit.v1_14_R1.inventory.CraftContainer;
+import org.bukkit.craftbukkit.v1_14_R1.inventory.CraftInventory;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,6 +14,28 @@ import xyz.xenondevs.inventoryaccess.abstraction.util.InventoryUtils;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 
 class InventoryUtilsImpl implements InventoryUtils {
+    
+    private static Containers<?> getNotchInventoryType(Inventory inventory) {
+        InventoryType type = inventory.getType();
+        if (type == InventoryType.CHEST) {
+            switch (inventory.getSize()) {
+                case 9:
+                    return Containers.GENERIC_9X1;
+                case 18:
+                    return Containers.GENERIC_9X2;
+                case 27:
+                    return Containers.GENERIC_9X3;
+                case 36:
+                    return Containers.GENERIC_9X4;
+                case 45:
+                    return Containers.GENERIC_9X5;
+                case 54:
+                    return Containers.GENERIC_9X6;
+                default:
+                    throw new IllegalArgumentException("Unsupported custom inventory size " + inventory.getSize());
+            }
+        } else return CraftContainer.getNotchInventoryType(type);
+    }
     
     public static IChatBaseComponent createNMSComponent(ComponentWrapper component) {
         return IChatBaseComponent.ChatSerializer.a(component.serializeToJson());
@@ -31,7 +54,7 @@ class InventoryUtilsImpl implements InventoryUtils {
     @Override
     public void openCustomInventory(@NotNull Player player, @NotNull Inventory inventory, @Nullable ComponentWrapper title) {
         EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
-        Containers<?> windowType = CraftContainer.getNotchInventoryType(inventory);
+        Containers<?> windowType = getNotchInventoryType(inventory);
         
         if (entityPlayer.playerConnection != null) {
             Container container = new CraftContainer(inventory, entityPlayer, entityPlayer.nextContainerCounter());

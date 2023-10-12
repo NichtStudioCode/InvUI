@@ -1,17 +1,11 @@
 package xyz.xenondevs.inventoryaccess.r6;
 
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.Container;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.MenuType;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_17_R1.event.CraftEventFactory;
-import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftContainer;
-import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftInventory;
-import org.bukkit.craftbukkit.v1_17_R1.util.CraftChatMessage;
+import net.minecraft.server.v1_16_R2.*;
+import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_16_R2.event.CraftEventFactory;
+import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftContainer;
+import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftInventory;
+import org.bukkit.craftbukkit.v1_16_R2.util.CraftChatMessage;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
@@ -21,14 +15,13 @@ import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 
 class InventoryUtilsImpl implements InventoryUtils {
     
-    public static Component createNMSComponent(ComponentWrapper component) {
-        if (component == null) return null;
-        return CraftChatMessage.fromJSON(component.serializeToJson());
+    public static IChatBaseComponent createNMSComponent(ComponentWrapper component) {
+        return IChatBaseComponent.ChatSerializer.a(component.serializeToJson());
     }
     
-    public static int getActiveWindowId(ServerPlayer player) {
-        AbstractContainerMenu container = player.containerMenu;
-        return container == null ? -1 : container.containerId;
+    public static int getActiveWindowId(EntityPlayer player) {
+        Container container = player.activeContainer;
+        return container == null ? -1 : container.windowId;
     }
     
     @Override
@@ -38,36 +31,34 @@ class InventoryUtilsImpl implements InventoryUtils {
     
     @Override
     public void openCustomInventory(@NotNull Player player, @NotNull Inventory inventory, @Nullable ComponentWrapper title) {
-        ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
-        MenuType<?> menuType = CraftContainer.getNotchInventoryType(inventory);
+        EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
+        Containers<?> windowType = CraftContainer.getNotchInventoryType(inventory);
         
-        if (serverPlayer.connection != null) {
-            AbstractContainerMenu menu = new CraftContainer(inventory, serverPlayer, serverPlayer.nextContainerCounter());
-            menu = CraftEventFactory.callInventoryOpenEvent(serverPlayer, menu);
-            if (menu != null) {
-                Container container = ((CraftInventory) inventory).getInventory();
-                Component titleComponent;
+        if (entityPlayer.playerConnection != null) {
+            Container container = new CraftContainer(inventory, entityPlayer, entityPlayer.nextContainerCounter());
+            container = CraftEventFactory.callInventoryOpenEvent(entityPlayer, container);
+            if (container != null) {
+                IInventory iinventory = ((CraftInventory) inventory).getInventory();
+                IChatBaseComponent titleComponent;
                 if (title == null) {
-                    if (container instanceof MenuProvider)
-                        titleComponent = ((MenuProvider) container).getDisplayName();
-                    else titleComponent = CraftChatMessage.fromString(menu.getBukkitView().getTitle())[0];
+                    if (iinventory instanceof ITileInventory)
+                        titleComponent = ((ITileInventory) iinventory).getScoreboardDisplayName();
+                    else titleComponent = CraftChatMessage.fromString(container.getBukkitView().getTitle())[0];
                 } else titleComponent = createNMSComponent(title);
                 
-                menu.checkReachable = false;
-                serverPlayer.connection.send(new ClientboundOpenScreenPacket(menu.containerId, menuType, titleComponent));
-                serverPlayer.containerMenu = menu;
-                serverPlayer.initMenu(menu);
+                entityPlayer.playerConnection.sendPacket(new PacketPlayOutOpenWindow(container.windowId, windowType, titleComponent));
+                entityPlayer.activeContainer = container;
+                entityPlayer.activeContainer.addSlotListener(entityPlayer);
             }
         }
-        
     }
     
     @Override
     public void updateOpenInventoryTitle(@NotNull Player player, @NotNull ComponentWrapper title) {
-        ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
-        AbstractContainerMenu menu = serverPlayer.containerMenu;
-        serverPlayer.connection.send(new ClientboundOpenScreenPacket(menu.containerId, menu.getType(), createNMSComponent(title)));
-        serverPlayer.initMenu(menu);
+        EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
+        Container container = entityPlayer.activeContainer;
+        entityPlayer.playerConnection.sendPacket(new PacketPlayOutOpenWindow(container.windowId, container.getType(), createNMSComponent(title)));
+        entityPlayer.updateInventory(container);
     }
     
 }

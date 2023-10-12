@@ -1,11 +1,11 @@
 package xyz.xenondevs.inventoryaccess.r5;
 
-import net.minecraft.server.v1_16_R3.*;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_16_R3.event.CraftEventFactory;
-import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftInventoryAnvil;
-import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftInventoryView;
-import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
+import net.minecraft.server.v1_16_R1.*;
+import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_16_R1.event.CraftEventFactory;
+import org.bukkit.craftbukkit.v1_16_R1.inventory.CraftInventoryAnvil;
+import org.bukkit.craftbukkit.v1_16_R1.inventory.CraftInventoryView;
+import org.bukkit.craftbukkit.v1_16_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.Inventory;

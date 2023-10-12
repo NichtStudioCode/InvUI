@@ -91,7 +91,7 @@ public class InventoryUtils {
                 continue;
             
             ItemStack item = storageContents[i];
-            if (item == null || item.getType().isAir())
+            if (ItemUtils.isEmpty(item))
                 return i;
         }
         
@@ -121,8 +121,7 @@ public class InventoryUtils {
     
     public static boolean containsSimilar(@NotNull Inventory inventory, @Nullable ItemStack itemStack) {
         for (int i = 0; i < inventory.getSize(); i++) {
-            ItemStack currentStack = inventory.getItem(i);
-            if (currentStack != null && currentStack.getType().isAir()) currentStack = null;
+            ItemStack currentStack = ItemUtils.takeUnlessEmpty(inventory.getItem(i));
             
             if ((currentStack == null && itemStack == null)
                 || (currentStack != null && currentStack.isSimilar(itemStack))) return true;

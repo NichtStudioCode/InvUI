@@ -98,6 +98,16 @@
             <artifactId>inventory-access-r15</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>xyz.xenondevs.invui</groupId>
+            <artifactId>inventory-access-r16</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>xyz.xenondevs.invui</groupId>
+            <artifactId>inventory-access-r17</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

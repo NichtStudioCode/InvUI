@@ -10,17 +10,17 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
-import org.bukkit.craftbukkit.v1_20_R2.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_20_R2.event.CraftEventFactory;
-import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftInventoryCartography;
-import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftInventoryView;
-import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_19_R3.event.CraftEventFactory;
+import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftInventoryCartography;
+import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftInventoryView;
+import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftItemStack;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.inventoryaccess.abstraction.inventory.CartographyInventory;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.inventoryaccess.util.ReflectionUtils;
-import net.minecraft.world.entity.player.Player;
 
 import java.lang.reflect.Field;
 
@@ -39,12 +39,12 @@ class CartographyInventoryImpl extends CartographyTableMenu implements Cartograp
     
     private boolean open;
     
-    public CartographyInventoryImpl(org.bukkit.entity.Player player, @NotNull ComponentWrapper title) {
+    public CartographyInventoryImpl(Player player, @NotNull ComponentWrapper title) {
         this(((CraftPlayer) player).getHandle(), InventoryUtilsImpl.createNMSComponent(title));
     }
     
     public CartographyInventoryImpl(ServerPlayer player, Component title) {
-        super(player.nextContainerCounter(), player.getInventory(), ContainerLevelAccess.create(player.level(), new BlockPos(0, 0, 0)));
+        super(player.nextContainerCounter(), player.getInventory(), ContainerLevelAccess.create(player.level, new BlockPos(0, 0, 0)));
         
         this.player = player;
         this.title = title;
@@ -115,7 +115,7 @@ class CartographyInventoryImpl extends CartographyTableMenu implements Cartograp
     }
     
     @Override
-    public ItemStack quickMoveStack(Player player, int i) {
+    public ItemStack quickMoveStack(net.minecraft.world.entity.player.Player entityhuman, int i) {
         return ItemStack.EMPTY;
     }
     
@@ -125,12 +125,12 @@ class CartographyInventoryImpl extends CartographyTableMenu implements Cartograp
     }
     
     @Override
-    public boolean stillValid(Player player) {
+    public boolean stillValid(net.minecraft.world.entity.player.Player entityhuman) {
         return true;
     }
     
     @Override
-    protected void clearContainer(Player player, Container container) {
+    protected void clearContainer(net.minecraft.world.entity.player.Player entityhuman, Container container) {
         // empty
     }
     

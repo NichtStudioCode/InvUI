@@ -15,7 +15,7 @@
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <spigot.version>1.20.2-R0.1-SNAPSHOT</spigot.version>
+        <spigot.version>1.19.4-R0.1-SNAPSHOT</spigot.version>
     </properties>
 
     <dependencies>
