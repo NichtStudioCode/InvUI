@@ -17,7 +17,9 @@ import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.util.ReflectionRegistry;
 import xyz.xenondevs.inventoryaccess.util.ReflectionUtils;
 import xyz.xenondevs.invui.util.MojangApiUtils;
+import xyz.xenondevs.invui.util.MojangApiUtils.MojangApiException;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -31,8 +33,10 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
      * Create a {@link SkullBuilder} of a {@link Player Player's} {@link UUID}.
      *
      * @param uuid The {@link UUID} of the skull owner.
+     * @throws MojangApiException If the Mojang API returns an error.
+     * @throws IOException        If an I/O error occurs.
      */
-    public SkullBuilder(@NotNull UUID uuid) {
+    public SkullBuilder(@NotNull UUID uuid) throws MojangApiException, IOException {
         this(HeadTexture.of(uuid));
     }
     
@@ -40,8 +44,10 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
      * Create a {@link SkullBuilder} with the {@link Player Player's} username.
      *
      * @param username The username of the skull owner.
+     * @throws MojangApiException If the Mojang API returns an error.
+     * @throws IOException        If an I/O error occurs.
      */
-    public SkullBuilder(@NotNull String username) {
+    public SkullBuilder(@NotNull String username) throws MojangApiException, IOException {
         this(HeadTexture.of(username));
     }
     
@@ -128,9 +134,11 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
          *
          * @param offlinePlayer The skull owner.
          * @return The {@link HeadTexture} of that player.
+         * @throws MojangApiException If the Mojang API returns an error.
+         * @throws IOException        If an I/O error occurs.
          * @see HeadTexture#of(UUID)
          */
-        public static HeadTexture of(@NotNull OfflinePlayer offlinePlayer) {
+        public static @NotNull HeadTexture of(@NotNull OfflinePlayer offlinePlayer) throws MojangApiException, IOException {
             return of(offlinePlayer.getUniqueId());
         }
         
@@ -144,20 +152,28 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
          *
          * @param playerName The username of the player.
          * @return The {@link HeadTexture} of that player.
+         * @throws MojangApiException If the Mojang API returns an error.
+         * @throws IOException        If an I/O error occurs.
          * @see HeadTexture#of(UUID)
          */
         @SuppressWarnings("deprecation")
-        public static HeadTexture of(@NotNull String playerName) {
+        public static @NotNull HeadTexture of(@NotNull String playerName) throws MojangApiException, IOException {
             if (Bukkit.getServer().getOnlineMode()) {
                 // if the server is in online mode, the Minecraft UUID cache (usercache.json) can be used
                 return of(Bukkit.getOfflinePlayer(playerName).getUniqueId());
             } else {
                 // the server isn't in online mode - the UUID has to be retrieved from the Mojang API
                 try {
-                    return of(uuidCache.get(playerName, () -> MojangApiUtils.getCurrentUUID(playerName)));
+                    return of(uuidCache.get(playerName, () -> MojangApiUtils.getCurrentUuid(playerName)));
                 } catch (ExecutionException e) {
-                    e.printStackTrace();
-                    return null;
+                    Throwable cause = e.getCause();
+                    if (cause instanceof MojangApiException) {
+                        throw (MojangApiException) cause;
+                    } else if (cause instanceof IOException) {
+                        throw (IOException) cause;
+                    } else {
+                        throw new RuntimeException(cause);
+                    }
                 }
             }
         }
@@ -169,13 +185,21 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
          *
          * @param uuid The {@link UUID} of the skull owner.
          * @return The {@link HeadTexture} of that player.
+         * @throws MojangApiException If the Mojang API returns an error.
+         * @throws IOException        If an I/O error occurs.
          */
-        public static HeadTexture of(@NotNull UUID uuid) {
+        public static @NotNull HeadTexture of(@NotNull UUID uuid) throws MojangApiException, IOException {
             try {
                 return new HeadTexture(textureCache.get(uuid, () -> MojangApiUtils.getSkinData(uuid, false)[0]));
             } catch (ExecutionException e) {
-                e.printStackTrace();
-                return null;
+                Throwable cause = e.getCause();
+                if (cause instanceof MojangApiException) {
+                    throw (MojangApiException) cause;
+                } else if (cause instanceof IOException) {
+                    throw (IOException) cause;
+                } else {
+                    throw new RuntimeException(cause);
+                }
             }
         }
         
