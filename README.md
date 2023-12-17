@@ -7,7 +7,7 @@
 # InvUI
 
 An Inventory API for Minecraft Spigot servers.  
-Supports all versions from 1.14.0 to 1.20.2.
+Supports all versions from 1.14.0 to 1.20.4.
 
 [Documentation](https://xenondevs.xyz/docs/invui/)
 
@@ -19,7 +19,6 @@ Supports all versions from 1.14.0 to 1.20.2.
 * Easily customizable (Create your own GUI types and Items)
 * VirtualInventory: Store real items inside GUIs, customize maximum stack size per slot, etc.
 * Easy way to add localization using the ItemProvider system and the built-in ItemBuilder
-* Supports custom textures (forced resource pack system, compatible with AuthMe)
 * Advanced ItemBuilder (Normal, Potion, Skull, Banner, Firework) with BaseComponent support
 * Support for BaseComponents in inventory titles
 * Uncloseable inventories
