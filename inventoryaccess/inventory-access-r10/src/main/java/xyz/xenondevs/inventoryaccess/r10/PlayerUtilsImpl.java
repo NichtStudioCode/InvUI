@@ -1,7 +1,6 @@
 package xyz.xenondevs.inventoryaccess.r10;
 
 import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket;
-import net.minecraft.network.protocol.game.ClientboundResourcePackPacket;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.ServerAdvancementManager;
 import net.minecraft.server.level.ServerPlayer;
@@ -14,10 +13,8 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.abstraction.util.PlayerUtils;
-import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.inventoryaccess.map.MapIcon;
 import xyz.xenondevs.inventoryaccess.map.MapPatch;
-import xyz.xenondevs.inventoryaccess.util.DataUtils;
 import xyz.xenondevs.inventoryaccess.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
@@ -81,18 +78,6 @@ class PlayerUtilsImpl implements PlayerUtils {
             patch.getWidth(), patch.getHeight(),
             patch.getColors()
         );
-    }
-    
-    @Override
-    public void sendResourcePack(@NotNull Player player, @NotNull String url, byte[] hash, @Nullable ComponentWrapper prompt, boolean force) {
-        var serverPlayer = ((CraftPlayer) player).getHandle();
-        var packet = new ClientboundResourcePackPacket(
-            url,
-            DataUtils.toHexadecimalString(hash),
-            force,
-            InventoryUtilsImpl.createNMSComponent(prompt)
-        );
-        serverPlayer.connection.connection.send(packet);
     }
     
 }
