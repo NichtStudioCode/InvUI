@@ -74,6 +74,7 @@
         <module>inventoryaccess/inventory-access-r15</module>
         <module>inventoryaccess/inventory-access-r16</module>
         <module>inventoryaccess/inventory-access-r17</module>
+        <module>inventoryaccess/inventory-access-r18</module>
         <module>invui-core</module>
         <module>invui-kotlin</module>
         <module>invui</module>
