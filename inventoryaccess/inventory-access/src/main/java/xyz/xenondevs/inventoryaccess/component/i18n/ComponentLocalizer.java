@@ -34,14 +34,14 @@ abstract class ComponentLocalizer<C> {
             var end = matcher.end();
             
             // check for escaped %
-            var matchedStr = formatString.substring(i, start);
+            var matchedStr = formatString.substring(start, end);
             if ("%%".equals(matchedStr)) {
                 sb.append('%');
             } else {
                 // check for invalid format, only %s is supported
                 var argType = matcher.group(2);
                 if (!"s".equals(argType)) {
-                    throw new IllegalStateException("Unsupported format: '" + matchedStr + "'");
+                    throw new IllegalStateException("Unsupported placeholder format: '" + matchedStr + "'");
                 }
                 
                 // retrieve argument index
