@@ -2,16 +2,17 @@ package xyz.xenondevs.invui.item;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
-public interface ItemProvider extends Supplier<ItemStack>, Cloneable {
+public interface ItemProvider extends Supplier<@NotNull ItemStack>, Cloneable {
     
     /**
      * An {@link ItemProvider} for an {@link ItemStack}.
      */
-    ItemProvider EMPTY = new ItemWrapper(new ItemStack(Material.AIR));
+    @NotNull ItemProvider EMPTY = new ItemWrapper(new ItemStack(Material.AIR));
     
     /**
      * Gets the {@link ItemStack} translated in the specified language.
@@ -19,14 +20,14 @@ public interface ItemProvider extends Supplier<ItemStack>, Cloneable {
      * @param lang The language to translate the item in.
      * @return The {@link ItemStack}
      */
-    ItemStack get(@Nullable String lang);
+    @NotNull ItemStack get(@Nullable String lang);
     
     /**
      * Gets the {@link ItemStack} without requesting a specific language.
      *
      * @return The {@link ItemStack}
      */
-    default ItemStack get() {
+    default @NotNull ItemStack get() {
         return get(null);
     }
     
