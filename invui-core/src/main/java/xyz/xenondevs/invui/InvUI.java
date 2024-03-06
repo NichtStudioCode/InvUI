@@ -31,7 +31,7 @@ public class InvUI implements Listener {
     
     public @NotNull Plugin getPlugin() {
         if (plugin == null) {
-            plugin = tryFindPlugin();
+            setPlugin(tryFindPlugin());
             
             if (plugin == null)
                 throw new IllegalStateException("Plugin is not set. Set it using InvUI.getInstance().setPlugin(plugin);");
@@ -59,6 +59,9 @@ public class InvUI implements Listener {
     public void setPlugin(@NotNull Plugin plugin) {
         if (this.plugin != null)
             throw new IllegalStateException("Plugin is already set");
+        
+        if (plugin == null)
+            return;
         
         Bukkit.getPluginManager().registerEvents(this, plugin);
         this.plugin = plugin;
