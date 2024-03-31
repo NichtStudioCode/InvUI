@@ -32,8 +32,6 @@ public abstract class AbstractSingleWindow extends AbstractWindow {
         this.gui = gui;
         this.size = gui.getSize();
         this.inventory = inventory;
-        
-        gui.addParent(this);
     }
     
     @Override

@@ -261,6 +261,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
         hasHandledClose = false;
         initItems();
         WindowManager.getInstance().addWindow(this);
+        for (AbstractGui gui : getGuis()) gui.addParent(this);
         openInventory(viewer);
     }
     
@@ -330,9 +331,8 @@ public abstract class AbstractWindow implements Window, GuiParent {
                     ((SlotElement.InventorySlotElement) slotElement).getInventory().removeWindow(this);
                 }
             });
-        
-        Arrays.stream(getGuis())
-            .forEach(gui -> gui.removeParent(this));
+
+        for (AbstractGui gui : getGuis()) gui.removeParent(this);
     }
     
     @Override

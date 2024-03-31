@@ -24,8 +24,6 @@ public abstract class AbstractMergedWindow extends AbstractDoubleWindow {
     public AbstractMergedWindow(Player player, ComponentWrapper title, AbstractGui gui, Inventory upperInventory, boolean closeable) {
         super(player, title, gui.getSize(), upperInventory, closeable);
         this.gui = gui;
-        
-        gui.addParent(this);
     }
     
     @Override
