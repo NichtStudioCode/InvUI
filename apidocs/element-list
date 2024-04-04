@@ -1,0 +1,13 @@
+xyz.xenondevs.invui
+xyz.xenondevs.invui.animation
+xyz.xenondevs.invui.animation.impl
+xyz.xenondevs.invui.gui
+xyz.xenondevs.invui.gui.structure
+xyz.xenondevs.invui.inventory
+xyz.xenondevs.invui.inventory.event
+xyz.xenondevs.invui.item
+xyz.xenondevs.invui.item.builder
+xyz.xenondevs.invui.item.impl
+xyz.xenondevs.invui.item.impl.controlitem
+xyz.xenondevs.invui.util
+xyz.xenondevs.invui.window
