@@ -12,6 +12,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.inventory.StackSizeProvider;
+import xyz.xenondevs.invui.window.Window;
+import xyz.xenondevs.invui.window.WindowInventoryHolder;
 
 public class InventoryUtils {
     
@@ -107,16 +109,22 @@ public class InventoryUtils {
         return false;
     }
     
-    public static Inventory createMatchingInventory(@NotNull Gui gui, @NotNull String title) {
+    public static Inventory createMatchingInventory(@NotNull Window window, @NotNull Gui gui, @NotNull String title) {
         InventoryType type;
         
         if (gui.getWidth() == 9) type = null;
         else if (gui.getWidth() == 3 && gui.getHeight() == 3) type = InventoryType.DROPPER;
         else if (gui.getWidth() == 5 && gui.getHeight() == 1) type = InventoryType.HOPPER;
         else throw new UnsupportedOperationException("Invalid bounds of Gui");
-        
-        if (type == null) return Bukkit.createInventory(null, gui.getSize(), title);
-        else return Bukkit.createInventory(null, type, title);
+
+        Inventory inventory;
+        final WindowInventoryHolder holder = new WindowInventoryHolder(window);
+
+        if (type == null) inventory = Bukkit.createInventory(holder, gui.getSize(), title);
+        else inventory = Bukkit.createInventory(holder, type, title);
+
+        holder.setInventory(inventory);
+        return inventory;
     }
     
     public static boolean containsSimilar(@NotNull Inventory inventory, @Nullable ItemStack itemStack) {

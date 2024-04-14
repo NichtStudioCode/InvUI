@@ -15,13 +15,11 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Manages all {@link Window Windows} and provides methods for searching them.
@@ -30,12 +28,13 @@ public class WindowManager implements Listener {
     
     private static WindowManager instance;
     
-    private final Map<Inventory, AbstractWindow> windowsByInventory = new HashMap<>();
-    private final Map<Player, AbstractWindow> windowsByPlayer = new HashMap<>();
-    
     private WindowManager() {
         Bukkit.getPluginManager().registerEvents(this, InvUI.getInstance().getPlugin());
-        InvUI.getInstance().addDisableHandler(() -> new HashSet<>(windowsByPlayer.values()).forEach(AbstractWindow::close));
+        InvUI.getInstance().addDisableHandler(() -> {
+            for (Window window : getWindows()) {
+                window.close();
+            }
+        });
     }
     
     /**
@@ -48,28 +47,6 @@ public class WindowManager implements Listener {
     }
     
     /**
-     * Adds an {@link AbstractWindow} to the list of windows.
-     * This method is usually called by the {@link Window} itself.
-     *
-     * @param window The {@link AbstractWindow} to add
-     */
-    public void addWindow(AbstractWindow window) {
-        windowsByInventory.put(window.getInventories()[0], window);
-        windowsByPlayer.put(window.getViewer(), window);
-    }
-    
-    /**
-     * Removes an {@link AbstractWindow} from the list of windows.
-     * This method is usually called by the {@link Window} itself.
-     *
-     * @param window The {@link AbstractWindow} to remove
-     */
-    public void removeWindow(AbstractWindow window) {
-        windowsByInventory.remove(window.getInventories()[0]);
-        windowsByPlayer.remove(window.getViewer());
-    }
-    
-    /**
      * Finds the {@link Window} to an {@link Inventory}.
      *
      * @param inventory The {@link Inventory}
@@ -77,7 +54,13 @@ public class WindowManager implements Listener {
      */
     @Nullable
     public Window getWindow(Inventory inventory) {
-        return windowsByInventory.get(inventory);
+        InventoryHolder holder = inventory.getHolder();
+
+        if (holder instanceof WindowInventoryHolder) {
+            return ((WindowInventoryHolder) holder).getWindow();
+        } else {
+            return null;
+        }
     }
     
     /**
@@ -88,7 +71,7 @@ public class WindowManager implements Listener {
      */
     @Nullable
     public Window getOpenWindow(Player player) {
-        return windowsByPlayer.get(player);
+        return getWindow(player.getOpenInventory().getTopInventory());
     }
     
     /**
@@ -97,7 +80,18 @@ public class WindowManager implements Listener {
      * @return A set of all {@link Window Windows}
      */
     public Set<Window> getWindows() {
-        return new HashSet<>(windowsByInventory.values());
+        final Set<Window> windows = new LinkedHashSet<>();
+
+        // This is a bit of a hacky way to get all windows, but it works
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            Window openWindow = getOpenWindow(onlinePlayer);
+
+            if (openWindow != null) {
+                windows.add(openWindow);
+            }
+        }
+
+        return windows;
     }
     
     /**

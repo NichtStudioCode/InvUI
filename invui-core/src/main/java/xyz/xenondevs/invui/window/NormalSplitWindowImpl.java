@@ -16,7 +16,8 @@ final class NormalSplitWindowImpl extends AbstractSplitWindow {
         @NotNull AbstractGui lowerGui,
         boolean closeable
     ) {
-        super(player, title, upperGui, lowerGui, InventoryUtils.createMatchingInventory(upperGui, ""), closeable);
+        super(player, title, upperGui, lowerGui, closeable);
+        upperInventory = InventoryUtils.createMatchingInventory(this, upperGui, "");
     }
     
     public static final class BuilderImpl

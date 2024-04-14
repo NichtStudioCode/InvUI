@@ -22,7 +22,14 @@ public abstract class AbstractSplitWindow extends AbstractDoubleWindow {
     
     private final AbstractGui upperGui;
     private final AbstractGui lowerGui;
-    
+
+
+    public AbstractSplitWindow(Player player, ComponentWrapper title, AbstractGui upperGui, AbstractGui lowerGui, boolean closeable) {
+        super(player, title, upperGui.getSize() + lowerGui.getSize(), closeable);
+        this.upperGui = upperGui;
+        this.lowerGui = lowerGui;
+    }
+
     public AbstractSplitWindow(Player player, ComponentWrapper title, AbstractGui upperGui, AbstractGui lowerGui, Inventory upperInventory, boolean closeable) {
         super(player, title, upperGui.getSize() + lowerGui.getSize(), upperInventory, closeable);
         this.upperGui = upperGui;

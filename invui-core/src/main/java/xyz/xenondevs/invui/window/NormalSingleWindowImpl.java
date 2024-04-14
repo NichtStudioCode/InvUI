@@ -15,7 +15,8 @@ final class NormalSingleWindowImpl extends AbstractSingleWindow {
         @NotNull AbstractGui gui,
         boolean closeable
     ) {
-        super(player, title, gui, InventoryUtils.createMatchingInventory(gui, ""), closeable);
+        super(player, title, gui, closeable);
+        inventory = InventoryUtils.createMatchingInventory(this, gui, "");
     }
     
     public static final class BuilderImpl

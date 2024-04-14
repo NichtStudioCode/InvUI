@@ -25,13 +25,18 @@ public abstract class AbstractDoubleWindow extends AbstractWindow {
     private final Inventory playerInventory;
     private final ItemStack[] playerItems = new ItemStack[36];
     protected Inventory upperInventory;
-    
+
+    public AbstractDoubleWindow(Player player, ComponentWrapper title, int size, boolean closeable) {
+        super(player, title, size, closeable);
+        this.playerInventory = player.getInventory();
+    }
+
     public AbstractDoubleWindow(Player player, ComponentWrapper title, int size, Inventory upperInventory, boolean closeable) {
         super(player, title, size, closeable);
         this.upperInventory = upperInventory;
         this.playerInventory = player.getInventory();
     }
-    
+
     @Override
     protected void initItems() {
         // init upper inventory

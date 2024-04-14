@@ -17,16 +17,22 @@ final class NormalMergedWindowImpl extends AbstractMergedWindow {
         @NotNull AbstractGui gui,
         boolean closeable
     ) {
-        super(player, title, gui, createInventory(gui), closeable);
+        super(player, title, gui, closeable);
+        upperInventory = createInventory(this, gui);
     }
     
-    private static Inventory createInventory(Gui gui) {
+    private static Inventory createInventory(Window window, Gui gui) {
         if (gui.getWidth() != 9)
             throw new IllegalArgumentException("Gui width has to be 9");
         if (gui.getHeight() <= 4)
             throw new IllegalArgumentException("Gui height has to be bigger than 4");
-        
-        return Bukkit.createInventory(null, gui.getSize() - 36);
+
+        WindowInventoryHolder holder = new WindowInventoryHolder(window);
+
+        Inventory inventory = Bukkit.createInventory(holder, gui.getSize() - 36);
+        holder.setInventory(inventory);
+
+        return inventory;
     }
     
     public static final class BuilderImpl

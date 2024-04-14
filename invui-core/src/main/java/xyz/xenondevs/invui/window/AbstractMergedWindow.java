@@ -20,6 +20,11 @@ import java.util.List;
 public abstract class AbstractMergedWindow extends AbstractDoubleWindow {
     
     private final AbstractGui gui;
+
+    public AbstractMergedWindow(Player player, ComponentWrapper title, AbstractGui gui, boolean closeable) {
+        super(player, title, gui.getSize(), closeable);
+        this.gui = gui;
+    }
     
     public AbstractMergedWindow(Player player, ComponentWrapper title, AbstractGui gui, Inventory upperInventory, boolean closeable) {
         super(player, title, gui.getSize(), upperInventory, closeable);
