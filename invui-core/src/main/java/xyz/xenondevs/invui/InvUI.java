@@ -56,7 +56,7 @@ public class InvUI implements Listener {
         return null;
     }
     
-    public void setPlugin(@NotNull Plugin plugin) {
+    public void setPlugin(@Nullable Plugin plugin) {
         if (this.plugin != null)
             throw new IllegalStateException("Plugin is already set");
         
