@@ -33,7 +33,6 @@ class CartographyInventoryImpl extends CartographyTableMenu implements Cartograp
     );
     
     private final ResultContainer resultContainer = ReflectionUtils.getFieldValue(RESULT_CONTAINER_FIELD, this);
-    private final Component title;
     private final CraftInventoryView view;
     private final ServerPlayer player;
     
@@ -47,7 +46,7 @@ class CartographyInventoryImpl extends CartographyTableMenu implements Cartograp
         super(player.nextContainerCounter(), player.getInventory(), ContainerLevelAccess.create(player.level(), new BlockPos(0, 0, 0)));
         
         this.player = player;
-        this.title = title;
+        setTitle(title);
         CraftInventoryCartography inventory = new CraftInventoryCartography(container, resultContainer);
         view = new CraftInventoryView(player.getBukkitEntity(), inventory, this);
     }
@@ -62,7 +61,7 @@ class CartographyInventoryImpl extends CartographyTableMenu implements Cartograp
         player.containerMenu = this;
         
         // send open packet
-        player.connection.send(new ClientboundOpenScreenPacket(containerId, MenuType.CARTOGRAPHY_TABLE, title));
+        player.connection.send(new ClientboundOpenScreenPacket(containerId, MenuType.CARTOGRAPHY_TABLE, getTitle()));
         
         // send initial items
         NonNullList<ItemStack> itemsList = NonNullList.of(ItemStack.EMPTY, getItem(0), getItem(1), getItem(2));
