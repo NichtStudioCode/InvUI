@@ -1,10 +1,13 @@
-package xyz.xenondevs.inventoryaccess.r18;
+package xyz.xenondevs.inventoryaccess.r19;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtAccounter;
-import net.minecraft.nbt.NbtIo;
+import com.mojang.serialization.Dynamic;
+import net.minecraft.nbt.*;
+import net.minecraft.util.datafix.DataFixers;
+import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.item.ItemStack;
-import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R4.CraftRegistry;
+import org.bukkit.craftbukkit.v1_20_R4.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R4.util.CraftMagicNumbers;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.inventoryaccess.abstraction.util.ItemUtils;
@@ -29,7 +32,7 @@ class ItemUtilsImpl implements ItemUtils {
     public void serializeItemStack(org.bukkit.inventory.@NotNull ItemStack itemStack, @NotNull OutputStream outputStream, boolean compressed) {
         try {
             ItemStack nmsStack = CraftItemStack.asNMSCopy(itemStack);
-            CompoundTag nbt = nmsStack.save(new CompoundTag());
+            CompoundTag nbt = (CompoundTag) nmsStack.save(CraftRegistry.getMinecraftRegistry(), new CompoundTag());
             
             if (compressed) {
                 NbtIo.writeCompressed(nbt, outputStream);
@@ -61,8 +64,17 @@ class ItemUtilsImpl implements ItemUtils {
                 nbt = NbtIo.read(dataIn);
             }
             
-            ItemStack itemStack = ItemStack.of(nbt);
+            Dynamic<Tag> converted = DataFixers.getDataFixer()
+                .update(
+                    References.ITEM_STACK,
+                    new Dynamic<>(NbtOps.INSTANCE, nbt),
+                    3700, CraftMagicNumbers.INSTANCE.getDataVersion()
+                );
             
+            ItemStack itemStack = ItemStack.parse(
+                CraftRegistry.getMinecraftRegistry(),
+                converted.getValue()
+            ).orElse(ItemStack.EMPTY);
             return CraftItemStack.asCraftMirror(itemStack);
         } catch (IOException e) {
             e.printStackTrace();
@@ -76,7 +88,7 @@ class ItemUtilsImpl implements ItemUtils {
         ReflectionUtils.setFieldValue(
             ReflectionRegistry.CB_CRAFT_META_ITEM_DISPLAY_NAME_FIELD,
             itemMeta,
-            name.serializeToJson()
+            InventoryUtilsImpl.createNMSComponent(name)
         );
     }
     
@@ -85,7 +97,7 @@ class ItemUtilsImpl implements ItemUtils {
         ReflectionUtils.setFieldValue(
             ReflectionRegistry.CB_CRAFT_META_ITEM_LORE_FIELD,
             itemMeta,
-            lore.stream().map(ComponentWrapper::serializeToJson).collect(Collectors.toList())
+            lore.stream().map(InventoryUtilsImpl::createNMSComponent).collect(Collectors.toList())
         );
     }
     
