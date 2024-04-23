@@ -15,10 +15,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v2
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
         with:
-          java-version: 17
+          java-version: 21
           distribution: adopt
           server-id: xenondevs-nms
           server-username: MAVEN_USERNAME
@@ -37,6 +37,6 @@ jobs:
           MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
 
       - name: Deploy to Github Pages
-        uses: JamesIves/github-pages-deploy-action@v4.5.0
+        uses: JamesIves/github-pages-deploy-action@v4.6.0
         with:
           folder: invui-core/target/site/apidocs/
