@@ -86,6 +86,11 @@
                         </goals>
                         <configuration>
                             <classesDirectory>${project.build.directory}/classes-spigot</classesDirectory>
+                            <archive>
+                                <manifestEntries>
+                                    <paperweight-mappings-namespace>spigot</paperweight-mappings-namespace>
+                                </manifestEntries>
+                            </archive>
                         </configuration>
                     </execution>
                     <execution>
