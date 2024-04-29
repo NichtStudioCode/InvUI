@@ -101,6 +101,11 @@
                         <configuration>
                             <classesDirectory>${project.build.directory}/classes-mojang</classesDirectory>
                             <classifier>remapped-mojang</classifier>
+                            <archive>
+                                <manifestEntries>
+                                    <paperweight-mappings-namespace>mojang</paperweight-mappings-namespace>
+                                </manifestEntries>
+                            </archive>
                         </configuration>
                     </execution>
                 </executions>
