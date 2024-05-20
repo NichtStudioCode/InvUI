@@ -21,7 +21,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.logging.Level;
-import java.util.stream.Stream;
 
 /**
  * An inventory that can be embedded in InvUI's {@link Gui Guis}.
@@ -49,7 +48,7 @@ import java.util.stream.Stream;
  */
 public abstract class Inventory {
     
-    private final Set<AbstractWindow> windows = new HashSet<>();
+    private Set<AbstractWindow> windows;
     private Consumer<ItemPreUpdateEvent> preUpdateHandler;
     private Consumer<ItemPostUpdateEvent> postUpdateHandler;
     private int guiPriority = 0;
@@ -145,6 +144,9 @@ public abstract class Inventory {
      * content of this {@link Inventory}.
      */
     public @NotNull Set<@NotNull Window> getWindows() {
+        if (windows == null)
+            return Collections.emptySet();
+        
         return Collections.unmodifiableSet(windows);
     }
     
@@ -155,6 +157,9 @@ public abstract class Inventory {
      * @param window The {@link Window} to be added.
      */
     public void addWindow(AbstractWindow window) {
+        if (windows == null)
+            windows = new HashSet<>();
+        
         windows.add(window);
     }
     
@@ -165,6 +170,9 @@ public abstract class Inventory {
      * @param window The {@link AbstractWindow} to be removed.
      */
     public void removeWindow(AbstractWindow window) {
+        if (windows == null)
+            return;
+        
         windows.remove(window);
     }
     
@@ -175,6 +183,9 @@ public abstract class Inventory {
      * {@link ItemMeta} of an {@link ItemStack} in this inventory has changed.
      */
     public void notifyWindows() {
+        if (windows == null)
+            return;
+        
         windows.forEach(window -> window.handleInventoryUpdate(this));
     }
     
@@ -212,6 +223,23 @@ public abstract class Inventory {
      */
     public void setPostUpdateHandler(@NotNull Consumer<@NotNull ItemPostUpdateEvent> inventoryUpdatedHandler) {
         this.postUpdateHandler = inventoryUpdatedHandler;
+    }
+    
+    /**
+     * Whether this {@link Inventory} has any event handlers.
+     * @return `true` if this {@link Inventory} has a pre- or post-update handler.
+     */
+    private boolean hasEventHandlers() {
+        return preUpdateHandler != null || postUpdateHandler != null;
+    }
+    
+    /**
+     * Whether events should be called for this {@link Inventory}.
+     * @param updateReason The {@link UpdateReason} for the event.
+     * @return `true` if events should be called for this {@link Inventory} in this case.
+     */
+    private boolean shouldCallEvents(@Nullable UpdateReason updateReason) {
+        return hasEventHandlers() && updateReason != UpdateReason.SUPPRESSED;
     }
     
     /**
@@ -528,7 +556,7 @@ public abstract class Inventory {
      * @return If the action was successful
      */
     public boolean forceSetItem(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack itemStack) {
-        if (updateReason == UpdateReason.SUPPRESSED) {
+        if (!shouldCallEvents(updateReason)) {
             setItemSilently(slot, itemStack);
             return true;
         } else {
@@ -623,7 +651,7 @@ public abstract class Inventory {
                 ItemStack newItemStack = itemStack.clone();
                 newItemStack.setAmount(newAmount);
                 
-                if (updateReason != UpdateReason.SUPPRESSED) {
+                if (shouldCallEvents(updateReason)) {
                     ItemStack currentStackC = currentStack != null ? currentStack.clone() : null;
                     ItemPreUpdateEvent event = callPreUpdateEvent(updateReason, slot, currentStackC, newItemStack);
                     if (!event.isCancelled()) {
@@ -674,7 +702,7 @@ public abstract class Inventory {
             newItemStack = null;
         }
         
-        if (updateReason != UpdateReason.SUPPRESSED) {
+        if (shouldCallEvents(updateReason)) {
             ItemStack currentStackC = currentStack != null ? currentStack.clone() : null;
             ItemPreUpdateEvent event = callPreUpdateEvent(updateReason, slot, currentStackC, newItemStack);
             if (!event.isCancelled()) {
@@ -730,32 +758,93 @@ public abstract class Inventory {
         if (ItemUtils.isEmpty(itemStack))
             return 0;
         
-        final int originalAmount = itemStack.getAmount();
+        ItemStack[] items = getUnsafeItems();
+        
+        int originalAmount = itemStack.getAmount();
         int amountLeft = originalAmount;
         
-        // find all slots where the item partially fits and add it there
-        for (int partialSlot : findPartialSlots(itemStack)) {
-            if (amountLeft == 0) break;
+        amountLeft = addToPartialSlots(updateReason, itemStack, amountLeft, items);
+        amountLeft = addToEmptySlots(updateReason, itemStack, amountLeft, items);
+        
+        if (originalAmount != amountLeft)
+            notifyWindows();
+        
+        return amountLeft;
+    }
+    
+    private int addToPartialSlots(
+        @Nullable UpdateReason updateReason,
+        @NotNull ItemStack itemStack,
+        int amountLeft,
+        @Nullable ItemStack @NotNull [] items
+    ) {
+        for (int slot = 0; slot < items.length; slot++) {
+            if (amountLeft <= 0)
+                break;
             
-            ItemStack stackToPut = itemStack.clone();
-            stackToPut.setAmount(amountLeft);
-            amountLeft = putItem(updateReason, partialSlot, stackToPut);
+            ItemStack currentStack = items[slot];
+            if (currentStack == null)
+                continue;
+            int maxStackSize = getMaxSlotStackSize(slot, itemStack);
+            if (currentStack.getAmount() >= maxStackSize)
+                continue;
+            if (!itemStack.isSimilar(currentStack))
+                continue;
             
+            // partial stack found, put items
+            ItemStack newStack = itemStack.clone();
+            newStack.setAmount(Math.min(currentStack.getAmount() + amountLeft, maxStackSize));
+            if (shouldCallEvents(updateReason)) {
+                ItemPreUpdateEvent event = callPreUpdateEvent(updateReason, slot, currentStack.clone(), newStack);
+                if (!event.isCancelled()) {
+                    newStack = event.getNewItem();
+                    setCloneBackingItem(slot, newStack);
+                    callPostUpdateEvent(updateReason, slot, currentStack.clone(), newStack);
+                    
+                    int newStackAmount = newStack != null ? newStack.getAmount() : 0;
+                    amountLeft -= newStackAmount - currentStack.getAmount();
+                }
+            } else {
+                setDirectBackingItem(slot, newStack);
+                amountLeft -= newStack.getAmount() - currentStack.getAmount();
+            }
         }
         
-        // find all empty slots and put the item there
-        for (int emptySlot : ArrayUtils.findEmptyIndices(getUnsafeItems())) {
-            if (amountLeft == 0) break;
+        return amountLeft;
+    }
+    
+    private int addToEmptySlots(
+        @Nullable UpdateReason updateReason,
+        @NotNull ItemStack itemStack,
+        int amountLeft,
+        @Nullable ItemStack @NotNull [] items
+    ) {
+        for (int slot = 0; slot < items.length; slot++) {
+            if (amountLeft <= 0)
+                break;
             
-            ItemStack stackToPut = itemStack.clone();
-            stackToPut.setAmount(amountLeft);
-            amountLeft = putItem(updateReason, emptySlot, stackToPut);
+            if (items[slot] != null)
+                continue;
+            
+            // empty slot found, put items
+            ItemStack newStack = itemStack.clone();
+            newStack.setAmount(Math.min(amountLeft, getMaxSlotStackSize(slot, itemStack)));
+            if (shouldCallEvents(updateReason)) {
+                ItemPreUpdateEvent event = callPreUpdateEvent(updateReason, slot, null, newStack);
+                if (!event.isCancelled()) {
+                    newStack = event.getNewItem();
+                    setCloneBackingItem(slot, newStack);
+                    callPostUpdateEvent(updateReason, slot, null, newStack);
+                    
+                    int newStackAmount = newStack != null ? newStack.getAmount() : 0;
+                    amountLeft -= newStackAmount;
+                }
+            } else {
+                setDirectBackingItem(slot, newStack);
+                amountLeft -= newStack.getAmount();
+            }
         }
         
-        // if items have been added, notify windows
-        if (originalAmount != amountLeft) notifyWindows();
-        
-        // return how many items couldn't be added
         return amountLeft;
     }
     
@@ -766,11 +855,11 @@ public abstract class Inventory {
      * @return An array of integers representing the leftover amount for each {@link ItemStack} provided.
      * The size of this array is always equal to the amount of {@link ItemStack}s provided as method parameters.
      */
-    public int[] simulateAdd(@NotNull ItemStack itemStack, @NotNull ItemStack @NotNull ... itemStacks) {
-        if (itemStacks.length == 0) {
-            return new int[] {simulateSingleAdd(itemStack)};
+    public int[] simulateAdd(@NotNull ItemStack first, @NotNull ItemStack @NotNull ... rest) {
+        if (rest.length == 0) {
+            return new int[] {simulateSingleAdd(first)};
         } else {
-            ItemStack[] allStacks = Stream.concat(Stream.of(itemStack), Arrays.stream(itemStacks)).toArray(ItemStack[]::new);
+            ItemStack[] allStacks = ArrayUtils.concat(first, rest);
             return simulateMultiAdd(Arrays.asList(allStacks));
         }
     }
@@ -783,7 +872,8 @@ public abstract class Inventory {
      * The size of this array is always equal to the amount of {@link ItemStack}s provided as method parameters.
      */
     public int[] simulateAdd(@NotNull List<@NotNull ItemStack> itemStacks) {
-        if (itemStacks.isEmpty()) return new int[] {};
+        if (itemStacks.isEmpty())
+            return new int[0];
         
         if (itemStacks.size() == 1) {
             return new int[] {simulateSingleAdd(itemStacks.get(0))};
@@ -802,7 +892,7 @@ public abstract class Inventory {
         if (rest.length == 0) {
             return simulateSingleAdd(first) == 0;
         } else {
-            ItemStack[] allStacks = Stream.concat(Stream.of(first), Arrays.stream(rest)).toArray(ItemStack[]::new);
+            ItemStack[] allStacks = ArrayUtils.concat(first, rest);
             return Arrays.stream(simulateMultiAdd(Arrays.asList(allStacks))).allMatch(i -> i == 0);
         }
     }
@@ -835,24 +925,35 @@ public abstract class Inventory {
         if (ItemUtils.isEmpty(itemStack))
             return 0;
         
+        ItemStack[] items = getUnsafeItems();
         int amountLeft = itemStack.getAmount();
         
         // find all slots where the item partially fits
-        for (int partialSlot : findPartialSlots(itemStack)) {
+        for (int slot = 0; slot < items.length; slot++) {
             if (amountLeft == 0)
                 break;
             
-            ItemStack partialItem = getUnsafeItem(partialSlot);
-            int maxStackSize = getMaxStackSize(partialSlot);
-            amountLeft = Math.max(0, amountLeft - (maxStackSize - partialItem.getAmount()));
+            ItemStack currentStack = items[slot];
+            if (currentStack == null)
+                continue;
+            int maxStackSize = getMaxSlotStackSize(slot, itemStack);
+            if (currentStack.getAmount() >= maxStackSize)
+                continue;
+            if (!itemStack.isSimilar(currentStack))
+                continue;
+            
+            amountLeft = Math.max(0, amountLeft - (maxStackSize - currentStack.getAmount()));
         }
         
         // remaining items would be added to empty slots
-        for (int emptySlot : ArrayUtils.findEmptyIndices(getUnsafeItems())) {
+        for (int slot = 0; slot < items.length; slot++) {
             if (amountLeft == 0)
                 break;
             
-            int maxStackSize = getMaxStackSize(emptySlot, itemStack);
+            if (items[slot] != null)
+                continue;
+            
+            int maxStackSize = getMaxStackSize(slot, itemStack);
             amountLeft -= Math.min(amountLeft, maxStackSize);
         }
         
@@ -904,16 +1005,28 @@ public abstract class Inventory {
         int amount = baseAmount;
         int maxStackSize = InventoryUtils.stackSizeProvider.getMaxStackSize(template);
         if (amount < maxStackSize) {
+            ItemStack[] items = getUnsafeItems();
+            
             // find partial slots and take items from there
-            for (int partialSlot : findPartialSlots(template)) {
-                amount += takeFrom(updateReason, partialSlot, maxStackSize - amount);
-                if (amount == maxStackSize) return amount;
+            for (int slot = 0; slot < items.length; slot++) {
+                ItemStack currentStack = items[slot];
+                if (currentStack == null || currentStack.getAmount() >= maxStackSize || !template.isSimilar(currentStack))
+                    continue;
+                
+                amount += takeFrom(updateReason, slot, maxStackSize - amount);
+                if (amount == maxStackSize)
+                    return amount;
             }
             
             // only taking from partial stacks wasn't enough, take from a full slot
-            for (int fullSlot : findFullSlots(template)) {
-                amount += takeFrom(updateReason, fullSlot, maxStackSize - amount);
-                if (amount == maxStackSize) return amount;
+            for (int slot = 0; slot < items.length; slot++) {
+                ItemStack currentStack = items[slot];
+                if (currentStack == null || currentStack.getAmount() <= maxStackSize || !template.isSimilar(currentStack))
+                    continue;
+                
+                amount += takeFrom(updateReason, slot, maxStackSize - amount);
+                if (amount == maxStackSize)
+                    return amount;
             }
         }
         
@@ -1008,36 +1121,6 @@ public abstract class Inventory {
         return amount - leftOver;
     }
     
-    private List<Integer> findPartialSlots(ItemStack itemStack) {
-        ItemStack[] items = getUnsafeItems();
-        
-        List<Integer> partialSlots = new ArrayList<>();
-        for (int slot = 0; slot < items.length; slot++) {
-            ItemStack currentStack = items[slot];
-            if (itemStack.isSimilar(currentStack)) {
-                int maxStackSize = getMaxStackSize(slot);
-                if (currentStack.getAmount() < maxStackSize) partialSlots.add(slot);
-            }
-        }
-        
-        return partialSlots;
-    }
-    
-    private List<Integer> findFullSlots(ItemStack itemStack) {
-        ItemStack[] items = getUnsafeItems();
-        
-        List<Integer> fullSlots = new ArrayList<>();
-        for (int slot = 0; slot < items.length; slot++) {
-            ItemStack currentStack = items[slot];
-            if (itemStack.isSimilar(currentStack)) {
-                int maxStackSize = getMaxStackSize(slot);
-                if (currentStack.getAmount() == maxStackSize) fullSlots.add(slot);
-            }
-        }
-        
-        return fullSlots;
-    }
-    
     /**
      * Tries to take the specified amount of items from the specified slot.
      *
@@ -1057,7 +1140,7 @@ public abstract class Inventory {
             newItemStack.setAmount(amount - take);
         } else newItemStack = null;
         
-        if (updateReason != UpdateReason.SUPPRESSED) {
+        if (shouldCallEvents(updateReason)) {
             ItemStack currentItemStackC = currentItemStack.clone();
             ItemPreUpdateEvent event = callPreUpdateEvent(updateReason, slot, currentItemStackC, newItemStack);
             if (!event.isCancelled()) {

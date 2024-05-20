@@ -19,15 +19,6 @@ public class ArrayUtils {
         return -1;
     }
     
-    public static @NotNull List<Integer> findEmptyIndices(@Nullable Object @NotNull [] array) {
-        List<Integer> emptyIndices = new ArrayList<>();
-        for (int index = 0; index < array.length; index++) {
-            if (array[index] == null) emptyIndices.add(index);
-        }
-        
-        return emptyIndices;
-    }
-    
     public static <T> @NotNull Map<Integer, T> findAllOccurrences(@Nullable T @NotNull [] array, Predicate<T> predicate) {
         Map<Integer, T> occurrences = new HashMap<>();
         
@@ -37,6 +28,14 @@ public class ArrayUtils {
         }
         
         return occurrences;
+    }
+    
+    @SuppressWarnings("unchecked")
+    public static <T> T[] concat(@Nullable T first, @Nullable T @NotNull[] rest) {
+        T[] result = (T[]) new Object[rest.length + 1];
+        result[0] = first;
+        System.arraycopy(rest, 0, result, 1, rest.length);
+        return result;
     }
     
 }
