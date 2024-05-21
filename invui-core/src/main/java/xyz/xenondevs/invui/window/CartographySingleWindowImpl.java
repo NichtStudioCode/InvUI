@@ -19,6 +19,11 @@ import xyz.xenondevs.invui.util.MathUtils;
 
 import java.util.List;
 
+/**
+ * A {@link AbstractSplitWindow} that uses a {@link CartographyInventory} as the upper inventory.
+ * <p>
+ * Use the builder obtained by {@link CartographyWindow#single()}, to get an instance of this class.
+ */
 final class CartographySingleWindowImpl extends AbstractSingleWindow implements CartographyWindow {
     
     private final CartographyInventory cartographyInventory;

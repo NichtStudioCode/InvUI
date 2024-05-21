@@ -175,6 +175,7 @@ public interface ScrollGui<C> extends Gui {
     /**
      * Checks if it is possible to scroll the specified amount of lines.
      *
+     * @param lines The amount of lines to check.
      * @return Whether it is possible to scroll the specified amount of lines.
      */
     boolean canScroll(int lines);
@@ -236,7 +237,8 @@ public interface ScrollGui<C> extends Gui {
          * @return This {@link Builder Gui Builder}.
          */
         @Contract("_ -> this")
-        @NotNull Builder<C> setContent(@NotNull List<@NotNull C> content);
+        @NotNull
+        Builder<C> setContent(@NotNull List<@NotNull C> content);
         
         /**
          * Adds content to the {@link ScrollGui}.
@@ -245,7 +247,8 @@ public interface ScrollGui<C> extends Gui {
          * @return This {@link Builder Gui Builder}.
          */
         @Contract("_ -> this")
-        @NotNull Builder<C> addContent(@NotNull C content);
+        @NotNull
+        Builder<C> addContent(@NotNull C content);
         
         /**
          * Adds content to the {@link ScrollGui}.
@@ -254,7 +257,8 @@ public interface ScrollGui<C> extends Gui {
          * @return This {@link Builder Gui Builder}.
          */
         @Contract("_ -> this")
-        @NotNull Builder<C> setScrollHandlers(@NotNull List<@NotNull BiConsumer<Integer, Integer>> handlers);
+        @NotNull
+        Builder<C> setScrollHandlers(@NotNull List<@NotNull BiConsumer<Integer, Integer>> handlers);
         
         /**
          * Adds a scroll handler to the {@link ScrollGui}.
@@ -263,7 +267,8 @@ public interface ScrollGui<C> extends Gui {
          * @return This {@link Builder Gui Builder}.
          */
         @Contract("_ -> this")
-        @NotNull Builder<C> addScrollHandler(@NotNull BiConsumer<Integer, Integer> handler);
+        @NotNull
+        Builder<C> addScrollHandler(@NotNull BiConsumer<Integer, Integer> handler);
         
     }
     

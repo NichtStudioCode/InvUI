@@ -16,13 +16,26 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * A {@link Window} where top and player {@link Inventory} are affected by different {@link Gui}s.
+ * A {@link Window} where top and player {@link Inventory} are affected by different {@link Gui Guis}.
+ * <p>
+ * Only in very rare circumstances should this class be used directly.
+ * Instead, use {@link Window#split()} to create such a {@link Window}.
  */
 public abstract class AbstractSplitWindow extends AbstractDoubleWindow {
     
     private final AbstractGui upperGui;
     private final AbstractGui lowerGui;
     
+    /**
+     * Creates a new {@link AbstractSplitWindow}.
+     *
+     * @param player         The {@link Player} that views the window.
+     * @param title          The title of the window.
+     * @param upperGui       The {@link Gui} of the upper part of the window.
+     * @param lowerGui       The {@link Gui} of the lower part of the window.
+     * @param upperInventory The {@link Inventory} of the upper part of the window.
+     * @param closeable      Whether the window is closeable.
+     */
     public AbstractSplitWindow(Player player, ComponentWrapper title, AbstractGui upperGui, AbstractGui lowerGui, Inventory upperInventory, boolean closeable) {
         super(player, title, upperGui.getSize() + lowerGui.getSize(), upperInventory, closeable);
         this.upperGui = upperGui;
@@ -73,13 +86,29 @@ public abstract class AbstractSplitWindow extends AbstractDoubleWindow {
         return inventories;
     }
     
+    /**
+     * Builder for {@link AbstractSplitWindow}.
+     * <p>
+     * This class should only be used directly if you're creating a custom {@link AbstractBuilder} for a custom
+     * {@link AbstractSingleWindow} implementation. Otherwise, use the static builder functions in the {@link Window}
+     * interface, such as {@link Window#split()} to obtain a builder.
+     * 
+     * @param <W> The type of the window.
+     * @param <S> The type of the builder.
+     */
     @SuppressWarnings("unchecked")
     public static abstract class AbstractBuilder<W extends Window, S extends Window.Builder.Double<W, S>>
         extends AbstractWindow.AbstractBuilder<W, S>
         implements Window.Builder.Double<W, S>
     {
         
+        /**
+         * The {@link Supplier} to receive the upper {@link Gui} from.
+         */
         protected Supplier<Gui> upperGuiSupplier;
+        /**
+         * The {@link Supplier} to receive the lower {@link Gui} from.
+         */
         protected Supplier<Gui> lowerGuiSupplier;
         
         @Override

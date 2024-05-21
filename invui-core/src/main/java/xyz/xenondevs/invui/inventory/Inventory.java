@@ -227,6 +227,7 @@ public abstract class Inventory {
     
     /**
      * Whether this {@link Inventory} has any event handlers.
+     *
      * @return `true` if this {@link Inventory} has a pre- or post-update handler.
      */
     private boolean hasEventHandlers() {
@@ -235,6 +236,7 @@ public abstract class Inventory {
     
     /**
      * Whether events should be called for this {@link Inventory}.
+     *
      * @param updateReason The {@link UpdateReason} for the event.
      * @return `true` if events should be called for this {@link Inventory} in this case.
      */
@@ -852,6 +854,8 @@ public abstract class Inventory {
      * Simulates adding {@link ItemStack}s to this {@link Inventory}
      * and returns the amount of {@link ItemStack}s that did not fit.
      *
+     * @param first The first {@link ItemStack} to use.
+     * @param rest  The rest of the {@link ItemStack ItemStacks} to use.
      * @return An array of integers representing the leftover amount for each {@link ItemStack} provided.
      * The size of this array is always equal to the amount of {@link ItemStack}s provided as method parameters.
      */
@@ -868,6 +872,7 @@ public abstract class Inventory {
      * Simulates adding {@link ItemStack}s to this {@link Inventory}
      * and returns the amount of {@link ItemStack}s that did not fit.
      *
+     * @param itemStacks The {@link ItemStack} to use.
      * @return An array of integers representing the leftover amount for each {@link ItemStack} provided.
      * The size of this array is always equal to the amount of {@link ItemStack}s provided as method parameters.
      */
@@ -886,6 +891,8 @@ public abstract class Inventory {
      * Simulates adding {@link ItemStack}s to this {@link Inventory}
      * and then returns if all {@link ItemStack}s would fit.
      *
+     * @param first The first {@link ItemStack} to use.
+     * @param rest  The rest of the {@link ItemStack ItemStacks} to use.
      * @return If all provided {@link ItemStack}s would fit if added.
      */
     public boolean canHold(@NotNull ItemStack first, @NotNull ItemStack @NotNull ... rest) {
@@ -901,6 +908,7 @@ public abstract class Inventory {
      * Simulates adding {@link ItemStack}s to this {@link Inventory}
      * and then returns if all {@link ItemStack}s would fit.
      *
+     * @param itemStacks The {@link ItemStack} to use.
      * @return If all provided {@link ItemStack}s would fit if added.
      */
     public boolean canHold(@NotNull List<@NotNull ItemStack> itemStacks) {

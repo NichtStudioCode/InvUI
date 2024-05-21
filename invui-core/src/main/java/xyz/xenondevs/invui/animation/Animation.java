@@ -6,7 +6,13 @@ import xyz.xenondevs.invui.window.Window;
 
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 
+/**
+ * Hides and shows slots in a {@link Gui} in a specific order.
+ * 
+ * @see Gui#playAnimation(Animation, Predicate) 
+ */
 public interface Animation {
     
     /**

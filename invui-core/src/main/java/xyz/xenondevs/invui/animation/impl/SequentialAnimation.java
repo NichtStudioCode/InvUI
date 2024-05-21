@@ -1,14 +1,17 @@
 package xyz.xenondevs.invui.animation.impl;
 
-import xyz.xenondevs.invui.item.Item;
-
 import java.util.List;
 
 /**
- * Lets the {@link Item}s pop up index after index.
+ * An animation that shows the slots sequentially, ordered by their index.
  */
 public class SequentialAnimation extends AbstractSoundAnimation {
     
+    /**
+     * Creates a new {@link SequentialAnimation}.
+     * @param tickDelay The delay between each slot being shown.
+     * @param sound Whether a sound should be played when the slot is shown.
+     */
     public SequentialAnimation(int tickDelay, boolean sound) {
         super(tickDelay, sound);
     }

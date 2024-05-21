@@ -12,7 +12,10 @@ import java.util.function.BiConsumer;
 
 /**
  * A {@link AbstractScrollGui} that uses {@link Inventory VirtualInventories} as content.
- *
+ * <p>
+ * Use the static factory and builder functions, such as {@link ScrollGui#inventories()},
+ * to get an instance of this class.
+ * 
  * @see ScrollItemsGuiImpl
  * @see ScrollNestedGuiImpl
  */

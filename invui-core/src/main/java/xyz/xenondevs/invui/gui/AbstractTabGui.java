@@ -8,6 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
+/**
+ * A {@link Gui} with tabs.
+ * <p>
+ * Only in very rare circumstances should this class be used directly.
+ * Instead, use the static factory or builder functions from the {@link TabGui} interface,
+ * such as {@link TabGui#normal()} to create a new {@link TabGui}.
+ */
 public abstract class AbstractTabGui extends AbstractGui implements TabGui {
     
     private final int tabAmount;
@@ -17,17 +24,32 @@ public abstract class AbstractTabGui extends AbstractGui implements TabGui {
     
     private List<BiConsumer<Integer, Integer>> tabChangeHandlers;
     
+    /**
+     * Creates a new {@link AbstractTabGui}.
+     * @param width The width of the gui.
+     * @param height The height of the gui.
+     * @param tabAmount The amount of tabs.
+     * @param listSlots The slots to be used for the content.
+     */
     public AbstractTabGui(int width, int height, int tabAmount, int... listSlots) {
         super(width, height);
         this.tabAmount = tabAmount;
         this.listSlots = listSlots;
     }
     
+    /**
+     * Creates a new {@link AbstractTabGui}.
+     * @param width The width of the gui. 
+     * @param height The height of the gui.
+     * @param tabAmount The amount of tabs.
+     * @param structure The structure of the gui.
+     */
     public AbstractTabGui(int width, int height, int tabAmount, Structure structure) {
         this(width, height, tabAmount, structure.getIngredientList().findContentListSlots());
         applyStructure(structure);
     }
     
+    @Override
     public void setTab(int tab) {
         if (tab < 0 || tab >= tabAmount)
             throw new IllegalArgumentException("Tab out of bounds");

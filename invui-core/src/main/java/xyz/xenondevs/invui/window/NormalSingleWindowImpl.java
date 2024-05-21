@@ -1,12 +1,18 @@
 package xyz.xenondevs.invui.window;
 
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.util.InventoryUtils;
 
+/**
+ * An {@link AbstractSingleWindow} that uses a chest/dropper/hopper inventory as the upper inventory.
+ * <p>
+ * Use the builder obtained by {@link Window#single()}, to get an instance of this class.
+ */
 final class NormalSingleWindowImpl extends AbstractSingleWindow {
     
     public NormalSingleWindowImpl(

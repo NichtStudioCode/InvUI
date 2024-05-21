@@ -5,6 +5,9 @@ import xyz.xenondevs.invui.gui.structure.Structure;
 
 /**
  * A normal {@link Gui} without any special features.
+ * <p>
+ * Use the static factory and builder functions, such as {@link Gui#normal()},
+ * to get an instance of this class.
  */
 final class NormalGuiImpl extends AbstractGui {
     

@@ -9,7 +9,10 @@ import java.util.List;
 
 /**
  * An {@link AbstractPagedGui} where every page is its own {@link Gui}.
- *
+ * <p>
+ * Use the static factory and builder functions, such as {@link PagedGui#guis()},
+ * to get an instance of this class.
+ * 
  * @see PagedItemsGuiImpl
  * @see PagedInventoriesGuiImpl
  */

@@ -146,7 +146,8 @@ public interface Window {
      *
      * @return The viewer of this window.
      */
-    @Nullable Player getViewer();
+    @Nullable
+    Player getViewer();
     
     /**
      * Gets the current {@link Player} that is viewing this
@@ -154,24 +155,27 @@ public interface Window {
      *
      * @return The current viewer of this {@link Window} (can be null)
      */
-    @Nullable Player getCurrentViewer();
+    @Nullable
+    Player getCurrentViewer();
     
     /**
      * Gets the viewer's {@link UUID}
      *
      * @return The viewer's {@link UUID}
      */
-    @NotNull UUID getViewerUUID();
+    @NotNull
+    UUID getViewerUUID();
     
     /**
      * Gets the contents of the {@link Window#getCurrentViewer() viewer's} inventory.
      * This method will always return the actual inventory contents and will not be affected by double windows placing
-     * gui items in the {@link Player's} inventory.
+     * gui items in the {@link Player Player's} inventory.
      *
      * @return The contents of the {@link Window#getCurrentViewer() viewer's} inventory,
      * or null if the {@link Window} {@link Window#isOpen() isn't open}.
      */
-    @Nullable ItemStack @Nullable [] getPlayerItems();
+    @Nullable
+    ItemStack @Nullable [] getPlayerItems();
     
     /**
      * Replaces the currently registered open handlers with the given list.
@@ -244,7 +248,8 @@ public interface Window {
          * @return This {@link Builder Window Builder}
          */
         @Contract("_ -> this")
-        @NotNull S setViewer(@NotNull Player viewer);
+        @NotNull
+        S setViewer(@NotNull Player viewer);
         
         /**
          * Sets the title of the {@link Window}.
@@ -253,7 +258,8 @@ public interface Window {
          * @return This {@link Builder Window Builder}
          */
         @Contract("_ -> this")
-        @NotNull S setTitle(@NotNull ComponentWrapper title);
+        @NotNull
+        S setTitle(@NotNull ComponentWrapper title);
         
         /**
          * Sets the title of the {@link Window}.
@@ -262,7 +268,8 @@ public interface Window {
          * @return This {@link Builder Window Builder}
          */
         @Contract("_ -> this")
-        @NotNull S setTitle(@NotNull BaseComponent @NotNull [] title);
+        @NotNull
+        S setTitle(@NotNull BaseComponent @NotNull [] title);
         
         /**
          * Sets the title of the {@link Window}.
@@ -271,7 +278,8 @@ public interface Window {
          * @return This {@link Builder Window Builder}
          */
         @Contract("_ -> this")
-        @NotNull S setTitle(@NotNull String title);
+        @NotNull
+        S setTitle(@NotNull String title);
         
         /**
          * Configures if the {@link Window} is closeable.
@@ -280,7 +288,8 @@ public interface Window {
          * @return This {@link Builder Window Builder}
          */
         @Contract("_ -> this")
-        @NotNull S setCloseable(boolean closeable);
+        @NotNull
+        S setCloseable(boolean closeable);
         
         /**
          * Sets the open handlers of the {@link Window}.
@@ -289,7 +298,8 @@ public interface Window {
          * @return This {@link Builder Window Builder}
          */
         @Contract("_ -> this")
-        @NotNull S setOpenHandlers(@Nullable List<@NotNull Runnable> openHandlers);
+        @NotNull
+        S setOpenHandlers(@Nullable List<@NotNull Runnable> openHandlers);
         
         /**
          * Adds an open handler to the {@link Window}.
@@ -298,7 +308,8 @@ public interface Window {
          * @return This {@link Builder Window Builder}
          */
         @Contract("_ -> this")
-        @NotNull S addOpenHandler(@NotNull Runnable openHandler);
+        @NotNull
+        S addOpenHandler(@NotNull Runnable openHandler);
         
         /**
          * Sets the close handlers of the {@link Window}.
@@ -307,7 +318,8 @@ public interface Window {
          * @return This {@link Builder Window Builder}
          */
         @Contract("_ -> this")
-        @NotNull S setCloseHandlers(@Nullable List<@NotNull Runnable> closeHandlers);
+        @NotNull
+        S setCloseHandlers(@Nullable List<@NotNull Runnable> closeHandlers);
         
         /**
          * Adds a close handler to the {@link Window}.
@@ -316,7 +328,8 @@ public interface Window {
          * @return This {@link Builder Window Builder}
          */
         @Contract("_ -> this")
-        @NotNull S addCloseHandler(@NotNull Runnable closeHandler);
+        @NotNull
+        S addCloseHandler(@NotNull Runnable closeHandler);
         
         /**
          * Sets the outside click handlers of the {@link Window}.
@@ -325,7 +338,8 @@ public interface Window {
          * @return This {@link Builder Window Builder}
          */
         @Contract("_ -> this")
-        @NotNull S setOutsideClickHandlers(@NotNull List<@NotNull Consumer<@NotNull InventoryClickEvent>> outsideClickHandlers);
+        @NotNull
+        S setOutsideClickHandlers(@NotNull List<@NotNull Consumer<@NotNull InventoryClickEvent>> outsideClickHandlers);
         
         /**
          * Adds an outside click handler to the {@link Window}.
@@ -334,7 +348,8 @@ public interface Window {
          * @return This {@link Builder Window Builder}
          */
         @Contract("_ -> this")
-        @NotNull S addOutsideClickHandler(@NotNull Consumer<@NotNull InventoryClickEvent> outsideClickHandler);
+        @NotNull
+        S addOutsideClickHandler(@NotNull Consumer<@NotNull InventoryClickEvent> outsideClickHandler);
         
         /**
          * Sets the modifiers of the {@link Window}.
@@ -343,7 +358,8 @@ public interface Window {
          * @return This {@link Builder Window Builder}
          */
         @Contract("_ -> this")
-        @NotNull S setModifiers(@Nullable List<@NotNull Consumer<@NotNull W>> modifiers);
+        @NotNull
+        S setModifiers(@Nullable List<@NotNull Consumer<@NotNull W>> modifiers);
         
         /**
          * Adds a modifier to the {@link Window}.
@@ -352,7 +368,8 @@ public interface Window {
          * @return This {@link Builder Window Builder}
          */
         @Contract("_ -> this")
-        @NotNull S addModifier(@NotNull Consumer<@NotNull W> modifier);
+        @NotNull
+        S addModifier(@NotNull Consumer<@NotNull W> modifier);
         
         /**
          * Builds the {@link Window}.
@@ -360,16 +377,19 @@ public interface Window {
          * @return The built {@link Window}
          */
         @Contract("-> new")
-        @NotNull W build();
+        @NotNull
+        W build();
         
         /**
          * Builds the {@link Window} with the specified viewer.
          * If this method is used, the viewer does not need to be set using {@link #setViewer(Player)}.
          *
          * @param viewer The {@link Player} to build the {@link Window} for.
+         * @return The built {@link Window}.
          */
         @Contract("_ -> new")
-        @NotNull W build(Player viewer);
+        @NotNull
+        W build(Player viewer);
         
         /**
          * Builds and shows the {@link Window} to the specified viewer.
@@ -385,7 +405,8 @@ public interface Window {
          * @return The cloned {@link Builder Window Builder}
          */
         @Contract("-> new")
-        @NotNull S clone();
+        @NotNull
+        S clone();
         
         /**
          * A single {@link Window} builder. Single Windows only have on {@link Gui}.
@@ -406,7 +427,8 @@ public interface Window {
              * @return This {@link Single Window Builder}
              */
             @Contract("_ -> this")
-            @NotNull S setGui(@NotNull Gui gui);
+            @NotNull
+            S setGui(@NotNull Gui gui);
             
             /**
              * Sets the {@link Gui.Builder} for this {@link Single Window Builder}.
@@ -416,7 +438,8 @@ public interface Window {
              * @return This {@link Single Window Builder}
              */
             @Contract("_ -> this")
-            @NotNull S setGui(@NotNull Gui.Builder<?, ?> builder);
+            @NotNull
+            S setGui(@NotNull Gui.Builder<?, ?> builder);
             
             /**
              * Sets the {@link Gui} {@link Supplier} for this {@link Single Window Builder}.
@@ -426,7 +449,8 @@ public interface Window {
              * @return This {@link Single Window Builder}
              */
             @Contract("_ -> this")
-            @NotNull S setGui(@NotNull Supplier<Gui> guiSupplier);
+            @NotNull
+            S setGui(@NotNull Supplier<Gui> guiSupplier);
             
         }
         
@@ -448,7 +472,8 @@ public interface Window {
              * @return This {@link Double Window Builder}
              */
             @Contract("_ -> this")
-            @NotNull S setUpperGui(@NotNull Gui gui);
+            @NotNull
+            S setUpperGui(@NotNull Gui gui);
             
             /**
              * Sets the {@link Gui.Builder} for the upper {@link Gui} of this {@link Double Window Builder}.
@@ -458,7 +483,8 @@ public interface Window {
              * @return This {@link Double Window Builder}
              */
             @Contract("_ -> this")
-            @NotNull S setUpperGui(@NotNull Gui.Builder<?, ?> builder);
+            @NotNull
+            S setUpperGui(@NotNull Gui.Builder<?, ?> builder);
             
             /**
              * Sets the {@link Gui} {@link Supplier} for the upper {@link Gui} of this {@link Double Window Builder}.
@@ -468,7 +494,8 @@ public interface Window {
              * @return This {@link Double Window Builder}
              */
             @Contract("_ -> this")
-            @NotNull S setUpperGui(@NotNull Supplier<Gui> guiSupplier);
+            @NotNull
+            S setUpperGui(@NotNull Supplier<Gui> guiSupplier);
             
             /**
              * Sets the lower {@link Gui} of the {@link Window}.
@@ -477,7 +504,8 @@ public interface Window {
              * @return This {@link Double Window Builder}
              */
             @Contract("_ -> this")
-            @NotNull S setLowerGui(@NotNull Gui gui);
+            @NotNull
+            S setLowerGui(@NotNull Gui gui);
             
             /**
              * Sets the {@link Gui.Builder} for the lower {@link Gui} of this {@link Double Window Builder}.
@@ -487,7 +515,8 @@ public interface Window {
              * @return This {@link Double Window Builder}
              */
             @Contract("_ -> this")
-            @NotNull S setLowerGui(@NotNull Gui.Builder<?, ?> builder);
+            @NotNull
+            S setLowerGui(@NotNull Gui.Builder<?, ?> builder);
             
             /**
              * Sets the {@link Gui} {@link Supplier} for the lower {@link Gui} of this {@link Double Window Builder}.
@@ -497,7 +526,8 @@ public interface Window {
              * @return This {@link Double Window Builder}
              */
             @Contract("_ -> this")
-            @NotNull S setLowerGui(@NotNull Supplier<Gui> guiSupplier);
+            @NotNull
+            S setLowerGui(@NotNull Supplier<Gui> guiSupplier);
             
         }
         
@@ -505,6 +535,7 @@ public interface Window {
          * A normal {@link Window} builder for {@link Window Windows} of inventories with no special functionality, such
          * as chests, hoppers and droppers.
          *
+         * @param <V> The viewer type
          * @param <S> The builder type
          * @see AnvilWindow.Builder
          * @see CartographyWindow.Builder

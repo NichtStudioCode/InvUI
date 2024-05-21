@@ -11,7 +11,13 @@ import java.util.function.BiConsumer;
 
 /**
  * A scrollable {@link Gui}
+ * <p>
+ * Only in very rare circumstances should this class be used directly.
+ * Instead, use the static factory or builder functions from the {@link ScrollGui} interface,
+ * such as {@link ScrollGui#items()}, {@link ScrollGui#guis()} or {@link ScrollGui#inventories()}
+ * to create a new {@link ScrollGui}.
  *
+ * @param <C> The content type.
  * @see ScrollItemsGuiImpl
  * @see ScrollNestedGuiImpl
  */
@@ -25,9 +31,23 @@ public abstract class AbstractScrollGui<C> extends AbstractGui implements Scroll
     private int offset;
     
     private List<BiConsumer<Integer, Integer>> scrollHandlers;
+    /**
+     * The content of the gui, to be displayed on the lines.
+     */
     protected List<C> content;
+    /**
+     * The baked {@link SlotElement SlotElements}, containing the content.
+     */
     protected List<SlotElement> elements;
     
+    /**
+     * Creates a new {@link AbstractScrollGui}.
+     *
+     * @param width            The width of the gui.
+     * @param height           The height of the gui.
+     * @param infiniteLines    Whether the gui has infinite lines.
+     * @param contentListSlots The slots to be used for lines.
+     */
     public AbstractScrollGui(int width, int height, boolean infiniteLines, int... contentListSlots) {
         super(width, height);
         this.infiniteLines = infiniteLines;
@@ -43,11 +63,24 @@ public abstract class AbstractScrollGui<C> extends AbstractGui implements Scroll
             throw new IllegalArgumentException("contentListSlots has to be a multiple of lineLength");
     }
     
+    /**
+     * Creates a new {@link AbstractScrollGui}.
+     *
+     * @param width         The width of the gui.
+     * @param height        The height of the gui.
+     * @param infiniteLines Whether the gui has infinite lines.
+     * @param structure     The structure of the gui.
+     */
     public AbstractScrollGui(int width, int height, boolean infiniteLines, Structure structure) {
         this(width, height, infiniteLines, structure.getIngredientList().findContentListSlots());
         applyStructure(structure);
     }
     
+    /**
+     * Gets the (longest) scroll line length used in this {@link AbstractScrollGui}.
+     *
+     * @return The line length.
+     */
     public int getLineLength() {
         return lineLength;
     }
@@ -130,6 +163,10 @@ public abstract class AbstractScrollGui<C> extends AbstractGui implements Scroll
         }
     }
     
+    /**
+     * Updates the gui, by first correcting the current line
+     * and then updating all relevant items.
+     */
     protected void update() {
         correctCurrentLine();
         updateControlItems();
@@ -137,16 +174,12 @@ public abstract class AbstractScrollGui<C> extends AbstractGui implements Scroll
     }
     
     private void updateContent() {
-        List<SlotElement> slotElements = getElements(offset, contentListSlots.length + offset);
+        List<SlotElement> slotElements = elements.subList(offset, Math.min(elements.size(), contentListSlots.length + offset));
         
         for (int i = 0; i < contentListSlots.length; i++) {
             if (slotElements.size() > i) setSlotElement(contentListSlots[i], slotElements.get(i));
             else remove(contentListSlots[i]);
         }
-    }
-    
-    protected List<SlotElement> getElements(int from, int to) {
-        return elements.subList(from, Math.min(elements.size(), to));
     }
     
     @Override
@@ -168,6 +201,15 @@ public abstract class AbstractScrollGui<C> extends AbstractGui implements Scroll
             scrollHandlers.remove(scrollHandler);
     }
     
+    /**
+     * Builder for {@link AbstractScrollGui AbstractScrollGuis}.
+     * <p>
+     * This class should only be used directly if you're creating a custom {@link AbstractBuilder} implementation.
+     * Otherwise, use the static builder functions from {@link ScrollGui}, such as
+     * {@link ScrollGui#items()}, {@link ScrollGui#guis()} or {@link ScrollGui#inventories()} to obtain a builder instance.
+     *
+     * @param <C> The content type.
+     */
     public abstract static class AbstractBuilder<C>
         extends AbstractGui.AbstractBuilder<ScrollGui<C>, ScrollGui.Builder<C>>
         implements ScrollGui.Builder<C>

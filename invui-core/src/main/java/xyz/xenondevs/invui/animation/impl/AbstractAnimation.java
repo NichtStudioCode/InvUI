@@ -18,6 +18,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
+/**
+ * Abstract base class for {@link Animation} implementations.
+ */
 public abstract class AbstractAnimation implements Animation {
     
     private final List<Runnable> finishHandlers = new ArrayList<>();
@@ -35,6 +38,11 @@ public abstract class AbstractAnimation implements Animation {
     private int frame;
     private int noViewerTicks;
     
+    /**
+     * Creates a new {@link AbstractAnimation}.
+     *
+     * @param tickDelay The delay between each frame
+     */
     public AbstractAnimation(int tickDelay) {
         this.tickDelay = tickDelay;
     }
@@ -85,13 +93,27 @@ public abstract class AbstractAnimation implements Animation {
         task.cancel();
     }
     
+    /**
+     * Stops the {@link Animation} and runs finish handlers.
+     */
     protected void finish() {
         task.cancel();
         finishHandlers.forEach(Runnable::run);
     }
     
+    /**
+     * Handles the next frame of the {@link Animation}.
+     *
+     * @param frame The current frame
+     */
     protected abstract void handleFrame(int frame);
     
+    /**
+     * The slots that are being animated. Animation implementations may or may not remove
+     * slots that have been shown from the list.
+     *
+     * @return The slots that are being animated
+     */
     public CopyOnWriteArrayList<Integer> getSlots() {
         return slots;
     }
@@ -101,10 +123,22 @@ public abstract class AbstractAnimation implements Animation {
         this.slots = new CopyOnWriteArrayList<>(slots);
     }
     
+    /**
+     * Shows the given slots.
+     *
+     * @param slots The slots to show
+     */
     protected void show(int... slots) {
         for (int i : slots) show.accept(frame, i);
     }
     
+    /**
+     * Converts the given x and y coordinates to a slot index.
+     *
+     * @param x The x coordinate
+     * @param y The y coordinate
+     * @return The slot index
+     */
     protected int convToIndex(int x, int y) {
         if (x >= width || y >= height)
             throw new IllegalArgumentException("Coordinates out of bounds");
@@ -112,14 +146,29 @@ public abstract class AbstractAnimation implements Animation {
         return SlotUtils.convertToIndex(x, y, width);
     }
     
+    /**
+     * Gets the width of the {@link Gui} this {@link Animation} is taking place in.
+     *
+     * @return The width of the {@link Gui}
+     */
     protected int getWidth() {
         return width;
     }
     
+    /**
+     * Gets the height of the {@link Gui} this {@link Animation} is taking place in.
+     *
+     * @return The height of the {@link Gui}
+     */
     protected int getHeight() {
         return height;
     }
     
+    /**
+     * Finds all current viewers of this {@link Animation}.
+     *
+     * @return The current viewers
+     */
     public Set<Player> getCurrentViewers() {
         return windows.stream()
             .map(Window::getCurrentViewer)

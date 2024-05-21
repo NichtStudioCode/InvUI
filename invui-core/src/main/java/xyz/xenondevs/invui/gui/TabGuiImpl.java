@@ -10,7 +10,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * A {@link Gui} that has multiple tabs with which users can switch between {@link Gui}s.
+ * A {@link Gui} that has multiple tabs with which users can switch between {@link Gui Guis}.
+ * <p>
+ * Use the static factory and builder functions, such as {@link TabGui#normal()},
+ * to get an instance of this class.
  */
 final class TabGuiImpl extends AbstractTabGui {
     

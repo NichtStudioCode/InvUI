@@ -10,7 +10,10 @@ import java.util.List;
 
 /**
  * An {@link AbstractPagedGui} that is filled with {@link Item Items}.
- *
+ * <p>
+ * Use the static factory and builder functions, such as {@link PagedGui#items()},
+ * to get an instance of this class.
+ * 
  * @see PagedNestedGuiImpl
  * @see PagedInventoriesGuiImpl
  */

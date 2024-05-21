@@ -18,6 +18,12 @@ import xyz.xenondevs.invui.util.MathUtils;
 
 import java.util.List;
 
+/**
+ * An {@link AbstractSplitWindow} that uses a {@link CartographyInventory} as the upper inventory
+ * and the player inventory as the lower inventory.
+ * <p>
+ * Use the builder obtained by {@link CartographyWindow#split()}, to get an instance of this class.
+ */
 final class CartographySplitWindowImpl extends AbstractSplitWindow implements CartographyWindow {
     
     private final CartographyInventory cartographyInventory;

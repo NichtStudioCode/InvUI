@@ -20,13 +20,30 @@ import java.util.function.Supplier;
 
 /**
  * A {@link Window} that just uses the top {@link org.bukkit.inventory.Inventory}.
+ * <p>
+ * Only in very rare circumstances should this class be used directly.
+ * Instead, use the static builder functions in the
+ * {@link Window} interfaces to create a new {@link Window}, such as
+ * {@link Window#single()}.
  */
 public abstract class AbstractSingleWindow extends AbstractWindow {
     
     private final AbstractGui gui;
     private final int size;
+    /**
+     * The {@link org.bukkit.inventory.Inventory} of the window.
+     */
     protected org.bukkit.inventory.Inventory inventory;
     
+    /**
+     * Creates a new {@link AbstractSingleWindow}.
+     *
+     * @param viewer    The player that views the window.
+     * @param title     The title of the window.
+     * @param gui       The gui of the window.
+     * @param inventory The inventory of the window.
+     * @param closeable Whether the window is closeable.
+     */
     public AbstractSingleWindow(Player viewer, ComponentWrapper title, AbstractGui gui, org.bukkit.inventory.Inventory inventory, boolean closeable) {
         super(viewer, title, gui.getSize(), closeable);
         this.gui = gui;
@@ -104,6 +121,10 @@ public abstract class AbstractSingleWindow extends AbstractWindow {
         return new AbstractGui[] {gui};
     }
     
+    /**
+     * Gets the {@link Gui} used for this {@link AbstractSingleWindow}.
+     * @return The {@link Gui} used for this {@link AbstractSingleWindow}.
+     */
     public AbstractGui getGui() {
         return gui;
     }
@@ -118,12 +139,25 @@ public abstract class AbstractSingleWindow extends AbstractWindow {
         return null;
     }
     
+    /**
+     * Builder for a {@link AbstractSingleWindow}.
+     * <p>
+     * This class should only be used directly if you're creating a custom {@link AbstractBuilder} for a custom
+     * {@link AbstractSingleWindow} implementation. Otherwise, use the static builder functions in the {@link Window}
+     * interface, such as {@link Window#single()} to obtain a builder.
+     *
+     * @param <W> The type of the window.
+     * @param <S> The type of the builder.
+     */
     @SuppressWarnings("unchecked")
     public abstract static class AbstractBuilder<W extends Window, S extends Builder.Single<W, S>>
         extends AbstractWindow.AbstractBuilder<W, S>
         implements Builder.Single<W, S>
     {
         
+        /**
+         * The {@link Supplier} to retrieve the {@link Gui} for the {@link AbstractSingleWindow}.
+         */
         protected Supplier<Gui> guiSupplier;
         
         @Override

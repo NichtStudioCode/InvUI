@@ -9,7 +9,10 @@ import java.util.List;
 
 /**
  * A {@link AbstractScrollGui} that uses {@link Gui Guis} as content.
- *
+ * <p>
+ * Use the static factory and builder functions, such as {@link ScrollGui#guis()},
+ * to get an instance of this class.
+ * 
  * @see ScrollItemsGuiImpl
  * @see ScrollInventoryGuiImpl
  */

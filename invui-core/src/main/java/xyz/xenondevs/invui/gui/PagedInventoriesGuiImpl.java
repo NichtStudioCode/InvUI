@@ -12,6 +12,9 @@ import java.util.function.BiConsumer;
 
 /**
  * An {@link AbstractPagedGui} where every page is its own {@link Inventory}.
+ * <p>
+ * Use the static factory and builder functions, such as {@link PagedGui#inventories()},
+ * to get an instance of this class.
  *
  * @see PagedItemsGuiImpl
  * @see PagedNestedGuiImpl
