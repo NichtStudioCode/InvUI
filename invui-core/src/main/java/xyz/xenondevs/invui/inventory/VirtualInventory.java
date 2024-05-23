@@ -1,5 +1,6 @@
 package xyz.xenondevs.invui.inventory;
 
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,6 +36,7 @@ public class VirtualInventory extends Inventory {
      * @param items         A predefined array of content. Can be null. Will not get copied!
      * @param maxStackSizes An array of maximum allowed stack sizes for each slot in the {@link VirtualInventory}. Can be null for 64.
      * @throws IllegalArgumentException If the given size does not match the length of the items array or the length of the stackSizes array.
+     * @throws IllegalArgumentException If the items array contains air {@link ItemStack ItemStacks}.
      */
     public VirtualInventory(@Nullable UUID uuid, int size, @Nullable ItemStack @Nullable [] items, int @Nullable [] maxStackSizes) {
         this.uuid = uuid == null ? new UUID(0L, 0L) : uuid;
@@ -52,6 +54,12 @@ public class VirtualInventory extends Inventory {
             throw new IllegalArgumentException("Inventory size does not match items array length");
         if (size != this.maxStackSizes.length)
             throw new IllegalArgumentException("Inventory size does not match maxStackSizes array length");
+        if (items != null) {
+            for (ItemStack item : items) {
+                if (item != null && item.getType() == Material.AIR)
+                    throw new IllegalArgumentException("Items array may not contain air items!");
+            }
+        }
     }
     
     /**
