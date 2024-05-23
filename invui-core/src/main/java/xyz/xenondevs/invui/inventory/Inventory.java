@@ -203,7 +203,7 @@ public abstract class Inventory {
      *
      * @param preUpdateHandler The new item update handler
      */
-    public void setPreUpdateHandler(@NotNull Consumer<@NotNull ItemPreUpdateEvent> preUpdateHandler) {
+    public void setPreUpdateHandler(@Nullable Consumer<@NotNull ItemPreUpdateEvent> preUpdateHandler) {
         this.preUpdateHandler = preUpdateHandler;
     }
     
@@ -221,7 +221,7 @@ public abstract class Inventory {
      *
      * @param inventoryUpdatedHandler The new handler
      */
-    public void setPostUpdateHandler(@NotNull Consumer<@NotNull ItemPostUpdateEvent> inventoryUpdatedHandler) {
+    public void setPostUpdateHandler(@Nullable Consumer<@NotNull ItemPostUpdateEvent> inventoryUpdatedHandler) {
         this.postUpdateHandler = inventoryUpdatedHandler;
     }
     
