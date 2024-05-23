@@ -5,6 +5,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.InventoryAccess;
+import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.util.DataUtils;
 import xyz.xenondevs.invui.util.ItemUtils;
 
@@ -14,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.BiConsumer;
+import java.util.logging.Level;
 
 /**
  * A serializable {@link Inventory} implementation that is identified by a {@link UUID} and backed by a simple {@link ItemStack} array.
@@ -200,7 +202,7 @@ public class VirtualInventory extends Inventory {
             
             return new VirtualInventory(uuid, items);
         } catch (IOException e) {
-            e.printStackTrace();
+            InvUI.getInstance().getLogger().log(Level.SEVERE, "Failed to deserialize VirtualInventory", e);
         }
         
         return null;
@@ -243,9 +245,8 @@ public class VirtualInventory extends Inventory {
             DataUtils.write2DByteArray(dos, items);
             
             dos.flush();
-        } catch (
-            IOException e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            InvUI.getInstance().getLogger().log(Level.SEVERE, "Failed to serialize VirtualInventory", e);
         }
     }
     
