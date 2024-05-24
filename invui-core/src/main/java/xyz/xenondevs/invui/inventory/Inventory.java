@@ -230,7 +230,7 @@ public abstract class Inventory {
      *
      * @return `true` if this {@link Inventory} has a pre- or post-update handler.
      */
-    private boolean hasEventHandlers() {
+    public boolean hasEventHandlers() {
         return preUpdateHandler != null || postUpdateHandler != null;
     }
     

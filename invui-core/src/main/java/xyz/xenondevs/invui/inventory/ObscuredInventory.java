@@ -113,12 +113,17 @@ public class ObscuredInventory extends Inventory {
     }
     
     @Override
-    public void setPostUpdateHandler(@NotNull Consumer<@NotNull ItemPostUpdateEvent> inventoryUpdatedHandler) {
+    public boolean hasEventHandlers() {
+        return inventory.hasEventHandlers();
+    }
+    
+    @Override
+    public void setPostUpdateHandler(@Nullable Consumer<@NotNull ItemPostUpdateEvent> inventoryUpdatedHandler) {
         throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
     }
     
     @Override
-    public void setPreUpdateHandler(@NotNull Consumer<@NotNull ItemPreUpdateEvent> preUpdateHandler) {
+    public void setPreUpdateHandler(@Nullable Consumer<@NotNull ItemPreUpdateEvent> preUpdateHandler) {
         throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
     }
     
