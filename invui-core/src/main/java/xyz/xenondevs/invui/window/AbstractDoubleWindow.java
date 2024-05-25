@@ -69,13 +69,6 @@ public abstract class AbstractDoubleWindow extends AbstractWindow {
     }
     
     @Override
-    protected void redrawItem(int index, SlotElement element, boolean setItem) {
-        super.redrawItem(index, element, setItem);
-        if (getViewer() != null)
-            getViewer().updateInventory(); // fixes a bug where some items wouldn't be displayed correctly
-    }
-    
-    @Override
     protected void setInvItem(int slot, ItemStack itemStack) {
         if (slot >= upperInventory.getSize()) {
             if (isOpen()) {
