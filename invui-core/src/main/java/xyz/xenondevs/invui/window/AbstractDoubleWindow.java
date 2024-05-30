@@ -8,6 +8,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.InventoryAccess;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
+import xyz.xenondevs.inventoryaccess.util.VersionUtils;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.util.Pair;
@@ -87,8 +88,11 @@ public abstract class AbstractDoubleWindow extends AbstractWindow {
     @Override
     protected void redrawItem(int index, SlotElement element, boolean setItem) {
         super.redrawItem(index, element, setItem);
-        if (getViewer() != null)
-            getViewer().updateInventory(); // fixes a bug where some items wouldn't be displayed correctly
+        if (isOpen() && !VersionUtils.isServerHigherOrEqual(1, 17, 0)) {
+            // player inventory is not updated properly in 1.16.5 and below
+            // see https://github.com/NichtStudioCode/InvUI/pull/70
+            getViewer().updateInventory();
+        }
     }
     
     @Override
