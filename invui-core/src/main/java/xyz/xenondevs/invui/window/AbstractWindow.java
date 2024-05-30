@@ -265,8 +265,6 @@ public abstract class AbstractWindow implements Window, GuiParent {
     @Override
     public void open() {
         Player viewer = getViewer();
-        if (viewer == null)
-            throw new IllegalStateException("Viewer is not online");
         if (currentlyOpen)
             throw new IllegalStateException("Window is already open");
         
@@ -439,11 +437,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
     }
     
     public @NotNull String getLang() {
-        var player = getViewer();
-        if (player == null)
-            throw new IllegalStateException("Tried to receive the language from a viewer that is not online.");
-        
-        return Languages.getInstance().getLanguage(player);
+        return Languages.getInstance().getLanguage(getViewer());
     }
     
     @Override
