@@ -274,9 +274,9 @@ public abstract class AbstractWindow implements Window, GuiParent {
             openWindow.handleCloseEvent(true);
         }
         
-        initItems();
         currentlyOpen = true;
         hasHandledClose = false;
+        initItems();
         WindowManager.getInstance().addWindow(this);
         for (AbstractGui gui : getGuis()) gui.addParent(this);
         openInventory(viewer);
