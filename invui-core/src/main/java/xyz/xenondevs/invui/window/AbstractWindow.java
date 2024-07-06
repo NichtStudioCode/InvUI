@@ -166,7 +166,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
         
         int itemsLeft = event.getCursor() == null ? 0 : event.getCursor().getAmount();
         for (int rawSlot : event.getRawSlots()) { // loop over all affected slots
-            ItemStack currentStack = event.getView().getItem(rawSlot);
+            ItemStack currentStack = InventoryAccess.getInventoryUtils().getItemStackFromView(event.getView(), rawSlot);
             if (currentStack != null && currentStack.getType() == Material.AIR) currentStack = null;
             
             // get the Gui at that slot and ask for permission to drag an Item there

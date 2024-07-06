@@ -7,6 +7,8 @@ import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftContainer;
 import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftInventory;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.abstraction.util.InventoryUtils;
@@ -58,6 +60,11 @@ class InventoryUtilsImpl implements InventoryUtils {
         Container container = entityPlayer.activeContainer;
         entityPlayer.playerConnection.sendPacket(new PacketPlayOutOpenWindow(container.windowId, container.getType(), createNMSComponent(title)));
         entityPlayer.updateInventory(container);
+    }
+    
+    @Override
+    public @Nullable ItemStack getItemStackFromView(@NotNull InventoryView view, int slot) {
+        return view.getItem(slot);
     }
     
 }

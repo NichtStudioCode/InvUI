@@ -3,6 +3,7 @@ package xyz.xenondevs.inventoryaccess.abstraction.util;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
@@ -40,5 +41,15 @@ public interface InventoryUtils {
      * @param title  The new title
      */
     void updateOpenInventoryTitle(@NotNull Player player, @NotNull ComponentWrapper title);
+    
+    /**
+     * Gets the {@link ItemStack} at a given raw slot from the {@link InventoryView}.
+     *
+     * @param view The {@link InventoryView}
+     * @param slot  The raw slot
+     * @return The {@link ItemStack} at the given slot
+     */
+    @Nullable
+    ItemStack getItemStackFromView(@NotNull InventoryView view, int slot);
     
 }
