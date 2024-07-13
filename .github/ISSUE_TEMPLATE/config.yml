@@ -1,0 +1,10 @@
+contact_links:
+- name: Check out the InvUI Documentation
+  about: Please read the documentation before asking a question.
+  url: https://docs.xen.cx/invui/
+- name: Ask a question on GitHub
+  about: You can use GitHub Discussions to ask a question.
+  url: https://github.com/NichtStudioCode/InvUI/discussions/categories/q-a
+- name: Ask a question on Discord
+  about: You can join our Discord to ask a question.
+  url: https://discord.gg/Xu86AXdNwp
