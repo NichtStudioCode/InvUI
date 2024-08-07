@@ -466,7 +466,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
      * @return A map of all {@link Inventory Inventories} and their slots that are visible.
      */
     public Map<Inventory, Set<Integer>> getAllInventorySlots(Inventory... ignored) {
-        TreeMap<Inventory, Set<Integer>> slots = new TreeMap<>(Comparator.comparingInt(Inventory::getGuiPriority).reversed());
+        HashMap<Inventory, Set<Integer>> slots = new HashMap<>();
         Set<Inventory> ignoredSet = Arrays.stream(ignored).collect(Collectors.toSet());
         
         for (SlotElement element : slotElements) {
@@ -484,7 +484,9 @@ public abstract class AbstractGui implements Gui, GuiParent {
             }
         }
         
-        return slots;
+        return slots.entrySet().stream()
+            .sorted(Comparator.<Map.Entry<Inventory, Set<Integer>>>comparingInt(entry -> entry.getKey().getGuiPriority()).reversed())
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
     }
     
     /**

@@ -127,4 +127,14 @@ public class ObscuredInventory extends Inventory {
         throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
     }
     
+    @Override
+    public int getGuiPriority() {
+        return inventory.getGuiPriority();
+    }
+    
+    @Override
+    public void setGuiPriority(int guiPriority) {
+        throw new UnsupportedOperationException("Gui priority needs to be set in the backing inventory");
+    }
+    
 }
