@@ -123,11 +123,6 @@
             <artifactId>inventory-access-r20</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>xyz.xenondevs.invui</groupId>
-            <artifactId>inventory-access-r21</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 
 </project>

@@ -17,8 +17,8 @@ import net.minecraft.world.item.ItemStack;
 import org.bukkit.craftbukkit.v1_21_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_21_R1.event.CraftEventFactory;
 import org.bukkit.craftbukkit.v1_21_R1.inventory.CraftInventoryAnvil;
-import org.bukkit.craftbukkit.v1_21_R1.inventory.CraftInventoryView;
 import org.bukkit.craftbukkit.v1_21_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_21_R1.inventory.view.CraftAnvilView;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
@@ -31,7 +31,7 @@ import java.util.function.Consumer;
 class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
     
     private final List<Consumer<String>> renameHandlers;
-    private final CraftInventoryView view;
+    private final CraftAnvilView view;
     private final ServerPlayer player;
     
     private String text;
@@ -49,9 +49,8 @@ class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
         this.renameHandlers = renameHandlers;
         this.player = player;
         
-        CraftInventoryAnvil inventory = new CraftInventoryAnvil(access.getLocation(),
-            inputSlots, resultSlots, this);
-        this.view = new CraftInventoryView(player.getBukkitEntity(), inventory, this);
+        CraftInventoryAnvil inventory = new CraftInventoryAnvil(access.getLocation(), inputSlots, resultSlots);
+        this.view = new CraftAnvilView(player.getBukkitEntity(), inventory, this);
     }
     
     public void open() {
@@ -118,7 +117,7 @@ class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
     // --- AnvilMenu ---
     
     @Override
-    public CraftInventoryView getBukkitView() {
+    public CraftAnvilView getBukkitView() {
         return view;
     }
     
