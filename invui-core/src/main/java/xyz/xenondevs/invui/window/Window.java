@@ -146,8 +146,7 @@ public interface Window {
      *
      * @return The viewer of this window.
      */
-    @Nullable
-    Player getViewer();
+    @NotNull Player getViewer();
     
     /**
      * Gets the current {@link Player} that is viewing this

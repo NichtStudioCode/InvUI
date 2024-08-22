@@ -194,7 +194,7 @@ public abstract class Inventory {
      *
      * @return The pre update handler
      */
-    public @Nullable Consumer<ItemPreUpdateEvent> getPreUpdateHandler() {
+    public @Nullable Consumer<@NotNull ItemPreUpdateEvent> getPreUpdateHandler() {
         return preUpdateHandler;
     }
     
