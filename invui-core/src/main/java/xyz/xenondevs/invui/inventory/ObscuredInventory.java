@@ -1,7 +1,6 @@
 package xyz.xenondevs.invui.inventory;
 
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Consumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
@@ -9,6 +8,7 @@ import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
 import java.util.function.IntPredicate;
 
 /**

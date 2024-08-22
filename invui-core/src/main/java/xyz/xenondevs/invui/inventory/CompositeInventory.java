@@ -1,7 +1,6 @@
 package xyz.xenondevs.invui.inventory;
 
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Consumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
@@ -10,6 +9,7 @@ import xyz.xenondevs.invui.inventory.event.UpdateReason;
 import xyz.xenondevs.invui.util.Pair;
 
 import java.util.Collection;
+import java.util.function.Consumer;
 
 /**
  * An {@link Inventory} which is composed of multiple other {@link Inventory Inventories}.
