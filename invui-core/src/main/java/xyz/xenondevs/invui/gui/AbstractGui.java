@@ -108,10 +108,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
     protected void handleInvSlotElementClick(SlotElement.InventorySlotElement element, InventoryClickEvent event) {
         // these actions are ignored as they don't modify the inventory
         InventoryAction action = event.getAction();
-        if (action != InventoryAction.CLONE_STACK
-            && action != InventoryAction.DROP_ALL_CURSOR
-            && action != InventoryAction.DROP_ONE_CURSOR
-        ) {
+        if (action != InventoryAction.DROP_ALL_CURSOR && action != InventoryAction.DROP_ONE_CURSOR) {
             event.setCancelled(true);
             
             Inventory inventory = element.getInventory();
@@ -151,6 +148,9 @@ public abstract class AbstractGui implements Gui, GuiParent {
                         break;
                     case "DOUBLE_CLICK":
                         handleInvDoubleClick(event, player, cursor);
+                        break;
+                    case "MIDDLE":
+                        handleInvMiddleClick(event, inventory, slot);
                         break;
                     default:
                         InvUI.getInstance().getLogger().warning("Unknown click type: " + event.getClick().name());
@@ -382,6 +382,21 @@ public abstract class AbstractGui implements Gui, GuiParent {
         // windows handle cursor collect because it is a cross-inventory / cross-gui operation
         Window window = WindowManager.getInstance().getOpenWindow(player);
         ((AbstractWindow) window).handleCursorCollect(event);
+    }
+    
+    /**
+     * Handles a middle click on an {@link SlotElement.InventorySlotElement}.
+     *
+     * @param event     The {@link InventoryClickEvent} that was triggered
+     * @param inventory The {@link Inventory} that was clicked
+     * @param slot      The slot that was clicked
+     */
+    @SuppressWarnings("deprecation")
+    protected void handleInvMiddleClick(InventoryClickEvent event, Inventory inventory, int slot) {
+        ItemStack cursor = inventory.getItem(slot);
+        if (cursor != null)
+            cursor.setAmount(cursor.getMaxStackSize());
+        event.setCursor(cursor);
     }
     
     /**
