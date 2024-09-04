@@ -1,12 +1,11 @@
 package xyz.xenondevs.invui.animation.impl;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.animation.Animation;
 import xyz.xenondevs.invui.gui.Gui;
+import xyz.xenondevs.invui.scheduler.UniversalTask;
 import xyz.xenondevs.invui.util.SlotUtils;
 import xyz.xenondevs.invui.window.Window;
 
@@ -33,7 +32,7 @@ public abstract class AbstractAnimation implements Animation {
     private List<Window> windows;
     private CopyOnWriteArrayList<Integer> slots;
     private BiConsumer<Integer, Integer> show;
-    private BukkitTask task;
+    private UniversalTask task;
     
     private int frame;
     private int noViewerTicks;
@@ -72,7 +71,7 @@ public abstract class AbstractAnimation implements Animation {
     
     @Override
     public void start() {
-        task = Bukkit.getScheduler().runTaskTimer(InvUI.getInstance().getPlugin(), () -> {
+        task = InvUI.getInstance().getUniversalScheduler().runTaskTimer(() -> {
             // if there are no viewers for more than 3 ticks, the animation can be cancelled
             if (getCurrentViewers().isEmpty()) {
                 noViewerTicks++;

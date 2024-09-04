@@ -2,7 +2,6 @@ package xyz.xenondevs.invui.window;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.HumanEntity;
@@ -181,8 +180,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
         }
         
         // Redraw all items after the event so there won't be any Items that aren't actually there
-        Bukkit.getScheduler().runTask(InvUI.getInstance().getPlugin(),
-            () -> event.getRawSlots().forEach(rawSlot -> {
+        InvUI.getInstance().getUniversalScheduler().runTask(() -> event.getRawSlots().forEach(rawSlot -> {
                 if (getGuiAt(rawSlot) != null) redrawItem(rawSlot);
             })
         );
@@ -331,7 +329,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
                 closeHandlers.forEach(Runnable::run);
             }
         } else {
-            Bukkit.getScheduler().runTaskLater(InvUI.getInstance().getPlugin(), () -> openInventory(viewer), 0);
+            InvUI.getInstance().getUniversalScheduler().runTaskLater(() -> openInventory(viewer), 0);
         }
     }
     

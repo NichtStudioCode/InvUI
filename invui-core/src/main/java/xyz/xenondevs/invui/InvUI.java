@@ -8,6 +8,7 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.util.ReflectionUtils;
+import xyz.xenondevs.invui.scheduler.UniversalScheduler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,7 @@ import static xyz.xenondevs.inventoryaccess.util.ReflectionRegistry.*;
 public class InvUI implements Listener {
     
     private static InvUI instance;
+    private static UniversalScheduler universalScheduler;
     
     private final List<Runnable> disableHandlers = new ArrayList<>();
     private Plugin plugin;
@@ -28,7 +30,11 @@ public class InvUI implements Listener {
     public static @NotNull InvUI getInstance() {
         return instance == null ? instance = new InvUI() : instance;
     }
-    
+
+    public UniversalScheduler getUniversalScheduler() {
+        return universalScheduler == null ? universalScheduler = new UniversalScheduler(plugin) : universalScheduler;
+    }
+
     public @NotNull Plugin getPlugin() {
         if (plugin == null) {
             setPlugin(tryFindPlugin());

@@ -1,14 +1,13 @@
 package xyz.xenondevs.invui.item.impl;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
+import xyz.xenondevs.invui.scheduler.UniversalTask;
 import xyz.xenondevs.invui.window.AbstractWindow;
 
 /**
@@ -19,7 +18,7 @@ public class AutoCycleItem extends AbstractItem {
     
     private final ItemProvider[] itemProviders;
     private final int period;
-    private BukkitTask task;
+    private UniversalTask task;
     
     private int state;
     
@@ -30,7 +29,7 @@ public class AutoCycleItem extends AbstractItem {
     
     public void start() {
         if (task != null) task.cancel();
-        task = Bukkit.getScheduler().runTaskTimer(InvUI.getInstance().getPlugin(), this::cycle, 0, period);
+        task = InvUI.getInstance().getUniversalScheduler().runTaskTimer(this::cycle, 0, period);
     }
     
     public void cancel() {
