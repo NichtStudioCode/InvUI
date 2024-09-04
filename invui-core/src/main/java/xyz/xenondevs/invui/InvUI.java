@@ -19,11 +19,11 @@ import static xyz.xenondevs.inventoryaccess.util.ReflectionRegistry.*;
 public class InvUI implements Listener {
     
     private static InvUI instance;
-    private static UniversalScheduler universalScheduler;
-    
+
     private final List<Runnable> disableHandlers = new ArrayList<>();
+    private UniversalScheduler universalScheduler;
     private Plugin plugin;
-    
+
     private InvUI() {
     }
     
