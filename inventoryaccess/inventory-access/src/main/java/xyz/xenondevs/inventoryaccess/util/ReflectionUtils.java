@@ -59,6 +59,19 @@ public class ReflectionUtils {
         }
     }
     
+    public static <T> @Nullable Constructor<T> getConstructorOrNull(@Nullable Class<T> clazz, boolean declared, @Nullable Class<?> @NotNull ... parameterTypes) {
+        if (clazz == null)
+            return null;
+        
+        try {
+            Constructor<T> constructor = declared ? clazz.getDeclaredConstructor(parameterTypes) : clazz.getConstructor(parameterTypes);
+            if (declared) constructor.setAccessible(true);
+            return constructor;
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+    
     public static <T> @NotNull T constructEmpty(@NotNull Class<?> clazz) {
         try {
             return (T) getConstructor(clazz, true).newInstance();
@@ -85,7 +98,10 @@ public class ReflectionUtils {
         }
     }
     
-    public static @Nullable Method getMethodOrNull(@NotNull Class<?> clazz, boolean declared, @NotNull String name, @NotNull Class<?> @NotNull ... parameterTypes) {
+    public static @Nullable Method getMethodOrNull(@Nullable Class<?> clazz, boolean declared, @NotNull String name, @Nullable Class<?> @NotNull ... parameterTypes) {
+        if (clazz == null)
+            return null;
+        
         try {
             Method method = declared ? clazz.getDeclaredMethod(name, parameterTypes) : clazz.getMethod(name, parameterTypes);
             if (declared) method.setAccessible(true);

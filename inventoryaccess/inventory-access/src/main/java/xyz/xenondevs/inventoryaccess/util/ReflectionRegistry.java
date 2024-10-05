@@ -3,6 +3,7 @@ package xyz.xenondevs.inventoryaccess.util;
 import com.mojang.authlib.GameProfile;
 import org.bukkit.Bukkit;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -17,10 +18,15 @@ public class ReflectionRegistry {
     public static final Class<?> PAPER_PLUGIN_CLASS_LOADER_CLASS = getClassOrNull("io.papermc.paper.plugin.entrypoint.classloader.PaperPluginClassLoader");
     public static final Class<?> CB_CRAFT_META_SKULL_CLASS = getCBClass("inventory.CraftMetaSkull");
     public static final Class<?> CB_CRAFT_META_ITEM_CLASS = getCBClass("inventory.CraftMetaItem");
+    public static final Class<?> RESOLVABLE_PROFILE_CLASS = getClassOrNull("net.minecraft.world.item.component.ResolvableProfile");
+    
+    // Constructors
+    public static final Constructor<?> RESOLVABLE_PROFILE_FROM_GAME_PROFILE_CONSTRUCTOR = getConstructorOrNull(RESOLVABLE_PROFILE_CLASS, false, GameProfile.class);
     
     // Methods
     public static final Method PAPER_PLUGIN_CLASS_LOADER_GET_LOADED_JAVA_PLUGIN_METHOD;
     public static final Method CB_CRAFT_META_SKULL_SET_PROFILE_METHOD = getMethodOrNull(CB_CRAFT_META_SKULL_CLASS, true, "setProfile", GameProfile.class); // since spigot 1.14.4 or paper 1.15.1
+    public static final Method CB_CRAFT_META_SKULL_SET_RESOLVABLE_PROFILE_METHOD = getMethodOrNull(CB_CRAFT_META_SKULL_CLASS, true, "setProfile", RESOLVABLE_PROFILE_CLASS);
     
     // Fields
     public static final Field PLUGIN_CLASS_LOADER_PLUGIN_FIELD = getField(PLUGIN_CLASS_LOADER_CLASS, true, "plugin");
