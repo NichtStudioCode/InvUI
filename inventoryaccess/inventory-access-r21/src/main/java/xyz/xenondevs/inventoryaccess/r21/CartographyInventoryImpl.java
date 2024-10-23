@@ -1,4 +1,4 @@
-package xyz.xenondevs.inventoryaccess.r20;
+package xyz.xenondevs.inventoryaccess.r21;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
@@ -11,11 +11,11 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
-import org.bukkit.craftbukkit.v1_21_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_21_R1.event.CraftEventFactory;
-import org.bukkit.craftbukkit.v1_21_R1.inventory.CraftInventoryCartography;
-import org.bukkit.craftbukkit.v1_21_R1.inventory.CraftInventoryView;
-import org.bukkit.craftbukkit.v1_21_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_21_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_21_R2.event.CraftEventFactory;
+import org.bukkit.craftbukkit.v1_21_R2.inventory.CraftInventoryCartography;
+import org.bukkit.craftbukkit.v1_21_R2.inventory.CraftInventoryView;
+import org.bukkit.craftbukkit.v1_21_R2.inventory.CraftItemStack;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.inventoryaccess.abstraction.inventory.CartographyInventory;
