@@ -1,5 +1,6 @@
 package xyz.xenondevs.invui.gui;
 
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
@@ -150,7 +151,9 @@ public abstract class AbstractGui implements Gui, GuiParent {
                         handleInvDoubleClick(event, player, cursor);
                         break;
                     case "MIDDLE":
-                        handleInvMiddleClick(event, inventory, slot);
+                        if (player.getGameMode() == GameMode.CREATIVE) {
+                            handleInvMiddleClick(event, inventory, slot);
+                        }
                         break;
                     default:
                         InvUI.getInstance().getLogger().warning("Unknown click type: " + event.getClick().name());
