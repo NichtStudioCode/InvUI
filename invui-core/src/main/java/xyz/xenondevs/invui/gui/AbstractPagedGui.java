@@ -257,7 +257,8 @@ public abstract class AbstractPagedGui<C> extends AbstractGui implements PagedGu
             var clone = (AbstractBuilder<C>) super.clone();
             if(this.content != null)
                 clone.content = new ArrayList<>(this.content);
-            clone.pageChangeHandlers = new ArrayList<>(pageChangeHandlers);
+            if(this.pageChangeHandlers != null)
+                clone.pageChangeHandlers = new ArrayList<>(this.pageChangeHandlers);
             return clone;
         }
         
