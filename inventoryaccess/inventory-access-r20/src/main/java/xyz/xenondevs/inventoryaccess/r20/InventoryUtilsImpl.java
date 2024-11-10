@@ -1,6 +1,8 @@
 package xyz.xenondevs.inventoryaccess.r20;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundBundlePacket;
+import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
 import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
