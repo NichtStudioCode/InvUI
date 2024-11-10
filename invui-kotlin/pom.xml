@@ -6,7 +6,7 @@
     <parent>
         <groupId>xyz.xenondevs.invui</groupId>
         <artifactId>invui-parent</artifactId>
-        <version>1.40</version>
+        <version>1.41</version>
     </parent>
 
     <artifactId>invui-kotlin</artifactId>
