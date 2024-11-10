@@ -1,6 +1,8 @@
 package xyz.xenondevs.inventoryaccess.r21;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundBundlePacket;
+import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
 import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
@@ -20,6 +22,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.abstraction.util.InventoryUtils;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
+
+import java.util.List;
 
 class InventoryUtilsImpl implements InventoryUtils {
     
@@ -68,8 +72,11 @@ class InventoryUtilsImpl implements InventoryUtils {
     public void updateOpenInventoryTitle(@NotNull Player player, @NotNull ComponentWrapper title) {
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
         AbstractContainerMenu menu = serverPlayer.containerMenu;
-        serverPlayer.connection.send(new ClientboundOpenScreenPacket(menu.containerId, menu.getType(), createNMSComponent(title)));
-        serverPlayer.initMenu(menu);
+        
+        var open = new ClientboundOpenScreenPacket(menu.containerId, menu.getType(), createNMSComponent(title));
+        var content = new ClientboundContainerSetContentPacket(menu.containerId, menu.incrementStateId(), menu.getItems(), menu.getCarried());
+        var bundle = new ClientboundBundlePacket(List.of(open, content));
+        serverPlayer.connection.send(bundle);
     }
     
     @Override
