@@ -151,9 +151,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
                         handleInvDoubleClick(event, player, cursor);
                         break;
                     case "MIDDLE":
-                        if (player.getGameMode() == GameMode.CREATIVE) {
-                            handleInvMiddleClick(event, inventory, slot);
-                        }
+                        handleInvMiddleClick(event, inventory, slot, player);
                         break;
                     default:
                         InvUI.getInstance().getLogger().warning("Unknown click type: " + event.getClick().name());
@@ -395,7 +393,10 @@ public abstract class AbstractGui implements Gui, GuiParent {
      * @param slot      The slot that was clicked
      */
     @SuppressWarnings("deprecation")
-    protected void handleInvMiddleClick(InventoryClickEvent event, Inventory inventory, int slot) {
+    protected void handleInvMiddleClick(InventoryClickEvent event, Inventory inventory, int slot, Player player) {
+        if (player.getGameMode() != GameMode.CREATIVE)
+            return;
+        
         ItemStack cursor = inventory.getItem(slot);
         if (cursor != null)
             cursor.setAmount(cursor.getMaxStackSize());
