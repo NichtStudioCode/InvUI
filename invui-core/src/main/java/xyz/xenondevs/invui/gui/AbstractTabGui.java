@@ -26,8 +26,9 @@ public abstract class AbstractTabGui extends AbstractGui implements TabGui {
     
     /**
      * Creates a new {@link AbstractTabGui}.
-     * @param width The width of the gui.
-     * @param height The height of the gui.
+     *
+     * @param width     The width of the gui.
+     * @param height    The height of the gui.
      * @param tabAmount The amount of tabs.
      * @param listSlots The slots to be used for the content.
      */
@@ -39,8 +40,9 @@ public abstract class AbstractTabGui extends AbstractGui implements TabGui {
     
     /**
      * Creates a new {@link AbstractTabGui}.
-     * @param width The width of the gui. 
-     * @param height The height of the gui.
+     *
+     * @param width     The width of the gui.
+     * @param height    The height of the gui.
      * @param tabAmount The amount of tabs.
      * @param structure The structure of the gui.
      */
@@ -164,8 +166,10 @@ public abstract class AbstractTabGui extends AbstractGui implements TabGui {
         @Override
         public @NotNull TabGui.Builder clone() {
             var clone = (AbstractBuilder) super.clone();
-            clone.tabs = new ArrayList<>(tabs);
-            clone.tabChangeHandlers = new ArrayList<>(tabChangeHandlers);
+            if (tabs != null)
+                clone.tabs = new ArrayList<>(tabs);
+            if (tabChangeHandlers != null)
+                clone.tabChangeHandlers = new ArrayList<>(tabChangeHandlers);
             return clone;
         }
         

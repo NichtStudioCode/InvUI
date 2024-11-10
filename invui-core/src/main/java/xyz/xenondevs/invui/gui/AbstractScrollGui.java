@@ -257,8 +257,10 @@ public abstract class AbstractScrollGui<C> extends AbstractGui implements Scroll
         @Override
         public @NotNull ScrollGui.Builder<C> clone() {
             var clone = (AbstractBuilder<C>) super.clone();
-            clone.content = new ArrayList<>(content);
-            clone.scrollHandlers = new ArrayList<>(scrollHandlers);
+            if (this.content != null)
+                clone.content = new ArrayList<>(content);
+            if (this.scrollHandlers != null)
+                clone.scrollHandlers = new ArrayList<>(scrollHandlers);
             return clone;
         }
         
