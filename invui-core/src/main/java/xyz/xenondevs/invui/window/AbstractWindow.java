@@ -89,7 +89,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
     protected void redrawItem(int index, SlotElement element, boolean setItem) {
         // put ItemStack in inventory
         ItemStack itemStack;
-        if (element == null || (element instanceof SlotElement.InventorySlotElement && element.getItemStack(getLang()) == null)) {
+        if (element == null || (element instanceof SlotElement.InventorySlotElement && element.getItemStack(this.viewer, getLang()) == null)) {
             ItemProvider background = getGuiAt(index).getFirst().getBackground();
             itemStack = background == null ? null : background.get(getLang());
         } else if (element instanceof SlotElement.LinkedSlotElement && element.getHoldingElement() == null) {
@@ -106,7 +106,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
             itemStack = background == null ? null : background.get(getLang());
         } else {
             SlotElement holdingElement = element.getHoldingElement();
-            itemStack = holdingElement.getItemStack(getLang());
+            itemStack = holdingElement.getItemStack(this.viewer, getLang());
             
             if (holdingElement instanceof SlotElement.ItemSlotElement) {
                 // This makes every item unique to prevent Shift-DoubleClick "clicking" multiple items at the same time.
