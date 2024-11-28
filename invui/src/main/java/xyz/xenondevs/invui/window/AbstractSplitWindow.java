@@ -8,8 +8,8 @@ import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
-import xyz.xenondevs.invui.util.Pair;
-import xyz.xenondevs.invui.util.SlotUtils;
+import xyz.xenondevs.invui.internal.util.Pair;
+import xyz.xenondevs.invui.internal.util.SlotUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,13 +66,13 @@ public abstract class AbstractSplitWindow extends AbstractDoubleWindow {
     }
     
     @Override
-    protected Pair<AbstractGui, Integer> getGuiAt(int index) {
+    protected @Nullable Pair<AbstractGui, Integer> getGuiAt(int index) {
         if (index < upperGui.getSize()) {
             return new Pair<>(upperGui, index);
         } else if (index < (upperGui.getSize() + lowerGui.getSize())) {
             return new Pair<>(lowerGui, index - upperGui.getSize());
         } else {
-            throw new IndexOutOfBoundsException(index);
+            return null;
         }
     }
     

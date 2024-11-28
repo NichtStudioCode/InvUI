@@ -2,8 +2,8 @@ package xyz.xenondevs.invui.window;
 
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.inventoryaccess.map.MapIcon;
-import xyz.xenondevs.inventoryaccess.map.MapPatch;
+import xyz.xenondevs.invui.util.MapIcon;
+import xyz.xenondevs.invui.util.MapPatch;
 import xyz.xenondevs.invui.gui.Gui;
 
 import java.util.List;

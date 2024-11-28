@@ -1,4 +1,4 @@
-package xyz.xenondevs.inventoryaccess.r21;
+package xyz.xenondevs.invui.internal;
 
 import io.papermc.paper.adventure.PaperAdventure;
 import net.minecraft.core.BlockPos;
@@ -18,17 +18,16 @@ import org.bukkit.craftbukkit.inventory.CraftInventoryCartography;
 import org.bukkit.craftbukkit.inventory.CraftInventoryView;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.inventory.Inventory;
-import xyz.xenondevs.inventoryaccess.abstraction.inventory.CartographyInventory;
-import xyz.xenondevs.inventoryaccess.util.ReflectionUtils;
+import xyz.xenondevs.invui.internal.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 
-class CartographyInventoryImpl extends CartographyTableMenu implements CartographyInventory {
+public class CartographyInventory extends CartographyTableMenu {
     
     private static final Field RESULT_CONTAINER_FIELD = ReflectionUtils.getField(
         CartographyTableMenu.class,
         true,
-        "SRF(net.minecraft.world.inventory.CartographyTableMenu resultContainer)"
+        "resultContainer"
     );
     
     private final ResultContainer resultContainer = ReflectionUtils.getFieldValue(RESULT_CONTAINER_FIELD, this);
@@ -37,11 +36,11 @@ class CartographyInventoryImpl extends CartographyTableMenu implements Cartograp
     
     private boolean open;
     
-    public CartographyInventoryImpl(org.bukkit.entity.Player player, net.kyori.adventure.text.Component title) {
+    public CartographyInventory(org.bukkit.entity.Player player, net.kyori.adventure.text.Component title) {
         this(((CraftPlayer) player).getHandle(), PaperAdventure.asVanilla(title));
     }
     
-    public CartographyInventoryImpl(ServerPlayer player, Component title) {
+    public CartographyInventory(ServerPlayer player, Component title) {
         super(player.nextContainerCounter(), player.getInventory(), ContainerLevelAccess.create(player.level(), new BlockPos(0, 0, 0)));
         
         this.player = player;
@@ -64,19 +63,18 @@ class CartographyInventoryImpl extends CartographyTableMenu implements Cartograp
         
         // send initial items
         NonNullList<ItemStack> itemsList = NonNullList.of(ItemStack.EMPTY, getItem(0), getItem(1), getItem(2));
-        player.connection.send(new ClientboundContainerSetContentPacket(InventoryUtilsImpl.getActiveWindowId(player), incrementStateId(), itemsList, ItemStack.EMPTY));
+        player.connection.send(new ClientboundContainerSetContentPacket(player.containerMenu.containerId, incrementStateId(), itemsList, ItemStack.EMPTY));
         
         // init menu
         player.initMenu(this);
     }
     
-    @Override
     public boolean isOpen() {
         return open;
     }
     
     public void sendItem(int slot) {
-        player.connection.send(new ClientboundContainerSetSlotPacket(InventoryUtilsImpl.getActiveWindowId(player), slot, incrementStateId(), getItem(slot)));
+        player.connection.send(new ClientboundContainerSetSlotPacket(player.containerMenu.containerId, slot, incrementStateId(), getItem(slot)));
     }
     
     public void setItem(int slot, ItemStack item) {
@@ -91,12 +89,10 @@ class CartographyInventoryImpl extends CartographyTableMenu implements Cartograp
         else return resultContainer.getItem(0);
     }
     
-    @Override
     public void setItem(int slot, org.bukkit.inventory.ItemStack itemStack) {
         setItem(slot, CraftItemStack.asNMSCopy(itemStack));
     }
     
-    @Override
     public Inventory getBukkitInventory() {
         return view.getTopInventory();
     }
@@ -104,7 +100,7 @@ class CartographyInventoryImpl extends CartographyTableMenu implements Cartograp
     // --- CartographyTableMenu ---
     
     @Override
-    public CraftInventoryView getBukkitView() {
+    public CraftInventoryView<CartographyTableMenu, CraftInventoryCartography> getBukkitView() {
         return view;
     }
     

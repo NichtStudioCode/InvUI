@@ -1,7 +1,7 @@
 package xyz.xenondevs.invui.gui.structure;
 
 import xyz.xenondevs.invui.gui.Gui;
-import xyz.xenondevs.invui.util.SlotUtils;
+import xyz.xenondevs.invui.internal.util.SlotUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;

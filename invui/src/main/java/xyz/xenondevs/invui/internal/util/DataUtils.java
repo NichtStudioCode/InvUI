@@ -1,4 +1,4 @@
-package xyz.xenondevs.invui.util;
+package xyz.xenondevs.invui.internal.util;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

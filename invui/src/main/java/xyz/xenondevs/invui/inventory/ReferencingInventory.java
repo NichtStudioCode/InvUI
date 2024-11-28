@@ -5,7 +5,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
-import xyz.xenondevs.invui.util.TriConsumer;
+import xyz.xenondevs.invui.internal.util.TriConsumer;
 import xyz.xenondevs.invui.window.Window;
 
 import java.util.Arrays;

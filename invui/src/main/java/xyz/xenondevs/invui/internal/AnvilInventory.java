@@ -1,4 +1,4 @@
-package xyz.xenondevs.inventoryaccess.r21;
+package xyz.xenondevs.invui.internal;
 
 import io.papermc.paper.adventure.PaperAdventure;
 import net.minecraft.core.BlockPos;
@@ -10,7 +10,6 @@ import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
@@ -22,25 +21,24 @@ import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.inventory.view.CraftAnvilView;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.Inventory;
-import xyz.xenondevs.inventoryaccess.abstraction.inventory.AnvilInventory;
 
 import java.util.List;
 import java.util.function.Consumer;
 
-class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
+public class AnvilInventory extends AnvilMenu {
     
     private final List<Consumer<String>> renameHandlers;
     private final CraftAnvilView view;
     private final ServerPlayer player;
     
-    private String text;
+    private String text = "";
     private boolean open;
     
-    public AnvilInventoryImpl(org.bukkit.entity.Player player, net.kyori.adventure.text.Component title, List<Consumer<String>> renameHandlers) {
+    public AnvilInventory(org.bukkit.entity.Player player, net.kyori.adventure.text.Component title, List<Consumer<String>> renameHandlers) {
         this(((CraftPlayer) player).getHandle(), PaperAdventure.asVanilla(title), renameHandlers);
     }
     
-    public AnvilInventoryImpl(ServerPlayer player, Component title, List<Consumer<String>> renameHandlers) {
+    public AnvilInventory(ServerPlayer player, Component title, List<Consumer<String>> renameHandlers) {
         super(player.nextContainerCounter(), player.getInventory(),
             ContainerLevelAccess.create(player.level(), new BlockPos(0, 0, 0)));
         
@@ -66,14 +64,14 @@ class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
         
         // send initial items
         NonNullList<ItemStack> itemsList = NonNullList.of(ItemStack.EMPTY, getItem(0), getItem(1), getItem(2));
-        player.connection.send(new ClientboundContainerSetContentPacket(getActiveWindowId(player), incrementStateId(), itemsList, ItemStack.EMPTY));
+        player.connection.send(new ClientboundContainerSetContentPacket(player.containerMenu.containerId, incrementStateId(), itemsList, ItemStack.EMPTY));
         
         // init menu
         player.initMenu(this);
     }
     
     public void sendItem(int slot) {
-        player.connection.send(new ClientboundContainerSetSlotPacket(getActiveWindowId(player), incrementStateId(), slot, getItem(slot)));
+        player.connection.send(new ClientboundContainerSetSlotPacket(player.containerMenu.containerId, incrementStateId(), slot, getItem(slot)));
     }
     
     public void setItem(int slot, ItemStack item) {
@@ -88,27 +86,18 @@ class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
         else return resultSlots.getItem(0);
     }
     
-    private int getActiveWindowId(ServerPlayer player) {
-        AbstractContainerMenu container = player.containerMenu;
-        return container == null ? -1 : container.containerId;
-    }
-    
-    @Override
     public void setItem(int slot, org.bukkit.inventory.ItemStack itemStack) {
         setItem(slot, CraftItemStack.asNMSCopy(itemStack));
     }
     
-    @Override
     public Inventory getBukkitInventory() {
         return view.getTopInventory();
     }
     
-    @Override
     public String getRenameText() {
         return text;
     }
     
-    @Override
     public boolean isOpen() {
         return open;
     }
@@ -144,8 +133,7 @@ class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
         text = s;
         
         // call rename handlers
-        if (renameHandlers != null)
-            renameHandlers.forEach(handler -> handler.accept(s));
+        renameHandlers.forEach(handler -> handler.accept(s));
         
         // the client expects the item to change to its new name and removes it from the inventory, so it needs to be sent again
         sendItem(2);

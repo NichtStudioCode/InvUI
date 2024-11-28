@@ -1,51 +1,20 @@
-package xyz.xenondevs.inventoryaccess.map;
+package xyz.xenondevs.invui.util;
 
 import net.kyori.adventure.text.Component;
 import org.jspecify.annotations.Nullable;
 
-public class MapIcon {
+public record MapIcon(
+    Type type,
+    byte x, byte y, byte rot,
+    @Nullable Component component
+)
+{
     
-    private final MapIconType type;
-    private final byte x;
-    private final byte y;
-    private final byte rot;
-    private final Component component;
-    
-    public MapIcon(MapIconType type, int x, int y, int rot, @Nullable Component component) {
-        this.type = type;
-        this.x = (byte) (x - 128);
-        this.y = (byte) (y - 128);
-        this.rot = (byte) rot;
-        this.component = component;
+    public MapIcon(Type type, int x, int y, int rot, @Nullable Component component) {
+        this(type, (byte) (x - 128), (byte) (y - 128), (byte) rot, null);
     }
     
-    public MapIcon(MapIconType type, byte x, byte y, byte rot) {
-        this(type, x, y, rot, null);
-    }
-    
-    
-    public MapIconType getType() {
-        return type;
-    }
-    
-    public byte getX() {
-        return x;
-    }
-    
-    public byte getY() {
-        return y;
-    }
-    
-    public byte getRot() {
-        return rot;
-    }
-    
-    @Nullable
-    public Component getComponent() {
-        return component;
-    }
-    
-    public enum MapIconType {
+    public enum Type {
         WHITE_ARROW(false, true),
         GREEN_ARROW(true, true),
         RED_ARROW(false, true),
@@ -79,11 +48,11 @@ public class MapIcon {
         private final int mapColor;
         private final boolean trackCount;
         
-        MapIconType(boolean renderedOnFrame, boolean trackCount) {
+        Type(boolean renderedOnFrame, boolean trackCount) {
             this(renderedOnFrame, trackCount, -1);
         }
         
-        MapIconType(boolean renderedOnFrame, boolean trackCount, int mapColor) {
+        Type(boolean renderedOnFrame, boolean trackCount, int mapColor) {
             this.trackCount = trackCount;
             this.id = (byte) this.ordinal();
             this.renderedOnFrame = renderedOnFrame;

@@ -3,9 +3,8 @@ package xyz.xenondevs.invui.inventory;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.inventoryaccess.InventoryAccess;
 import xyz.xenondevs.invui.InvUI;
-import xyz.xenondevs.invui.util.DataUtils;
+import xyz.xenondevs.invui.internal.util.DataUtils;
 import xyz.xenondevs.invui.util.ItemUtils;
 
 import java.io.*;
@@ -192,19 +191,14 @@ public class VirtualInventory extends Inventory {
                 DataUtils.readByteArray(din);
             }
             
-            ItemStack[] items = Arrays.stream(DataUtils.read2DByteArray(din)).map(data -> {
-                    if (data.length != 0) {
-                        return InventoryAccess.getItemUtils().deserializeItemStack(data, true);
-                    } else return null;
-                }
-            ).toArray(ItemStack[]::new);
+            @Nullable ItemStack[] items = Arrays.stream(DataUtils.read2DByteArray(din))
+                .map(data -> data.length != 0 ? ItemStack.deserializeBytes(data) : null)
+                .toArray(ItemStack[]::new);
             
             return new VirtualInventory(uuid, items);
         } catch (IOException e) {
-            InvUI.getInstance().getLogger().log(Level.SEVERE, "Failed to deserialize VirtualInventory", e);
+            throw new RuntimeException("Failed to deserialize VirtualInventory", e);
         }
-        
-        return null;
     }
     
     /**
@@ -234,12 +228,9 @@ public class VirtualInventory extends Inventory {
             dos.writeLong(uuid.getLeastSignificantBits());
             dos.writeByte((byte) 4); // id, pre v1.0: 3, v1.0: 4
             
-            byte[][] items = Arrays.stream(this.items).map(itemStack -> {
-                    if (itemStack != null) {
-                        return InventoryAccess.getItemUtils().serializeItemStack(itemStack, true);
-                    } else return new byte[0];
-                }
-            ).toArray(byte[][]::new);
+            byte[][] items = Arrays.stream(this.items)
+                .map(itemStack -> itemStack != null ? itemStack.serializeAsBytes() : new byte[0])
+                .toArray(byte[][]::new);
             
             DataUtils.write2DByteArray(dos, items);
             
@@ -381,7 +372,7 @@ public class VirtualInventory extends Inventory {
     }
     
     @Override
-    public ItemStack getUnsafeItem(int slot) {
+    public @Nullable ItemStack getUnsafeItem(int slot) {
         return items[slot];
     }
     

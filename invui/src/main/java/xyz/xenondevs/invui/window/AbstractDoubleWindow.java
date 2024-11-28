@@ -7,12 +7,11 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.inventoryaccess.InventoryAccess;
-import xyz.xenondevs.inventoryaccess.util.VersionUtils;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.SlotElement;
-import xyz.xenondevs.invui.util.Pair;
-import xyz.xenondevs.invui.util.SlotUtils;
+import xyz.xenondevs.invui.internal.util.Pair;
+import xyz.xenondevs.invui.internal.util.PlayerUtils;
+import xyz.xenondevs.invui.internal.util.SlotUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -86,16 +85,6 @@ public abstract class AbstractDoubleWindow extends AbstractWindow {
     }
     
     @Override
-    protected void redrawItem(int index, @Nullable SlotElement element, boolean setItem) {
-        super.redrawItem(index, element, setItem);
-        if (isOpen() && !VersionUtils.isServerHigherOrEqual(1, 17, 0)) {
-            // player inventory is not updated properly in 1.16.5 and below
-            // see https://github.com/NichtStudioCode/InvUI/pull/70
-            getViewer().updateInventory();
-        }
-    }
-    
-    @Override
     protected void setInvItem(int slot, ItemStack itemStack) {
         if (slot >= upperInventory.getSize()) {
             if (isOpen()) {
@@ -141,7 +130,7 @@ public abstract class AbstractDoubleWindow extends AbstractWindow {
     @Override
     protected void handleOpened() {
         // Prevent players from receiving advancements from UI items
-        InventoryAccess.getPlayerUtils().stopAdvancementListening(getViewer());
+        PlayerUtils.stopAdvancementListening(getViewer());
     }
     
     @Override
@@ -149,13 +138,13 @@ public abstract class AbstractDoubleWindow extends AbstractWindow {
         restorePlayerInventory();
         
         // Start the advancement listeners again
-        InventoryAccess.getPlayerUtils().startAdvancementListening(getViewer());
+        PlayerUtils.stopAdvancementListening(getViewer());
     }
     
     @Override
     public void handleClick(InventoryClickEvent event) {
         Pair<AbstractGui, Integer> clicked = getWhereClicked(event);
-        clicked.getFirst().handleClick(clicked.getSecond(), (Player) event.getWhoClicked(), event.getClick(), event);
+        clicked.first().handleClick(clicked.second(), (Player) event.getWhoClicked(), event.getClick(), event);
     }
     
     @Override

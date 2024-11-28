@@ -2,9 +2,8 @@ package xyz.xenondevs.invui.window;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
-import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
-import xyz.xenondevs.invui.util.InventoryUtils;
+import xyz.xenondevs.invui.internal.util.InventoryUtils;
 
 /**
  * An {@link AbstractSingleWindow} that uses a chest/dropper/hopper inventory as the upper inventory.
@@ -15,11 +14,11 @@ final class NormalSingleWindowImpl extends AbstractSingleWindow {
     
     public NormalSingleWindowImpl(
         Player player,
-        @Nullable Component title,
+        Component title,
         AbstractGui gui,
         boolean closeable
     ) {
-        super(player, title, gui, InventoryUtils.createMatchingInventory(gui, ""), closeable);
+        super(player, title, gui, InventoryUtils.createMatchingInventory(gui), closeable);
     }
     
     public static final class BuilderImpl
@@ -29,8 +28,6 @@ final class NormalSingleWindowImpl extends AbstractSingleWindow {
         
         @Override
         public Window build(Player viewer) {
-            if (viewer == null)
-                throw new IllegalStateException("Viewer is not defined.");
             if (guiSupplier == null)
                 throw new IllegalStateException("Gui is not defined.");
             

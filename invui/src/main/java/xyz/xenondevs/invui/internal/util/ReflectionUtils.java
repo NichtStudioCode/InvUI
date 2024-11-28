@@ -1,7 +1,6 @@
-package xyz.xenondevs.inventoryaccess.util;
+package xyz.xenondevs.invui.internal.util;
 
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.inventoryaccess.version.InventoryAccessRevision;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -9,14 +8,6 @@ import java.lang.reflect.Method;
 
 @SuppressWarnings({"unchecked", "unused"})
 public class ReflectionUtils {
-    
-    public static <T> Class<T> getImplClass(String path) {
-        try {
-            return (Class<T>) Class.forName("xyz.xenondevs.inventoryaccess." + InventoryAccessRevision.REQUIRED_REVISION.getPackageName() + "." + path);
-        } catch (Throwable t) {
-            throw new RuntimeException(t);
-        }
-    }
     
     public static <T> Class<T> getCBClass(String path) {
         return getClass(ReflectionRegistry.CRAFT_BUKKIT_PACKAGE_PATH + "." + path);

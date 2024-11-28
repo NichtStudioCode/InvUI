@@ -16,13 +16,15 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.inventoryaccess.InventoryAccess;
-import xyz.xenondevs.invui.i18n.Languages;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.GuiParent;
 import xyz.xenondevs.invui.gui.SlotElement;
+import xyz.xenondevs.invui.i18n.Languages;
+import xyz.xenondevs.invui.internal.util.ArrayUtils;
+import xyz.xenondevs.invui.internal.util.InventoryUtils;
+import xyz.xenondevs.invui.internal.util.Pair;
 import xyz.xenondevs.invui.inventory.CompositeInventory;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.inventory.VirtualInventory;
@@ -30,8 +32,6 @@ import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
-import xyz.xenondevs.invui.util.ArrayUtils;
-import xyz.xenondevs.invui.util.Pair;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -87,13 +87,13 @@ public abstract class AbstractWindow implements Window, GuiParent {
         // put ItemStack in inventory
         ItemStack itemStack;
         if (element == null || (element instanceof SlotElement.InventorySlotElement && element.getItemStack(getLang()) == null)) {
-            ItemProvider background = getGuiAt(index).getFirst().getBackground();
+            ItemProvider background = getGuiAt(index).first().getBackground();
             itemStack = background == null ? null : background.get(getLang());
         } else if (element instanceof SlotElement.LinkedSlotElement && element.getHoldingElement() == null) {
             ItemProvider background = null;
             
             List<Gui> guis = ((SlotElement.LinkedSlotElement) element).getGuiList();
-            guis.addFirst(getGuiAt(index).getFirst());
+            guis.addFirst(getGuiAt(index).first());
             
             for (int i = guis.size() - 1; i >= 0; i--) {
                 background = guis.get(i).getBackground();
@@ -161,12 +161,12 @@ public abstract class AbstractWindow implements Window, GuiParent {
         
         int itemsLeft = event.getCursor() == null ? 0 : event.getCursor().getAmount();
         for (int rawSlot : event.getRawSlots()) { // loop over all affected slots
-            ItemStack currentStack = InventoryAccess.getInventoryUtils().getItemStackFromView(event.getView(), rawSlot);
+            ItemStack currentStack = event.getView().getItem(rawSlot);
             if (currentStack != null && currentStack.getType() == Material.AIR) currentStack = null;
             
             // get the Gui at that slot and ask for permission to drag an Item there
             Pair<AbstractGui, Integer> pair = getGuiAt(rawSlot);
-            if (pair != null && !pair.getFirst().handleItemDrag(updateReason, pair.getSecond(), currentStack, newItems.get(rawSlot))) {
+            if (pair != null && !pair.first().handleItemDrag(updateReason, pair.second(), currentStack, newItems.get(rawSlot))) {
                 // the drag was cancelled
                 int currentAmount = currentStack == null ? 0 : currentStack.getAmount();
                 int newAmount = newItems.get(rawSlot).getAmount();
@@ -278,10 +278,10 @@ public abstract class AbstractWindow implements Window, GuiParent {
     }
     
     protected void openInventory(Player viewer) {
-        InventoryAccess.getInventoryUtils().openCustomInventory(
+        InventoryUtils.openCustomInventory(
             viewer,
             getInventories()[0],
-            title != null ? Languages.getInstance().localized(viewer, title) : null
+            Languages.getInstance().localized(viewer, title)
         );
     }
     
@@ -352,7 +352,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
         this.title = title;
         Player currentViewer = getCurrentViewer();
         if (currentViewer != null) {
-            InventoryAccess.getInventoryUtils().updateOpenInventoryTitle(
+            InventoryUtils.updateOpenInventoryTitle(
                 currentViewer,
                 Languages.getInstance().localized(currentViewer, title)
             );
@@ -472,7 +472,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
      * @param index The index of the slot.
      * @return The {@link AbstractGui} it's slot at that slot.
      */
-    protected abstract Pair<AbstractGui, Integer> getGuiAt(int index);
+    protected abstract @Nullable Pair<AbstractGui, Integer> getGuiAt(int index);
     
     /**
      * Gets the {@link AbstractGui guis} displayed with this {@link Window},
@@ -548,7 +548,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
     public static abstract class AbstractBuilder<W extends Window, S extends Window.Builder<W, S>> implements Window.Builder<W, S> {
         
         protected @Nullable Player viewer;
-        protected @Nullable Component title;
+        protected Component title = Component.empty();
         protected boolean closeable = true;
         protected @Nullable List<Runnable> openHandlers;
         protected @Nullable List<Runnable> closeHandlers;
@@ -655,6 +655,8 @@ public abstract class AbstractWindow implements Window, GuiParent {
         
         @Override
         public W build() {
+            if (viewer == null)
+                throw new IllegalStateException("Viewer is not defined.");
             return build(viewer);
         }
         

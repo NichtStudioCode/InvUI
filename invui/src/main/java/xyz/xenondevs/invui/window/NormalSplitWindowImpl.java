@@ -2,9 +2,8 @@ package xyz.xenondevs.invui.window;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
-import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
-import xyz.xenondevs.invui.util.InventoryUtils;
+import xyz.xenondevs.invui.internal.util.InventoryUtils;
 
 /**
  * An {@link AbstractSplitWindow} that uses a chest/dropper/hopper inventory as the upper inventory
@@ -16,12 +15,12 @@ final class NormalSplitWindowImpl extends AbstractSplitWindow {
     
     public NormalSplitWindowImpl(
         Player player,
-        @Nullable Component title,
+        Component title,
         AbstractGui upperGui,
         AbstractGui lowerGui,
         boolean closeable
     ) {
-        super(player, title, upperGui, lowerGui, InventoryUtils.createMatchingInventory(upperGui, ""), closeable);
+        super(player, title, upperGui, lowerGui, InventoryUtils.createMatchingInventory(upperGui), closeable);
     }
     
     public static final class BuilderImpl
@@ -31,8 +30,6 @@ final class NormalSplitWindowImpl extends AbstractSplitWindow {
         
         @Override
         public Window build(Player viewer) {
-            if (viewer == null)
-                throw new IllegalStateException("Viewer is not defined.");
             if (upperGuiSupplier == null)
                 throw new IllegalStateException("Upper Gui is not defined.");
             if (lowerGuiSupplier == null)

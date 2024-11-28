@@ -7,7 +7,7 @@ import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.animation.Animation;
 import xyz.xenondevs.invui.gui.Gui;
-import xyz.xenondevs.invui.util.SlotUtils;
+import xyz.xenondevs.invui.internal.util.SlotUtils;
 import xyz.xenondevs.invui.window.Window;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package xyz.xenondevs.invui.util;
+package xyz.xenondevs.invui.internal.util;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;

@@ -1,6 +1,8 @@
-package xyz.xenondevs.inventoryaccess.util;
+package xyz.xenondevs.invui.internal.util;
 
 import com.mojang.authlib.GameProfile;
+import net.minecraft.server.PlayerAdvancements;
+import net.minecraft.server.ServerAdvancementManager;
 import org.bukkit.Bukkit;
 import org.jspecify.annotations.Nullable;
 
@@ -8,7 +10,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import static xyz.xenondevs.inventoryaccess.util.ReflectionUtils.*;
+import static xyz.xenondevs.invui.internal.util.ReflectionUtils.*;
 
 public class ReflectionRegistry {
     
@@ -28,6 +30,8 @@ public class ReflectionRegistry {
     public static final Method PAPER_PLUGIN_CLASS_LOADER_GET_LOADED_JAVA_PLUGIN_METHOD;
     public static final @Nullable Method CB_CRAFT_META_SKULL_SET_PROFILE_METHOD = getMethodOrNull(CB_CRAFT_META_SKULL_CLASS, true, "setProfile", GameProfile.class); // since spigot 1.14.4 or paper 1.15.1
     public static final @Nullable Method CB_CRAFT_META_SKULL_SET_RESOLVABLE_PROFILE_METHOD = getMethodOrNull(CB_CRAFT_META_SKULL_CLASS, true, "setProfile", RESOLVABLE_PROFILE_CLASS);
+    
+    public static final Method PLAYER_ADVANCEMENTS_REGISTER_LISTENERS_METHOD = ReflectionUtils.getMethod(PlayerAdvancements.class, true, "registerListeners", ServerAdvancementManager.class);
     
     // Fields
     public static final Field PLUGIN_CLASS_LOADER_PLUGIN_FIELD = getField(PLUGIN_CLASS_LOADER_CLASS, true, "plugin");

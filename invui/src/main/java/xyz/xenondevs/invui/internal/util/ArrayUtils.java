@@ -1,5 +1,6 @@
-package xyz.xenondevs.invui.util;
+package xyz.xenondevs.invui.internal.util;
 
+import org.jspecify.annotations.NullUnmarked;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
@@ -27,8 +28,9 @@ public class ArrayUtils {
         return occurrences;
     }
     
+    @NullUnmarked
     @SuppressWarnings("unchecked")
-    public static <T> T[] concat(@Nullable T first, @Nullable T[] rest) {
+    public static <T> T[] concant(T first, T[] rest) {
         T[] result = (T[]) new Object[rest.length + 1];
         result[0] = first;
         System.arraycopy(rest, 0, result, 1, rest.length);

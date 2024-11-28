@@ -22,10 +22,10 @@ import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.item.ItemWrapper;
 import xyz.xenondevs.invui.item.impl.controlitem.ControlItem;
-import xyz.xenondevs.invui.util.ArrayUtils;
-import xyz.xenondevs.invui.util.InventoryUtils;
+import xyz.xenondevs.invui.internal.util.ArrayUtils;
+import xyz.xenondevs.invui.internal.util.InventoryUtils;
 import xyz.xenondevs.invui.util.ItemUtils;
-import xyz.xenondevs.invui.util.SlotUtils;
+import xyz.xenondevs.invui.internal.util.SlotUtils;
 import xyz.xenondevs.invui.window.*;
 
 import java.util.*;

@@ -1,4 +1,4 @@
-package xyz.xenondevs.invui.util;
+package xyz.xenondevs.invui.internal.util;
 
 @FunctionalInterface
 public interface TriConsumer<A, B, C> {

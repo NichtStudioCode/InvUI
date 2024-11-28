@@ -1,12 +1,10 @@
-package xyz.xenondevs.invui.util;
+package xyz.xenondevs.invui.internal.util;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class SlotUtils {
-    
     
     public static Set<Integer> getSlotsRow(int row, int width) {
         Set<Integer> slots = new LinkedHashSet<>();
@@ -14,13 +12,11 @@ public class SlotUtils {
         return slots;
     }
     
-    
     public static Set<Integer> getSlotsColumn(int column, int width, int height) {
         Set<Integer> slots = new LinkedHashSet<>();
         for (int y = 0; y < height; y++) slots.add(convertToIndex(column, y, width));
         return slots;
     }
-    
     
     public static Set<Integer> getSlotsBorders(int width, int height) {
         Set<Integer> slots = new LinkedHashSet<>();
@@ -31,11 +27,9 @@ public class SlotUtils {
         return slots;
     }
     
-    
     public static Set<Integer> getSlotsRect(int x, int y, int width, int height, int frameWidth) {
         return getSlotsRect(Order.HORIZONTAL, x, y, width, height, frameWidth);
     }
-    
     
     public static Set<Integer> getSlotsRect(Order order, int x, int y, int width, int height, int frameWidth) {
         Set<Integer> slots = new LinkedHashSet<>();
@@ -62,13 +56,12 @@ public class SlotUtils {
     }
     
     public static int convertToIndex(Point2D point, int width) {
-        return convertToIndex(point.getX(), point.getY(), width);
+        return convertToIndex(point.x(), point.y(), width);
     }
     
     public static int convertToIndex(int x, int y, int width) {
         return y * width + x;
     }
-    
     
     public static Point2D convertFromIndex(int index, int width) {
         return new Point2D(index % width, index / width);
@@ -105,7 +98,7 @@ public class SlotUtils {
     }
     
     public static boolean isNeighbor(Point2D point1, Point2D point2) {
-        return Math.abs(point1.getX() - point2.getX()) + Math.abs(point1.getY() - point2.getY()) == 1;
+        return Math.abs(point1.x() - point2.x()) + Math.abs(point1.y() - point2.y()) == 1;
     }
     
     public enum Order {

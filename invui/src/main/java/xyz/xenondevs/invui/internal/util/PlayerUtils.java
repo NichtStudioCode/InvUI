@@ -1,87 +1,66 @@
-package xyz.xenondevs.inventoryaccess.r21;
+package xyz.xenondevs.invui.internal.util;
 
 import io.papermc.paper.adventure.PaperAdventure;
 import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.ServerAdvancementManager;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.saveddata.maps.*;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.inventoryaccess.abstraction.util.PlayerUtils;
-import xyz.xenondevs.inventoryaccess.map.MapIcon;
-import xyz.xenondevs.inventoryaccess.map.MapPatch;
-import xyz.xenondevs.inventoryaccess.util.ReflectionUtils;
+import xyz.xenondevs.invui.util.MapIcon;
+import xyz.xenondevs.invui.util.MapPatch;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-class PlayerUtilsImpl implements PlayerUtils {
+import static xyz.xenondevs.invui.internal.util.ReflectionRegistry.PLAYER_ADVANCEMENTS_REGISTER_LISTENERS_METHOD;
+
+public class PlayerUtils {
     
-    private static final Method REGISTER_LISTENERS_METHOD = ReflectionUtils.getMethod(
-        PlayerAdvancements.class,
-        true,
-        "ASRM(net/minecraft/server/PlayerAdvancements.registerListeners(Lnet/minecraft/server/ServerAdvancementManager;)V)",
-        ServerAdvancementManager.class
-    );
-    
-    @Override
-    public void stopAdvancementListening(Player player) {
-        stopAdvancementListening(((CraftPlayer) player).getHandle());
+    public static void stopAdvancementListening(Player player) {
+        ((CraftPlayer) player).getHandle().getAdvancements().stopListening();
     }
     
-    @Override
-    public void stopAdvancementListening(Object player) {
-        ((ServerPlayer) player).getAdvancements().stopListening();
-    }
-    
-    @Override
-    public void startAdvancementListening(Player player) {
-        startAdvancementListening(((CraftPlayer) player).getHandle());
-    }
-    
-    @Override
-    public void startAdvancementListening(Object player) {
-        PlayerAdvancements advancements = ((ServerPlayer) player).getAdvancements();
+    public static void startAdvancementListening(Player player) {
+        PlayerAdvancements advancements = ((CraftPlayer) player).getHandle().getAdvancements();
         ServerAdvancementManager manager = ((CraftServer) Bukkit.getServer()).getServer().getAdvancements();
-        ReflectionUtils.invokeMethod(REGISTER_LISTENERS_METHOD, advancements, manager);
+        ReflectionUtils.invokeMethod(PLAYER_ADVANCEMENTS_REGISTER_LISTENERS_METHOD, advancements, manager);
     }
     
-    @Override
-    public void sendMapUpdate(Player player, int mapId, byte scale, boolean locked, @Nullable MapPatch mapPatch, @Nullable List<MapIcon> icons) {
-        List<MapDecoration> decorations = icons != null ? icons.stream().map(this::toMapDecoration).collect(Collectors.toCollection(ArrayList::new)) : null;
+    public static void sendMapUpdate(Player player, int mapId, byte scale, boolean locked, @Nullable MapPatch mapPatch, @Nullable List<MapIcon> icons) {
+        List<MapDecoration> decorations = icons != null ? icons.stream().map(PlayerUtils::toMapDecoration).collect(Collectors.toCollection(ArrayList::new)) : null;
         MapItemSavedData.MapPatch patch = toMapPatch(mapPatch);
         ClientboundMapItemDataPacket packet = new ClientboundMapItemDataPacket(new MapId(mapId), scale, locked, decorations, patch);
         ((CraftPlayer) player).getHandle().connection.send(packet);
     }
     
-    private MapDecoration toMapDecoration(MapIcon icon) {
+    private static MapDecoration toMapDecoration(MapIcon icon) {
         return new MapDecoration(
-            getDecorationTypeByIconType(icon.getType()),
-            icon.getX(), icon.getY(),
-            icon.getRot(),
-            Optional.ofNullable(icon.getComponent()).map(PaperAdventure::asVanilla)
+            getDecorationTypeByIconType(icon.type()),
+            icon.x(), icon.y(),
+            icon.rot(),
+            Optional.ofNullable(icon.component()).map(PaperAdventure::asVanilla)
         );
     }
     
-    private MapItemSavedData.MapPatch toMapPatch(MapPatch patch) {
-        if (patch == null) return null;
+    private static MapItemSavedData.@Nullable MapPatch toMapPatch(@Nullable MapPatch patch) {
+        if (patch == null)
+            return null;
         
         return new MapItemSavedData.MapPatch(
-            patch.getStartX(), patch.getStartY(),
-            patch.getWidth(), patch.getHeight(),
-            patch.getColors()
+            patch.startX(), patch.startY(),
+            patch.width(), patch.height(),
+            patch.colors()
         );
     }
     
-    private Holder<MapDecorationType> getDecorationTypeByIconType(MapIcon.MapIconType icon) {
+    private static Holder<MapDecorationType> getDecorationTypeByIconType(MapIcon.Type icon) {
         return switch (icon) {
             case WHITE_ARROW -> MapDecorationTypes.PLAYER;
             case GREEN_ARROW -> MapDecorationTypes.FRAME;
@@ -112,5 +91,4 @@ class PlayerUtilsImpl implements PlayerUtils {
             case RED_CROSS -> MapDecorationTypes.RED_X;
         };
     }
-    
 }

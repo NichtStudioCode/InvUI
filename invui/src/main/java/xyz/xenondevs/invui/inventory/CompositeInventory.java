@@ -5,7 +5,7 @@ import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
-import xyz.xenondevs.invui.util.Pair;
+import xyz.xenondevs.invui.internal.util.Pair;
 
 import java.util.Collection;
 import java.util.function.Consumer;
@@ -67,7 +67,7 @@ public class CompositeInventory extends Inventory {
     @Override
     public int getMaxSlotStackSize(int slot) {
         Pair<Inventory, Integer> pair = findInventory(slot);
-        return pair.getFirst().getMaxSlotStackSize(pair.getSecond());
+        return pair.first().getMaxSlotStackSize(pair.second());
     }
     
     @Override
@@ -97,25 +97,25 @@ public class CompositeInventory extends Inventory {
     @Override
     public @Nullable ItemStack getItem(int slot) {
         Pair<Inventory, Integer> pair = findInventory(slot);
-        return pair.getFirst().getItem(pair.getSecond());
+        return pair.first().getItem(pair.second());
     }
     
     @Override
     public @Nullable ItemStack getUnsafeItem(int slot) {
         Pair<Inventory, Integer> pair = findInventory(slot);
-        return pair.getFirst().getUnsafeItem(pair.getSecond());
+        return pair.first().getUnsafeItem(pair.second());
     }
     
     @Override
     protected void setCloneBackingItem(int slot, @Nullable ItemStack itemStack) {
         Pair<Inventory, Integer> pair = findInventory(slot);
-        pair.getFirst().setCloneBackingItem(pair.getSecond(), itemStack);
+        pair.first().setCloneBackingItem(pair.second(), itemStack);
     }
     
     @Override
     protected void setDirectBackingItem(int slot, @Nullable ItemStack itemStack) {
         Pair<Inventory, Integer> pair = findInventory(slot);
-        pair.getFirst().setDirectBackingItem(pair.getSecond(), itemStack);
+        pair.first().setDirectBackingItem(pair.second(), itemStack);
     }
     
     private Pair<Inventory, Integer> findInventory(int slot) {
@@ -143,13 +143,13 @@ public class CompositeInventory extends Inventory {
     @Override
     public ItemPreUpdateEvent callPreUpdateEvent(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
         var invSlot = findInventory(slot);
-        return invSlot.getFirst().callPreUpdateEvent(updateReason, invSlot.getSecond(), previousItemStack, newItemStack);
+        return invSlot.first().callPreUpdateEvent(updateReason, invSlot.second(), previousItemStack, newItemStack);
     }
     
     @Override
     public void callPostUpdateEvent(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
         var invSlot = findInventory(slot);
-        invSlot.getFirst().callPostUpdateEvent(updateReason, invSlot.getSecond(), previousItemStack, newItemStack);
+        invSlot.first().callPostUpdateEvent(updateReason, invSlot.second(), previousItemStack, newItemStack);
     }
     
     @Override

@@ -9,8 +9,8 @@ import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
-import xyz.xenondevs.invui.util.ArrayUtils;
-import xyz.xenondevs.invui.util.InventoryUtils;
+import xyz.xenondevs.invui.internal.util.ArrayUtils;
+import xyz.xenondevs.invui.internal.util.InventoryUtils;
 import xyz.xenondevs.invui.util.ItemUtils;
 import xyz.xenondevs.invui.window.AbstractWindow;
 import xyz.xenondevs.invui.window.Window;
@@ -315,7 +315,7 @@ public abstract class Inventory {
      * Gets the maximum stack size for a specific slot.
      * <p>
      * If there is an {@link ItemStack} on that slot, the returned value will be the minimum of both the slot's max stack
-     * size and the {@link ItemStack ItemStack's} max stack size retrieved using {@link InventoryUtils#stackSizeProvider}.
+     * size and the {@link ItemStack ItemStack's} max stack size.
      *
      * @param slot The slot
      * @return The current maximum allowed stack size on the specific slot.
@@ -324,7 +324,7 @@ public abstract class Inventory {
         ItemStack currentItem = getUnsafeItem(slot);
         int slotMaxStackSize = getMaxSlotStackSize(slot);
         if (currentItem != null) {
-            return Math.min(InventoryUtils.stackSizeProvider.getMaxStackSize(currentItem), slotMaxStackSize);
+            return Math.min(InventoryUtils.getMaxStackSize(currentItem), slotMaxStackSize);
         } else {
             return slotMaxStackSize;
         }
@@ -334,7 +334,7 @@ public abstract class Inventory {
      * Gets the maximum stack size for a specific slot.
      * <p>
      * If there is an {@link ItemStack} on that slot, the returned value will be the minimum of both the slot's
-     * max stack size and the {@link ItemStack ItemStack's} max stack size retrieved using {@link InventoryUtils#stackSizeProvider}.
+     * max stack size and the {@link ItemStack ItemStack's} max stack size.
      * <p>
      * If there is no {@link ItemStack} on that slot, the alternative parameter will be used as a potential maximum stack size.
      *
@@ -346,13 +346,13 @@ public abstract class Inventory {
     public int getMaxStackSize(int slot, int alternative) {
         ItemStack currentItem = getUnsafeItem(slot);
         int slotMaxStackSize = getMaxSlotStackSize(slot);
-        return Math.min(currentItem != null ? InventoryUtils.stackSizeProvider.getMaxStackSize(currentItem) : alternative, slotMaxStackSize);
+        return Math.min(currentItem != null ? InventoryUtils.getMaxStackSize(currentItem) : alternative, slotMaxStackSize);
     }
     
     /**
      * Gets the maximum stack size for a specific slot. If there is an {@link ItemStack} on that slot,
-     * the returned value will be the minimum of both the slot's and the {@link ItemStack ItemStack's} max stack size retrieved
-     * using {@link InventoryUtils#stackSizeProvider}. If there is no {@link ItemStack} on that slot, the alternativeFrom
+     * the returned value will be the minimum of both the slot's and the {@link ItemStack ItemStack's} max stack size.
+     * If there is no {@link ItemStack} on that slot, the alternativeFrom
      * parameter will be used to determine a potential maximum stack size.
      *
      * @param slot            The slot
@@ -360,7 +360,7 @@ public abstract class Inventory {
      * @return The current maximum allowed stack size on the specific slot.
      */
     public int getMaxStackSize(int slot, @Nullable ItemStack alternativeFrom) {
-        int itemMaxStackSize = alternativeFrom == null ? 64 : InventoryUtils.stackSizeProvider.getMaxStackSize(alternativeFrom);
+        int itemMaxStackSize = alternativeFrom == null ? 64 : InventoryUtils.getMaxStackSize(alternativeFrom);
         return getMaxStackSize(slot, itemMaxStackSize);
     }
     
@@ -385,7 +385,7 @@ public abstract class Inventory {
      * @return The maximum stack size on that slot
      */
     public int getMaxSlotStackSize(int slot, @Nullable ItemStack alternativeFrom) {
-        int itemMaxStackSize = alternativeFrom == null ? 64 : InventoryUtils.stackSizeProvider.getMaxStackSize(alternativeFrom);
+        int itemMaxStackSize = alternativeFrom == null ? 64 : InventoryUtils.getMaxStackSize(alternativeFrom);
         return getMaxSlotStackSize(slot, itemMaxStackSize);
     }
     
@@ -862,7 +862,7 @@ public abstract class Inventory {
         if (rest.length == 0) {
             return new int[] {simulateSingleAdd(first)};
         } else {
-            ItemStack[] allStacks = ArrayUtils.concat(first, rest);
+            ItemStack[] allStacks = ArrayUtils.concant(first, rest);
             return simulateMultiAdd(Arrays.asList(allStacks));
         }
     }
@@ -898,7 +898,7 @@ public abstract class Inventory {
         if (rest.length == 0) {
             return simulateSingleAdd(first) == 0;
         } else {
-            ItemStack[] allStacks = ArrayUtils.concat(first, rest);
+            ItemStack[] allStacks = ArrayUtils.concant(first, rest);
             return Arrays.stream(simulateMultiAdd(Arrays.asList(allStacks))).allMatch(i -> i == 0);
         }
     }
@@ -1010,7 +1010,7 @@ public abstract class Inventory {
      */
     public int collectSimilar(@Nullable UpdateReason updateReason, ItemStack template, int baseAmount) {
         int amount = baseAmount;
-        int maxStackSize = InventoryUtils.stackSizeProvider.getMaxStackSize(template);
+        int maxStackSize = InventoryUtils.getMaxStackSize(template);
         if (amount < maxStackSize) {
             @Nullable ItemStack[] items = getUnsafeItems();
             

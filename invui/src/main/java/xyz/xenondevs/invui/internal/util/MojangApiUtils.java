@@ -1,13 +1,15 @@
-package xyz.xenondevs.invui.util;
+package xyz.xenondevs.invui.internal.util;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.UUID;
 
 public class MojangApiUtils {
@@ -15,10 +17,10 @@ public class MojangApiUtils {
     private static final String SKIN_DATA_URL = "https://sessionserver.mojang.com/session/minecraft/profile/%s?unsigned=%s";
     private static final String NAME_AT_TIME_URL = "https://api.mojang.com/users/profiles/minecraft/%s?at=%s";
     
-    public static String[] getSkinData(UUID uuid, boolean requestSignature) throws MojangApiException, IOException {
+    public static String @Nullable [] getSkinData(UUID uuid, boolean requestSignature) throws MojangApiException, IOException, URISyntaxException {
         String url = String.format(SKIN_DATA_URL, uuid, !requestSignature);
-        Reader reader = new InputStreamReader(new URL(url).openConnection().getInputStream());
-        JsonObject jsonObject = new JsonParser().parse(reader).getAsJsonObject();
+        Reader reader = new InputStreamReader(new URI(url).toURL().openConnection().getInputStream());
+        JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
         
         checkForError(jsonObject);
         if (jsonObject.has("properties")) {
@@ -32,14 +34,14 @@ public class MojangApiUtils {
         return null;
     }
     
-    public static UUID getCurrentUuid(String name) throws MojangApiException, IOException {
+    public static @Nullable UUID getCurrentUuid(String name) throws MojangApiException, IOException, URISyntaxException {
         return getUuidAtTime(name, System.currentTimeMillis() / 1000);
     }
     
-    public static UUID getUuidAtTime(String name, long timestamp) throws MojangApiException, IOException {
+    public static @Nullable UUID getUuidAtTime(String name, long timestamp) throws MojangApiException, IOException, URISyntaxException {
         String url = String.format(NAME_AT_TIME_URL, name, timestamp);
-        Reader reader = new InputStreamReader(new URL(url).openConnection().getInputStream());
-        JsonObject jsonObject = new JsonParser().parse(reader).getAsJsonObject();
+        Reader reader = new InputStreamReader(new URI(url).toURL().openConnection().getInputStream());
+        JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
         
         checkForError(jsonObject);
         if (jsonObject.has("id")) {

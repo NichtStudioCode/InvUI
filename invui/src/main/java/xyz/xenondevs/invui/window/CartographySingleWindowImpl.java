@@ -6,16 +6,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.MapMeta;
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.inventoryaccess.InventoryAccess;
-import xyz.xenondevs.inventoryaccess.abstraction.inventory.CartographyInventory;
-import xyz.xenondevs.inventoryaccess.map.MapIcon;
-import xyz.xenondevs.inventoryaccess.map.MapPatch;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.i18n.Languages;
+import xyz.xenondevs.invui.internal.CartographyInventory;
+import xyz.xenondevs.invui.internal.util.MathUtils;
+import xyz.xenondevs.invui.internal.util.PlayerUtils;
 import xyz.xenondevs.invui.item.ItemWrapper;
 import xyz.xenondevs.invui.item.impl.SimpleItem;
-import xyz.xenondevs.invui.util.MathUtils;
+import xyz.xenondevs.invui.util.MapIcon;
+import xyz.xenondevs.invui.util.MapPatch;
 
 import java.util.List;
 
@@ -31,17 +31,16 @@ final class CartographySingleWindowImpl extends AbstractSingleWindow implements 
     
     public CartographySingleWindowImpl(
         Player player,
-        @Nullable Component title,
+        Component title,
         AbstractGui gui,
         boolean closeable
     ) {
         super(player, title, createWrappingGui(gui), null, closeable);
-        if (gui.getWidth() != 2 || gui.getHeight() != 1) throw new IllegalArgumentException("Gui has to be 2x1");
         
-        cartographyInventory = InventoryAccess.createCartographyInventory(
-            player, 
-            title != null ? Languages.getInstance().localized(player, title) : null
-        );
+        if (gui.getWidth() != 2 || gui.getHeight() != 1)
+            throw new IllegalArgumentException("Gui has to be 2x1");
+        
+        cartographyInventory = new CartographyInventory(player, Languages.getInstance().localized(player, title));
         inventory = cartographyInventory.getBukkitInventory();
         
         resetMap();
@@ -58,7 +57,7 @@ final class CartographySingleWindowImpl extends AbstractSingleWindow implements 
     
     @Override
     public void updateMap(@Nullable MapPatch patch, @Nullable List<MapIcon> icons) {
-        InventoryAccess.getPlayerUtils().sendMapUpdate(getViewer(), mapId, (byte) 0, false, patch, icons);
+        PlayerUtils.sendMapUpdate(getViewer(), mapId, (byte) 0, false, patch, icons);
     }
     
     @SuppressWarnings({"deprecation", "DuplicatedCode"})
@@ -84,8 +83,6 @@ final class CartographySingleWindowImpl extends AbstractSingleWindow implements 
         
         @Override
         public CartographyWindow build(Player viewer) {
-            if (viewer == null)
-                throw new IllegalStateException("Viewer is not defined.");
             if (guiSupplier == null)
                 throw new IllegalStateException("Gui is not defined.");
             

@@ -11,7 +11,7 @@ import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.inventory.ReferencingInventory;
-import xyz.xenondevs.invui.util.Pair;
+import xyz.xenondevs.invui.internal.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,10 +96,8 @@ public abstract class AbstractSingleWindow extends AbstractWindow {
     }
     
     @Override
-    protected Pair<AbstractGui, Integer> getGuiAt(int index) {
-        if (index >= gui.getSize())
-            throw new IndexOutOfBoundsException("Index " + index + " is out of bounds for gui with size " + gui.getSize());
-        return new Pair<>(gui, index);
+    protected @Nullable Pair<AbstractGui, Integer> getGuiAt(int index) {
+        return index < gui.getSize() ? new Pair<>(gui, index) : null;
     }
     
     @Override

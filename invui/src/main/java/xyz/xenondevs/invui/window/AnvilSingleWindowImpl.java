@@ -4,10 +4,9 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.inventoryaccess.InventoryAccess;
-import xyz.xenondevs.inventoryaccess.abstraction.inventory.AnvilInventory;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.i18n.Languages;
+import xyz.xenondevs.invui.internal.AnvilInventory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,17 +23,13 @@ final class AnvilSingleWindowImpl extends AbstractSingleWindow implements AnvilW
     
     public AnvilSingleWindowImpl(
         Player player,
-        @Nullable Component title,
+        Component title,
         AbstractGui gui,
-        @Nullable List<Consumer<String>> renameHandlers,
+        List<Consumer<String>> renameHandlers,
         boolean closable
     ) {
         super(player, title, gui, null, closable);
-        anvilInventory = InventoryAccess.createAnvilInventory(
-            player,
-            title != null ? Languages.getInstance().localized(player, title) : null, 
-            renameHandlers
-        );
+        anvilInventory = new AnvilInventory(player, Languages.getInstance().localized(player, title), renameHandlers);
         inventory = anvilInventory.getBukkitInventory();
     }
     
@@ -77,8 +72,6 @@ final class AnvilSingleWindowImpl extends AbstractSingleWindow implements AnvilW
         
         @Override
         public AnvilWindow build(Player viewer) {
-            if (viewer == null)
-                throw new IllegalStateException("Viewer is not defined.");
             if (guiSupplier == null)
                 throw new IllegalStateException("Gui is not defined.");
             
@@ -86,7 +79,7 @@ final class AnvilSingleWindowImpl extends AbstractSingleWindow implements AnvilW
                 viewer,
                 title,
                 (AbstractGui) guiSupplier.get(),
-                renameHandlers,
+                renameHandlers != null ? renameHandlers : List.of(),
                 closeable
             );
             

@@ -2,7 +2,7 @@ package xyz.xenondevs.invui.gui;
 
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.structure.Structure;
-import xyz.xenondevs.invui.util.SlotUtils;
+import xyz.xenondevs.invui.internal.util.SlotUtils;
 
 import java.util.ArrayList;
 import java.util.List;

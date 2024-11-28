@@ -4,7 +4,6 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 
@@ -18,7 +17,7 @@ final class NormalMergedWindowImpl extends AbstractMergedWindow {
     
     public NormalMergedWindowImpl(
         Player player,
-        @Nullable Component title,
+        Component title,
         AbstractGui gui,
         boolean closeable
     ) {
@@ -41,8 +40,6 @@ final class NormalMergedWindowImpl extends AbstractMergedWindow {
         
         @Override
         public Window build(Player viewer) {
-            if (viewer == null)
-                throw new IllegalStateException("Viewer is not defined.");
             if (guiSupplier == null)
                 throw new IllegalStateException("Gui is not defined.");
             
