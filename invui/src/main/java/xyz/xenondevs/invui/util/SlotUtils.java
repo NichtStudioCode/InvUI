@@ -91,7 +91,7 @@ public class SlotUtils {
         
         for (Point2D point : Arrays.stream(slots)
             .mapToObj(index -> convertFromIndex(index, frameWidth))
-            .collect(Collectors.toList())) {
+            .toList()) {
             if (previous != null) {
                 if (isNeighbor(previous, point)) currentLength++;
                 else currentLength = 1;

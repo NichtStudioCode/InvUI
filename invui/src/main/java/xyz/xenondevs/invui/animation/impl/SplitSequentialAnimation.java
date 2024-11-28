@@ -21,8 +21,8 @@ public class SplitSequentialAnimation extends AbstractSoundAnimation {
     protected void handleFrame(int frame) {
         List<Integer> slots = getSlots();
         
-        int i = slots.get(0);
-        int i2 = slots.get(slots.size() - 1);
+        int i = slots.getFirst();
+        int i2 = slots.getLast();
         
         show(i, i2);
         
@@ -31,8 +31,8 @@ public class SplitSequentialAnimation extends AbstractSoundAnimation {
             return;
         }
         
-        slots.remove(0);
-        slots.remove(slots.size() - 1);
+        slots.removeFirst();
+        slots.removeLast();
     }
     
 }

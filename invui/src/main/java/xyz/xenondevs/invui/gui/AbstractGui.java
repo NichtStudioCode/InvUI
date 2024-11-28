@@ -84,17 +84,22 @@ public abstract class AbstractGui implements Gui, GuiParent {
         }
         
         SlotElement slotElement = slotElements[slotNumber];
-        if (slotElement instanceof SlotElement.LinkedSlotElement) {
-            SlotElement.LinkedSlotElement linkedElement = (SlotElement.LinkedSlotElement) slotElement;
-            AbstractGui gui = (AbstractGui) linkedElement.getGui();
-            gui.handleClick(linkedElement.getSlotIndex(), player, clickType, event);
-        } else if (slotElement instanceof SlotElement.ItemSlotElement) {
-            event.setCancelled(true); // if it is an Item, don't let the player move it
-            SlotElement.ItemSlotElement itemElement = (SlotElement.ItemSlotElement) slotElement;
-            itemElement.getItem().handleClick(clickType, player, event);
-        } else if (slotElement instanceof SlotElement.InventorySlotElement) {
-            handleInvSlotElementClick((SlotElement.InventorySlotElement) slotElement, event);
-        } else event.setCancelled(true); // Only InventorySlotElements have allowed interactions
+        switch (slotElement) {
+            case SlotElement.LinkedSlotElement linkedElement -> {
+                AbstractGui gui = (AbstractGui) linkedElement.getGui();
+                gui.handleClick(linkedElement.getSlotIndex(), player, clickType, event);
+            }
+            
+            case SlotElement.ItemSlotElement itemElement -> {
+                event.setCancelled(true); // if it is an Item, don't let the player move it
+                itemElement.getItem().handleClick(clickType, player, event);
+            }
+            
+            case SlotElement.InventorySlotElement inventorySlotElement ->
+                handleInvSlotElementClick(inventorySlotElement, event);
+            
+            case null, default -> event.setCancelled(true); // Only InventorySlotElements have allowed interactions
+        }
     }
     
     // region inventories
@@ -274,8 +279,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
             int leftOverAmount;
             if (window instanceof AbstractDoubleWindow) {
                 Gui otherGui;
-                if (window instanceof AbstractSplitWindow) {
-                    AbstractSplitWindow splitWindow = (AbstractSplitWindow) window;
+                if (window instanceof AbstractSplitWindow splitWindow) {
                     Gui[] guis = splitWindow.getGuis();
                     otherGui = guis[0] == this ? guis[1] : guis[0];
                 } else {
@@ -422,8 +426,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
         
         SlotElement element = getSlotElement(slot);
         if (element != null) element = element.getHoldingElement();
-        if (element instanceof SlotElement.InventorySlotElement) {
-            SlotElement.InventorySlotElement invSlotElement = ((SlotElement.InventorySlotElement) element);
+        if (element instanceof SlotElement.InventorySlotElement invSlotElement) {
             Inventory inventory = invSlotElement.getInventory();
             int viSlot = invSlotElement.getSlot();
             if (inventory.isSynced(viSlot, oldStack)) {
@@ -498,8 +501,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
                 continue;
             
             element = element.getHoldingElement();
-            if (element instanceof SlotElement.InventorySlotElement) {
-                SlotElement.InventorySlotElement invElement = (SlotElement.InventorySlotElement) element;
+            if (element instanceof SlotElement.InventorySlotElement invElement) {
                 Inventory inventory = invElement.getInventory();
                 if (ignoredSet.contains(inventory))
                     continue;
@@ -542,8 +544,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
         // find all SlotElements that link to this slotIndex in this child Gui and notify all parents
         for (int index = 0; index < size; index++) {
             SlotElement element = slotElements[index];
-            if (element instanceof SlotElement.LinkedSlotElement) {
-                SlotElement.LinkedSlotElement linkedSlotElement = (SlotElement.LinkedSlotElement) element;
+            if (element instanceof SlotElement.LinkedSlotElement linkedSlotElement) {
                 if (linkedSlotElement.getGui() == child && linkedSlotElement.getSlotIndex() == slotIndex)
                     for (GuiParent parent : parents) parent.handleSlotElementUpdate(this, index);
             }

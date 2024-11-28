@@ -21,8 +21,8 @@ public class SequentialAnimation extends AbstractSoundAnimation {
     protected void handleFrame(int frame) {
         List<Integer> slots = getSlots();
         if (!slots.isEmpty()) {
-            show(slots.get(0));
-            slots.remove(0);
+            show(slots.getFirst());
+            slots.removeFirst();
         } else finish();
     }
     

@@ -95,7 +95,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
             ItemProvider background = null;
             
             List<Gui> guis = ((SlotElement.LinkedSlotElement) element).getGuiList();
-            guis.add(0, getGuiAt(index).getFirst());
+            guis.addFirst(getGuiAt(index).getFirst());
             
             for (int i = guis.size() - 1; i >= 0; i--) {
                 background = guis.get(i).getBackground();
@@ -124,16 +124,14 @@ public abstract class AbstractWindow implements Window, GuiParent {
         if (setItem) {
             // tell the previous item (if there is one) that this is no longer its window
             SlotElement previousElement = elementsDisplayed[index];
-            if (previousElement instanceof SlotElement.ItemSlotElement) {
-                SlotElement.ItemSlotElement itemSlotElement = (SlotElement.ItemSlotElement) previousElement;
+            if (previousElement instanceof SlotElement.ItemSlotElement itemSlotElement) {
                 Item item = itemSlotElement.getItem();
                 // check if the Item isn't still present on another index
                 if (getItemSlotElements(item).size() == 1) {
                     // only if not, remove Window from list in Item
                     item.removeWindow(this);
                 }
-            } else if (previousElement instanceof SlotElement.InventorySlotElement) {
-                SlotElement.InventorySlotElement invSlotElement = (SlotElement.InventorySlotElement) previousElement;
+            } else if (previousElement instanceof SlotElement.InventorySlotElement invSlotElement) {
                 Inventory inventory = invSlotElement.getInventory();
                 // check if the InvUI-Inventory isn't still present on another index
                 if (getInvSlotElements(invSlotElement.getInventory()).size() == 1) {
@@ -427,7 +425,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
     @Override
     public @Nullable Player getCurrentViewer() {
         List<HumanEntity> viewers = getInventories()[0].getViewers();
-        return viewers.isEmpty() ? null : (Player) viewers.get(0);
+        return viewers.isEmpty() ? null : (Player) viewers.getFirst();
     }
     
     @Override
