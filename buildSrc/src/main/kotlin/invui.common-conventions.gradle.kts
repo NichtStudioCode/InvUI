@@ -1,3 +1,4 @@
+group = "xyz.xenondevs.invui"
 version = "2.0.0-SNAPSHOT"
 
 plugins {

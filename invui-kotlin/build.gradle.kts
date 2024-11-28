@@ -1,11 +1,17 @@
-import org.gradle.kotlin.dsl.libs
-
 plugins {
     id("invui.common-conventions")
-    alias(libs.plugins.kotlin)
+    kotlin("jvm") version "2.1.0"
 }
 
 dependencies {
-    api(libs.kotlin.stdlib)
+    api("org.jetbrains.kotlin:kotlin-stdlib:2.1.0")
     api(project(":invui"))
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["kotlin"])
+        }
+    }
 }
