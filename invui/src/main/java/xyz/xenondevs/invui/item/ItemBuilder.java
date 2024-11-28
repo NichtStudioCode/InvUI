@@ -11,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.i18n.Languages;
+import xyz.xenondevs.invui.internal.util.ComponentUtils;
 
 import java.util.*;
 import java.util.function.Function;
@@ -140,7 +141,7 @@ public class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder setName(Component name) {
-        this.name = name;
+        this.name = ComponentUtils.withoutPreFormatting(name);
         return this;
     }
     
@@ -151,8 +152,7 @@ public class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder setName(String name) {
-        this.name = MiniMessage.miniMessage().deserialize(name);
-        return this;
+        return setName(MiniMessage.miniMessage().deserialize(name));
     }
     
     /**
@@ -162,8 +162,7 @@ public class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder setLegacyName(String name) {
-        this.name = LegacyComponentSerializer.legacySection().deserialize(name);
-        return this;
+        return setName(LegacyComponentSerializer.legacySection().deserialize(name));
     }
     //</editor-fold>
     
@@ -202,7 +201,9 @@ public class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder setLore(List<Component> lore) {
-        this.lore = new ArrayList<>(lore);
+        this.lore = lore.stream()
+            .map(ComponentUtils::withoutPreFormatting)
+            .collect(Collectors.toCollection(ArrayList::new));
         return this;
     }
     
@@ -215,6 +216,7 @@ public class ItemBuilder implements ItemProvider {
     public ItemBuilder setLegacyLore(List<String> lore) {
         this.lore = lore.stream()
             .map(line -> LegacyComponentSerializer.legacySection().deserialize(line))
+            .map(ComponentUtils::withoutPreFormatting)
             .collect(Collectors.toCollection(ArrayList::new));
         return this;
     }
@@ -226,14 +228,7 @@ public class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder addLegacyLoreLines(String... lines) {
-        if (lore == null)
-            lore = new ArrayList<>();
-        
-        for (String line : lines) {
-            lore.add(LegacyComponentSerializer.legacySection().deserialize(line));
-        }
-        
-        return this;
+        return addLegacyLoreLines(Arrays.asList(lines));
     }
     
     /**
@@ -243,14 +238,7 @@ public class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder addLoreLines(String... lines) {
-        if (lore == null)
-            lore = new ArrayList<>();
-        
-        for (String line : lines) {
-            lore.add(MiniMessage.miniMessage().deserialize(line));
-        }
-        
-        return this;
+        return addMiniMessageLoreLines(Arrays.asList(lines));
     }
     
     /**
@@ -263,7 +251,9 @@ public class ItemBuilder implements ItemProvider {
         if (lore == null)
             lore = new ArrayList<>();
         
-        lore.addAll(Arrays.asList(lines));
+        for (Component line : lines) {
+            lore.add(ComponentUtils.withoutPreFormatting(line));
+        }
         
         return this;
     }
@@ -278,7 +268,28 @@ public class ItemBuilder implements ItemProvider {
         if (lore == null)
             lore = new ArrayList<>();
         
-        lore.addAll(lines);
+        for (Component line : lines) {
+            lore.add(ComponentUtils.withoutPreFormatting(line));
+        }
+        
+        return this;
+    }
+    
+    /**
+     * Adds lore lines using the mini-message format.
+     *
+     * @param lines The lore lines
+     * @return The builder instance
+     */
+    public ItemBuilder addMiniMessageLoreLines(List<String> lines) {
+        if (lore == null)
+            lore = new ArrayList<>();
+        
+        for (String line : lines) {
+            Component component = MiniMessage.miniMessage().deserialize(line);
+            component = ComponentUtils.withoutPreFormatting(component);
+            lore.add(component);
+        }
         
         return this;
     }
@@ -294,7 +305,9 @@ public class ItemBuilder implements ItemProvider {
             lore = new ArrayList<>();
         
         for (String line : lines) {
-            lore.add(LegacyComponentSerializer.legacySection().deserialize(line));
+            Component component = LegacyComponentSerializer.legacySection().deserialize(line);
+            component = ComponentUtils.withoutPreFormatting(component);
+            lore.add(component);
         }
         
         return this;
