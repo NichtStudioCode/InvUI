@@ -1,0 +1,13 @@
+[versions]
+paper = "1.21.3-R0.1-SNAPSHOT"
+kotlin = "2.1.0"
+paperweight = "1.7.5"
+
+[libraries]
+kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
+jetbrains-annotations = { group = "org.jetbrains", name = "annotations", version = "26.0.1" }
+junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version = "5.11.3" }
+
+[plugins]
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+paperweight = { id = "io.papermc.paperweight.userdev", version.ref = "paperweight" }
