@@ -8,15 +8,9 @@ import net.minecraft.world.item.ItemStack;
 import org.bukkit.craftbukkit.CraftRegistry;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.util.CraftMagicNumbers;
-import org.bukkit.inventory.meta.ItemMeta;
 import xyz.xenondevs.inventoryaccess.abstraction.util.ItemUtils;
-import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
-import xyz.xenondevs.inventoryaccess.util.ReflectionRegistry;
-import xyz.xenondevs.inventoryaccess.util.ReflectionUtils;
 
 import java.io.*;
-import java.util.List;
-import java.util.stream.Collectors;
 
 class ItemUtilsImpl implements ItemUtils {
     
@@ -80,24 +74,6 @@ class ItemUtilsImpl implements ItemUtils {
         }
         
         return null;
-    }
-    
-    @Override
-    public void setDisplayName(ItemMeta itemMeta, ComponentWrapper name) {
-        ReflectionUtils.setFieldValue(
-            ReflectionRegistry.CB_CRAFT_META_ITEM_DISPLAY_NAME_FIELD,
-            itemMeta,
-            InventoryUtilsImpl.createNMSComponent(name)
-        );
-    }
-    
-    @Override
-    public void setLore(ItemMeta itemMeta, List<ComponentWrapper> lore) {
-        ReflectionUtils.setFieldValue(
-            ReflectionRegistry.CB_CRAFT_META_ITEM_LORE_FIELD,
-            itemMeta,
-            lore.stream().map(InventoryUtilsImpl::createNMSComponent).collect(Collectors.toList())
-        );
     }
     
 }

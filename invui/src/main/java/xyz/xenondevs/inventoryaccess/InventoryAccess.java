@@ -1,5 +1,6 @@
 package xyz.xenondevs.inventoryaccess;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.abstraction.inventory.AnvilInventory;
@@ -7,8 +8,6 @@ import xyz.xenondevs.inventoryaccess.abstraction.inventory.CartographyInventory;
 import xyz.xenondevs.inventoryaccess.abstraction.util.InventoryUtils;
 import xyz.xenondevs.inventoryaccess.abstraction.util.ItemUtils;
 import xyz.xenondevs.inventoryaccess.abstraction.util.PlayerUtils;
-import xyz.xenondevs.inventoryaccess.component.BungeeComponentWrapper;
-import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.inventoryaccess.util.ReflectionUtils;
 
 import java.lang.reflect.Constructor;
@@ -24,9 +23,9 @@ public class InventoryAccess {
     private static final Class<CartographyInventory> CARTOGRAPHY_INVENTORY_CLASS = ReflectionUtils.getImplClass("CartographyInventoryImpl");
     
     private static final Constructor<AnvilInventory> ANVIL_INVENTORY_CONSTRUCTOR =
-        ReflectionUtils.getConstructor(ANVIL_INVENTORY_CLASS, true, Player.class, ComponentWrapper.class, List.class);
+        ReflectionUtils.getConstructor(ANVIL_INVENTORY_CLASS, true, Player.class, Component.class, List.class);
     private static final Constructor<CartographyInventory> CARTOGRAPHY_INVENTORY_CONSTRUCTOR =
-        ReflectionUtils.getConstructor(CARTOGRAPHY_INVENTORY_CLASS, true, Player.class, ComponentWrapper.class);
+        ReflectionUtils.getConstructor(CARTOGRAPHY_INVENTORY_CLASS, true, Player.class, Component.class);
     
     private static final InventoryUtils INVENTORY_UTILS = ReflectionUtils.constructEmpty(INVENTORY_UTILS_CLASS);
     private static final ItemUtils ITEM_UTILS = ReflectionUtils.constructEmpty(ITEM_UTILS_CLASS);
@@ -68,8 +67,8 @@ public class InventoryAccess {
      *                       types something in the renaming section of the anvil.
      * @return The {@link AnvilInventory}
      */
-    public static AnvilInventory createAnvilInventory(Player player, @Nullable ComponentWrapper title, @Nullable List<Consumer<String>> renameHandlers) {
-        return ReflectionUtils.construct(ANVIL_INVENTORY_CONSTRUCTOR, player, title == null ? BungeeComponentWrapper.EMPTY : title, renameHandlers);
+    public static AnvilInventory createAnvilInventory(Player player, @Nullable Component title, @Nullable List<Consumer<String>> renameHandlers) {
+        return ReflectionUtils.construct(ANVIL_INVENTORY_CONSTRUCTOR, player, title == null ? Component.empty() : title, renameHandlers);
     }
     
     /**
@@ -79,8 +78,8 @@ public class InventoryAccess {
      * @param title  The inventory title
      * @return The {@link CartographyInventory}
      */
-    public static CartographyInventory createCartographyInventory(Player player, @Nullable ComponentWrapper title) {
-        return ReflectionUtils.construct(CARTOGRAPHY_INVENTORY_CONSTRUCTOR, player, title == null ? BungeeComponentWrapper.EMPTY : title);
+    public static CartographyInventory createCartographyInventory(Player player, @Nullable Component title) {
+        return ReflectionUtils.construct(CARTOGRAPHY_INVENTORY_CONSTRUCTOR, player, title == null ? Component.empty() : title);
     }
     
 }

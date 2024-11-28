@@ -1,12 +1,13 @@
 package xyz.xenondevs.invui.window;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.InventoryAccess;
 import xyz.xenondevs.inventoryaccess.abstraction.inventory.AnvilInventory;
-import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.invui.gui.AbstractGui;
+import xyz.xenondevs.invui.i18n.Languages;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,13 +24,17 @@ final class AnvilSingleWindowImpl extends AbstractSingleWindow implements AnvilW
     
     public AnvilSingleWindowImpl(
         Player player,
-        @Nullable ComponentWrapper title,
+        @Nullable Component title,
         AbstractGui gui,
         @Nullable List<Consumer<String>> renameHandlers,
         boolean closable
     ) {
         super(player, title, gui, null, closable);
-        anvilInventory = InventoryAccess.createAnvilInventory(player, title != null ? title.localized(player) : null, renameHandlers);
+        anvilInventory = InventoryAccess.createAnvilInventory(
+            player,
+            title != null ? Languages.getInstance().localized(player, title) : null, 
+            renameHandlers
+        );
         inventory = anvilInventory.getBukkitInventory();
     }
     

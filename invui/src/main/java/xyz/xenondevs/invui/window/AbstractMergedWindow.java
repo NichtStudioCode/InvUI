@@ -1,9 +1,9 @@
 package xyz.xenondevs.invui.window;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
-import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
@@ -33,7 +33,7 @@ public abstract class AbstractMergedWindow extends AbstractDoubleWindow {
      * @param upperInventory The {@link Inventory} of the window.
      * @param closeable      Whether the window is closeable.
      */
-    public AbstractMergedWindow(Player player, ComponentWrapper title, AbstractGui gui, Inventory upperInventory, boolean closeable) {
+    public AbstractMergedWindow(Player player, Component title, AbstractGui gui, Inventory upperInventory, boolean closeable) {
         super(player, title, gui.getSize(), upperInventory, closeable);
         this.gui = gui;
     }

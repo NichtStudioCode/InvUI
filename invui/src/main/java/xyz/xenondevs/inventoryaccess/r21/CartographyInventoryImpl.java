@@ -1,5 +1,6 @@
 package xyz.xenondevs.inventoryaccess.r21;
 
+import io.papermc.paper.adventure.PaperAdventure;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
@@ -18,7 +19,6 @@ import org.bukkit.craftbukkit.inventory.CraftInventoryView;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.inventory.Inventory;
 import xyz.xenondevs.inventoryaccess.abstraction.inventory.CartographyInventory;
-import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.inventoryaccess.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
@@ -37,8 +37,8 @@ class CartographyInventoryImpl extends CartographyTableMenu implements Cartograp
     
     private boolean open;
     
-    public CartographyInventoryImpl(org.bukkit.entity.Player player, ComponentWrapper title) {
-        this(((CraftPlayer) player).getHandle(), InventoryUtilsImpl.createNMSComponent(title));
+    public CartographyInventoryImpl(org.bukkit.entity.Player player, net.kyori.adventure.text.Component title) {
+        this(((CraftPlayer) player).getHandle(), PaperAdventure.asVanilla(title));
     }
     
     public CartographyInventoryImpl(ServerPlayer player, Component title) {

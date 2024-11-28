@@ -1,5 +1,6 @@
 package xyz.xenondevs.invui.window;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -7,11 +8,11 @@ import org.bukkit.inventory.meta.MapMeta;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.InventoryAccess;
 import xyz.xenondevs.inventoryaccess.abstraction.inventory.CartographyInventory;
-import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.inventoryaccess.map.MapIcon;
 import xyz.xenondevs.inventoryaccess.map.MapPatch;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
+import xyz.xenondevs.invui.i18n.Languages;
 import xyz.xenondevs.invui.item.ItemWrapper;
 import xyz.xenondevs.invui.item.impl.SimpleItem;
 import xyz.xenondevs.invui.util.MathUtils;
@@ -30,14 +31,17 @@ final class CartographySingleWindowImpl extends AbstractSingleWindow implements 
     
     public CartographySingleWindowImpl(
         Player player,
-        @Nullable ComponentWrapper title,
+        @Nullable Component title,
         AbstractGui gui,
         boolean closeable
     ) {
         super(player, title, createWrappingGui(gui), null, closeable);
         if (gui.getWidth() != 2 || gui.getHeight() != 1) throw new IllegalArgumentException("Gui has to be 2x1");
         
-        cartographyInventory = InventoryAccess.createCartographyInventory(player, title != null ? title.localized(player) : null);
+        cartographyInventory = InventoryAccess.createCartographyInventory(
+            player, 
+            title != null ? Languages.getInstance().localized(player, title) : null
+        );
         inventory = cartographyInventory.getBukkitInventory();
         
         resetMap();

@@ -1,12 +1,9 @@
 package xyz.xenondevs.inventoryaccess.abstraction.util;
 
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
 
 public interface ItemUtils {
     
@@ -49,21 +46,5 @@ public interface ItemUtils {
      * @see #serializeItemStack(ItemStack, OutputStream, boolean)
      */
     ItemStack deserializeItemStack(InputStream inputStream, boolean compressed);
-    
-    /**
-     * Sets the display name of an {@link ItemMeta}
-     *
-     * @param itemMeta The {@link ItemMeta}
-     * @param name     The display name
-     */
-    void setDisplayName(ItemMeta itemMeta, ComponentWrapper name);
-    
-    /**
-     * Sets the lore of an {@link ItemMeta}
-     *
-     * @param itemMeta The {@link ItemMeta}
-     * @param lore     The lore
-     */
-    void setLore(ItemMeta itemMeta, List<ComponentWrapper> lore);
     
 }

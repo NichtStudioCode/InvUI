@@ -1,5 +1,6 @@
 package xyz.xenondevs.inventoryaccess.r21;
 
+import io.papermc.paper.adventure.PaperAdventure;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
@@ -20,16 +21,10 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.abstraction.util.InventoryUtils;
-import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 
 import java.util.List;
 
 class InventoryUtilsImpl implements InventoryUtils {
-    
-    public static Component createNMSComponent(ComponentWrapper component) {
-        if (component == null) return null;
-        return CraftChatMessage.fromJSON(component.serializeToJson());
-    }
     
     public static int getActiveWindowId(ServerPlayer player) {
         AbstractContainerMenu container = player.containerMenu;
@@ -42,7 +37,7 @@ class InventoryUtilsImpl implements InventoryUtils {
     }
     
     @Override
-    public void openCustomInventory(Player player, Inventory inventory, @Nullable ComponentWrapper title) {
+    public void openCustomInventory(Player player, Inventory inventory, net.kyori.adventure.text.Component title) {
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
         MenuType<?> menuType = CraftContainer.getNotchInventoryType(inventory);
         
@@ -56,7 +51,7 @@ class InventoryUtilsImpl implements InventoryUtils {
                     if (container instanceof MenuProvider)
                         titleComponent = ((MenuProvider) container).getDisplayName();
                     else titleComponent = CraftChatMessage.fromString(menu.getBukkitView().getTitle())[0];
-                } else titleComponent = createNMSComponent(title);
+                } else titleComponent = PaperAdventure.asVanilla(title);
                 
                 menu.checkReachable = false;
                 serverPlayer.connection.send(new ClientboundOpenScreenPacket(menu.containerId, menuType, titleComponent));
@@ -68,11 +63,11 @@ class InventoryUtilsImpl implements InventoryUtils {
     }
     
     @Override
-    public void updateOpenInventoryTitle(Player player, ComponentWrapper title) {
+    public void updateOpenInventoryTitle(Player player, net.kyori.adventure.text.Component title) {
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
         AbstractContainerMenu menu = serverPlayer.containerMenu;
         
-        var open = new ClientboundOpenScreenPacket(menu.containerId, menu.getType(), createNMSComponent(title));
+        var open = new ClientboundOpenScreenPacket(menu.containerId, menu.getType(), PaperAdventure.asVanilla(title));
         var content = new ClientboundContainerSetContentPacket(menu.containerId, menu.incrementStateId(), menu.getItems(), menu.getCarried());
         var bundle = new ClientboundBundlePacket(List.of(open, content));
         serverPlayer.connection.send(bundle);

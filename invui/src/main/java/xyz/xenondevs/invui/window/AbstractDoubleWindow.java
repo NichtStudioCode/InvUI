@@ -1,5 +1,6 @@
 package xyz.xenondevs.invui.window;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -7,7 +8,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.InventoryAccess;
-import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.inventoryaccess.util.VersionUtils;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.SlotElement;
@@ -43,7 +43,7 @@ public abstract class AbstractDoubleWindow extends AbstractWindow {
      * @param upperInventory The upper inventory of the window.
      * @param closeable      Whether the window is closeable.
      */
-    public AbstractDoubleWindow(Player player, ComponentWrapper title, int size, Inventory upperInventory, boolean closeable) {
+    public AbstractDoubleWindow(Player player, Component title, int size, Inventory upperInventory, boolean closeable) {
         super(player, title, size, closeable);
         this.upperInventory = upperInventory;
         this.playerInventory = player.getInventory();

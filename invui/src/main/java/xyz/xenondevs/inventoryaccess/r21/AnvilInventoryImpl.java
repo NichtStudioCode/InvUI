@@ -1,5 +1,6 @@
 package xyz.xenondevs.inventoryaccess.r21;
 
+import io.papermc.paper.adventure.PaperAdventure;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
@@ -22,7 +23,6 @@ import org.bukkit.craftbukkit.inventory.view.CraftAnvilView;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.Inventory;
 import xyz.xenondevs.inventoryaccess.abstraction.inventory.AnvilInventory;
-import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -36,8 +36,8 @@ class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
     private String text;
     private boolean open;
     
-    public AnvilInventoryImpl(org.bukkit.entity.Player player, ComponentWrapper title, List<Consumer<String>> renameHandlers) {
-        this(((CraftPlayer) player).getHandle(), InventoryUtilsImpl.createNMSComponent(title), renameHandlers);
+    public AnvilInventoryImpl(org.bukkit.entity.Player player, net.kyori.adventure.text.Component title, List<Consumer<String>> renameHandlers) {
+        this(((CraftPlayer) player).getHandle(), PaperAdventure.asVanilla(title), renameHandlers);
     }
     
     public AnvilInventoryImpl(ServerPlayer player, Component title, List<Consumer<String>> renameHandlers) {

@@ -1,9 +1,9 @@
-package xyz.xenondevs.inventoryaccess.component.i18n;
+package xyz.xenondevs.invui.i18n;
 
 import com.google.gson.stream.JsonReader;
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 
 import java.io.File;
 import java.io.FileReader;
@@ -115,7 +115,7 @@ public class Languages {
     }
     
     /**
-     * Enables or disables server-side translations for {@link ComponentWrapper ComponentWrappers}.
+     * Enables or disables server-side translations for components.
      *
      * @param enable Whether server-side translations should be enabled.
      */
@@ -130,6 +130,32 @@ public class Languages {
      */
     public boolean doesServerSideTranslations() {
         return serverSideTranslations;
+    }
+    
+    /**
+     * Translates the given component into the language of the given player, if server-side translations are enabled.
+     *
+     * @param player    The player to translate the component for.
+     * @param component The component to translate.
+     * @return The translated component or the original component if server-side translations are disabled.
+     */
+    public Component localized(Player player, Component component) {
+        return localized(getLanguage(player), component);
+    }
+    
+    /**
+     * Translates the given component into the given language, if server-side translations are enabled.
+     *
+     * @param lang      The language to translate the component into.
+     * @param component The component to translate.
+     * @return The translated component or the original component if server-side translations are disabled.
+     */
+    public Component localized(String lang, Component component) {
+        if (serverSideTranslations) {
+            return ComponentLocalizer.getInstance().localize(lang, component);
+        }
+        
+        return component;
     }
     
 }

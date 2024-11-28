@@ -1,11 +1,11 @@
 package xyz.xenondevs.inventoryaccess.abstraction.util;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 
 public interface InventoryUtils {
     
@@ -31,7 +31,7 @@ public interface InventoryUtils {
      * @param inventory The {@link Inventory}
      * @param title     The title of the inventory
      */
-    void openCustomInventory(Player player, Inventory inventory, @Nullable ComponentWrapper title);
+    void openCustomInventory(Player player, Inventory inventory, @Nullable Component title);
     
     /**
      * Changes the title of the {@link Inventory} the player is currently viewing.
@@ -39,7 +39,7 @@ public interface InventoryUtils {
      * @param player The {@link Player}
      * @param title  The new title
      */
-    void updateOpenInventoryTitle(Player player, ComponentWrapper title);
+    void updateOpenInventoryTitle(Player player, Component title);
     
     /**
      * Gets the {@link ItemStack} at a given raw slot from the {@link InventoryView}.

@@ -10,7 +10,7 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.inventoryaccess.component.i18n.AdventureComponentLocalizer;
+import xyz.xenondevs.invui.i18n.Languages;
 
 import java.util.*;
 import java.util.function.Function;
@@ -26,7 +26,6 @@ public class ItemBuilder implements ItemProvider {
     
     private ItemStack itemStack;
     private @Nullable Component name;
-    private @Nullable Component customName;
     private @Nullable List<Component> lore;
     private @Nullable List<Function<ItemStack, ItemStack>> modifiers;
     
@@ -63,10 +62,6 @@ public class ItemBuilder implements ItemProvider {
             name = base.getData(DataComponentTypes.ITEM_NAME);
         }
         
-        if (base.isDataOverridden(DataComponentTypes.CUSTOM_NAME)) {
-            customName = base.getData(DataComponentTypes.CUSTOM_NAME);
-        }
-        
         if (base.isDataOverridden(DataComponentTypes.LORE)) {
             ItemLore lore = base.getData(DataComponentTypes.LORE);
             assert lore != null;
@@ -87,21 +82,15 @@ public class ItemBuilder implements ItemProvider {
             if (name != null) {
                 itemStack.setData(
                     DataComponentTypes.ITEM_NAME,
-                    AdventureComponentLocalizer.getInstance().localize(lang, name)
+                    Languages.getInstance().localized(lang, name)
                 );
-            }
-            
-            if (customName != null) {
-                itemStack.setData(
-                    DataComponentTypes.CUSTOM_NAME,
-                    AdventureComponentLocalizer.getInstance().localize(lang, customName)
-                );
+                itemStack.unsetData(DataComponentTypes.CUSTOM_NAME);
             }
             
             if (lore != null) {
                 ItemLore.Builder lore = ItemLore.lore();
                 for (Component line : this.lore) {
-                    lore.addLine(AdventureComponentLocalizer.getInstance().localize(lang, line));
+                    lore.addLine(Languages.getInstance().localized(lang, line));
                 }
                 
                 itemStack.setData(DataComponentTypes.LORE, lore.build());
@@ -176,39 +165,6 @@ public class ItemBuilder implements ItemProvider {
         this.name = LegacyComponentSerializer.legacySection().deserialize(name);
         return this;
     }
-    
-    /**
-     * Gets the custom name.
-     *
-     * @param customName The custom name
-     * @return The builder instance
-     */
-    public ItemBuilder setCustomName(Component customName) {
-        this.customName = customName;
-        return this;
-    }
-    
-    /**
-     * Sets the custom name using mini-message format.
-     *
-     * @param customName The custom name
-     * @return The builder instance
-     */
-    public ItemBuilder setCustomName(String customName) {
-        this.customName = MiniMessage.miniMessage().deserialize(customName);
-        return this;
-    }
-    
-    /**
-     * Sets the custom name using legacy text format.
-     *
-     * @param customName The custom name
-     * @return The builder instance
-     */
-    public ItemBuilder setLegacyCustomName(String customName) {
-        this.customName = LegacyComponentSerializer.legacySection().deserialize(customName);
-        return this;
-    }
     //</editor-fold>
     
     //<editor-fold desc="lore">
@@ -220,7 +176,8 @@ public class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder removeLoreLine(int index) {
-        if (lore != null) lore.remove(index);
+        if (lore != null)
+            lore.remove(index);
         return this;
     }
     
@@ -230,7 +187,11 @@ public class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder clearLore() {
-        if (lore != null) lore.clear();
+        if (lore != null) {
+            lore.clear();
+        } else {
+            lore = new ArrayList<>();
+        }
         return this;
     }
     

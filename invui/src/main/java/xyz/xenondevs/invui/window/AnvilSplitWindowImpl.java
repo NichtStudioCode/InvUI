@@ -1,12 +1,13 @@
 package xyz.xenondevs.invui.window;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.InventoryAccess;
 import xyz.xenondevs.inventoryaccess.abstraction.inventory.AnvilInventory;
-import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.invui.gui.AbstractGui;
+import xyz.xenondevs.invui.i18n.Languages;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +25,7 @@ final class AnvilSplitWindowImpl extends AbstractSplitWindow implements AnvilWin
     
     public AnvilSplitWindowImpl(
         Player player,
-        @Nullable ComponentWrapper title,
+        @Nullable Component title,
         AbstractGui upperGui,
         AbstractGui lowerGui,
         @Nullable List<Consumer<String>> renameHandlers,
@@ -32,7 +33,11 @@ final class AnvilSplitWindowImpl extends AbstractSplitWindow implements AnvilWin
     ) {
         super(player, title, upperGui, lowerGui, null, closeable);
         
-        anvilInventory = InventoryAccess.createAnvilInventory(player, title != null ? title.localized(player) : null, renameHandlers);
+        anvilInventory = InventoryAccess.createAnvilInventory(
+            player, 
+            title != null ? Languages.getInstance().localized(player, title) : null,
+            renameHandlers
+        );
         upperInventory = anvilInventory.getBukkitInventory();
     }
     

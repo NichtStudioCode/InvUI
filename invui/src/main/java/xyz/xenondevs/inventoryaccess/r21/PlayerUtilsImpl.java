@@ -1,5 +1,6 @@
 package xyz.xenondevs.inventoryaccess.r21;
 
+import io.papermc.paper.adventure.PaperAdventure;
 import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket;
 import net.minecraft.server.PlayerAdvancements;
@@ -66,7 +67,7 @@ class PlayerUtilsImpl implements PlayerUtils {
             getDecorationTypeByIconType(icon.getType()),
             icon.getX(), icon.getY(),
             icon.getRot(),
-            Optional.ofNullable(icon.getComponent()).map(InventoryUtilsImpl::createNMSComponent)
+            Optional.ofNullable(icon.getComponent()).map(PaperAdventure::asVanilla)
         );
     }
     

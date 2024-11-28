@@ -1,7 +1,7 @@
 package xyz.xenondevs.invui.window;
 
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -17,9 +17,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.InventoryAccess;
-import xyz.xenondevs.inventoryaccess.component.BungeeComponentWrapper;
-import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
-import xyz.xenondevs.inventoryaccess.component.i18n.Languages;
+import xyz.xenondevs.invui.i18n.Languages;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
@@ -56,12 +54,12 @@ public abstract class AbstractWindow implements Window, GuiParent {
     private @Nullable List<Runnable> openHandlers;
     private @Nullable List<Runnable> closeHandlers;
     private @Nullable List<Consumer<InventoryClickEvent>> outsideClickHandlers;
-    private ComponentWrapper title;
+    private Component title;
     private boolean closeable;
     private boolean currentlyOpen;
     private boolean hasHandledClose;
     
-    public AbstractWindow(Player viewer, ComponentWrapper title, int size, boolean closeable) {
+    public AbstractWindow(Player viewer, Component title, int size, boolean closeable) {
         this.viewer = viewer;
         this.viewerUUID = viewer.getUniqueId();
         this.title = title;
@@ -283,7 +281,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
         InventoryAccess.getInventoryUtils().openCustomInventory(
             viewer,
             getInventories()[0],
-            title != null ? title.localized(viewer) : null
+            title != null ? Languages.getInstance().localized(viewer, title) : null
         );
     }
     
@@ -350,25 +348,20 @@ public abstract class AbstractWindow implements Window, GuiParent {
     }
     
     @Override
-    public void changeTitle(ComponentWrapper title) {
+    public void changeTitle(Component title) {
         this.title = title;
         Player currentViewer = getCurrentViewer();
         if (currentViewer != null) {
             InventoryAccess.getInventoryUtils().updateOpenInventoryTitle(
                 currentViewer,
-                title.localized(currentViewer)
+                Languages.getInstance().localized(currentViewer, title)
             );
         }
     }
     
     @Override
-    public void changeTitle(BaseComponent[] title) {
-        changeTitle(new BungeeComponentWrapper(title));
-    }
-    
-    @Override
     public void changeTitle(String title) {
-        changeTitle(TextComponent.fromLegacyText(title));
+        changeTitle(MiniMessage.miniMessage().deserialize(title));
     }
     
     @Override
@@ -555,7 +548,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
     public static abstract class AbstractBuilder<W extends Window, S extends Window.Builder<W, S>> implements Window.Builder<W, S> {
         
         protected @Nullable Player viewer;
-        protected @Nullable ComponentWrapper title;
+        protected @Nullable Component title;
         protected boolean closeable = true;
         protected @Nullable List<Runnable> openHandlers;
         protected @Nullable List<Runnable> closeHandlers;
@@ -569,20 +562,14 @@ public abstract class AbstractWindow implements Window, GuiParent {
         }
         
         @Override
-        public S setTitle(ComponentWrapper title) {
+        public S setTitle(Component title) {
             this.title = title;
             return (S) this;
         }
         
         @Override
-        public S setTitle(BaseComponent[] title) {
-            this.title = new BungeeComponentWrapper(title);
-            return (S) this;
-        }
-        
-        @Override
         public S setTitle(String title) {
-            this.title = new BungeeComponentWrapper(TextComponent.fromLegacyText(title));
+            this.title = MiniMessage.miniMessage().deserialize(title);
             return (S) this;
         }
         
@@ -681,8 +668,6 @@ public abstract class AbstractWindow implements Window, GuiParent {
         public S clone() {
             try {
                 var clone = (AbstractBuilder<W, S>) super.clone();
-                if (title != null)
-                    clone.title = title.clone();
                 if (closeHandlers != null)
                     clone.closeHandlers = new ArrayList<>(closeHandlers);
                 if (modifiers != null)

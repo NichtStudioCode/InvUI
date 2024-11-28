@@ -1,11 +1,11 @@
 package xyz.xenondevs.invui.window;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
@@ -43,7 +43,7 @@ public abstract class AbstractSingleWindow extends AbstractWindow {
      * @param inventory The inventory of the window.
      * @param closeable Whether the window is closeable.
      */
-    public AbstractSingleWindow(Player viewer, ComponentWrapper title, AbstractGui gui, org.bukkit.inventory.Inventory inventory, boolean closeable) {
+    public AbstractSingleWindow(Player viewer, Component title, AbstractGui gui, org.bukkit.inventory.Inventory inventory, boolean closeable) {
         super(viewer, title, gui.getSize(), closeable);
         this.gui = gui;
         this.size = gui.getSize();

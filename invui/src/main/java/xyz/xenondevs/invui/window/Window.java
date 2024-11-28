@@ -1,12 +1,11 @@
 package xyz.xenondevs.invui.window;
 
-import net.md_5.bungee.api.chat.BaseComponent;
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.invui.gui.Gui;
 
 import java.util.List;
@@ -123,14 +122,7 @@ public interface Window {
      *
      * @param title The new title
      */
-    void changeTitle(ComponentWrapper title);
-    
-    /**
-     * Changes the title of the {@link Inventory}.
-     *
-     * @param title The new title
-     */
-    void changeTitle(BaseComponent[] title);
+    void changeTitle(Component title);
     
     /**
      * Changes the title of the {@link Inventory}.
@@ -252,15 +244,7 @@ public interface Window {
          * @param title The title of the {@link Window}
          * @return This {@link Builder Window Builder}
          */
-        S setTitle(ComponentWrapper title);
-        
-        /**
-         * Sets the title of the {@link Window}.
-         *
-         * @param title The title of the {@link Window}
-         * @return This {@link Builder Window Builder}
-         */
-        S setTitle(BaseComponent[] title);
+        S setTitle(Component title);
         
         /**
          * Sets the title of the {@link Window}.

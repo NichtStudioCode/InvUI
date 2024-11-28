@@ -1,8 +1,8 @@
 package xyz.xenondevs.invui.window;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.util.InventoryUtils;
 
@@ -16,7 +16,7 @@ final class NormalSplitWindowImpl extends AbstractSplitWindow {
     
     public NormalSplitWindowImpl(
         Player player,
-        @Nullable ComponentWrapper title,
+        @Nullable Component title,
         AbstractGui upperGui,
         AbstractGui lowerGui,
         boolean closeable

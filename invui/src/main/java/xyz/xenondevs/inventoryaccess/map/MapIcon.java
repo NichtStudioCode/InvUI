@@ -1,9 +1,7 @@
 package xyz.xenondevs.inventoryaccess.map;
 
-import net.md_5.bungee.api.chat.BaseComponent;
+import net.kyori.adventure.text.Component;
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.inventoryaccess.component.BungeeComponentWrapper;
-import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 
 public class MapIcon {
     
@@ -11,9 +9,9 @@ public class MapIcon {
     private final byte x;
     private final byte y;
     private final byte rot;
-    private final ComponentWrapper component;
+    private final Component component;
     
-    public MapIcon(MapIconType type, int x, int y, int rot, @Nullable ComponentWrapper component) {
+    public MapIcon(MapIconType type, int x, int y, int rot, @Nullable Component component) {
         this.type = type;
         this.x = (byte) (x - 128);
         this.y = (byte) (y - 128);
@@ -21,12 +19,8 @@ public class MapIcon {
         this.component = component;
     }
     
-    public MapIcon(MapIconType type, int x, int y, int rot, @Nullable BaseComponent[] component) {
-        this(type, x, y, rot, new BungeeComponentWrapper(component));
-    }
-    
     public MapIcon(MapIconType type, byte x, byte y, byte rot) {
-        this(type, x, y, rot, (ComponentWrapper) null);
+        this(type, x, y, rot, null);
     }
     
     
@@ -47,7 +41,7 @@ public class MapIcon {
     }
     
     @Nullable
-    public ComponentWrapper getComponent() {
+    public Component getComponent() {
         return component;
     }
     

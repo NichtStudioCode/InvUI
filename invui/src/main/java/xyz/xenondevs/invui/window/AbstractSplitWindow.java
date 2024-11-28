@@ -1,10 +1,10 @@
 package xyz.xenondevs.invui.window;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
@@ -36,7 +36,7 @@ public abstract class AbstractSplitWindow extends AbstractDoubleWindow {
      * @param upperInventory The {@link Inventory} of the upper part of the window.
      * @param closeable      Whether the window is closeable.
      */
-    public AbstractSplitWindow(Player player, ComponentWrapper title, AbstractGui upperGui, AbstractGui lowerGui, Inventory upperInventory, boolean closeable) {
+    public AbstractSplitWindow(Player player, Component title, AbstractGui upperGui, AbstractGui lowerGui, Inventory upperInventory, boolean closeable) {
         super(player, title, upperGui.getSize() + lowerGui.getSize(), upperInventory, closeable);
         this.upperGui = upperGui;
         this.lowerGui = lowerGui;

@@ -1,11 +1,11 @@
-package xyz.xenondevs.inventoryaccess.util;
+package xyz.xenondevs.invui.util;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
 
-public class AdventureComponentUtils {
+public class ComponentUtils {
     
     private static final Style FORMATTING_TEMPLATE = Style.style()
         .color(NamedTextColor.WHITE)
