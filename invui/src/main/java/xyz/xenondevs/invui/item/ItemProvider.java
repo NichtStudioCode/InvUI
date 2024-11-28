@@ -19,7 +19,7 @@ public interface ItemProvider extends Supplier<ItemStack>, Cloneable {
      * @param lang The language to translate the item in.
      * @return The {@link ItemStack}
      */
-    ItemStack get(@Nullable String lang);
+    ItemStack get(String lang);
     
     /**
      * Gets the {@link ItemStack} without requesting a specific language.
@@ -27,7 +27,7 @@ public interface ItemProvider extends Supplier<ItemStack>, Cloneable {
      * @return The {@link ItemStack}
      */
     default ItemStack get() {
-        return get(null);
+        return get("en_us");
     }
     
 }
