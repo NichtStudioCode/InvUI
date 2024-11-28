@@ -1,7 +1,6 @@
 package xyz.xenondevs.invui.gui;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.structure.Structure;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.inventory.VirtualInventory;
@@ -21,7 +20,7 @@ import java.util.function.BiConsumer;
  */
 final class PagedInventoriesGuiImpl extends AbstractPagedGui<Inventory> {
     
-    private final @NotNull BiConsumer<@NotNull Integer, @NotNull Integer> resizeHandler = (from, to) -> bake();
+    private final BiConsumer<Integer, Integer> resizeHandler = (from, to) -> bake();
     
     /**
      * Creates a new {@link PagedInventoriesGuiImpl}.
@@ -31,7 +30,7 @@ final class PagedInventoriesGuiImpl extends AbstractPagedGui<Inventory> {
      * @param inventories      The {@link Inventory Inventories} to use as pages.
      * @param contentListSlots The slots where content should be displayed.
      */
-    public PagedInventoriesGuiImpl(int width, int height, @Nullable List<@NotNull Inventory> inventories, int... contentListSlots) {
+    public PagedInventoriesGuiImpl(int width, int height, @Nullable List<Inventory> inventories, int... contentListSlots) {
         super(width, height, false, contentListSlots);
         setContent(inventories);
     }
@@ -42,7 +41,7 @@ final class PagedInventoriesGuiImpl extends AbstractPagedGui<Inventory> {
      * @param inventories The {@link Inventory Inventories} to use as pages.
      * @param structure   The {@link Structure} to use.
      */
-    public PagedInventoriesGuiImpl(@Nullable List<@NotNull Inventory> inventories, @NotNull Structure structure) {
+    public PagedInventoriesGuiImpl(@Nullable List<Inventory> inventories, Structure structure) {
         super(structure.getWidth(), structure.getHeight(), false, structure);
         setContent(inventories);
     }
@@ -101,7 +100,7 @@ final class PagedInventoriesGuiImpl extends AbstractPagedGui<Inventory> {
     public static final class Builder extends AbstractBuilder<Inventory> {
         
         @Override
-        public @NotNull PagedGui<Inventory> build() {
+        public PagedGui<Inventory> build() {
             if (structure == null)
                 throw new IllegalStateException("Structure is not defined.");
             

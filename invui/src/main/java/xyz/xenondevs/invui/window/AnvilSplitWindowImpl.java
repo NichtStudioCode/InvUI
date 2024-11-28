@@ -2,8 +2,7 @@ package xyz.xenondevs.invui.window;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.InventoryAccess;
 import xyz.xenondevs.inventoryaccess.abstraction.inventory.AnvilInventory;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
@@ -24,11 +23,11 @@ final class AnvilSplitWindowImpl extends AbstractSplitWindow implements AnvilWin
     private final AnvilInventory anvilInventory;
     
     public AnvilSplitWindowImpl(
-        @NotNull Player player,
+        Player player,
         @Nullable ComponentWrapper title,
-        @NotNull AbstractGui upperGui,
-        @NotNull AbstractGui lowerGui,
-        @Nullable List<@NotNull Consumer<@NotNull String>> renameHandlers,
+        AbstractGui upperGui,
+        AbstractGui lowerGui,
+        @Nullable List<Consumer<String>> renameHandlers,
         boolean closeable
     ) {
         super(player, title, upperGui, lowerGui, null, closeable);
@@ -43,7 +42,7 @@ final class AnvilSplitWindowImpl extends AbstractSplitWindow implements AnvilWin
     }
     
     @Override
-    protected void openInventory(@NotNull Player viewer) {
+    protected void openInventory(Player viewer) {
         anvilInventory.open();
     }
     
@@ -57,16 +56,16 @@ final class AnvilSplitWindowImpl extends AbstractSplitWindow implements AnvilWin
         implements AnvilWindow.Builder.Split
     {
         
-        private List<Consumer<String>> renameHandlers;
+        private @Nullable List<Consumer<String>> renameHandlers;
         
         @Override
-        public @NotNull BuilderImpl setRenameHandlers(@NotNull List<@NotNull Consumer<String>> renameHandlers) {
+        public BuilderImpl setRenameHandlers(List<Consumer<String>> renameHandlers) {
             this.renameHandlers = renameHandlers;
             return this;
         }
         
         @Override
-        public @NotNull BuilderImpl addRenameHandler(@NotNull Consumer<String> renameHandler) {
+        public BuilderImpl addRenameHandler(Consumer<String> renameHandler) {
             if (renameHandlers == null)
                 renameHandlers = new ArrayList<>();
             
@@ -75,7 +74,7 @@ final class AnvilSplitWindowImpl extends AbstractSplitWindow implements AnvilWin
         }
         
         @Override
-        public @NotNull AnvilWindow build(Player viewer) {
+        public AnvilWindow build(Player viewer) {
             if (viewer == null)
                 throw new IllegalStateException("Viewer is not defined.");
             if (upperGuiSupplier == null)

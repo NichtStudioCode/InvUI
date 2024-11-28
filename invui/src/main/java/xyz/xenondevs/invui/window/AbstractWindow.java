@@ -15,8 +15,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.InventoryAccess;
 import xyz.xenondevs.inventoryaccess.component.BungeeComponentWrapper;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
@@ -53,10 +52,10 @@ public abstract class AbstractWindow implements Window, GuiParent {
     
     private final Player viewer;
     private final UUID viewerUUID;
-    private final SlotElement[] elementsDisplayed;
-    private List<Runnable> openHandlers;
-    private List<Runnable> closeHandlers;
-    private List<Consumer<InventoryClickEvent>> outsideClickHandlers;
+    private final @Nullable SlotElement[] elementsDisplayed;
+    private @Nullable List<Runnable> openHandlers;
+    private @Nullable List<Runnable> closeHandlers;
+    private @Nullable List<Consumer<InventoryClickEvent>> outsideClickHandlers;
     private ComponentWrapper title;
     private boolean closeable;
     private boolean currentlyOpen;
@@ -86,7 +85,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
      * @param element The {@link SlotElement} at the index.
      * @param setItem Whether the {@link SlotElement} was newly set.
      */
-    protected void redrawItem(int index, SlotElement element, boolean setItem) {
+    protected void redrawItem(int index, @Nullable SlotElement element, boolean setItem) {
         // put ItemStack in inventory
         ItemStack itemStack;
         if (element == null || (element instanceof SlotElement.InventorySlotElement && element.getItemStack(getLang()) == null)) {
@@ -254,12 +253,12 @@ public abstract class AbstractWindow implements Window, GuiParent {
     
     protected Map<Integer, SlotElement> getItemSlotElements(Item item) {
         return ArrayUtils.findAllOccurrences(elementsDisplayed, element -> element instanceof SlotElement.ItemSlotElement
-            && ((SlotElement.ItemSlotElement) element).getItem() == item);
+                                                                           && ((SlotElement.ItemSlotElement) element).getItem() == item);
     }
     
     protected Map<Integer, SlotElement> getInvSlotElements(Inventory inventory) {
         return ArrayUtils.findAllOccurrences(elementsDisplayed, element -> element instanceof SlotElement.InventorySlotElement
-            && ((SlotElement.InventorySlotElement) element).getInventory() == inventory);
+                                                                           && ((SlotElement.InventorySlotElement) element).getInventory() == inventory);
     }
     
     @Override
@@ -282,7 +281,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
         openInventory(viewer);
     }
     
-    protected void openInventory(@NotNull Player viewer) {
+    protected void openInventory(Player viewer) {
         InventoryAccess.getInventoryUtils().openCustomInventory(
             viewer,
             getInventories()[0],
@@ -353,7 +352,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
     }
     
     @Override
-    public void changeTitle(@NotNull ComponentWrapper title) {
+    public void changeTitle(ComponentWrapper title) {
         this.title = title;
         Player currentViewer = getCurrentViewer();
         if (currentViewer != null) {
@@ -365,22 +364,22 @@ public abstract class AbstractWindow implements Window, GuiParent {
     }
     
     @Override
-    public void changeTitle(@NotNull BaseComponent[] title) {
+    public void changeTitle(BaseComponent[] title) {
         changeTitle(new BungeeComponentWrapper(title));
     }
     
     @Override
-    public void changeTitle(@NotNull String title) {
+    public void changeTitle(String title) {
         changeTitle(TextComponent.fromLegacyText(title));
     }
     
     @Override
-    public void setOpenHandlers(@Nullable List<@NotNull Runnable> openHandlers) {
+    public void setOpenHandlers(@Nullable List<Runnable> openHandlers) {
         this.openHandlers = openHandlers;
     }
     
     @Override
-    public void addOpenHandler(@NotNull Runnable openHandler) {
+    public void addOpenHandler(Runnable openHandler) {
         if (openHandlers == null)
             openHandlers = new ArrayList<>();
         
@@ -388,12 +387,12 @@ public abstract class AbstractWindow implements Window, GuiParent {
     }
     
     @Override
-    public void setCloseHandlers(@Nullable List<@NotNull Runnable> closeHandlers) {
+    public void setCloseHandlers(@Nullable List<Runnable> closeHandlers) {
         this.closeHandlers = closeHandlers;
     }
     
     @Override
-    public void addCloseHandler(@NotNull Runnable closeHandler) {
+    public void addCloseHandler(Runnable closeHandler) {
         if (closeHandlers == null)
             closeHandlers = new ArrayList<>();
         
@@ -401,18 +400,18 @@ public abstract class AbstractWindow implements Window, GuiParent {
     }
     
     @Override
-    public void removeCloseHandler(@NotNull Runnable closeHandler) {
+    public void removeCloseHandler(Runnable closeHandler) {
         if (closeHandlers != null)
             closeHandlers.remove(closeHandler);
     }
     
     @Override
-    public void setOutsideClickHandlers(@Nullable List<@NotNull Consumer<@NotNull InventoryClickEvent>> outsideClickHandlers) {
+    public void setOutsideClickHandlers(@Nullable List<Consumer<InventoryClickEvent>> outsideClickHandlers) {
         this.outsideClickHandlers = outsideClickHandlers;
     }
     
     @Override
-    public void addOutsideClickHandler(@NotNull Consumer<@NotNull InventoryClickEvent> outsideClickHandler) {
+    public void addOutsideClickHandler(Consumer<InventoryClickEvent> outsideClickHandler) {
         if (this.outsideClickHandlers == null)
             this.outsideClickHandlers = new ArrayList<>();
         
@@ -420,7 +419,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
     }
     
     @Override
-    public void removeOutsideClickHandler(@NotNull Consumer<@NotNull InventoryClickEvent> outsideClickHandler) {
+    public void removeOutsideClickHandler(Consumer<InventoryClickEvent> outsideClickHandler) {
         if (this.outsideClickHandlers != null)
             this.outsideClickHandlers.remove(outsideClickHandler);
     }
@@ -432,16 +431,16 @@ public abstract class AbstractWindow implements Window, GuiParent {
     }
     
     @Override
-    public @NotNull Player getViewer() {
+    public Player getViewer() {
         return viewer;
     }
     
-    public @NotNull String getLang() {
+    public String getLang() {
         return Languages.getInstance().getLanguage(getViewer());
     }
     
     @Override
-    public @NotNull UUID getViewerUUID() {
+    public UUID getViewerUUID() {
         return viewerUUID;
     }
     
@@ -474,7 +473,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
      * @param index The index of the slot.
      * @return The {@link SlotElement} at the given index.
      */
-    protected abstract SlotElement getSlotElement(int index);
+    protected abstract @Nullable SlotElement getSlotElement(int index);
     
     /**
      * Gets the {@link AbstractGui} at the given index.
@@ -557,52 +556,52 @@ public abstract class AbstractWindow implements Window, GuiParent {
     @SuppressWarnings("unchecked")
     public static abstract class AbstractBuilder<W extends Window, S extends Window.Builder<W, S>> implements Window.Builder<W, S> {
         
-        protected Player viewer;
-        protected ComponentWrapper title;
+        protected @Nullable Player viewer;
+        protected @Nullable ComponentWrapper title;
         protected boolean closeable = true;
-        protected List<Runnable> openHandlers;
-        protected List<Runnable> closeHandlers;
-        protected List<Consumer<InventoryClickEvent>> outsideClickHandlers;
-        protected List<Consumer<W>> modifiers;
+        protected @Nullable List<Runnable> openHandlers;
+        protected @Nullable List<Runnable> closeHandlers;
+        protected @Nullable List<Consumer<InventoryClickEvent>> outsideClickHandlers;
+        protected @Nullable List<Consumer<W>> modifiers;
         
         @Override
-        public @NotNull S setViewer(@NotNull Player viewer) {
+        public S setViewer(Player viewer) {
             this.viewer = viewer;
             return (S) this;
         }
         
         @Override
-        public @NotNull S setTitle(@NotNull ComponentWrapper title) {
+        public S setTitle(ComponentWrapper title) {
             this.title = title;
             return (S) this;
         }
         
         @Override
-        public @NotNull S setTitle(@NotNull BaseComponent @NotNull [] title) {
+        public S setTitle(BaseComponent[] title) {
             this.title = new BungeeComponentWrapper(title);
             return (S) this;
         }
         
         @Override
-        public @NotNull S setTitle(@NotNull String title) {
+        public S setTitle(String title) {
             this.title = new BungeeComponentWrapper(TextComponent.fromLegacyText(title));
             return (S) this;
         }
         
         @Override
-        public @NotNull S setCloseable(boolean closeable) {
+        public S setCloseable(boolean closeable) {
             this.closeable = closeable;
             return (S) this;
         }
         
         @Override
-        public @NotNull S setOpenHandlers(@Nullable List<@NotNull Runnable> openHandlers) {
+        public S setOpenHandlers(@Nullable List<Runnable> openHandlers) {
             this.openHandlers = openHandlers;
             return (S) this;
         }
         
         @Override
-        public @NotNull S addOpenHandler(@NotNull Runnable openHandler) {
+        public S addOpenHandler(Runnable openHandler) {
             if (openHandlers == null)
                 openHandlers = new ArrayList<>();
             
@@ -611,13 +610,13 @@ public abstract class AbstractWindow implements Window, GuiParent {
         }
         
         @Override
-        public @NotNull S setCloseHandlers(@Nullable List<@NotNull Runnable> closeHandlers) {
+        public S setCloseHandlers(@Nullable List<Runnable> closeHandlers) {
             this.closeHandlers = closeHandlers;
             return (S) this;
         }
         
         @Override
-        public @NotNull S addCloseHandler(@NotNull Runnable closeHandler) {
+        public S addCloseHandler(Runnable closeHandler) {
             if (closeHandlers == null)
                 closeHandlers = new ArrayList<>();
             
@@ -626,13 +625,13 @@ public abstract class AbstractWindow implements Window, GuiParent {
         }
         
         @Override
-        public @NotNull S setOutsideClickHandlers(@NotNull List<@NotNull Consumer<@NotNull InventoryClickEvent>> outsideClickHandlers) {
+        public S setOutsideClickHandlers(List<Consumer<InventoryClickEvent>> outsideClickHandlers) {
             this.outsideClickHandlers = outsideClickHandlers;
             return (S) this;
         }
         
         @Override
-        public @NotNull S addOutsideClickHandler(@NotNull Consumer<@NotNull InventoryClickEvent> outsideClickHandler) {
+        public S addOutsideClickHandler(Consumer<InventoryClickEvent> outsideClickHandler) {
             if (outsideClickHandlers == null)
                 outsideClickHandlers = new ArrayList<>();
             
@@ -641,13 +640,13 @@ public abstract class AbstractWindow implements Window, GuiParent {
         }
         
         @Override
-        public @NotNull S setModifiers(@Nullable List<@NotNull Consumer<@NotNull W>> modifiers) {
+        public S setModifiers(@Nullable List<Consumer<W>> modifiers) {
             this.modifiers = modifiers;
             return (S) this;
         }
         
         @Override
-        public @NotNull S addModifier(@NotNull Consumer<@NotNull W> modifier) {
+        public S addModifier(Consumer<W> modifier) {
             if (modifiers == null)
                 modifiers = new ArrayList<>();
             
@@ -670,7 +669,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
         }
         
         @Override
-        public @NotNull W build() {
+        public W build() {
             return build(viewer);
         }
         
@@ -681,7 +680,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
         
         @SuppressWarnings("unchecked")
         @Override
-        public @NotNull S clone() {
+        public S clone() {
             try {
                 var clone = (AbstractBuilder<W, S>) super.clone();
                 if (title != null)

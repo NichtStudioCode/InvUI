@@ -1,7 +1,5 @@
 package xyz.xenondevs.invui.util;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -10,11 +8,11 @@ import java.io.InputStream;
 
 public class ColorPalette {
     
-    private static final byte @NotNull[] colorCache;
+    private static final byte[] colorCache;
     
     static {
         ByteArrayOutputStream out = new ByteArrayOutputStream(256 * 256 * 256);
-        try(InputStream in = ColorPalette.class.getResourceAsStream("/colors.bin")) {
+        try (InputStream in = ColorPalette.class.getResourceAsStream("/colors.bin")) {
             assert in != null;
             in.transferTo(out);
         } catch (IOException e) {
@@ -32,11 +30,11 @@ public class ColorPalette {
         return colorCache[rgba & 0xFFFFFF];
     }
     
-    public static byte getColor(@NotNull Color color) {
+    public static byte getColor(Color color) {
         return getColor(color.getRGB());
     }
     
-    public static byte[] convertImage(@NotNull BufferedImage image) {
+    public static byte[] convertImage(BufferedImage image) {
         byte[] colors = new byte[image.getWidth() * image.getHeight()];
         
         for (int x = 0; x < image.getWidth(); x++) {

@@ -7,8 +7,7 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.animation.Animation;
 import xyz.xenondevs.invui.gui.structure.Marker;
@@ -47,14 +46,14 @@ public abstract class AbstractGui implements Gui, GuiParent {
     private final int width;
     private final int height;
     private final int size;
-    private final SlotElement[] slotElements;
+    private final @Nullable SlotElement[] slotElements;
     private final Set<GuiParent> parents = new HashSet<>();
     
     private boolean frozen;
     private boolean ignoreObscuredInventorySlots = true;
-    private ItemProvider background;
-    private Animation animation;
-    private SlotElement[] animationElements;
+    private @Nullable ItemProvider background;
+    private @Nullable Animation animation;
+    private @Nullable SlotElement @Nullable [] animationElements;
     
     /**
      * Creates a new {@link AbstractGui} with the specified width and height.
@@ -161,12 +160,12 @@ public abstract class AbstractGui implements Gui, GuiParent {
         }
     }
     
-    private boolean didClickBackgroundItem(Player player, SlotElement.InventorySlotElement element, Inventory inventory, int slot, ItemStack clicked) {
+    private boolean didClickBackgroundItem(Player player, SlotElement.InventorySlotElement element, Inventory inventory, int slot, @Nullable ItemStack clicked) {
         String lang = player.getLocale();
         return !inventory.hasItem(slot) && (isBuilderSimilar(background, lang, clicked) || isBuilderSimilar(element.getBackground(), lang, clicked));
     }
     
-    private boolean isBuilderSimilar(ItemProvider builder, String lang, ItemStack expected) {
+    private boolean isBuilderSimilar(@Nullable ItemProvider builder, String lang, @Nullable ItemStack expected) {
         return builder != null && builder.get(lang).isSimilar(expected);
     }
     
@@ -181,9 +180,10 @@ public abstract class AbstractGui implements Gui, GuiParent {
      * @param cursor    The {@link ItemStack} that is on the cursor
      */
     @SuppressWarnings("deprecation")
-    protected void handleInvLeftClick(InventoryClickEvent event, Inventory inventory, int slot, Player player, ItemStack clicked, ItemStack cursor) {
+    protected void handleInvLeftClick(InventoryClickEvent event, Inventory inventory, int slot, Player player, @Nullable ItemStack clicked, @Nullable ItemStack cursor) {
         // nothing happens if both cursor and clicked stack are empty
-        if (clicked == null && cursor == null) return;
+        if (clicked == null && cursor == null)
+            return;
         
         UpdateReason updateReason = new PlayerUpdateReason(player, event);
         
@@ -218,9 +218,10 @@ public abstract class AbstractGui implements Gui, GuiParent {
      * @param cursor    The {@link ItemStack} that is on the cursor
      */
     @SuppressWarnings("deprecation")
-    protected void handleInvRightClick(InventoryClickEvent event, Inventory inventory, int slot, Player player, ItemStack clicked, ItemStack cursor) {
+    protected void handleInvRightClick(InventoryClickEvent event, Inventory inventory, int slot, Player player, @Nullable ItemStack clicked, @Nullable ItemStack cursor) {
         // nothing happens if both cursor and clicked stack are empty
-        if (clicked == null && cursor == null) return;
+        if (clicked == null && cursor == null)
+            return;
         
         UpdateReason updateReason = new PlayerUpdateReason(player, event);
         
@@ -259,8 +260,9 @@ public abstract class AbstractGui implements Gui, GuiParent {
      * @param player    The {@link Player} that clicked
      * @param clicked   The {@link ItemStack} that was clicked
      */
-    protected void handleInvItemShift(InventoryClickEvent event, Inventory inventory, int slot, Player player, ItemStack clicked) {
-        if (clicked == null) return;
+    protected void handleInvItemShift(InventoryClickEvent event, Inventory inventory, int slot, Player player, @Nullable ItemStack clicked) {
+        if (clicked == null)
+            return;
         
         ItemStack previousStack = clicked.clone();
         
@@ -306,7 +308,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
      * @param clicked   The {@link ItemStack} that was clicked
      */
     // TODO: add support for merged windows
-    protected void handleInvNumberKey(InventoryClickEvent event, Inventory inventory, int slot, Player player, ItemStack clicked) {
+    protected void handleInvNumberKey(InventoryClickEvent event, Inventory inventory, int slot, Player player, @Nullable ItemStack clicked) {
         Window window = WindowManager.getInstance().getOpenWindow(player);
         if (window instanceof AbstractSingleWindow) {
             org.bukkit.inventory.Inventory playerInventory = player.getInventory();
@@ -330,7 +332,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
      * @param clicked   The {@link ItemStack} that was clicked
      */
     // TODO: add support for merged windows
-    protected void handleInvOffHandKey(InventoryClickEvent event, Inventory inventory, int slot, Player player, ItemStack clicked) {
+    protected void handleInvOffHandKey(InventoryClickEvent event, Inventory inventory, int slot, Player player, @Nullable ItemStack clicked) {
         Window window = WindowManager.getInstance().getOpenWindow(player);
         if (window instanceof AbstractSingleWindow) {
             PlayerInventory playerInventory = player.getInventory();
@@ -353,8 +355,9 @@ public abstract class AbstractGui implements Gui, GuiParent {
      * @param player    The {@link Player} that clicked
      * @param clicked   The {@link ItemStack} that was clicked
      */
-    protected void handleInvDrop(boolean ctrl, InventoryClickEvent event, Inventory inventory, int slot, Player player, ItemStack clicked) {
-        if (clicked == null) return;
+    protected void handleInvDrop(boolean ctrl, InventoryClickEvent event, Inventory inventory, int slot, Player player, @Nullable ItemStack clicked) {
+        if (clicked == null)
+            return;
         
         UpdateReason updateReason = new PlayerUpdateReason(player, event);
         
@@ -376,7 +379,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
      * @param player The {@link Player} that clicked
      * @param cursor The {@link ItemStack} that is on the cursor
      */
-    protected void handleInvDoubleClick(InventoryClickEvent event, Player player, ItemStack cursor) {
+    protected void handleInvDoubleClick(InventoryClickEvent event, Player player, @Nullable ItemStack cursor) {
         if (cursor == null)
             return;
         
@@ -445,6 +448,8 @@ public abstract class AbstractGui implements Gui, GuiParent {
         
         Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
+        if (clicked == null)
+            return;
         
         UpdateReason updateReason = new PlayerUpdateReason(player, event);
         
@@ -550,7 +555,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
      *
      * @param parent The {@link GuiParent} to add
      */
-    public void addParent(@NotNull GuiParent parent) {
+    public void addParent(GuiParent parent) {
         parents.add(parent);
     }
     
@@ -559,7 +564,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
      *
      * @param parent The {@link GuiParent} to remove
      */
-    public void removeParent(@NotNull GuiParent parent) {
+    public void removeParent(GuiParent parent) {
         parents.remove(parent);
     }
     
@@ -573,7 +578,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
     }
     
     @Override
-    public @NotNull List<@NotNull Window> findAllWindows() {
+    public List<Window> findAllWindows() {
         List<Window> windows = new ArrayList<>();
         List<GuiParent> unexploredParents = new ArrayList<>(this.parents);
         
@@ -590,7 +595,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
     }
     
     @Override
-    public @NotNull Set<@NotNull Player> findAllCurrentViewers() {
+    public Set<Player> findAllCurrentViewers() {
         return findAllWindows().stream()
             .map(Window::getCurrentViewer)
             .filter(Objects::nonNull)
@@ -603,8 +608,9 @@ public abstract class AbstractGui implements Gui, GuiParent {
     }
     
     @Override
-    public void playAnimation(@NotNull Animation animation, @Nullable Predicate<@NotNull SlotElement> filter) {
-        if (animation != null) cancelAnimation();
+    public void playAnimation(Animation animation, @Nullable Predicate<SlotElement> filter) {
+        if (this.animation != null)
+            cancelAnimation();
         
         this.animation = animation;
         this.animationElements = slotElements.clone();
@@ -658,7 +664,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
     
     @SuppressWarnings("unchecked")
     @Override
-    public void setSlotElement(int index, SlotElement slotElement) {
+    public void setSlotElement(int index, @Nullable SlotElement slotElement) {
         SlotElement oldElement = slotElements[index];
         
         // set new SlotElement on index
@@ -696,7 +702,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
     }
     
     @Override
-    public void addSlotElements(@NotNull SlotElement... slotElements) {
+    public void addSlotElements(SlotElement... slotElements) {
         for (SlotElement element : slotElements) {
             int emptyIndex = ArrayUtils.findFirstEmptyIndex(this.slotElements);
             if (emptyIndex == -1) break;
@@ -716,7 +722,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
     
     @Override
     @Nullable
-    public SlotElement @NotNull [] getSlotElements() {
+    public SlotElement[] getSlotElements() {
         return slotElements.clone();
     }
     
@@ -727,7 +733,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
     }
     
     @Override
-    public void addItems(@NotNull Item... items) {
+    public void addItems(Item... items) {
         for (Item item : items) {
             int emptyIndex = ArrayUtils.findFirstEmptyIndex(slotElements);
             if (emptyIndex == -1) break;
@@ -756,7 +762,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
     }
     
     @Override
-    public void setBackground(ItemProvider itemProvider) {
+    public void setBackground(@Nullable ItemProvider itemProvider) {
         this.background = itemProvider;
     }
     
@@ -766,7 +772,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
     }
     
     @Override
-    public void applyStructure(@NotNull Structure structure) {
+    public void applyStructure(Structure structure) {
         structure.getIngredientList().insertIntoGui(this);
     }
     
@@ -797,7 +803,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
     
     // region coordinate-based methods
     @Override
-    public void setSlotElement(int x, int y, SlotElement slotElement) {
+    public void setSlotElement(int x, int y, @Nullable SlotElement slotElement) {
         setSlotElement(convToIndex(x, y), slotElement);
     }
     
@@ -841,7 +847,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
         return SlotUtils.convertToIndex(x, y, width);
     }
     
-    private void fill(@NotNull Set<Integer> slots, @Nullable Item item, boolean replaceExisting) {
+    private void fill(Set<Integer> slots, @Nullable Item item, boolean replaceExisting) {
         for (int slot : slots) {
             if (!replaceExisting && hasSlotElement(slot)) continue;
             setItem(slot, item);
@@ -884,7 +890,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
     }
     
     @Override
-    public void fillRectangle(int x, int y, @NotNull Gui gui, boolean replaceExisting) {
+    public void fillRectangle(int x, int y, Gui gui, boolean replaceExisting) {
         int slotIndex = 0;
         for (int slot : SlotUtils.getSlotsRect(x, y, gui.getWidth(), gui.getHeight(), this.width)) {
             if (hasSlotElement(slot) && !replaceExisting) continue;
@@ -894,12 +900,12 @@ public abstract class AbstractGui implements Gui, GuiParent {
     }
     
     @Override
-    public void fillRectangle(int x, int y, int width, @NotNull Inventory inventory, boolean replaceExisting) {
+    public void fillRectangle(int x, int y, int width, Inventory inventory, boolean replaceExisting) {
         fillRectangle(x, y, width, inventory, null, replaceExisting);
     }
     
     @Override
-    public void fillRectangle(int x, int y, int width, @NotNull Inventory inventory, @Nullable ItemProvider background, boolean replaceExisting) {
+    public void fillRectangle(int x, int y, int width, Inventory inventory, @Nullable ItemProvider background, boolean replaceExisting) {
         int height = (int) Math.ceil((double) inventory.getSize() / (double) width);
         
         int slotIndex = 0;
@@ -928,15 +934,15 @@ public abstract class AbstractGui implements Gui, GuiParent {
         /**
          * The structure of the {@link AbstractGui} being built.
          */
-        protected Structure structure;
+        protected @Nullable Structure structure;
         /**
          * The background {@link ItemProvider} of the {@link AbstractGui} being built.
          */
-        protected ItemProvider background;
+        protected @Nullable ItemProvider background;
         /**
          * A list of {@link Consumer Consumers} that will be run after the {@link AbstractGui} has been built.
          */
-        protected List<Consumer<G>> modifiers;
+        protected @Nullable List<Consumer<G>> modifiers;
         /**
          * The {@link AbstractGui#frozen} state of the {@link AbstractGui} being built.
          */
@@ -947,103 +953,130 @@ public abstract class AbstractGui implements Gui, GuiParent {
         protected boolean ignoreObscuredInventorySlots = true;
         
         @Override
-        public @NotNull S setStructure(int width, int height, @NotNull String structureData) {
+        public S setStructure(int width, int height, String structureData) {
             structure = new Structure(width, height, structureData);
             return (S) this;
         }
         
         @Override
-        public @NotNull S setStructure(@NotNull String... structureData) {
+        public S setStructure(String... structureData) {
             structure = new Structure(structureData);
             return (S) this;
         }
         
         @Override
-        public @NotNull S setStructure(@NotNull Structure structure) {
+        public S setStructure(Structure structure) {
             this.structure = structure;
             return (S) this;
         }
         
         @Override
-        public @NotNull S addIngredient(char key, @NotNull ItemStack itemStack) {
+        public S addIngredient(char key, ItemStack itemStack) {
+            if (structure == null)
+                throw new IllegalStateException("Structure has not been set yet");
+            
             structure.addIngredient(key, itemStack);
             return (S) this;
         }
         
         @Override
-        public @NotNull S addIngredient(char key, @NotNull ItemProvider itemProvider) {
+        public S addIngredient(char key, ItemProvider itemProvider) {
+            if (structure == null)
+                throw new IllegalStateException("Structure has not been set yet");
+            
             structure.addIngredient(key, itemProvider);
             return (S) this;
         }
         
         @Override
-        public @NotNull S addIngredient(char key, @NotNull Item item) {
+        public S addIngredient(char key, Item item) {
+            if (structure == null)
+                throw new IllegalStateException("Structure has not been set yet");
+            
             structure.addIngredient(key, item);
             return (S) this;
         }
         
         @Override
-        public @NotNull S addIngredient(char key, @NotNull Inventory inventory) {
+        public S addIngredient(char key, Inventory inventory) {
+            if (structure == null)
+                throw new IllegalStateException("Structure has not been set yet");
+            
             structure.addIngredient(key, inventory);
             return (S) this;
         }
         
         @Override
-        public @NotNull S addIngredient(char key, @NotNull Inventory inventory, @Nullable ItemProvider background) {
+        public S addIngredient(char key, Inventory inventory, @Nullable ItemProvider background) {
+            if (structure == null)
+                throw new IllegalStateException("Structure has not been set yet");
+            
             structure.addIngredient(key, inventory, background);
             return (S) this;
         }
         
         @Override
-        public @NotNull S addIngredient(char key, @NotNull SlotElement element) {
+        public S addIngredient(char key, SlotElement element) {
+            if (structure == null)
+                throw new IllegalStateException("Structure has not been set yet");
+            
             structure.addIngredient(key, element);
             return (S) this;
         }
         
         @Override
-        public @NotNull S addIngredient(char key, @NotNull Marker marker) {
+        public S addIngredient(char key, Marker marker) {
+            if (structure == null)
+                throw new IllegalStateException("Structure has not been set yet");
+            
             structure.addIngredient(key, marker);
             return (S) this;
         }
         
         @Override
-        public @NotNull S addIngredient(char key, @NotNull Supplier<? extends Item> itemSupplier) {
+        public S addIngredient(char key, Supplier<? extends Item> itemSupplier) {
+            if (structure == null)
+                throw new IllegalStateException("Structure has not been set yet");
+            
             structure.addIngredient(key, itemSupplier);
             return (S) this;
         }
         
         @Override
-        public @NotNull S addIngredientElementSupplier(char key, @NotNull Supplier<? extends SlotElement> elementSupplier) {
+        public S addIngredientElementSupplier(char key, Supplier<? extends SlotElement> elementSupplier) {
+            if (structure == null)
+                throw new IllegalStateException("Structure has not been set yet");
+            
             structure.addIngredientElementSupplier(key, elementSupplier);
             return (S) this;
         }
         
         @Override
-        public @NotNull S setBackground(@NotNull ItemProvider itemProvider) {
+        public S setBackground(ItemProvider itemProvider) {
             background = itemProvider;
             return (S) this;
         }
         
         @Override
-        public @NotNull S setBackground(@NotNull ItemStack itemStack) {
+        public S setBackground(ItemStack itemStack) {
             background = new ItemWrapper(itemStack);
             return (S) this;
         }
         
         @Override
-        public @NotNull S setFrozen(boolean frozen) {
+        public S setFrozen(boolean frozen) {
             this.frozen = frozen;
             return (S) this;
         }
         
         @Override
-        public @NotNull S setIgnoreObscuredInventorySlots(boolean ignoreObscuredInventorySlots) {
+        public S setIgnoreObscuredInventorySlots(boolean ignoreObscuredInventorySlots) {
             this.ignoreObscuredInventorySlots = ignoreObscuredInventorySlots;
             return (S) this;
         }
         
         @Override
-        public @NotNull S addModifier(@NotNull Consumer<@NotNull G> modifier) {
+        public S addModifier(Consumer<G> modifier) {
             if (modifiers == null)
                 modifiers = new ArrayList<>();
             
@@ -1052,7 +1085,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
         }
         
         @Override
-        public @NotNull S setModifiers(@NotNull List<@NotNull Consumer<@NotNull G>> modifiers) {
+        public S setModifiers(List<Consumer<G>> modifiers) {
             this.modifiers = modifiers;
             return (S) this;
         }
@@ -1062,7 +1095,7 @@ public abstract class AbstractGui implements Gui, GuiParent {
          *
          * @param gui The {@link AbstractGui} to apply the modifiers to
          */
-        protected void applyModifiers(@NotNull G gui) {
+        protected void applyModifiers(G gui) {
             gui.setFrozen(frozen);
             gui.setIgnoreObscuredInventorySlots(ignoreObscuredInventorySlots);
             if (background != null) gui.setBackground(background);
@@ -1071,10 +1104,11 @@ public abstract class AbstractGui implements Gui, GuiParent {
         
         @SuppressWarnings("unchecked")
         @Override
-        public @NotNull S clone() {
+        public S clone() {
             try {
                 var clone = (AbstractBuilder<G, S>) super.clone();
-                clone.structure = structure.clone();
+                if (structure != null)
+                    clone.structure = structure.clone();
                 if (modifiers != null)
                     clone.modifiers = new ArrayList<>(modifiers);
                 return (S) clone;

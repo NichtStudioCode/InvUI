@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.scheduler.BukkitTask;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
@@ -19,7 +19,7 @@ public class AutoCycleItem extends AbstractItem {
     
     private final ItemProvider[] itemProviders;
     private final int period;
-    private BukkitTask task;
+    private @Nullable BukkitTask task;
     
     private int state;
     
@@ -34,8 +34,10 @@ public class AutoCycleItem extends AbstractItem {
     }
     
     public void cancel() {
-        task.cancel();
-        task = null;
+        if (task != null) {
+            task.cancel();
+            task = null;
+        }
     }
     
     private void cycle() {
@@ -62,7 +64,7 @@ public class AutoCycleItem extends AbstractItem {
     }
     
     @Override
-    public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
+    public void handleClick(ClickType clickType, Player player, InventoryClickEvent event) {
         // empty
     }
     

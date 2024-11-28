@@ -6,8 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
@@ -23,7 +22,7 @@ public class AsyncItem extends AbstractItem {
     
     private volatile ItemProvider itemProvider;
     
-    public AsyncItem(@Nullable ItemProvider itemProvider, @NotNull Supplier<? extends ItemProvider> providerSupplier) {
+    public AsyncItem(@Nullable ItemProvider itemProvider, Supplier<? extends ItemProvider> providerSupplier) {
         this.itemProvider = itemProvider == null ? new ItemWrapper(new ItemStack(Material.AIR)) : itemProvider;
         
         Bukkit.getScheduler().runTaskAsynchronously(InvUI.getInstance().getPlugin(), () -> {
@@ -32,7 +31,7 @@ public class AsyncItem extends AbstractItem {
         });
     }
     
-    public AsyncItem(@NotNull Supplier<? extends ItemProvider> providerSupplier) {
+    public AsyncItem(Supplier<? extends ItemProvider> providerSupplier) {
         this(null, providerSupplier);
     }
     
@@ -42,7 +41,7 @@ public class AsyncItem extends AbstractItem {
     }
     
     @Override
-    public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
+    public void handleClick(ClickType clickType, Player player, InventoryClickEvent event) {
         // empty
     }
     

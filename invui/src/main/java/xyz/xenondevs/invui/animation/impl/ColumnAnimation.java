@@ -10,8 +10,9 @@ public class ColumnAnimation extends AbstractSoundAnimation {
     
     /**
      * Creates a new {@link ColumnAnimation}.
+     *
      * @param tickDelay The delay between each slot being shown.
-     * @param sound Whether a sound should be played when the slot is shown.
+     * @param sound     Whether a sound should be played when the slot is shown.
      */
     public ColumnAnimation(int tickDelay, boolean sound) {
         super(tickDelay, sound);

@@ -1,8 +1,6 @@
 package xyz.xenondevs.invui.gui;
 
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.structure.Structure;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.Item;
@@ -23,7 +21,7 @@ public interface PagedGui<C> extends Gui {
      *
      * @return The new {@link Builder Gui Builder}.
      */
-    static @NotNull Builder<@NotNull Item> items() {
+    static Builder<Item> items() {
         return new PagedItemsGuiImpl.Builder();
     }
     
@@ -33,7 +31,7 @@ public interface PagedGui<C> extends Gui {
      * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
      * @return The created {@link PagedGui}.
      */
-    static @NotNull PagedGui<@NotNull Item> items(@NotNull Consumer<@NotNull Builder<@NotNull Item>> consumer) {
+    static PagedGui<Item> items(Consumer<Builder<Item>> consumer) {
         Builder<Item> builder = items();
         consumer.accept(builder);
         return builder.build();
@@ -48,7 +46,7 @@ public interface PagedGui<C> extends Gui {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link PagedGui}.
      */
-    static @NotNull PagedGui<@NotNull Item> ofItems(int width, int height, @NotNull List<@NotNull Item> items, int... contentListSlots) {
+    static PagedGui<Item> ofItems(int width, int height, List<Item> items, int... contentListSlots) {
         return new PagedItemsGuiImpl(width, height, items, contentListSlots);
     }
     
@@ -59,7 +57,7 @@ public interface PagedGui<C> extends Gui {
      * @param items     The {@link Item Items} to use as in pages.
      * @return The created {@link PagedGui}.
      */
-    static @NotNull PagedGui<@NotNull Item> ofItems(@NotNull Structure structure, @NotNull List<@NotNull Item> items) {
+    static PagedGui<Item> ofItems(Structure structure, List<Item> items) {
         return new PagedItemsGuiImpl(items, structure);
     }
     
@@ -68,7 +66,7 @@ public interface PagedGui<C> extends Gui {
      *
      * @return The new {@link Builder Gui Builder}.
      */
-    static @NotNull Builder<@NotNull Gui> guis() {
+    static Builder<Gui> guis() {
         return new PagedNestedGuiImpl.Builder();
     }
     
@@ -78,7 +76,7 @@ public interface PagedGui<C> extends Gui {
      * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
      * @return The created {@link PagedGui}.
      */
-    static @NotNull PagedGui<@NotNull Gui> guis(@NotNull Consumer<@NotNull Builder<@NotNull Gui>> consumer) {
+    static PagedGui<Gui> guis(Consumer<Builder<Gui>> consumer) {
         Builder<Gui> builder = guis();
         consumer.accept(builder);
         return builder.build();
@@ -93,7 +91,7 @@ public interface PagedGui<C> extends Gui {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link PagedGui}.
      */
-    static @NotNull PagedGui<@NotNull Gui> ofGuis(int width, int height, @NotNull List<@NotNull Gui> guis, int... contentListSlots) {
+    static PagedGui<Gui> ofGuis(int width, int height, List<Gui> guis, int... contentListSlots) {
         return new PagedNestedGuiImpl(width, height, guis, contentListSlots);
     }
     
@@ -104,7 +102,7 @@ public interface PagedGui<C> extends Gui {
      * @param guis      The {@link Gui Guis} to use as pages.
      * @return The created {@link PagedGui}.
      */
-    static @NotNull PagedGui<@NotNull Gui> ofGuis(@NotNull Structure structure, @NotNull List<@NotNull Gui> guis) {
+    static PagedGui<Gui> ofGuis(Structure structure, List<Gui> guis) {
         return new PagedNestedGuiImpl(guis, structure);
     }
     
@@ -113,7 +111,7 @@ public interface PagedGui<C> extends Gui {
      *
      * @return The new {@link Builder Gui Builder}.
      */
-    static @NotNull Builder<@NotNull Inventory> inventories() {
+    static Builder<Inventory> inventories() {
         return new PagedInventoriesGuiImpl.Builder();
     }
     
@@ -123,7 +121,7 @@ public interface PagedGui<C> extends Gui {
      * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
      * @return The created {@link PagedGui}.
      */
-    static @NotNull PagedGui<@NotNull Inventory> inventories(@NotNull Consumer<@NotNull Builder<@NotNull Inventory>> consumer) {
+    static PagedGui<Inventory> inventories(Consumer<Builder<Inventory>> consumer) {
         Builder<Inventory> builder = inventories();
         consumer.accept(builder);
         return builder.build();
@@ -138,7 +136,7 @@ public interface PagedGui<C> extends Gui {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link PagedGui}.
      */
-    static @NotNull PagedGui<@NotNull Inventory> ofInventories(int width, int height, @NotNull List<@NotNull Inventory> inventories, int... contentListSlots) {
+    static PagedGui<Inventory> ofInventories(int width, int height, List<Inventory> inventories, int... contentListSlots) {
         return new PagedInventoriesGuiImpl(width, height, inventories, contentListSlots);
     }
     
@@ -149,7 +147,7 @@ public interface PagedGui<C> extends Gui {
      * @param inventories The {@link Inventory Inventories} to use as pages.
      * @return The created {@link PagedGui}.
      */
-    static @NotNull PagedGui<@NotNull Inventory> ofInventories(@NotNull Structure structure, @NotNull List<@NotNull Inventory> inventories) {
+    static PagedGui<Inventory> ofInventories(Structure structure, List<Inventory> inventories) {
         return new PagedInventoriesGuiImpl(inventories, structure);
     }
     
@@ -217,7 +215,7 @@ public interface PagedGui<C> extends Gui {
      *
      * @param content The content to set.
      */
-    void setContent(@Nullable List<@NotNull C> content);
+    void setContent(@Nullable List<C> content);
     
     /**
      * Bakes and updates the pages of this {@link PagedGui} based on the current content.
@@ -232,28 +230,28 @@ public interface PagedGui<C> extends Gui {
      *
      * @return The registered page change handlers.
      */
-    @Nullable List<@NotNull BiConsumer<Integer, Integer>> getPageChangeHandlers();
+    @Nullable List<BiConsumer<Integer, Integer>> getPageChangeHandlers();
     
     /**
      * Replaces the currently registered page change handlers with the given list.
      *
      * @param handlers The new page change handlers.
      */
-    void setPageChangeHandlers(@Nullable List<@NotNull BiConsumer<Integer, Integer>> handlers);
+    void setPageChangeHandlers(@Nullable List<BiConsumer<Integer, Integer>> handlers);
     
     /**
      * Registers a page change handler.
      *
      * @param handler The handler to register.
      */
-    void addPageChangeHandler(@NotNull BiConsumer<Integer, Integer> handler);
+    void addPageChangeHandler(BiConsumer<Integer, Integer> handler);
     
     /**
      * Unregisters a page change handler.
      *
      * @param handler The handler to unregister.
      */
-    void removePageChangeHandler(@NotNull BiConsumer<Integer, Integer> handler);
+    void removePageChangeHandler(BiConsumer<Integer, Integer> handler);
     
     /**
      * A {@link PagedGui} builder.
@@ -268,8 +266,7 @@ public interface PagedGui<C> extends Gui {
          * @param content The content to set.
          * @return This {@link Builder Gui Builder}.
          */
-        @Contract("_ -> this")
-        @NotNull Builder<C> setContent(@NotNull List<@NotNull C> content);
+        Builder<C> setContent(List<C> content);
         
         /**
          * Adds content to the {@link PagedGui}.
@@ -277,8 +274,7 @@ public interface PagedGui<C> extends Gui {
          * @param content The content to add.
          * @return This {@link Builder Gui Builder}.
          */
-        @Contract("_ -> this")
-        @NotNull Builder<C> addContent(@NotNull C content);
+        Builder<C> addContent(C content);
         
         /**
          * Sets the page change handlers of the {@link PagedGui}.
@@ -286,8 +282,7 @@ public interface PagedGui<C> extends Gui {
          * @param handlers The page change handlers to set.
          * @return This {@link Builder Gui Builder}.
          */
-        @Contract("_ -> this")
-        @NotNull Builder<C> setPageChangeHandlers(@NotNull List<@NotNull BiConsumer<Integer, Integer>> handlers);
+        Builder<C> setPageChangeHandlers(List<BiConsumer<Integer, Integer>> handlers);
         
         /**
          * Adds a page change handler to the {@link PagedGui}.
@@ -295,8 +290,7 @@ public interface PagedGui<C> extends Gui {
          * @param handler The page change handler to add.
          * @return This {@link Builder Gui Builder}.
          */
-        @Contract("_ -> this")
-        @NotNull Builder<C> addPageChangeHandler(@NotNull BiConsumer<Integer, Integer> handler);
+        Builder<C> addPageChangeHandler(BiConsumer<Integer, Integer> handler);
         
     }
     

@@ -1,7 +1,6 @@
 package xyz.xenondevs.invui.gui;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.structure.Structure;
 import xyz.xenondevs.invui.item.Item;
 
@@ -13,7 +12,7 @@ import java.util.List;
  * <p>
  * Use the static factory and builder functions, such as {@link ScrollGui#items()},
  * to get an instance of this class.
- * 
+ *
  * @see ScrollInventoryGuiImpl
  * @see ScrollNestedGuiImpl
  */
@@ -27,7 +26,7 @@ final class ScrollItemsGuiImpl extends AbstractScrollGui<Item> {
      * @param items            The {@link Item Items} to use.
      * @param contentListSlots The slots where content should be displayed.
      */
-    public ScrollItemsGuiImpl(int width, int height, @Nullable List<@NotNull Item> items, int... contentListSlots) {
+    public ScrollItemsGuiImpl(int width, int height, @Nullable List<Item> items, int... contentListSlots) {
         super(width, height, false, contentListSlots);
         setContent(items);
     }
@@ -38,7 +37,7 @@ final class ScrollItemsGuiImpl extends AbstractScrollGui<Item> {
      * @param items     The {@link Item Items} to use.
      * @param structure The {@link Structure} to use.
      */
-    public ScrollItemsGuiImpl(@Nullable List<@NotNull Item> items, @NotNull Structure structure) {
+    public ScrollItemsGuiImpl(@Nullable List<Item> items, Structure structure) {
         super(structure.getWidth(), structure.getHeight(), false, structure);
         setContent(items);
     }
@@ -57,7 +56,7 @@ final class ScrollItemsGuiImpl extends AbstractScrollGui<Item> {
     public static final class Builder extends AbstractBuilder<Item> {
         
         @Override
-        public @NotNull ScrollGui<Item> build() {
+        public ScrollGui<Item> build() {
             if (structure == null)
                 throw new IllegalStateException("Structure is not defined.");
             

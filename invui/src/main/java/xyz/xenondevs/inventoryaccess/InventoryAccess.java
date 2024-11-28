@@ -1,8 +1,7 @@
 package xyz.xenondevs.inventoryaccess;
 
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.abstraction.inventory.AnvilInventory;
 import xyz.xenondevs.inventoryaccess.abstraction.inventory.CartographyInventory;
 import xyz.xenondevs.inventoryaccess.abstraction.util.InventoryUtils;
@@ -69,7 +68,7 @@ public class InventoryAccess {
      *                       types something in the renaming section of the anvil.
      * @return The {@link AnvilInventory}
      */
-    public static AnvilInventory createAnvilInventory(@NotNull Player player, @Nullable ComponentWrapper title, @Nullable List<@NotNull Consumer<String>> renameHandlers) {
+    public static AnvilInventory createAnvilInventory(Player player, @Nullable ComponentWrapper title, @Nullable List<Consumer<String>> renameHandlers) {
         return ReflectionUtils.construct(ANVIL_INVENTORY_CONSTRUCTOR, player, title == null ? BungeeComponentWrapper.EMPTY : title, renameHandlers);
     }
     
@@ -80,7 +79,7 @@ public class InventoryAccess {
      * @param title  The inventory title
      * @return The {@link CartographyInventory}
      */
-    public static CartographyInventory createCartographyInventory(@NotNull Player player, @Nullable ComponentWrapper title) {
+    public static CartographyInventory createCartographyInventory(Player player, @Nullable ComponentWrapper title) {
         return ReflectionUtils.construct(CARTOGRAPHY_INVENTORY_CONSTRUCTOR, player, title == null ? BungeeComponentWrapper.EMPTY : title);
     }
     

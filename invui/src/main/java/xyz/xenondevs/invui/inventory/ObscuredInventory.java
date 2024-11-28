@@ -1,8 +1,7 @@
 package xyz.xenondevs.invui.inventory;
 
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
@@ -16,8 +15,8 @@ import java.util.function.IntPredicate;
  */
 public class ObscuredInventory extends Inventory {
     
-    private final @NotNull Inventory inventory;
-    private final int @NotNull [] slots;
+    private final Inventory inventory;
+    private final int[] slots;
     
     /**
      * Constructs a new {@link ObscuredInventory}.
@@ -25,7 +24,7 @@ public class ObscuredInventory extends Inventory {
      * @param inventory  The {@link Inventory} to delegate to.
      * @param isObscured A {@link IntPredicate} that returns true for slots that should be hidden.
      */
-    public ObscuredInventory(@NotNull Inventory inventory, @NotNull IntPredicate isObscured) {
+    public ObscuredInventory(Inventory inventory, IntPredicate isObscured) {
         this.inventory = inventory;
         
         ArrayList<Integer> slots = new ArrayList<>();
@@ -45,7 +44,7 @@ public class ObscuredInventory extends Inventory {
     }
     
     @Override
-    public int @NotNull [] getMaxStackSizes() {
+    public int[] getMaxStackSizes() {
         int[] maxStackSizes = new int[slots.length];
         for (int i = 0; i < slots.length; i++) {
             maxStackSizes[i] = inventory.getMaxSlotStackSize(slots[i]);
@@ -59,7 +58,7 @@ public class ObscuredInventory extends Inventory {
     }
     
     @Override
-    public @Nullable ItemStack @NotNull [] getItems() {
+    public @Nullable ItemStack[] getItems() {
         ItemStack[] items = new ItemStack[slots.length];
         for (int i = 0; i < slots.length; i++) {
             items[i] = inventory.getItem(slots[i]);
@@ -68,7 +67,7 @@ public class ObscuredInventory extends Inventory {
     }
     
     @Override
-    public @Nullable ItemStack @NotNull [] getUnsafeItems() {
+    public @Nullable ItemStack[] getUnsafeItems() {
         ItemStack[] items = new ItemStack[slots.length];
         for (int i = 0; i < slots.length; i++) {
             items[i] = inventory.getUnsafeItem(slots[i]);
@@ -118,12 +117,12 @@ public class ObscuredInventory extends Inventory {
     }
     
     @Override
-    public void setPostUpdateHandler(@Nullable Consumer<@NotNull ItemPostUpdateEvent> inventoryUpdatedHandler) {
+    public void setPostUpdateHandler(@Nullable Consumer<ItemPostUpdateEvent> inventoryUpdatedHandler) {
         throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
     }
     
     @Override
-    public void setPreUpdateHandler(@Nullable Consumer<@NotNull ItemPreUpdateEvent> preUpdateHandler) {
+    public void setPreUpdateHandler(@Nullable Consumer<ItemPreUpdateEvent> preUpdateHandler) {
         throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
     }
     

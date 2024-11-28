@@ -57,8 +57,8 @@ public class VersionUtils {
             throw new IllegalArgumentException("Version array must have a size of 3");
         
         return version[0] > major
-            || (version[0] == major && version[1] > minor)
-            || (version[0] == major && version[1] == minor && version[2] >= patch);
+               || (version[0] == major && version[1] > minor)
+               || (version[0] == major && version[1] == minor && version[2] >= patch);
     }
     
     /**
@@ -83,8 +83,8 @@ public class VersionUtils {
             throw new IllegalArgumentException("Version array must have a size of 3");
         
         return major > version[0]
-            || (major == version[0] && minor > version[1])
-            || (major == version[0] && minor == version[1] && patch >= version[2]);
+               || (major == version[0] && minor > version[1])
+               || (major == version[0] && minor == version[1] && patch >= version[2]);
     }
     
 }

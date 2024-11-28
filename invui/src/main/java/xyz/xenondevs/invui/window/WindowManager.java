@@ -15,7 +15,7 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
 
 import java.util.HashMap;
@@ -28,7 +28,7 @@ import java.util.Set;
  */
 public class WindowManager implements Listener {
     
-    private static WindowManager instance;
+    private static final WindowManager INSTANCE = new WindowManager();
     
     private final Map<Inventory, AbstractWindow> windowsByInventory = new HashMap<>();
     private final Map<Player, AbstractWindow> windowsByPlayer = new HashMap<>();
@@ -39,12 +39,10 @@ public class WindowManager implements Listener {
     }
     
     /**
-     * Gets the {@link WindowManager} instance or creates a new one if there isn't one.
-     *
-     * @return The {@link WindowManager} instance
+     * Gets the {@link WindowManager} instance.
      */
     public static WindowManager getInstance() {
-        return instance == null ? instance = new WindowManager() : instance;
+        return INSTANCE;
     }
     
     /**

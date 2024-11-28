@@ -5,7 +5,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.InventoryAccess;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.inventoryaccess.util.VersionUtils;
@@ -86,7 +86,7 @@ public abstract class AbstractDoubleWindow extends AbstractWindow {
     }
     
     @Override
-    protected void redrawItem(int index, SlotElement element, boolean setItem) {
+    protected void redrawItem(int index, @Nullable SlotElement element, boolean setItem) {
         super.redrawItem(index, element, setItem);
         if (isOpen() && !VersionUtils.isServerHigherOrEqual(1, 17, 0)) {
             // player inventory is not updated properly in 1.16.5 and below

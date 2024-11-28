@@ -1,6 +1,7 @@
 package xyz.xenondevs.invui.gui;
 
 import org.bukkit.inventory.ItemStack;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
@@ -10,8 +11,10 @@ import java.util.List;
 
 public interface SlotElement {
     
+    @Nullable
     ItemStack getItemStack(String lang);
     
+    @Nullable
     SlotElement getHoldingElement();
     
     /**
@@ -48,7 +51,7 @@ public interface SlotElement {
         
         private final Inventory inventory;
         private final int slot;
-        private final ItemProvider background;
+        private final @Nullable ItemProvider background;
         
         public InventorySlotElement(Inventory inventory, int slot) {
             this.inventory = inventory;
@@ -56,7 +59,7 @@ public interface SlotElement {
             this.background = null;
         }
         
-        public InventorySlotElement(Inventory inventory, int slot, ItemProvider background) {
+        public InventorySlotElement(Inventory inventory, int slot, @Nullable ItemProvider background) {
             this.inventory = inventory;
             this.slot = slot;
             this.background = background;
@@ -70,12 +73,12 @@ public interface SlotElement {
             return slot;
         }
         
-        public ItemProvider getBackground() {
+        public @Nullable ItemProvider getBackground() {
             return background;
         }
         
         @Override
-        public ItemStack getItemStack(String lang) {
+        public @Nullable ItemStack getItemStack(String lang) {
             ItemStack itemStack = inventory.getUnsafeItem(slot);
             if (itemStack == null && background != null) itemStack = background.get(lang);
             return itemStack;
@@ -114,7 +117,7 @@ public interface SlotElement {
         }
         
         @Override
-        public SlotElement getHoldingElement() {
+        public @Nullable SlotElement getHoldingElement() {
             LinkedSlotElement element = this;
             while (true) {
                 SlotElement below = element.getGui().getSlotElement(element.getSlotIndex());
@@ -138,7 +141,7 @@ public interface SlotElement {
         }
         
         @Override
-        public ItemStack getItemStack(String lang) {
+        public @Nullable ItemStack getItemStack(String lang) {
             SlotElement holdingElement = getHoldingElement();
             return holdingElement != null ? holdingElement.getItemStack(lang) : null;
         }

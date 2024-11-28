@@ -13,8 +13,9 @@ public class VerticalSnakeAnimation extends AbstractSoundAnimation {
     
     /**
      * Creates a new {@link VerticalSnakeAnimation}.
+     *
      * @param tickDelay The delay between each slot being shown.
-     * @param sound Whether a sound should be played when the slot is shown.
+     * @param sound     Whether a sound should be played when the slot is shown.
      */
     public VerticalSnakeAnimation(int tickDelay, boolean sound) {
         super(tickDelay, sound);

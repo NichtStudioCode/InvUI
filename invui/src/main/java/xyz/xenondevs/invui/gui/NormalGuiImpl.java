@@ -1,6 +1,5 @@
 package xyz.xenondevs.invui.gui;
 
-import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.invui.gui.structure.Structure;
 
 /**
@@ -26,7 +25,7 @@ final class NormalGuiImpl extends AbstractGui {
      *
      * @param structure The {@link Structure} to use.
      */
-    public NormalGuiImpl(@NotNull Structure structure) {
+    public NormalGuiImpl(Structure structure) {
         super(structure.getWidth(), structure.getHeight());
         applyStructure(structure);
     }
@@ -34,7 +33,7 @@ final class NormalGuiImpl extends AbstractGui {
     public static class Builder extends AbstractBuilder<Gui, Gui.Builder.Normal> implements Gui.Builder.Normal {
         
         @Override
-        public @NotNull Gui build() {
+        public Gui build() {
             if (structure == null)
                 throw new IllegalStateException("Structure is not defined.");
             

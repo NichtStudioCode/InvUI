@@ -1,7 +1,6 @@
 package xyz.xenondevs.invui.gui;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.structure.Structure;
 import xyz.xenondevs.invui.item.Item;
 
@@ -13,7 +12,7 @@ import java.util.List;
  * <p>
  * Use the static factory and builder functions, such as {@link PagedGui#items()},
  * to get an instance of this class.
- * 
+ *
  * @see PagedNestedGuiImpl
  * @see PagedInventoriesGuiImpl
  */
@@ -27,7 +26,7 @@ final class PagedItemsGuiImpl extends AbstractPagedGui<Item> {
      * @param items            The {@link Item Items} to use as pages.
      * @param contentListSlots The slots where content should be displayed.
      */
-    public PagedItemsGuiImpl(int width, int height, @Nullable List<@NotNull Item> items, int... contentListSlots) {
+    public PagedItemsGuiImpl(int width, int height, @Nullable List<Item> items, int... contentListSlots) {
         super(width, height, false, contentListSlots);
         setContent(items);
     }
@@ -38,7 +37,7 @@ final class PagedItemsGuiImpl extends AbstractPagedGui<Item> {
      * @param items     The {@link Item Items} to use as pages.
      * @param structure The {@link Structure} to use.
      */
-    public PagedItemsGuiImpl(@Nullable List<@NotNull Item> items, @NotNull Structure structure) {
+    public PagedItemsGuiImpl(@Nullable List<Item> items, Structure structure) {
         super(structure.getWidth(), structure.getHeight(), false, structure);
         setContent(items);
     }
@@ -70,7 +69,7 @@ final class PagedItemsGuiImpl extends AbstractPagedGui<Item> {
     public static final class Builder extends AbstractBuilder<Item> {
         
         @Override
-        public @NotNull PagedGui<Item> build() {
+        public PagedGui<Item> build() {
             if (structure == null)
                 throw new IllegalStateException("Structure is not defined.");
             

@@ -1,7 +1,6 @@
 package xyz.xenondevs.invui.gui;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.structure.Structure;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.inventory.VirtualInventory;
@@ -15,13 +14,13 @@ import java.util.function.BiConsumer;
  * <p>
  * Use the static factory and builder functions, such as {@link ScrollGui#inventories()},
  * to get an instance of this class.
- * 
+ *
  * @see ScrollItemsGuiImpl
  * @see ScrollNestedGuiImpl
  */
 final class ScrollInventoryGuiImpl extends AbstractScrollGui<Inventory> {
     
-    private final @NotNull BiConsumer<@NotNull Integer, @NotNull Integer> resizeHandler = (from, to) -> bake();
+    private final BiConsumer<Integer, Integer> resizeHandler = (from, to) -> bake();
     
     /**
      * Creates a new {@link ScrollInventoryGuiImpl}.
@@ -31,7 +30,7 @@ final class ScrollInventoryGuiImpl extends AbstractScrollGui<Inventory> {
      * @param inventories      The {@link Inventory VirtualInventories} to use.
      * @param contentListSlots The slots where content should be displayed.
      */
-    public ScrollInventoryGuiImpl(int width, int height, @Nullable List<@NotNull Inventory> inventories, int... contentListSlots) {
+    public ScrollInventoryGuiImpl(int width, int height, @Nullable List<Inventory> inventories, int... contentListSlots) {
         super(width, height, false, contentListSlots);
         setContent(inventories);
     }
@@ -42,7 +41,7 @@ final class ScrollInventoryGuiImpl extends AbstractScrollGui<Inventory> {
      * @param inventories The {@link Inventory VirtualInventories} to use.
      * @param structure   The {@link Structure} to use.
      */
-    public ScrollInventoryGuiImpl(@Nullable List<@NotNull Inventory> inventories, @NotNull Structure structure) {
+    public ScrollInventoryGuiImpl(@Nullable List<Inventory> inventories, Structure structure) {
         super(structure.getWidth(), structure.getHeight(), false, structure);
         setContent(inventories);
     }
@@ -88,7 +87,7 @@ final class ScrollInventoryGuiImpl extends AbstractScrollGui<Inventory> {
     public static final class Builder extends AbstractBuilder<Inventory> {
         
         @Override
-        public @NotNull ScrollGui<Inventory> build() {
+        public ScrollGui<Inventory> build() {
             if (structure == null)
                 throw new IllegalStateException("Structure is not defined.");
             

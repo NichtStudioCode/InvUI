@@ -3,8 +3,7 @@ package xyz.xenondevs.invui.item.impl;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
 
@@ -19,20 +18,20 @@ public class CycleItem extends AbstractItem {
     
     private int state;
     
-    public CycleItem(@NotNull ItemProvider... states) {
+    public CycleItem(ItemProvider... states) {
         this(0, states);
     }
     
-    public CycleItem(int startState, @NotNull ItemProvider... states) {
+    public CycleItem(int startState, ItemProvider... states) {
         this.states = states;
         this.state = startState;
     }
     
-    public static CycleItem withStateChangeHandler(BiConsumer<Player, Integer> stateChangeHandler, @NotNull ItemProvider... states) {
+    public static CycleItem withStateChangeHandler(BiConsumer<Player, Integer> stateChangeHandler, ItemProvider... states) {
         return withStateChangeHandler(stateChangeHandler, 0, states);
     }
     
-    public static CycleItem withStateChangeHandler(BiConsumer<Player, Integer> stateChangeHandler, int startState, @NotNull ItemProvider... states) {
+    public static CycleItem withStateChangeHandler(BiConsumer<Player, Integer> stateChangeHandler, int startState, ItemProvider... states) {
         return new CycleItem(startState, states) {
             @Override
             protected void handleStateChange(@Nullable Player player, int state) {
@@ -47,7 +46,7 @@ public class CycleItem extends AbstractItem {
     }
     
     @Override
-    public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
+    public void handleClick(ClickType clickType, Player player, InventoryClickEvent event) {
         if (clickType.isLeftClick()) cycle(player, true);
         else if (clickType.isRightClick()) cycle(player, false);
     }

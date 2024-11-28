@@ -3,7 +3,6 @@ package xyz.xenondevs.invui.item.impl.controlitem;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.invui.gui.AbstractScrollGui;
 import xyz.xenondevs.invui.gui.ScrollGui;
 
@@ -26,7 +25,7 @@ public abstract class ScrollItem extends ControlItem<ScrollGui<?>> {
     }
     
     @Override
-    public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
+    public void handleClick(ClickType clickType, Player player, InventoryClickEvent event) {
         if (scroll.containsKey(clickType)) getGui().scroll(scroll.get(clickType));
     }
     

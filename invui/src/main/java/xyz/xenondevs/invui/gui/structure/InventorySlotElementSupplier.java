@@ -1,7 +1,6 @@
 package xyz.xenondevs.invui.gui.structure;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.gui.SlotElement.InventorySlotElement;
 import xyz.xenondevs.invui.inventory.Inventory;
@@ -15,17 +14,17 @@ public class InventorySlotElementSupplier implements Supplier<InventorySlotEleme
     private final ItemProvider background;
     private int slot = -1;
     
-    public InventorySlotElementSupplier(@NotNull Inventory inventory) {
+    public InventorySlotElementSupplier(Inventory inventory) {
         this.inventory = inventory;
         this.background = null;
     }
     
-    public InventorySlotElementSupplier(@NotNull Inventory inventory, @Nullable ItemProvider background) {
+    public InventorySlotElementSupplier(Inventory inventory, @Nullable ItemProvider background) {
         this.inventory = inventory;
         this.background = background;
     }
     
-    @NotNull
+    
     @Override
     public SlotElement.InventorySlotElement get() {
         if (++slot == inventory.getSize()) slot = 0;

@@ -2,8 +2,7 @@ package xyz.xenondevs.inventoryaccess.abstraction.inventory;
 
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public interface AnvilInventory {
     
@@ -12,7 +11,7 @@ public interface AnvilInventory {
      *
      * @return The {@link Inventory}
      */
-    @NotNull
+    
     Inventory getBukkitInventory();
     
     /**

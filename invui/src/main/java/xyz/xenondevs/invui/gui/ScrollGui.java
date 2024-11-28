@@ -1,8 +1,6 @@
 package xyz.xenondevs.invui.gui;
 
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.structure.Structure;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.Item;
@@ -18,7 +16,7 @@ public interface ScrollGui<C> extends Gui {
      *
      * @return The new {@link Builder Gui Builder}.
      */
-    static @NotNull Builder<@NotNull Item> items() {
+    static Builder<Item> items() {
         return new ScrollItemsGuiImpl.Builder();
     }
     
@@ -29,7 +27,7 @@ public interface ScrollGui<C> extends Gui {
      * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
      * @return The created {@link ScrollGui}.
      */
-    static @NotNull ScrollGui<@NotNull Item> items(@NotNull Consumer<@NotNull Builder<@NotNull Item>> consumer) {
+    static ScrollGui<Item> items(Consumer<Builder<Item>> consumer) {
         Builder<Item> builder = items();
         consumer.accept(builder);
         return builder.build();
@@ -44,7 +42,7 @@ public interface ScrollGui<C> extends Gui {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link ScrollGui}.
      */
-    static @NotNull ScrollGui<@NotNull Item> ofItems(int width, int height, @NotNull List<@NotNull Item> items, int... contentListSlots) {
+    static ScrollGui<Item> ofItems(int width, int height, List<Item> items, int... contentListSlots) {
         return new ScrollItemsGuiImpl(width, height, items, contentListSlots);
     }
     
@@ -55,7 +53,7 @@ public interface ScrollGui<C> extends Gui {
      * @param items     The {@link Item Items} to use.
      * @return The created {@link ScrollGui}.
      */
-    static @NotNull ScrollGui<@NotNull Item> ofItems(@NotNull Structure structure, @NotNull List<@NotNull Item> items) {
+    static ScrollGui<Item> ofItems(Structure structure, List<Item> items) {
         return new ScrollItemsGuiImpl(items, structure);
     }
     
@@ -64,7 +62,7 @@ public interface ScrollGui<C> extends Gui {
      *
      * @return The new {@link Builder Gui Builder}.
      */
-    static @NotNull Builder<@NotNull Gui> guis() {
+    static Builder<Gui> guis() {
         return new ScrollNestedGuiImpl.Builder();
     }
     
@@ -75,7 +73,7 @@ public interface ScrollGui<C> extends Gui {
      * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
      * @return The created {@link ScrollGui}.
      */
-    static @NotNull ScrollGui<@NotNull Gui> guis(@NotNull Consumer<@NotNull Builder<@NotNull Gui>> consumer) {
+    static ScrollGui<Gui> guis(Consumer<Builder<Gui>> consumer) {
         Builder<Gui> builder = guis();
         consumer.accept(builder);
         return builder.build();
@@ -90,7 +88,7 @@ public interface ScrollGui<C> extends Gui {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link ScrollGui}.
      */
-    static @NotNull ScrollGui<@NotNull Gui> ofGuis(int width, int height, @NotNull List<@NotNull Gui> guis, int... contentListSlots) {
+    static ScrollGui<Gui> ofGuis(int width, int height, List<Gui> guis, int... contentListSlots) {
         return new ScrollNestedGuiImpl(width, height, guis, contentListSlots);
     }
     
@@ -101,7 +99,7 @@ public interface ScrollGui<C> extends Gui {
      * @param guis      The {@link Gui Guis} to use.
      * @return The created {@link ScrollGui}.
      */
-    static @NotNull ScrollGui<@NotNull Gui> ofGuis(Structure structure, @NotNull List<@NotNull Gui> guis) {
+    static ScrollGui<Gui> ofGuis(Structure structure, List<Gui> guis) {
         return new ScrollNestedGuiImpl(guis, structure);
     }
     
@@ -110,7 +108,7 @@ public interface ScrollGui<C> extends Gui {
      *
      * @return The new {@link Builder Gui Builder}.
      */
-    static @NotNull Builder<@NotNull Inventory> inventories() {
+    static Builder<Inventory> inventories() {
         return new ScrollInventoryGuiImpl.Builder();
     }
     
@@ -121,7 +119,7 @@ public interface ScrollGui<C> extends Gui {
      * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
      * @return The created {@link ScrollGui}.
      */
-    static @NotNull ScrollGui<@NotNull Inventory> inventories(@NotNull Consumer<@NotNull Builder<@NotNull Inventory>> consumer) {
+    static ScrollGui<Inventory> inventories(Consumer<Builder<Inventory>> consumer) {
         Builder<Inventory> builder = inventories();
         consumer.accept(builder);
         return builder.build();
@@ -136,7 +134,7 @@ public interface ScrollGui<C> extends Gui {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link ScrollGui}.
      */
-    static @NotNull ScrollGui<@NotNull Inventory> ofInventories(int width, int height, @NotNull List<@NotNull Inventory> inventories, int... contentListSlots) {
+    static ScrollGui<Inventory> ofInventories(int width, int height, List<Inventory> inventories, int... contentListSlots) {
         return new ScrollInventoryGuiImpl(width, height, inventories, contentListSlots);
     }
     
@@ -147,7 +145,7 @@ public interface ScrollGui<C> extends Gui {
      * @param inventories The {@link Inventory VirtualInventories} to use.
      * @return The created {@link ScrollGui}.
      */
-    static @NotNull ScrollGui<@NotNull Inventory> ofInventories(@NotNull Structure structure, @NotNull List<@NotNull Inventory> inventories) {
+    static ScrollGui<Inventory> ofInventories(Structure structure, List<Inventory> inventories) {
         return new ScrollInventoryGuiImpl(inventories, structure);
     }
     
@@ -192,7 +190,7 @@ public interface ScrollGui<C> extends Gui {
      *
      * @param content The content to set.
      */
-    void setContent(@Nullable List<@NotNull C> content);
+    void setContent(@Nullable List<C> content);
     
     /**
      * Bakes the elements of this {@link PagedGui} based on the current content.
@@ -207,21 +205,21 @@ public interface ScrollGui<C> extends Gui {
      *
      * @param scrollHandlers The new scroll handlers.
      */
-    void setScrollHandlers(@NotNull List<@NotNull BiConsumer<Integer, Integer>> scrollHandlers);
+    void setScrollHandlers(@Nullable List<BiConsumer<Integer, Integer>> scrollHandlers);
     
     /**
      * Adds a scroll handler to this {@link ScrollGui}.
      *
      * @param scrollHandler The scroll handler to add.
      */
-    void addScrollHandler(@NotNull BiConsumer<Integer, Integer> scrollHandler);
+    void addScrollHandler(BiConsumer<Integer, Integer> scrollHandler);
     
     /**
      * Removes the specified scroll handler from this {@link ScrollGui}.
      *
      * @param scrollHandler The scroll handler to remove.
      */
-    void removeScrollHandler(@NotNull BiConsumer<Integer, Integer> scrollHandler);
+    void removeScrollHandler(BiConsumer<Integer, Integer> scrollHandler);
     
     /**
      * A {@link ScrollGui} builder.
@@ -236,9 +234,7 @@ public interface ScrollGui<C> extends Gui {
          * @param content The content to set.
          * @return This {@link Builder Gui Builder}.
          */
-        @Contract("_ -> this")
-        @NotNull
-        Builder<C> setContent(@NotNull List<@NotNull C> content);
+        Builder<C> setContent(List<C> content);
         
         /**
          * Adds content to the {@link ScrollGui}.
@@ -246,9 +242,7 @@ public interface ScrollGui<C> extends Gui {
          * @param content The content to add.
          * @return This {@link Builder Gui Builder}.
          */
-        @Contract("_ -> this")
-        @NotNull
-        Builder<C> addContent(@NotNull C content);
+        Builder<C> addContent(C content);
         
         /**
          * Adds content to the {@link ScrollGui}.
@@ -256,9 +250,7 @@ public interface ScrollGui<C> extends Gui {
          * @param handlers The content to add.
          * @return This {@link Builder Gui Builder}.
          */
-        @Contract("_ -> this")
-        @NotNull
-        Builder<C> setScrollHandlers(@NotNull List<@NotNull BiConsumer<Integer, Integer>> handlers);
+        Builder<C> setScrollHandlers(List<BiConsumer<Integer, Integer>> handlers);
         
         /**
          * Adds a scroll handler to the {@link ScrollGui}.
@@ -266,9 +258,7 @@ public interface ScrollGui<C> extends Gui {
          * @param handler The scroll handler to add.
          * @return This {@link Builder Gui Builder}.
          */
-        @Contract("_ -> this")
-        @NotNull
-        Builder<C> addScrollHandler(@NotNull BiConsumer<Integer, Integer> handler);
+        Builder<C> addScrollHandler(BiConsumer<Integer, Integer> handler);
         
     }
     

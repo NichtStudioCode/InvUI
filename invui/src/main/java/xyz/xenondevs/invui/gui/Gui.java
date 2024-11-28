@@ -2,9 +2,7 @@ package xyz.xenondevs.invui.gui;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.animation.Animation;
 import xyz.xenondevs.invui.gui.structure.Marker;
 import xyz.xenondevs.invui.gui.structure.Structure;
@@ -41,7 +39,7 @@ public interface Gui {
      *
      * @return The new {@link Builder.Normal Gui Builder}.
      */
-    static @NotNull Builder.Normal normal() {
+    static Builder.Normal normal() {
         return new NormalGuiImpl.Builder();
     }
     
@@ -51,7 +49,7 @@ public interface Gui {
      * @param consumer The {@link Consumer} to configure the {@link Builder.Normal Gui Builder}.
      * @return The created {@link Gui}.
      */
-    static @NotNull Gui normal(@NotNull Consumer<Builder.@NotNull Normal> consumer) {
+    static Gui normal(Consumer<Builder.Normal> consumer) {
         Builder.Normal builder = normal();
         consumer.accept(builder);
         return builder.build();
@@ -64,7 +62,7 @@ public interface Gui {
      * @param height The height of the {@link Gui}.
      * @return The created {@link Gui}.
      */
-    static @NotNull Gui empty(int width, int height) {
+    static Gui empty(int width, int height) {
         return new NormalGuiImpl(width, height);
     }
     
@@ -74,7 +72,7 @@ public interface Gui {
      * @param structure The {@link Structure} of the {@link Gui}.
      * @return The created {@link Gui}.
      */
-    static @NotNull Gui of(@NotNull Structure structure) {
+    static Gui of(Structure structure) {
         return new NormalGuiImpl(structure);
     }
     
@@ -123,7 +121,7 @@ public interface Gui {
      *
      * @param slotElements The {@link SlotElement SlotElements} to add.
      */
-    void addSlotElements(@NotNull SlotElement... slotElements);
+    void addSlotElements(SlotElement... slotElements);
     
     /**
      * Gets the {@link SlotElement} on these coordinates.
@@ -164,7 +162,7 @@ public interface Gui {
      *
      * @return All {@link SlotElement SlotElements} of this {@link Gui}
      */
-    @Nullable SlotElement @NotNull [] getSlotElements();
+    @Nullable SlotElement[] getSlotElements();
     
     /**
      * Sets the {@link Item} on these coordinates.
@@ -190,7 +188,7 @@ public interface Gui {
      *
      * @param items The {@link Item Items} that should be added to the gui
      */
-    void addItems(@NotNull Item... items);
+    void addItems(Item... items);
     
     /**
      * Gets the {@link Item} on these coordinates.
@@ -245,21 +243,21 @@ public interface Gui {
      *
      * @param structure The structure
      */
-    void applyStructure(@NotNull Structure structure);
+    void applyStructure(Structure structure);
     
     /**
      * Finds all {@link Window Windows} that show this {@link Gui}.
      *
      * @return The list of {@link Window} that show this {@link Gui}
      */
-    @NotNull List<@NotNull Window> findAllWindows();
+    List<Window> findAllWindows();
     
     /**
      * Finds all {@link Player Players} that are currently seeing this {@link Window}.
      *
      * @return The list of {@link Player Players} that are currently seeing this {@link Window}
      */
-    @NotNull Set<@NotNull Player> findAllCurrentViewers();
+    Set<Player> findAllCurrentViewers();
     
     /**
      * Closes the open {@link org.bukkit.inventory.Inventory} for all viewers of {@link Window Windows}
@@ -276,7 +274,7 @@ public interface Gui {
      * @param animation The {@link Animation} to play.
      * @param filter    The filter that selects which {@link SlotElement SlotElements} should be animated.
      */
-    void playAnimation(@NotNull Animation animation, @Nullable Predicate<@NotNull SlotElement> filter);
+    void playAnimation(Animation animation, @Nullable Predicate<SlotElement> filter);
     
     /**
      * Cancels the running {@link Animation} if there is one.
@@ -383,7 +381,7 @@ public interface Gui {
      * @param gui             The {@link Gui} to be put into this {@link Gui}
      * @param replaceExisting If existing {@link SlotElement SlotElements} should be replaced.
      */
-    void fillRectangle(int x, int y, @NotNull Gui gui, boolean replaceExisting);
+    void fillRectangle(int x, int y, Gui gui, boolean replaceExisting);
     
     /**
      * Fills a rectangle with a {@link Inventory} in this {@link Gui}.
@@ -394,7 +392,7 @@ public interface Gui {
      * @param inventory       The {@link Inventory} to be put into this {@link Gui}.
      * @param replaceExisting If existing {@link SlotElement SlotElements} should be replaced.
      */
-    void fillRectangle(int x, int y, int width, @NotNull Inventory inventory, boolean replaceExisting);
+    void fillRectangle(int x, int y, int width, Inventory inventory, boolean replaceExisting);
     
     /**
      * Fills a rectangle with a {@link Inventory} in this {@link Gui}.
@@ -406,7 +404,7 @@ public interface Gui {
      * @param background      The {@link ItemProvider} for empty slots of the {@link Inventory}
      * @param replaceExisting If existing {@link SlotElement SlotElements} should be replaced.
      */
-    void fillRectangle(int x, int y, int width, @NotNull Inventory inventory, @Nullable ItemProvider background, boolean replaceExisting);
+    void fillRectangle(int x, int y, int width, Inventory inventory, @Nullable ItemProvider background, boolean replaceExisting);
     
     //</editor-fold>
     
@@ -424,8 +422,7 @@ public interface Gui {
          * @param structure The {@link Structure} of the {@link Gui}
          * @return This {@link Builder}
          */
-        @Contract("_ -> this")
-        @NotNull S setStructure(@NotNull Structure structure);
+        S setStructure(Structure structure);
         
         /**
          * Sets the {@link Structure} of the {@link Gui} using the given structure data Strings.
@@ -434,8 +431,7 @@ public interface Gui {
          * @param structureData The structure data
          * @return This {@link Builder Gui Builder}
          */
-        @Contract("_ -> this")
-        @NotNull S setStructure(@NotNull String... structureData);
+        S setStructure(String... structureData);
         
         /**
          * Sets the {@link Structure} of the {@link Gui} using the given structure data, width and height.
@@ -445,8 +441,7 @@ public interface Gui {
          * @param structureData The structure data
          * @return This {@link Builder Gui Builder}
          */
-        @Contract("_, _, _, -> this")
-        @NotNull S setStructure(int width, int height, @NotNull String structureData);
+        S setStructure(int width, int height, String structureData);
         
         /**
          * Adds an {@link ItemStack} ingredient under the given key.
@@ -455,8 +450,8 @@ public interface Gui {
          * @param itemStack The {@link ItemStack}
          * @return This {@link Builder Gui Builder}
          */
-        @Contract("_, _ -> this")
-        @NotNull S addIngredient(char key, @NotNull ItemStack itemStack);
+        
+        S addIngredient(char key, ItemStack itemStack);
         
         /**
          * Adds an {@link ItemProvider} ingredient under the given key.
@@ -465,8 +460,8 @@ public interface Gui {
          * @param itemProvider The {@link ItemProvider}
          * @return This {@link Builder Gui Builder}
          */
-        @Contract("_, _ -> this")
-        @NotNull S addIngredient(char key, @NotNull ItemProvider itemProvider);
+        
+        S addIngredient(char key, ItemProvider itemProvider);
         
         /**
          * Adds an {@link Item} ingredient under the given key.
@@ -475,8 +470,8 @@ public interface Gui {
          * @param item The {@link Item}
          * @return This {@link Builder Gui Builder}
          */
-        @Contract("_, _ -> this")
-        @NotNull S addIngredient(char key, @NotNull Item item);
+        
+        S addIngredient(char key, Item item);
         
         /**
          * Adds an {@link Inventory} ingredient under the given key.
@@ -485,8 +480,8 @@ public interface Gui {
          * @param inventory The {@link Inventory}
          * @return This {@link Builder Gui Builder}
          */
-        @Contract("_, _ -> this")
-        @NotNull S addIngredient(char key, @NotNull Inventory inventory);
+        
+        S addIngredient(char key, Inventory inventory);
         
         /**
          * Adds an {@link Inventory} ingredient under the given key.
@@ -496,8 +491,7 @@ public interface Gui {
          * @param background The {@link ItemProvider} for empty slots of the {@link Inventory}
          * @return This {@link Builder Gui Builder}
          */
-        @Contract("_, _, _ -> this")
-        @NotNull S addIngredient(char key, @NotNull Inventory inventory, @Nullable ItemProvider background);
+        S addIngredient(char key, Inventory inventory, @Nullable ItemProvider background);
         
         /**
          * Adds a {@link SlotElement} ingredient under the given key.
@@ -506,8 +500,8 @@ public interface Gui {
          * @param element The {@link SlotElement}
          * @return This {@link Builder Gui Builder}
          */
-        @Contract("_, _ -> this")
-        @NotNull S addIngredient(char key, @NotNull SlotElement element);
+        
+        S addIngredient(char key, SlotElement element);
         
         /**
          * Adds a {@link Marker} ingredient under the given key.
@@ -516,8 +510,8 @@ public interface Gui {
          * @param marker The {@link Marker}
          * @return This {@link Builder Gui Builder}
          */
-        @Contract("_, _ -> this")
-        @NotNull S addIngredient(char key, @NotNull Marker marker);
+        
+        S addIngredient(char key, Marker marker);
         
         /**
          * Adds a {@link Supplier} of {@link Item Items} ingredient under the given key.
@@ -526,8 +520,8 @@ public interface Gui {
          * @param itemSupplier The {@link Supplier} of {@link Item Items}
          * @return This {@link Builder Gui Builder}
          */
-        @Contract("_, _ -> this")
-        @NotNull S addIngredient(char key, @NotNull Supplier<? extends Item> itemSupplier);
+        
+        S addIngredient(char key, Supplier<? extends Item> itemSupplier);
         
         /**
          * Adds a {@link Supplier} of {@link SlotElement SlotElements} ingredient under the given key.
@@ -536,8 +530,8 @@ public interface Gui {
          * @param elementSupplier The {@link Supplier} of {@link SlotElement SlotElements}
          * @return This {@link Builder Gui Builder}
          */
-        @Contract("_, _ -> this")
-        @NotNull S addIngredientElementSupplier(char key, @NotNull Supplier<? extends SlotElement> elementSupplier);
+        
+        S addIngredientElementSupplier(char key, Supplier<? extends SlotElement> elementSupplier);
         
         /**
          * Sets the background of the {@link Gui}.
@@ -545,8 +539,7 @@ public interface Gui {
          * @param itemProvider The {@link ItemProvider} for the background
          * @return This {@link Builder Gui Builder}
          */
-        @Contract("_ -> this")
-        @NotNull S setBackground(@NotNull ItemProvider itemProvider);
+        S setBackground(ItemProvider itemProvider);
         
         /**
          * Sets the background of the {@link Gui}.
@@ -554,8 +547,7 @@ public interface Gui {
          * @param itemStack The {@link ItemStack} for the background
          * @return This {@link Builder Gui Builder}
          */
-        @Contract("_ -> this")
-        @NotNull S setBackground(@NotNull ItemStack itemStack);
+        S setBackground(ItemStack itemStack);
         
         /**
          * Sets whether the {@link Gui} should be frozen.
@@ -563,8 +555,7 @@ public interface Gui {
          * @param frozen Whether the {@link Gui} should be frozen
          * @return This {@link Builder Gui Builder}
          */
-        @Contract("_ -> this")
-        @NotNull S setFrozen(boolean frozen);
+        S setFrozen(boolean frozen);
         
         /**
          * Sets whether it is possible to shift-click items into and cursor collect items from all {@link Inventory}
@@ -574,8 +565,7 @@ public interface Gui {
          *                                     and collecting to the cursor.
          * @return This {@link Builder Gui Builder}
          */
-        @Contract("_ -> this")
-        @NotNull S setIgnoreObscuredInventorySlots(boolean ignoreObscuredInventorySlots);
+        S setIgnoreObscuredInventorySlots(boolean ignoreObscuredInventorySlots);
         
         /**
          * Sets the background of the {@link Gui}.
@@ -583,8 +573,7 @@ public interface Gui {
          * @param modifier The {@link Consumer} for the background
          * @return This {@link Builder Gui Builder}
          */
-        @Contract("_ -> this")
-        @NotNull S addModifier(@NotNull Consumer<@NotNull G> modifier);
+        S addModifier(Consumer<G> modifier);
         
         /**
          * Sets the background of the {@link Gui}.
@@ -592,24 +581,21 @@ public interface Gui {
          * @param modifiers The {@link Consumer Consumers} for the background
          * @return This {@link Builder Gui Builder}
          */
-        @Contract("_ -> this")
-        @NotNull S setModifiers(@NotNull List<@NotNull Consumer<@NotNull G>> modifiers);
+        S setModifiers(List<Consumer<G>> modifiers);
         
         /**
          * Builds the {@link Gui}.
          *
          * @return The {@link Gui}
          */
-        @Contract("-> new")
-        @NotNull G build();
+        G build();
         
         /**
          * Clones the Gui Builder.
          *
          * @return The cloned Gui Builder
          */
-        @Contract("-> new")
-        @NotNull S clone();
+        S clone();
         
         /**
          * A normal {@link Gui} builder.

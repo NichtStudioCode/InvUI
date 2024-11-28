@@ -2,7 +2,6 @@ package xyz.xenondevs.inventoryaccess.component;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.inventoryaccess.component.i18n.AdventureComponentLocalizer;
 import xyz.xenondevs.inventoryaccess.component.i18n.Languages;
 import xyz.xenondevs.inventoryaccess.util.AdventureComponentUtils;
@@ -18,12 +17,12 @@ public class AdventureComponentWrapper implements ComponentWrapper {
     }
     
     @Override
-    public @NotNull String serializeToJson() {
+    public String serializeToJson() {
         return GsonComponentSerializer.gson().serialize(component);
     }
     
     @Override
-    public @NotNull AdventureComponentWrapper localized(@NotNull String lang) {
+    public AdventureComponentWrapper localized(String lang) {
         if (!Languages.getInstance().doesServerSideTranslations())
             return this;
         
@@ -31,12 +30,12 @@ public class AdventureComponentWrapper implements ComponentWrapper {
     }
     
     @Override
-    public @NotNull AdventureComponentWrapper withoutPreFormatting() {
+    public AdventureComponentWrapper withoutPreFormatting() {
         return new AdventureComponentWrapper(AdventureComponentUtils.withoutPreFormatting(component));
     }
     
     @Override
-    public @NotNull AdventureComponentWrapper clone() {
+    public AdventureComponentWrapper clone() {
         try {
             return (AdventureComponentWrapper) super.clone();
         } catch (CloneNotSupportedException e) {

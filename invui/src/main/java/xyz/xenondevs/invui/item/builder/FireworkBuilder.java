@@ -4,10 +4,8 @@ import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,43 +23,39 @@ public final class FireworkBuilder extends AbstractItemBuilder<FireworkBuilder> 
         super(Material.FIREWORK_ROCKET, amount);
     }
     
-    public FireworkBuilder(@NotNull ItemStack base) {
+    public FireworkBuilder(ItemStack base) {
         super(base);
     }
     
-    @Contract("_ -> this")
-    public @NotNull FireworkBuilder setPower(@Range(from = 0, to = 127) int power) {
+    public FireworkBuilder setPower(@Range(from = 0, to = 127) int power) {
         this.power = power;
         return this;
     }
     
-    @Contract("_ -> this")
-    public @NotNull FireworkBuilder addFireworkEffect(@NotNull FireworkEffect effect) {
+    public FireworkBuilder addFireworkEffect(FireworkEffect effect) {
         effects.add(effect);
         return this;
     }
     
-    @Contract("_ -> this")
-    public @NotNull FireworkBuilder addFireworkEffect(@NotNull FireworkEffect.Builder builder) {
+    public FireworkBuilder addFireworkEffect(FireworkEffect.Builder builder) {
         effects.add(builder.build());
         return this;
     }
     
-    @Contract("_ -> this")
-    public @NotNull FireworkBuilder setFireworkEffects(@NotNull List<@NotNull FireworkEffect> effects) {
+    public FireworkBuilder setFireworkEffects(List<FireworkEffect> effects) {
         this.effects = effects;
         return this;
     }
     
-    @Contract("-> this")
-    public @NotNull FireworkBuilder clearFireworkEffects() {
+    
+    public FireworkBuilder clearFireworkEffects() {
         effects.clear();
         return this;
     }
     
-    @Contract(value = "_ -> new", pure = true)
+    
     @Override
-    public @NotNull ItemStack get(@Nullable String lang) {
+    public ItemStack get(@Nullable String lang) {
         ItemStack item = super.get(lang);
         FireworkMeta meta = (FireworkMeta) item.getItemMeta();
         
@@ -74,7 +68,7 @@ public final class FireworkBuilder extends AbstractItemBuilder<FireworkBuilder> 
     }
     
     @Override
-    public @NotNull FireworkBuilder clone() {
+    public FireworkBuilder clone() {
         FireworkBuilder builder = super.clone();
         builder.effects = new ArrayList<>(effects);
         return builder;

@@ -11,9 +11,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.util.ReflectionRegistry;
 import xyz.xenondevs.inventoryaccess.util.ReflectionUtils;
 import xyz.xenondevs.invui.util.MojangApiUtils;
@@ -36,7 +34,7 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
      * @throws MojangApiException If the Mojang API returns an error.
      * @throws IOException        If an I/O error occurs.
      */
-    public SkullBuilder(@NotNull UUID uuid) throws MojangApiException, IOException {
+    public SkullBuilder(UUID uuid) throws MojangApiException, IOException {
         this(HeadTexture.of(uuid));
     }
     
@@ -47,7 +45,7 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
      * @throws MojangApiException If the Mojang API returns an error.
      * @throws IOException        If an I/O error occurs.
      */
-    public SkullBuilder(@NotNull String username) throws MojangApiException, IOException {
+    public SkullBuilder(String username) throws MojangApiException, IOException {
         this(HeadTexture.of(username));
     }
     
@@ -56,20 +54,20 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
      *
      * @param headTexture The {@link HeadTexture} to be applied to the skull.
      */
-    public SkullBuilder(@NotNull HeadTexture headTexture) {
+    public SkullBuilder(HeadTexture headTexture) {
         super(Material.PLAYER_HEAD);
         setGameProfile(headTexture);
     }
     
-    private void setGameProfile(@NotNull HeadTexture texture) {
+    private void setGameProfile(HeadTexture texture) {
         gameProfile = new GameProfile(UUID.randomUUID(), "InvUI");
         PropertyMap propertyMap = gameProfile.getProperties();
         propertyMap.put("textures", new Property("textures", texture.getTextureValue()));
     }
     
-    @Contract(value = "_ -> new", pure = true)
+    
     @Override
-    public @NotNull ItemStack get(@Nullable String lang) {
+    public ItemStack get(@Nullable String lang) {
         ItemStack item = super.get(lang);
         ItemMeta meta = item.getItemMeta();
         
@@ -89,15 +87,14 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
         return item;
     }
     
-    @Contract("_ -> this")
     @Override
-    public @NotNull SkullBuilder setMaterial(@NotNull Material material) {
+    public SkullBuilder setMaterial(Material material) {
         return this;
     }
     
-    @Contract(value = "-> new", pure = true)
+    
     @Override
-    public @NotNull SkullBuilder clone() {
+    public SkullBuilder clone() {
         return super.clone();
     }
     
@@ -126,7 +123,7 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
          * @see HeadTexture#of(UUID)
          * @see HeadTexture#of(String)
          */
-        public HeadTexture(@NotNull String textureValue) {
+        public HeadTexture(String textureValue) {
             this.textureValue = textureValue;
         }
         
@@ -141,7 +138,7 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
          * @throws IOException        If an I/O error occurs.
          * @see HeadTexture#of(UUID)
          */
-        public static @NotNull HeadTexture of(@NotNull OfflinePlayer offlinePlayer) throws MojangApiException, IOException {
+        public static HeadTexture of(OfflinePlayer offlinePlayer) throws MojangApiException, IOException {
             return of(offlinePlayer.getUniqueId());
         }
         
@@ -160,7 +157,7 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
          * @see HeadTexture#of(UUID)
          */
         @SuppressWarnings("deprecation")
-        public static @NotNull HeadTexture of(@NotNull String playerName) throws MojangApiException, IOException {
+        public static HeadTexture of(String playerName) throws MojangApiException, IOException {
             if (Bukkit.getServer().getOnlineMode()) {
                 // if the server is in online mode, the Minecraft UUID cache (usercache.json) can be used
                 return of(Bukkit.getOfflinePlayer(playerName).getUniqueId());
@@ -191,7 +188,7 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
          * @throws MojangApiException If the Mojang API returns an error.
          * @throws IOException        If an I/O error occurs.
          */
-        public static @NotNull HeadTexture of(@NotNull UUID uuid) throws MojangApiException, IOException {
+        public static HeadTexture of(UUID uuid) throws MojangApiException, IOException {
             try {
                 return new HeadTexture(textureCache.get(uuid, () -> MojangApiUtils.getSkinData(uuid, false)[0]));
             } catch (ExecutionException e) {
@@ -222,7 +219,7 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
          *
          * @return The stored texture value.
          */
-        public @NotNull String getTextureValue() {
+        public String getTextureValue() {
             return textureValue;
         }
         

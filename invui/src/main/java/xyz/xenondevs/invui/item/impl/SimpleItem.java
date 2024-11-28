@@ -4,8 +4,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.item.Click;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
@@ -21,22 +20,22 @@ public class SimpleItem extends AbstractItem {
     private final ItemProvider itemProvider;
     private final Consumer<Click> clickHandler;
     
-    public SimpleItem(@NotNull ItemProvider itemProvider) {
+    public SimpleItem(ItemProvider itemProvider) {
         this.itemProvider = itemProvider;
         this.clickHandler = null;
     }
     
-    public SimpleItem(@NotNull ItemStack itemStack) {
+    public SimpleItem(ItemStack itemStack) {
         this.itemProvider = new ItemWrapper(itemStack);
         this.clickHandler = null;
     }
     
-    public SimpleItem(@NotNull ItemProvider itemProvider, @Nullable Consumer<@NotNull Click> clickHandler) {
+    public SimpleItem(ItemProvider itemProvider, @Nullable Consumer<Click> clickHandler) {
         this.itemProvider = itemProvider;
         this.clickHandler = clickHandler;
     }
     
-    public SimpleItem(@NotNull ItemStack itemStack, @Nullable Consumer<@NotNull Click> clickHandler) {
+    public SimpleItem(ItemStack itemStack, @Nullable Consumer<Click> clickHandler) {
         this.itemProvider = new ItemWrapper(itemStack);
         this.clickHandler = clickHandler;
     }
@@ -46,7 +45,7 @@ public class SimpleItem extends AbstractItem {
     }
     
     @Override
-    public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
+    public void handleClick(ClickType clickType, Player player, InventoryClickEvent event) {
         if (clickHandler != null) clickHandler.accept(new Click(event));
     }
     

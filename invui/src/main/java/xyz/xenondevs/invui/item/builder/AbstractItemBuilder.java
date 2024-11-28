@@ -8,9 +8,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.InventoryAccess;
 import xyz.xenondevs.inventoryaccess.component.BungeeComponentWrapper;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
@@ -82,7 +80,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      *
      * @param material The {@link Material}
      */
-    public AbstractItemBuilder(@NotNull Material material) {
+    public AbstractItemBuilder(Material material) {
         this.material = material;
     }
     
@@ -92,7 +90,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      * @param material The {@link Material}
      * @param amount   The amount
      */
-    public AbstractItemBuilder(@NotNull Material material, int amount) {
+    public AbstractItemBuilder(Material material, int amount) {
         this.material = material;
         this.amount = amount;
     }
@@ -103,7 +101,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      *
      * @param base The {@link ItemStack to use as a base}
      */
-    public AbstractItemBuilder(@NotNull ItemStack base) {
+    public AbstractItemBuilder(ItemStack base) {
         this.base = base.clone();
         this.amount = base.getAmount();
     }
@@ -113,9 +111,8 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      *
      * @return The {@link ItemStack}
      */
-    @Contract(value = "_ -> new", pure = true)
     @Override
-    public @NotNull ItemStack get(@Nullable String lang) {
+    public ItemStack get(@Nullable String lang) {
         ItemStack itemStack;
         if (base != null) {
             itemStack = base;
@@ -194,8 +191,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      * @param index The index of the lore line to remove
      * @return The builder instance
      */
-    @Contract("_ -> this")
-    public @NotNull S removeLoreLine(int index) {
+    public S removeLoreLine(int index) {
         if (lore != null) lore.remove(index);
         return (S) this;
     }
@@ -205,8 +201,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      *
      * @return The builder instance
      */
-    @Contract("-> this")
-    public @NotNull S clearLore() {
+    public S clearLore() {
         if (lore != null) lore.clear();
         return (S) this;
     }
@@ -235,8 +230,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      * @param material The {@link Material}
      * @return The builder instance
      */
-    @Contract("_ -> this")
-    public @NotNull S setMaterial(@NotNull Material material) {
+    public S setMaterial(Material material) {
         this.material = material;
         return (S) this;
     }
@@ -256,8 +250,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      * @param amount The amount
      * @return The builder instance
      */
-    @Contract("_ -> this")
-    public @NotNull S setAmount(int amount) {
+    public S setAmount(int amount) {
         this.amount = amount;
         return (S) this;
     }
@@ -277,8 +270,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      * @param damage The damage value
      * @return The builder instance
      */
-    @Contract("_ -> this")
-    public @NotNull S setDamage(int damage) {
+    public S setDamage(int damage) {
         this.damage = damage;
         return (S) this;
     }
@@ -298,8 +290,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      * @param customModelData The custom model data value
      * @return The builder instance
      */
-    @Contract("_ -> this")
-    public @NotNull S setCustomModelData(int customModelData) {
+    public S setCustomModelData(int customModelData) {
         this.customModelData = customModelData;
         return (S) this;
     }
@@ -319,8 +310,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      * @param unbreakable The unbreakable state
      * @return The builder instance
      */
-    @Contract("_ -> this")
-    public @NotNull S setUnbreakable(boolean unbreakable) {
+    public S setUnbreakable(boolean unbreakable) {
         this.unbreakable = unbreakable;
         return (S) this;
     }
@@ -340,8 +330,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      * @param displayName The display name
      * @return The builder instance
      */
-    @Contract("_ -> this")
-    public @NotNull S setDisplayName(String displayName) {
+    public S setDisplayName(String displayName) {
         this.displayName = new BungeeComponentWrapper(TextComponent.fromLegacyText(displayName)).withoutPreFormatting();
         return (S) this;
     }
@@ -352,8 +341,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      * @param displayName The display name
      * @return The builder instance
      */
-    @Contract("_ -> this")
-    public @NotNull S setDisplayName(BaseComponent... displayName) {
+    public S setDisplayName(BaseComponent... displayName) {
         this.displayName = new BungeeComponentWrapper(displayName).withoutPreFormatting();
         return (S) this;
     }
@@ -364,8 +352,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      * @param component The display name
      * @return The builder instance
      */
-    @Contract("_ -> this")
-    public @NotNull S setDisplayName(ComponentWrapper component) {
+    public S setDisplayName(ComponentWrapper component) {
         this.displayName = component.withoutPreFormatting();
         return (S) this;
     }
@@ -387,8 +374,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      * @param lore The lore
      * @return The builder instance
      */
-    @Contract("_ -> this")
-    public @NotNull S setLore(@NotNull List<@NotNull ComponentWrapper> lore) {
+    public S setLore(List<ComponentWrapper> lore) {
         this.lore = lore.stream()
             .map(ComponentWrapper::withoutPreFormatting)
             .collect(Collectors.toList());
@@ -401,8 +387,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      * @param lore The lore
      * @return The builder instance
      */
-    @Contract("_ -> this")
-    public @NotNull S setLegacyLore(@NotNull List<@NotNull String> lore) {
+    public S setLegacyLore(List<String> lore) {
         this.lore = lore.stream()
             .map(line -> new BungeeComponentWrapper(TextComponent.fromLegacyText(line)).withoutPreFormatting())
             .collect(Collectors.toList());
@@ -415,8 +400,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      * @param lines The lore lines
      * @return The builder instance
      */
-    @Contract("_ -> this")
-    public @NotNull S addLoreLines(@NotNull String... lines) {
+    public S addLoreLines(String... lines) {
         if (lore == null) lore = new ArrayList<>();
         
         for (String line : lines)
@@ -431,8 +415,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      * @param lines The lore lines, where each {@link BaseComponent} array represents a line.
      * @return The builder instance
      */
-    @Contract("_ -> this")
-    public @NotNull S addLoreLines(@NotNull BaseComponent[]... lines) {
+    public S addLoreLines(BaseComponent[]... lines) {
         if (lore == null) lore = new ArrayList<>();
         
         for (BaseComponent[] line : lines)
@@ -447,8 +430,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      * @param lines The lore lines
      * @return The builder instance
      */
-    @Contract("_ -> this")
-    public @NotNull S addLoreLines(@NotNull ComponentWrapper... lines) {
+    public S addLoreLines(ComponentWrapper... lines) {
         if (lore == null) lore = new ArrayList<>();
         
         for (ComponentWrapper line : lines)
@@ -463,8 +445,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      * @param lines The lore lines
      * @return The builder instance
      */
-    @Contract("_ -> this")
-    public @NotNull S addLoreLines(@NotNull List<@NotNull ComponentWrapper> lines) {
+    public S addLoreLines(List<ComponentWrapper> lines) {
         if (lore == null) lore = new ArrayList<>();
         
         for (ComponentWrapper line : lines)
@@ -479,8 +460,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      * @param lines The lore lines
      * @return The builder instance
      */
-    @Contract("_ -> this")
-    public @NotNull S addLegacyLoreLines(@NotNull List<@NotNull String> lines) {
+    public S addLegacyLoreLines(List<String> lines) {
         if (lore == null) lore = new ArrayList<>();
         
         for (String line : lines)
@@ -507,8 +487,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      * @param itemFlags The {@link ItemFlag ItemFlags}
      * @return The builder instance
      */
-    @Contract("_ -> this")
-    public @NotNull S setItemFlags(@NotNull List<ItemFlag> itemFlags) {
+    public S setItemFlags(List<ItemFlag> itemFlags) {
         this.itemFlags = itemFlags;
         return (S) this;
     }
@@ -519,8 +498,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      * @param itemFlags The {@link ItemFlag ItemFlags}
      * @return The builder instance
      */
-    @Contract("_ -> this")
-    public @NotNull S addItemFlags(@NotNull ItemFlag... itemFlags) {
+    public S addItemFlags(ItemFlag... itemFlags) {
         if (this.itemFlags == null) this.itemFlags = new ArrayList<>();
         this.itemFlags.addAll(Arrays.asList(itemFlags));
         return (S) this;
@@ -531,8 +509,8 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      *
      * @return The builder instance
      */
-    @Contract("-> this")
-    public @NotNull S addAllItemFlags() {
+    
+    public S addAllItemFlags() {
         this.itemFlags = new ArrayList<>(Arrays.asList(ItemFlag.values()));
         return (S) this;
     }
@@ -543,8 +521,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      * @param itemFlags The {@link ItemFlag ItemFlags} to remove
      * @return The builder instance
      */
-    @Contract("_ -> this")
-    public @NotNull S removeItemFlags(@NotNull ItemFlag... itemFlags) {
+    public S removeItemFlags(ItemFlag... itemFlags) {
         if (this.itemFlags != null)
             this.itemFlags.removeAll(Arrays.asList(itemFlags));
         return (S) this;
@@ -555,8 +532,8 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      *
      * @return The builder instance
      */
-    @Contract("-> this")
-    public @NotNull S clearItemFlags() {
+    
+    public S clearItemFlags() {
         if (itemFlags != null) itemFlags.clear();
         return (S) this;
     }
@@ -579,8 +556,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      * @param enchantments The enchantments
      * @return The builder instance
      */
-    @Contract("_ -> this")
-    public @NotNull S setEnchantments(@NotNull HashMap<Enchantment, Pair<Integer, Boolean>> enchantments) {
+    public S setEnchantments(HashMap<Enchantment, Pair<Integer, Boolean>> enchantments) {
         this.enchantments = enchantments;
         return (S) this;
     }
@@ -593,8 +569,8 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      * @param ignoreLevelRestriction Whether to ignore the level restriction
      * @return The builder instance
      */
-    @Contract("_, _, _ -> this")
-    public @NotNull S addEnchantment(Enchantment enchantment, int level, boolean ignoreLevelRestriction) {
+    
+    public S addEnchantment(Enchantment enchantment, int level, boolean ignoreLevelRestriction) {
         if (enchantments == null) enchantments = new HashMap<>();
         enchantments.put(enchantment, new Pair<>(level, ignoreLevelRestriction));
         return (S) this;
@@ -606,8 +582,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      * @param enchantment The enchantment
      * @return The builder instance
      */
-    @Contract("_ -> this")
-    public @NotNull S removeEnchantment(Enchantment enchantment) {
+    public S removeEnchantment(Enchantment enchantment) {
         if (enchantments != null) enchantments.remove(enchantment);
         return (S) this;
     }
@@ -617,8 +592,8 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      *
      * @return The builder instance
      */
-    @Contract("-> this")
-    public @NotNull S clearEnchantments() {
+    
+    public S clearEnchantments() {
         if (enchantments != null) enchantments.clear();
         return (S) this;
     }
@@ -641,8 +616,7 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      * @param modifier The modifier function
      * @return The builder instance
      */
-    @Contract("_ -> this")
-    public @NotNull S addModifier(Function<ItemStack, ItemStack> modifier) {
+    public S addModifier(Function<ItemStack, ItemStack> modifier) {
         if (modifiers == null) modifiers = new ArrayList<>();
         modifiers.add(modifier);
         return (S) this;
@@ -653,8 +627,8 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      *
      * @return The builder instance
      */
-    @Contract("-> this")
-    public @NotNull S clearModifiers() {
+    
+    public S clearModifiers() {
         if (modifiers != null) modifiers.clear();
         return (S) this;
     }
@@ -666,9 +640,9 @@ public abstract class AbstractItemBuilder<S> implements ItemProvider {
      * @return The cloned builder
      */
     @SuppressWarnings("unchecked")
-    @Contract(value = "-> new", pure = true)
+    
     @Override
-    public @NotNull S clone() {
+    public S clone() {
         try {
             AbstractItemBuilder<S> clone = ((AbstractItemBuilder<S>) super.clone());
             if (base != null) clone.base = base.clone();

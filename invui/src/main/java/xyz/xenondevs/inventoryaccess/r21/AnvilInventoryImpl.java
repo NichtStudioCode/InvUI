@@ -21,10 +21,8 @@ import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.inventory.view.CraftAnvilView;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.Inventory;
-import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.inventoryaccess.abstraction.inventory.AnvilInventory;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
-import xyz.xenondevs.inventoryaccess.r21.InventoryUtilsImpl;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -38,7 +36,7 @@ class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
     private String text;
     private boolean open;
     
-    public AnvilInventoryImpl(org.bukkit.entity.Player player, @NotNull ComponentWrapper title, List<Consumer<String>> renameHandlers) {
+    public AnvilInventoryImpl(org.bukkit.entity.Player player, ComponentWrapper title, List<Consumer<String>> renameHandlers) {
         this(((CraftPlayer) player).getHandle(), InventoryUtilsImpl.createNMSComponent(title), renameHandlers);
     }
     
@@ -101,7 +99,7 @@ class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
     }
     
     @Override
-    public @NotNull Inventory getBukkitInventory() {
+    public Inventory getBukkitInventory() {
         return view.getTopInventory();
     }
     

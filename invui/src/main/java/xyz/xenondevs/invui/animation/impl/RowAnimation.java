@@ -10,8 +10,9 @@ public class RowAnimation extends AbstractSoundAnimation {
     
     /**
      * Creates a new {@link RowAnimation}.
+     *
      * @param tickDelay The delay between each slot being shown.
-     * @param sound Whether a sound should be played when the slot is shown.
+     * @param sound     Whether a sound should be played when the slot is shown.
      */
     public RowAnimation(int tickDelay, boolean sound) {
         super(tickDelay, sound);

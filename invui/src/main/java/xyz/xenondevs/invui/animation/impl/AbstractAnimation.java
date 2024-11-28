@@ -3,7 +3,7 @@ package xyz.xenondevs.invui.animation.impl;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.animation.Animation;
 import xyz.xenondevs.invui.gui.Gui;
@@ -26,14 +26,14 @@ public abstract class AbstractAnimation implements Animation {
     private final List<Runnable> finishHandlers = new ArrayList<>();
     private final int tickDelay;
     
-    private Gui gui;
+    private @Nullable Gui gui;
     private int width;
     private int height;
     
-    private List<Window> windows;
-    private CopyOnWriteArrayList<Integer> slots;
-    private BiConsumer<Integer, Integer> show;
-    private BukkitTask task;
+    private List<Window> windows = List.of();
+    private @Nullable CopyOnWriteArrayList<Integer> slots;
+    private BiConsumer<Integer, Integer> show = (a, b) -> {};
+    private @Nullable BukkitTask task;
     
     private int frame;
     private int noViewerTicks;
@@ -55,18 +55,17 @@ public abstract class AbstractAnimation implements Animation {
     }
     
     @Override
-    public void setWindows(@NotNull List<Window> windows) {
+    public void setWindows(List<Window> windows) {
         this.windows = windows;
     }
     
     @Override
-    public void addShowHandler(@NotNull BiConsumer<Integer, Integer> show) {
-        if (this.show != null) this.show = this.show.andThen(show);
-        else this.show = show;
+    public void addShowHandler(BiConsumer<Integer, Integer> show) {
+        this.show = this.show.andThen(show);
     }
     
     @Override
-    public void addFinishHandler(@NotNull Runnable finish) {
+    public void addFinishHandler(Runnable finish) {
         finishHandlers.add(finish);
     }
     
@@ -90,14 +89,16 @@ public abstract class AbstractAnimation implements Animation {
     
     @Override
     public void cancel() {
-        task.cancel();
+        if (task != null)
+            task.cancel();
     }
     
     /**
      * Stops the {@link Animation} and runs finish handlers.
      */
     protected void finish() {
-        task.cancel();
+        if (task != null)
+            task.cancel();
         finishHandlers.forEach(Runnable::run);
     }
     
@@ -114,8 +115,8 @@ public abstract class AbstractAnimation implements Animation {
      *
      * @return The slots that are being animated
      */
-    public CopyOnWriteArrayList<Integer> getSlots() {
-        return slots;
+    public List<Integer> getSlots() {
+        return slots != null ? slots : List.of();
     }
     
     @Override

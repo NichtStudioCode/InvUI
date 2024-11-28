@@ -1,8 +1,7 @@
 package xyz.xenondevs.inventoryaccess.map;
 
 import net.md_5.bungee.api.chat.BaseComponent;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.component.BungeeComponentWrapper;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 
@@ -14,7 +13,7 @@ public class MapIcon {
     private final byte rot;
     private final ComponentWrapper component;
     
-    public MapIcon(@NotNull MapIconType type, int x, int y, int rot, @Nullable ComponentWrapper component) {
+    public MapIcon(MapIconType type, int x, int y, int rot, @Nullable ComponentWrapper component) {
         this.type = type;
         this.x = (byte) (x - 128);
         this.y = (byte) (y - 128);
@@ -22,7 +21,7 @@ public class MapIcon {
         this.component = component;
     }
     
-    public MapIcon(@NotNull MapIconType type, int x, int y, int rot, @Nullable BaseComponent[] component) {
+    public MapIcon(MapIconType type, int x, int y, int rot, @Nullable BaseComponent[] component) {
         this(type, x, y, rot, new BungeeComponentWrapper(component));
     }
     
@@ -30,7 +29,7 @@ public class MapIcon {
         this(type, x, y, rot, (ComponentWrapper) null);
     }
     
-    @NotNull
+    
     public MapIconType getType() {
         return type;
     }

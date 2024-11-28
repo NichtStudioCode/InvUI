@@ -1,7 +1,6 @@
 package xyz.xenondevs.invui.gui;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.structure.Structure;
 
 import java.util.ArrayList;
@@ -26,15 +25,15 @@ public abstract class AbstractPagedGui<C> extends AbstractGui implements PagedGu
     private final int[] contentListSlots;
     private int currentPage;
     
-    private List<BiConsumer<Integer, Integer>> pageChangeHandlers;
+    private @Nullable List<BiConsumer<Integer, Integer>> pageChangeHandlers;
     /**
      * The content of the gui, to be displayed on the pages.
      */
-    protected List<C> content;
+    protected @Nullable List<C> content;
     /**
      * The baked pages of the gui, containing the content.
      */
-    protected List<List<SlotElement>> pages;
+    protected @Nullable List<List<SlotElement>> pages;
     
     /**
      * Creates a new {@link AbstractPagedGui}.
@@ -168,7 +167,7 @@ public abstract class AbstractPagedGui<C> extends AbstractGui implements PagedGu
     }
     
     @Override
-    public void addPageChangeHandler(@NotNull BiConsumer<Integer, Integer> pageChangeHandler) {
+    public void addPageChangeHandler(BiConsumer<Integer, Integer> pageChangeHandler) {
         if (pageChangeHandlers == null) {
             pageChangeHandlers = new ArrayList<>();
         }
@@ -177,14 +176,14 @@ public abstract class AbstractPagedGui<C> extends AbstractGui implements PagedGu
     }
     
     @Override
-    public void removePageChangeHandler(@NotNull BiConsumer<Integer, Integer> pageChangeHandler) {
+    public void removePageChangeHandler(BiConsumer<Integer, Integer> pageChangeHandler) {
         if (pageChangeHandlers != null) {
             pageChangeHandlers.remove(pageChangeHandler);
         }
     }
     
     @Override
-    public void setPageChangeHandlers(@Nullable List<@NotNull BiConsumer<Integer, Integer>> handlers) {
+    public void setPageChangeHandlers(@Nullable List<BiConsumer<Integer, Integer>> handlers) {
         this.pageChangeHandlers = handlers;
     }
     
@@ -210,20 +209,20 @@ public abstract class AbstractPagedGui<C> extends AbstractGui implements PagedGu
         /**
          * The content of the {@link AbstractPagedGui}.
          */
-        protected List<C> content;
+        protected @Nullable List<C> content;
         /**
          * The page change handlers of the {@link AbstractPagedGui}.
          */
-        protected List<BiConsumer<Integer, Integer>> pageChangeHandlers;
+        protected @Nullable List<BiConsumer<Integer, Integer>> pageChangeHandlers;
         
         @Override
-        public PagedGui.@NotNull Builder<C> setContent(@NotNull List<@NotNull C> content) {
+        public PagedGui.Builder<C> setContent(List<C> content) {
             this.content = content;
             return this;
         }
         
         @Override
-        public PagedGui.@NotNull Builder<C> addContent(@NotNull C content) {
+        public PagedGui.Builder<C> addContent(C content) {
             if (this.content == null)
                 this.content = new ArrayList<>();
             
@@ -232,13 +231,13 @@ public abstract class AbstractPagedGui<C> extends AbstractGui implements PagedGu
         }
         
         @Override
-        public PagedGui.@NotNull Builder<C> setPageChangeHandlers(@NotNull List<@NotNull BiConsumer<Integer, Integer>> handlers) {
+        public PagedGui.Builder<C> setPageChangeHandlers(List<BiConsumer<Integer, Integer>> handlers) {
             pageChangeHandlers = handlers;
             return this;
         }
         
         @Override
-        public PagedGui.@NotNull Builder<C> addPageChangeHandler(@NotNull BiConsumer<Integer, Integer> handler) {
+        public PagedGui.Builder<C> addPageChangeHandler(BiConsumer<Integer, Integer> handler) {
             if (pageChangeHandlers == null)
                 pageChangeHandlers = new ArrayList<>(1);
             
@@ -247,13 +246,13 @@ public abstract class AbstractPagedGui<C> extends AbstractGui implements PagedGu
         }
         
         @Override
-        protected void applyModifiers(@NotNull PagedGui<C> gui) {
+        protected void applyModifiers(PagedGui<C> gui) {
             super.applyModifiers(gui);
             gui.setPageChangeHandlers(pageChangeHandlers);
         }
         
         @Override
-        public @NotNull PagedGui.Builder<C> clone() {
+        public PagedGui.Builder<C> clone() {
             var clone = (AbstractBuilder<C>) super.clone();
             if (this.content != null)
                 clone.content = new ArrayList<>(this.content);

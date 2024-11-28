@@ -2,17 +2,16 @@ package xyz.xenondevs.invui.inventory.event;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.inventory.Inventory;
 
 abstract class ItemUpdateEvent {
     
     private final Inventory inventory;
-    private final UpdateReason updateReason;
+    private final @Nullable UpdateReason updateReason;
     private final int slot;
-    private final ItemStack previousItemStack;
-    protected ItemStack newItemStack;
+    private final @Nullable ItemStack previousItemStack;
+    protected @Nullable ItemStack newItemStack;
     
     /**
      * Creates a new {@link ItemPreUpdateEvent}.
@@ -26,7 +25,7 @@ abstract class ItemUpdateEvent {
      * @param previousItem The {@link ItemStack} that was there previously
      * @param newItem      The {@link ItemStack} that will be there if the event isn't cancelled
      */
-    public ItemUpdateEvent(@NotNull Inventory inventory, int slot, @Nullable UpdateReason updateReason,
+    public ItemUpdateEvent(Inventory inventory, int slot, @Nullable UpdateReason updateReason,
                            @Nullable ItemStack previousItem, @Nullable ItemStack newItem) {
         
         this.inventory = inventory;
@@ -41,7 +40,7 @@ abstract class ItemUpdateEvent {
      *
      * @return The {@link Inventory}
      */
-    public @NotNull Inventory getInventory() {
+    public Inventory getInventory() {
         return inventory;
     }
     
@@ -124,9 +123,13 @@ abstract class ItemUpdateEvent {
      * @throws IllegalStateException when {@link #isRemove()} is false
      */
     public int getRemovedAmount() {
-        if (!isRemove()) throw new IllegalStateException("No items have been removed");
-        if (newItemStack == null) return previousItemStack.getAmount();
-        else return previousItemStack.getAmount() - newItemStack.getAmount();
+        if (!isRemove())
+            throw new IllegalStateException("No items have been removed");
+        
+        assert previousItemStack != null;
+        if (newItemStack == null) 
+            return previousItemStack.getAmount();
+        return previousItemStack.getAmount() - newItemStack.getAmount();
     }
     
     /**
@@ -136,9 +139,13 @@ abstract class ItemUpdateEvent {
      * @throws IllegalStateException when {@link #isAdd()} is false
      */
     public int getAddedAmount() {
-        if (!isAdd()) throw new IllegalStateException("No items have been added");
-        if (previousItemStack == null) return newItemStack.getAmount();
-        else return newItemStack.getAmount() - previousItemStack.getAmount();
+        if (!isAdd())
+            throw new IllegalStateException("No items have been added");
+        
+        assert newItemStack != null;
+        if (previousItemStack == null)
+            return newItemStack.getAmount();
+        return newItemStack.getAmount() - previousItemStack.getAmount();
     }
     
 }

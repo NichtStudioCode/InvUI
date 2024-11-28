@@ -2,6 +2,7 @@ package xyz.xenondevs.invui.item.impl;
 
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
@@ -16,7 +17,7 @@ import java.util.function.Supplier;
 public class AutoUpdateItem extends SuppliedItem {
     
     private final int period;
-    private BukkitTask task;
+    private @Nullable BukkitTask task;
     
     public AutoUpdateItem(int period, Supplier<? extends ItemProvider> builderSupplier) {
         super(builderSupplier, null);
@@ -29,8 +30,10 @@ public class AutoUpdateItem extends SuppliedItem {
     }
     
     public void cancel() {
-        task.cancel();
-        task = null;
+        if (task != null) {
+            task.cancel();
+            task = null;
+        }
     }
     
     @Override

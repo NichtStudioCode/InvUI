@@ -1,9 +1,7 @@
 package xyz.xenondevs.invui.window;
 
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
 
 import java.util.List;
@@ -19,7 +17,7 @@ public interface AnvilWindow extends Window {
      *
      * @return The new {@link Builder.Single Window Builder}.
      */
-    static @NotNull Builder.Single single() {
+    static Builder.Single single() {
         return new AnvilSingleWindowImpl.BuilderImpl();
     }
     
@@ -29,7 +27,7 @@ public interface AnvilWindow extends Window {
      * @param consumer The {@link Consumer} to configure the {@link Builder.Single Window Builder}.
      * @return The created {@link AnvilWindow}.
      */
-    static @NotNull AnvilWindow single(@NotNull Consumer<Builder.@NotNull Single> consumer) {
+    static AnvilWindow single(Consumer<Builder.Single> consumer) {
         Builder.Single builder = single();
         consumer.accept(builder);
         return builder.build();
@@ -40,7 +38,7 @@ public interface AnvilWindow extends Window {
      *
      * @return The new {@link Builder.Split Window Builder}.
      */
-    static @NotNull Builder.Split split() {
+    static Builder.Split split() {
         return new AnvilSplitWindowImpl.BuilderImpl();
     }
     
@@ -50,7 +48,7 @@ public interface AnvilWindow extends Window {
      * @param consumer The {@link Consumer} to configure the {@link Builder.Split Window Builder}.
      * @return The created {@link AnvilWindow}.
      */
-    static @NotNull AnvilWindow split(Consumer<Builder.@NotNull Split> consumer) {
+    static AnvilWindow split(Consumer<Builder.Split> consumer) {
         Builder.Split builder = split();
         consumer.accept(builder);
         return builder.build();
@@ -78,8 +76,7 @@ public interface AnvilWindow extends Window {
          * @param renameHandlers The new rename handlers.
          * @return The current builder.
          */
-        @Contract("_ -> this")
-        @NotNull S setRenameHandlers(@NotNull List<@NotNull Consumer<String>> renameHandlers);
+        S setRenameHandlers(List<Consumer<String>> renameHandlers);
         
         /**
          * Adds a rename handler to the {@link AnvilWindow}.
@@ -87,8 +84,7 @@ public interface AnvilWindow extends Window {
          * @param renameHandler The rename handler to add.
          * @return The current builder.
          */
-        @Contract("_ -> this")
-        @NotNull S addRenameHandler(@NotNull Consumer<String> renameHandler);
+        S addRenameHandler(Consumer<String> renameHandler);
         
         /**
          * A single {@link AnvilWindow} builder. Combines both {@link AnvilWindow.Builder} and {@link Window.Builder.Single}

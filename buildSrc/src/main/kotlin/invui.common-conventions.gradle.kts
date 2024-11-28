@@ -13,7 +13,7 @@ repositories {
 
 dependencies {
     paperweight.paperDevBundle("1.21.3-R0.1-SNAPSHOT")
-    implementation("org.jetbrains:annotations:26.0.1")
+    implementation("org.jspecify:jspecify:1.0.0")
     testImplementation("org.junit.jupiter:junit-jupiter:5.11.3")
 }
 

@@ -5,8 +5,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.util.ReflectionUtils;
 
 import java.util.ArrayList;
@@ -17,19 +16,19 @@ import static xyz.xenondevs.inventoryaccess.util.ReflectionRegistry.*;
 
 public class InvUI implements Listener {
     
-    private static InvUI instance;
+    private static final InvUI INSTANCE = new InvUI();
     
     private final List<Runnable> disableHandlers = new ArrayList<>();
-    private Plugin plugin;
+    private @Nullable Plugin plugin;
     
     private InvUI() {
     }
     
-    public static @NotNull InvUI getInstance() {
-        return instance == null ? instance = new InvUI() : instance;
+    public static InvUI getInstance() {
+        return INSTANCE;
     }
     
-    public @NotNull Plugin getPlugin() {
+    public Plugin getPlugin() {
         if (plugin == null) {
             setPlugin(tryFindPlugin());
             
@@ -40,6 +39,7 @@ public class InvUI implements Listener {
         return plugin;
     }
     
+    @SuppressWarnings("CallToPrintStackTrace")
     private @Nullable Plugin tryFindPlugin() {
         ClassLoader loader = getClass().getClassLoader();
         
@@ -67,11 +67,11 @@ public class InvUI implements Listener {
         this.plugin = plugin;
     }
     
-    public @NotNull Logger getLogger() {
+    public Logger getLogger() {
         return getPlugin().getLogger();
     }
     
-    public void addDisableHandler(@NotNull Runnable runnable) {
+    public void addDisableHandler(Runnable runnable) {
         disableHandlers.add(runnable);
     }
     

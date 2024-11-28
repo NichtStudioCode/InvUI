@@ -5,9 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.invui.gui.Gui;
 
@@ -31,7 +29,7 @@ public interface Window {
      *
      * @return The new {@link Builder.Normal.Single Window Builder}.
      */
-    static @NotNull Builder.Normal.Single single() {
+    static Builder.Normal.Single single() {
         return new NormalSingleWindowImpl.BuilderImpl();
     }
     
@@ -41,7 +39,7 @@ public interface Window {
      * @param consumer The {@link Consumer} to configure the {@link Builder.Normal.Split Window Builder}.
      * @return The new {@link Window}.
      */
-    static @NotNull Window single(@NotNull Consumer<Builder.Normal.@NotNull Single> consumer) {
+    static Window single(Consumer<Builder.Normal.Single> consumer) {
         Builder.Normal.Single builder = single();
         consumer.accept(builder);
         return builder.build();
@@ -52,7 +50,7 @@ public interface Window {
      *
      * @return The new {@link Builder.Normal.Split Window Builder}.
      */
-    static @NotNull Builder.Normal.Split split() {
+    static Builder.Normal.Split split() {
         return new NormalSplitWindowImpl.BuilderImpl();
     }
     
@@ -62,7 +60,7 @@ public interface Window {
      * @param consumer The {@link Consumer} to configure the {@link Builder.Normal.Split Window Builder}.
      * @return The new {@link Window}.
      */
-    static @NotNull Window split(@NotNull Consumer<Builder.Normal.@NotNull Split> consumer) {
+    static Window split(Consumer<Builder.Normal.Split> consumer) {
         Builder.Normal.Split builder = split();
         consumer.accept(builder);
         return builder.build();
@@ -73,7 +71,7 @@ public interface Window {
      *
      * @return The new {@link Builder.Normal.Merged Window Builder}.
      */
-    static @NotNull Builder.Normal.Merged merged() {
+    static Builder.Normal.Merged merged() {
         return new NormalMergedWindowImpl.BuilderImpl();
     }
     
@@ -83,7 +81,7 @@ public interface Window {
      * @param consumer The {@link Consumer} to configure the {@link Builder.Normal.Merged Window Builder}.
      * @return The new {@link Window}.
      */
-    static @NotNull Window merged(@NotNull Consumer<Builder.Normal.@NotNull Merged> consumer) {
+    static Window merged(Consumer<Builder.Normal.Merged> consumer) {
         Builder.Normal.Merged builder = merged();
         consumer.accept(builder);
         return builder.build();
@@ -125,28 +123,28 @@ public interface Window {
      *
      * @param title The new title
      */
-    void changeTitle(@NotNull ComponentWrapper title);
+    void changeTitle(ComponentWrapper title);
     
     /**
      * Changes the title of the {@link Inventory}.
      *
      * @param title The new title
      */
-    void changeTitle(@NotNull BaseComponent[] title);
+    void changeTitle(BaseComponent[] title);
     
     /**
      * Changes the title of the {@link Inventory}.
      *
      * @param title The new title
      */
-    void changeTitle(@NotNull String title);
+    void changeTitle(String title);
     
     /**
      * Gets the viewer of this {@link Window}
      *
      * @return The viewer of this window.
      */
-    @NotNull Player getViewer();
+    Player getViewer();
     
     /**
      * Gets the current {@link Player} that is viewing this
@@ -162,7 +160,7 @@ public interface Window {
      *
      * @return The viewer's {@link UUID}
      */
-    @NotNull
+    
     UUID getViewerUUID();
     
     /**
@@ -181,56 +179,56 @@ public interface Window {
      *
      * @param openHandlers The new open handlers
      */
-    void setOpenHandlers(@Nullable List<@NotNull Runnable> openHandlers);
+    void setOpenHandlers(@Nullable List<Runnable> openHandlers);
     
     /**
      * Adds an open handler that will be called when this window gets opened.
      *
      * @param openHandler The close handler to add
      */
-    void addOpenHandler(@NotNull Runnable openHandler);
+    void addOpenHandler(Runnable openHandler);
     
     /**
      * Replaces the currently registered close handlers with the given list.
      *
      * @param closeHandlers The new close handlers
      */
-    void setCloseHandlers(@Nullable List<@NotNull Runnable> closeHandlers);
+    void setCloseHandlers(@Nullable List<Runnable> closeHandlers);
     
     /**
      * Adds a close handler that will be called when this window gets closed.
      *
      * @param closeHandler The close handler to add
      */
-    void addCloseHandler(@NotNull Runnable closeHandler);
+    void addCloseHandler(Runnable closeHandler);
     
     /**
      * Removes a close handler that has been added previously.
      *
      * @param closeHandler The close handler to remove
      */
-    void removeCloseHandler(@NotNull Runnable closeHandler);
+    void removeCloseHandler(Runnable closeHandler);
     
     /**
      * Replaces the currently registered outside click handlers with the given list.
      *
      * @param outsideClickHandlers The new outside click handlers
      */
-    void setOutsideClickHandlers(@Nullable List<@NotNull Consumer<@NotNull InventoryClickEvent>> outsideClickHandlers);
+    void setOutsideClickHandlers(@Nullable List<Consumer<InventoryClickEvent>> outsideClickHandlers);
     
     /**
      * Adds an outside click handler that will be called when a player clicks outside the inventory.
      *
      * @param outsideClickHandler The outside click handler to add
      */
-    void addOutsideClickHandler(@NotNull Consumer<@NotNull InventoryClickEvent> outsideClickHandler);
+    void addOutsideClickHandler(Consumer<InventoryClickEvent> outsideClickHandler);
     
     /**
      * Removes an outside click handler that has been added previously.
      *
      * @param outsideClickHandler The outside click handler to remove
      */
-    void removeOutsideClickHandler(@NotNull Consumer<@NotNull InventoryClickEvent> outsideClickHandler);
+    void removeOutsideClickHandler(Consumer<InventoryClickEvent> outsideClickHandler);
     
     /**
      * A {@link Window} builder.
@@ -246,9 +244,7 @@ public interface Window {
          * @param viewer The viewer of the {@link Window}
          * @return This {@link Builder Window Builder}
          */
-        @Contract("_ -> this")
-        @NotNull
-        S setViewer(@NotNull Player viewer);
+        S setViewer(Player viewer);
         
         /**
          * Sets the title of the {@link Window}.
@@ -256,9 +252,7 @@ public interface Window {
          * @param title The title of the {@link Window}
          * @return This {@link Builder Window Builder}
          */
-        @Contract("_ -> this")
-        @NotNull
-        S setTitle(@NotNull ComponentWrapper title);
+        S setTitle(ComponentWrapper title);
         
         /**
          * Sets the title of the {@link Window}.
@@ -266,9 +260,7 @@ public interface Window {
          * @param title The title of the {@link Window}
          * @return This {@link Builder Window Builder}
          */
-        @Contract("_ -> this")
-        @NotNull
-        S setTitle(@NotNull BaseComponent @NotNull [] title);
+        S setTitle(BaseComponent[] title);
         
         /**
          * Sets the title of the {@link Window}.
@@ -276,9 +268,7 @@ public interface Window {
          * @param title The title of the {@link Window}
          * @return This {@link Builder Window Builder}
          */
-        @Contract("_ -> this")
-        @NotNull
-        S setTitle(@NotNull String title);
+        S setTitle(String title);
         
         /**
          * Configures if the {@link Window} is closeable.
@@ -286,8 +276,6 @@ public interface Window {
          * @param closeable If the {@link Window} is closeable
          * @return This {@link Builder Window Builder}
          */
-        @Contract("_ -> this")
-        @NotNull
         S setCloseable(boolean closeable);
         
         /**
@@ -296,9 +284,7 @@ public interface Window {
          * @param openHandlers The open handlers of the {@link Window}
          * @return This {@link Builder Window Builder}
          */
-        @Contract("_ -> this")
-        @NotNull
-        S setOpenHandlers(@Nullable List<@NotNull Runnable> openHandlers);
+        S setOpenHandlers(@Nullable List<Runnable> openHandlers);
         
         /**
          * Adds an open handler to the {@link Window}.
@@ -306,9 +292,7 @@ public interface Window {
          * @param openHandler The open handler to add
          * @return This {@link Builder Window Builder}
          */
-        @Contract("_ -> this")
-        @NotNull
-        S addOpenHandler(@NotNull Runnable openHandler);
+        S addOpenHandler(Runnable openHandler);
         
         /**
          * Sets the close handlers of the {@link Window}.
@@ -316,9 +300,7 @@ public interface Window {
          * @param closeHandlers The close handlers of the {@link Window}
          * @return This {@link Builder Window Builder}
          */
-        @Contract("_ -> this")
-        @NotNull
-        S setCloseHandlers(@Nullable List<@NotNull Runnable> closeHandlers);
+        S setCloseHandlers(@Nullable List<Runnable> closeHandlers);
         
         /**
          * Adds a close handler to the {@link Window}.
@@ -326,9 +308,7 @@ public interface Window {
          * @param closeHandler The close handler to add
          * @return This {@link Builder Window Builder}
          */
-        @Contract("_ -> this")
-        @NotNull
-        S addCloseHandler(@NotNull Runnable closeHandler);
+        S addCloseHandler(Runnable closeHandler);
         
         /**
          * Sets the outside click handlers of the {@link Window}.
@@ -336,9 +316,7 @@ public interface Window {
          * @param outsideClickHandlers The outside click handlers of the {@link Window}
          * @return This {@link Builder Window Builder}
          */
-        @Contract("_ -> this")
-        @NotNull
-        S setOutsideClickHandlers(@NotNull List<@NotNull Consumer<@NotNull InventoryClickEvent>> outsideClickHandlers);
+        S setOutsideClickHandlers(List<Consumer<InventoryClickEvent>> outsideClickHandlers);
         
         /**
          * Adds an outside click handler to the {@link Window}.
@@ -346,9 +324,7 @@ public interface Window {
          * @param outsideClickHandler The outside click handler to add
          * @return This {@link Builder Window Builder}
          */
-        @Contract("_ -> this")
-        @NotNull
-        S addOutsideClickHandler(@NotNull Consumer<@NotNull InventoryClickEvent> outsideClickHandler);
+        S addOutsideClickHandler(Consumer<InventoryClickEvent> outsideClickHandler);
         
         /**
          * Sets the modifiers of the {@link Window}.
@@ -356,9 +332,7 @@ public interface Window {
          * @param modifiers The modifiers of the {@link Window}
          * @return This {@link Builder Window Builder}
          */
-        @Contract("_ -> this")
-        @NotNull
-        S setModifiers(@Nullable List<@NotNull Consumer<@NotNull W>> modifiers);
+        S setModifiers(@Nullable List<Consumer<W>> modifiers);
         
         /**
          * Adds a modifier to the {@link Window}.
@@ -366,17 +340,13 @@ public interface Window {
          * @param modifier The modifier to add
          * @return This {@link Builder Window Builder}
          */
-        @Contract("_ -> this")
-        @NotNull
-        S addModifier(@NotNull Consumer<@NotNull W> modifier);
+        S addModifier(Consumer<W> modifier);
         
         /**
          * Builds the {@link Window}.
          *
          * @return The built {@link Window}
          */
-        @Contract("-> new")
-        @NotNull
         W build();
         
         /**
@@ -386,8 +356,7 @@ public interface Window {
          * @param viewer The {@link Player} to build the {@link Window} for.
          * @return The built {@link Window}.
          */
-        @Contract("_ -> new")
-        @NotNull
+        
         W build(Player viewer);
         
         /**
@@ -403,8 +372,6 @@ public interface Window {
          *
          * @return The cloned {@link Builder Window Builder}
          */
-        @Contract("-> new")
-        @NotNull
         S clone();
         
         /**
@@ -425,9 +392,9 @@ public interface Window {
              * @param gui The {@link Gui} of the {@link Window}
              * @return This {@link Single Window Builder}
              */
-            @Contract("_ -> this")
-            @NotNull
-            S setGui(@NotNull Gui gui);
+            
+            
+            S setGui(Gui gui);
             
             /**
              * Sets the {@link Gui.Builder} for this {@link Single Window Builder}.
@@ -436,9 +403,9 @@ public interface Window {
              * @param builder The {@link Gui.Builder} for this {@link Single Window Builder}
              * @return This {@link Single Window Builder}
              */
-            @Contract("_ -> this")
-            @NotNull
-            S setGui(@NotNull Gui.Builder<?, ?> builder);
+            
+            
+            S setGui(Gui.Builder<?, ?> builder);
             
             /**
              * Sets the {@link Gui} {@link Supplier} for this {@link Single Window Builder}.
@@ -447,9 +414,9 @@ public interface Window {
              * @param guiSupplier The {@link Gui} {@link Supplier}
              * @return This {@link Single Window Builder}
              */
-            @Contract("_ -> this")
-            @NotNull
-            S setGui(@NotNull Supplier<Gui> guiSupplier);
+            
+            
+            S setGui(Supplier<Gui> guiSupplier);
             
         }
         
@@ -470,9 +437,7 @@ public interface Window {
              * @param gui The upper {@link Gui} of the {@link Window}
              * @return This {@link Double Window Builder}
              */
-            @Contract("_ -> this")
-            @NotNull
-            S setUpperGui(@NotNull Gui gui);
+            S setUpperGui(Gui gui);
             
             /**
              * Sets the {@link Gui.Builder} for the upper {@link Gui} of this {@link Double Window Builder}.
@@ -481,9 +446,9 @@ public interface Window {
              * @param builder The {@link Gui.Builder} for the upper {@link Gui} of this {@link Double Window Builder}
              * @return This {@link Double Window Builder}
              */
-            @Contract("_ -> this")
-            @NotNull
-            S setUpperGui(@NotNull Gui.Builder<?, ?> builder);
+            
+            
+            S setUpperGui(Gui.Builder<?, ?> builder);
             
             /**
              * Sets the {@link Gui} {@link Supplier} for the upper {@link Gui} of this {@link Double Window Builder}.
@@ -492,9 +457,9 @@ public interface Window {
              * @param guiSupplier The {@link Gui} {@link Supplier} for the upper {@link Gui} of this {@link Double Window Builder}
              * @return This {@link Double Window Builder}
              */
-            @Contract("_ -> this")
-            @NotNull
-            S setUpperGui(@NotNull Supplier<Gui> guiSupplier);
+            
+            
+            S setUpperGui(Supplier<Gui> guiSupplier);
             
             /**
              * Sets the lower {@link Gui} of the {@link Window}.
@@ -502,9 +467,9 @@ public interface Window {
              * @param gui The lower {@link Gui} of the {@link Window}
              * @return This {@link Double Window Builder}
              */
-            @Contract("_ -> this")
-            @NotNull
-            S setLowerGui(@NotNull Gui gui);
+            
+            
+            S setLowerGui(Gui gui);
             
             /**
              * Sets the {@link Gui.Builder} for the lower {@link Gui} of this {@link Double Window Builder}.
@@ -513,9 +478,9 @@ public interface Window {
              * @param builder The {@link Gui.Builder} for the lower {@link Gui} of this {@link Double Window Builder}
              * @return This {@link Double Window Builder}
              */
-            @Contract("_ -> this")
-            @NotNull
-            S setLowerGui(@NotNull Gui.Builder<?, ?> builder);
+            
+            
+            S setLowerGui(Gui.Builder<?, ?> builder);
             
             /**
              * Sets the {@link Gui} {@link Supplier} for the lower {@link Gui} of this {@link Double Window Builder}.
@@ -524,9 +489,9 @@ public interface Window {
              * @param guiSupplier The {@link Gui} {@link Supplier} for the lower {@link Gui} of this {@link Double Window Builder}
              * @return This {@link Double Window Builder}
              */
-            @Contract("_ -> this")
-            @NotNull
-            S setLowerGui(@NotNull Supplier<Gui> guiSupplier);
+            
+            
+            S setLowerGui(Supplier<Gui> guiSupplier);
             
         }
         

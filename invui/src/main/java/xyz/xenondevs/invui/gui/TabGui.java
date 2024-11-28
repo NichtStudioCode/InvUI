@@ -1,8 +1,6 @@
 package xyz.xenondevs.invui.gui;
 
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.structure.Structure;
 
 import java.util.List;
@@ -16,7 +14,7 @@ public interface TabGui extends Gui {
      *
      * @return The new {@link Builder Gui Builder}.
      */
-    static @NotNull Builder normal() {
+    static Builder normal() {
         return new TabGuiImpl.BuilderImpl();
     }
     
@@ -26,7 +24,7 @@ public interface TabGui extends Gui {
      * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
      * @return The created {@link TabGui}.
      */
-    static @NotNull TabGui normal(@NotNull Consumer<@NotNull Builder> consumer) {
+    static TabGui normal(Consumer<Builder> consumer) {
         Builder builder = normal();
         consumer.accept(builder);
         return builder.build();
@@ -41,7 +39,7 @@ public interface TabGui extends Gui {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link TabGui}.
      */
-    static @NotNull TabGui of(int width, int height, @NotNull List<@Nullable Gui> tabs, int... contentListSlots) {
+    static TabGui of(int width, int height, List<@Nullable Gui> tabs, int... contentListSlots) {
         return new TabGuiImpl(width, height, tabs, contentListSlots);
     }
     
@@ -52,7 +50,7 @@ public interface TabGui extends Gui {
      * @param tabs      The {@link Gui Guis} to use as tabs.
      * @return The created {@link TabGui}.
      */
-    static @NotNull TabGui of(Structure structure, @NotNull List<@Nullable Gui> tabs) {
+    static TabGui of(Structure structure, List<@Nullable Gui> tabs) {
         return new TabGuiImpl(tabs, structure);
     }
     
@@ -83,35 +81,35 @@ public interface TabGui extends Gui {
      *
      * @return The configured tabs.
      */
-    @NotNull List<@Nullable Gui> getTabs();
+    List<@Nullable Gui> getTabs();
     
     /**
      * Gets the registered tab change handlers.
      *
      * @return The registered tab change handlers.
      */
-    @Nullable List<@NotNull BiConsumer<Integer, Integer>> getTabChangeHandlers();
+    @Nullable List<BiConsumer<Integer, Integer>> getTabChangeHandlers();
     
     /**
      * Replaces the currently registered tab change handlers with the given list.
      *
      * @param handlers The new page change handlers.
      */
-    void setTabChangeHandlers(@Nullable List<@NotNull BiConsumer<Integer, Integer>> handlers);
+    void setTabChangeHandlers(@Nullable List<BiConsumer<Integer, Integer>> handlers);
     
     /**
      * Registers a page change handler.
      *
      * @param handler The handler to register.
      */
-    void addTabChangeHandler(@NotNull BiConsumer<Integer, Integer> handler);
+    void addTabChangeHandler(BiConsumer<Integer, Integer> handler);
     
     /**
      * Unregisters a page change handler.
      *
      * @param handler The handler to unregister.
      */
-    void removeTabChangeHandler(@NotNull BiConsumer<Integer, Integer> handler);
+    void removeTabChangeHandler(BiConsumer<Integer, Integer> handler);
     
     /**
      * A {@link TabGui} builder.
@@ -125,8 +123,7 @@ public interface TabGui extends Gui {
          * @param tabs The tabs of the {@link TabGui}.
          * @return This {@link Builder Gui Builder}.
          */
-        @Contract("_ -> this")
-        @NotNull Builder setTabs(@NotNull List<@Nullable Gui> tabs);
+        Builder setTabs(List<@Nullable Gui> tabs);
         
         /**
          * Adds a tab to the {@link TabGui}.
@@ -135,8 +132,7 @@ public interface TabGui extends Gui {
          * @param tab The tab to add.
          * @return This {@link Builder Gui Builder}.
          */
-        @Contract("_ -> this")
-        @NotNull Builder addTab(@Nullable Gui tab);
+        Builder addTab(@Nullable Gui tab);
         
         /**
          * Sets the tab change handlers of the {@link TabGui}.
@@ -144,8 +140,7 @@ public interface TabGui extends Gui {
          * @param handlers The tab change handlers of the {@link TabGui}.
          * @return This {@link Builder Gui Builder}.
          */
-        @Contract("_ -> this")
-        @NotNull Builder setTabChangeHandlers(@NotNull List<@NotNull BiConsumer<Integer, Integer>> handlers);
+        Builder setTabChangeHandlers(List<BiConsumer<Integer, Integer>> handlers);
         
         /**
          * Adds a tab change handler to the {@link TabGui}.
@@ -153,8 +148,7 @@ public interface TabGui extends Gui {
          * @param handler The tab change handler to add.
          * @return This {@link Builder Gui Builder}.
          */
-        @Contract("_ -> this")
-        @NotNull Builder addTabChangeHandler(@NotNull BiConsumer<Integer, Integer> handler);
+        Builder addTabChangeHandler(BiConsumer<Integer, Integer> handler);
         
     }
     

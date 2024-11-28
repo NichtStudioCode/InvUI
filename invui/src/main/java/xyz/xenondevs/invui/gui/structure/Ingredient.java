@@ -1,7 +1,6 @@
 package xyz.xenondevs.invui.gui.structure;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.SlotElement;
 
 import java.util.function.Supplier;
@@ -17,7 +16,7 @@ class Ingredient {
      *
      * @param slotElement The {@link SlotElement}.
      */
-    public Ingredient(@NotNull SlotElement slotElement) {
+    public Ingredient(SlotElement slotElement) {
         this.slotElement = slotElement;
         this.elementSupplier = null;
         this.marker = null;
@@ -29,7 +28,7 @@ class Ingredient {
      *
      * @param elementSupplier The {@link Supplier}.
      */
-    public Ingredient(@NotNull Supplier<? extends SlotElement> elementSupplier) {
+    public Ingredient(Supplier<? extends SlotElement> elementSupplier) {
         this.elementSupplier = elementSupplier;
         this.slotElement = null;
         this.marker = null;
@@ -40,7 +39,7 @@ class Ingredient {
      *
      * @param marker The {@link Marker}.
      */
-    public Ingredient(@NotNull Marker marker) {
+    public Ingredient(Marker marker) {
         this.marker = marker;
         this.slotElement = null;
         this.elementSupplier = null;

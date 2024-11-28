@@ -3,8 +3,7 @@ package xyz.xenondevs.invui.inventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.util.TriConsumer;
 import xyz.xenondevs.invui.window.Window;
@@ -28,12 +27,12 @@ public class ReferencingInventory extends xyz.xenondevs.invui.inventory.Inventor
     
     private static final int MAX_STACK_SIZE = 64;
     
-    protected final @NotNull Inventory inventory;
-    protected final @NotNull Function<@NotNull Inventory, @Nullable ItemStack @NotNull []> itemsGetter;
-    protected final @NotNull BiFunction<@NotNull Inventory, @NotNull Integer, @Nullable ItemStack> itemGetter;
-    protected final @NotNull TriConsumer<@NotNull Inventory, @NotNull Integer, @Nullable ItemStack> itemSetter;
+    protected final Inventory inventory;
+    protected final Function<Inventory, @Nullable ItemStack[]> itemsGetter;
+    protected final BiFunction<Inventory, Integer, @Nullable ItemStack> itemGetter;
+    protected final TriConsumer<Inventory, Integer, @Nullable ItemStack> itemSetter;
     protected final int size;
-    protected final int @NotNull [] maxStackSizes;
+    protected final int[] maxStackSizes;
     
     /**
      * Constructs a new {@link ReferencingInventory}.
@@ -44,10 +43,10 @@ public class ReferencingInventory extends xyz.xenondevs.invui.inventory.Inventor
      * @param itemSetter  A {@link TriConsumer} which copies and then sets the {@link ItemStack} on the specified slot.
      */
     public ReferencingInventory(
-        @NotNull Inventory inventory,
-        @NotNull Function<@NotNull Inventory, @Nullable ItemStack @NotNull []> itemsGetter,
-        @NotNull BiFunction<@NotNull Inventory, @NotNull Integer, @Nullable ItemStack> itemGetter,
-        @NotNull TriConsumer<@NotNull Inventory, @NotNull Integer, @Nullable ItemStack> itemSetter
+        Inventory inventory,
+        Function<Inventory, @Nullable ItemStack[]> itemsGetter,
+        BiFunction<Inventory, Integer, @Nullable ItemStack> itemGetter,
+        TriConsumer<Inventory, Integer, @Nullable ItemStack> itemSetter
     ) {
         this.inventory = inventory;
         this.itemsGetter = itemsGetter;
@@ -64,7 +63,7 @@ public class ReferencingInventory extends xyz.xenondevs.invui.inventory.Inventor
      * @param inventory The {@link Inventory} to reference.
      * @return The new {@link ReferencingInventory}.
      */
-    public static @NotNull ReferencingInventory fromStorageContents(@NotNull Inventory inventory) {
+    public static ReferencingInventory fromStorageContents(Inventory inventory) {
         return new ReferencingInventory(inventory, Inventory::getStorageContents, Inventory::getItem, Inventory::setItem);
     }
     
@@ -74,7 +73,7 @@ public class ReferencingInventory extends xyz.xenondevs.invui.inventory.Inventor
      * @param inventory The {@link Inventory} to reference.
      * @return The new {@link ReferencingInventory}.
      */
-    public static @NotNull ReferencingInventory fromContents(@NotNull Inventory inventory) {
+    public static ReferencingInventory fromContents(Inventory inventory) {
         return new ReferencingInventory(inventory, Inventory::getContents, Inventory::getItem, Inventory::setItem);
     }
     
@@ -86,7 +85,7 @@ public class ReferencingInventory extends xyz.xenondevs.invui.inventory.Inventor
      * @param inventory The {@link PlayerInventory} to reference.
      * @return The new {@link ReferencingInventory}.
      */
-    public static @NotNull ReferencingInventory fromReversedPlayerStorageContents(@NotNull PlayerInventory inventory) {
+    public static ReferencingInventory fromReversedPlayerStorageContents(PlayerInventory inventory) {
         return new ReversedPlayerContents(inventory);
     }
     
@@ -96,7 +95,7 @@ public class ReferencingInventory extends xyz.xenondevs.invui.inventory.Inventor
     }
     
     @Override
-    public int @NotNull [] getMaxStackSizes() {
+    public int[] getMaxStackSizes() {
         return maxStackSizes.clone();
     }
     
@@ -106,12 +105,12 @@ public class ReferencingInventory extends xyz.xenondevs.invui.inventory.Inventor
     }
     
     @Override
-    public @Nullable ItemStack @NotNull [] getItems() {
+    public @Nullable ItemStack[] getItems() {
         return itemsGetter.apply(inventory);
     }
     
     @Override
-    public @Nullable ItemStack @NotNull [] getUnsafeItems() {
+    public @Nullable ItemStack[] getUnsafeItems() {
         return itemsGetter.apply(inventory);
     }
     
@@ -157,14 +156,14 @@ public class ReferencingInventory extends xyz.xenondevs.invui.inventory.Inventor
         }
         
         @Override
-        public @Nullable ItemStack @NotNull [] getUnsafeItems() {
+        public @Nullable ItemStack[] getUnsafeItems() {
             return getItems();
         }
         
         @Override
-        public @Nullable ItemStack @NotNull [] getItems() {
-            ItemStack[] items = itemsGetter.apply(inventory);
-            ItemStack[] reorderedItems = new ItemStack[items.length];
+        public @Nullable ItemStack[] getItems() {
+            @Nullable ItemStack[] items = itemsGetter.apply(inventory);
+            @Nullable ItemStack[] reorderedItems = new ItemStack[items.length];
             
             for (int i = 0; i < 9; i++) {
                 reorderedItems[8 - i] = items[i];

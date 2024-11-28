@@ -2,8 +2,7 @@ package xyz.xenondevs.inventoryaccess.component.i18n;
 
 import com.google.gson.stream.JsonReader;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 
 import java.io.File;
@@ -25,7 +24,7 @@ public class Languages {
     private Languages() {
     }
     
-    public static @NotNull Languages getInstance() {
+    public static Languages getInstance() {
         return INSTANCE;
     }
     
@@ -37,7 +36,7 @@ public class Languages {
      * @param lang         The lang code of the language.
      * @param translations The translations of the language.
      */
-    public void addLanguage(@NotNull String lang, @NotNull Map<@NotNull String, @NotNull String> translations) {
+    public void addLanguage(String lang, Map<String, String> translations) {
         this.translations.put(lang, translations);
     }
     
@@ -53,7 +52,7 @@ public class Languages {
      * @throws IOException           If an error occurs while reading.
      * @throws IllegalStateException If the json is not valid.
      */
-    public void loadLanguage(@NotNull String lang, @NotNull Reader reader) throws IOException {
+    public void loadLanguage(String lang, Reader reader) throws IOException {
         var translations = new HashMap<String, String>();
         try (var jsonReader = new JsonReader(reader)) {
             jsonReader.beginObject();
@@ -75,7 +74,7 @@ public class Languages {
      * @param charset The charset to use.
      * @throws IOException If an error occurs while reading.
      */
-    public void loadLanguage(@NotNull String lang, @NotNull File file, @NotNull Charset charset) throws IOException {
+    public void loadLanguage(String lang, File file, Charset charset) throws IOException {
         try (var reader = new FileReader(file, charset)) {
             loadLanguage(lang, reader);
         }
@@ -88,7 +87,7 @@ public class Languages {
      * @param key  The key of the format string.
      * @return The format string or null if there is no such language or key.
      */
-    public @Nullable String getFormatString(@NotNull String lang, @NotNull String key) {
+    public @Nullable String getFormatString(String lang, String key) {
         var map = translations.get(lang);
         if (map == null)
             return null;
@@ -101,7 +100,7 @@ public class Languages {
      *
      * @param languageProvider The language provider.
      */
-    public void setLanguageProvider(@NotNull Function<@NotNull Player, @NotNull String> languageProvider) {
+    public void setLanguageProvider(Function<Player, String> languageProvider) {
         this.languageProvider = languageProvider;
     }
     
@@ -111,7 +110,7 @@ public class Languages {
      * @param player The player to get the language for.
      * @return The language of the player.
      */
-    public @NotNull String getLanguage(@NotNull Player player) {
+    public String getLanguage(Player player) {
         return languageProvider.apply(player);
     }
     

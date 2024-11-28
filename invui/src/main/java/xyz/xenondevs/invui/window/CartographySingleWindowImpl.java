@@ -4,8 +4,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.MapMeta;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.InventoryAccess;
 import xyz.xenondevs.inventoryaccess.abstraction.inventory.CartographyInventory;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
@@ -30,9 +29,9 @@ final class CartographySingleWindowImpl extends AbstractSingleWindow implements 
     private int mapId;
     
     public CartographySingleWindowImpl(
-        @NotNull Player player,
+        Player player,
         @Nullable ComponentWrapper title,
-        @NotNull AbstractGui gui,
+        AbstractGui gui,
         boolean closeable
     ) {
         super(player, title, createWrappingGui(gui), null, closeable);
@@ -70,7 +69,7 @@ final class CartographySingleWindowImpl extends AbstractSingleWindow implements 
     }
     
     @Override
-    protected void openInventory(@NotNull Player viewer) {
+    protected void openInventory(Player viewer) {
         cartographyInventory.open();
     }
     
@@ -80,7 +79,7 @@ final class CartographySingleWindowImpl extends AbstractSingleWindow implements 
     {
         
         @Override
-        public @NotNull CartographyWindow build(Player viewer) {
+        public CartographyWindow build(Player viewer) {
             if (viewer == null)
                 throw new IllegalStateException("Viewer is not defined.");
             if (guiSupplier == null)

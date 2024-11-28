@@ -1,8 +1,7 @@
 package xyz.xenondevs.invui.inventory;
 
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
@@ -24,7 +23,7 @@ public class CompositeInventory extends Inventory {
      * @param first The first {@link Inventory}.
      * @param other The other {@link Inventory Inventories}.
      */
-    public CompositeInventory(@NotNull Inventory first, @NotNull Inventory @NotNull ... other) {
+    public CompositeInventory(Inventory first, Inventory... other) {
         this.inventories = new Inventory[other.length + 1];
         this.inventories[0] = first;
         System.arraycopy(other, 0, this.inventories, 1, other.length);
@@ -35,7 +34,7 @@ public class CompositeInventory extends Inventory {
      *
      * @param inventories The {@link Inventory Inventories}. Cannot be empty.
      */
-    public CompositeInventory(@NotNull Collection<@NotNull Inventory> inventories) {
+    public CompositeInventory(Collection<Inventory> inventories) {
         if (inventories.isEmpty())
             throw new IllegalArgumentException("CompositeInventory must contain at least one Inventory");
         
@@ -52,7 +51,7 @@ public class CompositeInventory extends Inventory {
     }
     
     @Override
-    public int @NotNull [] getMaxStackSizes() {
+    public int[] getMaxStackSizes() {
         int[] stackSizes = new int[getSize()];
         
         int pos = 0;
@@ -72,11 +71,11 @@ public class CompositeInventory extends Inventory {
     }
     
     @Override
-    public @Nullable ItemStack @NotNull [] getItems() {
+    public @Nullable ItemStack[] getItems() {
         ItemStack[] items = new ItemStack[getSize()];
         int pos = 0;
         for (Inventory inv : inventories) {
-            ItemStack[] invItems = inv.getItems();
+            @Nullable ItemStack[] invItems = inv.getItems();
             System.arraycopy(invItems, 0, items, pos, invItems.length);
             pos += invItems.length;
         }
@@ -84,11 +83,11 @@ public class CompositeInventory extends Inventory {
     }
     
     @Override
-    public @Nullable ItemStack @NotNull [] getUnsafeItems() {
+    public @Nullable ItemStack[] getUnsafeItems() {
         ItemStack[] items = new ItemStack[getSize()];
         int pos = 0;
         for (Inventory inv : inventories) {
-            ItemStack[] invItems = inv.getUnsafeItems();
+            @Nullable ItemStack[] invItems = inv.getUnsafeItems();
             System.arraycopy(invItems, 0, items, pos, invItems.length);
             pos += invItems.length;
         }
@@ -164,12 +163,12 @@ public class CompositeInventory extends Inventory {
     }
     
     @Override
-    public void setPostUpdateHandler(@Nullable Consumer<@NotNull ItemPostUpdateEvent> inventoryUpdatedHandler) {
+    public void setPostUpdateHandler(@Nullable Consumer<ItemPostUpdateEvent> inventoryUpdatedHandler) {
         throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
     }
     
     @Override
-    public void setPreUpdateHandler(@Nullable Consumer<@NotNull ItemPreUpdateEvent> preUpdateHandler) {
+    public void setPreUpdateHandler(@Nullable Consumer<ItemPreUpdateEvent> preUpdateHandler) {
         throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
     }
     

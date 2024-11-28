@@ -10,8 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.abstraction.util.PlayerUtils;
 import xyz.xenondevs.inventoryaccess.map.MapIcon;
 import xyz.xenondevs.inventoryaccess.map.MapPatch;
@@ -33,29 +32,29 @@ class PlayerUtilsImpl implements PlayerUtils {
     );
     
     @Override
-    public void stopAdvancementListening(@NotNull Player player) {
+    public void stopAdvancementListening(Player player) {
         stopAdvancementListening(((CraftPlayer) player).getHandle());
     }
     
     @Override
-    public void stopAdvancementListening(@NotNull Object player) {
+    public void stopAdvancementListening(Object player) {
         ((ServerPlayer) player).getAdvancements().stopListening();
     }
     
     @Override
-    public void startAdvancementListening(@NotNull Player player) {
+    public void startAdvancementListening(Player player) {
         startAdvancementListening(((CraftPlayer) player).getHandle());
     }
     
     @Override
-    public void startAdvancementListening(@NotNull Object player) {
+    public void startAdvancementListening(Object player) {
         PlayerAdvancements advancements = ((ServerPlayer) player).getAdvancements();
         ServerAdvancementManager manager = ((CraftServer) Bukkit.getServer()).getServer().getAdvancements();
         ReflectionUtils.invokeMethod(REGISTER_LISTENERS_METHOD, advancements, manager);
     }
     
     @Override
-    public void sendMapUpdate(@NotNull Player player, int mapId, byte scale, boolean locked, @Nullable MapPatch mapPatch, @Nullable List<MapIcon> icons) {
+    public void sendMapUpdate(Player player, int mapId, byte scale, boolean locked, @Nullable MapPatch mapPatch, @Nullable List<MapIcon> icons) {
         List<MapDecoration> decorations = icons != null ? icons.stream().map(this::toMapDecoration).collect(Collectors.toCollection(ArrayList::new)) : null;
         MapItemSavedData.MapPatch patch = toMapPatch(mapPatch);
         ClientboundMapItemDataPacket packet = new ClientboundMapItemDataPacket(new MapId(mapId), scale, locked, decorations, patch);
@@ -82,7 +81,7 @@ class PlayerUtilsImpl implements PlayerUtils {
     }
     
     private Holder<MapDecorationType> getDecorationTypeByIconType(MapIcon.MapIconType icon) {
-        return switch(icon) {
+        return switch (icon) {
             case WHITE_ARROW -> MapDecorationTypes.PLAYER;
             case GREEN_ARROW -> MapDecorationTypes.FRAME;
             case RED_ARROW -> MapDecorationTypes.RED_MARKER;

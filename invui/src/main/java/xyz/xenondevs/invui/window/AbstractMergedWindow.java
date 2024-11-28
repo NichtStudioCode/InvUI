@@ -26,11 +26,12 @@ public abstract class AbstractMergedWindow extends AbstractDoubleWindow {
     
     /**
      * Creates a new {@link AbstractMergedWindow}.
-     * @param player The {@link Player} that views the window.
-     * @param title The title of the window.
-     * @param gui The {@link Gui} of the window.
+     *
+     * @param player         The {@link Player} that views the window.
+     * @param title          The title of the window.
+     * @param gui            The {@link Gui} of the window.
      * @param upperInventory The {@link Inventory} of the window.
-     * @param closeable Whether the window is closeable.
+     * @param closeable      Whether the window is closeable.
      */
     public AbstractMergedWindow(Player player, ComponentWrapper title, AbstractGui gui, Inventory upperInventory, boolean closeable) {
         super(player, title, gui.getSize(), upperInventory, closeable);

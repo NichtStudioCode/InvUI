@@ -2,8 +2,7 @@ package xyz.xenondevs.invui.inventory.event;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.inventory.Inventory;
 
 /**
@@ -23,7 +22,7 @@ public class ItemPostUpdateEvent extends ItemUpdateEvent {
      * @param previousItem The {@link ItemStack} that was on that slot previously
      * @param newItem      The {@link ItemStack} that is on that slot now
      */
-    public ItemPostUpdateEvent(@NotNull Inventory inventory, int slot, @Nullable UpdateReason updateReason,
+    public ItemPostUpdateEvent(Inventory inventory, int slot, @Nullable UpdateReason updateReason,
                                @Nullable ItemStack previousItem, @Nullable ItemStack newItem) {
         
         super(inventory, slot, updateReason, previousItem, newItem);

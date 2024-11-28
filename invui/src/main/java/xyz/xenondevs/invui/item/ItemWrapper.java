@@ -1,7 +1,7 @@
 package xyz.xenondevs.invui.item;
 
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -18,7 +18,7 @@ public class ItemWrapper implements ItemProvider {
     }
     
     @Override
-    public @NotNull ItemStack get(String lang) {
+    public ItemStack get(@Nullable String lang) {
         return itemStack;
     }
     

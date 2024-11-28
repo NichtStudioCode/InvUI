@@ -6,9 +6,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,41 +17,37 @@ public final class PotionBuilder extends AbstractItemBuilder<PotionBuilder> {
     private Color color;
     private PotionData basePotionData;
     
-    public PotionBuilder(@NotNull PotionType type) {
+    public PotionBuilder(PotionType type) {
         super(type.getMaterial());
     }
     
-    public PotionBuilder(@NotNull ItemStack base) {
+    public PotionBuilder(ItemStack base) {
         super(base);
     }
     
-    @Contract("_ -> this")
-    public @NotNull PotionBuilder setColor(@NotNull Color color) {
+    public PotionBuilder setColor(Color color) {
         this.color = color;
         return this;
     }
     
-    @Contract("_ -> this")
-    public @NotNull PotionBuilder setColor(@NotNull java.awt.Color color) {
+    public PotionBuilder setColor(java.awt.Color color) {
         this.color = Color.fromRGB(color.getRed(), color.getGreen(), color.getBlue());
         return this;
     }
     
-    @Contract("_ -> this")
-    public @NotNull PotionBuilder setBasePotionData(@NotNull PotionData basePotionData) {
+    public PotionBuilder setBasePotionData(PotionData basePotionData) {
         this.basePotionData = basePotionData;
         return this;
     }
     
-    @Contract("_ -> this")
-    public @NotNull PotionBuilder addEffect(@NotNull PotionEffect effect) {
+    public PotionBuilder addEffect(PotionEffect effect) {
         effects.add(effect);
         return this;
     }
     
-    @Contract(value = "_ -> new", pure = true)
+    
     @Override
-    public @NotNull ItemStack get(@Nullable String lang) {
+    public ItemStack get(@Nullable String lang) {
         ItemStack item = super.get(lang);
         PotionMeta meta = (PotionMeta) item.getItemMeta();
         
@@ -67,7 +61,7 @@ public final class PotionBuilder extends AbstractItemBuilder<PotionBuilder> {
     }
     
     @Override
-    public @NotNull PotionBuilder clone() {
+    public PotionBuilder clone() {
         PotionBuilder builder = super.clone();
         builder.effects = new ArrayList<>(effects);
         return builder;
@@ -79,13 +73,13 @@ public final class PotionBuilder extends AbstractItemBuilder<PotionBuilder> {
         SPLASH(Material.SPLASH_POTION),
         LINGERING(Material.LINGERING_POTION);
         
-        private final @NotNull Material material;
+        private final Material material;
         
-        PotionType(@NotNull Material material) {
+        PotionType(Material material) {
             this.material = material;
         }
         
-        public @NotNull Material getMaterial() {
+        public Material getMaterial() {
             return material;
         }
         

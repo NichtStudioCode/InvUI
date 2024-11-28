@@ -2,8 +2,7 @@ package xyz.xenondevs.invui.inventory;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.InventoryAccess;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.util.DataUtils;
@@ -24,11 +23,11 @@ import java.util.logging.Level;
  */
 public class VirtualInventory extends Inventory {
     
-    private final @NotNull UUID uuid;
+    private final UUID uuid;
     private int size;
-    private @Nullable ItemStack @NotNull [] items;
-    private int @NotNull [] maxStackSizes;
-    private @Nullable List<@NotNull BiConsumer<@NotNull Integer, @NotNull Integer>> resizeHandlers;
+    private @Nullable ItemStack[] items;
+    private int[] maxStackSizes;
+    private @Nullable List<BiConsumer<Integer, Integer>> resizeHandlers;
     
     /**
      * Constructs a new {@link VirtualInventory}
@@ -82,7 +81,7 @@ public class VirtualInventory extends Inventory {
      * @param items         A predefined array of content. Will not get copied!
      * @param maxStackSizes An array of maximum allowed stack sizes for each slot in the {@link VirtualInventory}. Can be null for 64.
      */
-    public VirtualInventory(@Nullable UUID uuid, @Nullable ItemStack @NotNull [] items, int @Nullable [] maxStackSizes) {
+    public VirtualInventory(@Nullable UUID uuid, @Nullable ItemStack[] items, int @Nullable [] maxStackSizes) {
         this(uuid, items.length, items, maxStackSizes);
     }
     
@@ -92,7 +91,7 @@ public class VirtualInventory extends Inventory {
      * @param items         A predefined array of content. Will not get copied!
      * @param maxStackSizes An array of maximum allowed stack sizes for each slot in the {@link VirtualInventory}. Can be null for 64.
      */
-    public VirtualInventory(@Nullable ItemStack @NotNull [] items, int @Nullable [] maxStackSizes) {
+    public VirtualInventory(@Nullable ItemStack[] items, int @Nullable [] maxStackSizes) {
         this(null, items.length, items, maxStackSizes);
     }
     
@@ -102,7 +101,7 @@ public class VirtualInventory extends Inventory {
      * @param uuid  The {@link UUID} of this {@link VirtualInventory}. Can be null, only used for serialization.
      * @param items A predefined array of content. Will not get copied!
      */
-    public VirtualInventory(@Nullable UUID uuid, @Nullable ItemStack @NotNull [] items) {
+    public VirtualInventory(@Nullable UUID uuid, @Nullable ItemStack[] items) {
         this(uuid, items.length, items, null);
     }
     
@@ -111,7 +110,7 @@ public class VirtualInventory extends Inventory {
      *
      * @param items A predefined array of content. Will not get copied!
      */
-    public VirtualInventory(@Nullable ItemStack @NotNull [] items) {
+    public VirtualInventory(@Nullable ItemStack[] items) {
         this(null, items.length, items, null);
     }
     
@@ -121,7 +120,7 @@ public class VirtualInventory extends Inventory {
      * @param uuid          The {@link UUID} of this {@link VirtualInventory}. Can be null, only used for serialization.
      * @param maxStackSizes An array of maximum allowed stack sizes for each slot in the {@link VirtualInventory}.
      */
-    public VirtualInventory(@Nullable UUID uuid, int @NotNull [] maxStackSizes) {
+    public VirtualInventory(@Nullable UUID uuid, int[] maxStackSizes) {
         this(uuid, maxStackSizes.length, null, maxStackSizes);
     }
     
@@ -130,7 +129,7 @@ public class VirtualInventory extends Inventory {
      *
      * @param maxStackSizes An array of maximum allowed stack sizes for each slot in the {@link VirtualInventory}.
      */
-    public VirtualInventory(int @NotNull [] maxStackSizes) {
+    public VirtualInventory(int[] maxStackSizes) {
         this(null, maxStackSizes.length, null, maxStackSizes);
     }
     
@@ -255,7 +254,7 @@ public class VirtualInventory extends Inventory {
      *
      * @param resizeHandlers The handlers to set.
      */
-    public void setResizeHandlers(@Nullable List<@NotNull BiConsumer<@NotNull Integer, @NotNull Integer>> resizeHandlers) {
+    public void setResizeHandlers(@Nullable List<BiConsumer<Integer, Integer>> resizeHandlers) {
         this.resizeHandlers = resizeHandlers;
     }
     
@@ -264,7 +263,7 @@ public class VirtualInventory extends Inventory {
      *
      * @return The handlers.
      */
-    public @Nullable List<@NotNull BiConsumer<@NotNull Integer, @NotNull Integer>> getResizeHandlers() {
+    public @Nullable List<BiConsumer<Integer, Integer>> getResizeHandlers() {
         return resizeHandlers;
     }
     
@@ -273,7 +272,7 @@ public class VirtualInventory extends Inventory {
      *
      * @param resizeHandler The handler to add.
      */
-    public void addResizeHandler(@NotNull BiConsumer<@NotNull Integer, @NotNull Integer> resizeHandler) {
+    public void addResizeHandler(BiConsumer<Integer, Integer> resizeHandler) {
         if (resizeHandlers == null)
             resizeHandlers = new ArrayList<>();
         
@@ -285,7 +284,7 @@ public class VirtualInventory extends Inventory {
      *
      * @param resizeHandler The handler to remove.
      */
-    public void removeResizeHandler(@NotNull BiConsumer<@NotNull Integer, @NotNull Integer> resizeHandler) {
+    public void removeResizeHandler(BiConsumer<Integer, Integer> resizeHandler) {
         if (resizeHandlers != null)
             resizeHandlers.remove(resizeHandler);
     }
@@ -327,7 +326,7 @@ public class VirtualInventory extends Inventory {
      *
      * @param stackSizes The array defining the max stack sizes for this {@link Inventory}.
      */
-    public void setMaxStackSizes(int @NotNull [] stackSizes) {
+    public void setMaxStackSizes(int[] stackSizes) {
         this.maxStackSizes = stackSizes;
     }
     
@@ -346,7 +345,7 @@ public class VirtualInventory extends Inventory {
      *
      * @return The {@link UUID} of this {@link VirtualInventory}.
      */
-    public @NotNull UUID getUuid() {
+    public UUID getUuid() {
         return uuid;
     }
     
@@ -356,7 +355,7 @@ public class VirtualInventory extends Inventory {
     }
     
     @Override
-    public int @NotNull [] getMaxStackSizes() {
+    public int[] getMaxStackSizes() {
         return maxStackSizes.clone();
     }
     
@@ -366,12 +365,12 @@ public class VirtualInventory extends Inventory {
     }
     
     @Override
-    public @Nullable ItemStack @NotNull [] getItems() {
+    public @Nullable ItemStack[] getItems() {
         return ItemUtils.clone(items);
     }
     
     @Override
-    public @Nullable ItemStack @NotNull [] getUnsafeItems() {
+    public @Nullable ItemStack[] getUnsafeItems() {
         return items;
     }
     

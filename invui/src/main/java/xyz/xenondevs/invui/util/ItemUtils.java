@@ -2,8 +2,7 @@ package xyz.xenondevs.invui.util;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class ItemUtils {
     
@@ -42,7 +41,7 @@ public class ItemUtils {
      * @param array The array to clone.
      * @return The cloned array.
      */
-    public static @Nullable ItemStack @NotNull [] clone(@Nullable ItemStack @NotNull [] array) {
+    public static @Nullable ItemStack[] clone(@Nullable ItemStack[] array) {
         ItemStack[] clone = new ItemStack[array.length];
         for (int i = 0; i < array.length; i++) {
             ItemStack element = array[i];

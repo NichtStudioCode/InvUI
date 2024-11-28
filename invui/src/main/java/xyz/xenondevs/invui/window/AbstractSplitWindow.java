@@ -3,7 +3,7 @@ package xyz.xenondevs.invui.window;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
@@ -49,7 +49,7 @@ public abstract class AbstractSplitWindow extends AbstractDoubleWindow {
     }
     
     @Override
-    public SlotElement getSlotElement(int index) {
+    public @Nullable SlotElement getSlotElement(int index) {
         if (index >= upperGui.getSize()) return lowerGui.getSlotElement(index - upperGui.getSize());
         else return upperGui.getSlotElement(index);
     }
@@ -67,10 +67,13 @@ public abstract class AbstractSplitWindow extends AbstractDoubleWindow {
     
     @Override
     protected Pair<AbstractGui, Integer> getGuiAt(int index) {
-        if (index < upperGui.getSize()) return new Pair<>(upperGui, index);
-        else if (index < (upperGui.getSize() + lowerGui.getSize()))
+        if (index < upperGui.getSize()) {
+            return new Pair<>(upperGui, index);
+        } else if (index < (upperGui.getSize() + lowerGui.getSize())) {
             return new Pair<>(lowerGui, index - upperGui.getSize());
-        else return null;
+        } else {
+            throw new IndexOutOfBoundsException(index);
+        }
     }
     
     @Override
@@ -92,7 +95,7 @@ public abstract class AbstractSplitWindow extends AbstractDoubleWindow {
      * This class should only be used directly if you're creating a custom {@link AbstractBuilder} for a custom
      * {@link AbstractSingleWindow} implementation. Otherwise, use the static builder functions in the {@link Window}
      * interface, such as {@link Window#split()} to obtain a builder.
-     * 
+     *
      * @param <W> The type of the window.
      * @param <S> The type of the builder.
      */
@@ -105,44 +108,44 @@ public abstract class AbstractSplitWindow extends AbstractDoubleWindow {
         /**
          * The {@link Supplier} to receive the upper {@link Gui} from.
          */
-        protected Supplier<Gui> upperGuiSupplier;
+        protected @Nullable Supplier<Gui> upperGuiSupplier;
         /**
          * The {@link Supplier} to receive the lower {@link Gui} from.
          */
-        protected Supplier<Gui> lowerGuiSupplier;
+        protected @Nullable Supplier<Gui> lowerGuiSupplier;
         
         @Override
-        public @NotNull S setUpperGui(@NotNull Supplier<Gui> guiSupplier) {
+        public S setUpperGui(Supplier<Gui> guiSupplier) {
             this.upperGuiSupplier = guiSupplier;
             return (S) this;
         }
         
         @Override
-        public @NotNull S setUpperGui(@NotNull Gui gui) {
+        public S setUpperGui(Gui gui) {
             this.upperGuiSupplier = () -> gui;
             return (S) this;
         }
         
         @Override
-        public @NotNull S setUpperGui(@NotNull Gui.Builder<?, ?> builder) {
+        public S setUpperGui(Gui.Builder<?, ?> builder) {
             this.upperGuiSupplier = builder::build;
             return (S) this;
         }
         
         @Override
-        public @NotNull S setLowerGui(@NotNull Supplier<Gui> guiSupplier) {
+        public S setLowerGui(Supplier<Gui> guiSupplier) {
             this.lowerGuiSupplier = guiSupplier;
             return (S) this;
         }
         
         @Override
-        public @NotNull S setLowerGui(@NotNull Gui gui) {
+        public S setLowerGui(Gui gui) {
             this.lowerGuiSupplier = () -> gui;
             return (S) this;
         }
         
         @Override
-        public @NotNull S setLowerGui(@NotNull Gui.Builder<?, ?> builder) {
+        public S setLowerGui(Gui.Builder<?, ?> builder) {
             this.lowerGuiSupplier = builder::build;
             return (S) this;
         }

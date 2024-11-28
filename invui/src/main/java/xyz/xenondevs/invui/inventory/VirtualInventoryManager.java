@@ -1,7 +1,6 @@
 package xyz.xenondevs.invui.inventory;
 
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.invui.InvUI;
 
 import java.io.File;
@@ -31,7 +30,7 @@ public class VirtualInventoryManager {
         return instance == null ? instance = new VirtualInventoryManager() : instance;
     }
     
-    public VirtualInventory createNew(@NotNull UUID uuid, int size) {
+    public VirtualInventory createNew(UUID uuid, int size) {
         if (inventories.containsKey(uuid))
             throw new IllegalArgumentException("A VirtualInventory with that UUID already exists");
         
@@ -41,7 +40,7 @@ public class VirtualInventoryManager {
         return inventory;
     }
     
-    public VirtualInventory createNew(@NotNull UUID uuid, int size, ItemStack[] items, int[] stackSizes) {
+    public VirtualInventory createNew(UUID uuid, int size, ItemStack[] items, int[] stackSizes) {
         if (inventories.containsKey(uuid))
             throw new IllegalArgumentException("A Virtual Inventory with that UUID already exists");
         
@@ -51,7 +50,7 @@ public class VirtualInventoryManager {
         return inventory;
     }
     
-    public VirtualInventory getByUuid(@NotNull UUID uuid) {
+    public VirtualInventory getByUuid(UUID uuid) {
         return inventories.get(uuid);
     }
     

@@ -1,8 +1,7 @@
 package xyz.xenondevs.invui.window;
 
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.map.MapIcon;
 import xyz.xenondevs.inventoryaccess.map.MapPatch;
 import xyz.xenondevs.invui.gui.Gui;
@@ -20,7 +19,7 @@ public interface CartographyWindow extends Window {
      *
      * @return The new {@link Builder.Single Window Builder}.
      */
-    static @NotNull Builder.Single single() {
+    static Builder.Single single() {
         return new CartographySingleWindowImpl.BuilderImpl();
     }
     
@@ -30,7 +29,7 @@ public interface CartographyWindow extends Window {
      * @param consumer The {@link Consumer} to configure the {@link Builder.Single Window Builder}.
      * @return The created {@link CartographyWindow}.
      */
-    static @NotNull CartographyWindow single(@NotNull Consumer<Builder.@NotNull Single> consumer) {
+    static CartographyWindow single(Consumer<Builder.Single> consumer) {
         Builder.Single builder = single();
         consumer.accept(builder);
         return builder.build();
@@ -41,7 +40,7 @@ public interface CartographyWindow extends Window {
      *
      * @return The new {@link Builder.Split Window Builder}.
      */
-    static @NotNull Builder.Split split() {
+    static Builder.Split split() {
         return new CartographySplitWindowImpl.BuilderImpl();
     }
     
@@ -51,7 +50,7 @@ public interface CartographyWindow extends Window {
      * @param consumer The {@link Consumer} to configure the {@link Builder.Split Window Builder}.
      * @return The created {@link CartographyWindow}.
      */
-    static @NotNull CartographyWindow split(@NotNull Consumer<Builder.@NotNull Split> consumer) {
+    static CartographyWindow split(Consumer<Builder.Split> consumer) {
         Builder.Split builder = split();
         consumer.accept(builder);
         return builder.build();

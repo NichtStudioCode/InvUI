@@ -9,7 +9,6 @@ import org.bukkit.craftbukkit.CraftRegistry;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.util.CraftMagicNumbers;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.inventoryaccess.abstraction.util.ItemUtils;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.inventoryaccess.util.ReflectionRegistry;
@@ -22,14 +21,14 @@ import java.util.stream.Collectors;
 class ItemUtilsImpl implements ItemUtils {
     
     @Override
-    public byte[] serializeItemStack(org.bukkit.inventory.@NotNull ItemStack itemStack, boolean compressed) {
+    public byte[] serializeItemStack(org.bukkit.inventory.ItemStack itemStack, boolean compressed) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         serializeItemStack(itemStack, out, compressed);
         return out.toByteArray();
     }
     
     @Override
-    public void serializeItemStack(org.bukkit.inventory.@NotNull ItemStack itemStack, @NotNull OutputStream outputStream, boolean compressed) {
+    public void serializeItemStack(org.bukkit.inventory.ItemStack itemStack, OutputStream outputStream, boolean compressed) {
         try {
             ItemStack nmsStack = CraftItemStack.asNMSCopy(itemStack);
             CompoundTag nbt = (CompoundTag) nmsStack.save(CraftRegistry.getMinecraftRegistry(), new CompoundTag());
@@ -54,7 +53,7 @@ class ItemUtilsImpl implements ItemUtils {
     }
     
     @Override
-    public org.bukkit.inventory.ItemStack deserializeItemStack(@NotNull InputStream inputStream, boolean compressed) {
+    public org.bukkit.inventory.ItemStack deserializeItemStack(InputStream inputStream, boolean compressed) {
         try {
             CompoundTag nbt;
             if (compressed) {
@@ -84,7 +83,7 @@ class ItemUtilsImpl implements ItemUtils {
     }
     
     @Override
-    public void setDisplayName(@NotNull ItemMeta itemMeta, @NotNull ComponentWrapper name) {
+    public void setDisplayName(ItemMeta itemMeta, ComponentWrapper name) {
         ReflectionUtils.setFieldValue(
             ReflectionRegistry.CB_CRAFT_META_ITEM_DISPLAY_NAME_FIELD,
             itemMeta,
@@ -93,7 +92,7 @@ class ItemUtilsImpl implements ItemUtils {
     }
     
     @Override
-    public void setLore(@NotNull ItemMeta itemMeta, @NotNull List<@NotNull ComponentWrapper> lore) {
+    public void setLore(ItemMeta itemMeta, List<ComponentWrapper> lore) {
         ReflectionUtils.setFieldValue(
             ReflectionRegistry.CB_CRAFT_META_ITEM_LORE_FIELD,
             itemMeta,

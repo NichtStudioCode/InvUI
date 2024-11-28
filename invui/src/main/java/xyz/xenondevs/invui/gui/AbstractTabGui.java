@@ -1,7 +1,6 @@
 package xyz.xenondevs.invui.gui;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.structure.Structure;
 
 import java.util.ArrayList;
@@ -22,7 +21,7 @@ public abstract class AbstractTabGui extends AbstractGui implements TabGui {
     
     private int currentTab = -1;
     
-    private List<BiConsumer<Integer, Integer>> tabChangeHandlers;
+    private @Nullable List<BiConsumer<Integer, Integer>> tabChangeHandlers;
     
     /**
      * Creates a new {@link AbstractTabGui}.
@@ -96,45 +95,45 @@ public abstract class AbstractTabGui extends AbstractGui implements TabGui {
     }
     
     @Override
-    public @Nullable List<@NotNull BiConsumer<Integer, Integer>> getTabChangeHandlers() {
+    public @Nullable List<BiConsumer<Integer, Integer>> getTabChangeHandlers() {
         return tabChangeHandlers;
     }
     
     @Override
-    public void setTabChangeHandlers(@Nullable List<@NotNull BiConsumer<Integer, Integer>> tabChangeHandlers) {
+    public void setTabChangeHandlers(@Nullable List<BiConsumer<Integer, Integer>> tabChangeHandlers) {
         this.tabChangeHandlers = tabChangeHandlers;
     }
     
-    public void addTabChangeHandler(@NotNull BiConsumer<Integer, Integer> tabChangeHandler) {
+    public void addTabChangeHandler(BiConsumer<Integer, Integer> tabChangeHandler) {
         if (tabChangeHandlers == null) tabChangeHandlers = new ArrayList<>();
         tabChangeHandlers.add(tabChangeHandler);
     }
     
     @Override
-    public void removeTabChangeHandler(@NotNull BiConsumer<Integer, Integer> tabChangeHandler) {
+    public void removeTabChangeHandler(BiConsumer<Integer, Integer> tabChangeHandler) {
         if (tabChangeHandlers != null) tabChangeHandlers.remove(tabChangeHandler);
     }
     
     public abstract boolean isTabAvailable(int tab);
     
-    protected abstract List<SlotElement> getSlotElements(int tab);
+    protected abstract @Nullable List<SlotElement> getSlotElements(int tab);
     
     public static abstract class AbstractBuilder
         extends AbstractGui.AbstractBuilder<TabGui, TabGui.Builder>
         implements TabGui.Builder
     {
         
-        protected List<Gui> tabs;
-        protected List<BiConsumer<Integer, Integer>> tabChangeHandlers;
+        protected @Nullable List<@Nullable Gui> tabs;
+        protected @Nullable List<BiConsumer<Integer, Integer>> tabChangeHandlers;
         
         @Override
-        public TabGui.@NotNull Builder setTabs(@NotNull List<@Nullable Gui> tabs) {
+        public TabGui.Builder setTabs(List<@Nullable Gui> tabs) {
             this.tabs = tabs;
             return this;
         }
         
         @Override
-        public TabGui.@NotNull Builder addTab(@Nullable Gui tab) {
+        public TabGui.Builder addTab(@Nullable Gui tab) {
             if (this.tabs == null)
                 this.tabs = new ArrayList<>();
             
@@ -143,7 +142,7 @@ public abstract class AbstractTabGui extends AbstractGui implements TabGui {
         }
         
         @Override
-        public TabGui.@NotNull Builder addTabChangeHandler(@NotNull BiConsumer<Integer, Integer> handler) {
+        public TabGui.Builder addTabChangeHandler(BiConsumer<Integer, Integer> handler) {
             if (tabChangeHandlers == null)
                 tabChangeHandlers = new ArrayList<>(1);
             
@@ -152,19 +151,19 @@ public abstract class AbstractTabGui extends AbstractGui implements TabGui {
         }
         
         @Override
-        public TabGui.@NotNull Builder setTabChangeHandlers(@NotNull List<@NotNull BiConsumer<Integer, Integer>> handlers) {
+        public TabGui.Builder setTabChangeHandlers(List<BiConsumer<Integer, Integer>> handlers) {
             tabChangeHandlers = handlers;
             return this;
         }
         
         @Override
-        protected void applyModifiers(@NotNull TabGui gui) {
+        protected void applyModifiers(TabGui gui) {
             super.applyModifiers(gui);
             gui.setTabChangeHandlers(tabChangeHandlers);
         }
         
         @Override
-        public @NotNull TabGui.Builder clone() {
+        public TabGui.Builder clone() {
             var clone = (AbstractBuilder) super.clone();
             if (tabs != null)
                 clone.tabs = new ArrayList<>(tabs);

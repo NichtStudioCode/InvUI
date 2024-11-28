@@ -3,7 +3,6 @@ package xyz.xenondevs.invui.item.impl.controlitem;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.invui.gui.AbstractPagedGui;
 import xyz.xenondevs.invui.gui.PagedGui;
 
@@ -19,7 +18,7 @@ public abstract class PageItem extends ControlItem<PagedGui<?>> {
     }
     
     @Override
-    public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
+    public void handleClick(ClickType clickType, Player player, InventoryClickEvent event) {
         if (clickType == ClickType.LEFT) {
             if (forward) getGui().goForward();
             else getGui().goBack();

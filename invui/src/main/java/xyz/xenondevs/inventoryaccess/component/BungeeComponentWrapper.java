@@ -3,7 +3,6 @@ package xyz.xenondevs.inventoryaccess.component;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
-import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.inventoryaccess.component.i18n.BungeeComponentLocalizer;
 import xyz.xenondevs.inventoryaccess.component.i18n.Languages;
 import xyz.xenondevs.inventoryaccess.util.BungeeComponentUtils;
@@ -19,7 +18,7 @@ public class BungeeComponentWrapper implements ComponentWrapper {
     }
     
     @Override
-    public @NotNull BungeeComponentWrapper localized(@NotNull String lang) {
+    public BungeeComponentWrapper localized(String lang) {
         if (!Languages.getInstance().doesServerSideTranslations())
             return this;
         
@@ -27,17 +26,17 @@ public class BungeeComponentWrapper implements ComponentWrapper {
     }
     
     @Override
-    public @NotNull BungeeComponentWrapper withoutPreFormatting() {
+    public BungeeComponentWrapper withoutPreFormatting() {
         return new BungeeComponentWrapper(BungeeComponentUtils.withoutPreFormatting(components));
     }
     
     @Override
-    public @NotNull String serializeToJson() {
+    public String serializeToJson() {
         return ComponentSerializer.toString(components);
     }
     
     @Override
-    public @NotNull BungeeComponentWrapper clone() {
+    public BungeeComponentWrapper clone() {
         try {
             var clone = (BungeeComponentWrapper) super.clone();
             for (int i = 0; i < clone.components.length; i++) {

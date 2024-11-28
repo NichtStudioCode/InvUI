@@ -4,8 +4,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
@@ -98,7 +97,9 @@ public abstract class AbstractSingleWindow extends AbstractWindow {
     
     @Override
     protected Pair<AbstractGui, Integer> getGuiAt(int index) {
-        return index < gui.getSize() ? new Pair<>(gui, index) : null;
+        if (index >= gui.getSize())
+            throw new IndexOutOfBoundsException("Index " + index + " is out of bounds for gui with size " + gui.getSize());
+        return new Pair<>(gui, index);
     }
     
     @Override
@@ -123,6 +124,7 @@ public abstract class AbstractSingleWindow extends AbstractWindow {
     
     /**
      * Gets the {@link Gui} used for this {@link AbstractSingleWindow}.
+     *
      * @return The {@link Gui} used for this {@link AbstractSingleWindow}.
      */
     public AbstractGui getGui() {
@@ -158,22 +160,22 @@ public abstract class AbstractSingleWindow extends AbstractWindow {
         /**
          * The {@link Supplier} to retrieve the {@link Gui} for the {@link AbstractSingleWindow}.
          */
-        protected Supplier<Gui> guiSupplier;
+        protected @Nullable Supplier<Gui> guiSupplier;
         
         @Override
-        public @NotNull S setGui(@NotNull Supplier<Gui> guiSupplier) {
+        public S setGui(Supplier<Gui> guiSupplier) {
             this.guiSupplier = guiSupplier;
             return (S) this;
         }
         
         @Override
-        public @NotNull S setGui(@NotNull Gui gui) {
+        public S setGui(Gui gui) {
             this.guiSupplier = () -> gui;
             return (S) this;
         }
         
         @Override
-        public @NotNull S setGui(@NotNull Gui.Builder<?, ?> builder) {
+        public S setGui(Gui.Builder<?, ?> builder) {
             this.guiSupplier = builder::build;
             return (S) this;
         }

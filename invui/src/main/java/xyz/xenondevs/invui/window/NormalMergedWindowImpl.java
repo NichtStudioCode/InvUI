@@ -3,8 +3,7 @@ package xyz.xenondevs.invui.window;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
@@ -18,9 +17,9 @@ import xyz.xenondevs.invui.gui.Gui;
 final class NormalMergedWindowImpl extends AbstractMergedWindow {
     
     public NormalMergedWindowImpl(
-        @NotNull Player player,
+        Player player,
         @Nullable ComponentWrapper title,
-        @NotNull AbstractGui gui,
+        AbstractGui gui,
         boolean closeable
     ) {
         super(player, title, gui, createInventory(gui), closeable);
@@ -41,7 +40,7 @@ final class NormalMergedWindowImpl extends AbstractMergedWindow {
     {
         
         @Override
-        public @NotNull Window build(Player viewer) {
+        public Window build(Player viewer) {
             if (viewer == null)
                 throw new IllegalStateException("Viewer is not defined.");
             if (guiSupplier == null)

@@ -1,6 +1,5 @@
 package xyz.xenondevs.invui.animation;
 
-import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.window.Window;
 
@@ -10,8 +9,8 @@ import java.util.function.Predicate;
 
 /**
  * Hides and shows slots in a {@link Gui} in a specific order.
- * 
- * @see Gui#playAnimation(Animation, Predicate) 
+ *
+ * @see Gui#playAnimation(Animation, Predicate)
  */
 public interface Animation {
     
@@ -28,7 +27,7 @@ public interface Animation {
      *
      * @param windows The {@link Window}s that will see this animation
      */
-    void setWindows(@NotNull List<Window> windows);
+    void setWindows(List<Window> windows);
     
     /**
      * Sets the slots that should be shown.
@@ -44,14 +43,14 @@ public interface Animation {
      * @param show The show handler as a {@link BiConsumer} consisting of
      *             frame number (first int) and slot index to show (second int).
      */
-    void addShowHandler(@NotNull BiConsumer<Integer, Integer> show);
+    void addShowHandler(BiConsumer<Integer, Integer> show);
     
     /**
      * Adds a {@link Runnable} that should run after the {@link Animation} is finished.
      *
      * @param finish The {@link Runnable} that should run after the {@link Animation} is finished.
      */
-    void addFinishHandler(@NotNull Runnable finish);
+    void addFinishHandler(Runnable finish);
     
     /**
      * Starts the {@link Animation}.

@@ -1,7 +1,6 @@
 package xyz.xenondevs.invui.gui;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.structure.Structure;
 import xyz.xenondevs.invui.util.SlotUtils;
 
@@ -30,15 +29,15 @@ public abstract class AbstractScrollGui<C> extends AbstractGui implements Scroll
     private int currentLine;
     private int offset;
     
-    private List<BiConsumer<Integer, Integer>> scrollHandlers;
+    private @Nullable List<BiConsumer<Integer, Integer>> scrollHandlers;
     /**
      * The content of the gui, to be displayed on the lines.
      */
-    protected List<C> content;
+    protected @Nullable List<C> content;
     /**
      * The baked {@link SlotElement SlotElements}, containing the content.
      */
-    protected List<SlotElement> elements;
+    protected @Nullable List<SlotElement> elements;
     
     /**
      * Creates a new {@link AbstractScrollGui}.
@@ -183,12 +182,12 @@ public abstract class AbstractScrollGui<C> extends AbstractGui implements Scroll
     }
     
     @Override
-    public void setScrollHandlers(@NotNull List<@NotNull BiConsumer<Integer, Integer>> scrollHandlers) {
+    public void setScrollHandlers(@Nullable List<BiConsumer<Integer, Integer>> scrollHandlers) {
         this.scrollHandlers = scrollHandlers;
     }
     
     @Override
-    public void addScrollHandler(@NotNull BiConsumer<Integer, Integer> scrollHandler) {
+    public void addScrollHandler(BiConsumer<Integer, Integer> scrollHandler) {
         if (scrollHandlers == null)
             scrollHandlers = new ArrayList<>();
         
@@ -196,7 +195,7 @@ public abstract class AbstractScrollGui<C> extends AbstractGui implements Scroll
     }
     
     @Override
-    public void removeScrollHandler(@NotNull BiConsumer<Integer, Integer> scrollHandler) {
+    public void removeScrollHandler(BiConsumer<Integer, Integer> scrollHandler) {
         if (scrollHandlers != null)
             scrollHandlers.remove(scrollHandler);
     }
@@ -215,17 +214,17 @@ public abstract class AbstractScrollGui<C> extends AbstractGui implements Scroll
         implements ScrollGui.Builder<C>
     {
         
-        protected List<C> content;
-        protected List<BiConsumer<Integer, Integer>> scrollHandlers;
+        protected @Nullable List<C> content;
+        protected @Nullable List<BiConsumer<Integer, Integer>> scrollHandlers;
         
         @Override
-        public ScrollGui.@NotNull Builder<C> setContent(@NotNull List<@NotNull C> content) {
+        public ScrollGui.Builder<C> setContent(List<C> content) {
             this.content = content;
             return this;
         }
         
         @Override
-        public ScrollGui.@NotNull Builder<C> addContent(@NotNull C content) {
+        public ScrollGui.Builder<C> addContent(C content) {
             if (this.content == null)
                 this.content = new ArrayList<>();
             
@@ -234,13 +233,13 @@ public abstract class AbstractScrollGui<C> extends AbstractGui implements Scroll
         }
         
         @Override
-        public ScrollGui.@NotNull Builder<C> setScrollHandlers(@NotNull List<@NotNull BiConsumer<Integer, Integer>> handlers) {
+        public ScrollGui.Builder<C> setScrollHandlers(List<BiConsumer<Integer, Integer>> handlers) {
             scrollHandlers = handlers;
             return this;
         }
         
         @Override
-        public ScrollGui.@NotNull Builder<C> addScrollHandler(@NotNull BiConsumer<Integer, Integer> handler) {
+        public ScrollGui.Builder<C> addScrollHandler(BiConsumer<Integer, Integer> handler) {
             if (scrollHandlers == null)
                 scrollHandlers = new ArrayList<>(1);
             
@@ -249,13 +248,13 @@ public abstract class AbstractScrollGui<C> extends AbstractGui implements Scroll
         }
         
         @Override
-        protected void applyModifiers(@NotNull ScrollGui<C> gui) {
+        protected void applyModifiers(ScrollGui<C> gui) {
             super.applyModifiers(gui);
             gui.setScrollHandlers(scrollHandlers);
         }
         
         @Override
-        public @NotNull ScrollGui.Builder<C> clone() {
+        public ScrollGui.Builder<C> clone() {
             var clone = (AbstractBuilder<C>) super.clone();
             if (this.content != null)
                 clone.content = new ArrayList<>(content);

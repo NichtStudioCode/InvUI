@@ -17,7 +17,6 @@ import org.bukkit.craftbukkit.inventory.CraftInventoryCartography;
 import org.bukkit.craftbukkit.inventory.CraftInventoryView;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.inventory.Inventory;
-import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.inventoryaccess.abstraction.inventory.CartographyInventory;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.inventoryaccess.util.ReflectionUtils;
@@ -38,7 +37,7 @@ class CartographyInventoryImpl extends CartographyTableMenu implements Cartograp
     
     private boolean open;
     
-    public CartographyInventoryImpl(org.bukkit.entity.Player player, @NotNull ComponentWrapper title) {
+    public CartographyInventoryImpl(org.bukkit.entity.Player player, ComponentWrapper title) {
         this(((CraftPlayer) player).getHandle(), InventoryUtilsImpl.createNMSComponent(title));
     }
     

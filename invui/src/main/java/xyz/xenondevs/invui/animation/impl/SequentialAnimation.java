@@ -9,8 +9,9 @@ public class SequentialAnimation extends AbstractSoundAnimation {
     
     /**
      * Creates a new {@link SequentialAnimation}.
+     *
      * @param tickDelay The delay between each slot being shown.
-     * @param sound Whether a sound should be played when the slot is shown.
+     * @param sound     Whether a sound should be played when the slot is shown.
      */
     public SequentialAnimation(int tickDelay, boolean sound) {
         super(tickDelay, sound);

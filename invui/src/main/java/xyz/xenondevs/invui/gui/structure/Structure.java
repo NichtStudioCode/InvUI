@@ -2,9 +2,7 @@ package xyz.xenondevs.invui.gui.structure;
 
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.gui.SlotElement.ItemSlotElement;
@@ -31,7 +29,7 @@ public class Structure implements Cloneable {
     private final int height;
     
     private HashMap<Character, Ingredient> ingredientMap = new HashMap<>();
-    private IngredientList ingredientList;
+    private @Nullable IngredientList ingredientList;
     
     /**
      * Sets the {@link Structure} of the {@link Gui} using the given structure data Strings.
@@ -39,7 +37,7 @@ public class Structure implements Cloneable {
      *
      * @param structureData The structure data
      */
-    public Structure(@NotNull String @NotNull ... structureData) {
+    public Structure(String... structureData) {
         this(sanitize(structureData[0]).length(), structureData.length, String.join("", structureData));
     }
     
@@ -50,7 +48,7 @@ public class Structure implements Cloneable {
      * @param height        The height of the {@link Gui}
      * @param structureData The structure data
      */
-    public Structure(int width, int height, @NotNull String structureData) {
+    public Structure(int width, int height, String structureData) {
         this.width = width;
         this.height = height;
         this.structureData = sanitize(structureData);
@@ -71,7 +69,7 @@ public class Structure implements Cloneable {
      * @param key       The key of the ingredient
      * @param itemStack The {@link ItemStack} ingredient
      */
-    public static void addGlobalIngredient(char key, @NotNull ItemStack itemStack) {
+    public static void addGlobalIngredient(char key, ItemStack itemStack) {
         addGlobalIngredient(key, new ItemWrapper(itemStack));
     }
     
@@ -83,7 +81,7 @@ public class Structure implements Cloneable {
      * @param key          The key of the ingredient
      * @param itemProvider The {@link ItemProvider} ingredient
      */
-    public static void addGlobalIngredient(char key, @NotNull ItemProvider itemProvider) {
+    public static void addGlobalIngredient(char key, ItemProvider itemProvider) {
         addGlobalIngredient(key, new SimpleItem(itemProvider));
     }
     
@@ -95,7 +93,7 @@ public class Structure implements Cloneable {
      * @param key  The key of the ingredient
      * @param item The {@link Item} ingredient
      */
-    public static void addGlobalIngredient(char key, @NotNull Item item) {
+    public static void addGlobalIngredient(char key, Item item) {
         addGlobalIngredient(key, new ItemSlotElement(item));
     }
     
@@ -107,7 +105,7 @@ public class Structure implements Cloneable {
      * @param key          The key of the ingredient
      * @param itemSupplier The {@link Item} {@link Supplier} ingredient
      */
-    public static void addGlobalIngredient(char key, @NotNull Supplier<? extends Item> itemSupplier) {
+    public static void addGlobalIngredient(char key, Supplier<? extends Item> itemSupplier) {
         addGlobalIngredientElementSupplier(key, () -> new ItemSlotElement(itemSupplier.get()));
     }
     
@@ -119,7 +117,7 @@ public class Structure implements Cloneable {
      * @param key     The key of the ingredient
      * @param element The {@link SlotElement} ingredient
      */
-    public static void addGlobalIngredient(char key, @NotNull SlotElement element) {
+    public static void addGlobalIngredient(char key, SlotElement element) {
         globalIngredientMap.put(key, new Ingredient(element));
     }
     
@@ -131,7 +129,7 @@ public class Structure implements Cloneable {
      * @param key    The key of the ingredient
      * @param marker The {@link Marker} ingredient
      */
-    public static void addGlobalIngredient(char key, @NotNull Marker marker) {
+    public static void addGlobalIngredient(char key, Marker marker) {
         globalIngredientMap.put(key, new Ingredient(marker));
     }
     
@@ -143,7 +141,7 @@ public class Structure implements Cloneable {
      * @param key             The key of the ingredient
      * @param elementSupplier The {@link SlotElement} {@link Supplier} ingredient
      */
-    public static void addGlobalIngredientElementSupplier(char key, @NotNull Supplier<? extends SlotElement> elementSupplier) {
+    public static void addGlobalIngredientElementSupplier(char key, Supplier<? extends SlotElement> elementSupplier) {
         globalIngredientMap.put(key, new Ingredient(elementSupplier));
     }
     
@@ -154,8 +152,8 @@ public class Structure implements Cloneable {
      * @param itemStack The {@link ItemStack} ingredient
      * @return This {@link Structure}
      */
-    @Contract("_, _ -> this")
-    public @NotNull Structure addIngredient(char key, @NotNull ItemStack itemStack) {
+    
+    public Structure addIngredient(char key, ItemStack itemStack) {
         if (ingredientList != null) throw new IllegalStateException("Structure is locked");
         return addIngredient(key, new ItemWrapper(itemStack));
     }
@@ -167,8 +165,8 @@ public class Structure implements Cloneable {
      * @param itemProvider The {@link ItemProvider} ingredient
      * @return This {@link Structure}
      */
-    @Contract("_, _ -> this")
-    public @NotNull Structure addIngredient(char key, @NotNull ItemProvider itemProvider) {
+    
+    public Structure addIngredient(char key, ItemProvider itemProvider) {
         if (ingredientList != null) throw new IllegalStateException("Structure is locked");
         return addIngredient(key, new SimpleItem(itemProvider));
     }
@@ -180,8 +178,8 @@ public class Structure implements Cloneable {
      * @param item The {@link Item} ingredient
      * @return This {@link Structure}
      */
-    @Contract("_, _ -> this")
-    public @NotNull Structure addIngredient(char key, @NotNull Item item) {
+    
+    public Structure addIngredient(char key, Item item) {
         if (ingredientList != null) throw new IllegalStateException("Structure is locked");
         return addIngredient(key, new ItemSlotElement(item));
     }
@@ -193,8 +191,8 @@ public class Structure implements Cloneable {
      * @param inventory The {@link Inventory} ingredient
      * @return This {@link Structure}
      */
-    @Contract("_, _ -> this")
-    public @NotNull Structure addIngredient(char key, @NotNull Inventory inventory) {
+    
+    public Structure addIngredient(char key, Inventory inventory) {
         if (ingredientList != null) throw new IllegalStateException("Structure is locked");
         return addIngredientElementSupplier(key, new InventorySlotElementSupplier(inventory));
     }
@@ -207,8 +205,7 @@ public class Structure implements Cloneable {
      * @param background The background {@link ItemProvider} for the {@link Inventory}
      * @return This {@link Structure}
      */
-    @Contract("_, _, _ -> this")
-    public @NotNull Structure addIngredient(char key, @NotNull Inventory inventory, @Nullable ItemProvider background) {
+    public Structure addIngredient(char key, Inventory inventory, @Nullable ItemProvider background) {
         if (ingredientList != null) throw new IllegalStateException("Structure is locked");
         return addIngredientElementSupplier(key, new InventorySlotElementSupplier(inventory, background));
     }
@@ -220,8 +217,8 @@ public class Structure implements Cloneable {
      * @param element The {@link SlotElement} ingredient
      * @return This {@link Structure}
      */
-    @Contract("_, _ -> this")
-    public @NotNull Structure addIngredient(char key, @NotNull SlotElement element) {
+    
+    public Structure addIngredient(char key, SlotElement element) {
         if (ingredientList != null) throw new IllegalStateException("Structure is locked");
         ingredientMap.put(key, new Ingredient(element));
         return this;
@@ -234,8 +231,8 @@ public class Structure implements Cloneable {
      * @param marker The {@link Marker} ingredient
      * @return This {@link Structure}
      */
-    @Contract("_, _ -> this")
-    public @NotNull Structure addIngredient(char key, @NotNull Marker marker) {
+    
+    public Structure addIngredient(char key, Marker marker) {
         if (ingredientList != null) throw new IllegalStateException("Structure is locked");
         ingredientMap.put(key, new Ingredient(marker));
         return this;
@@ -248,8 +245,8 @@ public class Structure implements Cloneable {
      * @param itemSupplier The {@link ItemStack} {@link Supplier} ingredient
      * @return This {@link Structure}
      */
-    @Contract("_, _ -> this")
-    public @NotNull Structure addIngredient(char key, @NotNull Supplier<? extends Item> itemSupplier) {
+    
+    public Structure addIngredient(char key, Supplier<? extends Item> itemSupplier) {
         if (ingredientList != null) throw new IllegalStateException("Structure is locked");
         ingredientMap.put(key, new Ingredient(() -> new ItemSlotElement(itemSupplier.get())));
         return this;
@@ -262,8 +259,8 @@ public class Structure implements Cloneable {
      * @param elementSupplier The {@link SlotElement} {@link Supplier} ingredient
      * @return This {@link Structure}
      */
-    @Contract("_, _ -> this")
-    public @NotNull Structure addIngredientElementSupplier(char key, @NotNull Supplier<? extends SlotElement> elementSupplier) {
+    
+    public Structure addIngredientElementSupplier(char key, Supplier<? extends SlotElement> elementSupplier) {
         if (ingredientList != null) throw new IllegalStateException("Structure is locked");
         ingredientMap.put(key, new Ingredient(elementSupplier));
         return this;
@@ -275,7 +272,7 @@ public class Structure implements Cloneable {
      *
      * @return The {@link IngredientList}
      */
-    public @NotNull IngredientList getIngredientList() {
+    public IngredientList getIngredientList() {
         if (ingredientList != null) return ingredientList;
         
         HashMap<Character, Ingredient> ingredients = new HashMap<>(globalIngredientMap);
@@ -306,9 +303,8 @@ public class Structure implements Cloneable {
      *
      * @return The cloned {@link Structure}
      */
-    @Contract(value = "-> new", pure = true)
     @Override
-    public @NotNull Structure clone() {
+    public Structure clone() {
         try {
             Structure clone = (Structure) super.clone();
             clone.ingredientMap = new HashMap<>(ingredientMap);

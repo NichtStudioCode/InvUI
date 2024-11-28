@@ -18,8 +18,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.abstraction.util.InventoryUtils;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 
@@ -38,12 +37,12 @@ class InventoryUtilsImpl implements InventoryUtils {
     }
     
     @Override
-    public void openCustomInventory(@NotNull Player player, @NotNull Inventory inventory) {
+    public void openCustomInventory(Player player, Inventory inventory) {
         openCustomInventory(player, inventory, null);
     }
     
     @Override
-    public void openCustomInventory(@NotNull Player player, @NotNull Inventory inventory, @Nullable ComponentWrapper title) {
+    public void openCustomInventory(Player player, Inventory inventory, @Nullable ComponentWrapper title) {
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
         MenuType<?> menuType = CraftContainer.getNotchInventoryType(inventory);
         
@@ -69,7 +68,7 @@ class InventoryUtilsImpl implements InventoryUtils {
     }
     
     @Override
-    public void updateOpenInventoryTitle(@NotNull Player player, @NotNull ComponentWrapper title) {
+    public void updateOpenInventoryTitle(Player player, ComponentWrapper title) {
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
         AbstractContainerMenu menu = serverPlayer.containerMenu;
         
@@ -80,7 +79,7 @@ class InventoryUtilsImpl implements InventoryUtils {
     }
     
     @Override
-    public @Nullable ItemStack getItemStackFromView(@NotNull InventoryView view, int slot) {
+    public @Nullable ItemStack getItemStackFromView(InventoryView view, int slot) {
         return view.getItem(slot);
     }
     

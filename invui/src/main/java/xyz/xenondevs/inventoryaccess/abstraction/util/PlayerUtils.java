@@ -1,8 +1,7 @@
 package xyz.xenondevs.inventoryaccess.abstraction.util;
 
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.map.MapIcon;
 import xyz.xenondevs.inventoryaccess.map.MapPatch;
 
@@ -15,28 +14,28 @@ public interface PlayerUtils {
      *
      * @param player The {@link Player}
      */
-    void stopAdvancementListening(@NotNull Player player);
+    void stopAdvancementListening(Player player);
     
     /**
      * Stops the advancement listener for a {@link Player}
      *
      * @param player The {@link Player}
      */
-    void stopAdvancementListening(@NotNull Object player);
+    void stopAdvancementListening(Object player);
     
     /**
      * Starts the advancement listener for a {@link Player}
      *
      * @param player The {@link Player}
      */
-    void startAdvancementListening(@NotNull Player player);
+    void startAdvancementListening(Player player);
     
     /**
      * Stops the advancement listener for a {@link Player}
      *
      * @param player The {@link Player}
      */
-    void startAdvancementListening(@NotNull Object player);
+    void startAdvancementListening(Object player);
     
     /**
      * Sends a map update to a {@link Player}
@@ -49,6 +48,6 @@ public interface PlayerUtils {
      * @param mapPatch The {@link MapPatch} to update, can be null
      * @param icons    The {@link MapIcon new icons} to be displayed, can be null
      */
-    void sendMapUpdate(@NotNull Player player, int mapId, byte scale, boolean locked, @Nullable MapPatch mapPatch, @Nullable List<MapIcon> icons);
+    void sendMapUpdate(Player player, int mapId, byte scale, boolean locked, @Nullable MapPatch mapPatch, @Nullable List<MapIcon> icons);
     
 }

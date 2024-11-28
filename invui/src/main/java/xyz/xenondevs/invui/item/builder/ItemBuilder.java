@@ -3,7 +3,6 @@ package xyz.xenondevs.invui.item.builder;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.jetbrains.annotations.NotNull;
 
 public final class ItemBuilder extends AbstractItemBuilder<ItemBuilder> {
     
@@ -12,7 +11,7 @@ public final class ItemBuilder extends AbstractItemBuilder<ItemBuilder> {
      *
      * @param material The {@link Material}
      */
-    public ItemBuilder(@NotNull Material material) {
+    public ItemBuilder(Material material) {
         super(material);
     }
     
@@ -22,7 +21,7 @@ public final class ItemBuilder extends AbstractItemBuilder<ItemBuilder> {
      * @param material The {@link Material}
      * @param amount   The amount
      */
-    public ItemBuilder(@NotNull Material material, int amount) {
+    public ItemBuilder(Material material, int amount) {
         super(material, amount);
     }
     
@@ -32,7 +31,7 @@ public final class ItemBuilder extends AbstractItemBuilder<ItemBuilder> {
      *
      * @param base The {@link ItemStack to use as a base}
      */
-    public ItemBuilder(@NotNull ItemStack base) {
+    public ItemBuilder(ItemStack base) {
         super(base);
     }
     
