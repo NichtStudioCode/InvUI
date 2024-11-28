@@ -1,4 +1,4 @@
 rootProject.name = "invui-parent"
 
-include(":invui-core")
+include(":invui")
 include(":invui-kotlin")

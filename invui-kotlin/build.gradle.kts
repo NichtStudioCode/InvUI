@@ -10,7 +10,7 @@ plugins {
 dependencies {
     paperweight.paperDevBundle(libs.versions.paper)
     api(libs.kotlin.stdlib)
-    api(project(":invui-core"))
+    api(project(":invui"))
 }
 
 // remove "dev" classifier set by paperweight-userdev
