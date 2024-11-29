@@ -19,13 +19,12 @@ public abstract class ControlItem<G extends Gui> extends AbstractItem {
     
     @Override
     public final ItemProvider getItemProvider() {
-        if (gui == null)
-            throw new IllegalStateException("Gui is not set");
-        
-        return getItemProvider(gui);
+        return getItemProvider(getGui());
     }
     
-    public @Nullable G getGui() {
+    public G getGui() {
+        if (gui == null)
+            throw new IllegalStateException("Gui is not set");
         return gui;
     }
     
