@@ -4,6 +4,10 @@ import io.papermc.paper.datacomponent.DataComponentBuilder;
 import io.papermc.paper.datacomponent.DataComponentType;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.ItemLore;
+import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
+import it.unimi.dsi.fastutil.booleans.BooleanList;
+import it.unimi.dsi.fastutil.floats.FloatArrayList;
+import it.unimi.dsi.fastutil.floats.FloatList;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -13,6 +17,8 @@ import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.i18n.Languages;
 import xyz.xenondevs.invui.internal.util.ComponentUtils;
 
+import java.awt.*;
+import java.util.List;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -28,6 +34,10 @@ public class ItemBuilder implements ItemProvider {
     private ItemStack itemStack;
     private @Nullable Component name;
     private @Nullable List<Component> lore;
+    private @Nullable FloatList customModelDataFloats;
+    private @Nullable BooleanList customModelDataBooleans;
+    private @Nullable List<String> customModelDataStrings;
+    private @Nullable List<Color> customModelDataColors;
     private @Nullable List<Function<ItemStack, ItemStack>> modifiers;
     
     private final Map<String, ItemStack> buildCache = new HashMap<>();
@@ -54,7 +64,7 @@ public class ItemBuilder implements ItemProvider {
     /**
      * Constructs a new {@link ItemBuilder} based on the give {@link ItemStack}.
      *
-     * @param base The {@link ItemStack to use as a base}
+     * @param base The {@link ItemStack} to use as a base
      */
     public ItemBuilder(ItemStack base) {
         this.itemStack = base.clone();
@@ -97,6 +107,8 @@ public class ItemBuilder implements ItemProvider {
                 itemStack.setData(DataComponentTypes.LORE, lore.build());
             }
             
+            // TODO: Custom model data (1.21.4)
+            
             if (modifiers != null) {
                 for (var modifier : modifiers) {
                     itemStack = modifier.apply(itemStack);
@@ -108,7 +120,6 @@ public class ItemBuilder implements ItemProvider {
     }
     
     //<editor-fold desc="base">
-    
     /**
      * Sets the {@link Material} of this builder.
      *
@@ -186,11 +197,13 @@ public class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder clearLore() {
-        if (lore != null) {
-            lore.clear();
-        } else {
-            lore = new ArrayList<>();
+        this.lore = null;
+        
+        itemStack.resetData(DataComponentTypes.LORE);
+        if (itemStack.hasData(DataComponentTypes.LORE)) {
+            itemStack.unsetData(DataComponentTypes.LORE);
         }
+        
         return this;
     }
     
@@ -314,8 +327,342 @@ public class ItemBuilder implements ItemProvider {
     }
     //</editor-fold>
     
-    //<editor-fold desc="modifiers">
+    //<editor-fold desc="custom model data">
+    /**
+     * Adds the given custom model data entry to the `floats` section.
+     *
+     * @param value The value to add
+     * @return The builder instance
+     */
+    public ItemBuilder addCustomModelData(float value) {
+        if (customModelDataFloats == null)
+            customModelDataFloats = new FloatArrayList();
+        
+        customModelDataFloats.add(value);
+        return this;
+    }
     
+    /**
+     * Adds the given custom model data entry to the `floats` section.
+     *
+     * @param value The value to add
+     * @return The builder instance
+     */
+    public ItemBuilder addCustomModelData(double value) {
+        return addCustomModelData((float) value);
+    }
+    
+    /**
+     * Adds the given custom model data entry to the `floats` section.
+     *
+     * @param value The value to add
+     * @return The builder instance
+     */
+    public ItemBuilder addCustomModelData(int value) {
+        return addCustomModelData((float) value);
+    }
+    
+    /**
+     * Adds the given custom model data entry to the `flags` section.
+     *
+     * @param value The value to add
+     * @return The builder instance
+     */
+    public ItemBuilder addCustomModelData(boolean value) {
+        if (customModelDataBooleans == null)
+            customModelDataBooleans = new BooleanArrayList();
+        
+        customModelDataBooleans.add(value);
+        return this;
+    }
+    
+    /**
+     * Adds the given custom model data entry to the `strings` section.
+     *
+     * @param value The value to add
+     * @return The builder instance
+     */
+    public ItemBuilder addCustomModelData(String value) {
+        if (customModelDataStrings == null)
+            customModelDataStrings = new ArrayList<>();
+        
+        customModelDataStrings.add(value);
+        return this;
+    }
+    
+    /**
+     * Adds the given custom model data entry to the `colors` section.
+     *
+     * @param value The value to add
+     * @return The builder instance
+     */
+    public ItemBuilder addCustomModelData(Color value) {
+        if (customModelDataColors == null)
+            customModelDataColors = new ArrayList<>();
+        
+        customModelDataColors.add(value);
+        return this;
+    }
+    
+    /**
+     * Sets the custom model data entry in `floats` at the given index to the given value,
+     * filling smaller indices with zeros if necessary.
+     *
+     * @param index The index
+     * @param value The value
+     * @return The builder instance
+     */
+    public ItemBuilder setCustomModelData(int index, float value) {
+        if (index < 0)
+            throw new IndexOutOfBoundsException(index);
+        
+        if (customModelDataFloats == null)
+            customModelDataFloats = new FloatArrayList();
+        
+        while (customModelDataFloats.size() <= index) {
+            customModelDataFloats.add(0);
+        }
+        
+        customModelDataFloats.set(index, value);
+        return this;
+    }
+    
+    /**
+     * Sets the custom model data entry in `floats` at the given index to the given value,
+     * filling smaller indices with zeros if necessary.
+     *
+     * @param index The index
+     * @param value The value
+     * @return The builder instance
+     */
+    public ItemBuilder setCustomModelData(int index, double value) {
+        return setCustomModelData(index, (float) value);
+    }
+    
+    /**
+     * Sets the custom model data entry in `floats` at the given index to the given value,
+     * filling smaller indices with zeros if necessary.
+     *
+     * @param index The index
+     * @param value The value
+     * @return The builder instance
+     */
+    public ItemBuilder setCustomModelData(int index, int value) {
+        return setCustomModelData(index, (float) value);
+    }
+    
+    /**
+     * Sets the custom model data entry in `flags` at the given index to the given value,
+     * filling smaller indices with `false` if necessary.
+     *
+     * @param index The index
+     * @param value The value
+     * @return The builder instance
+     */
+    public ItemBuilder setCustomModelData(int index, boolean value) {
+        if (index < 0)
+            throw new IndexOutOfBoundsException(index);
+        
+        if (customModelDataBooleans == null)
+            customModelDataBooleans = new BooleanArrayList();
+        
+        while (customModelDataBooleans.size() <= index) {
+            customModelDataBooleans.add(false);
+        }
+        
+        customModelDataBooleans.set(index, value);
+        return this;
+    }
+    
+    /**
+     * Sets the custom model data entry in `strings` at the given index to the given value,
+     * filling smaller indices with empty strings if necessary.
+     *
+     * @param index The index
+     * @param value The value
+     * @return The builder instance
+     */
+    public ItemBuilder setCustomModelData(int index, String value) {
+        if (index < 0)
+            throw new IndexOutOfBoundsException(index);
+        
+        if (customModelDataStrings == null)
+            customModelDataStrings = new ArrayList<>();
+        
+        while (customModelDataStrings.size() <= index) {
+            customModelDataStrings.add("");
+        }
+        
+        customModelDataStrings.set(index, value);
+        return this;
+    }
+    
+    /**
+     * Sets the custom model data entry in `colors` at the given index to the given value,
+     * filling smaller indices with white if necessary.
+     *
+     * @param index The index
+     * @param value The value
+     * @return The builder instance
+     */
+    public ItemBuilder setCustomModelData(int index, Color value) {
+        if (index < 0)
+            throw new IndexOutOfBoundsException(index);
+        
+        if (customModelDataColors == null)
+            customModelDataColors = new ArrayList<>();
+        
+        while (customModelDataColors.size() <= index) {
+            customModelDataColors.add(Color.WHITE);
+        }
+        
+        customModelDataColors.set(index, value);
+        return this;
+    }
+    
+    /**
+     * Sets all custom model data entries.
+     *
+     * @param floats  The `floats` section
+     * @param flags   The `flags` section
+     * @param strings The `strings` section
+     * @param colors  The `colors` section
+     * @return The builder instance
+     */
+    public ItemBuilder setCustomModelData(float[] floats, boolean[] flags, String[] strings, Color[] colors) {
+        customModelDataFloats = new FloatArrayList(floats);
+        customModelDataBooleans = new BooleanArrayList(flags);
+        customModelDataStrings = new ArrayList<>(Arrays.asList(strings));
+        customModelDataColors = new ArrayList<>(Arrays.asList(colors));
+        return this;
+    }
+    
+    /**
+     * Sets all custom model data entries in the `floats` section.
+     *
+     * @param floats The `floats` section
+     * @return The builder instance
+     */
+    public ItemBuilder setCustomModelData(float[] floats) {
+        customModelDataFloats = new FloatArrayList(floats);
+        return this;
+    }
+    
+    /**
+     * Sets all custom model data entries in the `flags` section.
+     *
+     * @param flags The `flags` section
+     * @return The builder instance
+     */
+    public ItemBuilder setCustomModelData(boolean[] flags) {
+        customModelDataBooleans = new BooleanArrayList(flags);
+        return this;
+    }
+    
+    /**
+     * Sets all custom model data entries in the `strings` section.
+     *
+     * @param strings The `strings` section
+     * @return The builder instance
+     */
+    public ItemBuilder setCustomModelData(String[] strings) {
+        customModelDataStrings = new ArrayList<>(Arrays.asList(strings));
+        return this;
+    }
+    
+    /**
+     * Sets all custom model data entries in the `colors` section.
+     *
+     * @param colors The `colors` section
+     * @return The builder instance
+     */
+    public ItemBuilder setCustomModelData(Color[] colors) {
+        customModelDataColors = new ArrayList<>(Arrays.asList(colors));
+        return this;
+    }
+    
+    /**
+     * Clears all custom model data entries.
+     *
+     * @param floats  The `floats` section
+     * @param flags   The `flags` section
+     * @param strings The `strings` section
+     * @param colors  The `colors` section
+     * @return The builder instance
+     */
+    public ItemBuilder setCustomModelData(List<Float> floats, List<Boolean> flags, List<String> strings, List<Color> colors) {
+        customModelDataFloats = new FloatArrayList(floats);
+        customModelDataBooleans = new BooleanArrayList(flags);
+        customModelDataStrings = new ArrayList<>(strings);
+        customModelDataColors = new ArrayList<>(colors);
+        return this;
+    }
+    
+    /**
+     * Sets all custom model data entries in the `floats` section.
+     *
+     * @param floats The `floats` section
+     * @return The builder instance
+     */
+    public ItemBuilder setCustomModelDataFloats(List<Float> floats) {
+        customModelDataFloats = new FloatArrayList(floats);
+        return this;
+    }
+    
+    /**
+     * Sets all custom model data entries in the `flags` section.
+     *
+     * @param flags The `flags` section
+     * @return The builder instance
+     */
+    public ItemBuilder setCustomModelDataFlags(List<Boolean> flags) {
+        customModelDataBooleans = new BooleanArrayList(flags);
+        return this;
+    }
+    
+    /**
+     * Sets all custom model data entries in the `strings` section.
+     *
+     * @param strings The `strings` section
+     * @return The builder instance
+     */
+    public ItemBuilder setCustomModelDataStrings(List<String> strings) {
+        customModelDataStrings = new ArrayList<>(strings);
+        return this;
+    }
+    
+    /**
+     * Sets all custom model data entries in the `colors` section.
+     *
+     * @param colors The `colors` section
+     * @return The builder instance
+     */
+    public ItemBuilder setCustomModelDataColors(List<Color> colors) {
+        customModelDataColors = new ArrayList<>(colors);
+        return this;
+    }
+    
+    /**
+     * Clears all custom model data entries.
+     *
+     * @return The builder instance
+     */
+    public ItemBuilder clearCustomModelData() {
+        itemStack.resetData(DataComponentTypes.CUSTOM_MODEL_DATA);
+        if (itemStack.hasData(DataComponentTypes.CUSTOM_MODEL_DATA)) {
+            itemStack.unsetData(DataComponentTypes.CUSTOM_MODEL_DATA);
+        }
+        
+        customModelDataFloats = null;
+        customModelDataBooleans = null;
+        customModelDataStrings = null;
+        customModelDataColors = null;
+        
+        return this;
+    }
+    //</editor-fold>
+    
+    //<editor-fold desc="modifiers">
     /**
      * Adds a modifier function, which will be run after building the {@link ItemStack}.
      *
