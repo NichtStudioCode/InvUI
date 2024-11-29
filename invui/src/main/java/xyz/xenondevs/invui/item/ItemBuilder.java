@@ -69,10 +69,6 @@ public class ItemBuilder implements ItemProvider {
     public ItemBuilder(ItemStack base) {
         this.itemStack = base.clone();
         
-        if (base.isDataOverridden(DataComponentTypes.ITEM_NAME)) {
-            name = base.getData(DataComponentTypes.ITEM_NAME);
-        }
-        
         if (base.isDataOverridden(DataComponentTypes.LORE)) {
             ItemLore lore = base.getData(DataComponentTypes.LORE);
             assert lore != null;
@@ -120,6 +116,7 @@ public class ItemBuilder implements ItemProvider {
     }
     
     //<editor-fold desc="base">
+    
     /**
      * Sets the {@link Material} of this builder.
      *
@@ -141,6 +138,7 @@ public class ItemBuilder implements ItemProvider {
         itemStack.setAmount(amount);
         return this;
     }
+    
     //</editor-fold>
     
     //<editor-fold desc="name">
@@ -153,6 +151,7 @@ public class ItemBuilder implements ItemProvider {
      */
     public ItemBuilder setName(Component name) {
         this.name = ComponentUtils.withoutPreFormatting(name);
+        hideTooltip(false);
         return this;
     }
     
@@ -175,6 +174,7 @@ public class ItemBuilder implements ItemProvider {
     public ItemBuilder setLegacyName(String name) {
         return setName(LegacyComponentSerializer.legacySection().deserialize(name));
     }
+    
     //</editor-fold>
     
     //<editor-fold desc="lore">
@@ -198,17 +198,13 @@ public class ItemBuilder implements ItemProvider {
      */
     public ItemBuilder clearLore() {
         this.lore = null;
-        
-        itemStack.resetData(DataComponentTypes.LORE);
-        if (itemStack.hasData(DataComponentTypes.LORE)) {
-            itemStack.unsetData(DataComponentTypes.LORE);
-        }
-        
+        itemStack.unsetData(DataComponentTypes.LORE);
         return this;
     }
     
     /**
      * Sets the lore.
+     * Automatically un-hides the tooltip if hidden.
      *
      * @param lore The lore
      * @return The builder instance
@@ -217,11 +213,13 @@ public class ItemBuilder implements ItemProvider {
         this.lore = lore.stream()
             .map(ComponentUtils::withoutPreFormatting)
             .collect(Collectors.toCollection(ArrayList::new));
+        hideTooltip(false);
         return this;
     }
     
     /**
      * Sets the lore using the legacy text format.
+     * Automatically un-hides the tooltip if hidden.
      *
      * @param lore The lore
      * @return The builder instance
@@ -231,11 +229,13 @@ public class ItemBuilder implements ItemProvider {
             .map(line -> LegacyComponentSerializer.legacySection().deserialize(line))
             .map(ComponentUtils::withoutPreFormatting)
             .collect(Collectors.toCollection(ArrayList::new));
+        hideTooltip(false);
         return this;
     }
     
     /**
      * Adds lore lindes using the legacy text format.
+     * Automatically un-hides the tooltip if hidden.
      *
      * @param lines The lore lines
      * @return The builder instance
@@ -246,6 +246,7 @@ public class ItemBuilder implements ItemProvider {
     
     /**
      * Adds lore lines in mini-message format.
+     * Automatically un-hides the tooltip if hidden.
      *
      * @param lines The lore lines
      * @return The builder instance
@@ -256,6 +257,7 @@ public class ItemBuilder implements ItemProvider {
     
     /**
      * Adds lore lines.
+     * Automatically un-hides the tooltip if hidden.
      *
      * @param lines The lore lines
      * @return The builder instance
@@ -268,11 +270,14 @@ public class ItemBuilder implements ItemProvider {
             lore.add(ComponentUtils.withoutPreFormatting(line));
         }
         
+        hideTooltip(false);
+        
         return this;
     }
     
     /**
      * Adds lore lines.
+     * Automatically un-hides the tooltip if hidden.
      *
      * @param lines The lore lines
      * @return The builder instance
@@ -285,11 +290,14 @@ public class ItemBuilder implements ItemProvider {
             lore.add(ComponentUtils.withoutPreFormatting(line));
         }
         
+        hideTooltip(false);
+        
         return this;
     }
     
     /**
      * Adds lore lines using the mini-message format.
+     * Automatically un-hides the tooltip if hidden.
      *
      * @param lines The lore lines
      * @return The builder instance
@@ -304,11 +312,14 @@ public class ItemBuilder implements ItemProvider {
             lore.add(component);
         }
         
+        hideTooltip(false);
+        
         return this;
     }
     
     /**
      * Adds lore lines using the legacy text format.
+     * Automatically un-hides the tooltip if hidden.
      *
      * @param lines The lore lines
      * @return The builder instance
@@ -323,11 +334,15 @@ public class ItemBuilder implements ItemProvider {
             lore.add(component);
         }
         
+        hideTooltip(false);
+        
         return this;
     }
+    
     //</editor-fold>
     
     //<editor-fold desc="custom model data">
+    
     /**
      * Adds the given custom model data entry to the `floats` section.
      *
@@ -648,10 +663,7 @@ public class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder clearCustomModelData() {
-        itemStack.resetData(DataComponentTypes.CUSTOM_MODEL_DATA);
-        if (itemStack.hasData(DataComponentTypes.CUSTOM_MODEL_DATA)) {
-            itemStack.unsetData(DataComponentTypes.CUSTOM_MODEL_DATA);
-        }
+        itemStack.unsetData(DataComponentTypes.CUSTOM_MODEL_DATA);
         
         customModelDataFloats = null;
         customModelDataBooleans = null;
@@ -660,9 +672,31 @@ public class ItemBuilder implements ItemProvider {
         
         return this;
     }
+    
+    //</editor-fold>
+    
+    //<editor-fold desc="misc">
+    
+    /**
+     * Hides or un-hides the entire tooltip.
+     *
+     * @param hide Whether to hide the tooltip
+     * @return The builder instance
+     */
+    public ItemBuilder hideTooltip(boolean hide) {
+        if (hide) {
+            itemStack.setData(DataComponentTypes.HIDE_TOOLTIP);
+        } else {
+            itemStack.unsetData(DataComponentTypes.HIDE_TOOLTIP);
+        }
+        
+        return this;
+    }
+    
     //</editor-fold>
     
     //<editor-fold desc="modifiers">
+    
     /**
      * Adds a modifier function, which will be run after building the {@link ItemStack}.
      *
@@ -686,6 +720,7 @@ public class ItemBuilder implements ItemProvider {
             modifiers.clear();
         return this;
     }
+    
     //</editor-fold>
     
     //<editor-fold desc="data component">
@@ -741,6 +776,7 @@ public class ItemBuilder implements ItemProvider {
     public void unset(DataComponentType type) {
         itemStack.unsetData(type);
     }
+    
     //</editor-fold>
     
     /**
