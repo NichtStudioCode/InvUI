@@ -9,38 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-/**
- * An {@link AbstractPagedGui} where every page is its own {@link Inventory}.
- * <p>
- * Use the static factory and builder functions, such as {@link PagedGui#inventories()},
- * to get an instance of this class.
- *
- * @see PagedItemsGuiImpl
- * @see PagedNestedGuiImpl
- */
 final class PagedInventoriesGuiImpl extends AbstractPagedGui<Inventory> {
     
     private final BiConsumer<Integer, Integer> resizeHandler = (from, to) -> bake();
     
-    /**
-     * Creates a new {@link PagedInventoriesGuiImpl}.
-     *
-     * @param width            The width of this Gui.
-     * @param height           The height of this Gui.
-     * @param inventories      The {@link Inventory Inventories} to use as pages.
-     * @param contentListSlots The slots where content should be displayed.
-     */
     public PagedInventoriesGuiImpl(int width, int height, @Nullable List<Inventory> inventories, int... contentListSlots) {
         super(width, height, false, contentListSlots);
         setContent(inventories);
     }
     
-    /**
-     * Creates a new {@link PagedInventoriesGuiImpl}.
-     *
-     * @param inventories The {@link Inventory Inventories} to use as pages.
-     * @param structure   The {@link Structure} to use.
-     */
     public PagedInventoriesGuiImpl(@Nullable List<Inventory> inventories, Structure structure) {
         super(structure.getWidth(), structure.getHeight(), false, structure);
         setContent(inventories);

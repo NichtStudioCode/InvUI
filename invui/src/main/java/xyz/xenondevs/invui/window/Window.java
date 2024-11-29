@@ -21,7 +21,7 @@ import java.util.function.Supplier;
  * @see AnvilWindow
  * @see CartographyWindow
  */
-public interface Window {
+public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyWindow {
     
     /**
      * Creates a new {@link Builder.Normal.Single Window Builder} for a normal single window.
@@ -152,7 +152,6 @@ public interface Window {
      *
      * @return The viewer's {@link UUID}
      */
-    
     UUID getViewerUUID();
     
     /**
@@ -228,7 +227,10 @@ public interface Window {
      * @param <W> The window type
      * @param <S> The builder type
      */
-    interface Builder<W extends Window, S extends Builder<W, S>> extends Cloneable {
+    sealed interface Builder<W extends Window, S extends Builder<W, S>> 
+        extends Cloneable
+        permits AbstractWindow.AbstractBuilder, AnvilWindow.Builder, CartographyWindow.Builder, Builder.Double, Builder.Normal, Builder.Single
+    {
         
         /**
          * Sets the viewer of the {@link Window}.
@@ -340,7 +342,6 @@ public interface Window {
          * @param viewer The {@link Player} to build the {@link Window} for.
          * @return The built {@link Window}.
          */
-        
         W build(Player viewer);
         
         /**
@@ -368,7 +369,10 @@ public interface Window {
          * @see AnvilWindow.Builder.Single
          * @see CartographyWindow.Builder.Single
          */
-        interface Single<W extends Window, S extends Single<W, S>> extends Builder<W, S> {
+        sealed interface Single<W extends Window, S extends Single<W, S>>
+            extends Builder<W, S>
+            permits AbstractSingleWindow.AbstractBuilder, AnvilWindow.Builder.Single, CartographyWindow.Builder.Single, Normal.Merged, Normal.Single
+        {
             
             /**
              * Sets the {@link Gui} of the {@link Window}.
@@ -376,8 +380,6 @@ public interface Window {
              * @param gui The {@link Gui} of the {@link Window}
              * @return This {@link Single Window Builder}
              */
-            
-            
             S setGui(Gui gui);
             
             /**
@@ -387,8 +389,6 @@ public interface Window {
              * @param builder The {@link Gui.Builder} for this {@link Single Window Builder}
              * @return This {@link Single Window Builder}
              */
-            
-            
             S setGui(Gui.Builder<?, ?> builder);
             
             /**
@@ -398,8 +398,6 @@ public interface Window {
              * @param guiSupplier The {@link Gui} {@link Supplier}
              * @return This {@link Single Window Builder}
              */
-            
-            
             S setGui(Supplier<Gui> guiSupplier);
             
         }
@@ -413,7 +411,10 @@ public interface Window {
          * @see AnvilWindow.Builder.Split
          * @see CartographyWindow.Builder.Split
          */
-        interface Double<W extends Window, S extends Builder.Double<W, S>> extends Builder<W, S> {
+        sealed interface Double<W extends Window, S extends Builder.Double<W, S>>
+            extends Builder<W, S>
+            permits AbstractSplitWindow.AbstractBuilder, AnvilWindow.Builder.Split, CartographyWindow.Builder.Split, Normal.Split
+        {
             
             /**
              * Sets the upper {@link Gui} of the {@link Window}.
@@ -430,8 +431,6 @@ public interface Window {
              * @param builder The {@link Gui.Builder} for the upper {@link Gui} of this {@link Double Window Builder}
              * @return This {@link Double Window Builder}
              */
-            
-            
             S setUpperGui(Gui.Builder<?, ?> builder);
             
             /**
@@ -441,8 +440,6 @@ public interface Window {
              * @param guiSupplier The {@link Gui} {@link Supplier} for the upper {@link Gui} of this {@link Double Window Builder}
              * @return This {@link Double Window Builder}
              */
-            
-            
             S setUpperGui(Supplier<Gui> guiSupplier);
             
             /**
@@ -451,8 +448,6 @@ public interface Window {
              * @param gui The lower {@link Gui} of the {@link Window}
              * @return This {@link Double Window Builder}
              */
-            
-            
             S setLowerGui(Gui gui);
             
             /**
@@ -462,8 +457,6 @@ public interface Window {
              * @param builder The {@link Gui.Builder} for the lower {@link Gui} of this {@link Double Window Builder}
              * @return This {@link Double Window Builder}
              */
-            
-            
             S setLowerGui(Gui.Builder<?, ?> builder);
             
             /**
@@ -473,8 +466,6 @@ public interface Window {
              * @param guiSupplier The {@link Gui} {@link Supplier} for the lower {@link Gui} of this {@link Double Window Builder}
              * @return This {@link Double Window Builder}
              */
-            
-            
             S setLowerGui(Supplier<Gui> guiSupplier);
             
         }
@@ -488,7 +479,7 @@ public interface Window {
          * @see AnvilWindow.Builder
          * @see CartographyWindow.Builder
          */
-        interface Normal<V, S extends Normal<V, S>> extends Builder<Window, S> {
+        sealed interface Normal<V, S extends Normal<V, S>> extends Builder<Window, S> {
             
             /**
              * A normal single {@link Window} builder. Combines both {@link Builder.Single} and {@link Builder.Normal}
@@ -497,7 +488,8 @@ public interface Window {
              * @see AnvilWindow.Builder.Single
              * @see CartographyWindow.Builder.Single
              */
-            interface Single extends Builder.Normal<UUID, Single>, Builder.Single<Window, Single> {}
+            sealed interface Single extends Builder.Normal<UUID, Single>, Builder.Single<Window, Single>
+                permits NormalSingleWindowImpl.BuilderImpl {}
             
             /**
              * A normal split {@link Window} builder. Combines both {@link Builder.Double} and {@link Builder.Normal}
@@ -507,14 +499,16 @@ public interface Window {
              * @see AnvilWindow.Builder.Split
              * @see CartographyWindow.Builder.Split
              */
-            interface Split extends Builder.Normal<Player, Split>, Builder.Double<Window, Split> {}
+            sealed interface Split extends Builder.Normal<Player, Split>, Builder.Double<Window, Split>
+                permits NormalSplitWindowImpl.BuilderImpl {}
             
             /**
              * A normal merged {@link Window} builder. Combines both {@link Builder.Single} and {@link Builder.Normal}
              * for a normal {@link Window} with one {@link Gui}, which fills both the upper inventory and the
              * {@link Player Player's} inventory.
              */
-            interface Merged extends Builder.Normal<Player, Merged>, Builder.Single<Window, Merged> {}
+            sealed interface Merged extends Builder.Normal<Player, Merged>, Builder.Single<Window, Merged>
+                permits NormalMergedWindowImpl.BuilderImpl {}
             
         }
         

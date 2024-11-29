@@ -1,7 +1,8 @@
-package xyz.xenondevs.invui.i18n;
+package xyz.xenondevs.invui.internal.util;
 
 import net.kyori.adventure.text.*;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import xyz.xenondevs.invui.i18n.Languages;
 
 import java.util.ArrayList;
 import java.util.List;

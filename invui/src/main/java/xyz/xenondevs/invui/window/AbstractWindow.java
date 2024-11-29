@@ -15,6 +15,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.gui.AbstractGui;
@@ -27,9 +28,9 @@ import xyz.xenondevs.invui.internal.util.InventoryUtils;
 import xyz.xenondevs.invui.internal.util.Pair;
 import xyz.xenondevs.invui.inventory.CompositeInventory;
 import xyz.xenondevs.invui.inventory.Inventory;
-import xyz.xenondevs.invui.inventory.VirtualInventory;
 import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
+import xyz.xenondevs.invui.item.AbstractItem;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
 
@@ -37,14 +38,13 @@ import java.util.*;
 import java.util.function.Consumer;
 
 /**
- * The abstract base class of all {@link Window} implementations.
- * <p>
- * Only in very rare circumstances should this class be used directly.
- * Instead, use the static builder functions in the
- * {@link Window} interfaces to create a new {@link Window}, such as
- * {@link Window#single()}.
+ * @hidden
  */
-public abstract class AbstractWindow implements Window, GuiParent {
+@ApiStatus.Internal
+public sealed abstract class AbstractWindow
+    implements Window, GuiParent
+    permits AbstractSingleWindow, AbstractDoubleWindow
+{
     
     private static final NamespacedKey SLOT_KEY = new NamespacedKey(InvUI.getInstance().getPlugin(), "slot");
     
@@ -59,7 +59,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
     private boolean currentlyOpen;
     private boolean hasHandledClose;
     
-    public AbstractWindow(Player viewer, Component title, int size, boolean closeable) {
+    AbstractWindow(Player viewer, Component title, int size, boolean closeable) {
         this.viewer = viewer;
         this.viewerUUID = viewer.getUniqueId();
         this.title = title;
@@ -67,22 +67,10 @@ public abstract class AbstractWindow implements Window, GuiParent {
         this.elementsDisplayed = new SlotElement[size];
     }
     
-    /**
-     * Redraws the current {@link SlotElement} at the given slot index.
-     *
-     * @param index The slot index.
-     */
     protected void redrawItem(int index) {
         redrawItem(index, getSlotElement(index), false);
     }
     
-    /**
-     * Redraws the {@link SlotElement} at the given index.
-     *
-     * @param index   The slot index.
-     * @param element The {@link SlotElement} at the index.
-     * @param setItem Whether the {@link SlotElement} was newly set.
-     */
     protected void redrawItem(int index, @Nullable SlotElement element, boolean setItem) {
         // put ItemStack in inventory
         ItemStack itemStack;
@@ -123,16 +111,16 @@ public abstract class AbstractWindow implements Window, GuiParent {
             // tell the previous item (if there is one) that this is no longer its window
             SlotElement previousElement = elementsDisplayed[index];
             if (previousElement instanceof SlotElement.ItemSlotElement itemSlotElement) {
-                Item item = itemSlotElement.getItem();
+                AbstractItem item = (AbstractItem) itemSlotElement.item();
                 // check if the Item isn't still present on another index
                 if (getItemSlotElements(item).size() == 1) {
                     // only if not, remove Window from list in Item
                     item.removeWindow(this);
                 }
             } else if (previousElement instanceof SlotElement.InventorySlotElement invSlotElement) {
-                Inventory inventory = invSlotElement.getInventory();
+                Inventory inventory = invSlotElement.inventory();
                 // check if the InvUI-Inventory isn't still present on another index
-                if (getInvSlotElements(invSlotElement.getInventory()).size() == 1) {
+                if (getInvSlotElements(invSlotElement.inventory()).size() == 1) {
                     // only if not, remove Window from list in Inventory
                     inventory.removeWindow(this);
                 }
@@ -141,10 +129,10 @@ public abstract class AbstractWindow implements Window, GuiParent {
             if (element != null) {
                 // tell the Item or InvUI-Inventory that it is being displayed in this Window
                 SlotElement holdingElement = element.getHoldingElement();
-                if (holdingElement instanceof SlotElement.ItemSlotElement) {
-                    ((SlotElement.ItemSlotElement) holdingElement).getItem().addWindow(this);
-                } else if (holdingElement instanceof SlotElement.InventorySlotElement) {
-                    ((SlotElement.InventorySlotElement) holdingElement).getInventory().addWindow(this);
+                if (holdingElement instanceof SlotElement.ItemSlotElement itemSlotElement) {
+                    ((AbstractItem) itemSlotElement.item()).addWindow(this);
+                } else if (holdingElement instanceof SlotElement.InventorySlotElement invSlotElement) {
+                    invSlotElement.inventory().addWindow(this);
                 }
                 
                 elementsDisplayed[index] = holdingElement;
@@ -249,12 +237,12 @@ public abstract class AbstractWindow implements Window, GuiParent {
     
     protected Map<Integer, SlotElement> getItemSlotElements(Item item) {
         return ArrayUtils.findAllOccurrences(elementsDisplayed, element -> element instanceof SlotElement.ItemSlotElement
-                                                                           && ((SlotElement.ItemSlotElement) element).getItem() == item);
+                                                                           && ((SlotElement.ItemSlotElement) element).item() == item);
     }
     
     protected Map<Integer, SlotElement> getInvSlotElements(Inventory inventory) {
         return ArrayUtils.findAllOccurrences(elementsDisplayed, element -> element instanceof SlotElement.InventorySlotElement
-                                                                           && ((SlotElement.InventorySlotElement) element).getInventory() == inventory);
+                                                                           && ((SlotElement.InventorySlotElement) element).inventory() == inventory);
     }
     
     @Override
@@ -337,10 +325,10 @@ public abstract class AbstractWindow implements Window, GuiParent {
             .filter(Objects::nonNull)
             .map(SlotElement::getHoldingElement)
             .forEach(slotElement -> {
-                if (slotElement instanceof SlotElement.ItemSlotElement) {
-                    ((SlotElement.ItemSlotElement) slotElement).getItem().removeWindow(this);
-                } else if (slotElement instanceof SlotElement.InventorySlotElement) {
-                    ((SlotElement.InventorySlotElement) slotElement).getInventory().removeWindow(this);
+                if (slotElement instanceof SlotElement.ItemSlotElement itemSlotElement) {
+                    ((AbstractItem) itemSlotElement.item()).removeWindow(this);
+                } else if (slotElement instanceof SlotElement.InventorySlotElement invSlotElement) {
+                    invSlotElement.inventory().removeWindow(this);
                 }
             });
         
@@ -450,102 +438,35 @@ public abstract class AbstractWindow implements Window, GuiParent {
         return currentlyOpen;
     }
     
-    /**
-     * Puts the given {@link ItemStack} into the inventory at the given slot.
-     *
-     * @param slot      The slot to put the item into.
-     * @param itemStack The item to put into the inventory.
-     */
     protected abstract void setInvItem(int slot, ItemStack itemStack);
     
-    /**
-     * Gets the {@link SlotElement} at the given index.
-     *
-     * @param index The index of the slot.
-     * @return The {@link SlotElement} at the given index.
-     */
     protected abstract @Nullable SlotElement getSlotElement(int index);
     
-    /**
-     * Gets the {@link AbstractGui} at the given index.
-     *
-     * @param index The index of the slot.
-     * @return The {@link AbstractGui} it's slot at that slot.
-     */
     protected abstract @Nullable Pair<AbstractGui, Integer> getGuiAt(int index);
     
-    /**
-     * Gets the {@link AbstractGui guis} displayed with this {@link Window},
-     * does not contain the guis embedded in other guis.
-     *
-     * @return The guis displayed with this window.
-     */
     protected abstract AbstractGui[] getGuis();
     
-    /**
-     * Gets the {@link org.bukkit.inventory.Inventory inventories} associated with this {@link Window}.
-     *
-     * @return The inventories associated with this window.
-     */
     protected abstract org.bukkit.inventory.Inventory[] getInventories();
     
-    /**
-     * Gets the content {@link xyz.xenondevs.invui.inventory.Inventory inventories} associated with this
-     * {@link Window}. These are not UI inventories, but actual inventories contained inside the {@link Gui},
-     * such as {@link VirtualInventory}
-     *
-     * @return The content inventories associated with this window.
-     */
     protected abstract List<xyz.xenondevs.invui.inventory.Inventory> getContentInventories();
     
-    /**
-     * Initializes the items in the {@link Window}.
-     */
     protected abstract void initItems();
     
-    /**
-     * Handles the opening of the {@link Window}.
-     */
     protected abstract void handleOpened();
     
-    /**
-     * Handles the closing of the {@link Window}.
-     */
     protected abstract void handleClosed();
     
-    /**
-     * Handles a click in the {@link Window}.
-     *
-     * @param event The {@link InventoryClickEvent} that occurred.
-     */
     protected abstract void handleClick(InventoryClickEvent event);
     
-    /**
-     * Handles an item-shift action in the {@link Window}.
-     *
-     * @param event The {@link InventoryClickEvent} that occurred.
-     */
     protected abstract void handleItemShift(InventoryClickEvent event);
     
-    /**
-     * Handles the death of the viewer of the {@link Window}.
-     *
-     * @param event The {@link PlayerDeathEvent} that occurred.
-     */
     public abstract void handleViewerDeath(PlayerDeathEvent event);
     
-    /**
-     * Builder for a {@link AbstractWindow}.
-     * <p>
-     * This class should only be used directly if you're creating a custom {@link AbstractBuilder} for a custom
-     * {@link AbstractWindow} implementation. Otherwise, use the static builder functions in the {@link Window} interfaces,
-     * such as {@link Window#single()} to obtain a builder.
-     *
-     * @param <W> The type of the window.
-     * @param <S> The type of the builder.
-     */
     @SuppressWarnings("unchecked")
-    public static abstract class AbstractBuilder<W extends Window, S extends Window.Builder<W, S>> implements Window.Builder<W, S> {
+    static sealed abstract class AbstractBuilder<W extends Window, S extends Window.Builder<W, S>>
+        implements Window.Builder<W, S>
+        permits AbstractSingleWindow.AbstractBuilder, AbstractSplitWindow.AbstractBuilder
+    {
         
         protected @Nullable Player viewer;
         protected Component title = Component.empty();

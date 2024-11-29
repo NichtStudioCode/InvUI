@@ -32,7 +32,7 @@ import java.util.function.Supplier;
  * @see ScrollGui
  * @see TabGui
  */
-public interface Gui {
+public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
     
     /**
      * Creates a new {@link Builder.Normal Gui Builder} for a normal {@link Gui}.
@@ -414,7 +414,7 @@ public interface Gui {
      * @param <G> The type of the {@link Gui}
      * @param <S> The type of the builder
      */
-    interface Builder<G extends Gui, S extends Builder<G, S>> extends Cloneable {
+    sealed interface Builder<G extends Gui, S extends Builder<G, S>> extends Cloneable permits AbstractGui.AbstractBuilder, Builder.Normal, PagedGui.Builder, ScrollGui.Builder, TabGui.Builder {
         
         /**
          * Sets the {@link Structure} of the {@link Gui}.
@@ -450,7 +450,6 @@ public interface Gui {
          * @param itemStack The {@link ItemStack}
          * @return This {@link Builder Gui Builder}
          */
-        
         S addIngredient(char key, ItemStack itemStack);
         
         /**
@@ -460,7 +459,6 @@ public interface Gui {
          * @param itemProvider The {@link ItemProvider}
          * @return This {@link Builder Gui Builder}
          */
-        
         S addIngredient(char key, ItemProvider itemProvider);
         
         /**
@@ -470,7 +468,6 @@ public interface Gui {
          * @param item The {@link Item}
          * @return This {@link Builder Gui Builder}
          */
-        
         S addIngredient(char key, Item item);
         
         /**
@@ -480,7 +477,6 @@ public interface Gui {
          * @param inventory The {@link Inventory}
          * @return This {@link Builder Gui Builder}
          */
-        
         S addIngredient(char key, Inventory inventory);
         
         /**
@@ -500,7 +496,6 @@ public interface Gui {
          * @param element The {@link SlotElement}
          * @return This {@link Builder Gui Builder}
          */
-        
         S addIngredient(char key, SlotElement element);
         
         /**
@@ -510,7 +505,6 @@ public interface Gui {
          * @param marker The {@link Marker}
          * @return This {@link Builder Gui Builder}
          */
-        
         S addIngredient(char key, Marker marker);
         
         /**
@@ -520,7 +514,6 @@ public interface Gui {
          * @param itemSupplier The {@link Supplier} of {@link Item Items}
          * @return This {@link Builder Gui Builder}
          */
-        
         S addIngredient(char key, Supplier<? extends Item> itemSupplier);
         
         /**
@@ -530,7 +523,6 @@ public interface Gui {
          * @param elementSupplier The {@link Supplier} of {@link SlotElement SlotElements}
          * @return This {@link Builder Gui Builder}
          */
-        
         S addIngredientElementSupplier(char key, Supplier<? extends SlotElement> elementSupplier);
         
         /**
@@ -604,7 +596,7 @@ public interface Gui {
          * @see ScrollGui.Builder
          * @see TabGui.Builder
          */
-        interface Normal extends Builder<Gui, Normal> {}
+        sealed interface Normal extends Builder<Gui, Normal> permits NormalGuiImpl.Builder {}
     }
     
 }

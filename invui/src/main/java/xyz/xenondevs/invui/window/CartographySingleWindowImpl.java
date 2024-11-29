@@ -13,17 +13,12 @@ import xyz.xenondevs.invui.internal.CartographyInventory;
 import xyz.xenondevs.invui.internal.util.MathUtils;
 import xyz.xenondevs.invui.internal.util.PlayerUtils;
 import xyz.xenondevs.invui.item.ItemWrapper;
-import xyz.xenondevs.invui.item.impl.SimpleItem;
+import xyz.xenondevs.invui.item.SimpleItem;
 import xyz.xenondevs.invui.util.MapIcon;
 import xyz.xenondevs.invui.util.MapPatch;
 
 import java.util.List;
 
-/**
- * A {@link AbstractSplitWindow} that uses a {@link CartographyInventory} as the upper inventory.
- * <p>
- * Use the builder obtained by {@link CartographyWindow#single()}, to get an instance of this class.
- */
 final class CartographySingleWindowImpl extends AbstractSingleWindow implements CartographyWindow {
     
     private final CartographyInventory cartographyInventory;

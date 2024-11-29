@@ -1,11 +1,9 @@
-package xyz.xenondevs.invui.item.impl;
+package xyz.xenondevs.invui.item;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.invui.item.Item;
-import xyz.xenondevs.invui.item.ItemProvider;
 
 import java.util.function.BiConsumer;
 

@@ -3,14 +3,15 @@ package xyz.xenondevs.invui.inventory;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.gui.Gui;
+import xyz.xenondevs.invui.internal.util.ArrayUtils;
+import xyz.xenondevs.invui.internal.util.InventoryUtils;
 import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
-import xyz.xenondevs.invui.internal.util.ArrayUtils;
-import xyz.xenondevs.invui.internal.util.InventoryUtils;
 import xyz.xenondevs.invui.util.ItemUtils;
 import xyz.xenondevs.invui.window.AbstractWindow;
 import xyz.xenondevs.invui.window.Window;
@@ -47,7 +48,7 @@ import java.util.logging.Level;
  */
 public abstract class Inventory {
     
-    private @Nullable Set<AbstractWindow> windows;
+    private @Nullable Set<Window> windows;
     private @Nullable Consumer<ItemPreUpdateEvent> preUpdateHandler;
     private @Nullable Consumer<ItemPostUpdateEvent> postUpdateHandler;
     private int guiPriority = 0;
@@ -137,11 +138,9 @@ public abstract class Inventory {
     protected abstract void setDirectBackingItem(int slot, @Nullable ItemStack itemStack);
     
     /**
-     * Gets a set of {@link Window Windows} that display this {@link Inventory}.
-     *
-     * @return An unmodifiable view of the set that contains all {@link Window}s that display
-     * content of this {@link Inventory}.
+     * @hidden
      */
+    @ApiStatus.Internal
     public Set<Window> getWindows() {
         if (windows == null)
             return Collections.emptySet();
@@ -150,12 +149,10 @@ public abstract class Inventory {
     }
     
     /**
-     * Adds an {@link AbstractWindow} to the set of {@link AbstractWindow AbstractWindows}, telling the {@link Inventory} that
-     * its contents are now being displayed in that {@link AbstractWindow}.
-     *
-     * @param window The {@link Window} to be added.
+     * @hidden
      */
-    public void addWindow(AbstractWindow window) {
+    @ApiStatus.Internal
+    public void addWindow(Window window) {
         if (windows == null)
             windows = new HashSet<>();
         
@@ -163,12 +160,10 @@ public abstract class Inventory {
     }
     
     /**
-     * Removes an {@link AbstractWindow} from the set of {@link AbstractWindow AbstractWindows}, telling the {@link Inventory} that
-     * its contents are no longer being displayed in that {@link AbstractWindow}.
-     *
-     * @param window The {@link AbstractWindow} to be removed.
+     * @hidden
      */
-    public void removeWindow(AbstractWindow window) {
+    @ApiStatus.Internal
+    public void removeWindow(Window window) {
         if (windows == null)
             return;
         
@@ -185,7 +180,7 @@ public abstract class Inventory {
         if (windows == null)
             return;
         
-        windows.forEach(window -> window.handleInventoryUpdate(this));
+        windows.forEach(window -> ((AbstractWindow)window).handleInventoryUpdate(this));
     }
     
     /**

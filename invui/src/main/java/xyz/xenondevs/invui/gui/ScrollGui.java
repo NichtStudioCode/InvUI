@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public interface ScrollGui<C> extends Gui {
+public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
     
     /**
      * Creates a new {@link Builder Gui Builder} for a {@link ScrollGui} that uses {@link Item Items} as content.
@@ -226,7 +226,7 @@ public interface ScrollGui<C> extends Gui {
      *
      * @param <C> The content type.
      */
-    interface Builder<C> extends Gui.Builder<ScrollGui<C>, Builder<C>> {
+    sealed interface Builder<C> extends Gui.Builder<ScrollGui<C>, Builder<C>> permits AbstractScrollGui.AbstractBuilder {
         
         /**
          * Sets the content of the {@link ScrollGui} for all lines.

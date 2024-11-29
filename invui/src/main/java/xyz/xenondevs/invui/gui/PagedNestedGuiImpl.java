@@ -6,36 +6,13 @@ import xyz.xenondevs.invui.gui.structure.Structure;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * An {@link AbstractPagedGui} where every page is its own {@link Gui}.
- * <p>
- * Use the static factory and builder functions, such as {@link PagedGui#guis()},
- * to get an instance of this class.
- *
- * @see PagedItemsGuiImpl
- * @see PagedInventoriesGuiImpl
- */
 final class PagedNestedGuiImpl extends AbstractPagedGui<Gui> {
     
-    /**
-     * Creates a new {@link PagedNestedGuiImpl}.
-     *
-     * @param width            The width of this Gui.
-     * @param height           The height of this Gui.
-     * @param guis             The {@link Gui Guis} to use as pages.
-     * @param contentListSlots The slots where content should be displayed.
-     */
     public PagedNestedGuiImpl(int width, int height, @Nullable List<Gui> guis, int... contentListSlots) {
         super(width, height, false, contentListSlots);
         setContent(guis);
     }
     
-    /**
-     * Creates a new {@link PagedNestedGuiImpl}.
-     *
-     * @param guis      The {@link Gui Guis} to use as pages.
-     * @param structure The {@link Structure} to use.
-     */
     public PagedNestedGuiImpl(@Nullable List<Gui> guis, Structure structure) {
         super(structure.getWidth(), structure.getHeight(), false, structure);
         setContent(guis);

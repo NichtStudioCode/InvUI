@@ -2,9 +2,9 @@ package xyz.xenondevs.invui.window;
 
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.Nullable;
+import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.util.MapIcon;
 import xyz.xenondevs.invui.util.MapPatch;
-import xyz.xenondevs.invui.gui.Gui;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -12,7 +12,10 @@ import java.util.function.Consumer;
 /**
  * A {@link Window} that uses a cartography table inventory.
  */
-public interface CartographyWindow extends Window {
+public sealed interface CartographyWindow
+    extends Window
+    permits CartographySingleWindowImpl, CartographySplitWindowImpl
+{
     
     /**
      * Creates a new {@link Builder.Single Window Builder} for a single {@link CartographyWindow}.
@@ -94,21 +97,23 @@ public interface CartographyWindow extends Window {
      * @see Window.Builder.Normal
      * @see Window.Builder
      */
-    interface Builder<S extends Builder<S>> extends Window.Builder<CartographyWindow, S> {
+    sealed interface Builder<S extends Builder<S>> extends Window.Builder<CartographyWindow, S> {
         
         /**
          * A single {@link CartographyWindow} builder. Combines both {@link CartographyWindow.Builder} an
          * {@link Window.Builder.Single} for a {@link CartographyWindow} with only one {@link Gui} that does not
          * access the {@link Player Player's} inventory.
          */
-        interface Single extends Builder<Single>, Window.Builder.Single<CartographyWindow, Single> {}
+        sealed interface Single extends Builder<Single>, Window.Builder.Single<CartographyWindow, Single>
+            permits CartographySingleWindowImpl.BuilderImpl {}
         
         /**
          * A split {@link CartographyWindow} builder. Combines both {@link CartographyWindow.Builder} an
          * {@link Window.Builder.Double} for a {@link CartographyWindow} with two {@link Gui Guis}, where the lower
          * {@link Gui} is used to fill the {@link Player Player's} inventory.
          */
-        interface Split extends Builder<Split>, Window.Builder.Double<CartographyWindow, Split> {}
+        sealed interface Split extends Builder<Split>, Window.Builder.Double<CartographyWindow, Split>
+            permits CartographySplitWindowImpl.BuilderImpl {}
         
     }
     

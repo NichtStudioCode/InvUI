@@ -4,6 +4,7 @@ import com.google.gson.stream.JsonReader;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.Nullable;
+import xyz.xenondevs.invui.internal.util.ComponentLocalizer;
 
 import java.io.File;
 import java.io.FileReader;
@@ -156,6 +157,15 @@ public class Languages {
         }
         
         return component;
+    }
+    
+    /**
+     * Configures how components are created from translation strings.
+     *
+     * @param componentCreator The function that creates components from translation strings.
+     */
+    public void setComponentCreator(Function<String, Component> componentCreator) {
+        ComponentLocalizer.getInstance().setComponentCreator(componentCreator);
     }
     
 }

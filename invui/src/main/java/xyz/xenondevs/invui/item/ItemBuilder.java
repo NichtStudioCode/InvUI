@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 import static org.jetbrains.annotations.ApiStatus.Experimental;
 
 /**
- * Utility for building localized {@link ItemStack ItemStacks}.
+ * Utility for building (localized) {@link ItemStack ItemStacks}.
  */
 @SuppressWarnings("UnstableApiUsage")
 public class ItemBuilder implements ItemProvider {

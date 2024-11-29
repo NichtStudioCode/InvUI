@@ -1,13 +1,12 @@
-package xyz.xenondevs.invui.item.impl.controlitem;
+package xyz.xenondevs.invui.item;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import xyz.xenondevs.invui.gui.AbstractTabGui;
 import xyz.xenondevs.invui.gui.TabGui;
 
 /**
- * Switches between tabs in a {@link AbstractTabGui}
+ * Switches between tabs in a {@link TabGui}
  */
 public abstract class TabItem extends ControlItem<TabGui> {
     

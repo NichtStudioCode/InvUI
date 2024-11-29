@@ -7,12 +7,6 @@ import org.bukkit.inventory.Inventory;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 
-/**
- * An {@link AbstractMergedWindow} that uses a chest inventory as the upper inventory
- * and the player inventory as the lower inventory.
- * <p>
- * Use the builder obtained by {@link Window#merged()}, to get an instance of this class.
- */
 final class NormalMergedWindowImpl extends AbstractMergedWindow {
     
     public NormalMergedWindowImpl(

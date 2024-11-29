@@ -7,56 +7,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-/**
- * A {@link Gui} with pages.
- * <p>
- * Only in very rare circumstances should this class be used directly.
- * Instead, use the static builder or factory functions from the {@link PagedGui} interface,
- * such as {@link PagedGui#items()}, {@link PagedGui#guis()} or, {@link PagedGui#inventories()}
- * to create a new {@link PagedGui}.
- *
- * @param <C> The content type.
- * @see PagedItemsGuiImpl
- * @see PagedNestedGuiImpl
- */
-public abstract class AbstractPagedGui<C> extends AbstractGui implements PagedGui<C> {
+sealed abstract class AbstractPagedGui<C>
+    extends AbstractGui
+    implements PagedGui<C>
+    permits PagedInventoriesGuiImpl, PagedItemsGuiImpl, PagedNestedGuiImpl
+{
     
     private final boolean infinitePages;
     private final int[] contentListSlots;
     private int currentPage;
     
     private @Nullable List<BiConsumer<Integer, Integer>> pageChangeHandlers;
-    /**
-     * The content of the gui, to be displayed on the pages.
-     */
     protected @Nullable List<C> content;
-    /**
-     * The baked pages of the gui, containing the content.
-     */
     protected @Nullable List<List<SlotElement>> pages;
     
-    /**
-     * Creates a new {@link AbstractPagedGui}.
-     *
-     * @param width            The width of the gui.
-     * @param height           The height of the gui.
-     * @param infinitePages    Whether the gui has infinite pages.
-     * @param contentListSlots The slots to be used for pages.
-     */
     public AbstractPagedGui(int width, int height, boolean infinitePages, int... contentListSlots) {
         super(width, height);
         this.infinitePages = infinitePages;
         this.contentListSlots = contentListSlots;
     }
     
-    /**
-     * Creates a new {@link AbstractPagedGui}.
-     *
-     * @param width         The width of the gui.
-     * @param height        The height of the gui.
-     * @param infinitePages Whether the gui has infinite pages.
-     * @param structure     The structure of the gui.
-     */
     public AbstractPagedGui(int width, int height, boolean infinitePages, Structure structure) {
         this(width, height, infinitePages, structure.getIngredientList().findContentListSlots());
         applyStructure(structure);
@@ -115,10 +85,6 @@ public abstract class AbstractPagedGui<C> extends AbstractGui implements PagedGu
         return currentPage > 0;
     }
     
-    /**
-     * Updates the gui, by first correcting the current page
-     * and then updating all relevant items.
-     */
     protected void update() {
         correctCurrentPage();
         updateControlItems();
@@ -192,27 +158,13 @@ public abstract class AbstractPagedGui<C> extends AbstractGui implements PagedGu
         return pageChangeHandlers;
     }
     
-    /**
-     * Builder for {@link AbstractPagedGui}.
-     * <p>
-     * This class should only be used directly if you're creating a custom {@link AbstractBuilder} implementation.
-     * Otherwise, use the static builder functions from {@link PagedGui}, such as
-     * {@link PagedGui#items()}, {@link PagedGui#guis()} or {@link PagedGui#inventories()} to obtain a builder instance.
-     *
-     * @param <C> The content type.
-     */
-    public static abstract class AbstractBuilder<C>
+    public static sealed abstract class AbstractBuilder<C>
         extends AbstractGui.AbstractBuilder<PagedGui<C>, PagedGui.Builder<C>>
         implements PagedGui.Builder<C>
+        permits PagedItemsGuiImpl.Builder, PagedNestedGuiImpl.Builder, PagedInventoriesGuiImpl.Builder
     {
         
-        /**
-         * The content of the {@link AbstractPagedGui}.
-         */
         protected @Nullable List<C> content;
-        /**
-         * The page change handlers of the {@link AbstractPagedGui}.
-         */
         protected @Nullable List<BiConsumer<Integer, Integer>> pageChangeHandlers;
         
         @Override

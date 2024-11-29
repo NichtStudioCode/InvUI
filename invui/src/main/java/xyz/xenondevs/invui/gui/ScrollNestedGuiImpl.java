@@ -6,36 +6,13 @@ import xyz.xenondevs.invui.gui.structure.Structure;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A {@link AbstractScrollGui} that uses {@link Gui Guis} as content.
- * <p>
- * Use the static factory and builder functions, such as {@link ScrollGui#guis()},
- * to get an instance of this class.
- *
- * @see ScrollItemsGuiImpl
- * @see ScrollInventoryGuiImpl
- */
 final class ScrollNestedGuiImpl extends AbstractScrollGui<Gui> {
     
-    /**
-     * Creates a new {@link ScrollNestedGuiImpl}.
-     *
-     * @param width            The width of this Gui.
-     * @param height           The height of this Gui.
-     * @param guis             The {@link Gui Guis} to use.
-     * @param contentListSlots The slots where content should be displayed.
-     */
     public ScrollNestedGuiImpl(int width, int height, @Nullable List<Gui> guis, int... contentListSlots) {
         super(width, height, false, contentListSlots);
         setContent(guis);
     }
     
-    /**
-     * Creates a new {@link ScrollNestedGuiImpl}.
-     *
-     * @param guis      The {@link Gui Guis} to use.
-     * @param structure The {@link Structure} to use.
-     */
     public ScrollNestedGuiImpl(@Nullable List<Gui> guis, Structure structure) {
         super(structure.getWidth(), structure.getHeight(), false, structure);
         setContent(guis);

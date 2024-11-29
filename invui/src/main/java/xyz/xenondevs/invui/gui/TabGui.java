@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public interface TabGui extends Gui {
+public sealed interface TabGui extends Gui permits AbstractTabGui {
     
     /**
      * Creates a new {@link Builder Gui Builder} for a {@link TabGui}.
@@ -114,7 +114,7 @@ public interface TabGui extends Gui {
     /**
      * A {@link TabGui} builder.
      */
-    interface Builder extends Gui.Builder<TabGui, Builder> {
+    sealed interface Builder extends Gui.Builder<TabGui, Builder> permits AbstractTabGui.AbstractBuilder {
         
         /**
          * Sets the tabs of the {@link TabGui}.

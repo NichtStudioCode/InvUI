@@ -1,12 +1,10 @@
-package xyz.xenondevs.invui.item.impl;
+package xyz.xenondevs.invui.item;
 
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
-import xyz.xenondevs.invui.item.Item;
-import xyz.xenondevs.invui.item.ItemProvider;
-import xyz.xenondevs.invui.window.AbstractWindow;
+import xyz.xenondevs.invui.window.Window;
 
 import java.util.function.Supplier;
 
@@ -25,7 +23,8 @@ public class AutoUpdateItem extends SuppliedItem {
     }
     
     public void start() {
-        if (task != null) task.cancel();
+        if (task != null)
+            task.cancel();
         task = Bukkit.getScheduler().runTaskTimer(InvUI.getInstance().getPlugin(), this::notifyWindows, 0, period);
     }
     
@@ -37,15 +36,17 @@ public class AutoUpdateItem extends SuppliedItem {
     }
     
     @Override
-    public void addWindow(AbstractWindow window) {
+    public void addWindow(Window window) {
         super.addWindow(window);
-        if (task == null) start();
+        if (task == null)
+            start();
     }
     
     @Override
-    public void removeWindow(AbstractWindow window) {
+    public void removeWindow(Window window) {
         super.removeWindow(window);
-        if (getWindows().isEmpty() && task != null) cancel();
+        if (getWindows().isEmpty() && task != null)
+            cancel();
     }
     
 }

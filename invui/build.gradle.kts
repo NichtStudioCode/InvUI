@@ -9,3 +9,11 @@ publishing {
         }
     }
 }
+
+java {
+    withJavadocJar()
+}
+
+tasks.getByName<Javadoc>("javadoc") {
+    exclude("**/internal/**")
+}

@@ -11,26 +11,16 @@ import java.util.List;
 
 public interface SlotElement {
     
-    @Nullable
-    ItemStack getItemStack(String lang);
+    @Nullable ItemStack getItemStack(String lang);
     
-    @Nullable
-    SlotElement getHoldingElement();
+    @Nullable SlotElement getHoldingElement();
     
     /**
      * Contains an {@link Item}
+     *
+     * @param item The {@link Item} to display
      */
-    class ItemSlotElement implements SlotElement {
-        
-        private final Item item;
-        
-        public ItemSlotElement(Item item) {
-            this.item = item;
-        }
-        
-        public Item getItem() {
-            return item;
-        }
+    record ItemSlotElement(Item item) implements SlotElement {
         
         @Override
         public ItemStack getItemStack(String lang) {
@@ -46,35 +36,17 @@ public interface SlotElement {
     
     /**
      * Links to a slot in a {@link Inventory}
+     *
+     * @param inventory  The {@link Inventory} to link to
+     * @param slot       The slot in the {@link Inventory} to link to
+     * @param background The {@link ItemProvider} to use as background if the slot is empty
      */
-    class InventorySlotElement implements SlotElement {
-        
-        private final Inventory inventory;
-        private final int slot;
-        private final @Nullable ItemProvider background;
+    record InventorySlotElement(Inventory inventory, int slot,
+                                @Nullable ItemProvider background) implements SlotElement
+    {
         
         public InventorySlotElement(Inventory inventory, int slot) {
-            this.inventory = inventory;
-            this.slot = slot;
-            this.background = null;
-        }
-        
-        public InventorySlotElement(Inventory inventory, int slot, @Nullable ItemProvider background) {
-            this.inventory = inventory;
-            this.slot = slot;
-            this.background = background;
-        }
-        
-        public Inventory getInventory() {
-            return inventory;
-        }
-        
-        public int getSlot() {
-            return slot;
-        }
-        
-        public @Nullable ItemProvider getBackground() {
-            return background;
+            this(inventory, slot, null);
         }
         
         @Override
@@ -93,34 +65,17 @@ public interface SlotElement {
     
     /**
      * Links to a slot in another {@link Gui}
+     *
+     * @param gui  The {@link Gui} to link to
+     * @param slot The slot in the {@link Gui} to link to
      */
-    class LinkedSlotElement implements SlotElement {
-        
-        private final Gui gui;
-        
-        private final int slot;
-        
-        public LinkedSlotElement(Gui gui, int slot) {
-            if (!(gui instanceof AbstractGui))
-                throw new IllegalArgumentException("Illegal Gui implementation");
-            
-            this.gui = gui;
-            this.slot = slot;
-        }
-        
-        public Gui getGui() {
-            return gui;
-        }
-        
-        public int getSlotIndex() {
-            return slot;
-        }
+    record LinkedSlotElement(Gui gui, int slot) implements SlotElement {
         
         @Override
         public @Nullable SlotElement getHoldingElement() {
             LinkedSlotElement element = this;
             while (true) {
-                SlotElement below = element.getGui().getSlotElement(element.getSlotIndex());
+                SlotElement below = element.gui().getSlotElement(element.slot());
                 if (below instanceof LinkedSlotElement) element = (LinkedSlotElement) below;
                 else return below;
             }
@@ -130,8 +85,8 @@ public interface SlotElement {
             ArrayList<Gui> guis = new ArrayList<>();
             LinkedSlotElement element = this;
             while (true) {
-                guis.add(element.getGui());
-                SlotElement below = element.getGui().getSlotElement(element.getSlotIndex());
+                guis.add(element.gui());
+                SlotElement below = element.gui().getSlotElement(element.slot());
                 if (below instanceof LinkedSlotElement)
                     element = (LinkedSlotElement) below;
                 else break;

@@ -9,38 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-/**
- * A {@link AbstractScrollGui} that uses {@link Inventory VirtualInventories} as content.
- * <p>
- * Use the static factory and builder functions, such as {@link ScrollGui#inventories()},
- * to get an instance of this class.
- *
- * @see ScrollItemsGuiImpl
- * @see ScrollNestedGuiImpl
- */
 final class ScrollInventoryGuiImpl extends AbstractScrollGui<Inventory> {
     
     private final BiConsumer<Integer, Integer> resizeHandler = (from, to) -> bake();
     
-    /**
-     * Creates a new {@link ScrollInventoryGuiImpl}.
-     *
-     * @param width            The width of this Gui.
-     * @param height           The width of this Gui.
-     * @param inventories      The {@link Inventory VirtualInventories} to use.
-     * @param contentListSlots The slots where content should be displayed.
-     */
     public ScrollInventoryGuiImpl(int width, int height, @Nullable List<Inventory> inventories, int... contentListSlots) {
         super(width, height, false, contentListSlots);
         setContent(inventories);
     }
     
-    /**
-     * Creates a new {@link ScrollInventoryGuiImpl}.
-     *
-     * @param inventories The {@link Inventory VirtualInventories} to use.
-     * @param structure   The {@link Structure} to use.
-     */
     public ScrollInventoryGuiImpl(@Nullable List<Inventory> inventories, Structure structure) {
         super(structure.getWidth(), structure.getHeight(), false, structure);
         setContent(inventories);

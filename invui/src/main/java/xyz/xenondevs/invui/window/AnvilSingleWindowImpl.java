@@ -12,11 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-/**
- * An {@link AbstractSingleWindow} that uses an {@link AnvilInventory} as the upper inventory.
- * <p>
- * Use the builder obtained by {@link AnvilWindow#single()}, to get an instance of this class.
- */
 final class AnvilSingleWindowImpl extends AbstractSingleWindow implements AnvilWindow {
     
     private final AnvilInventory anvilInventory;

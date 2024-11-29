@@ -1,4 +1,4 @@
-package xyz.xenondevs.invui.item.impl;
+package xyz.xenondevs.invui.item;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -8,9 +8,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
-import xyz.xenondevs.invui.item.Item;
-import xyz.xenondevs.invui.item.ItemProvider;
-import xyz.xenondevs.invui.item.ItemWrapper;
 
 import java.util.function.Supplier;
 

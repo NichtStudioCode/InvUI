@@ -15,25 +15,13 @@ import xyz.xenondevs.invui.internal.util.SlotUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A {@link Window} where top and player {@link Inventory} are affected by the same {@link Gui}.
- * <p>
- * Only in very rare circumstances should this class be used directly.
- * Instead, use {@link Window#merged()} to create such a {@link Window}.
- */
-public abstract class AbstractMergedWindow extends AbstractDoubleWindow {
+sealed abstract class AbstractMergedWindow
+    extends AbstractDoubleWindow
+    permits NormalMergedWindowImpl 
+{
     
     private final AbstractGui gui;
     
-    /**
-     * Creates a new {@link AbstractMergedWindow}.
-     *
-     * @param player         The {@link Player} that views the window.
-     * @param title          The title of the window.
-     * @param gui            The {@link Gui} of the window.
-     * @param upperInventory The {@link Inventory} of the window.
-     * @param closeable      Whether the window is closeable.
-     */
     public AbstractMergedWindow(Player player, Component title, AbstractGui gui, Inventory upperInventory, boolean closeable) {
         super(player, title, gui.getSize(), upperInventory, closeable);
         this.gui = gui;

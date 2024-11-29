@@ -1,10 +1,7 @@
-package xyz.xenondevs.invui.item.impl.controlitem;
+package xyz.xenondevs.invui.item;
 
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
-import xyz.xenondevs.invui.item.Item;
-import xyz.xenondevs.invui.item.ItemProvider;
-import xyz.xenondevs.invui.item.impl.AbstractItem;
 
 /**
  * A special type of {@link Item} that stores the {@link Gui} in which it is displayed.

@@ -7,14 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-/**
- * A {@link Gui} with tabs.
- * <p>
- * Only in very rare circumstances should this class be used directly.
- * Instead, use the static factory or builder functions from the {@link TabGui} interface,
- * such as {@link TabGui#normal()} to create a new {@link TabGui}.
- */
-public abstract class AbstractTabGui extends AbstractGui implements TabGui {
+sealed abstract class AbstractTabGui 
+    extends AbstractGui 
+    implements TabGui
+    permits TabGuiImpl
+{
     
     private final int tabAmount;
     private final int[] listSlots;
@@ -23,28 +20,12 @@ public abstract class AbstractTabGui extends AbstractGui implements TabGui {
     
     private @Nullable List<BiConsumer<Integer, Integer>> tabChangeHandlers;
     
-    /**
-     * Creates a new {@link AbstractTabGui}.
-     *
-     * @param width     The width of the gui.
-     * @param height    The height of the gui.
-     * @param tabAmount The amount of tabs.
-     * @param listSlots The slots to be used for the content.
-     */
     public AbstractTabGui(int width, int height, int tabAmount, int... listSlots) {
         super(width, height);
         this.tabAmount = tabAmount;
         this.listSlots = listSlots;
     }
     
-    /**
-     * Creates a new {@link AbstractTabGui}.
-     *
-     * @param width     The width of the gui.
-     * @param height    The height of the gui.
-     * @param tabAmount The amount of tabs.
-     * @param structure The structure of the gui.
-     */
     public AbstractTabGui(int width, int height, int tabAmount, Structure structure) {
         this(width, height, tabAmount, structure.getIngredientList().findContentListSlots());
         applyStructure(structure);
@@ -118,9 +99,10 @@ public abstract class AbstractTabGui extends AbstractGui implements TabGui {
     
     protected abstract @Nullable List<SlotElement> getSlotElements(int tab);
     
-    public static abstract class AbstractBuilder
+    public static sealed abstract class AbstractBuilder
         extends AbstractGui.AbstractBuilder<TabGui, TabGui.Builder>
         implements TabGui.Builder
+        permits TabGuiImpl.BuilderImpl
     {
         
         protected @Nullable List<@Nullable Gui> tabs;

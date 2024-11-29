@@ -14,7 +14,7 @@ import java.util.function.Consumer;
  *
  * @param <C> The content type
  */
-public interface PagedGui<C> extends Gui {
+public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
     
     /**
      * Creates a new {@link Builder Gui Builder} for a {@link PagedGui} that uses {@link Item Items} as content.
@@ -258,7 +258,7 @@ public interface PagedGui<C> extends Gui {
      *
      * @param <C> The content type.
      */
-    interface Builder<C> extends Gui.Builder<PagedGui<C>, Builder<C>> {
+    sealed interface Builder<C> extends Gui.Builder<PagedGui<C>, Builder<C>> permits AbstractPagedGui.AbstractBuilder {
         
         /**
          * Sets the content of the {@link PagedGui} for all pages.

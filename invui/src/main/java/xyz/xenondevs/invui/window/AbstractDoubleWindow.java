@@ -6,6 +6,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.SlotElement;
@@ -18,31 +19,19 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * A {@link Window} that uses both top and player {@link Inventory}.
- * <p>
- * Only in very rare circumstances should this class be used directly.
- * Instead, use {@link Window#split()} or {@link Window#merged()} to create such a {@link Window}.
+ * @hidden
  */
-public abstract class AbstractDoubleWindow extends AbstractWindow {
+@ApiStatus.Internal
+public sealed abstract class AbstractDoubleWindow 
+    extends AbstractWindow
+    permits AbstractMergedWindow, AbstractSplitWindow 
+{
     
-    private final Inventory playerInventory;
-    private final ItemStack[] playerItems = new ItemStack[36];
-    
-    /**
-     * The upper inventory of the window.
-     */
     protected Inventory upperInventory;
+    private final Inventory playerInventory;
+    private final @Nullable ItemStack[] playerItems = new ItemStack[36];
     
-    /**
-     * Creates a new {@link AbstractDoubleWindow}.
-     *
-     * @param player         The player that views the window.
-     * @param title          The title of the window.
-     * @param size           The size of the window.
-     * @param upperInventory The upper inventory of the window.
-     * @param closeable      Whether the window is closeable.
-     */
-    public AbstractDoubleWindow(Player player, Component title, int size, Inventory upperInventory, boolean closeable) {
+    AbstractDoubleWindow(Player player, Component title, int size, Inventory upperInventory, boolean closeable) {
         super(player, title, size, closeable);
         this.upperInventory = upperInventory;
         this.playerInventory = player.getInventory();
@@ -94,22 +83,10 @@ public abstract class AbstractDoubleWindow extends AbstractWindow {
         } else setUpperInvItem(slot, itemStack);
     }
     
-    /**
-     * Places an {@link ItemStack} into the upper {@link Inventory}.
-     *
-     * @param slot      The slot in the upper {@link Inventory}.
-     * @param itemStack The {@link ItemStack} to place.
-     */
     protected void setUpperInvItem(int slot, ItemStack itemStack) {
         upperInventory.setItem(slot, itemStack);
     }
     
-    /**
-     * Places an {@link ItemStack} into the player {@link Inventory}.
-     *
-     * @param slot      The slot in the player {@link Inventory}.
-     * @param itemStack The {@link ItemStack} to place.
-     */
     protected void setPlayerInvItem(int slot, ItemStack itemStack) {
         playerInventory.setItem(slot, itemStack);
     }
@@ -157,31 +134,14 @@ public abstract class AbstractDoubleWindow extends AbstractWindow {
         return isOpen() ? new Inventory[] {upperInventory, playerInventory} : new Inventory[] {upperInventory};
     }
     
-    /**
-     * Gets the upper {@link Inventory} of the window.
-     *
-     * @return The upper {@link Inventory} of the window.
-     */
     public Inventory getUpperInventory() {
         return upperInventory;
     }
     
-    /**
-     * Gets the player {@link Inventory} of the window.
-     *
-     * @return The player {@link Inventory} of the window.
-     */
     public Inventory getPlayerInventory() {
         return playerInventory;
     }
     
-    /**
-     * Gets the {@link AbstractGui} and the slot where the player clicked,
-     * based on the given {@link InventoryClickEvent}.
-     *
-     * @param event The {@link InventoryClickEvent} that was triggered.
-     * @return The {@link AbstractGui} and the slot where the player clicked.
-     */
     protected abstract Pair<AbstractGui, Integer> getWhereClicked(InventoryClickEvent event);
     
 }

@@ -1,13 +1,12 @@
-package xyz.xenondevs.invui.item.impl.controlitem;
+package xyz.xenondevs.invui.item;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import xyz.xenondevs.invui.gui.AbstractPagedGui;
 import xyz.xenondevs.invui.gui.PagedGui;
 
 /**
- * Switches between pages in a {@link AbstractPagedGui}
+ * Switches between pages in a {@link PagedGui}
  */
 public abstract class PageItem extends ControlItem<PagedGui<?>> {
     

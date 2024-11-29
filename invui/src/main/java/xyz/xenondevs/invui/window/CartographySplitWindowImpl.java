@@ -12,18 +12,12 @@ import xyz.xenondevs.invui.i18n.Languages;
 import xyz.xenondevs.invui.internal.CartographyInventory;
 import xyz.xenondevs.invui.internal.util.MathUtils;
 import xyz.xenondevs.invui.internal.util.PlayerUtils;
-import xyz.xenondevs.invui.item.impl.SimpleItem;
+import xyz.xenondevs.invui.item.SimpleItem;
 import xyz.xenondevs.invui.util.MapIcon;
 import xyz.xenondevs.invui.util.MapPatch;
 
 import java.util.List;
 
-/**
- * An {@link AbstractSplitWindow} that uses a {@link CartographyInventory} as the upper inventory
- * and the player inventory as the lower inventory.
- * <p>
- * Use the builder obtained by {@link CartographyWindow#split()}, to get an instance of this class.
- */
 final class CartographySplitWindowImpl extends AbstractSplitWindow implements CartographyWindow {
     
     private final CartographyInventory cartographyInventory;
@@ -84,8 +78,6 @@ final class CartographySplitWindowImpl extends AbstractSplitWindow implements Ca
         
         @Override
         public CartographyWindow build(Player viewer) {
-            if (viewer == null)
-                throw new IllegalStateException("Viewer is not defined.");
             if (upperGuiSupplier == null)
                 throw new IllegalStateException("Upper Gui is not defined.");
             

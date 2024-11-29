@@ -12,12 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-/**
- * An {@link AbstractSplitWindow} that uses an {@link AnvilInventory} as the upper inventory
- * and the player inventory as the lower inventory.
- * <p>
- * Use the builder obtained by {@link AnvilWindow#split()}, to get an instance of this class.
- */
 final class AnvilSplitWindowImpl extends AbstractSplitWindow implements AnvilWindow {
     
     private final AnvilInventory anvilInventory;

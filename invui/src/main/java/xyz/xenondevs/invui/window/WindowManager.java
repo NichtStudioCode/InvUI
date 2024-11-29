@@ -48,7 +48,7 @@ public class WindowManager implements Listener {
      *
      * @param window The {@link AbstractWindow} to add
      */
-    public void addWindow(AbstractWindow window) {
+    void addWindow(AbstractWindow window) {
         windowsByInventory.put(window.getInventories()[0], window);
         windowsByPlayer.put(window.getViewer(), window);
     }
@@ -59,7 +59,7 @@ public class WindowManager implements Listener {
      *
      * @param window The {@link AbstractWindow} to remove
      */
-    public void removeWindow(AbstractWindow window) {
+    void removeWindow(AbstractWindow window) {
         windowsByInventory.remove(window.getInventories()[0]);
         windowsByPlayer.remove(window.getViewer());
     }
@@ -93,16 +93,6 @@ public class WindowManager implements Listener {
      */
     public Set<Window> getWindows() {
         return new HashSet<>(windowsByInventory.values());
-    }
-    
-    /**
-     * Gets a set of all open {@link Window Windows}.
-     *
-     * @deprecated Use {@link #getWindows()} instead
-     */
-    @Deprecated
-    public Set<Window> getOpenWindows() {
-        return getWindows();
     }
     
     @EventHandler
@@ -169,10 +159,6 @@ public class WindowManager implements Listener {
             if (window instanceof AbstractDoubleWindow)
                 event.setCancelled(true);
         }
-    }
-    
-    private void handleAnvilRename(PrepareAnvilEvent event) {
-        
     }
     
 }
