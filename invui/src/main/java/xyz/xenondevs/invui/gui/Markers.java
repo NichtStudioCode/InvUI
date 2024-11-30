@@ -1,8 +1,4 @@
-package xyz.xenondevs.invui.gui.structure;
-
-import xyz.xenondevs.invui.gui.PagedGui;
-import xyz.xenondevs.invui.gui.ScrollGui;
-import xyz.xenondevs.invui.gui.TabGui;
+package xyz.xenondevs.invui.gui;
 
 /**
  * Contains markers

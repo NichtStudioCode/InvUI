@@ -1,7 +1,5 @@
 package xyz.xenondevs.invui.gui;
 
-import xyz.xenondevs.invui.gui.structure.Structure;
-
 final class NormalGuiImpl extends AbstractGui {
     
     public NormalGuiImpl(int width, int height) {
@@ -13,10 +11,10 @@ final class NormalGuiImpl extends AbstractGui {
         applyStructure(structure);
     }
     
-    static final class Builder extends AbstractBuilder<Gui, Gui.Builder.Normal> implements Gui.Builder.Normal {
+    static final class Builder extends AbstractBuilder<NormalGuiImpl, Builder> {
         
         @Override
-        public Gui build() {
+        public NormalGuiImpl build() {
             if (structure == null)
                 throw new IllegalStateException("Structure is not defined.");
             

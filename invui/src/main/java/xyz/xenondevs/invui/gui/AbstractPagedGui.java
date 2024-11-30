@@ -1,7 +1,6 @@
 package xyz.xenondevs.invui.gui;
 
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.invui.gui.structure.Structure;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,7 +86,6 @@ sealed abstract class AbstractPagedGui<C>
     
     protected void update() {
         correctCurrentPage();
-        updateControlItems();
         updatePageContent();
     }
     
@@ -95,7 +93,8 @@ sealed abstract class AbstractPagedGui<C>
         List<SlotElement> slotElements = (pages != null && !pages.isEmpty()) ? pages.get(currentPage) : List.of();
         
         for (int i = 0; i < contentListSlots.length; i++) {
-            if (slotElements.size() > i) setSlotElement(contentListSlots[i], slotElements.get(i));
+            if (slotElements.size() > i)
+                setSlotElement(contentListSlots[i], slotElements.get(i));
             else remove(contentListSlots[i]);
         }
     }

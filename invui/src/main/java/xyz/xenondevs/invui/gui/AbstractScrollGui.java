@@ -1,7 +1,6 @@
 package xyz.xenondevs.invui.gui;
 
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.invui.gui.structure.Structure;
 import xyz.xenondevs.invui.internal.util.SlotUtils;
 
 import java.util.ArrayList;
@@ -129,7 +128,6 @@ sealed abstract class AbstractScrollGui<C>
     
     protected void update() {
         correctCurrentLine();
-        updateControlItems();
         updateContent();
     }
     

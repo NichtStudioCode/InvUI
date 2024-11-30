@@ -74,13 +74,13 @@ public sealed abstract class AbstractWindow
     protected void redrawItem(int index, @Nullable SlotElement element, boolean setItem) {
         // put ItemStack in inventory
         ItemStack itemStack;
-        if (element == null || (element instanceof SlotElement.InventorySlotElement && element.getItemStack(getLang()) == null)) {
+        if (element == null || (element instanceof SlotElement.InventoryLink && element.getItemStack(getLang()) == null)) {
             ItemProvider background = getGuiAt(index).first().getBackground();
             itemStack = background == null ? null : background.get(getLang());
-        } else if (element instanceof SlotElement.LinkedSlotElement && element.getHoldingElement() == null) {
+        } else if (element instanceof SlotElement.GuiLink && element.getHoldingElement() == null) {
             ItemProvider background = null;
             
-            List<Gui> guis = ((SlotElement.LinkedSlotElement) element).getGuiList();
+            List<Gui> guis = ((SlotElement.GuiLink) element).getGuiList();
             guis.addFirst(getGuiAt(index).first());
             
             for (int i = guis.size() - 1; i >= 0; i--) {
@@ -93,7 +93,7 @@ public sealed abstract class AbstractWindow
             SlotElement holdingElement = element.getHoldingElement();
             itemStack = holdingElement.getItemStack(getLang());
             
-            if (holdingElement instanceof SlotElement.ItemSlotElement) {
+            if (holdingElement instanceof SlotElement.Item) {
                 // This makes every item unique to prevent Shift-DoubleClick "clicking" multiple items at the same time.
                 if (itemStack.hasItemMeta()) {
                     // clone ItemStack in order to not modify the original
@@ -110,14 +110,14 @@ public sealed abstract class AbstractWindow
         if (setItem) {
             // tell the previous item (if there is one) that this is no longer its window
             SlotElement previousElement = elementsDisplayed[index];
-            if (previousElement instanceof SlotElement.ItemSlotElement itemSlotElement) {
+            if (previousElement instanceof SlotElement.Item itemSlotElement) {
                 AbstractItem item = (AbstractItem) itemSlotElement.item();
                 // check if the Item isn't still present on another index
                 if (getItemSlotElements(item).size() == 1) {
                     // only if not, remove Window from list in Item
                     item.removeWindow(this);
                 }
-            } else if (previousElement instanceof SlotElement.InventorySlotElement invSlotElement) {
+            } else if (previousElement instanceof SlotElement.InventoryLink invSlotElement) {
                 Inventory inventory = invSlotElement.inventory();
                 // check if the InvUI-Inventory isn't still present on another index
                 if (getInvSlotElements(invSlotElement.inventory()).size() == 1) {
@@ -129,9 +129,9 @@ public sealed abstract class AbstractWindow
             if (element != null) {
                 // tell the Item or InvUI-Inventory that it is being displayed in this Window
                 SlotElement holdingElement = element.getHoldingElement();
-                if (holdingElement instanceof SlotElement.ItemSlotElement itemSlotElement) {
+                if (holdingElement instanceof SlotElement.Item itemSlotElement) {
                     ((AbstractItem) itemSlotElement.item()).addWindow(this);
-                } else if (holdingElement instanceof SlotElement.InventorySlotElement invSlotElement) {
+                } else if (holdingElement instanceof SlotElement.InventoryLink invSlotElement) {
                     invSlotElement.inventory().addWindow(this);
                 }
                 
@@ -236,13 +236,13 @@ public sealed abstract class AbstractWindow
     }
     
     protected Map<Integer, SlotElement> getItemSlotElements(Item item) {
-        return ArrayUtils.findAllOccurrences(elementsDisplayed, element -> element instanceof SlotElement.ItemSlotElement
-                                                                           && ((SlotElement.ItemSlotElement) element).item() == item);
+        return ArrayUtils.findAllOccurrences(elementsDisplayed, element -> element instanceof SlotElement.Item
+                                                                           && ((SlotElement.Item) element).item() == item);
     }
     
     protected Map<Integer, SlotElement> getInvSlotElements(Inventory inventory) {
-        return ArrayUtils.findAllOccurrences(elementsDisplayed, element -> element instanceof SlotElement.InventorySlotElement
-                                                                           && ((SlotElement.InventorySlotElement) element).inventory() == inventory);
+        return ArrayUtils.findAllOccurrences(elementsDisplayed, element -> element instanceof SlotElement.InventoryLink
+                                                                           && ((SlotElement.InventoryLink) element).inventory() == inventory);
     }
     
     @Override
@@ -325,9 +325,9 @@ public sealed abstract class AbstractWindow
             .filter(Objects::nonNull)
             .map(SlotElement::getHoldingElement)
             .forEach(slotElement -> {
-                if (slotElement instanceof SlotElement.ItemSlotElement itemSlotElement) {
+                if (slotElement instanceof SlotElement.Item itemSlotElement) {
                     ((AbstractItem) itemSlotElement.item()).removeWindow(this);
-                } else if (slotElement instanceof SlotElement.InventorySlotElement invSlotElement) {
+                } else if (slotElement instanceof SlotElement.InventoryLink invSlotElement) {
                     invSlotElement.inventory().removeWindow(this);
                 }
             });

@@ -1,21 +1,20 @@
 package xyz.xenondevs.invui.gui;
 
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.invui.gui.structure.Structure;
 
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public sealed interface TabGui extends Gui permits AbstractTabGui {
+public sealed interface TabGui<C extends Gui> extends Gui permits AbstractTabGui {
     
     /**
      * Creates a new {@link Builder Gui Builder} for a {@link TabGui}.
      *
      * @return The new {@link Builder Gui Builder}.
      */
-    static Builder normal() {
-        return new TabGuiImpl.BuilderImpl();
+    static <C extends Gui> Builder<C> normal() {
+        return new TabGuiImpl.BuilderImpl<>();
     }
     
     /**
@@ -24,8 +23,8 @@ public sealed interface TabGui extends Gui permits AbstractTabGui {
      * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
      * @return The created {@link TabGui}.
      */
-    static TabGui normal(Consumer<Builder> consumer) {
-        Builder builder = normal();
+    static <C extends Gui> TabGui<C> normal(Consumer<Builder<C>> consumer) {
+        Builder<C> builder = normal();
         consumer.accept(builder);
         return builder.build();
     }
@@ -39,8 +38,8 @@ public sealed interface TabGui extends Gui permits AbstractTabGui {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link TabGui}.
      */
-    static TabGui of(int width, int height, List<@Nullable Gui> tabs, int... contentListSlots) {
-        return new TabGuiImpl(width, height, tabs, contentListSlots);
+    static <C extends Gui> TabGui<C> of(int width, int height, List<@Nullable C> tabs, int... contentListSlots) {
+        return new TabGuiImpl<>(width, height, tabs, contentListSlots);
     }
     
     /**
@@ -50,8 +49,8 @@ public sealed interface TabGui extends Gui permits AbstractTabGui {
      * @param tabs      The {@link Gui Guis} to use as tabs.
      * @return The created {@link TabGui}.
      */
-    static TabGui of(Structure structure, List<@Nullable Gui> tabs) {
-        return new TabGuiImpl(tabs, structure);
+    static <C extends Gui> TabGui<C> of(Structure structure, List<@Nullable C> tabs) {
+        return new TabGuiImpl<>(tabs, structure);
     }
     
     /**
@@ -81,14 +80,15 @@ public sealed interface TabGui extends Gui permits AbstractTabGui {
      *
      * @return The configured tabs.
      */
-    List<@Nullable Gui> getTabs();
+    List<@Nullable C> getTabs();
     
     /**
      * Gets the registered tab change handlers.
      *
      * @return The registered tab change handlers.
      */
-    @Nullable List<BiConsumer<Integer, Integer>> getTabChangeHandlers();
+    @Nullable
+    List<BiConsumer<Integer, Integer>> getTabChangeHandlers();
     
     /**
      * Replaces the currently registered tab change handlers with the given list.
@@ -114,7 +114,7 @@ public sealed interface TabGui extends Gui permits AbstractTabGui {
     /**
      * A {@link TabGui} builder.
      */
-    sealed interface Builder extends Gui.Builder<TabGui, Builder> permits AbstractTabGui.AbstractBuilder {
+    sealed interface Builder<C extends Gui> extends Gui.Builder<TabGui<C>, Builder<C>> permits AbstractTabGui.AbstractBuilder {
         
         /**
          * Sets the tabs of the {@link TabGui}.
@@ -123,7 +123,7 @@ public sealed interface TabGui extends Gui permits AbstractTabGui {
          * @param tabs The tabs of the {@link TabGui}.
          * @return This {@link Builder Gui Builder}.
          */
-        Builder setTabs(List<@Nullable Gui> tabs);
+        Builder<C> setTabs(List<@Nullable C> tabs);
         
         /**
          * Adds a tab to the {@link TabGui}.
@@ -132,7 +132,7 @@ public sealed interface TabGui extends Gui permits AbstractTabGui {
          * @param tab The tab to add.
          * @return This {@link Builder Gui Builder}.
          */
-        Builder addTab(@Nullable Gui tab);
+        Builder<C> addTab(@Nullable C tab);
         
         /**
          * Sets the tab change handlers of the {@link TabGui}.
@@ -140,7 +140,7 @@ public sealed interface TabGui extends Gui permits AbstractTabGui {
          * @param handlers The tab change handlers of the {@link TabGui}.
          * @return This {@link Builder Gui Builder}.
          */
-        Builder setTabChangeHandlers(List<BiConsumer<Integer, Integer>> handlers);
+        Builder<C> setTabChangeHandlers(List<BiConsumer<Integer, Integer>> handlers);
         
         /**
          * Adds a tab change handler to the {@link TabGui}.
@@ -148,7 +148,7 @@ public sealed interface TabGui extends Gui permits AbstractTabGui {
          * @param handler The tab change handler to add.
          * @return This {@link Builder Gui Builder}.
          */
-        Builder addTabChangeHandler(BiConsumer<Integer, Integer> handler);
+        Builder<C> addTabChangeHandler(BiConsumer<Integer, Integer> handler);
         
     }
     

@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 public class SimpleItem extends AbstractItem {
     
     private final ItemProvider itemProvider;
-    private final Consumer<Click> clickHandler;
+    private final @Nullable Consumer<Click> clickHandler;
     
     public SimpleItem(ItemProvider itemProvider) {
         this.itemProvider = itemProvider;

@@ -5,9 +5,13 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.window.Window;
 
-public sealed interface Item permits AbstractItem {
+/**
+ * An ui element for use in {@link Gui Guis}.
+ */
+public sealed interface Item permits AbstractItem, BoundItem {
     
     /**
      * Gets the {@link ItemProvider}.

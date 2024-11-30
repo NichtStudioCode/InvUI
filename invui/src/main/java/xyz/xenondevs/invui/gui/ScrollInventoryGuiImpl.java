@@ -1,7 +1,6 @@
 package xyz.xenondevs.invui.gui;
 
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.invui.gui.structure.Structure;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.inventory.VirtualInventory;
 
@@ -9,23 +8,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-final class ScrollInventoryGuiImpl extends AbstractScrollGui<Inventory> {
+final class ScrollInventoryGuiImpl<C extends Inventory> extends AbstractScrollGui<C> {
     
     private final BiConsumer<Integer, Integer> resizeHandler = (from, to) -> bake();
     
-    public ScrollInventoryGuiImpl(int width, int height, @Nullable List<Inventory> inventories, int... contentListSlots) {
+    public ScrollInventoryGuiImpl(int width, int height, @Nullable List<C> inventories, int... contentListSlots) {
         super(width, height, false, contentListSlots);
         setContent(inventories);
     }
     
-    public ScrollInventoryGuiImpl(@Nullable List<Inventory> inventories, Structure structure) {
+    public ScrollInventoryGuiImpl(@Nullable List<C> inventories, Structure structure) {
         super(structure.getWidth(), structure.getHeight(), false, structure);
         setContent(inventories);
     }
     
     @SuppressWarnings("DuplicatedCode")
     @Override
-    public void setContent(@Nullable List<Inventory> content) {
+    public void setContent(@Nullable List<C> content) {
         // remove resize handlers from previous inventories
         if (this.content != null) {
             for (Inventory inventory : this.content) {
@@ -51,9 +50,11 @@ final class ScrollInventoryGuiImpl extends AbstractScrollGui<Inventory> {
     @Override
     public void bake() {
         List<SlotElement> elements = new ArrayList<>();
-        for (Inventory inventory : content) {
-            for (int i = 0; i < inventory.getSize(); i++) {
-                elements.add(new SlotElement.InventorySlotElement(inventory, i));
+        if (content != null) {
+            for (Inventory inventory : content) {
+                for (int i = 0; i < inventory.getSize(); i++) {
+                    elements.add(new SlotElement.InventoryLink(inventory, i));
+                }
             }
         }
         
@@ -61,14 +62,14 @@ final class ScrollInventoryGuiImpl extends AbstractScrollGui<Inventory> {
         update();
     }
     
-    public static final class Builder extends AbstractBuilder<Inventory> {
+    public static final class Builder<C extends Inventory> extends AbstractBuilder<C> {
         
         @Override
-        public ScrollGui<Inventory> build() {
+        public ScrollGui<C> build() {
             if (structure == null)
                 throw new IllegalStateException("Structure is not defined.");
             
-            var gui = new ScrollInventoryGuiImpl(content, structure);
+            var gui = new ScrollInventoryGuiImpl<>(content, structure);
             applyModifiers(gui);
             return gui;
         }

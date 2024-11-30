@@ -1,15 +1,14 @@
 package xyz.xenondevs.invui.gui;
 
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.invui.gui.structure.Structure;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-sealed abstract class AbstractTabGui 
-    extends AbstractGui 
-    implements TabGui
+sealed abstract class AbstractTabGui<C extends Gui>
+    extends AbstractGui
+    implements TabGui<C>
     permits TabGuiImpl
 {
     
@@ -50,15 +49,15 @@ sealed abstract class AbstractTabGui
     protected void update() {
         if (currentTab == -1) currentTab = getFirstAvailableTab();
         
-        updateControlItems();
         updateContent();
     }
     
     private void updateContent() {
-        List<SlotElement> slotElements = getSlotElements(currentTab);
+        List<SlotElement.GuiLink> slotElements = getSlotElements(currentTab);
         for (int i = 0; i < listSlots.length; i++) {
             int slot = listSlots[i];
-            if (slotElements.size() > i) setSlotElement(listSlots[i], slotElements.get(i));
+            if (slotElements.size() > i)
+                setSlotElement(listSlots[i], slotElements.get(i));
             else remove(slot);
         }
     }
@@ -97,25 +96,25 @@ sealed abstract class AbstractTabGui
     
     public abstract boolean isTabAvailable(int tab);
     
-    protected abstract @Nullable List<SlotElement> getSlotElements(int tab);
+    protected abstract @Nullable List<SlotElement.GuiLink> getSlotElements(int tab);
     
-    public static sealed abstract class AbstractBuilder
-        extends AbstractGui.AbstractBuilder<TabGui, TabGui.Builder>
-        implements TabGui.Builder
+    public static sealed abstract class AbstractBuilder<C extends Gui>
+        extends AbstractGui.AbstractBuilder<TabGui<C>, TabGui.Builder<C>>
+        implements TabGui.Builder<C>
         permits TabGuiImpl.BuilderImpl
     {
         
-        protected @Nullable List<@Nullable Gui> tabs;
+        protected @Nullable List<@Nullable C> tabs;
         protected @Nullable List<BiConsumer<Integer, Integer>> tabChangeHandlers;
         
         @Override
-        public TabGui.Builder setTabs(List<@Nullable Gui> tabs) {
+        public TabGui.Builder<C> setTabs(List<@Nullable C> tabs) {
             this.tabs = tabs;
             return this;
         }
         
         @Override
-        public TabGui.Builder addTab(@Nullable Gui tab) {
+        public TabGui.Builder<C> addTab(@Nullable C tab) {
             if (this.tabs == null)
                 this.tabs = new ArrayList<>();
             
@@ -124,7 +123,7 @@ sealed abstract class AbstractTabGui
         }
         
         @Override
-        public TabGui.Builder addTabChangeHandler(BiConsumer<Integer, Integer> handler) {
+        public TabGui.Builder<C> addTabChangeHandler(BiConsumer<Integer, Integer> handler) {
             if (tabChangeHandlers == null)
                 tabChangeHandlers = new ArrayList<>(1);
             
@@ -133,20 +132,20 @@ sealed abstract class AbstractTabGui
         }
         
         @Override
-        public TabGui.Builder setTabChangeHandlers(List<BiConsumer<Integer, Integer>> handlers) {
+        public TabGui.Builder<C> setTabChangeHandlers(List<BiConsumer<Integer, Integer>> handlers) {
             tabChangeHandlers = handlers;
             return this;
         }
         
         @Override
-        protected void applyModifiers(TabGui gui) {
+        protected void applyModifiers(TabGui<C> gui) {
             super.applyModifiers(gui);
             gui.setTabChangeHandlers(tabChangeHandlers);
         }
         
         @Override
-        public TabGui.Builder clone() {
-            var clone = (AbstractBuilder) super.clone();
+        public TabGui.Builder<C> clone() {
+            var clone = (AbstractBuilder<C>) super.clone();
             if (tabs != null)
                 clone.tabs = new ArrayList<>(tabs);
             if (tabChangeHandlers != null)

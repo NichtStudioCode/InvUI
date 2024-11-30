@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 public class SuppliedItem extends AbstractItem {
     
     private final Supplier<? extends ItemProvider> builderSupplier;
-    private final Function<Click, Boolean> clickHandler;
+    private final @Nullable Function<Click, Boolean> clickHandler;
     
     public SuppliedItem(Supplier<? extends ItemProvider> builderSupplier, @Nullable Function<Click, Boolean> clickHandler) {
         this.builderSupplier = builderSupplier;

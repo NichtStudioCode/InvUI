@@ -2,7 +2,6 @@ package xyz.xenondevs.invui.item;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.jspecify.annotations.Nullable;
 
 import java.util.function.Supplier;
 

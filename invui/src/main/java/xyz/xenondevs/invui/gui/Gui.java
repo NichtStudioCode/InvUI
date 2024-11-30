@@ -4,8 +4,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.animation.Animation;
-import xyz.xenondevs.invui.gui.structure.Marker;
-import xyz.xenondevs.invui.gui.structure.Structure;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
@@ -16,7 +14,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 /**
  * A Gui is a container for width * height {@link SlotElement SlotElements}.<br>
@@ -35,22 +32,22 @@ import java.util.function.Supplier;
 public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
     
     /**
-     * Creates a new {@link Builder.Normal Gui Builder} for a normal {@link Gui}.
+     * Creates a new {@link Builder Gui Builder} for a normal {@link Gui}.
      *
-     * @return The new {@link Builder.Normal Gui Builder}.
+     * @return The new {@link Builder Gui Builder}.
      */
-    static Builder.Normal normal() {
+    static Builder<?, ?> normal() {
         return new NormalGuiImpl.Builder();
     }
     
     /**
-     * Creates a new normal {@link Gui} after configuring a {@link Builder.Normal Gui Builder} with the given {@link Consumer}.
+     * Creates a new normal {@link Gui} after configuring a {@link Builder Gui Builder} with the given {@link Consumer}.
      *
-     * @param consumer The {@link Consumer} to configure the {@link Builder.Normal Gui Builder}.
+     * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
      * @return The created {@link Gui}.
      */
-    static Gui normal(Consumer<Builder.Normal> consumer) {
-        Builder.Normal builder = normal();
+    static Gui normal(Consumer<Builder<?, ?>> consumer) {
+        Builder<?, ?> builder = normal();
         consumer.accept(builder);
         return builder.build();
     }
@@ -130,7 +127,8 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
      * @param y The y coordinate
      * @return The {@link SlotElement} placed there
      */
-    @Nullable SlotElement getSlotElement(int x, int y);
+    @Nullable
+    SlotElement getSlotElement(int x, int y);
     
     /**
      * Gets the {@link SlotElement} placed on that slot.
@@ -138,7 +136,8 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
      * @param index The slot index
      * @return The {@link SlotElement} placed on that slot
      */
-    @Nullable SlotElement getSlotElement(int index);
+    @Nullable
+    SlotElement getSlotElement(int index);
     
     /**
      * Gets if there is a {@link SlotElement} on these coordinates.
@@ -162,7 +161,8 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
      *
      * @return All {@link SlotElement SlotElements} of this {@link Gui}
      */
-    @Nullable SlotElement[] getSlotElements();
+    @Nullable
+    SlotElement[] getSlotElements();
     
     /**
      * Sets the {@link Item} on these coordinates.
@@ -197,7 +197,8 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
      * @param y The y coordinate
      * @return The {@link Item} which is placed on that slot or null if there isn't one
      */
-    @Nullable Item getItem(int x, int y);
+    @Nullable
+    Item getItem(int x, int y);
     
     /**
      * Gets the {@link Item} placed on that slot.
@@ -205,7 +206,8 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
      * @param index The slot index
      * @return The {@link Item} which is placed on that slot or null if there isn't one
      */
-    @Nullable Item getItem(int index);
+    @Nullable
+    Item getItem(int index);
     
     /**
      * Gets the {@link ItemProvider} that will be used if nothing else
@@ -213,7 +215,8 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
      *
      * @return The {@link ItemProvider}
      */
-    @Nullable ItemProvider getBackground();
+    @Nullable
+    ItemProvider getBackground();
     
     /**
      * Sets the {@link ItemProvider} that will be used if nothing else
@@ -232,9 +235,9 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
     void remove(int x, int y);
     
     /**
-     * Remove the {@link Item} which are placed on these slots.
+     * Remove the {@link SlotElement} that is placed on the slot.
      *
-     * @param index The slot index of the {@link Item Items} that should be removed
+     * @param index The slot index of the {@link SlotElement} that should be removed
      */
     void remove(int index);
     
@@ -414,7 +417,10 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
      * @param <G> The type of the {@link Gui}
      * @param <S> The type of the builder
      */
-    sealed interface Builder<G extends Gui, S extends Builder<G, S>> extends Cloneable permits AbstractGui.AbstractBuilder, Builder.Normal, PagedGui.Builder, ScrollGui.Builder, TabGui.Builder {
+    sealed interface Builder<G extends Gui, S extends Builder<G, S>>
+        extends IngredientMapper<S>
+        permits AbstractGui.AbstractBuilder, PagedGui.Builder, ScrollGui.Builder, TabGui.Builder
+    {
         
         /**
          * Sets the {@link Structure} of the {@link Gui}.
@@ -442,88 +448,6 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
          * @return This {@link Builder Gui Builder}
          */
         S setStructure(int width, int height, String structureData);
-        
-        /**
-         * Adds an {@link ItemStack} ingredient under the given key.
-         *
-         * @param key       The key
-         * @param itemStack The {@link ItemStack}
-         * @return This {@link Builder Gui Builder}
-         */
-        S addIngredient(char key, ItemStack itemStack);
-        
-        /**
-         * Adds an {@link ItemProvider} ingredient under the given key.
-         *
-         * @param key          The key
-         * @param itemProvider The {@link ItemProvider}
-         * @return This {@link Builder Gui Builder}
-         */
-        S addIngredient(char key, ItemProvider itemProvider);
-        
-        /**
-         * Adds an {@link Item} ingredient under the given key.
-         *
-         * @param key  The key
-         * @param item The {@link Item}
-         * @return This {@link Builder Gui Builder}
-         */
-        S addIngredient(char key, Item item);
-        
-        /**
-         * Adds an {@link Inventory} ingredient under the given key.
-         *
-         * @param key       The key
-         * @param inventory The {@link Inventory}
-         * @return This {@link Builder Gui Builder}
-         */
-        S addIngredient(char key, Inventory inventory);
-        
-        /**
-         * Adds an {@link Inventory} ingredient under the given key.
-         *
-         * @param key        The key
-         * @param inventory  The {@link Inventory}
-         * @param background The {@link ItemProvider} for empty slots of the {@link Inventory}
-         * @return This {@link Builder Gui Builder}
-         */
-        S addIngredient(char key, Inventory inventory, @Nullable ItemProvider background);
-        
-        /**
-         * Adds a {@link SlotElement} ingredient under the given key.
-         *
-         * @param key     The key
-         * @param element The {@link SlotElement}
-         * @return This {@link Builder Gui Builder}
-         */
-        S addIngredient(char key, SlotElement element);
-        
-        /**
-         * Adds a {@link Marker} ingredient under the given key.
-         *
-         * @param key    The key
-         * @param marker The {@link Marker}
-         * @return This {@link Builder Gui Builder}
-         */
-        S addIngredient(char key, Marker marker);
-        
-        /**
-         * Adds a {@link Supplier} of {@link Item Items} ingredient under the given key.
-         *
-         * @param key          The key
-         * @param itemSupplier The {@link Supplier} of {@link Item Items}
-         * @return This {@link Builder Gui Builder}
-         */
-        S addIngredient(char key, Supplier<? extends Item> itemSupplier);
-        
-        /**
-         * Adds a {@link Supplier} of {@link SlotElement SlotElements} ingredient under the given key.
-         *
-         * @param key             The key
-         * @param elementSupplier The {@link Supplier} of {@link SlotElement SlotElements}
-         * @return This {@link Builder Gui Builder}
-         */
-        S addIngredientElementSupplier(char key, Supplier<? extends SlotElement> elementSupplier);
         
         /**
          * Sets the background of the {@link Gui}.
@@ -560,18 +484,18 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
         S setIgnoreObscuredInventorySlots(boolean ignoreObscuredInventorySlots);
         
         /**
-         * Sets the background of the {@link Gui}.
+         * Adds a {@link Consumer} that is run when the {@link Gui} is built.
          *
-         * @param modifier The {@link Consumer} for the background
-         * @return This {@link Builder Gui Builder}
+         * @param modifier The {@link Consumer} that modifies the {@link Gui}
+         * @return This {@link Builder}
          */
         S addModifier(Consumer<G> modifier);
         
         /**
-         * Sets the background of the {@link Gui}.
+         * Sets the {@link Consumer}s that are run when the {@link Gui} is built.
          *
-         * @param modifiers The {@link Consumer Consumers} for the background
-         * @return This {@link Builder Gui Builder}
+         * @param modifiers The {@link Consumer}s that modify the {@link Gui}
+         * @return This {@link Builder}
          */
         S setModifiers(List<Consumer<G>> modifiers);
         
@@ -589,14 +513,6 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
          */
         S clone();
         
-        /**
-         * A normal {@link Gui} builder.
-         *
-         * @see PagedGui.Builder
-         * @see ScrollGui.Builder
-         * @see TabGui.Builder
-         */
-        sealed interface Normal extends Builder<Gui, Normal> permits NormalGuiImpl.Builder {}
     }
     
 }

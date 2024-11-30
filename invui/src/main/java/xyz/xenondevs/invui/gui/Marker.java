@@ -1,4 +1,4 @@
-package xyz.xenondevs.invui.gui.structure;
+package xyz.xenondevs.invui.gui;
 
 /**
  * Used to mark slots in a {@link Structure} as special slots.
@@ -9,11 +9,11 @@ public class Marker {
     
     private final boolean horizontal;
     
-    public Marker(boolean horizontal) {
+    Marker(boolean horizontal) {
         this.horizontal = horizontal;
     }
     
-    public boolean isHorizontal() {
+    boolean isHorizontal() {
         return horizontal;
     }
     

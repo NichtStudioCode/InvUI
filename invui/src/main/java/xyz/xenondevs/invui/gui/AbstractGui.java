@@ -11,9 +11,6 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.animation.Animation;
-import xyz.xenondevs.invui.gui.structure.Marker;
-import xyz.xenondevs.invui.gui.structure.Structure;
-import xyz.xenondevs.invui.internal.util.ArrayUtils;
 import xyz.xenondevs.invui.internal.util.InventoryUtils;
 import xyz.xenondevs.invui.internal.util.SlotUtils;
 import xyz.xenondevs.invui.inventory.Inventory;
@@ -22,10 +19,10 @@ import xyz.xenondevs.invui.inventory.ReferencingInventory;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
+import xyz.xenondevs.invui.item.BoundItem;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.item.ItemWrapper;
-import xyz.xenondevs.invui.item.ControlItem;
 import xyz.xenondevs.invui.util.ItemUtils;
 import xyz.xenondevs.invui.window.*;
 
@@ -39,7 +36,7 @@ import java.util.stream.Collectors;
  * @hidden
  */
 @Internal
-public sealed abstract class AbstractGui 
+public sealed abstract class AbstractGui
     implements Gui, GuiParent
     permits NormalGuiImpl, AbstractPagedGui, AbstractScrollGui, AbstractTabGui
 {
@@ -72,26 +69,25 @@ public sealed abstract class AbstractGui
         
         SlotElement slotElement = slotElements[slotNumber];
         switch (slotElement) {
-            case SlotElement.LinkedSlotElement linkedElement -> {
+            case SlotElement.GuiLink linkedElement -> {
                 AbstractGui gui = (AbstractGui) linkedElement.gui();
                 gui.handleClick(linkedElement.slot(), player, clickType, event);
             }
             
-            case SlotElement.ItemSlotElement itemElement -> {
+            case SlotElement.Item itemElement -> {
                 event.setCancelled(true); // if it is an Item, don't let the player move it
                 itemElement.item().handleClick(clickType, player, event);
             }
             
-            case SlotElement.InventorySlotElement inventorySlotElement ->
+            case SlotElement.InventoryLink inventorySlotElement ->
                 handleInvSlotElementClick(inventorySlotElement, event);
             
             case null, default -> event.setCancelled(true); // Only InventorySlotElements have allowed interactions
         }
     }
     
-    // region inventories
-    
-    protected void handleInvSlotElementClick(SlotElement.InventorySlotElement element, InventoryClickEvent event) {
+    //<editor-fold desc="inventories">
+    protected void handleInvSlotElementClick(SlotElement.InventoryLink element, InventoryClickEvent event) {
         // these actions are ignored as they don't modify the inventory
         InventoryAction action = event.getAction();
         if (action != InventoryAction.DROP_ALL_CURSOR && action != InventoryAction.DROP_ONE_CURSOR) {
@@ -146,7 +142,7 @@ public sealed abstract class AbstractGui
         }
     }
     
-    private boolean didClickBackgroundItem(Player player, SlotElement.InventorySlotElement element, Inventory inventory, int slot, @Nullable ItemStack clicked) {
+    private boolean didClickBackgroundItem(Player player, SlotElement.InventoryLink element, Inventory inventory, int slot, @Nullable ItemStack clicked) {
         String lang = player.getLocale();
         return !inventory.hasItem(slot) && (isBuilderSimilar(background, lang, clicked) || isBuilderSimilar(element.background(), lang, clicked));
     }
@@ -327,7 +323,7 @@ public sealed abstract class AbstractGui
         
         SlotElement element = getSlotElement(slot);
         if (element != null) element = element.getHoldingElement();
-        if (element instanceof SlotElement.InventorySlotElement invSlotElement) {
+        if (element instanceof SlotElement.InventoryLink invSlotElement) {
             Inventory inventory = invSlotElement.inventory();
             int viSlot = invSlotElement.slot();
             if (inventory.isSynced(viSlot, oldStack)) {
@@ -383,7 +379,7 @@ public sealed abstract class AbstractGui
                 continue;
             
             element = element.getHoldingElement();
-            if (element instanceof SlotElement.InventorySlotElement invElement) {
+            if (element instanceof SlotElement.InventoryLink invElement) {
                 Inventory inventory = invElement.inventory();
                 if (ignoredSet.contains(inventory))
                     continue;
@@ -410,14 +406,14 @@ public sealed abstract class AbstractGui
         
         return inventories;
     }
-    // endregion
+    //</editor-fold>
     
     @Override
     public void handleSlotElementUpdate(Gui child, int slotIndex) {
         // find all SlotElements that link to this slotIndex in this child Gui and notify all parents
         for (int index = 0; index < size; index++) {
             SlotElement element = slotElements[index];
-            if (element instanceof SlotElement.LinkedSlotElement linkedSlotElement) {
+            if (element instanceof SlotElement.GuiLink linkedSlotElement) {
                 if (linkedSlotElement.gui() == child && linkedSlotElement.slot() == slotIndex)
                     for (GuiParent parent : parents) parent.handleSlotElementUpdate(this, index);
             }
@@ -508,17 +504,6 @@ public sealed abstract class AbstractGui
         }
     }
     
-    public void updateControlItems() {
-        for (SlotElement element : slotElements) {
-            if (element instanceof SlotElement.ItemSlotElement) {
-                Item item = ((SlotElement.ItemSlotElement) element).item();
-                if (item instanceof ControlItem<?>)
-                    item.notifyWindows();
-            }
-        }
-    }
-    
-    @SuppressWarnings("unchecked")
     @Override
     public void setSlotElement(int index, @Nullable SlotElement slotElement) {
         SlotElement oldElement = slotElements[index];
@@ -527,17 +512,18 @@ public sealed abstract class AbstractGui
         slotElements[index] = slotElement;
         
         // set the gui if it is a ControlItem
-        if (slotElement instanceof SlotElement.ItemSlotElement) {
-            Item item = ((SlotElement.ItemSlotElement) slotElement).item();
-            if (item instanceof ControlItem<?>)
-                ((ControlItem<Gui>) item).setGui(this);
+        if (slotElement instanceof SlotElement.Item itemElement) {
+            Item item = itemElement.item();
+            if (item instanceof BoundItem boundItem) {
+                boundItem.bind(this);
+            }
         }
         
         // notify parents that a SlotElement has been changed
         parents.forEach(parent -> parent.handleSlotElementUpdate(this, index));
         
-        AbstractGui oldLink = oldElement instanceof SlotElement.LinkedSlotElement ? (AbstractGui) ((SlotElement.LinkedSlotElement) oldElement).gui() : null;
-        AbstractGui newLink = slotElement instanceof SlotElement.LinkedSlotElement ? (AbstractGui) ((SlotElement.LinkedSlotElement) slotElement).gui() : null;
+        AbstractGui oldLink = oldElement instanceof SlotElement.GuiLink ? (AbstractGui) ((SlotElement.GuiLink) oldElement).gui() : null;
+        AbstractGui newLink = slotElement instanceof SlotElement.GuiLink ? (AbstractGui) ((SlotElement.GuiLink) slotElement).gui() : null;
         
         // if newLink is the same as oldLink, there isn't anything to be done
         if (newLink == oldLink) return;
@@ -546,8 +532,8 @@ public sealed abstract class AbstractGui
         if (oldLink != null) {
             // If no other slot still links to that Gui, remove this Gui from parents
             if (Arrays.stream(slotElements)
-                .filter(element -> element instanceof SlotElement.LinkedSlotElement)
-                .map(element -> ((SlotElement.LinkedSlotElement) element).gui())
+                .filter(element -> element instanceof SlotElement.GuiLink)
+                .map(element -> ((SlotElement.GuiLink) element).gui())
                 .noneMatch(gui -> gui == oldLink)) oldLink.removeParent(this);
         }
         
@@ -558,12 +544,8 @@ public sealed abstract class AbstractGui
     }
     
     @Override
-    public void addSlotElements(SlotElement... slotElements) {
-        for (SlotElement element : slotElements) {
-            int emptyIndex = ArrayUtils.findFirstEmptyIndex(this.slotElements);
-            if (emptyIndex == -1) break;
-            setSlotElement(emptyIndex, element);
-        }
+    public void remove(int index) {
+        setSlotElement(index, null);
     }
     
     @Override
@@ -584,16 +566,36 @@ public sealed abstract class AbstractGui
     
     @Override
     public void setItem(int index, @Nullable Item item) {
-        remove(index);
-        if (item != null) setSlotElement(index, new SlotElement.ItemSlotElement(item));
+        if (item == null) {
+            remove(index);
+            return;
+        }
+        setSlotElement(index, new SlotElement.Item(item));
+    }
+    
+    @Override
+    public void addSlotElements(SlotElement... slotElements) {
+        int elementIndex = 0;
+        for (int i = 0; i < getSize(); i++) {
+            if (elementIndex >= slotElements.length)
+                break;
+            
+            if (this.slotElements[i] == null) {
+                setSlotElement(i, slotElements[elementIndex++]);
+            }
+        }
     }
     
     @Override
     public void addItems(Item... items) {
-        for (Item item : items) {
-            int emptyIndex = ArrayUtils.findFirstEmptyIndex(slotElements);
-            if (emptyIndex == -1) break;
-            setItem(emptyIndex, item);
+        int elementIndex = 0;
+        for (int i = 0; i < getSize(); i++) {
+            if (elementIndex >= items.length)
+                break;
+            
+            if (this.slotElements[i] == null) {
+                setSlotElement(i, new SlotElement.Item(items[elementIndex++]));
+            }
         }
     }
     
@@ -601,12 +603,12 @@ public sealed abstract class AbstractGui
     public @Nullable Item getItem(int index) {
         SlotElement slotElement = slotElements[index];
         
-        if (slotElement instanceof SlotElement.ItemSlotElement) {
-            return ((SlotElement.ItemSlotElement) slotElement).item();
-        } else if (slotElement instanceof SlotElement.LinkedSlotElement) {
+        if (slotElement instanceof SlotElement.Item) {
+            return ((SlotElement.Item) slotElement).item();
+        } else if (slotElement instanceof SlotElement.GuiLink) {
             SlotElement holdingElement = slotElement.getHoldingElement();
-            if (holdingElement instanceof SlotElement.ItemSlotElement)
-                return ((SlotElement.ItemSlotElement) holdingElement).item();
+            if (holdingElement instanceof SlotElement.Item)
+                return ((SlotElement.Item) holdingElement).item();
         }
         
         return null;
@@ -620,11 +622,6 @@ public sealed abstract class AbstractGui
     @Override
     public void setBackground(@Nullable ItemProvider itemProvider) {
         this.background = itemProvider;
-    }
-    
-    @Override
-    public void remove(int index) {
-        setSlotElement(index, null);
     }
     
     @Override
@@ -657,7 +654,7 @@ public sealed abstract class AbstractGui
         return ignoreObscuredInventorySlots;
     }
     
-    // region coordinate-based methods
+    //<editor-fold desc="coordinate-based methods">
     @Override
     public void setSlotElement(int x, int y, @Nullable SlotElement slotElement) {
         setSlotElement(convToIndex(x, y), slotElement);
@@ -702,10 +699,13 @@ public sealed abstract class AbstractGui
         if (x >= width || y >= height) throw new IllegalArgumentException("Coordinates out of bounds");
         return SlotUtils.convertToIndex(x, y, width);
     }
+    //</editor-fold>
     
+    //<editor-fold desc="filling methods">
     private void fill(Set<Integer> slots, @Nullable Item item, boolean replaceExisting) {
         for (int slot : slots) {
-            if (!replaceExisting && hasSlotElement(slot)) continue;
+            if (!replaceExisting && hasSlotElement(slot))
+                continue;
             setItem(slot, item);
         }
     }
@@ -713,7 +713,8 @@ public sealed abstract class AbstractGui
     @Override
     public void fill(int start, int end, @Nullable Item item, boolean replaceExisting) {
         for (int i = start; i < end; i++) {
-            if (!replaceExisting && hasSlotElement(i)) continue;
+            if (!replaceExisting && hasSlotElement(i))
+                continue;
             setItem(i, item);
         }
     }
@@ -725,13 +726,15 @@ public sealed abstract class AbstractGui
     
     @Override
     public void fillRow(int row, @Nullable Item item, boolean replaceExisting) {
-        if (row >= height) throw new IllegalArgumentException("Row out of bounds");
+        if (row >= height)
+            throw new IllegalArgumentException("Row out of bounds");
         fill(SlotUtils.getSlotsRow(row, width), item, replaceExisting);
     }
     
     @Override
     public void fillColumn(int column, @Nullable Item item, boolean replaceExisting) {
-        if (column >= width) throw new IllegalArgumentException("Column out of bounds");
+        if (column >= width)
+            throw new IllegalArgumentException("Column out of bounds");
         fill(SlotUtils.getSlotsColumn(column, width, height), item, replaceExisting);
     }
     
@@ -749,8 +752,9 @@ public sealed abstract class AbstractGui
     public void fillRectangle(int x, int y, Gui gui, boolean replaceExisting) {
         int slotIndex = 0;
         for (int slot : SlotUtils.getSlotsRect(x, y, gui.getWidth(), gui.getHeight(), this.width)) {
-            if (hasSlotElement(slot) && !replaceExisting) continue;
-            setSlotElement(slot, new SlotElement.LinkedSlotElement(gui, slotIndex));
+            if (hasSlotElement(slot) && !replaceExisting)
+                continue;
+            setSlotElement(slot, new SlotElement.GuiLink(gui, slotIndex));
             slotIndex++;
         }
     }
@@ -768,14 +772,14 @@ public sealed abstract class AbstractGui
         for (int slot : SlotUtils.getSlotsRect(x, y, width, height, this.width)) {
             if (slotIndex >= inventory.getSize()) return;
             if (hasSlotElement(slot) && !replaceExisting) continue;
-            setSlotElement(slot, new SlotElement.InventorySlotElement(inventory, slotIndex, background));
+            setSlotElement(slot, new SlotElement.InventoryLink(inventory, slotIndex, background));
             slotIndex++;
         }
     }
-    // endregion
+    //</editor-fold>
     
     @SuppressWarnings("unchecked")
-    static sealed abstract class AbstractBuilder<G extends Gui, S extends Gui.Builder<G, S>> 
+    static sealed abstract class AbstractBuilder<G extends Gui, S extends Gui.Builder<G, S>>
         implements Gui.Builder<G, S>
         permits NormalGuiImpl.Builder, AbstractPagedGui.AbstractBuilder, AbstractScrollGui.AbstractBuilder, AbstractTabGui.AbstractBuilder
     {
@@ -805,10 +809,17 @@ public sealed abstract class AbstractGui
         }
         
         @Override
+        public S applyPreset(IngredientPreset preset) {
+            if (structure == null)
+                throw new IllegalStateException("Structure is not set");
+            structure.applyPreset(preset);
+            return (S) this;
+        }
+        
+        @Override
         public S addIngredient(char key, ItemStack itemStack) {
             if (structure == null)
-                throw new IllegalStateException("Structure has not been set yet");
-            
+                throw new IllegalStateException("Structure is not set");
             structure.addIngredient(key, itemStack);
             return (S) this;
         }
@@ -816,8 +827,7 @@ public sealed abstract class AbstractGui
         @Override
         public S addIngredient(char key, ItemProvider itemProvider) {
             if (structure == null)
-                throw new IllegalStateException("Structure has not been set yet");
-            
+                throw new IllegalStateException("Structure is not set");
             structure.addIngredient(key, itemProvider);
             return (S) this;
         }
@@ -825,8 +835,7 @@ public sealed abstract class AbstractGui
         @Override
         public S addIngredient(char key, Item item) {
             if (structure == null)
-                throw new IllegalStateException("Structure has not been set yet");
-            
+                throw new IllegalStateException("Structure is not set");
             structure.addIngredient(key, item);
             return (S) this;
         }
@@ -834,8 +843,7 @@ public sealed abstract class AbstractGui
         @Override
         public S addIngredient(char key, Inventory inventory) {
             if (structure == null)
-                throw new IllegalStateException("Structure has not been set yet");
-            
+                throw new IllegalStateException("Structure is not set");
             structure.addIngredient(key, inventory);
             return (S) this;
         }
@@ -843,8 +851,7 @@ public sealed abstract class AbstractGui
         @Override
         public S addIngredient(char key, Inventory inventory, @Nullable ItemProvider background) {
             if (structure == null)
-                throw new IllegalStateException("Structure has not been set yet");
-            
+                throw new IllegalStateException("Structure is not set");
             structure.addIngredient(key, inventory, background);
             return (S) this;
         }
@@ -852,8 +859,7 @@ public sealed abstract class AbstractGui
         @Override
         public S addIngredient(char key, SlotElement element) {
             if (structure == null)
-                throw new IllegalStateException("Structure has not been set yet");
-            
+                throw new IllegalStateException("Structure is not set");
             structure.addIngredient(key, element);
             return (S) this;
         }
@@ -861,8 +867,7 @@ public sealed abstract class AbstractGui
         @Override
         public S addIngredient(char key, Marker marker) {
             if (structure == null)
-                throw new IllegalStateException("Structure has not been set yet");
-            
+                throw new IllegalStateException("Structure is not set");
             structure.addIngredient(key, marker);
             return (S) this;
         }
@@ -870,8 +875,7 @@ public sealed abstract class AbstractGui
         @Override
         public S addIngredient(char key, Supplier<? extends Item> itemSupplier) {
             if (structure == null)
-                throw new IllegalStateException("Structure has not been set yet");
-            
+                throw new IllegalStateException("Structure is not set");
             structure.addIngredient(key, itemSupplier);
             return (S) this;
         }
@@ -879,8 +883,7 @@ public sealed abstract class AbstractGui
         @Override
         public S addIngredientElementSupplier(char key, Supplier<? extends SlotElement> elementSupplier) {
             if (structure == null)
-                throw new IllegalStateException("Structure has not been set yet");
-            
+                throw new IllegalStateException("Structure is not set");
             structure.addIngredientElementSupplier(key, elementSupplier);
             return (S) this;
         }

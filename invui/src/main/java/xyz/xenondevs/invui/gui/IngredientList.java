@@ -1,6 +1,6 @@
-package xyz.xenondevs.invui.gui.structure;
+package xyz.xenondevs.invui.gui;
 
-import xyz.xenondevs.invui.gui.Gui;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.internal.util.SlotUtils;
 
 import java.util.ArrayList;
@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class IngredientList extends ArrayList<Ingredient> {
+class IngredientList extends ArrayList<@Nullable Ingredient> {
     
     private final int width;
     private final int height;

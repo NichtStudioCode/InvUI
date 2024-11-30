@@ -2,10 +2,10 @@ package xyz.xenondevs.invui.inventory;
 
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
+import xyz.xenondevs.invui.internal.util.Pair;
 import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
-import xyz.xenondevs.invui.internal.util.Pair;
 
 import java.util.Collection;
 import java.util.function.Consumer;

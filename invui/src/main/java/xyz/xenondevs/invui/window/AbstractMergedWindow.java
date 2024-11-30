@@ -8,9 +8,9 @@ import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
-import xyz.xenondevs.invui.inventory.ReferencingInventory;
 import xyz.xenondevs.invui.internal.util.Pair;
 import xyz.xenondevs.invui.internal.util.SlotUtils;
+import xyz.xenondevs.invui.inventory.ReferencingInventory;
 
 import java.util.ArrayList;
 import java.util.List;

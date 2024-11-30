@@ -3,24 +3,23 @@ package xyz.xenondevs.invui.gui;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.inventory.Inventory;
-import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public interface SlotElement {
+public sealed interface SlotElement {
     
-    @Nullable ItemStack getItemStack(String lang);
+    @Nullable
+    ItemStack getItemStack(String lang);
     
-    @Nullable SlotElement getHoldingElement();
+    @Nullable
+    SlotElement getHoldingElement();
     
     /**
-     * Contains an {@link Item}
-     *
-     * @param item The {@link Item} to display
+     * Contains an {@link xyz.xenondevs.invui.item.Item}
      */
-    record ItemSlotElement(Item item) implements SlotElement {
+    record Item(xyz.xenondevs.invui.item.Item item) implements SlotElement {
         
         @Override
         public ItemStack getItemStack(String lang) {
@@ -31,7 +30,6 @@ public interface SlotElement {
         public SlotElement getHoldingElement() {
             return this;
         }
-        
     }
     
     /**
@@ -41,11 +39,9 @@ public interface SlotElement {
      * @param slot       The slot in the {@link Inventory} to link to
      * @param background The {@link ItemProvider} to use as background if the slot is empty
      */
-    record InventorySlotElement(Inventory inventory, int slot,
-                                @Nullable ItemProvider background) implements SlotElement
-    {
+    record InventoryLink(Inventory inventory, int slot, @Nullable ItemProvider background) implements SlotElement {
         
-        public InventorySlotElement(Inventory inventory, int slot) {
+        public InventoryLink(Inventory inventory, int slot) {
             this(inventory, slot, null);
         }
         
@@ -69,26 +65,26 @@ public interface SlotElement {
      * @param gui  The {@link Gui} to link to
      * @param slot The slot in the {@link Gui} to link to
      */
-    record LinkedSlotElement(Gui gui, int slot) implements SlotElement {
+    record GuiLink(Gui gui, int slot) implements SlotElement {
         
         @Override
         public @Nullable SlotElement getHoldingElement() {
-            LinkedSlotElement element = this;
+            GuiLink element = this;
             while (true) {
                 SlotElement below = element.gui().getSlotElement(element.slot());
-                if (below instanceof LinkedSlotElement) element = (LinkedSlotElement) below;
+                if (below instanceof GuiLink) element = (GuiLink) below;
                 else return below;
             }
         }
         
         public List<Gui> getGuiList() {
             ArrayList<Gui> guis = new ArrayList<>();
-            LinkedSlotElement element = this;
+            GuiLink element = this;
             while (true) {
                 guis.add(element.gui());
                 SlotElement below = element.gui().getSlotElement(element.slot());
-                if (below instanceof LinkedSlotElement)
-                    element = (LinkedSlotElement) below;
+                if (below instanceof GuiLink)
+                    element = (GuiLink) below;
                 else break;
             }
             
