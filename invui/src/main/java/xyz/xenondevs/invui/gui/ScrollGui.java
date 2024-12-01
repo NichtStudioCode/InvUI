@@ -192,12 +192,28 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
     void setContent(@Nullable List<C> content);
     
     /**
+     * Gets the content of this {@link ScrollGui}.
+     *
+     * @return The content of this {@link ScrollGui}.
+     */
+    @Nullable
+    List<C> getContent();
+    
+    /**
      * Bakes the elements of this {@link PagedGui} based on the current content.
      * <p>
      * This method does not need to be called when using {@link #setContent(List)},
      * but is required when the size of the content itself changes.
      */
     void bake();
+    
+    /**
+     * Gets the scroll handlers of this {@link ScrollGui}.
+     *
+     * @return The scroll handlers of this {@link ScrollGui}.
+     */
+    @Nullable
+    List<BiConsumer<Integer, Integer>> getScrollHandlers();
     
     /**
      * Replaces the currently registered scroll handlers with the specified ones.
@@ -219,6 +235,35 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @param scrollHandler The scroll handler to remove.
      */
     void removeScrollHandler(BiConsumer<Integer, Integer> scrollHandler);
+    
+    /**
+     * Gets the line count change handlers of this {@link ScrollGui}.
+     *
+     * @return The line count change handlers of this {@link ScrollGui}.
+     */
+    @Nullable
+    List<BiConsumer<Integer, Integer>> getLineCountChangeHandlers();
+    
+    /**
+     * Replaces the currently registered line count change handlers with the specified ones.
+     *
+     * @param handlers The new line count change handlers.
+     */
+    void setLineCountChangeHandlers(@Nullable List<BiConsumer<Integer, Integer>> handlers);
+    
+    /**
+     * Adds a line count change handlers to this {@link ScrollGui}.
+     *
+     * @param handler The line count change handlers to add.
+     */
+    void addLineCountChangeHandler(BiConsumer<Integer, Integer> handler);
+    
+    /**
+     * Removes the specified line count change handlers from this {@link ScrollGui}.
+     *
+     * @param handler The line count change handlers to remove.
+     */
+    void removeLineCountChangeHandler(BiConsumer<Integer, Integer> handler);
     
     /**
      * A {@link ScrollGui} builder.
@@ -244,9 +289,9 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
         Builder<C> addContent(C content);
         
         /**
-         * Adds content to the {@link ScrollGui}.
+         * Sets the scroll handlers of the {@link ScrollGui}.
          *
-         * @param handlers The content to add.
+         * @param handlers The scroll handlers to set.
          * @return This {@link Builder Gui Builder}.
          */
         Builder<C> setScrollHandlers(List<BiConsumer<Integer, Integer>> handlers);
@@ -258,6 +303,22 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
          * @return This {@link Builder Gui Builder}.
          */
         Builder<C> addScrollHandler(BiConsumer<Integer, Integer> handler);
+        
+        /**
+         * Sets the line count change handlers of the {@link ScrollGui}.
+         *
+         * @param handlers The line count change handlers to set.
+         * @return This {@link Builder Gui Builder}.
+         */
+        Builder<C> setLineCountChangeHandlers(List<BiConsumer<Integer, Integer>> handlers);
+        
+        /**
+         * Adds a line count change handler to the {@link ScrollGui}.
+         *
+         * @param handler The scroll handler to add.
+         * @return This {@link Builder Gui Builder}.
+         */
+        Builder<C> addLineCountChangeHandler(BiConsumer<Integer, Integer> handler);
         
     }
     

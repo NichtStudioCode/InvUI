@@ -22,13 +22,14 @@ final class ScrollItemsGuiImpl<C extends Item> extends AbstractScrollGui<C> {
     public void bake() {
         ArrayList<SlotElement> elements = new ArrayList<>();
         
+        var content = getContent();
         if (content != null) {
             for (Item item : content) {
                 elements.add(new SlotElement.Item(item));
             }
         }
         
-        this.elements = elements;
+        setElements(elements);
         update();
     }
     

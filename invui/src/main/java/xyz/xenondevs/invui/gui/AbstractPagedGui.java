@@ -17,8 +17,9 @@ sealed abstract class AbstractPagedGui<C>
     private int currentPage;
     
     private @Nullable List<BiConsumer<Integer, Integer>> pageChangeHandlers;
-    protected @Nullable List<C> content;
-    protected @Nullable List<List<SlotElement>> pages;
+    private @Nullable List<BiConsumer<Integer, Integer>> pageCountChangeHandlers;
+    private @Nullable List<C> content;
+    private @Nullable List<List<SlotElement>> pages;
     
     public AbstractPagedGui(int width, int height, boolean infinitePages, int... contentListSlots) {
         super(width, height);
@@ -111,6 +112,23 @@ sealed abstract class AbstractPagedGui<C>
         }
     }
     
+    public void setPages(@Nullable List<List<SlotElement>> pages) {
+        int prevPageCount = getPageAmount();
+        this.pages = pages;
+        int newPageCount = getPageAmount();
+        
+        if (pageCountChangeHandlers != null) {
+            for (var handler : pageCountChangeHandlers) {
+                handler.accept(prevPageCount, newPageCount);
+            }
+        }
+    }
+    
+    @Override
+    public @Nullable List<C> getContent() {
+        return content;
+    }
+    
     @Override
     public int getPageAmount() {
         return pages != null ? pages.size() : 0;
@@ -157,6 +175,32 @@ sealed abstract class AbstractPagedGui<C>
         return pageChangeHandlers;
     }
     
+    @Override
+    public void addPageCountChangeHandler(BiConsumer<Integer, Integer> pageChangeHandler) {
+        if (pageCountChangeHandlers == null) {
+            pageCountChangeHandlers = new ArrayList<>();
+        }
+        
+        pageCountChangeHandlers.add(pageChangeHandler);
+    }
+    
+    @Override
+    public void removePageCountChangeHandler(BiConsumer<Integer, Integer> pageChangeHandler) {
+        if (pageCountChangeHandlers != null) {
+            pageCountChangeHandlers.remove(pageChangeHandler);
+        }
+    }
+    
+    @Override
+    public void setPageCountChangeHandlers(@Nullable List<BiConsumer<Integer, Integer>> handlers) {
+        this.pageCountChangeHandlers = handlers;
+    }
+    
+    @Nullable
+    public List<BiConsumer<Integer, Integer>> getPageCountChangeHandlers() {
+        return pageCountChangeHandlers;
+    }
+    
     public static sealed abstract class AbstractBuilder<C>
         extends AbstractGui.AbstractBuilder<PagedGui<C>, PagedGui.Builder<C>>
         implements PagedGui.Builder<C>
@@ -165,6 +209,7 @@ sealed abstract class AbstractPagedGui<C>
         
         protected @Nullable List<C> content;
         protected @Nullable List<BiConsumer<Integer, Integer>> pageChangeHandlers;
+        protected @Nullable List<BiConsumer<Integer, Integer>> pageCountChangeHandlers;
         
         @Override
         public PagedGui.Builder<C> setContent(List<C> content) {
@@ -197,9 +242,34 @@ sealed abstract class AbstractPagedGui<C>
         }
         
         @Override
+        public PagedGui.Builder<C> setPageCountChangeHandlers(List<BiConsumer<Integer, Integer>> handlers) {
+            pageCountChangeHandlers = handlers;
+            return this;
+        }
+        
+        @Override
+        public PagedGui.Builder<C> addPageCountChangeHandler(BiConsumer<Integer, Integer> handler) {
+            if (pageCountChangeHandlers == null)
+                pageCountChangeHandlers = new ArrayList<>(1);
+            
+            pageCountChangeHandlers.add(handler);
+            return this;
+        }
+        
+        @Override
         protected void applyModifiers(PagedGui<C> gui) {
             super.applyModifiers(gui);
-            gui.setPageChangeHandlers(pageChangeHandlers);
+         
+            if (pageChangeHandlers != null) {
+                for (var handler : pageChangeHandlers) {
+                    gui.addPageChangeHandler(handler);
+                }
+            }
+            if (pageCountChangeHandlers != null) {
+                for (var handler : pageCountChangeHandlers) {
+                    gui.addPageChangeHandler(handler);
+                }
+            }
         }
         
         @Override

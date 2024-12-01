@@ -26,8 +26,9 @@ final class ScrollInventoryGuiImpl<C extends Inventory> extends AbstractScrollGu
     @Override
     public void setContent(@Nullable List<C> content) {
         // remove resize handlers from previous inventories
-        if (this.content != null) {
-            for (Inventory inventory : this.content) {
+        var previousContent = getContent();
+        if (previousContent != null) {
+            for (Inventory inventory : previousContent) {
                 if (inventory instanceof VirtualInventory) {
                     ((VirtualInventory) inventory).removeResizeHandler(resizeHandler);
                 }
@@ -38,8 +39,8 @@ final class ScrollInventoryGuiImpl<C extends Inventory> extends AbstractScrollGu
         super.setContent(content);
         
         // add resize handlers to new inventories
-        if (this.content != null) {
-            for (Inventory inventory : this.content) {
+        if (content != null) {
+            for (Inventory inventory : content) {
                 if (inventory instanceof VirtualInventory) {
                     ((VirtualInventory) inventory).addResizeHandler(resizeHandler);
                 }
@@ -50,6 +51,7 @@ final class ScrollInventoryGuiImpl<C extends Inventory> extends AbstractScrollGu
     @Override
     public void bake() {
         List<SlotElement> elements = new ArrayList<>();
+        var content = getContent();
         if (content != null) {
             for (Inventory inventory : content) {
                 for (int i = 0; i < inventory.getSize(); i++) {
@@ -58,7 +60,7 @@ final class ScrollInventoryGuiImpl<C extends Inventory> extends AbstractScrollGu
             }
         }
         
-        this.elements = elements;
+        setElements(elements);
         update();
     }
     

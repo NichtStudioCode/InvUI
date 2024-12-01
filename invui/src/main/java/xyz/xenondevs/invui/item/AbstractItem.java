@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * An abstract implementation of the {@link Item} interface.
+ * An abstract implementation of {@link Item}.
  */
 public non-sealed abstract class AbstractItem implements Item {
     

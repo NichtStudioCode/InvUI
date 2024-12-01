@@ -25,6 +25,7 @@ final class PagedItemsGuiImpl<C extends Item> extends AbstractPagedGui<C> {
         List<List<SlotElement>> pages = new ArrayList<>();
         List<SlotElement> page = new ArrayList<>(contentSize);
         
+        var content = getContent();
         if (content != null) {
             for (Item item : content) {
                 page.add(new SlotElement.Item(item));
@@ -40,7 +41,7 @@ final class PagedItemsGuiImpl<C extends Item> extends AbstractPagedGui<C> {
             pages.add(page);
         }
         
-        this.pages = pages;
+        setPages(pages);
         update();
     }
     

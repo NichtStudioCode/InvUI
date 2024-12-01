@@ -20,6 +20,7 @@ final class ScrollNestedGuiImpl<C extends Gui> extends AbstractScrollGui<C> {
     @Override
     public void bake() {
         ArrayList<SlotElement> elements = new ArrayList<>();
+        var content = getContent();
         if (content != null) {
             for (Gui gui : content) {
                 for (int i = 0; i < gui.getSize(); i++) {
@@ -28,7 +29,7 @@ final class ScrollNestedGuiImpl<C extends Gui> extends AbstractScrollGui<C> {
             }
         }
         
-        this.elements = elements;
+        setElements(elements);
         update();
     }
     

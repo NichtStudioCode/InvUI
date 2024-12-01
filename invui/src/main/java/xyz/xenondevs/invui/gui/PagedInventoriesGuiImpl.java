@@ -26,8 +26,9 @@ final class PagedInventoriesGuiImpl<C extends Inventory> extends AbstractPagedGu
     @Override
     public void setContent(@Nullable List<C> content) {
         // remove resize handlers from previous inventories
-        if (this.content != null) {
-            for (Inventory inventory : this.content) {
+        var currentContent = getContent();
+        if (currentContent != null) {
+            for (Inventory inventory : currentContent) {
                 if (inventory instanceof VirtualInventory) {
                     ((VirtualInventory) inventory).removeResizeHandler(resizeHandler);
                 }
@@ -38,8 +39,8 @@ final class PagedInventoriesGuiImpl<C extends Inventory> extends AbstractPagedGu
         super.setContent(content);
         
         // add resize handlers to new inventories
-        if (this.content != null) {
-            for (Inventory inventory : this.content) {
+        if (content != null) {
+            for (Inventory inventory : content) {
                 if (inventory instanceof VirtualInventory) {
                     ((VirtualInventory) inventory).addResizeHandler(resizeHandler);
                 }
@@ -54,6 +55,7 @@ final class PagedInventoriesGuiImpl<C extends Inventory> extends AbstractPagedGu
         List<List<SlotElement>> pages = new ArrayList<>();
         List<SlotElement> page = new ArrayList<>(contentSize);
         
+        var content = getContent();
         if (content != null) {
             for (Inventory inventory : content) {
                 for (int slot = 0; slot < inventory.getSize(); slot++) {
@@ -71,7 +73,7 @@ final class PagedInventoriesGuiImpl<C extends Inventory> extends AbstractPagedGu
             pages.add(page);
         }
         
-        this.pages = pages;
+        setPages(pages);
         update();
     }
     

@@ -3,6 +3,9 @@ package xyz.xenondevs.invui.item;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
 
+/**
+ * An abstract implementation of {@link BoundItem}.
+ */
 public non-sealed abstract class AbstractBoundItem extends AbstractItem implements BoundItem {
     
     private @Nullable Gui gui;

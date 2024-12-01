@@ -21,6 +21,7 @@ final class PagedNestedGuiImpl<C extends Gui> extends AbstractPagedGui<C> {
     public void bake() {
         List<List<SlotElement>> pages = new ArrayList<>();
         
+        var content = getContent();
         if (content != null) {
             for (Gui gui : content) {
                 List<SlotElement> page = new ArrayList<>(gui.getSize());
@@ -32,7 +33,7 @@ final class PagedNestedGuiImpl<C extends Gui> extends AbstractPagedGui<C> {
             }
         }
         
-        this.pages = pages;
+        setPages(pages);
         update();
     }
     

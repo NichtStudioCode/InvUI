@@ -21,8 +21,9 @@ sealed abstract class AbstractScrollGui<C>
     private int offset;
     
     private @Nullable List<BiConsumer<Integer, Integer>> scrollHandlers;
-    protected @Nullable List<C> content;
-    protected @Nullable List<SlotElement> elements;
+    private @Nullable List<BiConsumer<Integer, Integer>> lineCountChangeHandlers;
+    private @Nullable List<C> content;
+    private @Nullable List<SlotElement> elements;
     
     public AbstractScrollGui(int width, int height, boolean infiniteLines, int... contentListSlots) {
         super(width, height);
@@ -126,6 +127,18 @@ sealed abstract class AbstractScrollGui<C>
         }
     }
     
+    public void setElements(@Nullable List<SlotElement> elements) {
+        int previousMaxLine = getMaxLine();
+        this.elements = elements;
+        int newMaxLine = getMaxLine();
+        
+        if (lineCountChangeHandlers != null) {
+            for (var handler : lineCountChangeHandlers) {
+                handler.accept(previousMaxLine, newMaxLine);
+            }
+        }
+    }
+    
     protected void update() {
         correctCurrentLine();
         updateContent();
@@ -138,6 +151,11 @@ sealed abstract class AbstractScrollGui<C>
             if (slotElements.size() > i) setSlotElement(contentListSlots[i], slotElements.get(i));
             else remove(contentListSlots[i]);
         }
+    }
+    
+    @Override
+    public @Nullable List<C> getContent() {
+        return content;
     }
     
     @Override
@@ -159,6 +177,35 @@ sealed abstract class AbstractScrollGui<C>
             scrollHandlers.remove(scrollHandler);
     }
     
+    @Override
+    public @Nullable List<BiConsumer<Integer, Integer>> getScrollHandlers() {
+        return scrollHandlers;
+    }
+    
+    @Override
+    public void setLineCountChangeHandlers(@Nullable List<BiConsumer<Integer, Integer>> handlers) {
+        this.scrollHandlers = handlers;
+    }
+    
+    @Override
+    public void addLineCountChangeHandler(BiConsumer<Integer, Integer> handler) {
+        if (lineCountChangeHandlers == null)
+            lineCountChangeHandlers = new ArrayList<>();
+        
+        lineCountChangeHandlers.add(handler);
+    }
+    
+    @Override
+    public void removeLineCountChangeHandler(BiConsumer<Integer, Integer> handler) {
+        if (lineCountChangeHandlers != null)
+            lineCountChangeHandlers.remove(handler);
+    }
+    
+    @Override
+    public @Nullable List<BiConsumer<Integer, Integer>> getLineCountChangeHandlers() {
+        return lineCountChangeHandlers;
+    }
+    
     public static sealed abstract class AbstractBuilder<C>
         extends AbstractGui.AbstractBuilder<ScrollGui<C>, ScrollGui.Builder<C>>
         implements ScrollGui.Builder<C>
@@ -167,6 +214,7 @@ sealed abstract class AbstractScrollGui<C>
         
         protected @Nullable List<C> content;
         protected @Nullable List<BiConsumer<Integer, Integer>> scrollHandlers;
+        protected @Nullable List<BiConsumer<Integer, Integer>> lineCountChangeHandlers;
         
         @Override
         public ScrollGui.Builder<C> setContent(List<C> content) {
@@ -199,9 +247,29 @@ sealed abstract class AbstractScrollGui<C>
         }
         
         @Override
+        public ScrollGui.Builder<C> setLineCountChangeHandlers(List<BiConsumer<Integer, Integer>> handlers) {
+            lineCountChangeHandlers = handlers;
+            return this;
+        }
+        
+        @Override
+        public ScrollGui.Builder<C> addLineCountChangeHandler(BiConsumer<Integer, Integer> handler) {
+            if (lineCountChangeHandlers == null)
+                lineCountChangeHandlers = new ArrayList<>(1);
+            
+            lineCountChangeHandlers.add(handler);
+            return this;
+        }
+        
+        @Override
         protected void applyModifiers(ScrollGui<C> gui) {
             super.applyModifiers(gui);
-            gui.setScrollHandlers(scrollHandlers);
+            
+            if (scrollHandlers != null) {
+                for (var handler : scrollHandlers) {
+                    gui.addScrollHandler(handler);
+                }
+            }
         }
         
         @Override

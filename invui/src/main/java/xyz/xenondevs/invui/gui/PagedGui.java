@@ -221,6 +221,14 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
     void setContent(@Nullable List<C> content);
     
     /**
+     * Gets the content of this {@link PagedGui}.
+     *
+     * @return The content of this {@link PagedGui}.
+     */
+    @Nullable
+    List<C> getContent();
+    
+    /**
      * Bakes and updates the pages of this {@link PagedGui} based on the current content.
      * <p>
      * This method does not need to be called when using {@link #setContent(List)},
@@ -256,6 +264,35 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @param handler The handler to unregister.
      */
     void removePageChangeHandler(BiConsumer<Integer, Integer> handler);
+    
+    /**
+     * Gets the registered page count change handlers.
+     *
+     * @return The registered page count change handlers.
+     */
+    @Nullable
+    List<BiConsumer<Integer, Integer>> getPageCountChangeHandlers();
+    
+    /**
+     * Replaces the currently registered page count change handlers with the given list.
+     *
+     * @param handlers The new page count change handlers.
+     */
+    void setPageCountChangeHandlers(@Nullable List<BiConsumer<Integer, Integer>> handlers);
+    
+    /**
+     * Registers a page count change handler.
+     *
+     * @param handler The handler to register.
+     */
+    void addPageCountChangeHandler(BiConsumer<Integer, Integer> handler);
+    
+    /**
+     * Unregisters a page count change handler.
+     *
+     * @param handler The handler to unregister.
+     */
+    void removePageCountChangeHandler(BiConsumer<Integer, Integer> handler);
     
     /**
      * A {@link PagedGui} builder.
@@ -295,6 +332,22 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
          * @return This {@link Builder Gui Builder}.
          */
         Builder<C> addPageChangeHandler(BiConsumer<Integer, Integer> handler);
+        
+        /**
+         * Sets the page count change handlers of the {@link PagedGui}.
+         *
+         * @param handlers The page change handlers to set.
+         * @return This {@link Builder Gui Builder}.
+         */
+        Builder<C> setPageCountChangeHandlers(List<BiConsumer<Integer, Integer>> handlers);
+        
+        /**
+         * Adds a page count change handler to the {@link PagedGui}.
+         *
+         * @param handler The page change handler to add.
+         * @return This {@link Builder Gui Builder}.
+         */
+        Builder<C> addPageCountChangeHandler(BiConsumer<Integer, Integer> handler);
         
     }
     

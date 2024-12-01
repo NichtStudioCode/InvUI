@@ -140,7 +140,12 @@ sealed abstract class AbstractTabGui<C extends Gui>
         @Override
         protected void applyModifiers(TabGui<C> gui) {
             super.applyModifiers(gui);
-            gui.setTabChangeHandlers(tabChangeHandlers);
+            
+            if (tabChangeHandlers != null) {
+                for (var handler : tabChangeHandlers) {
+                    gui.addTabChangeHandler(handler);
+                }
+            }
         }
         
         @Override
