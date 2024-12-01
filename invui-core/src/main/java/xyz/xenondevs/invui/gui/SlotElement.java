@@ -12,7 +12,7 @@ import java.util.List;
 public interface SlotElement {
     
     ItemStack getItemStack(String lang);
-
+    
     default ItemStack getItemStack(Player viewer, String lang) {
         return getItemStack(lang);
     }
@@ -38,12 +38,12 @@ public interface SlotElement {
         public ItemStack getItemStack(String lang) {
             return item.getItemProvider().get(lang);
         }
-
+        
         @Override
         public ItemStack getItemStack(Player viewer, String lang) {
             return item.getItemProvider(viewer).get(lang);
         }
-
+        
         @Override
         public SlotElement getHoldingElement() {
             return this;
@@ -152,7 +152,7 @@ public interface SlotElement {
             SlotElement holdingElement = getHoldingElement();
             return holdingElement != null ? holdingElement.getItemStack(lang) : null;
         }
-
+        
         @Override
         public ItemStack getItemStack(Player viewer, String lang) {
             SlotElement holdingElement = getHoldingElement();

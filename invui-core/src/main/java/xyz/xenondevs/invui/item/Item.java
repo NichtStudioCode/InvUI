@@ -20,11 +20,12 @@ public interface Item {
      * @return The {@link ItemProvider}
      */
     ItemProvider getItemProvider();
-
+    
     /**
      * Gets the {@link ItemProvider} for a specific {@link Player}.
      * This method gets called every time a {@link Window} is notified ({@link #notifyWindows()}).
      * <p>The default implementation delegates to {@link #getItemProvider()}</p>
+     *
      * @param viewer the viewer (provides context for rendering player-specific information in the item)
      * @return The {@link ItemProvider}
      */
