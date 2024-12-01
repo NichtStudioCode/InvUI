@@ -1,5 +1,3 @@
-@file:Suppress("PackageDirectoryMismatch")
-
 package xyz.xenondevs.invui.item
 
 /**

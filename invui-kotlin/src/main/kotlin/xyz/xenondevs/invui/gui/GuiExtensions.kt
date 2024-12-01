@@ -1,5 +1,3 @@
-@file:Suppress("PackageDirectoryMismatch")
-
 package xyz.xenondevs.invui.gui
 
 import xyz.xenondevs.invui.item.Item

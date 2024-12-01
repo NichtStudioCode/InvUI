@@ -1,5 +1,3 @@
-@file:Suppress("PackageDirectoryMismatch")
-
 package xyz.xenondevs.invui.inventory
 
 import org.bukkit.inventory.ItemStack
