@@ -8,7 +8,6 @@ import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.window.Window;
-import xyz.xenondevs.invui.window.WindowManager;
 
 import java.util.List;
 import java.util.Set;
@@ -265,11 +264,16 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
     /**
      * Closes the open {@link org.bukkit.inventory.Inventory} for all viewers of {@link Window Windows}
      * where this {@link Gui} is displayed.
-     * <p>
-     * If the {@link Window Windows} are not marked as "retain",
-     * they will be removed from the {@link WindowManager} automatically.
      */
     void closeForAllViewers();
+    
+    /**
+     * Notifies all {@link Window Windows} that show this {@link Gui} to update their
+     * representative {@link ItemStack ItemStacks}.
+     * <p>
+     * Can be called asynchronously.
+     */
+    void notifyWindows();
     
     /**
      * Plays an {@link Animation}.

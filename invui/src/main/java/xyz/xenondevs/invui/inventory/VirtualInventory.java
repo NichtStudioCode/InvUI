@@ -20,10 +20,10 @@ import java.util.logging.Level;
  *
  * @see VirtualInventoryManager
  */
-public class VirtualInventory extends Inventory {
+@SuppressWarnings("SynchronizeOnNonFinalField")
+public final class VirtualInventory extends Inventory {
     
     private final UUID uuid;
-    private int size;
     private @Nullable ItemStack[] items;
     private int[] maxStackSizes;
     private @Nullable List<BiConsumer<Integer, Integer>> resizeHandlers;
@@ -39,8 +39,8 @@ public class VirtualInventory extends Inventory {
      * @throws IllegalArgumentException If the items array contains air {@link ItemStack ItemStacks}.
      */
     public VirtualInventory(@Nullable UUID uuid, int size, @Nullable ItemStack @Nullable [] items, int @Nullable [] maxStackSizes) {
+        super(size);
         this.uuid = uuid == null ? new UUID(0L, 0L) : uuid;
-        this.size = size;
         this.items = items == null ? new ItemStack[size] : items;
         
         if (maxStackSizes == null) {
@@ -295,8 +295,11 @@ public class VirtualInventory extends Inventory {
         int previousSize = this.size;
         
         this.size = size;
-        this.items = Arrays.copyOf(items, size);
-        this.maxStackSizes = Arrays.copyOf(maxStackSizes, size);
+        items = Arrays.copyOf(items, size);
+        maxStackSizes = Arrays.copyOf(maxStackSizes, size);
+        synchronized(viewers) { 
+            viewers = Arrays.copyOf(viewers, size);
+        }
         
         // fill stackSizes with the last stack size if the array was extended
         if (size > previousSize) {
@@ -338,11 +341,6 @@ public class VirtualInventory extends Inventory {
      */
     public UUID getUuid() {
         return uuid;
-    }
-    
-    @Override
-    public int getSize() {
-        return size;
     }
     
     @Override

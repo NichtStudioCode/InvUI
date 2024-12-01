@@ -11,6 +11,8 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.animation.Animation;
+import xyz.xenondevs.invui.internal.Viewer;
+import xyz.xenondevs.invui.internal.ViewerAtSlot;
 import xyz.xenondevs.invui.internal.util.InventoryUtils;
 import xyz.xenondevs.invui.internal.util.SlotUtils;
 import xyz.xenondevs.invui.inventory.Inventory;
@@ -37,7 +39,7 @@ import java.util.stream.Collectors;
  */
 @Internal
 public sealed abstract class AbstractGui
-    implements Gui, GuiParent
+    implements Gui, Viewer
     permits NormalGuiImpl, AbstractPagedGui, AbstractScrollGui, AbstractTabGui
 {
     
@@ -45,7 +47,7 @@ public sealed abstract class AbstractGui
     private final int height;
     private final int size;
     private final @Nullable SlotElement[] slotElements;
-    private final Set<GuiParent> parents = new HashSet<>();
+    private final @Nullable Set<ViewerAtSlot<?>>[] viewers;
     
     private boolean frozen;
     private boolean ignoreObscuredInventorySlots = true;
@@ -53,11 +55,13 @@ public sealed abstract class AbstractGui
     private @Nullable Animation animation;
     private @Nullable SlotElement @Nullable [] animationElements;
     
+    @SuppressWarnings("unchecked")
     AbstractGui(int width, int height) {
         this.width = width;
         this.height = height;
         this.size = width * height;
         slotElements = new SlotElement[size];
+        viewers = new Set[size];
     }
     
     public void handleClick(int slotNumber, Player player, ClickType clickType, InventoryClickEvent event) {
@@ -409,40 +413,70 @@ public sealed abstract class AbstractGui
     //</editor-fold>
     
     @Override
-    public void handleSlotElementUpdate(Gui child, int slotIndex) {
-        // find all SlotElements that link to this slotIndex in this child Gui and notify all parents
-        for (int index = 0; index < size; index++) {
-            SlotElement element = slotElements[index];
-            if (element instanceof SlotElement.GuiLink linkedSlotElement) {
-                if (linkedSlotElement.gui() == child && linkedSlotElement.slot() == slotIndex)
-                    for (GuiParent parent : parents) parent.handleSlotElementUpdate(this, index);
+    public void notifyUpdate(int slot) {
+        var viewers = this.viewers[slot];
+        if (viewers != null) {
+            for (var viewer : viewers) {
+                viewer.notifyUpdate();
             }
         }
     }
     
-    public void addParent(GuiParent parent) {
-        parents.add(parent);
+    @Override
+    public void notifyWindows() {
+        for (var viewerSet : viewers) {
+            if (viewerSet != null) {
+                for (var viewerAtSlot : viewerSet) {
+                    viewerAtSlot.notifyUpdate();
+                }
+            }
+        }
     }
     
-    public void removeParent(GuiParent parent) {
-        parents.remove(parent);
+    public void addViewer(Viewer who, int what, int how) {
+        var viewerSet = this.viewers[what];
+        if (viewerSet == null) {
+            viewerSet = new HashSet<>();
+            this.viewers[what] = viewerSet;
+        }
+        viewerSet.add(new ViewerAtSlot<>(who, how));
     }
     
-    public Set<GuiParent> getParents() {
-        return parents;
+    public void removeViewer(Viewer who, int what, int how) {
+        var viewerSet = this.viewers[what];
+        if (viewerSet != null) {
+            viewerSet.remove(new ViewerAtSlot<>(who, how));
+            if (viewerSet.isEmpty())
+                this.viewers[what] = null;
+        }
     }
     
     @Override
     public List<Window> findAllWindows() {
-        List<Window> windows = new ArrayList<>();
-        List<GuiParent> unexploredParents = new ArrayList<>(this.parents);
+        var windows = new ArrayList<Window>();
         
-        while (!unexploredParents.isEmpty()) {
-            List<GuiParent> parents = new ArrayList<>(unexploredParents);
-            unexploredParents.clear();
-            for (GuiParent parent : parents) {
-                if (parent instanceof AbstractGui) unexploredParents.addAll(((AbstractGui) parent).getParents());
-                else if (parent instanceof Window) windows.add((Window) parent);
+        var explored = new HashSet<Viewer>();
+        var queue = new LinkedList<Viewer>();
+        queue.add(this);
+        
+        while (!queue.isEmpty()) {
+            var current = queue.poll();
+            explored.add(current);
+            
+            if (current instanceof AbstractGui viewable) {
+                for (var viewers : viewable.viewers) {
+                    if (viewers == null)
+                        continue;
+                    
+                    for (var viewerAtSlot : viewers) {
+                        var viewer = viewerAtSlot.viewer();
+                        if (!explored.contains(viewer)) {
+                            queue.add(viewer);
+                        }
+                    }
+                }
+            } else if (current instanceof Window window) {
+                windows.add(window);
             }
         }
         
@@ -507,11 +541,9 @@ public sealed abstract class AbstractGui
     @Override
     public void setSlotElement(int index, @Nullable SlotElement slotElement) {
         SlotElement oldElement = slotElements[index];
-        
-        // set new SlotElement on index
         slotElements[index] = slotElement;
         
-        // set the gui if it is a ControlItem
+        // set the gui if it is a bound item
         if (slotElement instanceof SlotElement.Item itemElement) {
             Item item = itemElement.item();
             if (item instanceof BoundItem boundItem) {
@@ -519,27 +551,22 @@ public sealed abstract class AbstractGui
             }
         }
         
-        // notify parents that a SlotElement has been changed
-        parents.forEach(parent -> parent.handleSlotElementUpdate(this, index));
-        
-        AbstractGui oldLink = oldElement instanceof SlotElement.GuiLink ? (AbstractGui) ((SlotElement.GuiLink) oldElement).gui() : null;
-        AbstractGui newLink = slotElement instanceof SlotElement.GuiLink ? (AbstractGui) ((SlotElement.GuiLink) slotElement).gui() : null;
-        
-        // if newLink is the same as oldLink, there isn't anything to be done
-        if (newLink == oldLink) return;
-        
-        // if the slot previously linked to Gui
-        if (oldLink != null) {
-            // If no other slot still links to that Gui, remove this Gui from parents
-            if (Arrays.stream(slotElements)
-                .filter(element -> element instanceof SlotElement.GuiLink)
-                .map(element -> ((SlotElement.GuiLink) element).gui())
-                .noneMatch(gui -> gui == oldLink)) oldLink.removeParent(this);
+        // remove this gui as a viewer from the old slot element's gui
+        if (oldElement instanceof SlotElement.GuiLink oldLink) {
+            ((AbstractGui)oldLink.gui()).removeViewer(this, oldLink.slot(), index);
         }
         
-        // if the slot now links to a Gui add this as parent
-        if (newLink != null) {
-            newLink.addParent(this);
+        // add this gui as a viewer to the new slot element's viewable
+        if (slotElement instanceof SlotElement.GuiLink newLink) {
+            ((AbstractGui)newLink.gui()).addViewer(this, newLink.slot(), index);
+        }
+        
+        // notify parents that a slot element has been changed
+        var viewers = this.viewers[index];
+        if (viewers != null) {
+            for (var viewer : viewers) {
+                viewer.notifyUpdate();
+            }
         }
     }
     

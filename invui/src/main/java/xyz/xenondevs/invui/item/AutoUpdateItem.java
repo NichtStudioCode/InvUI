@@ -4,7 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
-import xyz.xenondevs.invui.window.Window;
+import xyz.xenondevs.invui.window.AbstractWindow;
 
 import java.util.function.Supplier;
 
@@ -36,16 +36,16 @@ public class AutoUpdateItem extends SuppliedItem {
     }
     
     @Override
-    public void addWindow(Window window) {
-        super.addWindow(window);
+    public void addViewer(AbstractWindow who, int how) {
+        super.addViewer(who, how);
         if (task == null)
             start();
     }
     
     @Override
-    public void removeWindow(Window window) {
-        super.removeWindow(window);
-        if (getWindows().isEmpty() && task != null)
+    public void removeViewer(AbstractWindow who, int how) {
+        super.removeViewer(who, how);
+        if (viewers.isEmpty() && task != null)
             cancel();
     }
     

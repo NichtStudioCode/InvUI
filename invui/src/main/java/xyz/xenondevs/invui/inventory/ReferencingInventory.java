@@ -23,7 +23,7 @@ import java.util.function.Function;
  * done directly in the bukkit inventory will not. Therefore, if embedded in a {@link Gui}, it is necessary to call
  * {@link xyz.xenondevs.invui.inventory.Inventory#notifyWindows()} manually in order for changes to be displayed.
  */
-public class ReferencingInventory extends xyz.xenondevs.invui.inventory.Inventory {
+public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.Inventory {
     
     private static final int MAX_STACK_SIZE = 64;
     
@@ -31,7 +31,6 @@ public class ReferencingInventory extends xyz.xenondevs.invui.inventory.Inventor
     protected final Function<Inventory, @Nullable ItemStack[]> itemsGetter;
     protected final BiFunction<Inventory, Integer, @Nullable ItemStack> itemGetter;
     protected final TriConsumer<Inventory, Integer, @Nullable ItemStack> itemSetter;
-    protected final int size;
     protected final int[] maxStackSizes;
     
     /**
@@ -48,11 +47,11 @@ public class ReferencingInventory extends xyz.xenondevs.invui.inventory.Inventor
         BiFunction<Inventory, Integer, @Nullable ItemStack> itemGetter,
         TriConsumer<Inventory, Integer, @Nullable ItemStack> itemSetter
     ) {
+        super(itemsGetter.apply(inventory).length);
         this.inventory = inventory;
         this.itemsGetter = itemsGetter;
         this.itemGetter = itemGetter;
         this.itemSetter = itemSetter;
-        this.size = itemsGetter.apply(inventory).length;
         this.maxStackSizes = new int[size];
         Arrays.fill(maxStackSizes, MAX_STACK_SIZE);
     }
@@ -87,11 +86,6 @@ public class ReferencingInventory extends xyz.xenondevs.invui.inventory.Inventor
      */
     public static ReferencingInventory fromReversedPlayerStorageContents(PlayerInventory inventory) {
         return new ReversedPlayerContents(inventory);
-    }
-    
-    @Override
-    public int getSize() {
-        return size;
     }
     
     @Override
@@ -134,7 +128,7 @@ public class ReferencingInventory extends xyz.xenondevs.invui.inventory.Inventor
         itemSetter.accept(inventory, slot, itemStack);
     }
     
-    private static class ReversedPlayerContents extends ReferencingInventory {
+    private static final class ReversedPlayerContents extends ReferencingInventory {
         
         public ReversedPlayerContents(PlayerInventory inventory) {
             super(inventory, Inventory::getStorageContents, Inventory::getItem, Inventory::setItem);

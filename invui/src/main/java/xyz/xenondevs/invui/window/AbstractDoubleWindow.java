@@ -9,7 +9,6 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
-import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.internal.util.Pair;
 import xyz.xenondevs.invui.internal.util.PlayerUtils;
 import xyz.xenondevs.invui.internal.util.SlotUtils;
@@ -41,8 +40,7 @@ public sealed abstract class AbstractDoubleWindow
     protected void initItems() {
         // init upper inventory
         for (int i = 0; i < upperInventory.getSize(); i++) {
-            SlotElement element = getSlotElement(i);
-            redrawItem(i, element, true);
+            update(i);
         }
         
         // store and clear player inventory
@@ -54,8 +52,7 @@ public sealed abstract class AbstractDoubleWindow
         
         // init player inventory
         for (int i = upperInventory.getSize(); i < upperInventory.getSize() + 36; i++) {
-            SlotElement element = getSlotElement(i);
-            redrawItem(i, element, true);
+            update(i);
         }
     }
     

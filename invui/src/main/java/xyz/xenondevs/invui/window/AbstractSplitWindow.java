@@ -8,7 +8,6 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
-import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.internal.util.Pair;
 import xyz.xenondevs.invui.internal.util.SlotUtils;
 
@@ -32,18 +31,6 @@ public sealed abstract class AbstractSplitWindow
         super(player, title, upperGui.getSize() + lowerGui.getSize(), upperInventory, closeable);
         this.upperGui = upperGui;
         this.lowerGui = lowerGui;
-    }
-    
-    @Override
-    public void handleSlotElementUpdate(Gui child, int slotIndex) {
-        redrawItem(child == upperGui ? slotIndex : upperGui.getSize() + slotIndex,
-            child.getSlotElement(slotIndex), true);
-    }
-    
-    @Override
-    public @Nullable SlotElement getSlotElement(int index) {
-        if (index >= upperGui.getSize()) return lowerGui.getSlotElement(index - upperGui.getSize());
-        else return upperGui.getSlotElement(index);
     }
     
     @Override

@@ -13,7 +13,7 @@ import java.util.function.IntPredicate;
 /**
  * An {@link Inventory} that delegates to another {@link Inventory} while hiding certain slots.
  */
-public class ObscuredInventory extends Inventory {
+public final class ObscuredInventory extends Inventory {
     
     private final Inventory inventory;
     private final int[] slots;
@@ -25,6 +25,7 @@ public class ObscuredInventory extends Inventory {
      * @param isObscured A {@link IntPredicate} that returns true for slots that should be hidden.
      */
     public ObscuredInventory(Inventory inventory, IntPredicate isObscured) {
+        super(calculateSize(inventory, isObscured));
         this.inventory = inventory;
         
         ArrayList<Integer> slots = new ArrayList<>();
@@ -38,9 +39,13 @@ public class ObscuredInventory extends Inventory {
         this.slots = slots.stream().mapToInt(Integer::intValue).toArray();
     }
     
-    @Override
-    public int getSize() {
-        return slots.length;
+    private static int calculateSize(Inventory inventory, IntPredicate isObscured) {
+        int size = 0;
+        for (int slot = 0; slot < inventory.getSize(); slot++) {
+            if (!isObscured.test(slot))
+                size++;
+        }
+        return size;
     }
     
     @Override

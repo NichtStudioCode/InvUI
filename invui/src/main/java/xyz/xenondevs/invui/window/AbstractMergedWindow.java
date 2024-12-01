@@ -6,8 +6,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
-import xyz.xenondevs.invui.gui.Gui;
-import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.internal.util.Pair;
 import xyz.xenondevs.invui.internal.util.SlotUtils;
 import xyz.xenondevs.invui.inventory.ReferencingInventory;
@@ -25,16 +23,6 @@ sealed abstract class AbstractMergedWindow
     public AbstractMergedWindow(Player player, Component title, AbstractGui gui, Inventory upperInventory, boolean closeable) {
         super(player, title, gui.getSize(), upperInventory, closeable);
         this.gui = gui;
-    }
-    
-    @Override
-    public void handleSlotElementUpdate(Gui child, int slotIndex) {
-        redrawItem(slotIndex, gui.getSlotElement(slotIndex), true);
-    }
-    
-    @Override
-    protected SlotElement getSlotElement(int index) {
-        return gui.getSlotElement(index);
     }
     
     @Override

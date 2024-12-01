@@ -35,6 +35,7 @@ public class WindowManager implements Listener {
     
     private WindowManager() {
         Bukkit.getPluginManager().registerEvents(this, InvUI.getInstance().getPlugin());
+        Bukkit.getScheduler().runTaskTimer(InvUI.getInstance().getPlugin(), this::handleTick, 1, 1);
         InvUI.getInstance().addDisableHandler(() -> new HashSet<>(windowsByPlayer.values()).forEach(AbstractWindow::close));
     }
     
@@ -96,6 +97,12 @@ public class WindowManager implements Listener {
      */
     public Set<Window> getWindows() {
         return new HashSet<>(windowsByInventory.values());
+    }
+    
+    private void handleTick() {
+        for (AbstractWindow window : windowsByPlayer.values()) {
+            window.handleTick();
+        }
     }
     
     @EventHandler

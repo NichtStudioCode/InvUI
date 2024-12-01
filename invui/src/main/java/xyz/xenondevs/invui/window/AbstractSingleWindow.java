@@ -9,7 +9,6 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
-import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.internal.util.Pair;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.inventory.ReferencingInventory;
@@ -41,8 +40,7 @@ public sealed abstract class AbstractSingleWindow
     @Override
     protected void initItems() {
         for (int i = 0; i < size; i++) {
-            SlotElement element = gui.getSlotElement(i);
-            redrawItem(i, element, true);
+            update(i);
         }
     }
     
@@ -59,11 +57,6 @@ public sealed abstract class AbstractSingleWindow
     @Override
     protected void handleClosed() {
         // empty
-    }
-    
-    @Override
-    public void handleSlotElementUpdate(Gui child, int slotIndex) {
-        redrawItem(slotIndex, gui.getSlotElement(slotIndex), true);
     }
     
     @Override
@@ -86,11 +79,6 @@ public sealed abstract class AbstractSingleWindow
     @Override
     protected @Nullable Pair<AbstractGui, Integer> getGuiAt(int index) {
         return index < gui.getSize() ? new Pair<>(gui, index) : null;
-    }
-    
-    @Override
-    protected SlotElement getSlotElement(int index) {
-        return gui.getSlotElement(index);
     }
     
     @Override

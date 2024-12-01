@@ -2,11 +2,11 @@ package xyz.xenondevs.invui.inventory;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.gui.Gui;
+import xyz.xenondevs.invui.internal.ViewerAtSlot;
 import xyz.xenondevs.invui.internal.util.ArrayUtils;
 import xyz.xenondevs.invui.internal.util.InventoryUtils;
 import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
@@ -46,19 +46,29 @@ import java.util.logging.Level;
  *     </li>
  * </ul>
  */
-public abstract class Inventory {
+@SuppressWarnings("SynchronizeOnNonFinalField") // VirtualInventory synchronizes on viewers when changing the field
+public sealed abstract class Inventory permits VirtualInventory, CompositeInventory, ObscuredInventory, ReferencingInventory {
     
-    private @Nullable Set<Window> windows;
+    protected int size;
+    protected @Nullable Set<ViewerAtSlot<AbstractWindow>>[] viewers;
     private @Nullable Consumer<ItemPreUpdateEvent> preUpdateHandler;
     private @Nullable Consumer<ItemPostUpdateEvent> postUpdateHandler;
     private int guiPriority = 0;
+    
+    @SuppressWarnings("unchecked")
+    public Inventory(int size) {
+        this.size = size;
+        viewers = new Set[size];
+    }
     
     /**
      * Gets the size of this {@link Inventory}.
      *
      * @return How many slots this {@link Inventory} has.
      */
-    public abstract int getSize();
+    public int getSize() {
+        return size;
+    }
     
     /**
      * Gets the array of max stack sizes for this {@link Inventory}.
@@ -141,46 +151,83 @@ public abstract class Inventory {
      * @hidden
      */
     @ApiStatus.Internal
-    public Set<Window> getWindows() {
-        if (windows == null)
-            return Collections.emptySet();
-        
-        return Collections.unmodifiableSet(windows);
+    public void addViewer(AbstractWindow viewer, int what, int how) {
+        synchronized (viewers) {
+            var viewerSet = viewers[what];
+            if (viewerSet == null) {
+                viewerSet = new HashSet<>();
+                viewers[what] = viewerSet;
+            }
+            
+            viewerSet.add(new ViewerAtSlot<>(viewer, how));
+        }
     }
     
     /**
      * @hidden
      */
     @ApiStatus.Internal
-    public void addWindow(Window window) {
-        if (windows == null)
-            windows = new HashSet<>();
-        
-        windows.add(window);
+    public void removeViewer(AbstractWindow viewer, int what, int how) {
+        synchronized (viewers) {
+            var viewerSet = viewers[what];
+            if (viewerSet != null) {
+                viewerSet.remove(new ViewerAtSlot<>(viewer, how));
+                if (viewerSet.isEmpty())
+                    viewers[what] = null;
+            }
+        }
     }
     
     /**
-     * @hidden
+     * Gets all {@link Window Windows} displaying this {@link Inventory}.
      */
-    @ApiStatus.Internal
-    public void removeWindow(Window window) {
-        if (windows == null)
-            return;
-        
-        windows.remove(window);
+    public List<Window> getWindows() {
+        var windows = new ArrayList<Window>();
+        for (var viewerSet : viewers) { // does not need synchronization because this method is on-main and read-only
+            if (viewerSet == null)
+                continue;
+            for (var viewerAtSlot : viewerSet) {
+                windows.add(viewerAtSlot.viewer());
+            }
+        }
+        return windows;
     }
     
     /**
-     * Notifies all {@link Window}s displaying this {@link Inventory} to update their
-     * representative {@link ItemStack}s.
-     * This method should only be called manually in very specific cases like when the
-     * {@link ItemMeta} of an {@link ItemStack} in this inventory has changed.
+     * Notifies all {@link Window Windows} displaying this {@link Inventory} to update their
+     * representative {@link ItemStack ItemStacks}.
+     * <p>
+     * Can be called asynchronously.
      */
     public void notifyWindows() {
-        if (windows == null)
-            return;
-        
-        windows.forEach(window -> ((AbstractWindow)window).handleInventoryUpdate(this));
+        synchronized (viewers) {
+            for (var viewerSet : viewers) {
+                if (viewerSet == null)
+                    continue;
+                for (var viewerAtSlot : viewerSet) {
+                    viewerAtSlot.notifyUpdate();
+                }
+            }
+        }
+    }
+    
+    /**
+     * Notifies all {@link Window Windows} displaying the given slot of this inventory
+     * to update their representative {@link ItemStack ItemStacks}.
+     * <p>
+     * Can be called asynchronously.
+     *
+     * @param slot The slot to notify
+     */
+    public void notifyWindows(int slot) {
+        synchronized (viewers) {
+            var viewerSet = viewers[slot];
+            if (viewerSet != null) {
+                for (var viewerAtSlot : viewerSet) {
+                    viewerAtSlot.notifyUpdate();
+                }
+            }
+        }
     }
     
     /**
@@ -537,7 +584,7 @@ public abstract class Inventory {
             itemStack = null;
         
         setCloneBackingItem(slot, itemStack);
-        notifyWindows();
+        notifyWindows(slot);
     }
     
     /**
@@ -653,7 +700,7 @@ public abstract class Inventory {
                     if (!event.isCancelled()) {
                         newItemStack = event.getNewItem();
                         setCloneBackingItem(slot, newItemStack);
-                        notifyWindows();
+                        notifyWindows(slot);
                         
                         int newAmountEvent = newItemStack != null ? newItemStack.getAmount() : 0;
                         int remaining = itemStack.getAmount() - (newAmountEvent - currentAmount);
@@ -664,7 +711,7 @@ public abstract class Inventory {
                     }
                 } else {
                     setDirectBackingItem(slot, newItemStack); // already cloned above
-                    notifyWindows();
+                    notifyWindows(slot);
                     return additionalAmount - (newAmount - currentAmount);
                 }
             }
@@ -704,7 +751,7 @@ public abstract class Inventory {
             if (!event.isCancelled()) {
                 newItemStack = event.getNewItem();
                 setCloneBackingItem(slot, newItemStack);
-                notifyWindows();
+                notifyWindows(slot);
                 
                 int actualAmount = newItemStack != null ? newItemStack.getAmount() : 0;
                 
@@ -714,7 +761,7 @@ public abstract class Inventory {
             }
         } else {
             setDirectBackingItem(slot, newItemStack); // already cloned above
-            notifyWindows();
+            notifyWindows(slot);
             return amount;
         }
         
@@ -756,14 +803,10 @@ public abstract class Inventory {
         
         @Nullable ItemStack[] items = getUnsafeItems();
         
-        int originalAmount = itemStack.getAmount();
-        int amountLeft = originalAmount;
+        int amountLeft = itemStack.getAmount();
         
         amountLeft = addToPartialSlots(updateReason, itemStack, amountLeft, items);
         amountLeft = addToEmptySlots(updateReason, itemStack, amountLeft, items);
-        
-        if (originalAmount != amountLeft)
-            notifyWindows();
         
         return amountLeft;
     }
@@ -795,6 +838,7 @@ public abstract class Inventory {
                 if (!event.isCancelled()) {
                     newStack = event.getNewItem();
                     setCloneBackingItem(slot, newStack);
+                    notifyWindows(slot);
                     callPostUpdateEvent(updateReason, slot, currentStack.clone(), newStack);
                     
                     int newStackAmount = newStack != null ? newStack.getAmount() : 0;
@@ -802,6 +846,7 @@ public abstract class Inventory {
                 }
             } else {
                 setDirectBackingItem(slot, newStack);
+                notifyWindows(slot);
                 amountLeft -= newStack.getAmount() - currentStack.getAmount();
             }
         }
@@ -830,6 +875,7 @@ public abstract class Inventory {
                 if (!event.isCancelled()) {
                     newStack = event.getNewItem();
                     setCloneBackingItem(slot, newStack);
+                    notifyWindows(slot);
                     callPostUpdateEvent(updateReason, slot, null, newStack);
                     
                     int newStackAmount = newStack != null ? newStack.getAmount() : 0;
@@ -837,6 +883,7 @@ public abstract class Inventory {
                 }
             } else {
                 setDirectBackingItem(slot, newStack);
+                notifyWindows(slot);
                 amountLeft -= newStack.getAmount();
             }
         }
@@ -857,7 +904,7 @@ public abstract class Inventory {
         if (rest.length == 0) {
             return new int[] {simulateSingleAdd(first)};
         } else {
-            ItemStack[] allStacks = ArrayUtils.concant(first, rest);
+            ItemStack[] allStacks = ArrayUtils.concat(first, rest);
             return simulateMultiAdd(Arrays.asList(allStacks));
         }
     }
@@ -893,7 +940,7 @@ public abstract class Inventory {
         if (rest.length == 0) {
             return simulateSingleAdd(first) == 0;
         } else {
-            ItemStack[] allStacks = ArrayUtils.concant(first, rest);
+            ItemStack[] allStacks = ArrayUtils.concat(first, rest);
             return Arrays.stream(simulateMultiAdd(Arrays.asList(allStacks))).allMatch(i -> i == 0);
         }
     }
@@ -1151,7 +1198,7 @@ public abstract class Inventory {
             if (!event.isCancelled()) {
                 newItemStack = event.getNewItem();
                 setCloneBackingItem(slot, newItemStack);
-                notifyWindows();
+                notifyWindows(slot);
                 
                 int amountTaken = currentItemStack.getAmount() - (newItemStack == null ? 0 : newItemStack.getAmount());
                 
@@ -1161,7 +1208,7 @@ public abstract class Inventory {
             }
         } else {
             setDirectBackingItem(slot, newItemStack); // already cloned above
-            notifyWindows();
+            notifyWindows(slot);
             return take;
         }
         

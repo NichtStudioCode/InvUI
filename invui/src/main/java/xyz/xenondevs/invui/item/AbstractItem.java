@@ -1,10 +1,9 @@
 package xyz.xenondevs.invui.item;
 
 import org.jetbrains.annotations.ApiStatus;
+import xyz.xenondevs.invui.internal.ViewerAtSlot;
 import xyz.xenondevs.invui.window.AbstractWindow;
-import xyz.xenondevs.invui.window.Window;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,35 +12,39 @@ import java.util.Set;
  */
 public non-sealed abstract class AbstractItem implements Item {
     
-    private final Set<Window> windows = new HashSet<>();
+    /**
+     * @hidden
+     */
+    @ApiStatus.Internal
+    protected final Set<ViewerAtSlot<AbstractWindow>> viewers = new HashSet<>();
     
     /**
      * @hidden
      */
     @ApiStatus.Internal
-    public void addWindow(Window window) {
-        windows.add(window);
+    public void addViewer(AbstractWindow who, int how) {
+        synchronized (viewers) {
+            viewers.add(new ViewerAtSlot<>(who, how));
+        }
     }
     
     /**
      * @hidden
      */
     @ApiStatus.Internal
-    public void removeWindow(Window window) {
-        windows.remove(window);
-    }
-    
-    /**
-     * @hidden
-     */
-    @ApiStatus.Internal
-    public Set<Window> getWindows() {
-        return Collections.unmodifiableSet(windows);
+    public void removeViewer(AbstractWindow who, int how) {
+        synchronized (viewers) {
+            viewers.remove(new ViewerAtSlot<>(who, how));
+        }
     }
     
     @Override
     public void notifyWindows() {
-        windows.forEach(w -> ((AbstractWindow)w).handleItemProviderUpdate(this));
+        synchronized (viewers) {
+            for (var viewer : viewers) {
+                viewer.notifyUpdate();
+            }
+        }
     }
     
 }

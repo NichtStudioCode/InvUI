@@ -30,7 +30,7 @@ public class ArrayUtils {
     
     @NullUnmarked
     @SuppressWarnings("unchecked")
-    public static <T> T[] concant(T first, T[] rest) {
+    public static <T> T[] concat(T first, T[] rest) {
         T[] result = (T[]) new Object[rest.length + 1];
         result[0] = first;
         System.arraycopy(rest, 0, result, 1, rest.length);

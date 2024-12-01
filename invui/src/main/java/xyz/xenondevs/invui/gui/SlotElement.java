@@ -5,9 +5,6 @@ import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.ItemProvider;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public sealed interface SlotElement {
     
     @Nullable
@@ -30,6 +27,7 @@ public sealed interface SlotElement {
         public SlotElement getHoldingElement() {
             return this;
         }
+        
     }
     
     /**
@@ -48,7 +46,8 @@ public sealed interface SlotElement {
         @Override
         public @Nullable ItemStack getItemStack(String lang) {
             ItemStack itemStack = inventory.getUnsafeItem(slot);
-            if (itemStack == null && background != null) itemStack = background.get(lang);
+            if (itemStack == null && background != null)
+                itemStack = background.get(lang);
             return itemStack;
         }
         
@@ -75,20 +74,6 @@ public sealed interface SlotElement {
                 if (below instanceof GuiLink) element = (GuiLink) below;
                 else return below;
             }
-        }
-        
-        public List<Gui> getGuiList() {
-            ArrayList<Gui> guis = new ArrayList<>();
-            GuiLink element = this;
-            while (true) {
-                guis.add(element.gui());
-                SlotElement below = element.gui().getSlotElement(element.slot());
-                if (below instanceof GuiLink)
-                    element = (GuiLink) below;
-                else break;
-            }
-            
-            return guis;
         }
         
         @Override

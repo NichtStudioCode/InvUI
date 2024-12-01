@@ -2,6 +2,7 @@ package xyz.xenondevs.invui.inventory;
 
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
+import xyz.xenondevs.invui.internal.util.ArrayUtils;
 import xyz.xenondevs.invui.internal.util.Pair;
 import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
@@ -13,7 +14,7 @@ import java.util.function.Consumer;
 /**
  * An {@link Inventory} which is composed of multiple other {@link Inventory Inventories}.
  */
-public class CompositeInventory extends Inventory {
+public final class CompositeInventory extends Inventory {
     
     private final Inventory[] inventories;
     
@@ -24,9 +25,8 @@ public class CompositeInventory extends Inventory {
      * @param other The other {@link Inventory Inventories}.
      */
     public CompositeInventory(Inventory first, Inventory... other) {
-        this.inventories = new Inventory[other.length + 1];
-        this.inventories[0] = first;
-        System.arraycopy(other, 0, this.inventories, 1, other.length);
+        super(calculateSize(first, other));
+        this.inventories = ArrayUtils.concat(first, other);
     }
     
     /**
@@ -35,14 +35,22 @@ public class CompositeInventory extends Inventory {
      * @param inventories The {@link Inventory Inventories}. Cannot be empty.
      */
     public CompositeInventory(Collection<Inventory> inventories) {
+        super(calculateSize(inventories));
         if (inventories.isEmpty())
             throw new IllegalArgumentException("CompositeInventory must contain at least one Inventory");
         
         this.inventories = inventories.toArray(Inventory[]::new);
     }
     
-    @Override
-    public int getSize() {
+    private static int calculateSize(Inventory first, Inventory[] other) {
+        int size = first.getSize();
+        for (Inventory inventory : other) {
+            size += inventory.getSize();
+        }
+        return size;
+    }
+    
+    private static int calculateSize(Collection<Inventory> inventories) {
         int size = 0;
         for (Inventory inventory : inventories) {
             size += inventory.getSize();
@@ -138,6 +146,12 @@ public class CompositeInventory extends Inventory {
         for (Inventory inventory : inventories) {
             inventory.notifyWindows();
         }
+    }
+    
+    @Override
+    public void notifyWindows(int slot) {
+        Pair<Inventory, Integer> invSlot = findInventory(slot);
+        invSlot.first().notifyWindows(invSlot.second());
     }
     
     @Override

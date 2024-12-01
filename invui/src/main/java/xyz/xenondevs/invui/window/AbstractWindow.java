@@ -13,17 +13,14 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.gui.AbstractGui;
-import xyz.xenondevs.invui.gui.Gui;
-import xyz.xenondevs.invui.gui.GuiParent;
 import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.i18n.Languages;
-import xyz.xenondevs.invui.internal.util.ArrayUtils;
+import xyz.xenondevs.invui.internal.Viewer;
 import xyz.xenondevs.invui.internal.util.InventoryUtils;
 import xyz.xenondevs.invui.internal.util.Pair;
 import xyz.xenondevs.invui.inventory.CompositeInventory;
@@ -31,8 +28,6 @@ import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
 import xyz.xenondevs.invui.item.AbstractItem;
-import xyz.xenondevs.invui.item.Item;
-import xyz.xenondevs.invui.item.ItemProvider;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -42,7 +37,7 @@ import java.util.function.Consumer;
  */
 @ApiStatus.Internal
 public sealed abstract class AbstractWindow
-    implements Window, GuiParent
+    implements Window, Viewer
     permits AbstractSingleWindow, AbstractDoubleWindow
 {
     
@@ -50,7 +45,6 @@ public sealed abstract class AbstractWindow
     
     private final Player viewer;
     private final UUID viewerUUID;
-    private final @Nullable SlotElement[] elementsDisplayed;
     private @Nullable List<Runnable> openHandlers;
     private @Nullable List<Runnable> closeHandlers;
     private @Nullable List<Consumer<InventoryClickEvent>> outsideClickHandlers;
@@ -59,91 +53,97 @@ public sealed abstract class AbstractWindow
     private boolean currentlyOpen;
     private boolean hasHandledClose;
     
+    private final int size;
+    private final @Nullable SlotElement[] elementsDisplayed;
+    private final BitSet dirtySlots;
+    
     AbstractWindow(Player viewer, Component title, int size, boolean closeable) {
         this.viewer = viewer;
         this.viewerUUID = viewer.getUniqueId();
         this.title = title;
         this.closeable = closeable;
+        this.size = size;
         this.elementsDisplayed = new SlotElement[size];
+        this.dirtySlots = new BitSet(size);
     }
     
-    protected void redrawItem(int index) {
-        redrawItem(index, getSlotElement(index), false);
-    }
-    
-    protected void redrawItem(int index, @Nullable SlotElement element, boolean setItem) {
-        // put ItemStack in inventory
-        ItemStack itemStack;
-        if (element == null || (element instanceof SlotElement.InventoryLink && element.getItemStack(getLang()) == null)) {
-            ItemProvider background = getGuiAt(index).first().getBackground();
-            itemStack = background == null ? null : background.get(getLang());
-        } else if (element instanceof SlotElement.GuiLink && element.getHoldingElement() == null) {
-            ItemProvider background = null;
-            
-            List<Gui> guis = ((SlotElement.GuiLink) element).getGuiList();
-            guis.addFirst(getGuiAt(index).first());
-            
-            for (int i = guis.size() - 1; i >= 0; i--) {
-                background = guis.get(i).getBackground();
-                if (background != null) break;
+    protected void update(int index) {
+        Pair<AbstractGui, Integer> guiSlotPair = getGuiAt(index);
+        if (guiSlotPair == null)
+            return;
+        AbstractGui gui = guiSlotPair.first();
+        int guiSlot = guiSlotPair.second();
+        
+        SlotElement element = gui.getSlotElement(guiSlot);
+        element = element == null ? null : element.getHoldingElement();
+        
+        // update the slot element's viewers if necessary
+        SlotElement previousElement = elementsDisplayed[index];
+        if (previousElement != element) {
+            switch (previousElement) {
+                case SlotElement.Item itemElement -> ((AbstractItem) itemElement.item()).removeViewer(this, index);
+                case SlotElement.InventoryLink invElement ->
+                    invElement.inventory().removeViewer(this, invElement.slot(), index);
+                case null, default -> {}
             }
             
-            itemStack = background == null ? null : background.get(getLang());
-        } else {
-            SlotElement holdingElement = element.getHoldingElement();
-            itemStack = holdingElement.getItemStack(getLang());
+            switch (element) {
+                case SlotElement.Item itemElement -> ((AbstractItem) itemElement.item()).addViewer(this, index);
+                case SlotElement.InventoryLink invElement ->
+                    invElement.inventory().addViewer(this, invElement.slot(), index);
+                case null, default -> {}
+            }
             
-            if (holdingElement instanceof SlotElement.Item) {
+            elementsDisplayed[index] = element;
+        }
+        
+        // create and place item stack in inventory
+        ItemStack itemStack = null;
+        if (element != null) {
+            itemStack = element.getItemStack(getLang());
+            if (itemStack != null && element instanceof SlotElement.Item) {
                 // This makes every item unique to prevent Shift-DoubleClick "clicking" multiple items at the same time.
-                if (itemStack.hasItemMeta()) {
-                    // clone ItemStack in order to not modify the original
-                    itemStack = itemStack.clone();
-                    
-                    ItemMeta itemMeta = itemStack.getItemMeta();
-                    itemMeta.getPersistentDataContainer().set(SLOT_KEY, PersistentDataType.BYTE, (byte) index);
-                    itemStack.setItemMeta(itemMeta);
+                itemStack = itemStack.clone(); // clone ItemStack in order to not modify the original
+                itemStack.editMeta(meta ->
+                    meta.getPersistentDataContainer().set(SLOT_KEY, PersistentDataType.BYTE, (byte) index)
+                );
+            }
+        } else {
+            // background by gui
+            element = gui.getSlotElement(guiSlot);
+            while (element instanceof SlotElement.GuiLink link) {
+                var backgroundProvider = link.gui().getBackground();
+                if (backgroundProvider != null) {
+                    itemStack = backgroundProvider.get(getLang());
                 }
+                element = link.gui().getSlotElement(link.slot());
             }
         }
-        setInvItem(index, itemStack);
         
-        if (setItem) {
-            // tell the previous item (if there is one) that this is no longer its window
-            SlotElement previousElement = elementsDisplayed[index];
-            if (previousElement instanceof SlotElement.Item itemSlotElement) {
-                AbstractItem item = (AbstractItem) itemSlotElement.item();
-                // check if the Item isn't still present on another index
-                if (getItemSlotElements(item).size() == 1) {
-                    // only if not, remove Window from list in Item
-                    item.removeWindow(this);
-                }
-            } else if (previousElement instanceof SlotElement.InventoryLink invSlotElement) {
-                Inventory inventory = invSlotElement.inventory();
-                // check if the InvUI-Inventory isn't still present on another index
-                if (getInvSlotElements(invSlotElement.inventory()).size() == 1) {
-                    // only if not, remove Window from list in Inventory
-                    inventory.removeWindow(this);
-                }
-            }
-            
-            if (element != null) {
-                // tell the Item or InvUI-Inventory that it is being displayed in this Window
-                SlotElement holdingElement = element.getHoldingElement();
-                if (holdingElement instanceof SlotElement.Item itemSlotElement) {
-                    ((AbstractItem) itemSlotElement.item()).addWindow(this);
-                } else if (holdingElement instanceof SlotElement.InventoryLink invSlotElement) {
-                    invSlotElement.inventory().addWindow(this);
-                }
-                
-                elementsDisplayed[index] = holdingElement;
-            } else {
-                elementsDisplayed[index] = null;
+        setInvItem(index, itemStack);
+    }
+    
+    @Override
+    public void notifyUpdate(int slot) {
+        synchronized (dirtySlots) {
+            dirtySlots.set(slot);
+        }
+    }
+    
+    public void handleTick() {
+        synchronized (dirtySlots) {
+            int slot = 0;
+            while ((slot = dirtySlots.nextSetBit(slot)) != -1) {
+                update(slot);
+                dirtySlots.clear(slot);
+                slot++;
             }
         }
     }
     
     public void handleDragEvent(InventoryDragEvent event) {
         Player player = ((Player) event.getWhoClicked()).getPlayer();
+        assert player != null;
         UpdateReason updateReason = new PlayerUpdateReason(player, event);
         Map<Integer, ItemStack> newItems = event.getNewItems();
         
@@ -166,7 +166,7 @@ public sealed abstract class AbstractWindow
         // Redraw all items after the event so there won't be any Items that aren't actually there
         Bukkit.getScheduler().runTask(InvUI.getInstance().getPlugin(),
             () -> event.getRawSlots().forEach(rawSlot -> {
-                if (getGuiAt(rawSlot) != null) redrawItem(rawSlot);
+                if (getGuiAt(rawSlot) != null) update(rawSlot);
             })
         );
         
@@ -225,26 +225,6 @@ public sealed abstract class AbstractWindow
         event.setCursor(template);
     }
     
-    public void handleItemProviderUpdate(Item item) {
-        getItemSlotElements(item).forEach((index, slotElement) ->
-            redrawItem(index, slotElement, false));
-    }
-    
-    public void handleInventoryUpdate(Inventory inventory) {
-        getInvSlotElements(inventory).forEach((index, slotElement) ->
-            redrawItem(index, slotElement, false));
-    }
-    
-    protected Map<Integer, SlotElement> getItemSlotElements(Item item) {
-        return ArrayUtils.findAllOccurrences(elementsDisplayed, element -> element instanceof SlotElement.Item
-                                                                           && ((SlotElement.Item) element).item() == item);
-    }
-    
-    protected Map<Integer, SlotElement> getInvSlotElements(Inventory inventory) {
-        return ArrayUtils.findAllOccurrences(elementsDisplayed, element -> element instanceof SlotElement.InventoryLink
-                                                                           && ((SlotElement.InventoryLink) element).inventory() == inventory);
-    }
-    
     @Override
     public void open() {
         Player viewer = getViewer();
@@ -261,7 +241,11 @@ public sealed abstract class AbstractWindow
         hasHandledClose = false;
         initItems();
         WindowManager.getInstance().addWindow(this);
-        for (AbstractGui gui : getGuis()) gui.addParent(this);
+        for (int i = 0; i < size; i++) {
+            var pair = getGuiAt(i);
+            assert pair != null;
+            pair.first().addViewer(this, pair.second(), i);
+        }
         openInventory(viewer);
     }
     
@@ -321,18 +305,19 @@ public sealed abstract class AbstractWindow
     private void remove() {
         WindowManager.getInstance().removeWindow(this);
         
-        Arrays.stream(elementsDisplayed)
-            .filter(Objects::nonNull)
-            .map(SlotElement::getHoldingElement)
-            .forEach(slotElement -> {
-                if (slotElement instanceof SlotElement.Item itemSlotElement) {
-                    ((AbstractItem) itemSlotElement.item()).removeWindow(this);
-                } else if (slotElement instanceof SlotElement.InventoryLink invSlotElement) {
-                    invSlotElement.inventory().removeWindow(this);
-                }
-            });
-        
-        for (AbstractGui gui : getGuis()) gui.removeParent(this);
+        for (int i = 0; i < size; i++) {
+            SlotElement element = elementsDisplayed[i];
+            switch (element) {
+                case SlotElement.Item itemElement -> ((AbstractItem) itemElement.item()).removeViewer(this, i);
+                case SlotElement.InventoryLink invElement ->
+                    invElement.inventory().removeViewer(this, invElement.slot(), i);
+                case null, default -> {}
+            }
+            
+            var pair = getGuiAt(i);
+            assert pair != null;
+            pair.first().removeViewer(this, pair.second(), i);
+        }
     }
     
     @Override
@@ -438,9 +423,7 @@ public sealed abstract class AbstractWindow
         return currentlyOpen;
     }
     
-    protected abstract void setInvItem(int slot, ItemStack itemStack);
-    
-    protected abstract @Nullable SlotElement getSlotElement(int index);
+    protected abstract void setInvItem(int slot, @Nullable ItemStack itemStack);
     
     protected abstract @Nullable Pair<AbstractGui, Integer> getGuiAt(int index);
     
