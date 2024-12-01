@@ -18,8 +18,11 @@ public interface Item {
      * This method gets called every time a {@link Window} is notified ({@link #notifyWindows()}).
      *
      * @return The {@link ItemProvider}
+     * @throws UnsupportedOperationException if neither this method nor {@link #getItemProvider(Player)} is overridden
      */
-    ItemProvider getItemProvider();
+    default ItemProvider getItemProvider() {
+        throw new UnsupportedOperationException("Either getItemProvider() or getItemProvider(Player) must be overridden!");
+    }
     
     /**
      * Gets the {@link ItemProvider} for a specific {@link Player}.
