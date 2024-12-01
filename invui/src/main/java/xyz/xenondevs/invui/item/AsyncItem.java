@@ -24,7 +24,7 @@ public class AsyncItem extends AbstractItem {
         
         Bukkit.getScheduler().runTaskAsynchronously(InvUI.getInstance().getPlugin(), () -> {
             this.itemProvider = providerSupplier.get();
-            Bukkit.getScheduler().runTask(InvUI.getInstance().getPlugin(), this::notifyWindows);
+            notifyWindows();
         });
     }
     
