@@ -414,6 +414,7 @@ public sealed abstract class AbstractGui
     
     @Override
     public void notifyUpdate(int slot) {
+        // no need for synchronization on viewers because this method is called on-main and read-only
         var viewers = this.viewers[slot];
         if (viewers != null) {
             for (var viewer : viewers) {
@@ -424,35 +425,42 @@ public sealed abstract class AbstractGui
     
     @Override
     public void notifyWindows() {
-        for (var viewerSet : viewers) {
-            if (viewerSet != null) {
-                for (var viewerAtSlot : viewerSet) {
-                    viewerAtSlot.notifyUpdate();
+        synchronized (viewers) {
+            for (var viewerSet : viewers) {
+                if (viewerSet != null) {
+                    for (var viewerAtSlot : viewerSet) {
+                        viewerAtSlot.notifyUpdate();
+                    }
                 }
             }
         }
     }
     
     public void addViewer(Viewer who, int what, int how) {
-        var viewerSet = this.viewers[what];
-        if (viewerSet == null) {
-            viewerSet = new HashSet<>();
-            this.viewers[what] = viewerSet;
+        synchronized (viewers) {
+            var viewerSet = this.viewers[what];
+            if (viewerSet == null) {
+                viewerSet = new HashSet<>();
+                this.viewers[what] = viewerSet;
+            }
+            viewerSet.add(new ViewerAtSlot<>(who, how));
         }
-        viewerSet.add(new ViewerAtSlot<>(who, how));
     }
     
     public void removeViewer(Viewer who, int what, int how) {
-        var viewerSet = this.viewers[what];
-        if (viewerSet != null) {
-            viewerSet.remove(new ViewerAtSlot<>(who, how));
-            if (viewerSet.isEmpty())
-                this.viewers[what] = null;
+        synchronized (viewers) {
+            var viewerSet = this.viewers[what];
+            if (viewerSet != null) {
+                viewerSet.remove(new ViewerAtSlot<>(who, how));
+                if (viewerSet.isEmpty())
+                    this.viewers[what] = null;
+            }
         }
     }
     
     @Override
     public List<Window> findAllWindows() {
+        // no need for synchronization on viewers because this method is called on-main and read-only
         var windows = new ArrayList<Window>();
         
         var explored = new HashSet<Viewer>();
