@@ -18,8 +18,23 @@ public interface Item {
      * This method gets called every time a {@link Window} is notified ({@link #notifyWindows()}).
      *
      * @return The {@link ItemProvider}
+     * @throws UnsupportedOperationException if neither this method nor {@link #getItemProvider(Player)} is overridden
      */
-    ItemProvider getItemProvider();
+    default ItemProvider getItemProvider() {
+        throw new UnsupportedOperationException("Either getItemProvider() or getItemProvider(Player) must be overridden!");
+    }
+    
+    /**
+     * Gets the {@link ItemProvider} for a specific {@link Player}.
+     * This method gets called every time a {@link Window} is notified ({@link #notifyWindows()}).
+     * <p>The default implementation delegates to {@link #getItemProvider()}</p>
+     *
+     * @param viewer the viewer (provides context for rendering player-specific information in the item)
+     * @return The {@link ItemProvider}
+     */
+    default ItemProvider getItemProvider(Player viewer) {
+        return getItemProvider();
+    }
     
     /**
      * Adds an {@link AbstractWindow} to the window set, telling the {@link Item} that it is
