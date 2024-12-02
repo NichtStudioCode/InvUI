@@ -4,7 +4,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
@@ -33,12 +32,12 @@ public class AsyncItem extends AbstractItem {
     }
     
     @Override
-    public ItemProvider getItemProvider() {
+    public ItemProvider getItemProvider(Player viewer) {
         return itemProvider;
     }
     
     @Override
-    public void handleClick(ClickType clickType, Player player, InventoryClickEvent event) {
+    public void handleClick(ClickType clickType, Player player, Click click) {
         // empty
     }
     

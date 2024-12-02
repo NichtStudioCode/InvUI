@@ -2,7 +2,6 @@ package xyz.xenondevs.invui.item;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.jspecify.annotations.Nullable;
 
 import java.util.function.Function;
@@ -19,13 +18,13 @@ public class SuppliedItem extends AbstractItem {
     }
     
     @Override
-    public ItemProvider getItemProvider() {
+    public ItemProvider getItemProvider(Player viewer) {
         return builderSupplier.get();
     }
     
     @Override
-    public void handleClick(ClickType clickType, Player player, InventoryClickEvent event) {
-        if (clickHandler != null && clickHandler.apply(new Click(event))) notifyWindows();
+    public void handleClick(ClickType clickType, Player player, Click click) {
+        if (clickHandler != null && clickHandler.apply(click)) notifyWindows();
     }
     
 }

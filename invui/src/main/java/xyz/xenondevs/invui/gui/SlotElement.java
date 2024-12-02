@@ -1,14 +1,16 @@
 package xyz.xenondevs.invui.gui;
 
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
+import xyz.xenondevs.invui.i18n.Languages;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.ItemProvider;
 
 public sealed interface SlotElement {
     
     @Nullable
-    ItemStack getItemStack(String lang);
+    ItemStack getItemStack(Player player);
     
     @Nullable
     SlotElement getHoldingElement();
@@ -19,8 +21,8 @@ public sealed interface SlotElement {
     record Item(xyz.xenondevs.invui.item.Item item) implements SlotElement {
         
         @Override
-        public ItemStack getItemStack(String lang) {
-            return item.getItemProvider().get(lang);
+        public ItemStack getItemStack(Player player) {
+            return item.getItemProvider(player).get(Languages.getInstance().getLanguage(player));
         }
         
         @Override
@@ -44,10 +46,10 @@ public sealed interface SlotElement {
         }
         
         @Override
-        public @Nullable ItemStack getItemStack(String lang) {
+        public @Nullable ItemStack getItemStack(Player player) {
             ItemStack itemStack = inventory.getUnsafeItem(slot);
             if (itemStack == null && background != null)
-                itemStack = background.get(lang);
+                itemStack = background.get(Languages.getInstance().getLanguage(player));
             return itemStack;
         }
         
@@ -77,9 +79,9 @@ public sealed interface SlotElement {
         }
         
         @Override
-        public @Nullable ItemStack getItemStack(String lang) {
+        public @Nullable ItemStack getItemStack(Player player) {
             SlotElement holdingElement = getHoldingElement();
-            return holdingElement != null ? holdingElement.getItemStack(lang) : null;
+            return holdingElement != null ? holdingElement.getItemStack(player) : null;
         }
         
     }

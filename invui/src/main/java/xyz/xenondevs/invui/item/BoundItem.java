@@ -1,6 +1,14 @@
 package xyz.xenondevs.invui.item;
 
+import org.bukkit.entity.Player;
 import xyz.xenondevs.invui.gui.Gui;
+import xyz.xenondevs.invui.gui.PagedGui;
+import xyz.xenondevs.invui.gui.ScrollGui;
+import xyz.xenondevs.invui.gui.TabGui;
+import xyz.xenondevs.invui.util.TriConsumer;
+
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 
 /**
  * An item that is bound to a specific {@link Gui}.
@@ -23,5 +31,31 @@ public sealed interface BoundItem extends Item permits AbstractBoundItem {
      * @throws IllegalStateException If this item is already bound to a {@link Gui}.
      */
     void bind(Gui gui);
+    
+    static Builder<Gui> gui() {
+        return new CustomBoundItem.Builder<>();
+    }
+    
+    static Builder<PagedGui<?>> pagedGui() {
+        return new CustomBoundItem.Builder.Paged();
+    }
+    
+    static Builder<ScrollGui<?>> scrollGui() {
+        return new CustomBoundItem.Builder.Scroll();
+    }
+    
+    static Builder<TabGui<?>> tabGui() {
+        return new CustomBoundItem.Builder.Tab();
+    }
+    
+    sealed interface Builder<G extends Gui> extends Item.Builder<Builder<G>> permits CustomBoundItem.Builder {
+
+        Builder<G> bind(BiConsumer<Item, G> handler);
+        
+        Builder<G> click(TriConsumer<Item, G, Click> handler);
+        
+        Builder<G> itemProvider(BiFunction<Player, G, ItemProvider> itemProvider);
+        
+    }
     
 }

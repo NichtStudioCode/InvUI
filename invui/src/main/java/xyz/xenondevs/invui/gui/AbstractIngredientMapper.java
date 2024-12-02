@@ -38,6 +38,16 @@ abstract class AbstractIngredientMapper<S extends AbstractIngredientMapper<S>> i
     }
     
     @Override
+    public S addIngredient(char key, Item.Builder<?> builder) {
+        return addIngredient(key, builder::build);
+    }
+    
+    @Override
+    public S addIngredient(char key, Supplier<? extends Item> itemSupplier) {
+        return addIngredientElementSupplier(key, () -> new SlotElement.Item(itemSupplier.get()));
+    }
+    
+    @Override
     public S addIngredient(char key, Inventory inventory) {
         return addIngredientElementSupplier(key, new InventorySlotElementSupplier(inventory));
     }
@@ -55,21 +65,16 @@ abstract class AbstractIngredientMapper<S extends AbstractIngredientMapper<S>> i
     }
     
     @Override
-    public S addIngredient(char key, Marker marker) {
+    public S addIngredientElementSupplier(char key, Supplier<? extends SlotElement> elementSupplier) {
         handleUpdate();
-        ingredientMap.put(key, new Ingredient(marker));
+        ingredientMap.put(key, new Ingredient(elementSupplier));
         return (S) this;
     }
     
     @Override
-    public S addIngredient(char key, Supplier<? extends Item> itemSupplier) {
-        return addIngredientElementSupplier(key, () -> new SlotElement.Item(itemSupplier.get()));
-    }
-    
-    @Override
-    public S addIngredientElementSupplier(char key, Supplier<? extends SlotElement> elementSupplier) {
+    public S addIngredient(char key, Marker marker) {
         handleUpdate();
-        ingredientMap.put(key, new Ingredient(elementSupplier));
+        ingredientMap.put(key, new Ingredient(marker));
         return (S) this;
     }
     

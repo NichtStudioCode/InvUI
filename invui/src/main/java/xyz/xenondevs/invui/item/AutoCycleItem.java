@@ -3,7 +3,6 @@ package xyz.xenondevs.invui.item;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
@@ -45,7 +44,7 @@ public class AutoCycleItem extends AbstractItem {
     }
     
     @Override
-    public ItemProvider getItemProvider() {
+    public ItemProvider getItemProvider(Player viewer) {
         return itemProviders[state];
     }
     
@@ -64,7 +63,7 @@ public class AutoCycleItem extends AbstractItem {
     }
     
     @Override
-    public void handleClick(ClickType clickType, Player player, InventoryClickEvent event) {
+    public void handleClick(ClickType clickType, Player player, Click click) {
         // empty
     }
     

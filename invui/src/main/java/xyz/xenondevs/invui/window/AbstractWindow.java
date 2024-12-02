@@ -100,7 +100,7 @@ public sealed abstract class AbstractWindow
         // create and place item stack in inventory
         ItemStack itemStack = null;
         if (element != null) {
-            itemStack = element.getItemStack(getLang());
+            itemStack = element.getItemStack(getViewer());
             if (itemStack != null && element instanceof SlotElement.Item) {
                 // This makes every item unique to prevent Shift-DoubleClick "clicking" multiple items at the same time.
                 itemStack = itemStack.clone(); // clone ItemStack in order to not modify the original

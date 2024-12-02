@@ -51,6 +51,24 @@ public interface IngredientMapper<S extends IngredientMapper<S>> extends Cloneab
     S addIngredient(char key, Item item);
     
     /**
+     * Adds an {@link Item.Builder} ingredient under the given key.
+     *
+     * @param key     The key of the ingredient
+     * @param builder The {@link Item.Builder} ingredient
+     * @return This {@link Structure}
+     */
+    S addIngredient(char key, Item.Builder<?> builder);
+    
+    /**
+     * Adds an {@link Item} {@link Supplier} ingredient under the given key.
+     *
+     * @param key          The key of the ingredient
+     * @param itemSupplier The {@link Item} {@link Supplier} ingredient
+     * @return This {@link Structure}
+     */
+    S addIngredient(char key, Supplier<? extends Item> itemSupplier);
+    
+    /**
      * Adds a {@link Inventory} ingredient under the given key.
      *
      * @param key       The key of the ingredient
@@ -79,24 +97,6 @@ public interface IngredientMapper<S extends IngredientMapper<S>> extends Cloneab
     S addIngredient(char key, SlotElement element);
     
     /**
-     * Adds a {@link Marker} ingredient under the given key.
-     *
-     * @param key    The key of the ingredient
-     * @param marker The {@link Marker} ingredient
-     * @return This {@link Structure}
-     */
-    S addIngredient(char key, Marker marker);
-    
-    /**
-     * Adds an {@link Item} {@link Supplier} ingredient under the given key.
-     *
-     * @param key          The key of the ingredient
-     * @param itemSupplier The {@link Item} {@link Supplier} ingredient
-     * @return This {@link Structure}
-     */
-    S addIngredient(char key, Supplier<? extends Item> itemSupplier);
-    
-    /**
      * Adds a {@link SlotElement} {@link Supplier} ingredient under the given key.
      *
      * @param key             The key of the ingredient
@@ -104,6 +104,15 @@ public interface IngredientMapper<S extends IngredientMapper<S>> extends Cloneab
      * @return This {@link Structure}
      */
     S addIngredientElementSupplier(char key, Supplier<? extends SlotElement> elementSupplier);
+    
+    /**
+     * Adds a {@link Marker} ingredient under the given key.
+     *
+     * @param key    The key of the ingredient
+     * @param marker The {@link Marker} ingredient
+     * @return This {@link Structure}
+     */
+    S addIngredient(char key, Marker marker);
     
     /**
      * Clones the {@link IngredientMapper}.

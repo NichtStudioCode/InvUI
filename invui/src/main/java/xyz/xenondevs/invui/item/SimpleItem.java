@@ -2,7 +2,6 @@ package xyz.xenondevs.invui.item;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 
@@ -36,13 +35,13 @@ public class SimpleItem extends AbstractItem {
         this.clickHandler = clickHandler;
     }
     
-    public ItemProvider getItemProvider() {
+    public ItemProvider getItemProvider(Player viewer) {
         return itemProvider;
     }
     
     @Override
-    public void handleClick(ClickType clickType, Player player, InventoryClickEvent event) {
-        if (clickHandler != null) clickHandler.accept(new Click(event));
+    public void handleClick(ClickType clickType, Player player, Click click) {
+        if (clickHandler != null) clickHandler.accept(click);
     }
     
 }

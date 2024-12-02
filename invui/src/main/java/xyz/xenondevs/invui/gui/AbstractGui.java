@@ -21,10 +21,7 @@ import xyz.xenondevs.invui.inventory.ReferencingInventory;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
-import xyz.xenondevs.invui.item.BoundItem;
-import xyz.xenondevs.invui.item.Item;
-import xyz.xenondevs.invui.item.ItemProvider;
-import xyz.xenondevs.invui.item.ItemWrapper;
+import xyz.xenondevs.invui.item.*;
 import xyz.xenondevs.invui.util.ItemUtils;
 import xyz.xenondevs.invui.window.*;
 
@@ -80,7 +77,7 @@ public sealed abstract class AbstractGui
             
             case SlotElement.Item itemElement -> {
                 event.setCancelled(true); // if it is an Item, don't let the player move it
-                itemElement.item().handleClick(clickType, player, event);
+                itemElement.item().handleClick(clickType, player, new Click(event));
             }
             
             case SlotElement.InventoryLink inventorySlotElement ->
@@ -876,6 +873,22 @@ public sealed abstract class AbstractGui
         }
         
         @Override
+        public S addIngredient(char key, Item.Builder<?> builder) {
+            if (structure == null)
+                throw new IllegalStateException("Structure is not set");
+            structure.addIngredient(key, builder);
+            return (S) this;
+        }
+        
+        @Override
+        public S addIngredient(char key, Supplier<? extends Item> itemSupplier) {
+            if (structure == null)
+                throw new IllegalStateException("Structure is not set");
+            structure.addIngredient(key, itemSupplier);
+            return (S) this;
+        }
+        
+        @Override
         public S addIngredient(char key, Inventory inventory) {
             if (structure == null)
                 throw new IllegalStateException("Structure is not set");
@@ -900,26 +913,18 @@ public sealed abstract class AbstractGui
         }
         
         @Override
-        public S addIngredient(char key, Marker marker) {
-            if (structure == null)
-                throw new IllegalStateException("Structure is not set");
-            structure.addIngredient(key, marker);
-            return (S) this;
-        }
-        
-        @Override
-        public S addIngredient(char key, Supplier<? extends Item> itemSupplier) {
-            if (structure == null)
-                throw new IllegalStateException("Structure is not set");
-            structure.addIngredient(key, itemSupplier);
-            return (S) this;
-        }
-        
-        @Override
         public S addIngredientElementSupplier(char key, Supplier<? extends SlotElement> elementSupplier) {
             if (structure == null)
                 throw new IllegalStateException("Structure is not set");
             structure.addIngredientElementSupplier(key, elementSupplier);
+            return (S) this;
+        }
+        
+        @Override
+        public S addIngredient(char key, Marker marker) {
+            if (structure == null)
+                throw new IllegalStateException("Structure is not set");
+            structure.addIngredient(key, marker);
             return (S) this;
         }
         
