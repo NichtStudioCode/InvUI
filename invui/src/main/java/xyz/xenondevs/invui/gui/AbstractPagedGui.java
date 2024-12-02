@@ -23,6 +23,9 @@ sealed abstract class AbstractPagedGui<C>
     
     public AbstractPagedGui(int width, int height, boolean infinitePages, int... contentListSlots) {
         super(width, height);
+        if (contentListSlots.length == 0)
+            throw new IllegalArgumentException("Content list slots must not be empty");
+        
         this.infinitePages = infinitePages;
         this.contentListSlots = contentListSlots;
     }

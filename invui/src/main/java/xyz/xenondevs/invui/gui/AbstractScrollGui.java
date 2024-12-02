@@ -27,6 +27,9 @@ sealed abstract class AbstractScrollGui<C>
     
     public AbstractScrollGui(int width, int height, boolean infiniteLines, int... contentListSlots) {
         super(width, height);
+        if (contentListSlots.length == 0)
+            throw new IllegalArgumentException("Content list slots must not be empty");
+        
         this.infiniteLines = infiniteLines;
         this.contentListSlots = contentListSlots;
         this.lineLength = SlotUtils.getLongestLineLength(contentListSlots, width);

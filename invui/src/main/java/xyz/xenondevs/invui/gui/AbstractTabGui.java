@@ -21,6 +21,9 @@ sealed abstract class AbstractTabGui<C extends Gui>
     
     public AbstractTabGui(int width, int height, int tabAmount, int... listSlots) {
         super(width, height);
+        if (listSlots.length == 0)
+            throw new IllegalArgumentException("Content list slots must not be empty");
+        
         this.tabAmount = tabAmount;
         this.listSlots = listSlots;
     }
