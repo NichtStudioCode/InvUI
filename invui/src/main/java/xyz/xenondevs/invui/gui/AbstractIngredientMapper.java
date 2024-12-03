@@ -6,7 +6,6 @@ import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.item.ItemWrapper;
-import xyz.xenondevs.invui.item.SimpleItem;
 
 import java.util.HashMap;
 import java.util.function.Supplier;
@@ -29,7 +28,7 @@ abstract class AbstractIngredientMapper<S extends AbstractIngredientMapper<S>> i
     
     @Override
     public S addIngredient(char key, ItemProvider itemProvider) {
-        return addIngredient(key, new SimpleItem(itemProvider));
+        return addIngredient(key, Item.simple(itemProvider));
     }
     
     @Override

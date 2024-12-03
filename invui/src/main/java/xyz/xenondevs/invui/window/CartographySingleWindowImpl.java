@@ -11,8 +11,7 @@ import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.CartographyInventory;
 import xyz.xenondevs.invui.internal.util.MathUtils;
 import xyz.xenondevs.invui.internal.util.PlayerUtils;
-import xyz.xenondevs.invui.item.ItemWrapper;
-import xyz.xenondevs.invui.item.SimpleItem;
+import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.util.MapIcon;
 import xyz.xenondevs.invui.util.MapPatch;
 
@@ -63,7 +62,7 @@ final class CartographySingleWindowImpl extends AbstractSingleWindow implements 
         MapMeta mapMeta = (MapMeta) map.getItemMeta();
         mapMeta.setMapId(mapId);
         map.setItemMeta(mapMeta);
-        getGui().setItem(0, new SimpleItem(new ItemWrapper(map)));
+        getGui().setItem(0, Item.simple(map));
     }
     
     @Override

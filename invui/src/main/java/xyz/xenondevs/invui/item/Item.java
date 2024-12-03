@@ -12,7 +12,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * An ui element for use in {@link Gui Guis}.
+ * A UI element for use in {@link Gui Guis}.
  */
 public sealed interface Item permits AbstractItem, BoundItem {
     

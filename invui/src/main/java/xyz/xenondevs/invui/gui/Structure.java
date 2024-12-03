@@ -5,7 +5,6 @@ import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.item.ItemWrapper;
-import xyz.xenondevs.invui.item.SimpleItem;
 
 import java.util.HashMap;
 import java.util.function.Supplier;
@@ -75,7 +74,7 @@ public class Structure extends AbstractIngredientMapper<Structure> {
      * @param itemProvider The {@link ItemProvider} ingredient
      */
     public static void addGlobalIngredient(char key, ItemProvider itemProvider) {
-        addGlobalIngredient(key, new SimpleItem(itemProvider));
+        addGlobalIngredient(key, Item.simple(itemProvider));
     }
     
     /**
