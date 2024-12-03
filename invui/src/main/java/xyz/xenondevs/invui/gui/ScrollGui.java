@@ -7,6 +7,7 @@ import xyz.xenondevs.invui.item.Item;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
     
@@ -53,7 +54,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @return The created {@link ScrollGui}.
      */
     static <C extends Item> ScrollGui<C> ofItems(Structure structure, List<C> items) {
-        return new ScrollItemsGuiImpl<>(items, structure);
+        return new ScrollItemsGuiImpl<>(() -> items, structure);
     }
     
     /**
@@ -99,7 +100,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @return The created {@link ScrollGui}.
      */
     static <C extends Gui> ScrollGui<C> ofGuis(Structure structure, List<C> guis) {
-        return new ScrollNestedGuiImpl<>(guis, structure);
+        return new ScrollNestedGuiImpl<>(() -> guis, structure);
     }
     
     /**
@@ -145,7 +146,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @return The created {@link ScrollGui}.
      */
     static <C extends Inventory> ScrollGui<C> ofInventories(Structure structure, List<C> inventories) {
-        return new ScrollInventoryGuiImpl<>(inventories, structure);
+        return new ScrollInventoryGuiImpl<>(() -> inventories, structure);
     }
     
     /**
@@ -185,18 +186,25 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
     void scroll(int lines);
     
     /**
+     * Sets the supplier used to retrieve the content of this {@link ScrollGui} for all lines.
+     * Refreshes can be triggered via {@link ScrollGui#bake}.
+     *
+     * @param contentSupplier The content supplier to set.
+     */
+    void setContent(Supplier<List<C>> contentSupplier);
+    
+    /**
      * Sets the content of this {@link ScrollGui} for all lines.
      *
      * @param content The content to set.
      */
-    void setContent(@Nullable List<C> content);
+    void setContent(List<C> content);
     
     /**
      * Gets the content of this {@link ScrollGui}.
      *
      * @return The content of this {@link ScrollGui}.
      */
-    @Nullable
     List<C> getContent();
     
     /**
@@ -271,6 +279,15 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @param <C> The content type.
      */
     sealed interface Builder<C> extends Gui.Builder<ScrollGui<C>, Builder<C>> permits AbstractScrollGui.AbstractBuilder {
+        
+        /**
+         * Sets the supplier used to retrieve the content of the {@link ScrollGui} for all lines.
+         * Refreshes can be triggered via {@link ScrollGui#bake}.
+         *
+         * @param contentSupplier The content supplier to set.
+         * @return This {@link Builder Gui Builder}.
+         */
+        Builder<C> setContent(Supplier<List<C>> contentSupplier);
         
         /**
          * Sets the content of the {@link ScrollGui} for all lines.

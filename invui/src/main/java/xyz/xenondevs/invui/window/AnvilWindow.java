@@ -1,7 +1,6 @@
 package xyz.xenondevs.invui.window;
 
 import org.bukkit.entity.Player;
-import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
 
 import java.util.List;
@@ -62,7 +61,7 @@ public sealed interface AnvilWindow
      *
      * @return The current rename text.
      */
-    @Nullable String getRenameText();
+    String getRenameText();
     
     /**
      * An {@link AnvilWindow} builder.

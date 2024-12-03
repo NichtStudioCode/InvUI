@@ -5,8 +5,9 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-public sealed interface TabGui<C extends Gui> extends Gui permits AbstractTabGui {
+public sealed interface TabGui<C extends Gui> extends Gui permits TabGuiImpl {
     
     /**
      * Creates a new {@link Builder Gui Builder} for a {@link TabGui}.
@@ -14,7 +15,7 @@ public sealed interface TabGui<C extends Gui> extends Gui permits AbstractTabGui
      * @return The new {@link Builder Gui Builder}.
      */
     static <C extends Gui> Builder<C> normal() {
-        return new TabGuiImpl.BuilderImpl<>();
+        return new TabGuiImpl.Builder<>();
     }
     
     /**
@@ -50,7 +51,7 @@ public sealed interface TabGui<C extends Gui> extends Gui permits AbstractTabGui
      * @return The created {@link TabGui}.
      */
     static <C extends Gui> TabGui<C> of(Structure structure, List<@Nullable C> tabs) {
-        return new TabGuiImpl<>(tabs, structure);
+        return new TabGuiImpl<>(() -> tabs, structure);
     }
     
     /**
@@ -58,7 +59,7 @@ public sealed interface TabGui<C extends Gui> extends Gui permits AbstractTabGui
      *
      * @return The current tab index.
      */
-    int getCurrentTab();
+    int getTab();
     
     /**
      * Sets the current tab.
@@ -76,11 +77,34 @@ public sealed interface TabGui<C extends Gui> extends Gui permits AbstractTabGui
     boolean isTabAvailable(int tab);
     
     /**
+     * Sets the supplier used to retrieve the tabs of this {@link TabGui}.
+     * Refreshes can be triggered via {@link TabGui#bake}.
+     *
+     * @param tabsSupplier The content supplier to set.
+     */
+    void setTabs(Supplier<List<@Nullable C>> tabsSupplier);
+    
+    /**
+     * Sets the tabs of this {@link TabGui}.
+     *
+     * @param tabs The tabs to set.
+     */
+    void setTabs(List<@Nullable C> tabs);
+    
+    /**
      * Gets the configured tabs.
      *
      * @return The configured tabs.
      */
     List<@Nullable C> getTabs();
+    
+    /**
+     * Bakes and updates the tabs of this {@link TabGui} based on the current tabs.
+     * <p>
+     * This method does not need to be called when using {@link #setTabs(List)},
+     * but is required when the tabs list itself changes.
+     */
+    void bake();
     
     /**
      * Gets the registered tab change handlers.
@@ -114,7 +138,15 @@ public sealed interface TabGui<C extends Gui> extends Gui permits AbstractTabGui
     /**
      * A {@link TabGui} builder.
      */
-    sealed interface Builder<C extends Gui> extends Gui.Builder<TabGui<C>, Builder<C>> permits AbstractTabGui.AbstractBuilder {
+    sealed interface Builder<C extends Gui> extends Gui.Builder<TabGui<C>, Builder<C>> permits TabGuiImpl.Builder {
+        
+        /**
+         * Sets the supplier used to retrieve the tabs of this {@link TabGui}.
+         * Refreshes can be triggered via {@link TabGui#bake}.
+         *
+         * @param tabsSupplier The content supplier to set.
+         */
+        Builder<C> setTabs(Supplier<List<@Nullable C>> tabsSupplier);
         
         /**
          * Sets the tabs of the {@link TabGui}.

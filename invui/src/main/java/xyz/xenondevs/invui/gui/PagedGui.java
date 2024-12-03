@@ -7,6 +7,7 @@ import xyz.xenondevs.invui.item.Item;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * A {@link Gui} that can display multiple pages of content.
@@ -57,7 +58,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @return The created {@link PagedGui}.
      */
     static <C extends Item> PagedGui<C> ofItems(Structure structure, List<C> items) {
-        return new PagedItemsGuiImpl<>(items, structure);
+        return new PagedItemsGuiImpl<>(() -> items, structure);
     }
     
     /**
@@ -106,7 +107,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @return The created {@link PagedGui}.
      */
     static <C extends Gui> PagedGui<C> ofGuis(Structure structure, List<C> guis) {
-        return new PagedNestedGuiImpl<>(guis, structure);
+        return new PagedNestedGuiImpl<>(() -> guis, structure);
     }
     
     /**
@@ -151,7 +152,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @return The created {@link PagedGui}.
      */
     static <C extends Inventory> PagedGui<C> ofInventories(Structure structure, List<C> inventories) {
-        return new PagedInventoriesGuiImpl<>(inventories, structure);
+        return new PagedInventoriesGuiImpl<>(() -> inventories, structure);
     }
     
     /**
@@ -214,25 +215,32 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
     int[] getContentListSlots();
     
     /**
+     * Sets the supplier used to retrieve the content of this {@link PagedGui} for all pages.
+     * Refreshes can be triggered via {@link PagedGui#bake}.
+     *
+     * @param contentSupplier The content supplier to set.
+     */
+    void setContent(Supplier<List<C>> contentSupplier);
+    
+    /**
      * Sets the content of this {@link PagedGui} for all pages.
      *
      * @param content The content to set.
      */
-    void setContent(@Nullable List<C> content);
+    void setContent(List<C> content);
     
     /**
      * Gets the content of this {@link PagedGui}.
      *
      * @return The content of this {@link PagedGui}.
      */
-    @Nullable
     List<C> getContent();
     
     /**
      * Bakes and updates the pages of this {@link PagedGui} based on the current content.
      * <p>
      * This method does not need to be called when using {@link #setContent(List)},
-     * but is required when the size of the content itself changes.
+     * but is required when the content itself changes.
      */
     void bake();
     
@@ -300,6 +308,15 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @param <C> The content type.
      */
     sealed interface Builder<C> extends Gui.Builder<PagedGui<C>, Builder<C>> permits AbstractPagedGui.AbstractBuilder {
+        
+        /**
+         * Sets the supplier used to retrieve the content of the {@link PagedGui} for all pages.
+         * Refreshes can be triggered via {@link PagedGui#bake}.
+         *
+         * @param contentSupplier The content supplier to set.
+         * @return This {@link Builder Gui Builder}.
+         */
+        Builder<C> setContent(Supplier<List<C>> contentSupplier);
         
         /**
          * Sets the content of the {@link PagedGui} for all pages.

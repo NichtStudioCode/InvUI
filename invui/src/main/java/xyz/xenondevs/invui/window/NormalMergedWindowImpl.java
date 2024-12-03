@@ -7,11 +7,13 @@ import org.bukkit.inventory.Inventory;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 
+import java.util.function.Supplier;
+
 final class NormalMergedWindowImpl extends AbstractMergedWindow {
     
     public NormalMergedWindowImpl(
         Player player,
-        Component title,
+        Supplier<Component> title,
         AbstractGui gui,
         boolean closeable
     ) {
@@ -39,7 +41,7 @@ final class NormalMergedWindowImpl extends AbstractMergedWindow {
             
             var window = new NormalMergedWindowImpl(
                 viewer,
-                title,
+                titleSupplier,
                 (AbstractGui) guiSupplier.get(),
                 closeable
             );

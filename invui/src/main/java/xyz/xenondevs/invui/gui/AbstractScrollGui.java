@@ -6,6 +6,8 @@ import xyz.xenondevs.invui.internal.util.SlotUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 sealed abstract class AbstractScrollGui<C>
     extends AbstractGui
@@ -22,13 +24,11 @@ sealed abstract class AbstractScrollGui<C>
     
     private @Nullable List<BiConsumer<Integer, Integer>> scrollHandlers;
     private @Nullable List<BiConsumer<Integer, Integer>> lineCountChangeHandlers;
-    private @Nullable List<C> content;
+    private Supplier<List<C>> contentSupplier = List::of;
     private @Nullable List<SlotElement> elements;
     
     public AbstractScrollGui(int width, int height, boolean infiniteLines, int... contentListSlots) {
         super(width, height);
-        if (contentListSlots.length == 0)
-            throw new IllegalArgumentException("Content list slots must not be empty");
         
         this.infiniteLines = infiniteLines;
         this.contentListSlots = contentListSlots;
@@ -36,7 +36,7 @@ sealed abstract class AbstractScrollGui<C>
         this.lineAmount = (int) Math.ceil((double) contentListSlots.length / (double) lineLength);
         
         if (contentListSlots.length == 0)
-            throw new IllegalArgumentException("No item list slots provided");
+            throw new IllegalArgumentException("Content list slots must not be empty");
         if (lineLength == 0)
             throw new IllegalArgumentException("Line length can't be 0");
         if (contentListSlots.length % lineLength != 0)
@@ -119,15 +119,14 @@ sealed abstract class AbstractScrollGui<C>
     }
     
     @Override
-    public void setContent(@Nullable List<C> content) {
-        if (content == null || content.isEmpty()) {
-            this.content = List.of();
-            this.elements = List.of();
-            update();
-        } else {
-            this.content = content;
-            bake(); // calls update()
-        }
+    public void setContent(List<C> content) {
+        setContent(() -> content);
+    }
+    
+    @Override
+    public void setContent(Supplier<List<C>> contentSupplier) {
+        this.contentSupplier = contentSupplier;
+        bake();
     }
     
     public void setElements(@Nullable List<SlotElement> elements) {
@@ -157,8 +156,8 @@ sealed abstract class AbstractScrollGui<C>
     }
     
     @Override
-    public @Nullable List<C> getContent() {
-        return content;
+    public List<C> getContent() {
+        return contentSupplier.get();
     }
     
     @Override
@@ -215,9 +214,21 @@ sealed abstract class AbstractScrollGui<C>
         permits ScrollItemsGuiImpl.Builder, ScrollNestedGuiImpl.Builder, ScrollInventoryGuiImpl.Builder
     {
         
-        protected @Nullable List<C> content;
-        protected @Nullable List<BiConsumer<Integer, Integer>> scrollHandlers;
-        protected @Nullable List<BiConsumer<Integer, Integer>> lineCountChangeHandlers;
+        private final BiFunction<Supplier<List<C>>, Structure, ScrollGui<C>> ctor;
+        private @Nullable Supplier<List<C>> contentSupplier;
+        private @Nullable List<C> content;
+        private @Nullable List<BiConsumer<Integer, Integer>> scrollHandlers;
+        private @Nullable List<BiConsumer<Integer, Integer>> lineCountChangeHandlers;
+        
+        public AbstractBuilder(BiFunction<Supplier<List<C>>, Structure, ScrollGui<C>> ctor) {
+            this.ctor = ctor;
+        }
+        
+        @Override
+        public ScrollGui.Builder<C> setContent(Supplier<List<C>> contentSupplier) {
+            this.contentSupplier = contentSupplier;
+            return this;
+        }
         
         @Override
         public ScrollGui.Builder<C> setContent(List<C> content) {
@@ -265,14 +276,25 @@ sealed abstract class AbstractScrollGui<C>
         }
         
         @Override
-        protected void applyModifiers(ScrollGui<C> gui) {
-            super.applyModifiers(gui);
+        public ScrollGui<C> build() {
+            if (structure == null)
+                throw new IllegalStateException("Structure is not defined.");
+            
+            Supplier<List<C>> supplier = contentSupplier != null
+                ? contentSupplier
+                : () -> content != null ? content : List.of();
+            
+            var gui = ctor.apply(supplier, structure);
             
             if (scrollHandlers != null) {
                 for (var handler : scrollHandlers) {
                     gui.addScrollHandler(handler);
                 }
             }
+            
+            applyModifiers(gui);
+            
+            return gui;
         }
         
         @Override

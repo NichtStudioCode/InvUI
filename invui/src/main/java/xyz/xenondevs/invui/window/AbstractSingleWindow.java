@@ -30,7 +30,7 @@ public sealed abstract class AbstractSingleWindow
     private final int size;
     protected org.bukkit.inventory.Inventory inventory;
     
-    AbstractSingleWindow(Player viewer, Component title, AbstractGui gui, org.bukkit.inventory.Inventory inventory, boolean closeable) {
+    AbstractSingleWindow(Player viewer, Supplier<Component> title, AbstractGui gui, org.bukkit.inventory.Inventory inventory, boolean closeable) {
         super(viewer, title, gui.getSize(), closeable);
         this.gui = gui;
         this.size = gui.getSize();

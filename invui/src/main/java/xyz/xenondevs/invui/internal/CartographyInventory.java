@@ -36,8 +36,8 @@ public class CartographyInventory extends CartographyTableMenu {
     
     private boolean open;
     
-    public CartographyInventory(org.bukkit.entity.Player player, net.kyori.adventure.text.Component title) {
-        this(((CraftPlayer) player).getHandle(), PaperAdventure.asVanilla(title));
+    public CartographyInventory(org.bukkit.entity.Player player) {
+        this(((CraftPlayer) player).getHandle(), Component.empty());
     }
     
     public CartographyInventory(ServerPlayer player, Component title) {
@@ -49,7 +49,7 @@ public class CartographyInventory extends CartographyTableMenu {
         view = new CraftInventoryView<>(player.getBukkitEntity(), inventory, this);
     }
     
-    public void open() {
+    public void open(net.kyori.adventure.text.Component title) {
         open = true;
         
         // call the InventoryOpenEvent
@@ -59,7 +59,7 @@ public class CartographyInventory extends CartographyTableMenu {
         player.containerMenu = this;
         
         // send open packet
-        player.connection.send(new ClientboundOpenScreenPacket(containerId, MenuType.CARTOGRAPHY_TABLE, getTitle()));
+        player.connection.send(new ClientboundOpenScreenPacket(containerId, MenuType.CARTOGRAPHY_TABLE, PaperAdventure.asVanilla(title)));
         
         // send initial items
         NonNullList<ItemStack> itemsList = NonNullList.of(ItemStack.EMPTY, getItem(0), getItem(1), getItem(2));

@@ -5,11 +5,13 @@ import org.bukkit.entity.Player;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.internal.util.InventoryUtils;
 
+import java.util.function.Supplier;
+
 final class NormalSingleWindowImpl extends AbstractSingleWindow {
     
     public NormalSingleWindowImpl(
         Player player,
-        Component title,
+        Supplier<Component> title,
         AbstractGui gui,
         boolean closeable
     ) {
@@ -28,7 +30,7 @@ final class NormalSingleWindowImpl extends AbstractSingleWindow {
             
             var window = new NormalSingleWindowImpl(
                 viewer,
-                title,
+                titleSupplier,
                 (AbstractGui) guiSupplier.get(),
                 closeable
             );

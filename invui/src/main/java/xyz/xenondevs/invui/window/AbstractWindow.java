@@ -31,6 +31,7 @@ import xyz.xenondevs.invui.item.AbstractItem;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * @hidden
@@ -48,7 +49,7 @@ public sealed abstract class AbstractWindow
     private @Nullable List<Runnable> openHandlers;
     private @Nullable List<Runnable> closeHandlers;
     private @Nullable List<Consumer<InventoryClickEvent>> outsideClickHandlers;
-    private Component title;
+    private Supplier<Component> titleSupplier;
     private boolean closeable;
     private boolean currentlyOpen;
     private boolean hasHandledClose;
@@ -57,10 +58,10 @@ public sealed abstract class AbstractWindow
     private final @Nullable SlotElement[] elementsDisplayed;
     private final BitSet dirtySlots;
     
-    AbstractWindow(Player viewer, Component title, int size, boolean closeable) {
+    AbstractWindow(Player viewer, Supplier<Component> titleSupplier, int size, boolean closeable) {
         this.viewer = viewer;
         this.viewerUUID = viewer.getUniqueId();
-        this.title = title;
+        this.titleSupplier = titleSupplier;
         this.closeable = closeable;
         this.size = size;
         this.elementsDisplayed = new SlotElement[size];
@@ -253,7 +254,7 @@ public sealed abstract class AbstractWindow
         InventoryUtils.openCustomInventory(
             viewer,
             getInventories()[0],
-            Languages.getInstance().localized(viewer, title)
+            Languages.getInstance().localized(viewer, getTitle())
         );
     }
     
@@ -321,20 +322,35 @@ public sealed abstract class AbstractWindow
     }
     
     @Override
-    public void changeTitle(Component title) {
-        this.title = title;
+    public void setTitle(Supplier<Component> titleSupplier) {
+        this.titleSupplier = titleSupplier;
+        updateTitle();
+    }
+    
+    @Override
+    public void setTitle(Component title) {
+        this.titleSupplier = () -> title;
+        updateTitle();
+    }
+    
+    @Override
+    public void setTitle(String title) {
+        setTitle(MiniMessage.miniMessage().deserialize(title));
+    }
+    
+    protected Component getTitle() {
+        return titleSupplier.get();
+    }
+    
+    @Override
+    public void updateTitle() {
         Player currentViewer = getCurrentViewer();
         if (currentViewer != null) {
             InventoryUtils.updateOpenInventoryTitle(
                 currentViewer,
-                Languages.getInstance().localized(currentViewer, title)
+                Languages.getInstance().localized(currentViewer, getTitle())
             );
         }
-    }
-    
-    @Override
-    public void changeTitle(String title) {
-        changeTitle(MiniMessage.miniMessage().deserialize(title));
     }
     
     @Override
@@ -452,7 +468,7 @@ public sealed abstract class AbstractWindow
     {
         
         protected @Nullable Player viewer;
-        protected Component title = Component.empty();
+        protected Supplier<Component> titleSupplier = Component::empty;
         protected boolean closeable = true;
         protected @Nullable List<Runnable> openHandlers;
         protected @Nullable List<Runnable> closeHandlers;
@@ -466,14 +482,20 @@ public sealed abstract class AbstractWindow
         }
         
         @Override
+        public S setTitle(Supplier<Component> title) {
+            this.titleSupplier = title;
+            return (S) this;
+        }
+        
+        @Override
         public S setTitle(Component title) {
-            this.title = title;
+            this.titleSupplier = () -> title;
             return (S) this;
         }
         
         @Override
         public S setTitle(String title) {
-            this.title = MiniMessage.miniMessage().deserialize(title);
+            this.titleSupplier = () -> MiniMessage.miniMessage().deserialize(title);
             return (S) this;
         }
         

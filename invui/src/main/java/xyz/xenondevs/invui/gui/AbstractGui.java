@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 @Internal
 public sealed abstract class AbstractGui
     implements Gui, Viewer
-    permits NormalGuiImpl, AbstractPagedGui, AbstractScrollGui, AbstractTabGui
+    permits NormalGuiImpl, AbstractPagedGui, AbstractScrollGui, TabGuiImpl
 {
     
     private final int width;
@@ -813,7 +813,7 @@ public sealed abstract class AbstractGui
     @SuppressWarnings("unchecked")
     static sealed abstract class AbstractBuilder<G extends Gui, S extends Gui.Builder<G, S>>
         implements Gui.Builder<G, S>
-        permits NormalGuiImpl.Builder, AbstractPagedGui.AbstractBuilder, AbstractScrollGui.AbstractBuilder, AbstractTabGui.AbstractBuilder
+        permits NormalGuiImpl.Builder, AbstractPagedGui.AbstractBuilder, AbstractScrollGui.AbstractBuilder, TabGuiImpl.Builder
     {
         
         protected @Nullable Structure structure;

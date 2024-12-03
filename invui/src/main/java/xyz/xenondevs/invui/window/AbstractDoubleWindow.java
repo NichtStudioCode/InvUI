@@ -16,6 +16,7 @@ import xyz.xenondevs.invui.internal.util.SlotUtils;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * @hidden
@@ -30,7 +31,7 @@ public sealed abstract class AbstractDoubleWindow
     private final Inventory playerInventory;
     private final @Nullable ItemStack[] playerItems = new ItemStack[36];
     
-    AbstractDoubleWindow(Player player, Component title, int size, Inventory upperInventory, boolean closeable) {
+    AbstractDoubleWindow(Player player, Supplier<Component> title, int size, Inventory upperInventory, boolean closeable) {
         super(player, title, size, closeable);
         this.upperInventory = upperInventory;
         this.playerInventory = player.getInventory();

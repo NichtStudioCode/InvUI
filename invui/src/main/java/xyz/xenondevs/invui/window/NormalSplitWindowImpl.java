@@ -5,11 +5,13 @@ import org.bukkit.entity.Player;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.internal.util.InventoryUtils;
 
+import java.util.function.Supplier;
+
 final class NormalSplitWindowImpl extends AbstractSplitWindow {
     
     public NormalSplitWindowImpl(
         Player player,
-        Component title,
+        Supplier<Component> title,
         AbstractGui upperGui,
         AbstractGui lowerGui,
         boolean closeable
@@ -31,7 +33,7 @@ final class NormalSplitWindowImpl extends AbstractSplitWindow {
             
             var window = new NormalSplitWindowImpl(
                 viewer,
-                title,
+                titleSupplier,
                 (AbstractGui) upperGuiSupplier.get(),
                 (AbstractGui) lowerGuiSupplier.get(),
                 closeable

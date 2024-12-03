@@ -5,12 +5,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
-import xyz.xenondevs.invui.i18n.Languages;
 import xyz.xenondevs.invui.internal.AnvilInventory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 final class AnvilSingleWindowImpl extends AbstractSingleWindow implements AnvilWindow {
     
@@ -18,13 +18,13 @@ final class AnvilSingleWindowImpl extends AbstractSingleWindow implements AnvilW
     
     public AnvilSingleWindowImpl(
         Player player,
-        Component title,
+        Supplier<Component> title,
         AbstractGui gui,
         List<Consumer<String>> renameHandlers,
         boolean closable
     ) {
         super(player, title, gui, null, closable);
-        anvilInventory = new AnvilInventory(player, Languages.getInstance().localized(player, title), renameHandlers);
+        anvilInventory = new AnvilInventory(player, renameHandlers);
         inventory = anvilInventory.getBukkitInventory();
     }
     
@@ -35,7 +35,7 @@ final class AnvilSingleWindowImpl extends AbstractSingleWindow implements AnvilW
     
     @Override
     protected void openInventory(Player viewer) {
-        anvilInventory.open();
+        anvilInventory.open(getTitle());
     }
     
     @Override
@@ -72,7 +72,7 @@ final class AnvilSingleWindowImpl extends AbstractSingleWindow implements AnvilW
             
             var window = new AnvilSingleWindowImpl(
                 viewer,
-                title,
+                titleSupplier,
                 (AbstractGui) guiSupplier.get(),
                 renameHandlers != null ? renameHandlers : List.of(),
                 closeable

@@ -118,18 +118,31 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
     boolean isOpen();
     
     /**
-     * Changes the title of the {@link Inventory}.
+     * Sets the {@link Supplier} used to retrieve the title of the {@link Inventory}.
+     * Refreshes can be triggered via {@link #updateTitle()}.
      *
-     * @param title The new title
+     * @param titleSupplier The new title supplier
      */
-    void changeTitle(Component title);
+    void setTitle(Supplier<Component> titleSupplier);
     
     /**
      * Changes the title of the {@link Inventory}.
      *
      * @param title The new title
      */
-    void changeTitle(String title);
+    void setTitle(Component title);
+    
+    /**
+     * Changes the title of the {@link Inventory}.
+     *
+     * @param title The new title
+     */
+    void setTitle(String title);
+    
+    /**
+     * Refreshes the title using the currently set {@link Supplier}.
+     */
+    void updateTitle();
     
     /**
      * Gets the viewer of this {@link Window}
@@ -227,7 +240,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
      * @param <W> The window type
      * @param <S> The builder type
      */
-    sealed interface Builder<W extends Window, S extends Builder<W, S>> 
+    sealed interface Builder<W extends Window, S extends Builder<W, S>>
         extends Cloneable
         permits AbstractWindow.AbstractBuilder, AnvilWindow.Builder, CartographyWindow.Builder, Builder.Double, Builder.Normal, Builder.Single
     {
@@ -239,6 +252,15 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
          * @return This {@link Builder Window Builder}
          */
         S setViewer(Player viewer);
+        
+        /**
+         * Sets the {@link Supplier} used to retrieve the title of the {@link Inventory}.
+         * Refreshes can be triggered via {@link #updateTitle()}.
+         *
+         * @param title The title supplier
+         * @return This {@link Builder Window Builder}
+         */
+        S setTitle(Supplier<Component> title);
         
         /**
          * Sets the title of the {@link Window}.

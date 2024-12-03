@@ -27,7 +27,7 @@ public sealed abstract class AbstractSplitWindow
     private final AbstractGui upperGui;
     private final AbstractGui lowerGui;
     
-    AbstractSplitWindow(Player player, Component title, AbstractGui upperGui, AbstractGui lowerGui, Inventory upperInventory, boolean closeable) {
+    AbstractSplitWindow(Player player, Supplier<Component> title, AbstractGui upperGui, AbstractGui lowerGui, Inventory upperInventory, boolean closeable) {
         super(player, title, upperGui.getSize() + lowerGui.getSize(), upperInventory, closeable);
         this.upperGui = upperGui;
         this.lowerGui = lowerGui;

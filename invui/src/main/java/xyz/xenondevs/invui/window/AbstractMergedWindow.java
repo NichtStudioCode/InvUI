@@ -12,6 +12,7 @@ import xyz.xenondevs.invui.inventory.ReferencingInventory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 sealed abstract class AbstractMergedWindow
     extends AbstractDoubleWindow
@@ -20,7 +21,7 @@ sealed abstract class AbstractMergedWindow
     
     private final AbstractGui gui;
     
-    public AbstractMergedWindow(Player player, Component title, AbstractGui gui, Inventory upperInventory, boolean closeable) {
+    public AbstractMergedWindow(Player player, Supplier<Component> title, AbstractGui gui, Inventory upperInventory, boolean closeable) {
         super(player, title, gui.getSize(), upperInventory, closeable);
         this.gui = gui;
     }

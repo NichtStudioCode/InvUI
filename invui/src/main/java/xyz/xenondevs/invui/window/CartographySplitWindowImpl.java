@@ -8,7 +8,6 @@ import org.bukkit.inventory.meta.MapMeta;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
-import xyz.xenondevs.invui.i18n.Languages;
 import xyz.xenondevs.invui.internal.CartographyInventory;
 import xyz.xenondevs.invui.internal.util.MathUtils;
 import xyz.xenondevs.invui.internal.util.PlayerUtils;
@@ -17,6 +16,7 @@ import xyz.xenondevs.invui.util.MapIcon;
 import xyz.xenondevs.invui.util.MapPatch;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 final class CartographySplitWindowImpl extends AbstractSplitWindow implements CartographyWindow {
     
@@ -25,17 +25,14 @@ final class CartographySplitWindowImpl extends AbstractSplitWindow implements Ca
     
     public CartographySplitWindowImpl(
         Player player,
-        Component title,
+        Supplier<Component> title,
         AbstractGui upperGui,
         AbstractGui lowerGui,
         boolean closeable
     ) {
         super(player, title, createWrappingGui(upperGui), lowerGui, null, closeable);
         
-        cartographyInventory = new CartographyInventory(
-            player,
-            Languages.getInstance().localized(player, title)
-        );
+        cartographyInventory = new CartographyInventory(player);
         upperInventory = cartographyInventory.getBukkitInventory();
         
         resetMap();
@@ -68,7 +65,7 @@ final class CartographySplitWindowImpl extends AbstractSplitWindow implements Ca
     
     @Override
     protected void openInventory(Player viewer) {
-        cartographyInventory.open();
+        cartographyInventory.open(getTitle());
     }
     
     public static final class BuilderImpl
@@ -83,7 +80,7 @@ final class CartographySplitWindowImpl extends AbstractSplitWindow implements Ca
             
             var window = new CartographySplitWindowImpl(
                 viewer,
-                title,
+                titleSupplier,
                 (AbstractGui) upperGuiSupplier.get(),
                 (AbstractGui) lowerGuiSupplier.get(),
                 closeable

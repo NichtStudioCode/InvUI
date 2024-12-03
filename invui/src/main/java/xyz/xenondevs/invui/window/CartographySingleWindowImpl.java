@@ -8,7 +8,6 @@ import org.bukkit.inventory.meta.MapMeta;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
-import xyz.xenondevs.invui.i18n.Languages;
 import xyz.xenondevs.invui.internal.CartographyInventory;
 import xyz.xenondevs.invui.internal.util.MathUtils;
 import xyz.xenondevs.invui.internal.util.PlayerUtils;
@@ -18,6 +17,7 @@ import xyz.xenondevs.invui.util.MapIcon;
 import xyz.xenondevs.invui.util.MapPatch;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 final class CartographySingleWindowImpl extends AbstractSingleWindow implements CartographyWindow {
     
@@ -26,7 +26,7 @@ final class CartographySingleWindowImpl extends AbstractSingleWindow implements 
     
     public CartographySingleWindowImpl(
         Player player,
-        Component title,
+        Supplier<Component> title,
         AbstractGui gui,
         boolean closeable
     ) {
@@ -35,7 +35,7 @@ final class CartographySingleWindowImpl extends AbstractSingleWindow implements 
         if (gui.getWidth() != 2 || gui.getHeight() != 1)
             throw new IllegalArgumentException("Gui has to be 2x1");
         
-        cartographyInventory = new CartographyInventory(player, Languages.getInstance().localized(player, title));
+        cartographyInventory = new CartographyInventory(player);
         inventory = cartographyInventory.getBukkitInventory();
         
         resetMap();
@@ -68,7 +68,7 @@ final class CartographySingleWindowImpl extends AbstractSingleWindow implements 
     
     @Override
     protected void openInventory(Player viewer) {
-        cartographyInventory.open();
+        cartographyInventory.open(getTitle());
     }
     
     public static final class BuilderImpl
@@ -83,7 +83,7 @@ final class CartographySingleWindowImpl extends AbstractSingleWindow implements 
             
             var window = new CartographySingleWindowImpl(
                 viewer,
-                title,
+                titleSupplier,
                 (AbstractGui) guiSupplier.get(),
                 closeable
             );

@@ -5,6 +5,8 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 sealed abstract class AbstractPagedGui<C>
     extends AbstractGui
@@ -18,7 +20,7 @@ sealed abstract class AbstractPagedGui<C>
     
     private @Nullable List<BiConsumer<Integer, Integer>> pageChangeHandlers;
     private @Nullable List<BiConsumer<Integer, Integer>> pageCountChangeHandlers;
-    private @Nullable List<C> content;
+    private Supplier<List<C>> contentSupplier = List::of;
     private @Nullable List<List<SlotElement>> pages;
     
     public AbstractPagedGui(int width, int height, boolean infinitePages, int... contentListSlots) {
@@ -104,15 +106,14 @@ sealed abstract class AbstractPagedGui<C>
     }
     
     @Override
-    public void setContent(@Nullable List<C> content) {
-        if (content == null || content.isEmpty()) {
-            this.content = List.of();
-            this.pages = List.of();
-            update();
-        } else {
-            this.content = content;
-            bake(); // calls update()
-        }
+    public void setContent(Supplier<List<C>> contentSupplier) {
+        this.contentSupplier = contentSupplier;
+        bake();
+    }
+    
+    @Override
+    public void setContent(List<C> content) {
+        setContent(() -> content);
     }
     
     public void setPages(@Nullable List<List<SlotElement>> pages) {
@@ -128,8 +129,8 @@ sealed abstract class AbstractPagedGui<C>
     }
     
     @Override
-    public @Nullable List<C> getContent() {
-        return content;
+    public List<C> getContent() {
+        return contentSupplier.get();
     }
     
     @Override
@@ -210,9 +211,21 @@ sealed abstract class AbstractPagedGui<C>
         permits PagedItemsGuiImpl.Builder, PagedNestedGuiImpl.Builder, PagedInventoriesGuiImpl.Builder
     {
         
-        protected @Nullable List<C> content;
-        protected @Nullable List<BiConsumer<Integer, Integer>> pageChangeHandlers;
-        protected @Nullable List<BiConsumer<Integer, Integer>> pageCountChangeHandlers;
+        private final BiFunction<Supplier<List<C>>, Structure, PagedGui<C>> ctor;
+        private @Nullable Supplier<List<C>> contentSupplier;
+        private @Nullable List<C> content = null;
+        private @Nullable List<BiConsumer<Integer, Integer>> pageChangeHandlers;
+        private @Nullable List<BiConsumer<Integer, Integer>> pageCountChangeHandlers;
+        
+        public AbstractBuilder(BiFunction<Supplier<List<C>>, Structure, PagedGui<C>> ctor) {
+            this.ctor = ctor;
+        }
+        
+        @Override
+        public PagedGui.Builder<C> setContent(Supplier<List<C>> contentSupplier) {
+            this.contentSupplier = contentSupplier;
+            return this;
+        }
         
         @Override
         public PagedGui.Builder<C> setContent(List<C> content) {
@@ -260,9 +273,16 @@ sealed abstract class AbstractPagedGui<C>
         }
         
         @Override
-        protected void applyModifiers(PagedGui<C> gui) {
-            super.applyModifiers(gui);
-         
+        public PagedGui<C> build() {
+            if (structure == null)
+                throw new IllegalStateException("Structure is not defined.");
+            
+            Supplier<List<C>> supplier = contentSupplier != null 
+                ? contentSupplier 
+                : () -> content != null ? content : List.of();
+            
+            var gui = ctor.apply(supplier, structure);
+            
             if (pageChangeHandlers != null) {
                 for (var handler : pageChangeHandlers) {
                     gui.addPageChangeHandler(handler);
@@ -273,6 +293,10 @@ sealed abstract class AbstractPagedGui<C>
                     gui.addPageChangeHandler(handler);
                 }
             }
+            
+            applyModifiers(gui);
+            
+            return gui;
         }
         
         @Override

@@ -34,8 +34,8 @@ public class AnvilInventory extends AnvilMenu {
     private String text = "";
     private boolean open;
     
-    public AnvilInventory(org.bukkit.entity.Player player, net.kyori.adventure.text.Component title, List<Consumer<String>> renameHandlers) {
-        this(((CraftPlayer) player).getHandle(), PaperAdventure.asVanilla(title), renameHandlers);
+    public AnvilInventory(org.bukkit.entity.Player player, List<Consumer<String>> renameHandlers) {
+        this(((CraftPlayer) player).getHandle(), Component.empty(), renameHandlers);
     }
     
     public AnvilInventory(ServerPlayer player, Component title, List<Consumer<String>> renameHandlers) {
@@ -50,7 +50,7 @@ public class AnvilInventory extends AnvilMenu {
         this.view = new CraftAnvilView(player.getBukkitEntity(), inventory, this);
     }
     
-    public void open() {
+    public void open(net.kyori.adventure.text.Component title) {
         open = true;
         
         // call the InventoryOpenEvent
@@ -60,7 +60,7 @@ public class AnvilInventory extends AnvilMenu {
         player.containerMenu = this;
         
         // send open packet
-        player.connection.send(new ClientboundOpenScreenPacket(containerId, MenuType.ANVIL, getTitle()));
+        player.connection.send(new ClientboundOpenScreenPacket(containerId, MenuType.ANVIL, PaperAdventure.asVanilla(title)));
         
         // send initial items
         NonNullList<ItemStack> itemsList = NonNullList.of(ItemStack.EMPTY, getItem(0), getItem(1), getItem(2));

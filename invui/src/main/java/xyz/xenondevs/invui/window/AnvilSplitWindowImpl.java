@@ -5,12 +5,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
-import xyz.xenondevs.invui.i18n.Languages;
 import xyz.xenondevs.invui.internal.AnvilInventory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 final class AnvilSplitWindowImpl extends AbstractSplitWindow implements AnvilWindow {
     
@@ -18,7 +18,7 @@ final class AnvilSplitWindowImpl extends AbstractSplitWindow implements AnvilWin
     
     public AnvilSplitWindowImpl(
         Player player,
-        Component title,
+        Supplier<Component> title,
         AbstractGui upperGui,
         AbstractGui lowerGui,
         List<Consumer<String>> renameHandlers,
@@ -26,7 +26,7 @@ final class AnvilSplitWindowImpl extends AbstractSplitWindow implements AnvilWin
     ) {
         super(player, title, upperGui, lowerGui, null, closeable);
         
-        anvilInventory = new AnvilInventory(player, Languages.getInstance().localized(player, title), renameHandlers);
+        anvilInventory = new AnvilInventory(player, renameHandlers);
         upperInventory = anvilInventory.getBukkitInventory();
     }
     
@@ -37,7 +37,7 @@ final class AnvilSplitWindowImpl extends AbstractSplitWindow implements AnvilWin
     
     @Override
     protected void openInventory(Player viewer) {
-        anvilInventory.open();
+        anvilInventory.open(getTitle());
     }
     
     @Override
@@ -76,7 +76,7 @@ final class AnvilSplitWindowImpl extends AbstractSplitWindow implements AnvilWin
             
             var window = new AnvilSplitWindowImpl(
                 viewer,
-                title,
+                titleSupplier,
                 (AbstractGui) upperGuiSupplier.get(),
                 (AbstractGui) lowerGuiSupplier.get(),
                 renameHandlers != null ? renameHandlers : List.of(),
