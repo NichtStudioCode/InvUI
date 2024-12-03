@@ -154,7 +154,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      *
      * @return The current line of this {@link ScrollGui}.
      */
-    int getCurrentLine();
+    int getLine();
     
     /**
      * Gets the max line index of this {@link ScrollGui}.
@@ -168,7 +168,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      *
      * @param line The line to set.
      */
-    void setCurrentLine(int line);
+    void setLine(int line);
     
     /**
      * Checks if it is possible to scroll the specified amount of lines.

@@ -163,7 +163,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      *
      * @return Gets the current page of this {@link PagedGui} as an index.
      */
-    int getCurrentPage();
+    int getPage();
     
     /**
      * Sets the current page of this {@link PagedGui}.

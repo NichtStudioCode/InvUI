@@ -139,7 +139,7 @@ sealed abstract class AbstractPagedGui<C>
     }
     
     @Override
-    public int getCurrentPage() {
+    public int getPage() {
         return currentPage;
     }
     

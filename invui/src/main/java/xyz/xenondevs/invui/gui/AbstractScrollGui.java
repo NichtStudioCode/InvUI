@@ -53,12 +53,12 @@ sealed abstract class AbstractScrollGui<C>
     }
     
     @Override
-    public int getCurrentLine() {
+    public int getLine() {
         return currentLine;
     }
     
     @Override
-    public void setCurrentLine(int line) {
+    public void setLine(int line) {
         int previousLine = currentLine;
         int newLine = correctLine(line);
         
@@ -86,14 +86,14 @@ sealed abstract class AbstractScrollGui<C>
     private void correctCurrentLine() {
         int correctedLine = correctLine(currentLine);
         if (correctedLine != currentLine)
-            setCurrentLine(correctedLine);
+            setLine(correctedLine);
     }
     
     @Override
     public boolean canScroll(int lines) {
-        if (lines == 0 || (infiniteLines && lines > 0) || (lines < 0 && getCurrentLine() > 0)) return true;
+        if (lines == 0 || (infiniteLines && lines > 0) || (lines < 0 && getLine() > 0)) return true;
         
-        int line = getCurrentLine() + lines;
+        int line = getLine() + lines;
         int maxLineIndex = getMaxLine();
         return line >= 0 && (line + lineAmount - 1) <= maxLineIndex;
     }
@@ -104,11 +104,11 @@ sealed abstract class AbstractScrollGui<C>
             return;
         
         if (canScroll(lines)) {
-            setCurrentLine(getCurrentLine() + lines);
+            setLine(getLine() + lines);
         } else if (lines > 1) {
-            setCurrentLine(getMaxLine());
+            setLine(getMaxLine());
         } else if (lines < -1) {
-            setCurrentLine(0);
+            setLine(0);
         }
     }
     
