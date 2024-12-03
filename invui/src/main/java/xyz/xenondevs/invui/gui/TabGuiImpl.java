@@ -89,6 +89,7 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     @Override
     public void setTabs(Supplier<? extends List<? extends @Nullable Gui>> tabsSupplier) {
         this.tabsSupplier = tabsSupplier;
+        bake();
     }
     
     @Override
