@@ -28,7 +28,6 @@ public sealed interface BoundItem extends Item permits AbstractBoundItem {
      * Called when the item is added to a {@link Gui}.
      *
      * @param gui The {@link Gui} to bind this item to.
-     * @throws IllegalStateException If this item is already bound to a {@link Gui}.
      */
     void bind(Gui gui);
     
