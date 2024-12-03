@@ -1,7 +1,6 @@
 package xyz.xenondevs.invui.gui;
 
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
@@ -63,7 +62,7 @@ public class Structure extends AbstractIngredientMapper<Structure> {
      * @param key       The key of the ingredient
      * @param itemStack The {@link ItemStack} ingredient
      */
-    public static void addGlobalIngredient(char key, @NotNull ItemStack itemStack) {
+    public static void addGlobalIngredient(char key, ItemStack itemStack) {
         addGlobalIngredient(key, new ItemWrapper(itemStack));
     }
     
@@ -75,7 +74,7 @@ public class Structure extends AbstractIngredientMapper<Structure> {
      * @param key          The key of the ingredient
      * @param itemProvider The {@link ItemProvider} ingredient
      */
-    public static void addGlobalIngredient(char key, @NotNull ItemProvider itemProvider) {
+    public static void addGlobalIngredient(char key, ItemProvider itemProvider) {
         addGlobalIngredient(key, new SimpleItem(itemProvider));
     }
     
@@ -87,8 +86,20 @@ public class Structure extends AbstractIngredientMapper<Structure> {
      * @param key  The key of the ingredient
      * @param item The {@link Item} ingredient
      */
-    public static void addGlobalIngredient(char key, @NotNull Item item) {
+    public static void addGlobalIngredient(char key, Item item) {
         addGlobalIngredient(key, new SlotElement.Item(item));
+    }
+    
+    /**
+     * Adds a global {@link Item.Builder} ingredient under the given key.
+     * Global ingredients will be used for all {@link Structure Structures} which do not have an ingredient defined for
+     * that key.
+     *
+     * @param key     The key of the ingredient
+     * @param builder The {@link Item.Builder} ingredient
+     */
+    public static void addGlobalIngredient(char key, Item.Builder<?> builder) {
+        addGlobalIngredient(key, builder::build);
     }
     
     /**
@@ -99,7 +110,7 @@ public class Structure extends AbstractIngredientMapper<Structure> {
      * @param key          The key of the ingredient
      * @param itemSupplier The {@link Item} {@link Supplier} ingredient
      */
-    public static void addGlobalIngredient(char key, @NotNull Supplier<? extends Item> itemSupplier) {
+    public static void addGlobalIngredient(char key, Supplier<? extends Item> itemSupplier) {
         addGlobalIngredientElementSupplier(key, () -> new SlotElement.Item(itemSupplier.get()));
     }
     
@@ -111,7 +122,7 @@ public class Structure extends AbstractIngredientMapper<Structure> {
      * @param key     The key of the ingredient
      * @param element The {@link SlotElement} ingredient
      */
-    public static void addGlobalIngredient(char key, @NotNull SlotElement element) {
+    public static void addGlobalIngredient(char key, SlotElement element) {
         if (globalIngredientsFrozen)
             throw new IllegalStateException("Global ingredients are frozen");
         globalIngredientMap.put(key, new Ingredient(element));
@@ -125,7 +136,7 @@ public class Structure extends AbstractIngredientMapper<Structure> {
      * @param key             The key of the ingredient
      * @param elementSupplier The {@link SlotElement} {@link Supplier} ingredient
      */
-    public static void addGlobalIngredientElementSupplier(char key, @NotNull Supplier<? extends SlotElement> elementSupplier) {
+    public static void addGlobalIngredientElementSupplier(char key, Supplier<? extends SlotElement> elementSupplier) {
         if (globalIngredientsFrozen)
             throw new IllegalStateException("Global ingredients are frozen");
         globalIngredientMap.put(key, new Ingredient(elementSupplier));
@@ -139,7 +150,7 @@ public class Structure extends AbstractIngredientMapper<Structure> {
      * @param key    The key of the ingredient
      * @param marker The {@link Marker} ingredient
      */
-    public static void addGlobalIngredient(char key, @NotNull Marker marker) {
+    public static void addGlobalIngredient(char key, Marker marker) {
         if (globalIngredientsFrozen)
             throw new IllegalStateException("Global ingredients are frozen");
         globalIngredientMap.put(key, new Ingredient(marker));
