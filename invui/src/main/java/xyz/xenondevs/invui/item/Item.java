@@ -49,28 +49,28 @@ public sealed interface Item permits AbstractItem, BoundItem {
     }
     
     static Item simple(ItemStack itemStack) {
-        return builder().itemProvider(new ItemWrapper(itemStack)).build();
+        return builder().setItemProvider(new ItemWrapper(itemStack)).build();
     }
     
     static Item simple(ItemProvider itemProvider) {
-        return builder().itemProvider(itemProvider).build();
+        return builder().setItemProvider(itemProvider).build();
     }
     
     static Item simple(Supplier<ItemProvider> itemProvider) {
-        return builder().itemProvider(itemProvider).build();
+        return builder().setItemProvider(itemProvider).build();
     }
     
     static Item simple(Function<Player, ItemProvider> itemProvider) {
-        return builder().itemProvider(itemProvider).build();
+        return builder().setItemProvider(itemProvider).build();
     }
     
     interface Builder<S extends Builder<S>> {
         
-        S itemProvider(ItemProvider itemProvider);
+        S setItemProvider(ItemProvider itemProvider);
         
-        S itemProvider(Supplier<ItemProvider> itemProvider);
+        S setItemProvider(Supplier<ItemProvider> itemProvider);
         
-        S itemProvider(Function<Player, ItemProvider> itemProvider);
+        S setItemProvider(Function<Player, ItemProvider> itemProvider);
         
         S async(ItemProvider placeholder);
         
@@ -78,9 +78,9 @@ public sealed interface Item permits AbstractItem, BoundItem {
         
         S updateOnClick();
         
-        S click(BiConsumer<Item, Click> clickHandler);
+        S addClickHandler(BiConsumer<Item, Click> clickHandler);
         
-        S modify(Consumer<Item> modifier);
+        S addModifier(Consumer<Item> modifier);
         
         Item build();
         

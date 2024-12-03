@@ -16,20 +16,20 @@ import kotlin.experimental.ExperimentalTypeInference
 private fun <S : Item.Builder<*>> S.reactiveItemProvider(
     itemProviderProvider: Provider<ItemProvider>
 ): S {
-    modify { item -> itemProviderProvider.observe { item.notifyWindows() } }
-    return itemProvider(itemProviderProvider) as S
+    addModifier { item -> itemProviderProvider.observeWeak(item) { weakItem -> weakItem.notifyWindows() } }
+    return setItemProvider(itemProviderProvider) as S
 }
 
 @OverloadResolutionByLambdaReturnType
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A> S.itemProvider(
+fun <S : Item.Builder<*>, A> S.setItemProvider(
     a: Provider<A>,
     mapValue: (A) -> ItemProvider
 ): S = reactiveItemProvider(a.map(mapValue))
 
 @OverloadResolutionByLambdaReturnType
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B> S.itemProvider(
+fun <S : Item.Builder<*>, A, B> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     mapValue: (A, B) -> ItemProvider
@@ -37,7 +37,7 @@ fun <S : Item.Builder<*>, A, B> S.itemProvider(
 
 @OverloadResolutionByLambdaReturnType
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -46,7 +46,7 @@ fun <S : Item.Builder<*>, A, B, C> S.itemProvider(
 
 @OverloadResolutionByLambdaReturnType
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C, D> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C, D> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -56,7 +56,7 @@ fun <S : Item.Builder<*>, A, B, C, D> S.itemProvider(
 
 @OverloadResolutionByLambdaReturnType
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C, D, E> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C, D, E> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -67,7 +67,7 @@ fun <S : Item.Builder<*>, A, B, C, D, E> S.itemProvider(
 
 @OverloadResolutionByLambdaReturnType
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C, D, E, F> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C, D, E, F> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -79,7 +79,7 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F> S.itemProvider(
 
 @OverloadResolutionByLambdaReturnType
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C, D, E, F, G> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C, D, E, F, G> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -92,7 +92,7 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F, G> S.itemProvider(
 
 @OverloadResolutionByLambdaReturnType
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -106,7 +106,7 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H> S.itemProvider(
 
 @OverloadResolutionByLambdaReturnType
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -121,7 +121,7 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I> S.itemProvider(
 
 @OverloadResolutionByLambdaReturnType
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I, J> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I, J> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -136,49 +136,49 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I, J> S.itemProvider(
 ): S = reactiveItemProvider(combinedProvider(a, b, c, d, e, f, g, h, i, j, mapValue))
 
 private fun <S : Item.Builder<*>> S.observeAndNotify(vararg providers: Provider<*>) {
-    providers.forEach { provider -> modify { item -> provider.observe { item.notifyWindows() } } }
+    providers.forEach { provider -> addModifier { item -> provider.observeWeak(item) { weakItem -> weakItem.notifyWindows() } } }
 }
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider2")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A> S.itemProvider(
+fun <S : Item.Builder<*>, A> S.setItemProvider(
     a: Provider<A>,
     mapValue: (Player, A) -> ItemProvider
 ): S {
     observeAndNotify(a)
-    return itemProvider { player: Player -> mapValue(player, a.get()) } as S
+    return setItemProvider { player: Player -> mapValue(player, a.get()) } as S
 }
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider2")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B> S.itemProvider(
+fun <S : Item.Builder<*>, A, B> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     mapValue: (Player, A, B) -> ItemProvider
 ): S {
     observeAndNotify(a, b)
-    return itemProvider { player: Player -> mapValue(player, a.get(), b.get()) } as S
+    return setItemProvider { player: Player -> mapValue(player, a.get(), b.get()) } as S
 }
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider2")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
     mapValue: (Player, A, B, C) -> ItemProvider
 ): S {
     observeAndNotify(a, b, c)
-    return itemProvider { player: Player -> mapValue(player, a.get(), b.get(), c.get()) } as S
+    return setItemProvider { player: Player -> mapValue(player, a.get(), b.get(), c.get()) } as S
 }
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider2")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C, D> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C, D> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -186,13 +186,13 @@ fun <S : Item.Builder<*>, A, B, C, D> S.itemProvider(
     mapValue: (Player, A, B, C, D) -> ItemProvider
 ): S {
     observeAndNotify(a, b, c, d)
-    return itemProvider { player: Player -> mapValue(player, a.get(), b.get(), c.get(), d.get()) } as S
+    return setItemProvider { player: Player -> mapValue(player, a.get(), b.get(), c.get(), d.get()) } as S
 }
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider2")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C, D, E> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C, D, E> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -201,13 +201,13 @@ fun <S : Item.Builder<*>, A, B, C, D, E> S.itemProvider(
     mapValue: (Player, A, B, C, D, E) -> ItemProvider
 ): S {
     observeAndNotify(a, b, c, d, e)
-    return itemProvider { player: Player -> mapValue(player, a.get(), b.get(), c.get(), d.get(), e.get()) } as S
+    return setItemProvider { player: Player -> mapValue(player, a.get(), b.get(), c.get(), d.get(), e.get()) } as S
 }
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider2")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C, D, E, F> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C, D, E, F> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -217,13 +217,13 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F> S.itemProvider(
     mapValue: (Player, A, B, C, D, E, F) -> ItemProvider
 ): S {
     observeAndNotify(a, b, c, d, e, f)
-    return itemProvider { player: Player -> mapValue(player, a.get(), b.get(), c.get(), d.get(), e.get(), f.get()) } as S
+    return setItemProvider { player: Player -> mapValue(player, a.get(), b.get(), c.get(), d.get(), e.get(), f.get()) } as S
 }
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider2")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I, J> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I, J> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -234,13 +234,13 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I, J> S.itemProvider(
     mapValue: (Player, A, B, C, D, E, F, G) -> ItemProvider
 ): S {
     observeAndNotify(a, b, c, d, e, f, g)
-    return itemProvider { player: Player -> mapValue(player, a.get(), b.get(), c.get(), d.get(), e.get(), f.get(), g.get()) } as S
+    return setItemProvider { player: Player -> mapValue(player, a.get(), b.get(), c.get(), d.get(), e.get(), f.get(), g.get()) } as S
 }
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider2")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -252,13 +252,13 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H> S.itemProvider(
     mapValue: (Player, A, B, C, D, E, F, G, H) -> ItemProvider
 ): S {
     observeAndNotify(a, b, c, d, e, f, g, h)
-    return itemProvider { player: Player -> mapValue(player, a.get(), b.get(), c.get(), d.get(), e.get(), f.get(), g.get(), h.get()) } as S
+    return setItemProvider { player: Player -> mapValue(player, a.get(), b.get(), c.get(), d.get(), e.get(), f.get(), g.get(), h.get()) } as S
 }
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider2")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -271,13 +271,13 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I> S.itemProvider(
     mapValue: (Player, A, B, C, D, E, F, G, H, I) -> ItemProvider
 ): S {
     observeAndNotify(a, b, c, d, e, f, g, h, i)
-    return itemProvider { player: Player -> mapValue(player, a.get(), b.get(), c.get(), d.get(), e.get(), f.get(), g.get(), h.get(), i.get()) } as S
+    return setItemProvider { player: Player -> mapValue(player, a.get(), b.get(), c.get(), d.get(), e.get(), f.get(), g.get(), h.get(), i.get()) } as S
 }
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider2")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I, J> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I, J> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -291,7 +291,7 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I, J> S.itemProvider(
     mapValue: (Player, A, B, C, D, E, F, G, H, I, J) -> ItemProvider
 ): S {
     observeAndNotify(a, b, c, d, e, f, g, h, i, j)
-    return itemProvider { player: Player -> mapValue(player, a.get(), b.get(), c.get(), d.get(), e.get(), f.get(), g.get(), h.get(), i.get(), j.get()) } as S
+    return setItemProvider { player: Player -> mapValue(player, a.get(), b.get(), c.get(), d.get(), e.get(), f.get(), g.get(), h.get(), i.get(), j.get()) } as S
 }
 
 @OverloadResolutionByLambdaReturnType
@@ -304,7 +304,7 @@ private fun <S : Item.Builder<*>> S.reactiveItemProvider(
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider1")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A> S.itemProvider(
+fun <S : Item.Builder<*>, A> S.setItemProvider(
     a: Provider<A>,
     mapValue: (A) -> ItemStack
 ): S = reactiveItemProvider(a.map(mapValue))
@@ -312,7 +312,7 @@ fun <S : Item.Builder<*>, A> S.itemProvider(
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider1")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B> S.itemProvider(
+fun <S : Item.Builder<*>, A, B> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     mapValue: (A, B) -> ItemStack
@@ -321,7 +321,7 @@ fun <S : Item.Builder<*>, A, B> S.itemProvider(
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider1")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -331,7 +331,7 @@ fun <S : Item.Builder<*>, A, B, C> S.itemProvider(
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider1")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C, D> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C, D> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -342,7 +342,7 @@ fun <S : Item.Builder<*>, A, B, C, D> S.itemProvider(
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider1")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C, D, E> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C, D, E> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -354,7 +354,7 @@ fun <S : Item.Builder<*>, A, B, C, D, E> S.itemProvider(
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider1")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C, D, E, F> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C, D, E, F> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -367,7 +367,7 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F> S.itemProvider(
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider1")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C, D, E, F, G> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C, D, E, F, G> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -381,7 +381,7 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F, G> S.itemProvider(
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider1")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -396,7 +396,7 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H> S.itemProvider(
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider1")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -412,7 +412,7 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I> S.itemProvider(
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider1")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I, J> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I, J> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -429,43 +429,43 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I, J> S.itemProvider(
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider3")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A> S.itemProvider(
+fun <S : Item.Builder<*>, A> S.setItemProvider(
     a: Provider<A>,
     mapValue: (Player, A) -> ItemStack
 ): S {
     observeAndNotify(a)
-    return itemProvider { player: Player -> ItemWrapper(mapValue(player, a.get())) } as S
+    return setItemProvider { player: Player -> ItemWrapper(mapValue(player, a.get())) } as S
 }
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider3")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B> S.itemProvider(
+fun <S : Item.Builder<*>, A, B> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     mapValue: (Player, A, B) -> ItemStack
 ): S {
     observeAndNotify(a, b)
-    return itemProvider { player: Player -> ItemWrapper(mapValue(player, a.get(), b.get())) } as S
+    return setItemProvider { player: Player -> ItemWrapper(mapValue(player, a.get(), b.get())) } as S
 }
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider3")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
     mapValue: (Player, A, B, C) -> ItemStack
 ): S {
     observeAndNotify(a, b, c)
-    return itemProvider { player: Player -> ItemWrapper(mapValue(player, a.get(), b.get(), c.get())) } as S
+    return setItemProvider { player: Player -> ItemWrapper(mapValue(player, a.get(), b.get(), c.get())) } as S
 }
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider3")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C, D> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C, D> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -473,13 +473,13 @@ fun <S : Item.Builder<*>, A, B, C, D> S.itemProvider(
     mapValue: (Player, A, B, C, D) -> ItemStack
 ): S {
     observeAndNotify(a, b, c, d)
-    return itemProvider { player: Player -> ItemWrapper(mapValue(player, a.get(), b.get(), c.get(), d.get())) } as S
+    return setItemProvider { player: Player -> ItemWrapper(mapValue(player, a.get(), b.get(), c.get(), d.get())) } as S
 }
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider3")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C, D, E> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C, D, E> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -488,13 +488,13 @@ fun <S : Item.Builder<*>, A, B, C, D, E> S.itemProvider(
     mapValue: (Player, A, B, C, D, E) -> ItemStack
 ): S {
     observeAndNotify(a, b, c, d, e)
-    return itemProvider { player: Player -> ItemWrapper(mapValue(player, a.get(), b.get(), c.get(), d.get(), e.get())) } as S
+    return setItemProvider { player: Player -> ItemWrapper(mapValue(player, a.get(), b.get(), c.get(), d.get(), e.get())) } as S
 }
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider3")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C, D, E, F> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C, D, E, F> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -504,13 +504,13 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F> S.itemProvider(
     mapValue: (Player, A, B, C, D, E, F) -> ItemStack
 ): S {
     observeAndNotify(a, b, c, d, e, f)
-    return itemProvider { player: Player -> ItemWrapper(mapValue(player, a.get(), b.get(), c.get(), d.get(), e.get(), f.get())) } as S
+    return setItemProvider { player: Player -> ItemWrapper(mapValue(player, a.get(), b.get(), c.get(), d.get(), e.get(), f.get())) } as S
 }
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider3")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I, J> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I, J> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -521,13 +521,13 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I, J> S.itemProvider(
     mapValue: (Player, A, B, C, D, E, F, G) -> ItemStack
 ): S {
     observeAndNotify(a, b, c, d, e, f, g)
-    return itemProvider { player: Player -> ItemWrapper(mapValue(player, a.get(), b.get(), c.get(), d.get(), e.get(), f.get(), g.get())) } as S
+    return setItemProvider { player: Player -> ItemWrapper(mapValue(player, a.get(), b.get(), c.get(), d.get(), e.get(), f.get(), g.get())) } as S
 }
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider3")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -539,13 +539,13 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H> S.itemProvider(
     mapValue: (Player, A, B, C, D, E, F, G, H) -> ItemStack
 ): S {
     observeAndNotify(a, b, c, d, e, f, g, h)
-    return itemProvider { player: Player -> ItemWrapper(mapValue(player, a.get(), b.get(), c.get(), d.get(), e.get(), f.get(), g.get(), h.get())) } as S
+    return setItemProvider { player: Player -> ItemWrapper(mapValue(player, a.get(), b.get(), c.get(), d.get(), e.get(), f.get(), g.get(), h.get())) } as S
 }
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider3")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -558,13 +558,13 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I> S.itemProvider(
     mapValue: (Player, A, B, C, D, E, F, G, H, I) -> ItemStack
 ): S {
     observeAndNotify(a, b, c, d, e, f, g, h, i)
-    return itemProvider { player: Player -> ItemWrapper(mapValue(player, a.get(), b.get(), c.get(), d.get(), e.get(), f.get(), g.get(), h.get(), i.get())) } as S
+    return setItemProvider { player: Player -> ItemWrapper(mapValue(player, a.get(), b.get(), c.get(), d.get(), e.get(), f.get(), g.get(), h.get(), i.get())) } as S
 }
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider3")
 @ExperimentalReactiveApi
-fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I, J> S.itemProvider(
+fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I, J> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -578,5 +578,5 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I, J> S.itemProvider(
     mapValue: (Player, A, B, C, D, E, F, G, H, I, J) -> ItemStack
 ): S {
     observeAndNotify(a, b, c, d, e, f, g, h, i, j)
-    return itemProvider { player: Player -> ItemWrapper(mapValue(player, a.get(), b.get(), c.get(), d.get(), e.get(), f.get(), g.get(), h.get(), i.get(), j.get())) } as S
+    return setItemProvider { player: Player -> ItemWrapper(mapValue(player, a.get(), b.get(), c.get(), d.get(), e.get(), f.get(), g.get(), h.get(), i.get(), j.get())) } as S
 }

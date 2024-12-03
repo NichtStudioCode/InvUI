@@ -68,19 +68,19 @@ class CustomItem extends AbstractItem {
         private long updatePeriod = -1L;
         
         @Override
-        public Builder itemProvider(ItemProvider itemProvider) {
+        public Builder setItemProvider(ItemProvider itemProvider) {
             this.itemProviderFn = viewer -> itemProvider;
             return this;
         }
         
         @Override
-        public Builder itemProvider(Supplier<ItemProvider> itemProvider) {
+        public Builder setItemProvider(Supplier<ItemProvider> itemProvider) {
             this.itemProviderFn = viewer -> itemProvider.get();
             return this;
         }
         
         @Override
-        public Builder itemProvider(Function<Player, ItemProvider> itemProvider) {
+        public Builder setItemProvider(Function<Player, ItemProvider> itemProvider) {
             this.itemProviderFn = itemProvider;
             return this;
         }
@@ -104,13 +104,13 @@ class CustomItem extends AbstractItem {
         }
         
         @Override
-        public Builder click(BiConsumer<Item, Click> clickHandler) {
+        public Builder addClickHandler(BiConsumer<Item, Click> clickHandler) {
             this.clickHandler = clickHandler;
             return this;
         }
         
         @Override
-        public Builder modify(Consumer<Item> modifier) {
+        public Builder addModifier(Consumer<Item> modifier) {
             this.modifier = this.modifier.andThen(modifier);
             return this;
         }

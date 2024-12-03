@@ -88,25 +88,25 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         private long updatePeriod = -1L;
         
         @Override
-        public Builder<G> itemProvider(ItemProvider itemProvider) {
+        public Builder<G> setItemProvider(ItemProvider itemProvider) {
             this.itemProviderFn = (viewer, gui) -> itemProvider;
             return this;
         }
         
         @Override
-        public Builder<G> itemProvider(Supplier<ItemProvider> itemProvider) {
+        public Builder<G> setItemProvider(Supplier<ItemProvider> itemProvider) {
             this.itemProviderFn = (viewer, gui) -> itemProvider.get();
             return this;
         }
         
         @Override
-        public Builder<G> itemProvider(Function<Player, ItemProvider> itemProvider) {
+        public Builder<G> setItemProvider(Function<Player, ItemProvider> itemProvider) {
             this.itemProviderFn = (viewer, gui) -> itemProvider.apply(viewer);
             return this;
         }
         
         @Override
-        public Builder<G> itemProvider(BiFunction<Player, G, ItemProvider> itemProvider) {
+        public Builder<G> setItemProvider(BiFunction<Player, G, ItemProvider> itemProvider) {
             this.itemProviderFn = itemProvider;
             return this;
         }
@@ -130,25 +130,25 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         }
         
         @Override
-        public Builder<G> click(BiConsumer<Item, Click> clickHandler) {
+        public Builder<G> addClickHandler(BiConsumer<Item, Click> clickHandler) {
             this.clickHandler.andThen((item, gui, click) -> clickHandler.accept(item, click));
             return this;
         }
         
         @Override
-        public Builder<G> click(TriConsumer<Item, G, Click> handler) {
+        public Builder<G> addClickHandler(TriConsumer<Item, G, Click> handler) {
             clickHandler = clickHandler.andThen(handler);
             return this;
         }
         
         @Override
-        public Builder<G> bind(BiConsumer<Item, G> handler) {
+        public Builder<G> addBindHandler(BiConsumer<Item, G> handler) {
             bindHandler = bindHandler.andThen(handler);
             return this;
         }
         
         @Override
-        public Builder<G> modify(Consumer<Item> modifier) {
+        public Builder<G> addModifier(Consumer<Item> modifier) {
             this.modifier = this.modifier.andThen(modifier);
             return this;
         }

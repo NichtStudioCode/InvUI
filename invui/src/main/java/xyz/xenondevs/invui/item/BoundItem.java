@@ -50,11 +50,11 @@ public sealed interface BoundItem extends Item permits AbstractBoundItem {
     
     sealed interface Builder<G extends Gui> extends Item.Builder<Builder<G>> permits CustomBoundItem.Builder {
 
-        Builder<G> bind(BiConsumer<Item, G> handler);
+        Builder<G> addBindHandler(BiConsumer<Item, G> handler);
         
-        Builder<G> click(TriConsumer<Item, G, Click> handler);
+        Builder<G> addClickHandler(TriConsumer<Item, G, Click> handler);
         
-        Builder<G> itemProvider(BiFunction<Player, G, ItemProvider> itemProvider);
+        Builder<G> setItemProvider(BiFunction<Player, G, ItemProvider> itemProvider);
         
     }
     
