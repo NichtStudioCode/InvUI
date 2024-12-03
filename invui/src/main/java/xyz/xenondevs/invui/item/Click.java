@@ -21,7 +21,7 @@ public class Click {
     private final int slot;
     private final int rawSlot;
     private final ItemStack cursor;
-    private final int hotbarKey;
+    private final int hotbarButton;
     
     /**
      * Creates a new click from an {@link InventoryClickEvent}.
@@ -35,7 +35,7 @@ public class Click {
         this.cursor = event.getCursor().clone();
         this.slot = event.getSlot();
         this.rawSlot = event.getRawSlot();
-        this.hotbarKey = event.getHotbarButton();
+        this.hotbarButton = event.getHotbarButton();
         this.action = event.getAction();
     }
     
@@ -109,8 +109,8 @@ public class Click {
      *
      * @return The hotbar key that was pressed.
      */
-    public int getHotbarKey() {
-        return hotbarKey;
+    public int getHotbarButton() {
+        return hotbarButton;
     }
     
 }
