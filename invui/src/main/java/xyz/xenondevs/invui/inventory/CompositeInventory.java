@@ -26,7 +26,7 @@ public final class CompositeInventory extends Inventory {
      */
     public CompositeInventory(Inventory first, Inventory... other) {
         super(calculateSize(first, other));
-        this.inventories = ArrayUtils.concat(first, other);
+        this.inventories = ArrayUtils.concat(Inventory[]::new, first, other);
     }
     
     /**

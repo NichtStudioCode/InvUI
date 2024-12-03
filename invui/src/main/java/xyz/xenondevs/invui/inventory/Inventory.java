@@ -904,7 +904,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
         if (rest.length == 0) {
             return new int[] {simulateSingleAdd(first)};
         } else {
-            ItemStack[] allStacks = ArrayUtils.concat(first, rest);
+            ItemStack[] allStacks = ArrayUtils.concat(ItemStack[]::new, first, rest);
             return simulateMultiAdd(Arrays.asList(allStacks));
         }
     }
@@ -940,7 +940,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
         if (rest.length == 0) {
             return simulateSingleAdd(first) == 0;
         } else {
-            ItemStack[] allStacks = ArrayUtils.concat(first, rest);
+            ItemStack[] allStacks = ArrayUtils.concat(ItemStack[]::new, first, rest);
             return Arrays.stream(simulateMultiAdd(Arrays.asList(allStacks))).allMatch(i -> i == 0);
         }
     }

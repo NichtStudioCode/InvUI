@@ -8,6 +8,7 @@ import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.window.AbstractWindow;
 
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -75,6 +76,23 @@ class CustomItem extends AbstractItem {
         @Override
         public Builder setItemProvider(Function<Player, ItemProvider> itemProvider) {
             this.itemProviderFn = itemProvider;
+            return this;
+        }
+        
+        @Override
+        public Builder setCyclingItemProvider(int period, List<? extends ItemProvider> itemProviders) {
+            if (itemProviders.isEmpty())
+                throw new IllegalArgumentException("itemProviders must not be empty");
+            
+            if (itemProviders.size() > 1) {
+                updatePeriodically(period);
+                this.itemProviderFn = viewer -> {
+                    int i = (Bukkit.getCurrentTick() / period) % itemProviders.size();
+                    return itemProviders.get(i);
+                };
+            } else {
+                setItemProvider(itemProviders.getFirst());
+            }
             return this;
         }
         

@@ -4,8 +4,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import xyz.xenondevs.invui.gui.Gui;
+import xyz.xenondevs.invui.internal.util.ArrayUtils;
 import xyz.xenondevs.invui.window.Window;
 
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -64,6 +66,12 @@ public sealed interface Item permits AbstractItem, BoundItem {
         S setItemProvider(ItemProvider itemProvider);
         
         S setItemProvider(Function<Player, ItemProvider> itemProvider);
+        
+        default S setCyclingItemProvider(int period, ItemProvider itemProvider, ItemProvider... itemProviders) {
+            return setCyclingItemProvider(period, List.of(ArrayUtils.concat(ItemProvider[]::new, itemProvider, itemProviders)));
+        }
+        
+        S setCyclingItemProvider(int period, List<? extends ItemProvider> itemProviders);
         
         S async(ItemProvider placeholder);
         

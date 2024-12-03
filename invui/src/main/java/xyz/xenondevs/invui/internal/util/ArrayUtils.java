@@ -5,6 +5,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.IntFunction;
 import java.util.function.Predicate;
 
 public class ArrayUtils {
@@ -29,9 +30,8 @@ public class ArrayUtils {
     }
     
     @NullUnmarked
-    @SuppressWarnings("unchecked")
-    public static <T> T[] concat(T first, T[] rest) {
-        T[] result = (T[]) new Object[rest.length + 1];
+    public static <T> T[] concat(IntFunction<T[]> newArray, T first, T[] rest) {
+        T[] result = newArray.apply(rest.length + 1);
         result[0] = first;
         System.arraycopy(rest, 0, result, 1, rest.length);
         return result;

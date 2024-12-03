@@ -14,6 +14,7 @@ import xyz.xenondevs.invui.gui.TabGui;
 import xyz.xenondevs.invui.util.TriConsumer;
 import xyz.xenondevs.invui.window.AbstractWindow;
 
+import java.util.List;
 import java.util.function.*;
 
 class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
@@ -101,6 +102,23 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         @Override
         public Builder<G> setItemProvider(BiFunction<Player, G, ItemProvider> itemProvider) {
             this.itemProviderFn = itemProvider;
+            return this;
+        }
+        
+        @Override
+        public BoundItem.Builder<G> setCyclingItemProvider(int period, List<? extends ItemProvider> itemProviders) {
+            if (itemProviders.isEmpty())
+                throw new IllegalArgumentException("itemProviders must not be empty");
+            
+            if (itemProviders.size() > 1) {
+                updatePeriodically(period);
+                this.itemProviderFn = (viewer, gui) -> {
+                    int i = (Bukkit.getCurrentTick() / period) % itemProviders.size();
+                    return itemProviders.get(i);
+                };
+            } else {
+                setItemProvider(itemProviders.getFirst());
+            }
             return this;
         }
         
