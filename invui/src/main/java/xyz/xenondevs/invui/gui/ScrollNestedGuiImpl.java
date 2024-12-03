@@ -6,12 +6,12 @@ import java.util.function.Supplier;
 
 final class ScrollNestedGuiImpl<C extends Gui> extends AbstractScrollGui<C> {
     
-    public ScrollNestedGuiImpl(int width, int height, List<C> guis, int... contentListSlots) {
+    public ScrollNestedGuiImpl(int width, int height, List<? extends C> guis, int... contentListSlots) {
         super(width, height, false, contentListSlots);
         setContent(guis);
     }
     
-    public ScrollNestedGuiImpl(Supplier<List<C>> guis, Structure structure) {
+    public ScrollNestedGuiImpl(Supplier<? extends List<? extends C>> guis, Structure structure) {
         super(structure.getWidth(), structure.getHeight(), false, structure);
         setContent(guis);
     }

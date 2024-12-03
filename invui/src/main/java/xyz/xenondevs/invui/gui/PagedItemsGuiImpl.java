@@ -8,12 +8,12 @@ import java.util.function.Supplier;
 
 final class PagedItemsGuiImpl<C extends Item> extends AbstractPagedGui<C> {
     
-    public PagedItemsGuiImpl(int width, int height, List<C> items, int... contentListSlots) {
+    public PagedItemsGuiImpl(int width, int height, List<? extends C> items, int... contentListSlots) {
         super(width, height, false, contentListSlots);
         setContent(items);
     }
     
-    public PagedItemsGuiImpl(Supplier<List<C>> items, Structure structure) {
+    public PagedItemsGuiImpl(Supplier<? extends List<? extends C>> items, Structure structure) {
         super(structure.getWidth(), structure.getHeight(), false, structure);
         setContent(items);
     }

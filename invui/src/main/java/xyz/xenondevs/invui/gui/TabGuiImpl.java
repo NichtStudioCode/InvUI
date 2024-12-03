@@ -12,11 +12,11 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     private final int[] contentListSlots;
     private @Nullable List<BiConsumer<Integer, Integer>> tabChangeHandlers;
     
-    private Supplier<List<@Nullable Gui>> tabsSupplier = List::of;
+    private Supplier<? extends List<? extends @Nullable Gui>> tabsSupplier = List::of;
     private List<@Nullable List<SlotElement.GuiLink>> linkingElements = List.of();
     private int currentTab = -1;
     
-    public TabGuiImpl(int width, int height, List<@Nullable Gui> tabs, int[] contentListSlots) {
+    public TabGuiImpl(int width, int height, List<? extends @Nullable Gui> tabs, int[] contentListSlots) {
         super(width, height);
         if (contentListSlots.length == 0)
             throw new IllegalArgumentException("Content list slots must not be empty");
@@ -24,7 +24,7 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
         setTabs(tabs);
     }
     
-    public TabGuiImpl(Supplier<List<@Nullable Gui>> tabs, Structure structure) {
+    public TabGuiImpl(Supplier<? extends List<? extends @Nullable Gui>> tabs, Structure structure) {
         super(structure.getWidth(), structure.getHeight());
         applyStructure(structure);
         contentListSlots = structure.getIngredientList().findContentListSlots();
@@ -82,17 +82,17 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     }
     
     @Override
-    public void setTabs(List<@Nullable Gui> tabs) {
+    public void setTabs(List<? extends @Nullable Gui> tabs) {
         setTabs(() -> tabs);
     }
     
     @Override
-    public void setTabs(Supplier<List<@Nullable Gui>> tabsSupplier) {
+    public void setTabs(Supplier<? extends List<? extends @Nullable Gui>> tabsSupplier) {
         this.tabsSupplier = tabsSupplier;
     }
     
     @Override
-    public List<@Nullable Gui> getTabs() {
+    public List<? extends @Nullable Gui> getTabs() {
         return tabsSupplier.get();
     }
     
@@ -149,12 +149,12 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
         implements TabGui.Builder
     {
         
-        private @Nullable Supplier<List<@Nullable Gui>> tabSupplier;
+        private @Nullable Supplier<? extends List<@Nullable Gui>> tabSupplier;
         private @Nullable List<@Nullable Gui> tabs;
         private @Nullable List<BiConsumer<Integer, Integer>> tabChangeHandlers;
         
         @Override
-        public TabGui.Builder setTabs(Supplier<List<@Nullable Gui>> tabsSupplier) {
+        public TabGui.Builder setTabs(Supplier<? extends List<@Nullable Gui>> tabsSupplier) {
             this.tabSupplier = tabsSupplier;
             return this;
         }
@@ -194,7 +194,7 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
             if (structure == null)
                 throw new IllegalStateException("Structure is not defined.");
             
-            Supplier<List<@Nullable Gui>> supplier = tabSupplier != null
+            Supplier<? extends List<@Nullable Gui>> supplier = tabSupplier != null
                 ? tabSupplier
                 : () -> tabs != null ? tabs : List.of();
             

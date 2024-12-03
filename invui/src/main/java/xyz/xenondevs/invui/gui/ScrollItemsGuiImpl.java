@@ -8,12 +8,12 @@ import java.util.function.Supplier;
 
 final class ScrollItemsGuiImpl<C extends Item> extends AbstractScrollGui<C> {
     
-    public ScrollItemsGuiImpl(int width, int height, List<C> items, int... contentListSlots) {
+    public ScrollItemsGuiImpl(int width, int height, List<? extends C> items, int... contentListSlots) {
         super(width, height, false, contentListSlots);
         setContent(items);
     }
     
-    public ScrollItemsGuiImpl(Supplier<List<C>> items, Structure structure) {
+    public ScrollItemsGuiImpl(Supplier<? extends List<? extends C>> items, Structure structure) {
         super(structure.getWidth(), structure.getHeight(), false, structure);
         setContent(items);
     }

@@ -24,7 +24,7 @@ sealed abstract class AbstractScrollGui<C>
     
     private @Nullable List<BiConsumer<Integer, Integer>> scrollHandlers;
     private @Nullable List<BiConsumer<Integer, Integer>> lineCountChangeHandlers;
-    private Supplier<List<C>> contentSupplier = List::of;
+    private Supplier<? extends List<? extends C>> contentSupplier = List::of;
     private @Nullable List<SlotElement> elements;
     
     public AbstractScrollGui(int width, int height, boolean infiniteLines, int... contentListSlots) {
@@ -119,12 +119,12 @@ sealed abstract class AbstractScrollGui<C>
     }
     
     @Override
-    public void setContent(List<C> content) {
+    public void setContent(List<? extends C> content) {
         setContent(() -> content);
     }
     
     @Override
-    public void setContent(Supplier<List<C>> contentSupplier) {
+    public void setContent(Supplier<? extends List<? extends C>> contentSupplier) {
         this.contentSupplier = contentSupplier;
         bake();
     }
@@ -156,7 +156,7 @@ sealed abstract class AbstractScrollGui<C>
     }
     
     @Override
-    public List<C> getContent() {
+    public List<? extends C> getContent() {
         return contentSupplier.get();
     }
     
@@ -214,13 +214,13 @@ sealed abstract class AbstractScrollGui<C>
         permits ScrollItemsGuiImpl.Builder, ScrollNestedGuiImpl.Builder, ScrollInventoryGuiImpl.Builder
     {
         
-        private final BiFunction<Supplier<List<C>>, Structure, ScrollGui<C>> ctor;
+        private final BiFunction<Supplier<? extends List<? extends C>>, Structure, ScrollGui<C>> ctor;
         private @Nullable Supplier<List<C>> contentSupplier;
         private @Nullable List<C> content;
         private @Nullable List<BiConsumer<Integer, Integer>> scrollHandlers;
         private @Nullable List<BiConsumer<Integer, Integer>> lineCountChangeHandlers;
         
-        public AbstractBuilder(BiFunction<Supplier<List<C>>, Structure, ScrollGui<C>> ctor) {
+        public AbstractBuilder(BiFunction<Supplier<? extends List<? extends C>>, Structure, ScrollGui<C>> ctor) {
             this.ctor = ctor;
         }
         

@@ -12,19 +12,19 @@ final class ScrollInventoryGuiImpl<C extends Inventory> extends AbstractScrollGu
     
     private final BiConsumer<Integer, Integer> resizeHandler = (from, to) -> bake();
     
-    public ScrollInventoryGuiImpl(int width, int height, List<C> inventories, int... contentListSlots) {
+    public ScrollInventoryGuiImpl(int width, int height, List<? extends C> inventories, int... contentListSlots) {
         super(width, height, false, contentListSlots);
         setContent(inventories);
     }
     
-    public ScrollInventoryGuiImpl(Supplier<List<C>> inventories, Structure structure) {
+    public ScrollInventoryGuiImpl(Supplier<? extends List<? extends C>> inventories, Structure structure) {
         super(structure.getWidth(), structure.getHeight(), false, structure);
         setContent(inventories);
     }
     
     @SuppressWarnings("DuplicatedCode")
     @Override
-    public void setContent(List<C> content) {
+    public void setContent(List<? extends C> content) {
         // remove resize handlers from previous inventories
         for (Inventory inventory : getContent()) {
             if (inventory instanceof VirtualInventory) {

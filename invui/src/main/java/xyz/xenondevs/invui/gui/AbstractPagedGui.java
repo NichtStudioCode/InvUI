@@ -20,7 +20,7 @@ sealed abstract class AbstractPagedGui<C>
     
     private @Nullable List<BiConsumer<Integer, Integer>> pageChangeHandlers;
     private @Nullable List<BiConsumer<Integer, Integer>> pageCountChangeHandlers;
-    private Supplier<List<C>> contentSupplier = List::of;
+    private Supplier<? extends List<? extends C>> contentSupplier = List::of;
     private @Nullable List<List<SlotElement>> pages;
     
     public AbstractPagedGui(int width, int height, boolean infinitePages, int... contentListSlots) {
@@ -106,13 +106,13 @@ sealed abstract class AbstractPagedGui<C>
     }
     
     @Override
-    public void setContent(Supplier<List<C>> contentSupplier) {
+    public void setContent(Supplier<? extends List<? extends C>> contentSupplier) {
         this.contentSupplier = contentSupplier;
         bake();
     }
     
     @Override
-    public void setContent(List<C> content) {
+    public void setContent(List<? extends C> content) {
         setContent(() -> content);
     }
     
@@ -129,7 +129,7 @@ sealed abstract class AbstractPagedGui<C>
     }
     
     @Override
-    public List<C> getContent() {
+    public List<? extends C> getContent() {
         return contentSupplier.get();
     }
     
@@ -211,18 +211,18 @@ sealed abstract class AbstractPagedGui<C>
         permits PagedItemsGuiImpl.Builder, PagedNestedGuiImpl.Builder, PagedInventoriesGuiImpl.Builder
     {
         
-        private final BiFunction<Supplier<List<C>>, Structure, PagedGui<C>> ctor;
-        private @Nullable Supplier<List<C>> contentSupplier;
+        private final BiFunction<Supplier<? extends List<? extends C>>, Structure, PagedGui<C>> ctor;
+        private @Nullable Supplier<? extends List<C>> contentSupplier;
         private @Nullable List<C> content = null;
         private @Nullable List<BiConsumer<Integer, Integer>> pageChangeHandlers;
         private @Nullable List<BiConsumer<Integer, Integer>> pageCountChangeHandlers;
         
-        public AbstractBuilder(BiFunction<Supplier<List<C>>, Structure, PagedGui<C>> ctor) {
+        public AbstractBuilder(BiFunction<Supplier<? extends List<? extends C>>, Structure, PagedGui<C>> ctor) {
             this.ctor = ctor;
         }
         
         @Override
-        public PagedGui.Builder<C> setContent(Supplier<List<C>> contentSupplier) {
+        public PagedGui.Builder<C> setContent(Supplier<? extends List<C>> contentSupplier) {
             this.contentSupplier = contentSupplier;
             return this;
         }
@@ -277,7 +277,7 @@ sealed abstract class AbstractPagedGui<C>
             if (structure == null)
                 throw new IllegalStateException("Structure is not defined.");
             
-            Supplier<List<C>> supplier = contentSupplier != null 
+            Supplier<? extends List<C>> supplier = contentSupplier != null 
                 ? contentSupplier 
                 : () -> content != null ? content : List.of();
             

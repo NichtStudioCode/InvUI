@@ -39,7 +39,7 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link TabGui}.
      */
-    static TabGui of(int width, int height, List<@Nullable Gui> tabs, int... contentListSlots) {
+    static TabGui of(int width, int height, List<? extends @Nullable Gui> tabs, int... contentListSlots) {
         return new TabGuiImpl(width, height, tabs, contentListSlots);
     }
     
@@ -50,7 +50,7 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
      * @param tabs      The {@link Gui Guis} to use as tabs.
      * @return The created {@link TabGui}.
      */
-    static TabGui of(Structure structure, List<@Nullable Gui> tabs) {
+    static TabGui of(Structure structure, List<? extends @Nullable Gui> tabs) {
         return new TabGuiImpl(() -> tabs, structure);
     }
     
@@ -82,21 +82,21 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
      *
      * @param tabsSupplier The content supplier to set.
      */
-    void setTabs(Supplier<List<@Nullable Gui>> tabsSupplier);
+    void setTabs(Supplier<? extends List<? extends @Nullable Gui>> tabsSupplier);
     
     /**
      * Sets the tabs of this {@link TabGui}.
      *
      * @param tabs The tabs to set.
      */
-    void setTabs(List<@Nullable Gui> tabs);
+    void setTabs(List<? extends @Nullable Gui> tabs);
     
     /**
      * Gets the configured tabs.
      *
      * @return The configured tabs.
      */
-    List<@Nullable Gui> getTabs();
+    List<? extends @Nullable Gui> getTabs();
     
     /**
      * Bakes and updates the tabs of this {@link TabGui} based on the current tabs.
@@ -146,7 +146,7 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
          *
          * @param tabsSupplier The content supplier to set.
          */
-        Builder setTabs(Supplier<List<@Nullable Gui>> tabsSupplier);
+        Builder setTabs(Supplier<? extends List<@Nullable Gui>> tabsSupplier);
         
         /**
          * Sets the tabs of the {@link TabGui}.

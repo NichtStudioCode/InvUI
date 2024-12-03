@@ -6,12 +6,12 @@ import java.util.function.Supplier;
 
 final class PagedNestedGuiImpl<C extends Gui> extends AbstractPagedGui<C> {
     
-    public PagedNestedGuiImpl(int width, int height, List<C> guis, int... contentListSlots) {
+    public PagedNestedGuiImpl(int width, int height, List<? extends C> guis, int... contentListSlots) {
         super(width, height, false, contentListSlots);
         setContent(guis);
     }
     
-    public PagedNestedGuiImpl(Supplier<List<C>> guis, Structure structure) {
+    public PagedNestedGuiImpl(Supplier<? extends List<? extends C>> guis, Structure structure) {
         super(structure.getWidth(), structure.getHeight(), false, structure);
         setContent(guis);
     }

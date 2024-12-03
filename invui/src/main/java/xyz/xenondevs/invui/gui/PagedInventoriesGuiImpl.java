@@ -1,6 +1,5 @@
 package xyz.xenondevs.invui.gui;
 
-import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.inventory.VirtualInventory;
 
@@ -13,19 +12,19 @@ final class PagedInventoriesGuiImpl<C extends Inventory> extends AbstractPagedGu
     
     private final BiConsumer<Integer, Integer> resizeHandler = (from, to) -> bake();
     
-    public PagedInventoriesGuiImpl(int width, int height, @Nullable List<C> inventories, int... contentListSlots) {
+    public PagedInventoriesGuiImpl(int width, int height, List<? extends C> inventories, int... contentListSlots) {
         super(width, height, false, contentListSlots);
         setContent(inventories);
     }
     
-    public PagedInventoriesGuiImpl(Supplier<List<C>> inventories, Structure structure) {
+    public PagedInventoriesGuiImpl(Supplier<? extends List<? extends C>> inventories, Structure structure) {
         super(structure.getWidth(), structure.getHeight(), false, structure);
         setContent(inventories);
     }
     
     @SuppressWarnings("DuplicatedCode")
     @Override
-    public void setContent(@Nullable List<C> content) {
+    public void setContent(List<? extends C> content) {
         // remove resize handlers from previous inventories
         for (Inventory inventory : getContent()) {
             if (inventory instanceof VirtualInventory) {
@@ -37,11 +36,9 @@ final class PagedInventoriesGuiImpl<C extends Inventory> extends AbstractPagedGu
         super.setContent(content);
         
         // add resize handlers to new inventories
-        if (content != null) {
-            for (Inventory inventory : content) {
-                if (inventory instanceof VirtualInventory) {
-                    ((VirtualInventory) inventory).addResizeHandler(resizeHandler);
-                }
+        for (Inventory inventory : content) {
+            if (inventory instanceof VirtualInventory) {
+                ((VirtualInventory) inventory).addResizeHandler(resizeHandler);
             }
         }
     }

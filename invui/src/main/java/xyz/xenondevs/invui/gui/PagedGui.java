@@ -46,7 +46,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link PagedGui}.
      */
-    static PagedGui<Item> ofItems(int width, int height, List<Item> items, int... contentListSlots) {
+    static PagedGui<Item> ofItems(int width, int height, List<? extends Item> items, int... contentListSlots) {
         return new PagedItemsGuiImpl<>(width, height, items, contentListSlots);
     }
     
@@ -57,7 +57,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @param items     The {@link Item Items} to use as in pages.
      * @return The created {@link PagedGui}.
      */
-    static PagedGui<Item> ofItems(Structure structure, List<Item> items) {
+    static PagedGui<Item> ofItems(Structure structure, List<? extends Item> items) {
         return new PagedItemsGuiImpl<>(() -> items, structure);
     }
     
@@ -91,7 +91,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link PagedGui}.
      */
-    static PagedGui<Gui> ofGuis(int width, int height, List<Gui> guis, int... contentListSlots) {
+    static PagedGui<Gui> ofGuis(int width, int height, List<? extends Gui> guis, int... contentListSlots) {
         return new PagedNestedGuiImpl<>(width, height, guis, contentListSlots);
     }
     
@@ -102,7 +102,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @param guis      The {@link Gui Guis} to use as pages.
      * @return The created {@link PagedGui}.
      */
-    static PagedGui<Gui> ofGuis(Structure structure, List<Gui> guis) {
+    static PagedGui<Gui> ofGuis(Structure structure, List<? extends Gui> guis) {
         return new PagedNestedGuiImpl<>(() -> guis, structure);
     }
     
@@ -136,7 +136,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link PagedGui}.
      */
-    static PagedGui<Inventory> ofInventories(int width, int height, List<Inventory> inventories, int... contentListSlots) {
+    static PagedGui<Inventory> ofInventories(int width, int height, List<? extends Inventory> inventories, int... contentListSlots) {
         return new PagedInventoriesGuiImpl<>(width, height, inventories, contentListSlots);
     }
     
@@ -147,7 +147,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @param inventories The {@link Inventory Inventories} to use as pages.
      * @return The created {@link PagedGui}.
      */
-    static PagedGui<Inventory> ofInventories(Structure structure, List<Inventory> inventories) {
+    static PagedGui<Inventory> ofInventories(Structure structure, List<? extends Inventory> inventories) {
         return new PagedInventoriesGuiImpl<>(() -> inventories, structure);
     }
     
@@ -216,21 +216,21 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      *
      * @param contentSupplier The content supplier to set.
      */
-    void setContent(Supplier<List<C>> contentSupplier);
+    void setContent(Supplier<? extends List<? extends C>> contentSupplier);
     
     /**
      * Sets the content of this {@link PagedGui} for all pages.
      *
      * @param content The content to set.
      */
-    void setContent(List<C> content);
+    void setContent(List<? extends C> content);
     
     /**
      * Gets the content of this {@link PagedGui}.
      *
      * @return The content of this {@link PagedGui}.
      */
-    List<C> getContent();
+    List<? extends C> getContent();
     
     /**
      * Bakes and updates the pages of this {@link PagedGui} based on the current content.
@@ -312,7 +312,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
          * @param contentSupplier The content supplier to set.
          * @return This {@link Builder Gui Builder}.
          */
-        Builder<C> setContent(Supplier<List<C>> contentSupplier);
+        Builder<C> setContent(Supplier<? extends List<C>> contentSupplier);
         
         /**
          * Sets the content of the {@link PagedGui} for all pages.
