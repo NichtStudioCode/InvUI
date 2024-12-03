@@ -29,7 +29,7 @@ import static org.jetbrains.annotations.ApiStatus.Experimental;
  * Utility for building (localized) {@link ItemStack ItemStacks}.
  */
 @SuppressWarnings("UnstableApiUsage")
-public class ItemBuilder implements ItemProvider {
+public final class ItemBuilder implements ItemProvider {
     
     private ItemStack itemStack;
     private @Nullable Component name;
@@ -77,8 +77,19 @@ public class ItemBuilder implements ItemProvider {
     }
     
     /**
+     * Builds the {@link ItemStack} in {@link Locale#US}.
+     * 
+     * @return The {@link ItemStack}
+     */
+    @Override
+    public ItemStack get() {
+        return get(Locale.US);
+    }
+    
+    /**
      * Builds the {@link ItemStack}
      *
+     * @param locale The {@link Locale} to use for localization
      * @return The {@link ItemStack}
      */
     @Override

@@ -9,7 +9,7 @@ import java.util.UUID;
  * An {@link ItemProvider} that just returns the {@link ItemStack}
  * passed to it in the constructor regardless of the {@link UUID players uuid}.
  */
-public class ItemWrapper implements ItemProvider {
+public final class ItemWrapper implements ItemProvider {
     
     private ItemStack itemStack;
     
@@ -19,6 +19,11 @@ public class ItemWrapper implements ItemProvider {
     
     @Override
     public ItemStack get(Locale locale) {
+        return itemStack;
+    }
+    
+    @Override
+    public ItemStack get() {
         return itemStack;
     }
     

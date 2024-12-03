@@ -11,7 +11,6 @@ import xyz.xenondevs.invui.window.AbstractWindow;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 class CustomItem extends AbstractItem {
     
@@ -70,12 +69,6 @@ class CustomItem extends AbstractItem {
         @Override
         public Builder setItemProvider(ItemProvider itemProvider) {
             this.itemProviderFn = viewer -> itemProvider;
-            return this;
-        }
-        
-        @Override
-        public Builder setItemProvider(Supplier<ItemProvider> itemProvider) {
-            this.itemProviderFn = viewer -> itemProvider.get();
             return this;
         }
         

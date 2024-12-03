@@ -76,7 +76,6 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         }
     }
     
-    @SuppressWarnings("unchecked")
     non-sealed static class Builder<G extends Gui> implements BoundItem.Builder<G> {
         
         protected BiConsumer<Item, G> bindHandler = (item, gui) -> {};
@@ -90,12 +89,6 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         @Override
         public Builder<G> setItemProvider(ItemProvider itemProvider) {
             this.itemProviderFn = (viewer, gui) -> itemProvider;
-            return this;
-        }
-        
-        @Override
-        public Builder<G> setItemProvider(Supplier<ItemProvider> itemProvider) {
-            this.itemProviderFn = (viewer, gui) -> itemProvider.get();
             return this;
         }
         

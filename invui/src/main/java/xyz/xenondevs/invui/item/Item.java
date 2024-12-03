@@ -9,7 +9,6 @@ import xyz.xenondevs.invui.window.Window;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * A UI element for use in {@link Gui Guis}.
@@ -56,10 +55,6 @@ public sealed interface Item permits AbstractItem, BoundItem {
         return builder().setItemProvider(itemProvider).build();
     }
     
-    static Item simple(Supplier<ItemProvider> itemProvider) {
-        return builder().setItemProvider(itemProvider).build();
-    }
-    
     static Item simple(Function<Player, ItemProvider> itemProvider) {
         return builder().setItemProvider(itemProvider).build();
     }
@@ -67,8 +62,6 @@ public sealed interface Item permits AbstractItem, BoundItem {
     interface Builder<S extends Builder<S>> {
         
         S setItemProvider(ItemProvider itemProvider);
-        
-        S setItemProvider(Supplier<ItemProvider> itemProvider);
         
         S setItemProvider(Function<Player, ItemProvider> itemProvider);
         

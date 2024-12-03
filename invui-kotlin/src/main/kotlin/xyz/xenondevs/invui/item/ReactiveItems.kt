@@ -17,7 +17,7 @@ private fun <S : Item.Builder<*>> S.setReactiveItemProvider(
     itemProviderProvider: Provider<ItemProvider>
 ): S {
     addModifier { item -> itemProviderProvider.observeWeak(item) { weakItem -> weakItem.notifyWindows() } }
-    return setItemProvider(itemProviderProvider) as S
+    return setItemProvider { itemProviderProvider.get() } as S
 }
 
 @OverloadResolutionByLambdaReturnType

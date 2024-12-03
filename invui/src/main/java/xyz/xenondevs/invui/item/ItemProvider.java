@@ -28,8 +28,6 @@ public interface ItemProvider extends Supplier<ItemStack>, Cloneable {
      *
      * @return The {@link ItemStack}
      */
-    default ItemStack get() {
-        return get(Locale.US);
-    }
+    ItemStack get();
     
 }
