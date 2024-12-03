@@ -2,23 +2,15 @@ package xyz.xenondevs.invui.inventory.event;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryEvent;
+import xyz.xenondevs.invui.gui.Gui;
+import xyz.xenondevs.invui.inventory.Inventory;
 
-public class PlayerUpdateReason implements UpdateReason {
-    
-    private final Player player;
-    private final InventoryEvent event;
-    
-    public PlayerUpdateReason(Player player, InventoryEvent event) {
-        this.player = player;
-        this.event = event;
-    }
-    
-    public Player getPlayer() {
-        return player;
-    }
-    
-    public InventoryEvent getEvent() {
-        return event;
-    }
-    
+/**
+ * An {@link UpdateReason} that is used when a {@link Player} interacts with an {@link Inventory}
+ * that is embedded in a {@link Gui}.
+ * 
+ * @param player The player who interacted with the inventory.
+ * @param event The event that was triggered by the player. Should be treated as read-only.
+ */
+public record PlayerUpdateReason(Player player, InventoryEvent event) implements UpdateReason {
 }
