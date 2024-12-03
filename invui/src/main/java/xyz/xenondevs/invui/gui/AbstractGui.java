@@ -144,11 +144,11 @@ public sealed abstract class AbstractGui
     }
     
     private boolean didClickBackgroundItem(Player player, SlotElement.InventoryLink element, Inventory inventory, int slot, @Nullable ItemStack clicked) {
-        String lang = player.getLocale();
+        Locale lang = player.locale();
         return !inventory.hasItem(slot) && (isBuilderSimilar(background, lang, clicked) || isBuilderSimilar(element.background(), lang, clicked));
     }
     
-    private boolean isBuilderSimilar(@Nullable ItemProvider builder, String lang, @Nullable ItemStack expected) {
+    private boolean isBuilderSimilar(@Nullable ItemProvider builder, Locale lang, @Nullable ItemStack expected) {
         return builder != null && builder.get(lang).isSimilar(expected);
     }
     
@@ -317,7 +317,7 @@ public sealed abstract class AbstractGui
         event.setCursor(cursor);
     }
     
-    public boolean handleItemDrag(UpdateReason updateReason, int slot, ItemStack oldStack, ItemStack newStack) {
+    public boolean handleItemDrag(UpdateReason updateReason, int slot, @Nullable ItemStack oldStack, ItemStack newStack) {
         // cancel all clicks if the gui is frozen or an animation is running
         if (frozen || animation != null)
             return false;
@@ -549,21 +549,20 @@ public sealed abstract class AbstractGui
         slotElements[index] = slotElement;
         
         // set the gui if it is a bound item
-        if (slotElement instanceof SlotElement.Item itemElement) {
-            Item item = itemElement.item();
+        if (slotElement instanceof SlotElement.Item(Item item)) {
             if (item instanceof BoundItem boundItem) {
                 boundItem.bind(this);
             }
         }
         
         // remove this gui as a viewer from the old slot element's gui
-        if (oldElement instanceof SlotElement.GuiLink oldLink) {
-            ((AbstractGui)oldLink.gui()).removeViewer(this, oldLink.slot(), index);
+        if (oldElement instanceof SlotElement.GuiLink(Gui gui, int slot)) {
+            ((AbstractGui) gui).removeViewer(this, slot, index);
         }
         
         // add this gui as a viewer to the new slot element's viewable
-        if (slotElement instanceof SlotElement.GuiLink newLink) {
-            ((AbstractGui)newLink.gui()).addViewer(this, newLink.slot(), index);
+        if (slotElement instanceof SlotElement.GuiLink(Gui gui, int slot)) {
+            ((AbstractGui) gui).addViewer(this, slot, index);
         }
         
         // notify parents that a slot element has been changed

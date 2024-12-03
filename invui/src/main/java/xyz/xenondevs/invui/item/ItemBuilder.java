@@ -40,7 +40,7 @@ public class ItemBuilder implements ItemProvider {
     private @Nullable List<Color> customModelDataColors;
     private @Nullable List<Function<ItemStack, ItemStack>> modifiers;
     
-    private final Map<String, ItemStack> buildCache = new HashMap<>();
+    private final Map<Locale, ItemStack> buildCache = new HashMap<>();
     
     /**
      * Constructs a new {@link ItemBuilder} based on the given {@link Material}.
@@ -82,14 +82,14 @@ public class ItemBuilder implements ItemProvider {
      * @return The {@link ItemStack}
      */
     @Override
-    public ItemStack get(String lang) {
-        return buildCache.computeIfAbsent(lang, lang1 -> {
+    public ItemStack get(Locale locale) {
+        return buildCache.computeIfAbsent(locale, lang1 -> {
             ItemStack itemStack = this.itemStack.clone();
             
             if (name != null) {
                 itemStack.setData(
                     DataComponentTypes.ITEM_NAME,
-                    Languages.getInstance().localized(lang, name)
+                    Languages.getInstance().localized(locale, name)
                 );
                 itemStack.unsetData(DataComponentTypes.CUSTOM_NAME);
             }
@@ -97,7 +97,7 @@ public class ItemBuilder implements ItemProvider {
             if (lore != null) {
                 ItemLore.Builder lore = ItemLore.lore();
                 for (Component line : this.lore) {
-                    lore.addLine(Languages.getInstance().localized(lang, line));
+                    lore.addLine(Languages.getInstance().localized(locale, line));
                 }
                 
                 itemStack.setData(DataComponentTypes.LORE, lore.build());

@@ -1,8 +1,8 @@
 package xyz.xenondevs.invui.item;
 
 import org.bukkit.inventory.ItemStack;
-import org.jspecify.annotations.Nullable;
 
+import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -18,7 +18,7 @@ public class ItemWrapper implements ItemProvider {
     }
     
     @Override
-    public ItemStack get(@Nullable String lang) {
+    public ItemStack get(Locale locale) {
         return itemStack;
     }
     

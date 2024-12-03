@@ -18,6 +18,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.gui.AbstractGui;
+import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.i18n.Languages;
 import xyz.xenondevs.invui.internal.Viewer;
@@ -112,12 +113,12 @@ public sealed abstract class AbstractWindow
         } else {
             // background by gui
             element = gui.getSlotElement(guiSlot);
-            while (element instanceof SlotElement.GuiLink link) {
-                var backgroundProvider = link.gui().getBackground();
+            while (element instanceof SlotElement.GuiLink(Gui linkedGui, int slot)) {
+                var backgroundProvider = linkedGui.getBackground();
                 if (backgroundProvider != null) {
-                    itemStack = backgroundProvider.get(getLang());
+                    itemStack = backgroundProvider.get(getLocale());
                 }
-                element = link.gui().getSlotElement(link.slot());
+                element = linkedGui.getSlotElement(slot);
             }
         }
         
@@ -415,8 +416,8 @@ public sealed abstract class AbstractWindow
         return viewer;
     }
     
-    public String getLang() {
-        return Languages.getInstance().getLanguage(getViewer());
+    public Locale getLocale() {
+        return Languages.getInstance().getLocale(getViewer());
     }
     
     @Override

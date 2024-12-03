@@ -12,14 +12,15 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 
 public class Languages {
     
     private static final Languages INSTANCE = new Languages();
-    private final Map<String, Map<String, String>> translations = new HashMap<>();
-    private Function<Player, String> languageProvider = Player::getLocale;
+    private final Map<Locale, Map<String, String>> translations = new HashMap<>();
+    private Function<Player, Locale> localeProvider = Player::locale;
     private boolean serverSideTranslations = true;
     
     private Languages() {
@@ -34,11 +35,11 @@ public class Languages {
      * <p>
      * This method will replace any existing language with the same lang code.
      *
-     * @param lang         The lang code of the language.
+     * @param locale         The lang code of the language.
      * @param translations The translations of the language.
      */
-    public void addLanguage(String lang, Map<String, String> translations) {
-        this.translations.put(lang, translations);
+    public void addLanguage(Locale locale, Map<String, String> translations) {
+        this.translations.put(locale, translations);
     }
     
     /**
@@ -48,12 +49,12 @@ public class Languages {
      * their string values. Any other json structure will result in an {@link IllegalStateException}.
      * An example for such a structure are Minecraft's lang files.
      *
-     * @param lang   The lang code of the language.
+     * @param locale       The locale.
      * @param reader The reader for a language json file.
      * @throws IOException           If an error occurs while reading.
      * @throws IllegalStateException If the json is not valid.
      */
-    public void loadLanguage(String lang, Reader reader) throws IOException {
+    public void loadLanguage(Locale locale, Reader reader) throws IOException {
         var translations = new HashMap<String, String>();
         try (var jsonReader = new JsonReader(reader)) {
             jsonReader.beginObject();
@@ -63,33 +64,33 @@ public class Languages {
                 translations.put(key, value);
             }
             
-            addLanguage(lang, translations);
+            addLanguage(locale, translations);
         }
     }
     
     /**
      * Adds a language under the given lang code after reading it from the given file.
      *
-     * @param lang    The lang code of the language.
+     * @param locale    The locale.
      * @param file    The file to read the language from.
      * @param charset The charset to use.
      * @throws IOException If an error occurs while reading.
      */
-    public void loadLanguage(String lang, File file, Charset charset) throws IOException {
+    public void loadLanguage(Locale locale, File file, Charset charset) throws IOException {
         try (var reader = new FileReader(file, charset)) {
-            loadLanguage(lang, reader);
+            loadLanguage(locale, reader);
         }
     }
     
     /**
      * Retrieves the format string for the given key under the given language.
      *
-     * @param lang The language to use.
+     * @param locale The locale.
      * @param key  The key of the format string.
      * @return The format string or null if there is no such language or key.
      */
-    public @Nullable String getFormatString(String lang, String key) {
-        var map = translations.get(lang);
+    public @Nullable String getFormatString(Locale locale, String key) {
+        var map = translations.get(locale);
         if (map == null)
             return null;
         return map.get(key);
@@ -97,12 +98,12 @@ public class Languages {
     
     /**
      * Sets the way the language is determined for a player.
-     * By default, the language is determined using {@link Player#getLocale()}.
+     * By default, the language is determined using {@link Player#locale()}.
      *
-     * @param languageProvider The language provider.
+     * @param localeProvider The language provider.
      */
-    public void setLanguageProvider(Function<Player, String> languageProvider) {
-        this.languageProvider = languageProvider;
+    public void setLocaleProvider(Function<Player, Locale> localeProvider) {
+        this.localeProvider = localeProvider;
     }
     
     /**
@@ -111,8 +112,8 @@ public class Languages {
      * @param player The player to get the language for.
      * @return The language of the player.
      */
-    public String getLanguage(Player player) {
-        return languageProvider.apply(player);
+    public Locale getLocale(Player player) {
+        return localeProvider.apply(player);
     }
     
     /**
@@ -141,19 +142,19 @@ public class Languages {
      * @return The translated component or the original component if server-side translations are disabled.
      */
     public Component localized(Player player, Component component) {
-        return localized(getLanguage(player), component);
+        return localized(getLocale(player), component);
     }
     
     /**
      * Translates the given component into the given language, if server-side translations are enabled.
      *
-     * @param lang      The language to translate the component into.
+     * @param locale   The language to translate the component to.
      * @param component The component to translate.
      * @return The translated component or the original component if server-side translations are disabled.
      */
-    public Component localized(String lang, Component component) {
+    public Component localized(Locale locale, Component component) {
         if (serverSideTranslations) {
-            return ComponentLocalizer.getInstance().localize(lang, component);
+            return ComponentLocalizer.getInstance().localize(locale, component);
         }
         
         return component;

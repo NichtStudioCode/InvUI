@@ -6,6 +6,7 @@ import xyz.xenondevs.invui.i18n.Languages;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
@@ -28,41 +29,41 @@ public class ComponentLocalizer {
     }
     
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public Component localize(String lang, Component component) {
+    public Component localize(Locale locale, Component component) {
         if (!(component instanceof BuildableComponent))
             throw new IllegalStateException("Component is not a BuildableComponent");
         
-        return localize(lang, (BuildableComponent) component);
+        return localize(locale, (BuildableComponent) component);
     }
     
     @SuppressWarnings("NonExtendableApiUsage")
-    private <C extends BuildableComponent<C, B>, B extends ComponentBuilder<C, B>> BuildableComponent<?, ?> localize(String lang, BuildableComponent<C, B> component) {
+    private <C extends BuildableComponent<C, B>, B extends ComponentBuilder<C, B>> BuildableComponent<?, ?> localize(Locale locale, BuildableComponent<C, B> component) {
         ComponentBuilder<?, ?> builder;
         if (component instanceof TranslatableComponent) {
-            builder = localizeTranslatable(lang, (TranslatableComponent) component).toBuilder();
+            builder = localizeTranslatable(locale, (TranslatableComponent) component).toBuilder();
         } else {
             builder = component.toBuilder();
         }
         
         builder.mapChildrenDeep(child -> {
             if (child instanceof TranslatableComponent)
-                return localizeTranslatable(lang, (TranslatableComponent) child);
+                return localizeTranslatable(locale, (TranslatableComponent) child);
             return child;
         });
         
         return builder.build();
     }
     
-    private BuildableComponent<?, ?> localizeTranslatable(String lang, TranslatableComponent component) {
-        var formatString = Languages.getInstance().getFormatString(lang, component.key());
+    private BuildableComponent<?, ?> localizeTranslatable(Locale locale, TranslatableComponent component) {
+        var formatString = Languages.getInstance().getFormatString(locale, component.key());
         if (formatString == null)
             return component;
         
-        var children = decomposeFormatString(lang, formatString, component.arguments());
+        var children = decomposeFormatString(locale, formatString, component.arguments());
         return Component.textOfChildren(children.toArray(ComponentLike[]::new)).style(component.style());
     }
     
-    private List<Component> decomposeFormatString(String lang, String formatString, List<TranslationArgument> args) {
+    private List<Component> decomposeFormatString(Locale locale, String formatString, List<TranslationArgument> args) {
         var matcher = FORMAT_PATTERN.matcher(formatString);
         
         var components = new ArrayList<Component>();
@@ -98,7 +99,7 @@ public class ComponentLocalizer {
                 // add text component
                 components.add(componentCreator.apply(sb.toString()));
                 // add argument component
-                components.add(args.size() <= argIdx ? componentCreator.apply("") : localize(lang, args.get(argIdx).asComponent()));
+                components.add(args.size() <= argIdx ? componentCreator.apply("") : localize(locale, args.get(argIdx).asComponent()));
                 // clear string builder
                 sb.setLength(0);
             }

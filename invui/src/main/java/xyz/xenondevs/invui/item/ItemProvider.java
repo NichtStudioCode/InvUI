@@ -2,6 +2,7 @@ package xyz.xenondevs.invui.item;
 
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Locale;
 import java.util.function.Supplier;
 
 /**
@@ -17,10 +18,10 @@ public interface ItemProvider extends Supplier<ItemStack>, Cloneable {
     /**
      * Gets the {@link ItemStack} translated in the specified language.
      *
-     * @param lang The language to translate the item in.
+     * @param locale The language to translate the item to.
      * @return The {@link ItemStack}
      */
-    ItemStack get(String lang);
+    ItemStack get(Locale locale);
     
     /**
      * Gets the {@link ItemStack} without requesting a specific language.
@@ -28,7 +29,7 @@ public interface ItemProvider extends Supplier<ItemStack>, Cloneable {
      * @return The {@link ItemStack}
      */
     default ItemStack get() {
-        return get("en_us");
+        return get(Locale.US);
     }
     
 }

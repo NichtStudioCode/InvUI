@@ -22,7 +22,7 @@ public sealed interface SlotElement {
         
         @Override
         public ItemStack getItemStack(Player player) {
-            return item.getItemProvider(player).get(Languages.getInstance().getLanguage(player));
+            return item.getItemProvider(player).get(Languages.getInstance().getLocale(player));
         }
         
         @Override
@@ -49,7 +49,7 @@ public sealed interface SlotElement {
         public @Nullable ItemStack getItemStack(Player player) {
             ItemStack itemStack = inventory.getUnsafeItem(slot);
             if (itemStack == null && background != null)
-                itemStack = background.get(Languages.getInstance().getLanguage(player));
+                itemStack = background.get(Languages.getInstance().getLocale(player));
             return itemStack;
         }
         
