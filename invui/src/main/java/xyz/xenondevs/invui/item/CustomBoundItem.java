@@ -221,12 +221,12 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
             
         }
         
-        static class Tab extends Builder<TabGui<?>> {
+        static class Tab extends Builder<TabGui> {
             
             Tab() {
                 bindHandler = bindHandler.andThen((item, gui) -> {
                     //noinspection ConstantValue // the generic type is unchecked otherwise
-                    if (!(gui instanceof TabGui<?>))
+                    if (!(gui instanceof TabGui))
                         throw new IllegalArgumentException("Item can only be bound to TabGui");
                     
                     gui.addTabChangeHandler((oldTab, newTab) -> item.notifyWindows());

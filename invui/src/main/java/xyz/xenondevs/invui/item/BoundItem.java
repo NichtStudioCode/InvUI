@@ -44,7 +44,7 @@ public sealed interface BoundItem extends Item permits AbstractBoundItem {
         return new CustomBoundItem.Builder.Scroll();
     }
     
-    static Builder<TabGui<?>> tabGui() {
+    static Builder<TabGui> tabGui() {
         return new CustomBoundItem.Builder.Tab();
     }
     

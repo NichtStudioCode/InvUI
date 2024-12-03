@@ -1,5 +1,6 @@
 package xyz.xenondevs.invui.gui
 
+import org.checkerframework.checker.units.qual.C
 import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.commons.provider.combinedProvider
 import xyz.xenondevs.commons.provider.map
@@ -234,67 +235,67 @@ fun <CT : Any, A, B, C, D, E, F, G, H, I, J> ScrollGui.Builder<CT>.setContent(
 ): ScrollGui.Builder<CT> = setReactiveContent(combinedProvider(a, b, c, d, e, f, g, h, i, j, mapValue))
 
 @ExperimentalReactiveApi
-private fun <C : Gui> TabGui.Builder<C>.setReactiveTabs(
-    provider: Provider<List<C?>>
-): TabGui.Builder<C> {
+private fun  TabGui.Builder.setReactiveTabs(
+    provider: Provider<List<Gui?>>
+): TabGui.Builder {
     setTabs(provider)
     addModifier { gui -> provider.observeWeak(gui) { weakGui -> weakGui.bake() } }
     return this
 }
 
 @ExperimentalReactiveApi
-fun <GUI : Gui, A> TabGui.Builder<GUI>.setTabs(
+fun <A> TabGui.Builder.setTabs(
     provider: Provider<A>,
-    mapValue: (A) -> List<GUI>
-): TabGui.Builder<GUI> = setReactiveTabs(provider.map(mapValue))
+    mapValue: (A) -> List<Gui>
+): TabGui.Builder = setReactiveTabs(provider.map(mapValue))
 
 @ExperimentalReactiveApi
-fun <GUI : Gui, A, B> TabGui.Builder<GUI>.setTabs(
+fun <A, B> TabGui.Builder.setTabs(
     a: Provider<A>,
     b: Provider<B>,
-    mapValue: (A, B) -> List<GUI>
-): TabGui.Builder<GUI> = setReactiveTabs(combinedProvider(a, b, mapValue))
+    mapValue: (A, B) -> List<Gui>
+): TabGui.Builder = setReactiveTabs(combinedProvider(a, b, mapValue))
 
 @ExperimentalReactiveApi
-fun <GUI : Gui, A, B, C> TabGui.Builder<GUI>.setTabs(
+fun <A, B, C> TabGui.Builder.setTabs(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
-    mapValue: (A, B, C) -> List<GUI>
-): TabGui.Builder<GUI> = setReactiveTabs(combinedProvider(a, b, c, mapValue))
+    mapValue: (A, B, C) -> List<Gui>
+): TabGui.Builder = setReactiveTabs(combinedProvider(a, b, c, mapValue))
 
 @ExperimentalReactiveApi
-fun <GUI : Gui, A, B, C, D> TabGui.Builder<GUI>.setTabs(
+fun <A, B, C, D> TabGui.Builder.setTabs(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
     d: Provider<D>,
-    mapValue: (A, B, C, D) -> List<GUI>
-): TabGui.Builder<GUI> = setReactiveTabs(combinedProvider(a, b, c, d, mapValue))
+    mapValue: (A, B, C, D) -> List<Gui>
+): TabGui.Builder = setReactiveTabs(combinedProvider(a, b, c, d, mapValue))
 
 @ExperimentalReactiveApi
-fun <GUI : Gui, A, B, C, D, E> TabGui.Builder<GUI>.setTabs(
+fun <A, B, C, D, E> TabGui.Builder.setTabs(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
     d: Provider<D>,
     e: Provider<E>,
-    mapValue: (A, B, C, D, E) -> List<GUI>
-): TabGui.Builder<GUI> = setReactiveTabs(combinedProvider(a, b, c, d, e, mapValue))
+    mapValue: (A, B, C, D, E) -> List<Gui>
+): TabGui.Builder = setReactiveTabs(combinedProvider(a, b, c, d, e, mapValue))
 
 @ExperimentalReactiveApi
-fun <GUI : Gui, A, B, C, D, E, F> TabGui.Builder<GUI>.setTabs(
+fun <A, B, C, D, E, F> TabGui.Builder.setTabs(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
     d: Provider<D>,
     e: Provider<E>,
     f: Provider<F>,
-    mapValue: (A, B, C, D, E, F) -> List<GUI>
-): TabGui.Builder<GUI> = setReactiveTabs(combinedProvider(a, b, c, d, e, f, mapValue))
+    mapValue: (A, B, C, D, E, F) -> List<Gui>
+): TabGui.Builder = setReactiveTabs(combinedProvider(a, b, c, d, e, f, mapValue))
 
 @ExperimentalReactiveApi
-fun <GUI : Gui, A, B, C, D, E, F, G> TabGui.Builder<GUI>.setTabs(
+fun <A, B, C, D, E, F, G> TabGui.Builder.setTabs(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -302,11 +303,11 @@ fun <GUI : Gui, A, B, C, D, E, F, G> TabGui.Builder<GUI>.setTabs(
     e: Provider<E>,
     f: Provider<F>,
     g: Provider<G>,
-    mapValue: (A, B, C, D, E, F, G) -> List<GUI>
-): TabGui.Builder<GUI> = setReactiveTabs(combinedProvider(a, b, c, d, e, f, g, mapValue))
+    mapValue: (A, B, C, D, E, F, G) -> List<Gui>
+): TabGui.Builder = setReactiveTabs(combinedProvider(a, b, c, d, e, f, g, mapValue))
 
 @ExperimentalReactiveApi
-fun <GUI : Gui, A, B, C, D, E, F, G, H> TabGui.Builder<GUI>.setTabs(
+fun <A, B, C, D, E, F, G, H> TabGui.Builder.setTabs(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -315,11 +316,11 @@ fun <GUI : Gui, A, B, C, D, E, F, G, H> TabGui.Builder<GUI>.setTabs(
     f: Provider<F>,
     g: Provider<G>,
     h: Provider<H>,
-    mapValue: (A, B, C, D, E, F, G, H) -> List<GUI>
-): TabGui.Builder<GUI> = setReactiveTabs(combinedProvider(a, b, c, d, e, f, g, h, mapValue))
+    mapValue: (A, B, C, D, E, F, G, H) -> List<Gui>
+): TabGui.Builder = setReactiveTabs(combinedProvider(a, b, c, d, e, f, g, h, mapValue))
 
 @ExperimentalReactiveApi
-fun <GUI : Gui, A, B, C, D, E, F, G, H, I> TabGui.Builder<GUI>.setTabs(
+fun <A, B, C, D, E, F, G, H, I> TabGui.Builder.setTabs(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -329,11 +330,11 @@ fun <GUI : Gui, A, B, C, D, E, F, G, H, I> TabGui.Builder<GUI>.setTabs(
     g: Provider<G>,
     h: Provider<H>,
     i: Provider<I>,
-    mapValue: (A, B, C, D, E, F, G, H, I) -> List<GUI>
-): TabGui.Builder<GUI> = setReactiveTabs(combinedProvider(a, b, c, d, e, f, g, h, i, mapValue))
+    mapValue: (A, B, C, D, E, F, G, H, I) -> List<Gui>
+): TabGui.Builder = setReactiveTabs(combinedProvider(a, b, c, d, e, f, g, h, i, mapValue))
 
 @ExperimentalReactiveApi
-fun <GUI : Gui, A, B, C, D, E, F, G, H, I, J> TabGui.Builder<GUI>.setTabs(
+fun <A, B, C, D, E, F, G, H, I, J> TabGui.Builder.setTabs(
     a: Provider<A>,
     b: Provider<B>,
     c: Provider<C>,
@@ -344,5 +345,5 @@ fun <GUI : Gui, A, B, C, D, E, F, G, H, I, J> TabGui.Builder<GUI>.setTabs(
     h: Provider<H>,
     i: Provider<I>,
     j: Provider<J>,
-    mapValue: (A, B, C, D, E, F, G, H, I, J) -> List<GUI>
-): TabGui.Builder<GUI> = setReactiveTabs(combinedProvider(a, b, c, d, e, f, g, h, i, j, mapValue))
+    mapValue: (A, B, C, D, E, F, G, H, I, J) -> List<Gui>
+): TabGui.Builder = setReactiveTabs(combinedProvider(a, b, c, d, e, f, g, h, i, j, mapValue))

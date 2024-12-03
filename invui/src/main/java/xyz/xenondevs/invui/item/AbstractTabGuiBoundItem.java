@@ -10,7 +10,7 @@ public abstract class AbstractTabGuiBoundItem extends AbstractBoundItem {
     
     @Override
     public void bind(Gui gui) {
-        if (!(gui instanceof TabGui<?> tabGui))
+        if (!(gui instanceof TabGui tabGui))
             throw new IllegalArgumentException("TabItem can only be used in a TabGui");
         
         super.bind(gui);
@@ -18,8 +18,8 @@ public abstract class AbstractTabGuiBoundItem extends AbstractBoundItem {
     }
     
     @Override
-    public TabGui<?> getGui() {
-        return (TabGui<?>) super.getGui();
+    public TabGui getGui() {
+        return (TabGui) super.getGui();
     }
     
 }

@@ -16,7 +16,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      *
      * @return The new {@link Builder Gui Builder}.
      */
-    static <C extends Item> Builder<C> items() {
+    static Builder<Item> items() {
         return new ScrollItemsGuiImpl.Builder<>();
     }
     
@@ -27,8 +27,8 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
      * @return The created {@link ScrollGui}.
      */
-    static <C extends Item> ScrollGui<C> items(Consumer<Builder<C>> consumer) {
-        Builder<C> builder = items();
+    static ScrollGui<Item> items(Consumer<Builder<Item>> consumer) {
+        Builder<Item> builder = items();
         consumer.accept(builder);
         return builder.build();
     }
@@ -42,7 +42,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link ScrollGui}.
      */
-    static <C extends Item> ScrollGui<C> ofItems(int width, int height, List<C> items, int... contentListSlots) {
+    static ScrollGui<Item> ofItems(int width, int height, List<Item> items, int... contentListSlots) {
         return new ScrollItemsGuiImpl<>(width, height, items, contentListSlots);
     }
     
@@ -53,7 +53,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @param items     The {@link Item Items} to use.
      * @return The created {@link ScrollGui}.
      */
-    static <C extends Item> ScrollGui<C> ofItems(Structure structure, List<C> items) {
+    static ScrollGui<Item> ofItems(Structure structure, List<Item> items) {
         return new ScrollItemsGuiImpl<>(() -> items, structure);
     }
     
@@ -62,7 +62,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      *
      * @return The new {@link Builder Gui Builder}.
      */
-    static <C extends Gui> Builder<C> guis() {
+    static Builder<Gui> guis() {
         return new ScrollNestedGuiImpl.Builder<>();
     }
     
@@ -73,8 +73,8 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
      * @return The created {@link ScrollGui}.
      */
-    static <C extends Gui> ScrollGui<C> guis(Consumer<Builder<C>> consumer) {
-        Builder<C> builder = guis();
+    static ScrollGui<Gui> guis(Consumer<Builder<Gui>> consumer) {
+        Builder<Gui> builder = guis();
         consumer.accept(builder);
         return builder.build();
     }
@@ -88,7 +88,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link ScrollGui}.
      */
-    static <C extends Gui> ScrollGui<C> ofGuis(int width, int height, List<C> guis, int... contentListSlots) {
+    static ScrollGui<Gui> ofGuis(int width, int height, List<Gui> guis, int... contentListSlots) {
         return new ScrollNestedGuiImpl<>(width, height, guis, contentListSlots);
     }
     
@@ -99,7 +99,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @param guis      The {@link Gui Guis} to use.
      * @return The created {@link ScrollGui}.
      */
-    static <C extends Gui> ScrollGui<C> ofGuis(Structure structure, List<C> guis) {
+    static ScrollGui<Gui> ofGuis(Structure structure, List<Gui> guis) {
         return new ScrollNestedGuiImpl<>(() -> guis, structure);
     }
     
@@ -108,7 +108,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      *
      * @return The new {@link Builder Gui Builder}.
      */
-    static <C extends Inventory> Builder<C> inventories() {
+    static Builder<Inventory> inventories() {
         return new ScrollInventoryGuiImpl.Builder<>();
     }
     
@@ -119,8 +119,8 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
      * @return The created {@link ScrollGui}.
      */
-    static <C extends Inventory> ScrollGui<C> inventories(Consumer<Builder<C>> consumer) {
-        Builder<C> builder = inventories();
+    static ScrollGui<Inventory> inventories(Consumer<Builder<Inventory>> consumer) {
+        Builder<Inventory> builder = inventories();
         consumer.accept(builder);
         return builder.build();
     }
@@ -134,7 +134,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link ScrollGui}.
      */
-    static <C extends Inventory> ScrollGui<C> ofInventories(int width, int height, List<C> inventories, int... contentListSlots) {
+    static ScrollGui<Inventory> ofInventories(int width, int height, List<Inventory> inventories, int... contentListSlots) {
         return new ScrollInventoryGuiImpl<>(width, height, inventories, contentListSlots);
     }
     
@@ -145,7 +145,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @param inventories The {@link Inventory VirtualInventories} to use.
      * @return The created {@link ScrollGui}.
      */
-    static <C extends Inventory> ScrollGui<C> ofInventories(Structure structure, List<C> inventories) {
+    static ScrollGui<Inventory> ofInventories(Structure structure, List<Inventory> inventories) {
         return new ScrollInventoryGuiImpl<>(() -> inventories, structure);
     }
     

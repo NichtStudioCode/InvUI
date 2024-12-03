@@ -7,16 +7,16 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-final class TabGuiImpl<C extends Gui> extends AbstractGui implements TabGui<C> {
+final class TabGuiImpl extends AbstractGui implements TabGui {
     
     private final int[] contentListSlots;
     private @Nullable List<BiConsumer<Integer, Integer>> tabChangeHandlers;
     
-    private Supplier<List<@Nullable C>> tabsSupplier = List::of;
+    private Supplier<List<@Nullable Gui>> tabsSupplier = List::of;
     private List<@Nullable List<SlotElement.GuiLink>> linkingElements = List.of();
     private int currentTab = -1;
     
-    public TabGuiImpl(int width, int height, List<@Nullable C> tabs, int[] contentListSlots) {
+    public TabGuiImpl(int width, int height, List<@Nullable Gui> tabs, int[] contentListSlots) {
         super(width, height);
         if (contentListSlots.length == 0)
             throw new IllegalArgumentException("Content list slots must not be empty");
@@ -24,7 +24,7 @@ final class TabGuiImpl<C extends Gui> extends AbstractGui implements TabGui<C> {
         setTabs(tabs);
     }
     
-    public TabGuiImpl(Supplier<List<@Nullable C>> tabs, Structure structure) {
+    public TabGuiImpl(Supplier<List<@Nullable Gui>> tabs, Structure structure) {
         super(structure.getWidth(), structure.getHeight());
         applyStructure(structure);
         contentListSlots = structure.getIngredientList().findContentListSlots();
@@ -82,17 +82,17 @@ final class TabGuiImpl<C extends Gui> extends AbstractGui implements TabGui<C> {
     }
     
     @Override
-    public void setTabs(List<@Nullable C> tabs) {
+    public void setTabs(List<@Nullable Gui> tabs) {
         setTabs(() -> tabs);
     }
     
     @Override
-    public void setTabs(Supplier<List<@Nullable C>> tabsSupplier) {
+    public void setTabs(Supplier<List<@Nullable Gui>> tabsSupplier) {
         this.tabsSupplier = tabsSupplier;
     }
     
     @Override
-    public List<@Nullable C> getTabs() {
+    public List<@Nullable Gui> getTabs() {
         return tabsSupplier.get();
     }
     
@@ -144,29 +144,29 @@ final class TabGuiImpl<C extends Gui> extends AbstractGui implements TabGui<C> {
         if (tabChangeHandlers != null) tabChangeHandlers.remove(tabChangeHandler);
     }
     
-    public static final class Builder<C extends Gui>
-        extends AbstractGui.AbstractBuilder<TabGui<C>, TabGui.Builder<C>>
-        implements TabGui.Builder<C>
+    public static final class Builder
+        extends AbstractGui.AbstractBuilder<TabGui, TabGui.Builder>
+        implements TabGui.Builder
     {
         
-        private @Nullable Supplier<List<@Nullable C>> tabSupplier;
-        private @Nullable List<@Nullable C> tabs;
+        private @Nullable Supplier<List<@Nullable Gui>> tabSupplier;
+        private @Nullable List<@Nullable Gui> tabs;
         private @Nullable List<BiConsumer<Integer, Integer>> tabChangeHandlers;
         
         @Override
-        public TabGui.Builder<C> setTabs(Supplier<List<@Nullable C>> tabsSupplier) {
+        public TabGui.Builder setTabs(Supplier<List<@Nullable Gui>> tabsSupplier) {
             this.tabSupplier = tabsSupplier;
             return this;
         }
         
         @Override
-        public TabGui.Builder<C> setTabs(List<@Nullable C> tabs) {
+        public TabGui.Builder setTabs(List<@Nullable Gui> tabs) {
             this.tabs = tabs;
             return this;
         }
         
         @Override
-        public TabGui.Builder<C> addTab(@Nullable C tab) {
+        public TabGui.Builder addTab(@Nullable Gui tab) {
             if (this.tabs == null)
                 this.tabs = new ArrayList<>();
             
@@ -175,7 +175,7 @@ final class TabGuiImpl<C extends Gui> extends AbstractGui implements TabGui<C> {
         }
         
         @Override
-        public TabGui.Builder<C> addTabChangeHandler(BiConsumer<Integer, Integer> handler) {
+        public TabGui.Builder addTabChangeHandler(BiConsumer<Integer, Integer> handler) {
             if (tabChangeHandlers == null)
                 tabChangeHandlers = new ArrayList<>(1);
             
@@ -184,21 +184,21 @@ final class TabGuiImpl<C extends Gui> extends AbstractGui implements TabGui<C> {
         }
         
         @Override
-        public TabGui.Builder<C> setTabChangeHandlers(List<BiConsumer<Integer, Integer>> handlers) {
+        public TabGui.Builder setTabChangeHandlers(List<BiConsumer<Integer, Integer>> handlers) {
             tabChangeHandlers = handlers;
             return this;
         }
         
         @Override
-        public TabGui<C> build() {
+        public TabGui build() {
             if (structure == null)
                 throw new IllegalStateException("Structure is not defined.");
             
-            Supplier<List<@Nullable C>> supplier = tabSupplier != null
+            Supplier<List<@Nullable Gui>> supplier = tabSupplier != null
                 ? tabSupplier
                 : () -> tabs != null ? tabs : List.of();
             
-            var gui = new TabGuiImpl<>(supplier, structure);
+            var gui = new TabGuiImpl(supplier, structure);
             
             if (tabChangeHandlers != null) {
                 for (var handler : tabChangeHandlers) {
@@ -212,8 +212,8 @@ final class TabGuiImpl<C extends Gui> extends AbstractGui implements TabGui<C> {
         }
         
         @Override
-        public TabGui.Builder<C> clone() {
-            var clone = (Builder<C>) super.clone();
+        public TabGui.Builder clone() {
+            var clone = (Builder) super.clone();
             if (tabs != null)
                 clone.tabs = new ArrayList<>(tabs);
             if (tabChangeHandlers != null)
