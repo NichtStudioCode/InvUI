@@ -13,14 +13,27 @@ import xyz.xenondevs.invui.item.ItemProvider;
  */
 public sealed interface SlotElement {
     
+    /**
+     * Gets the {@link ItemStack} that should be displayed in the slot.
+     *
+     * @param player The player viewing the {@link ItemStack}
+     * @return The {@link ItemStack} that should be displayed in the slot
+     */
     @Nullable
     ItemStack getItemStack(Player player);
     
+    /**
+     * Gets the {@link SlotElement} that is actually holding the {@link ItemStack}.
+     *
+     * @return The {@link SlotElement} that is actually holding the {@link ItemStack}
+     */
     @Nullable
     SlotElement getHoldingElement();
     
     /**
      * Contains an {@link xyz.xenondevs.invui.item.Item}
+     *
+     * @param item The {@link xyz.xenondevs.invui.item.Item}
      */
     record Item(xyz.xenondevs.invui.item.Item item) implements SlotElement {
         
