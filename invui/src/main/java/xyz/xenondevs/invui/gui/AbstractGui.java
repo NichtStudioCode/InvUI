@@ -550,7 +550,7 @@ public sealed abstract class AbstractGui
         
         // set the gui if it is a bound item
         if (slotElement instanceof SlotElement.Item(Item item)) {
-            if (item instanceof BoundItem boundItem) {
+            if (item instanceof BoundItem boundItem && !boundItem.isBound()) {
                 boundItem.bind(this);
             }
         }

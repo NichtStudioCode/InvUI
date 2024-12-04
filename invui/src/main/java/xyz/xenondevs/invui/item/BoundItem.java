@@ -28,8 +28,16 @@ public sealed interface BoundItem extends Item permits AbstractBoundItem {
      * Called when the item is added to a {@link Gui}.
      *
      * @param gui The {@link Gui} to bind this item to.
+     * @throws IllegalStateException If this item is already bound to a {@link Gui}.
      */
     void bind(Gui gui);
+    
+    /**
+     * Checks if this item is already bound to a {@link Gui}.
+     *
+     * @return Whether this item is already bound to a {@link Gui}.
+     */
+    boolean isBound();
     
     static Builder<Gui> gui() {
         return new CustomBoundItem.Builder<>();
@@ -48,7 +56,7 @@ public sealed interface BoundItem extends Item permits AbstractBoundItem {
     }
     
     sealed interface Builder<G extends Gui> extends Item.Builder<Builder<G>> permits CustomBoundItem.Builder {
-
+        
         Builder<G> addBindHandler(BiConsumer<Item, G> handler);
         
         Builder<G> addClickHandler(TriConsumer<Item, G, Click> handler);
