@@ -11,14 +11,13 @@ import it.unimi.dsi.fastutil.floats.FloatList;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.i18n.Languages;
 import xyz.xenondevs.invui.internal.util.ComponentUtils;
 
-import java.awt.*;
-import java.util.List;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -431,6 +430,16 @@ public final class ItemBuilder implements ItemProvider {
     }
     
     /**
+     * Adds the given custom model data entry to the `colors` section.
+     *
+     * @param value The value to add
+     * @return The builder instance
+     */
+    public ItemBuilder addCustomModelData(java.awt.Color value) {
+        return addCustomModelData(Color.fromARGB(value.getRGB()));
+    }
+    
+    /**
      * Sets the custom model data entry in `floats` at the given index to the given value,
      * filling smaller indices with zeros if necessary.
      *
@@ -544,6 +553,18 @@ public final class ItemBuilder implements ItemProvider {
         
         customModelDataColors.set(index, value);
         return this;
+    }
+    
+    /**
+     * Sets the custom model data entry in `colors` at the given index to the given value,
+     * filling smaller indices with white if necessary.
+     *
+     * @param index The index
+     * @param value The value
+     * @return The builder instance
+     */
+    public ItemBuilder setCustomModelData(int index, java.awt.Color value) {
+        return setCustomModelData(index, Color.fromARGB(value.getRGB()));
     }
     
     /**
