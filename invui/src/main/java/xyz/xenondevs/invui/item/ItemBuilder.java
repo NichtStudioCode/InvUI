@@ -767,8 +767,9 @@ public final class ItemBuilder implements ItemProvider {
      * @param <T>          value type
      */
     @Experimental
-    public <T> void set(DataComponentType.Valued<T> type, DataComponentBuilder<T> valueBuilder) {
+    public <T> ItemBuilder set(DataComponentType.Valued<T> type, DataComponentBuilder<T> valueBuilder) {
         itemStack.setData(type, valueBuilder);
+        return this;
     }
     
     /**
@@ -781,8 +782,9 @@ public final class ItemBuilder implements ItemProvider {
      * @param <T>   value type
      */
     @Experimental
-    public <T> void set(final DataComponentType.Valued<T> type, T value) {
+    public <T> ItemBuilder set(final DataComponentType.Valued<T> type, T value) {
         itemStack.setData(type, value);
+        return this;
     }
     
     /**
@@ -793,8 +795,9 @@ public final class ItemBuilder implements ItemProvider {
      * @param type the data component type
      */
     @Experimental
-    public void set(DataComponentType.NonValued type) {
+    public ItemBuilder set(DataComponentType.NonValued type) {
         itemStack.setData(type);
+        return this;
     }
     
     /**
@@ -805,8 +808,9 @@ public final class ItemBuilder implements ItemProvider {
      * @param type the data component type
      */
     @Experimental
-    public void unset(DataComponentType type) {
+    public ItemBuilder unset(DataComponentType type) {
         itemStack.unsetData(type);
+        return this;
     }
     
     //</editor-fold>
