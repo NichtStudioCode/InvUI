@@ -15,12 +15,13 @@ import xyz.xenondevs.invui.util.TriConsumer;
 import xyz.xenondevs.invui.window.AbstractWindow;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.*;
 
 class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
     
     private final TriConsumer<Item, G, Click> clickHandler;
-    private BiFunction<Player, G, ItemProvider> itemProvider;
+    private volatile BiFunction<Player, G, ItemProvider> itemProvider;
     private final BiConsumer<Item, G> bindHandler;
     private final long updatePeriod;
     private @Nullable BukkitTask updateTask;
@@ -83,6 +84,8 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         private TriConsumer<Item, G, Click> clickHandler = (item, gui, click) -> {};
         private @Nullable BiFunction<Player, G, ItemProvider> itemProviderFn;
         private @Nullable ItemProvider asyncPlaceholder;
+        private @Nullable Supplier<ItemProvider> asyncSupplier;
+        private @Nullable CompletableFuture<ItemProvider> asyncFuture;
         private Consumer<Item> modifier = item -> {};
         private boolean updateOnClick;
         private long updatePeriod = -1L;
@@ -123,8 +126,16 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         }
         
         @Override
-        public Builder<G> async(ItemProvider placeholder) {
+        public BoundItem.Builder<G> async(ItemProvider placeholder, Supplier<ItemProvider> itemProviderSupplier) {
             this.asyncPlaceholder = placeholder;
+            this.asyncSupplier = itemProviderSupplier;
+            return this;
+        }
+        
+        @Override
+        public BoundItem.Builder<G> async(ItemProvider placeholder, CompletableFuture<ItemProvider> itemProviderFuture) {
+            this.asyncPlaceholder = placeholder;
+            this.asyncFuture = itemProviderFuture;
             return this;
         }
         
@@ -175,15 +186,25 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
                 customItem = new CustomBoundItem<>(
                     bindHandler,
                     clickHandler,
-                    itemProviderFn,
+                    (viewer, gui) -> asyncPlaceholder,
                     updatePeriod
                 );
                 
-                Bukkit.getScheduler().runTaskAsynchronously(
-                    InvUI.getInstance().getPlugin(),
-                    () -> customItem.itemProvider = (viewer, gui) -> itemProviderFn.apply(viewer, gui)
-                );
-                
+                if (asyncSupplier != null) {
+                    Bukkit.getScheduler().runTaskAsynchronously(
+                        InvUI.getInstance().getPlugin(),
+                        () -> {
+                            var itemProvider = asyncSupplier.get();
+                            customItem.itemProvider = (viewer, gui) -> itemProvider;
+                            customItem.notifyWindows();
+                        }
+                    );
+                } else if (asyncFuture != null) {
+                    asyncFuture.thenAccept(itemProvider -> {
+                        customItem.itemProvider = (viewer, gui) -> itemProvider;
+                        customItem.notifyWindows();
+                    });
+                }
             } else {
                 customItem = new CustomBoundItem<>(
                     bindHandler,
@@ -198,11 +219,7 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
             return customItem;
         }
         
-        static class Normal extends Builder<Gui> {
-        }
-        
         static class Paged extends Builder<PagedGui<?>> {
-            
             
             Paged() {
                 bindHandler = bindHandler.andThen((item, gui) -> {

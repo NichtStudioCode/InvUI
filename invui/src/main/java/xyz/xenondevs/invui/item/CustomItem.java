@@ -9,14 +9,16 @@ import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.window.AbstractWindow;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 class CustomItem extends AbstractItem {
     
     private final BiConsumer<Item, Click> clickHandler;
-    private Function<Player, ItemProvider> itemProvider;
+    private volatile Function<Player, ItemProvider> itemProvider;
     private final long updatePeriod;
     private @Nullable BukkitTask updateTask;
     
@@ -63,6 +65,8 @@ class CustomItem extends AbstractItem {
         private BiConsumer<Item, Click> clickHandler = (item, click) -> {};
         private @Nullable Function<Player, ItemProvider> itemProviderFn;
         private @Nullable ItemProvider asyncPlaceholder;
+        private @Nullable Supplier<ItemProvider> asyncSupplier;
+        private @Nullable CompletableFuture<ItemProvider> asyncFuture;
         private Consumer<Item> modifier = item -> {};
         private boolean updateOnClick;
         private long updatePeriod = -1L;
@@ -97,8 +101,16 @@ class CustomItem extends AbstractItem {
         }
         
         @Override
-        public Builder async(ItemProvider placeholder) {
+        public Builder async(ItemProvider placeholder, Supplier<ItemProvider> itemProviderSupplier) {
             this.asyncPlaceholder = placeholder;
+            this.asyncSupplier = itemProviderSupplier;
+            return this;
+        }
+        
+        @Override
+        public Builder async(ItemProvider placeholder, CompletableFuture<ItemProvider> itemProviderFuture) {
+            this.asyncPlaceholder = placeholder;
+            this.asyncFuture = itemProviderFuture;
             return this;
         }
         
@@ -133,18 +145,28 @@ class CustomItem extends AbstractItem {
             }
             
             CustomItem customItem;
-            if (asyncPlaceholder != null && itemProviderFn != null) {
+            if (asyncPlaceholder != null) {
                 customItem = new CustomItem(
                     clickHandler,
                     viewer -> asyncPlaceholder,
                     updatePeriod
                 );
                 
-                Bukkit.getScheduler().runTaskAsynchronously(
-                    InvUI.getInstance().getPlugin(),
-                    () -> customItem.itemProvider = (viewer -> itemProviderFn.apply(viewer))
-                );
-                
+                if (asyncSupplier != null) {
+                    Bukkit.getScheduler().runTaskAsynchronously(
+                        InvUI.getInstance().getPlugin(),
+                        () -> {
+                            var itemProvider = asyncSupplier.get();
+                            customItem.itemProvider = (viewer -> itemProvider);
+                            customItem.notifyWindows();
+                        }
+                    );
+                } else if (asyncFuture != null) {
+                    asyncFuture.thenAccept(itemProvider -> {
+                        customItem.itemProvider = (viewer -> itemProvider);
+                        customItem.notifyWindows();
+                    });
+                }
             } else {
                 customItem = new CustomItem(
                     clickHandler,

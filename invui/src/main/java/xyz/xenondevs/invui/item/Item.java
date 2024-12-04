@@ -8,9 +8,12 @@ import xyz.xenondevs.invui.internal.util.ArrayUtils;
 import xyz.xenondevs.invui.window.Window;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * A UI element for use in {@link Gui Guis}.
@@ -130,14 +133,29 @@ public sealed interface Item permits AbstractItem, BoundItem {
         S setCyclingItemProvider(int period, List<? extends ItemProvider> itemProviders);
         
         /**
-         * Configures the resulting {@link Item} to resolve the {@link ItemProvider} set via {@link #setItemProvider(Function)}
-         * asynchronously. Once resolved, the {@link ItemProvider} will stay like this and the function will never be called again.
+         * Configures the resulting {@link Item} to resolve the {@link ItemProvider} asynchronously.
+         * Once resolved, the {@link ItemProvider} will stay like this and the function will never be called again.
          * (Not even when calling {@link Item#notifyWindows()})
+         * <p>
+         * This function invalidates all previously configured {@link ItemProvider ItemProviders}.
          *
-         * @param placeholder The {@link ItemProvider} to display while the actual {@link ItemProvider} is being resolved.
+         * @param placeholder          The {@link ItemProvider} to display while the actual {@link ItemProvider} is being resolved.
+         * @param itemProviderSupplier The supplier that resolves the {@link ItemProvider}.
          * @return This builder.
          */
-        S async(ItemProvider placeholder);
+        S async(ItemProvider placeholder, Supplier<ItemProvider> itemProviderSupplier);
+        
+        /**
+         * Configures the resulting {@link Item} to display a placeholder {@link ItemProvider} until
+         * the specified {@link Future} arrives.
+         * <p>
+         * This function invalidates all previously configured {@link ItemProvider ItemProviders}.
+         *
+         * @param placeholder        The {@link ItemProvider} to display while the actual {@link ItemProvider} is being resolved.
+         * @param itemProviderFuture The future that resolves the {@link ItemProvider}.
+         * @return This builder.
+         */
+        S async(ItemProvider placeholder, CompletableFuture<ItemProvider> itemProviderFuture);
         
         /**
          * Configures the resulting to automatically call {@link #notifyWindows()} every period ticks, while it is
