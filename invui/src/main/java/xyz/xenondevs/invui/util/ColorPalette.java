@@ -6,6 +6,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * Utility for converting images into the color space used by maps in Minecraft.
+ */
 public class ColorPalette {
     
     private static final byte[] colorCache;

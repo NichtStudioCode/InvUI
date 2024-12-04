@@ -16,6 +16,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 
+/**
+ * Handles localization of items and window titles.
+ */
 public class Languages {
     
     private static final Languages INSTANCE = new Languages();

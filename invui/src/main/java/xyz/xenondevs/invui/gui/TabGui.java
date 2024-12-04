@@ -7,6 +7,9 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+/**
+ * A {@link Gui} that displays multiple tabs, which themselves are {@link Gui Guis} as well.
+ */
 public sealed interface TabGui extends Gui permits TabGuiImpl {
     
     /**

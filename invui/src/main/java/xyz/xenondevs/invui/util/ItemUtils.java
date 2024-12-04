@@ -4,6 +4,9 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 
+/**
+ * Generic item-related utilities.
+ */
 public class ItemUtils {
     
     /**

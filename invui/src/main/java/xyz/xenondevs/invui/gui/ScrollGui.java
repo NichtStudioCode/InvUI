@@ -9,6 +9,10 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+/**
+ * A {@link Gui} that displays content in lines that can be scrolled through.
+ * @param <C> The content type.
+ */
 public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
     
     /**

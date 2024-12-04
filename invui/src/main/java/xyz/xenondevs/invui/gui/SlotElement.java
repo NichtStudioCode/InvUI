@@ -7,6 +7,10 @@ import xyz.xenondevs.invui.i18n.Languages;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.ItemProvider;
 
+/**
+ * Represents an element in a slot in a {@link Gui}.
+ * You will rarely need to use this interface directly.
+ */
 public sealed interface SlotElement {
     
     @Nullable
