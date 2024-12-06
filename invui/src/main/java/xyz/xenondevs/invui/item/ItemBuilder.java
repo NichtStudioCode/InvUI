@@ -22,6 +22,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static io.papermc.paper.datacomponent.item.CustomModelData.customModelData;
 import static org.jetbrains.annotations.ApiStatus.Experimental;
 
 /**
@@ -73,11 +74,20 @@ public final class ItemBuilder implements ItemProvider {
             assert lore != null;
             this.lore = lore.lines();
         }
+        
+        if (base.isDataOverridden(DataComponentTypes.CUSTOM_MODEL_DATA)) {
+            var cmd = base.getData(DataComponentTypes.CUSTOM_MODEL_DATA);
+            assert cmd != null;
+            customModelDataFloats = new FloatArrayList(cmd.floats());
+            customModelDataBooleans = new BooleanArrayList(cmd.flags());
+            customModelDataStrings = cmd.strings();
+            customModelDataColors = cmd.colors();
+        }
     }
     
     /**
      * Builds the {@link ItemStack} in {@link Locale#US}.
-     * 
+     *
      * @return The {@link ItemStack}
      */
     @Override
@@ -113,7 +123,27 @@ public final class ItemBuilder implements ItemProvider {
                 itemStack.setData(DataComponentTypes.LORE, lore.build());
             }
             
-            // TODO: Custom model data (1.21.4)
+            if (customModelDataFloats != null 
+                || customModelDataBooleans != null 
+                || customModelDataStrings != null 
+                || customModelDataColors != null
+            ) {
+                var cmd = customModelData();
+                if (customModelDataFloats != null) {
+                    cmd.addFloats(customModelDataFloats);
+                }
+                if (customModelDataBooleans != null) {
+                    cmd.addFlags(customModelDataBooleans);
+                }
+                if (customModelDataStrings != null) {
+                    cmd.addStrings(customModelDataStrings);
+                }
+                if (customModelDataColors != null) {
+                    cmd.addColors(customModelDataColors);
+                }
+                
+                itemStack.setData(DataComponentTypes.CUSTOM_MODEL_DATA, cmd.build());
+            }
             
             if (modifiers != null) {
                 for (var modifier : modifiers) {
