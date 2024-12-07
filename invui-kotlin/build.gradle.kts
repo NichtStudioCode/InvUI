@@ -16,7 +16,7 @@ repositories {
 dependencies {
     api("org.jetbrains.kotlin:kotlin-stdlib:2.1.0")
     api(project(":invui"))
-    api("xyz.xenondevs.commons:commons-provider:1.21")
+    api("xyz.xenondevs.commons:commons-provider:1.23")
 }
 
 publishing {
