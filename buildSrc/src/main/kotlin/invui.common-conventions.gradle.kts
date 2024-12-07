@@ -26,6 +26,18 @@ java {
     }
 }
 
+publishing {
+    repositories {
+        maven {
+            credentials {
+                name = "xenondevs"
+                url = uri { "https://repo.xenondevs.xyz/releases/" }
+                credentials(PasswordCredentials::class)
+            }
+        }
+    }
+}
+
 // remove "dev" classifier set by paperweight-userdev
 afterEvaluate {
     tasks.getByName<Jar>("jar") {
