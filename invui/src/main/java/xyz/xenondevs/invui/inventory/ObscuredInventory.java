@@ -5,6 +5,7 @@ import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
+import xyz.xenondevs.invui.window.AbstractWindow;
 
 import java.util.ArrayList;
 import java.util.function.Consumer;
@@ -64,7 +65,7 @@ public final class ObscuredInventory extends Inventory {
     
     @Override
     public @Nullable ItemStack[] getItems() {
-        ItemStack[] items = new ItemStack[slots.length];
+        @Nullable ItemStack[] items = new ItemStack[slots.length];
         for (int i = 0; i < slots.length; i++) {
             items[i] = inventory.getItem(slots[i]);
         }
@@ -73,7 +74,7 @@ public final class ObscuredInventory extends Inventory {
     
     @Override
     public @Nullable ItemStack[] getUnsafeItems() {
-        ItemStack[] items = new ItemStack[slots.length];
+        @Nullable ItemStack[] items = new ItemStack[slots.length];
         for (int i = 0; i < slots.length; i++) {
             items[i] = inventory.getUnsafeItem(slots[i]);
         }
@@ -102,8 +103,22 @@ public final class ObscuredInventory extends Inventory {
     
     @Override
     public void notifyWindows() {
-        super.notifyWindows();
         inventory.notifyWindows();
+    }
+    
+    @Override
+    public void notifyWindows(int slot) {
+        inventory.notifyWindows(slot);
+    }
+    
+    @Override
+    public void addViewer(AbstractWindow viewer, int what, int how) {
+        inventory.addViewer(viewer, what, how);
+    }
+    
+    @Override
+    public void removeViewer(AbstractWindow viewer, int what, int how) {
+        inventory.removeViewer(viewer, what, how);
     }
     
     @Override

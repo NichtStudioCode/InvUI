@@ -7,6 +7,7 @@ import xyz.xenondevs.invui.internal.util.Pair;
 import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
+import xyz.xenondevs.invui.window.AbstractWindow;
 
 import java.util.Collection;
 import java.util.function.Consumer;
@@ -142,7 +143,6 @@ public final class CompositeInventory extends Inventory {
     
     @Override
     public void notifyWindows() {
-        super.notifyWindows();
         for (Inventory inventory : inventories) {
             inventory.notifyWindows();
         }
@@ -150,8 +150,20 @@ public final class CompositeInventory extends Inventory {
     
     @Override
     public void notifyWindows(int slot) {
-        Pair<Inventory, Integer> invSlot = findInventory(slot);
+        var invSlot = findInventory(slot);
         invSlot.first().notifyWindows(invSlot.second());
+    }
+    
+    @Override
+    public void addViewer(AbstractWindow viewer, int what, int how) {
+        var invSlot = findInventory(what);
+        invSlot.first().addViewer(viewer, invSlot.second(), how);
+    }
+    
+    @Override
+    public void removeViewer(AbstractWindow viewer, int what, int how) {
+        var invSlot = findInventory(what);
+        invSlot.first().removeViewer(viewer, invSlot.second(), how);
     }
     
     @Override
