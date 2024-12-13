@@ -69,15 +69,13 @@ public final class ItemBuilder implements ItemProvider {
     public ItemBuilder(ItemStack base) {
         this.itemStack = base.clone();
         
-        if (base.isDataOverridden(DataComponentTypes.LORE)) {
-            ItemLore lore = base.getData(DataComponentTypes.LORE);
-            assert lore != null;
-            this.lore = lore.lines();
+        ItemLore lore = base.getData(DataComponentTypes.LORE);
+        if (lore != null) {
+            this.lore = new ArrayList<>(lore.lines());
         }
         
-        if (base.isDataOverridden(DataComponentTypes.CUSTOM_MODEL_DATA)) {
-            var cmd = base.getData(DataComponentTypes.CUSTOM_MODEL_DATA);
-            assert cmd != null;
+        CustomModelData cmd = base.getData(DataComponentTypes.CUSTOM_MODEL_DATA);
+        if (cmd != null) {
             customModelDataFloats = new FloatArrayList(cmd.floats());
             customModelDataBooleans = new BooleanArrayList(cmd.flags());
             customModelDataStrings = cmd.strings();
