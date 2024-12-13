@@ -854,8 +854,18 @@ public final class ItemBuilder implements ItemProvider {
         try {
             ItemBuilder clone = ((ItemBuilder) super.clone());
             clone.itemStack = itemStack.clone();
-            if (lore != null) clone.lore = new ArrayList<>(lore);
-            if (modifiers != null) clone.modifiers = new ArrayList<>(modifiers);
+            if (lore != null)
+                clone.lore = new ArrayList<>(lore);
+            if (customModelDataFloats != null)
+                clone.customModelDataFloats = new FloatArrayList(customModelDataFloats);
+            if (customModelDataBooleans != null)
+                clone.customModelDataBooleans = new BooleanArrayList(customModelDataBooleans);
+            if (customModelDataStrings != null)
+                clone.customModelDataStrings = new ArrayList<>(customModelDataStrings);
+            if (customModelDataColors != null)
+                clone.customModelDataColors = new ArrayList<>(customModelDataColors);
+            if (modifiers != null)
+                clone.modifiers = new ArrayList<>(modifiers);
             
             return clone;
         } catch (CloneNotSupportedException e) {
