@@ -3,6 +3,7 @@ package xyz.xenondevs.invui.item;
 import io.papermc.paper.datacomponent.DataComponentBuilder;
 import io.papermc.paper.datacomponent.DataComponentType;
 import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.CustomModelData;
 import io.papermc.paper.datacomponent.item.ItemLore;
 import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
 import it.unimi.dsi.fastutil.booleans.BooleanList;
@@ -78,8 +79,8 @@ public final class ItemBuilder implements ItemProvider {
         if (cmd != null) {
             customModelDataFloats = new FloatArrayList(cmd.floats());
             customModelDataBooleans = new BooleanArrayList(cmd.flags());
-            customModelDataStrings = cmd.strings();
-            customModelDataColors = cmd.colors();
+            customModelDataStrings = new ArrayList<>(cmd.strings());
+            customModelDataColors = new ArrayList<>(cmd.colors());
         }
     }
     
