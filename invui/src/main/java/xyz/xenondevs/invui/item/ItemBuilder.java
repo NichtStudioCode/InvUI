@@ -3,17 +3,21 @@ package xyz.xenondevs.invui.item;
 import io.papermc.paper.datacomponent.DataComponentBuilder;
 import io.papermc.paper.datacomponent.DataComponentType;
 import io.papermc.paper.datacomponent.DataComponentTypes;
-import io.papermc.paper.datacomponent.item.CustomModelData;
 import io.papermc.paper.datacomponent.item.ItemLore;
 import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
 import it.unimi.dsi.fastutil.booleans.BooleanList;
 import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import it.unimi.dsi.fastutil.floats.FloatList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.component.CustomModelData;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.i18n.Languages;
@@ -23,7 +27,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static io.papermc.paper.datacomponent.item.CustomModelData.customModelData;
 import static org.jetbrains.annotations.ApiStatus.Experimental;
 
 /**
@@ -38,7 +41,7 @@ public final class ItemBuilder implements ItemProvider {
     private @Nullable FloatList customModelDataFloats;
     private @Nullable BooleanList customModelDataBooleans;
     private @Nullable List<String> customModelDataStrings;
-    private @Nullable List<Color> customModelDataColors;
+    private @Nullable IntList customModelDataColors;
     private @Nullable List<Function<ItemStack, ItemStack>> modifiers;
     
     private final Map<Locale, ItemStack> buildCache = new HashMap<>();
@@ -75,12 +78,12 @@ public final class ItemBuilder implements ItemProvider {
             this.lore = new ArrayList<>(lore.lines());
         }
         
-        CustomModelData cmd = base.getData(DataComponentTypes.CUSTOM_MODEL_DATA);
+        CustomModelData cmd = CraftItemStack.unwrap(base).get(DataComponents.CUSTOM_MODEL_DATA);
         if (cmd != null) {
             customModelDataFloats = new FloatArrayList(cmd.floats());
             customModelDataBooleans = new BooleanArrayList(cmd.flags());
             customModelDataStrings = new ArrayList<>(cmd.strings());
-            customModelDataColors = new ArrayList<>(cmd.colors());
+            customModelDataColors = new IntArrayList(cmd.colors());
         }
     }
     
@@ -122,26 +125,20 @@ public final class ItemBuilder implements ItemProvider {
                 itemStack.setData(DataComponentTypes.LORE, lore.build());
             }
             
-            if (customModelDataFloats != null 
-                || customModelDataBooleans != null 
-                || customModelDataStrings != null 
+            if (customModelDataFloats != null
+                || customModelDataBooleans != null
+                || customModelDataStrings != null
                 || customModelDataColors != null
             ) {
-                var cmd = customModelData();
-                if (customModelDataFloats != null) {
-                    cmd.addFloats(customModelDataFloats);
-                }
-                if (customModelDataBooleans != null) {
-                    cmd.addFlags(customModelDataBooleans);
-                }
-                if (customModelDataStrings != null) {
-                    cmd.addStrings(customModelDataStrings);
-                }
-                if (customModelDataColors != null) {
-                    cmd.addColors(customModelDataColors);
-                }
-                
-                itemStack.setData(DataComponentTypes.CUSTOM_MODEL_DATA, cmd.build());
+                CraftItemStack.unwrap(itemStack).set(
+                    DataComponents.CUSTOM_MODEL_DATA,
+                    new CustomModelData(
+                        customModelDataFloats != null ? new FloatArrayList(customModelDataFloats) : new FloatArrayList(),
+                        customModelDataBooleans != null ? new BooleanArrayList(customModelDataBooleans) : new BooleanArrayList(),
+                        customModelDataStrings != null ? new ArrayList<>(customModelDataStrings) : new ArrayList<>(),
+                        customModelDataColors != null ? new IntArrayList(customModelDataColors) : new IntArrayList()
+                    )
+                );
             }
             
             if (modifiers != null) {
@@ -452,9 +449,9 @@ public final class ItemBuilder implements ItemProvider {
      */
     public ItemBuilder addCustomModelData(Color value) {
         if (customModelDataColors == null)
-            customModelDataColors = new ArrayList<>();
+            customModelDataColors = new IntArrayList();
         
-        customModelDataColors.add(value);
+        customModelDataColors.add(value.asARGB());
         return this;
     }
     
@@ -574,13 +571,13 @@ public final class ItemBuilder implements ItemProvider {
             throw new IndexOutOfBoundsException(index);
         
         if (customModelDataColors == null)
-            customModelDataColors = new ArrayList<>();
+            customModelDataColors = new IntArrayList();
         
         while (customModelDataColors.size() <= index) {
-            customModelDataColors.add(Color.WHITE);
+            customModelDataColors.add(0xFFFFFFFF);
         }
         
-        customModelDataColors.set(index, value);
+        customModelDataColors.set(index, value.asARGB());
         return this;
     }
     
@@ -609,7 +606,9 @@ public final class ItemBuilder implements ItemProvider {
         customModelDataFloats = new FloatArrayList(floats);
         customModelDataBooleans = new BooleanArrayList(flags);
         customModelDataStrings = new ArrayList<>(Arrays.asList(strings));
-        customModelDataColors = new ArrayList<>(Arrays.asList(colors));
+        customModelDataColors = Arrays.stream(colors)
+            .map(Color::asARGB)
+            .collect(Collectors.toCollection(IntArrayList::new));
         return this;
     }
     
@@ -653,7 +652,9 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder setCustomModelData(Color[] colors) {
-        customModelDataColors = new ArrayList<>(Arrays.asList(colors));
+        customModelDataColors = Arrays.stream(colors)
+            .map(Color::asARGB)
+            .collect(Collectors.toCollection(IntArrayList::new));
         return this;
     }
     
@@ -670,7 +671,9 @@ public final class ItemBuilder implements ItemProvider {
         customModelDataFloats = new FloatArrayList(floats);
         customModelDataBooleans = new BooleanArrayList(flags);
         customModelDataStrings = new ArrayList<>(strings);
-        customModelDataColors = new ArrayList<>(colors);
+        customModelDataColors = colors.stream()
+            .map(Color::asARGB)
+            .collect(Collectors.toCollection(IntArrayList::new));
         return this;
     }
     
@@ -714,7 +717,9 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder setCustomModelDataColors(List<Color> colors) {
-        customModelDataColors = new ArrayList<>(colors);
+        customModelDataColors = colors.stream()
+            .map(Color::asARGB)
+            .collect(Collectors.toCollection(IntArrayList::new));
         return this;
     }
     
@@ -863,7 +868,7 @@ public final class ItemBuilder implements ItemProvider {
             if (customModelDataStrings != null)
                 clone.customModelDataStrings = new ArrayList<>(customModelDataStrings);
             if (customModelDataColors != null)
-                clone.customModelDataColors = new ArrayList<>(customModelDataColors);
+                clone.customModelDataColors = new IntArrayList(customModelDataColors);
             if (modifiers != null)
                 clone.modifiers = new ArrayList<>(modifiers);
             
