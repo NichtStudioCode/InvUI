@@ -106,33 +106,33 @@ public sealed abstract class AbstractGui
             if (inventory.isSynced(slot, clicked) || didClickBackgroundItem(player, element, inventory, slot, clicked)) {
                 
                 // using enum names because SWAP_OFFHAND does not exist on earlier versions 
-                switch (event.getClick().name()) {
-                    case "LEFT":
+                switch (event.getClick()) {
+                    case LEFT:
                         handleInvLeftClick(event, inventory, slot, player, technicallyClicked, cursor);
                         break;
-                    case "RIGHT":
+                    case RIGHT:
                         handleInvRightClick(event, inventory, slot, player, technicallyClicked, cursor);
                         break;
-                    case "SHIFT_RIGHT":
-                    case "SHIFT_LEFT":
+                    case SHIFT_RIGHT:
+                    case SHIFT_LEFT:
                         handleInvItemShift(event, inventory, slot, player, technicallyClicked);
                         break;
-                    case "NUMBER_KEY":
+                    case NUMBER_KEY:
                         handleInvNumberKey(event, inventory, slot, player, technicallyClicked);
                         break;
-                    case "SWAP_OFFHAND":
+                    case SWAP_OFFHAND:
                         handleInvOffHandKey(event, inventory, slot, player, technicallyClicked);
                         break;
-                    case "DROP":
+                    case DROP:
                         handleInvDrop(false, event, inventory, slot, player, technicallyClicked);
                         break;
-                    case "CONTROL_DROP":
+                    case CONTROL_DROP:
                         handleInvDrop(true, event, inventory, slot, player, technicallyClicked);
                         break;
-                    case "DOUBLE_CLICK":
+                    case DOUBLE_CLICK:
                         handleInvDoubleClick(event, player, cursor);
                         break;
-                    case "MIDDLE":
+                    case MIDDLE:
                         handleInvMiddleClick(event, inventory, slot, player);
                         break;
                     default:
