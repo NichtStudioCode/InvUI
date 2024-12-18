@@ -37,6 +37,7 @@ public final class ItemBuilder implements ItemProvider {
     
     private ItemStack itemStack;
     private @Nullable Component name;
+    private @Nullable Component customName;
     private @Nullable List<Component> lore;
     private @Nullable FloatList customModelDataFloats;
     private @Nullable BooleanList customModelDataBooleans;
@@ -113,7 +114,13 @@ public final class ItemBuilder implements ItemProvider {
                     DataComponentTypes.ITEM_NAME,
                     Languages.getInstance().localized(locale, name)
                 );
-                itemStack.unsetData(DataComponentTypes.CUSTOM_NAME);
+            }
+            
+            if (customName != null) {
+                itemStack.setData(
+                    DataComponentTypes.CUSTOM_NAME,
+                    Languages.getInstance().localized(locale, customName)
+                );
             }
             
             if (lore != null) {
@@ -181,18 +188,24 @@ public final class ItemBuilder implements ItemProvider {
     
     /**
      * Sets the name.
+     * Removes custom name.
+     * Automatically un-hides the tooltip if hidden.
      *
      * @param name The name
      * @return The builder instance
      */
     public ItemBuilder setName(Component name) {
         this.name = ComponentUtils.withoutPreFormatting(name);
+        this.customName = null;
+        unset(DataComponentTypes.CUSTOM_NAME);
         hideTooltip(false);
         return this;
     }
     
     /**
      * Sets the name using mini-message format.
+     * Removes custom name.
+     * Automatically un-hides the tooltip if hidden.
      *
      * @param name The name
      * @return The builder instance
@@ -203,12 +216,54 @@ public final class ItemBuilder implements ItemProvider {
     
     /**
      * Sets the name using legacy text format.
+     * Removes custom name.
+     * Automatically un-hides the tooltip if hidden.
      *
      * @param name The name
      * @return The builder instance
      */
     public ItemBuilder setLegacyName(String name) {
         return setName(LegacyComponentSerializer.legacySection().deserialize(name));
+    }
+    
+    /**
+     * Sets the custom name.
+     * Removes item name.
+     * Automatically un-hides the tooltip if hidden.
+     *
+     * @param name The custom name
+     * @return The builder instance
+     */
+    public ItemBuilder setCustomName(Component name) {
+        this.customName = ComponentUtils.withoutPreFormatting(name);
+        this.name = null;
+        unset(DataComponentTypes.ITEM_NAME);
+        unset(DataComponentTypes.HIDE_TOOLTIP);
+        return this;
+    }
+    
+    /**
+     * Sets the name using mini-message format.
+     * Removes item name.
+     * Automatically un-hides the tooltip if hidden.
+     *
+     * @param name The name
+     * @return The builder instance
+     */
+    public ItemBuilder setCustomName(String name) {
+        return setCustomName(MiniMessage.miniMessage().deserialize(name));
+    }
+    
+    /**
+     * Sets the name using legacy text format.
+     * Removes item name.
+     * Automatically un-hides the tooltip if hidden.
+     *
+     * @param name The name
+     * @return The builder instance
+     */
+    public ItemBuilder setLegacyCustomName(String name) {
+        return setCustomName(LegacyComponentSerializer.legacySection().deserialize(name));
     }
     
     //</editor-fold>
@@ -249,7 +304,7 @@ public final class ItemBuilder implements ItemProvider {
         this.lore = lore.stream()
             .map(ComponentUtils::withoutPreFormatting)
             .collect(Collectors.toCollection(ArrayList::new));
-        hideTooltip(false);
+        unset(DataComponentTypes.HIDE_TOOLTIP);
         return this;
     }
     
@@ -265,7 +320,7 @@ public final class ItemBuilder implements ItemProvider {
             .map(line -> LegacyComponentSerializer.legacySection().deserialize(line))
             .map(ComponentUtils::withoutPreFormatting)
             .collect(Collectors.toCollection(ArrayList::new));
-        hideTooltip(false);
+        unset(DataComponentTypes.HIDE_TOOLTIP);
         return this;
     }
     
@@ -306,7 +361,7 @@ public final class ItemBuilder implements ItemProvider {
             lore.add(ComponentUtils.withoutPreFormatting(line));
         }
         
-        hideTooltip(false);
+        unset(DataComponentTypes.HIDE_TOOLTIP);
         
         return this;
     }
@@ -326,7 +381,7 @@ public final class ItemBuilder implements ItemProvider {
             lore.add(ComponentUtils.withoutPreFormatting(line));
         }
         
-        hideTooltip(false);
+        unset(DataComponentTypes.HIDE_TOOLTIP);
         
         return this;
     }
@@ -348,7 +403,7 @@ public final class ItemBuilder implements ItemProvider {
             lore.add(component);
         }
         
-        hideTooltip(false);
+        unset(DataComponentTypes.HIDE_TOOLTIP);
         
         return this;
     }
@@ -370,7 +425,7 @@ public final class ItemBuilder implements ItemProvider {
             lore.add(component);
         }
         
-        hideTooltip(false);
+        unset(DataComponentTypes.HIDE_TOOLTIP);
         
         return this;
     }
