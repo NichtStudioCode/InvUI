@@ -1,5 +1,5 @@
 group = "xyz.xenondevs.invui"
-version = "2.0.0-alpha.4"
+version = "2.0.0-alpha.5"
 
 plugins {
     `java-library`
