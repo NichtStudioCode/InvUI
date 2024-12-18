@@ -326,7 +326,23 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
     }
     
     /**
-     * Creates an {@link ItemPreUpdateEvent} and calls the {@link #preUpdateHandler} to handle it.
+     * Calls the click handlers of this {@link Inventory} for the given slot and {@link InventoryClickEvent}.
+     *
+     * @param slot  The slot of this {@link Inventory} that was clicked.
+     * @param event The {@link InventoryClickEvent} that occurred.
+     */
+    public void callClickEvent(int slot, InventoryClickEvent event) {
+        for (var handler : getClickHandlers()) {
+            try {
+                handler.accept(slot, event);
+            } catch (Throwable t) {
+                InvUI.getInstance().getLogger().log(Level.SEVERE, "An exception occurred while handling an inventory event", t);
+            }
+        }
+    }
+    
+    /**
+     * Creates an {@link ItemPreUpdateEvent} and calls the pre update handlers to handle it.
      *
      * @param updateReason      The {@link UpdateReason}.
      * @param slot              The slot of the affected {@link ItemStack}.

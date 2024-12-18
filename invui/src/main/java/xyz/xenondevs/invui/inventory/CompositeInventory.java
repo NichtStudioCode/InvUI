@@ -167,6 +167,12 @@ public final class CompositeInventory extends Inventory {
     }
     
     @Override
+    public void callClickEvent(int slot, InventoryClickEvent event) {
+        var invSlot = findInventory(slot);
+        invSlot.first().callClickEvent(invSlot.second(), event);
+    }
+    
+    @Override
     public ItemPreUpdateEvent callPreUpdateEvent(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
         var invSlot = findInventory(slot);
         return invSlot.first().callPreUpdateEvent(updateReason, invSlot.second(), previousItemStack, newItemStack);

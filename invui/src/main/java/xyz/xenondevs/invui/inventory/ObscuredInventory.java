@@ -122,6 +122,11 @@ public final class ObscuredInventory extends Inventory {
     }
     
     @Override
+    public void callClickEvent(int slot, InventoryClickEvent event) {
+        inventory.callClickEvent(slots[slot], event);
+    }
+    
+    @Override
     public ItemPreUpdateEvent callPreUpdateEvent(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
         return inventory.callPreUpdateEvent(updateReason, slots[slot], previousItemStack, newItemStack);
     }

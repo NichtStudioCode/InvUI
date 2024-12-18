@@ -93,9 +93,7 @@ public sealed abstract class AbstractGui
         int slot = element.slot();
         
         // run custom click handlers
-        for (var handler : inventory.getClickHandlers()) {
-            handler.accept(slot, event);
-        }
+        inventory.callClickEvent(slot, event);
         if (event.isCancelled())
             return;
         
