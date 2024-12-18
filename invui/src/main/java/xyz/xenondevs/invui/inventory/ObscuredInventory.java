@@ -108,7 +108,7 @@ public final class ObscuredInventory extends Inventory {
     
     @Override
     public void notifyWindows(int slot) {
-        inventory.notifyWindows(slot);
+        inventory.notifyWindows(slots[slot]);
     }
     
     @Override
