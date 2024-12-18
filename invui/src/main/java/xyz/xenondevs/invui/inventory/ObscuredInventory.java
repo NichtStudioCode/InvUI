@@ -1,5 +1,6 @@
 package xyz.xenondevs.invui.inventory;
 
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
@@ -8,6 +9,8 @@ import xyz.xenondevs.invui.inventory.event.UpdateReason;
 import xyz.xenondevs.invui.window.AbstractWindow;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.IntPredicate;
 
@@ -142,16 +145,6 @@ public final class ObscuredInventory extends Inventory {
     }
     
     @Override
-    public void setPostUpdateHandler(@Nullable Consumer<ItemPostUpdateEvent> inventoryUpdatedHandler) {
-        throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
-    }
-    
-    @Override
-    public void setPreUpdateHandler(@Nullable Consumer<ItemPreUpdateEvent> preUpdateHandler) {
-        throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
-    }
-    
-    @Override
     public int getGuiPriority() {
         return inventory.getGuiPriority();
     }
@@ -159,6 +152,78 @@ public final class ObscuredInventory extends Inventory {
     @Override
     public void setGuiPriority(int guiPriority) {
         throw new UnsupportedOperationException("Gui priority needs to be set in the backing inventory");
+    }
+    
+    @Override
+    public List<BiConsumer<Integer, InventoryClickEvent>> getClickHandlers() {
+        throw new UnsupportedOperationException("Click handlers need to be set in the backing inventory");
+    }
+    
+    @Override
+    public void setClickHandlers(List<BiConsumer<Integer, InventoryClickEvent>> clickHandlers) {
+        throw new UnsupportedOperationException("Click handlers need to be set in the backing inventory");
+    }
+    
+    @Override
+    public void addClickHandler(BiConsumer<Integer, InventoryClickEvent> clickHandler) {
+        throw new UnsupportedOperationException("Click handlers need to be set in the backing inventory");
+    }
+    
+    @Override
+    public void removeClickHandler(BiConsumer<Integer, InventoryClickEvent> clickHandler) {
+        throw new UnsupportedOperationException("Click handlers need to be set in the backing inventory");
+    }
+    
+    @Override
+    public List<Consumer<ItemPreUpdateEvent>> getPreUpdateHandlers() {
+        throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
+    }
+    
+    @Override
+    public void setPreUpdateHandlers(List<Consumer<ItemPreUpdateEvent>> preUpdateHandlers) {
+        throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
+    }
+    
+    @Override
+    public void addPreUpdateHandler(Consumer<ItemPreUpdateEvent> preUpdateHandler) {
+        throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
+    }
+    
+    @Override
+    public void removePreUpdateHandler(Consumer<ItemPreUpdateEvent> preUpdateHandler) {
+        throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
+    }
+    
+    @Override
+    public List<Consumer<ItemPostUpdateEvent>> getPostUpdateHandlers() {
+        throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
+    }
+    
+    @Override
+    public void setPostUpdateHandlers(List<Consumer<ItemPostUpdateEvent>> postUpdateHandlers) {
+        throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
+    }
+    
+    @Override
+    public void addPostUpdateHandler(Consumer<ItemPostUpdateEvent> postUpdateHandler) {
+        throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
+    }
+    
+    @Override
+    public void removePostUpdateHandler(Consumer<ItemPostUpdateEvent> postUpdateHandler) {
+        throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
+    }
+    
+    @SuppressWarnings("deprecation")
+    @Override
+    public void setPostUpdateHandler(@Nullable Consumer<ItemPostUpdateEvent> inventoryUpdatedHandler) {
+        throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
+    }
+    
+    @SuppressWarnings("deprecation")
+    @Override
+    public void setPreUpdateHandler(@Nullable Consumer<ItemPreUpdateEvent> preUpdateHandler) {
+        throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
     }
     
 }

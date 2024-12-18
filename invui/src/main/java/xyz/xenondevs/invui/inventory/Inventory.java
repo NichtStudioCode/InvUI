@@ -54,8 +54,8 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
     protected int size;
     protected @Nullable Set<ViewerAtSlot<AbstractWindow>>[] viewers;
     private @Nullable List<BiConsumer<Integer, InventoryClickEvent>> clickHandlers;
-    private @Nullable Consumer<ItemPreUpdateEvent> preUpdateHandler;
-    private @Nullable Consumer<ItemPostUpdateEvent> postUpdateHandler;
+    private @Nullable List<Consumer<ItemPreUpdateEvent>> preUpdateHandlers;
+    private @Nullable List<Consumer<ItemPostUpdateEvent>> postUpdateHandlers;
     private int guiPriority = 0;
     
     @SuppressWarnings("unchecked")
@@ -271,48 +271,166 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
     }
     
     /**
+     * Removes a click handler that was previously registered for this {@link Inventory}.
+     *
+     * @param clickHandler The click handler to remove
+     */
+    public void removeClickHandler(BiConsumer<Integer, InventoryClickEvent> clickHandler) {
+        if (clickHandlers != null)
+            clickHandlers.remove(clickHandler);
+    }
+    
+    /**
+     * Gets the pre update handlers of this {@link Inventory}.
+     *
+     * @return The pre update handlers
+     */
+    public List<Consumer<ItemPreUpdateEvent>> getPreUpdateHandlers() {
+        if (preUpdateHandlers == null)
+            return List.of();
+        
+        return Collections.unmodifiableList(preUpdateHandlers);
+    }
+    
+    /**
+     * Sets the pre update handlers of this {@link Inventory}.
+     *
+     * @param preUpdateHandlers The pre update handlers
+     */
+    public void setPreUpdateHandlers(List<Consumer<ItemPreUpdateEvent>> preUpdateHandlers) {
+        this.preUpdateHandlers = preUpdateHandlers;
+    }
+    
+    /**
+     * Adds a pre update handler for this {@link Inventory}.
+     *
+     * @param preUpdateHandler The pre update handler
+     */
+    public void addPreUpdateHandler(Consumer<ItemPreUpdateEvent> preUpdateHandler) {
+        if (preUpdateHandlers == null)
+            preUpdateHandlers = new ArrayList<>();
+        
+        preUpdateHandlers.add(preUpdateHandler);
+    }
+    
+    /**
+     * Removes a pre update handler that was previously registered for this {@link Inventory}.
+     *
+     * @param preUpdateHandler The pre update handler to remove
+     */
+    public void removePreUpdateHandler(Consumer<ItemPreUpdateEvent> preUpdateHandler) {
+        if (preUpdateHandlers != null)
+            preUpdateHandlers.remove(preUpdateHandler);
+    }
+    
+    /**
+     * Gets the post update handlers of this {@link Inventory}.
+     *
+     * @return The post update handlers
+     */
+    public List<Consumer<ItemPostUpdateEvent>> getPostUpdateHandlers() {
+        if (postUpdateHandlers == null)
+            return List.of();
+        
+        return Collections.unmodifiableList(postUpdateHandlers);
+    }
+    
+    /**
+     * Sets the post update handlers of this {@link Inventory}.
+     *
+     * @param postUpdateHandlers The post update handlers
+     */
+    public void setPostUpdateHandlers(List<Consumer<ItemPostUpdateEvent>> postUpdateHandlers) {
+        this.postUpdateHandlers = postUpdateHandlers;
+    }
+    
+    /**
+     * Adds a post update handler for this {@link Inventory}.
+     *
+     * @param postUpdateHandler The post update handler
+     */
+    public void addPostUpdateHandler(Consumer<ItemPostUpdateEvent> postUpdateHandler) {
+        if (postUpdateHandlers == null)
+            postUpdateHandlers = new ArrayList<>();
+        
+        postUpdateHandlers.add(postUpdateHandler);
+    }
+    
+    /**
+     * Removes a post update handler that was previously registered for this {@link Inventory}.
+     *
+     * @param postUpdateHandler The post update handler to remove
+     */
+    public void removePostUpdateHandler(Consumer<ItemPostUpdateEvent> postUpdateHandler) {
+        if (postUpdateHandlers != null)
+            postUpdateHandlers.remove(postUpdateHandler);
+    }
+    
+    /**
      * Gets the configured pre update handler.
      *
      * @return The pre update handler
+     * @deprecated Use {@link #getPreUpdateHandlers()} instead
      */
     public @Nullable Consumer<ItemPreUpdateEvent> getPreUpdateHandler() {
-        return preUpdateHandler;
+        return preUpdateHandlers != null && !preUpdateHandlers.isEmpty() ? preUpdateHandlers.getFirst() : null;
     }
     
     /**
      * Sets a handler which is called every time something gets updated in the {@link Inventory}.
      *
      * @param preUpdateHandler The new item update handler
+     * @deprecated Use {@link #addPreUpdateHandler(Consumer)} instead
      */
+    @Deprecated
     public void setPreUpdateHandler(@Nullable Consumer<ItemPreUpdateEvent> preUpdateHandler) {
-        this.preUpdateHandler = preUpdateHandler;
+        if (preUpdateHandlers == null)
+            preUpdateHandlers = new ArrayList<>();
+        
+        if (preUpdateHandler != null) {
+            preUpdateHandlers.set(0, preUpdateHandler);
+        } else {
+            preUpdateHandlers.removeFirst();
+        }
     }
     
     /**
      * Gets the configured post update handler.
      *
      * @return The post update handler
+     * @deprecated Use {@link #getPostUpdateHandlers()} instead
      */
+    @Deprecated
     public @Nullable Consumer<ItemPostUpdateEvent> getPostUpdateHandler() {
-        return postUpdateHandler;
+        return postUpdateHandlers != null && !postUpdateHandlers.isEmpty() ? postUpdateHandlers.getFirst() : null;
     }
     
     /**
      * Sets a handler which is called every time after something has been updated in the {@link Inventory}.
      *
      * @param inventoryUpdatedHandler The new handler
+     * @deprecated Use {@link #addPostUpdateHandler(Consumer)} instead
      */
+    @Deprecated
     public void setPostUpdateHandler(@Nullable Consumer<ItemPostUpdateEvent> inventoryUpdatedHandler) {
-        this.postUpdateHandler = inventoryUpdatedHandler;
+        if (postUpdateHandlers == null)
+            postUpdateHandlers = new ArrayList<>();
+        
+        if (inventoryUpdatedHandler != null) {
+            postUpdateHandlers.set(0, inventoryUpdatedHandler);
+        } else {
+            postUpdateHandlers.removeFirst();
+        }
     }
     
     /**
      * Whether this {@link Inventory} has any event handlers.
      *
-     * @return `true` if this {@link Inventory} has a pre- or post-update handler.
+     * @return `true` if this {@link Inventory} has pre- or post-update handlers.
      */
     public boolean hasEventHandlers() {
-        return preUpdateHandler != null || postUpdateHandler != null;
+        return preUpdateHandlers != null && !preUpdateHandlers.isEmpty()
+               || postUpdateHandlers != null && !postUpdateHandlers.isEmpty();
     }
     
     /**
@@ -348,16 +466,16 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      * @param slot              The slot of the affected {@link ItemStack}.
      * @param previousItemStack The {@link ItemStack} that was previously on that slot.
      * @param newItemStack      The {@link ItemStack} that will be on that slot.
-     * @return The {@link ItemPreUpdateEvent} after it has been handled by the {@link #preUpdateHandler}.
+     * @return The {@link ItemPreUpdateEvent} after it has been handled by the pre update handlers.
      */
     public ItemPreUpdateEvent callPreUpdateEvent(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
         if (updateReason == UpdateReason.SUPPRESSED)
             throw new IllegalArgumentException("Cannot call ItemUpdateEvent with UpdateReason.SUPPRESSED");
         
         ItemPreUpdateEvent event = new ItemPreUpdateEvent(this, slot, updateReason, previousItemStack, newItemStack);
-        if (preUpdateHandler != null) {
+        for (var handler : getPreUpdateHandlers()) {
             try {
-                preUpdateHandler.accept(event);
+                handler.accept(event);
             } catch (Throwable t) {
                 InvUI.getInstance().getLogger().log(Level.SEVERE, "An exception occurred while handling an inventory event", t);
             }
@@ -366,7 +484,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
     }
     
     /**
-     * Creates an {@link ItemPostUpdateEvent} and calls the {@link #postUpdateHandler} to handle it.
+     * Creates an {@link ItemPostUpdateEvent} and calls the post update handlers to handle it.
      *
      * @param updateReason      The {@link UpdateReason}.
      * @param slot              The slot of the affected {@link ItemStack}.
@@ -378,9 +496,9 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
             throw new IllegalArgumentException("Cannot call InventoryUpdatedEvent with UpdateReason.SUPPRESSED");
         
         ItemPostUpdateEvent event = new ItemPostUpdateEvent(this, slot, updateReason, previousItemStack, newItemStack);
-        if (postUpdateHandler != null) {
+        for (var handler : getPostUpdateHandlers()) {
             try {
-                postUpdateHandler.accept(event);
+                handler.accept(event);
             } catch (Throwable t) {
                 InvUI.getInstance().getLogger().log(Level.SEVERE, "An exception occurred while handling an inventory event", t);
             }

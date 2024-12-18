@@ -159,8 +159,8 @@ public final class VirtualInventory extends Inventory {
     public VirtualInventory(VirtualInventory inventory) {
         this(inventory.uuid, inventory.size, ItemUtils.clone(inventory.items), inventory.maxStackSizes.clone());
         setGuiPriority(inventory.getGuiPriority());
-        setPreUpdateHandler(inventory.getPreUpdateHandler());
-        setPostUpdateHandler(inventory.getPostUpdateHandler());
+        setPreUpdateHandlers(inventory.getPreUpdateHandlers());
+        setPostUpdateHandlers(inventory.getPostUpdateHandlers());
         setResizeHandlers(inventory.getResizeHandlers());
     }
     
