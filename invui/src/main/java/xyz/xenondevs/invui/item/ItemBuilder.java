@@ -99,63 +99,81 @@ public final class ItemBuilder implements ItemProvider {
     }
     
     /**
-     * Builds the {@link ItemStack}. May return a cached instance.
+     * Retrieves the {@link ItemStack}. This may {@link #build(Locale)} the
+     * {@link ItemStack} or return a cached version.
      *
      * @param locale The {@link Locale} to use for localization
      * @return The {@link ItemStack}
      */
     @Override
     public ItemStack get(Locale locale) {
-        return buildCache.computeIfAbsent(locale, lang1 -> {
-            ItemStack itemStack = this.itemStack.clone();
-            
-            if (name != null) {
-                itemStack.setData(
-                    DataComponentTypes.ITEM_NAME,
-                    Languages.getInstance().localized(locale, name)
-                );
+        return buildCache.computeIfAbsent(locale, this::build);
+    }
+    
+    /**
+     * Builds the {@link ItemStack}.
+     *
+     * @return The {@link ItemStack}
+     */
+    public ItemStack build() {
+        return build(Locale.US);
+    }
+    
+    /**
+     * Builds the {@link ItemStack}.
+     *
+     * @param locale The {@link Locale} to use for localization
+     * @return The {@link ItemStack}
+     */
+    public ItemStack build(Locale locale) {
+        ItemStack itemStack = this.itemStack.clone();
+        
+        if (name != null) {
+            itemStack.setData(
+                DataComponentTypes.ITEM_NAME,
+                Languages.getInstance().localized(locale, name)
+            );
+        }
+        
+        if (customName != null) {
+            itemStack.setData(
+                DataComponentTypes.CUSTOM_NAME,
+                Languages.getInstance().localized(locale, customName)
+            );
+        }
+        
+        if (lore != null) {
+            ItemLore.Builder lore = ItemLore.lore();
+            for (Component line : this.lore) {
+                lore.addLine(Languages.getInstance().localized(locale, line));
             }
             
-            if (customName != null) {
-                itemStack.setData(
-                    DataComponentTypes.CUSTOM_NAME,
-                    Languages.getInstance().localized(locale, customName)
-                );
+            itemStack.setData(DataComponentTypes.LORE, lore.build());
+        }
+        
+        if (customModelDataFloats != null
+            || customModelDataBooleans != null
+            || customModelDataStrings != null
+            || customModelDataColors != null
+        ) {
+            CraftItemStack.unwrap(itemStack).set(
+                DataComponents.CUSTOM_MODEL_DATA,
+                new CustomModelData(
+                    customModelDataFloats != null ? new FloatArrayList(customModelDataFloats) : new FloatArrayList(),
+                    customModelDataBooleans != null ? new BooleanArrayList(customModelDataBooleans) : new BooleanArrayList(),
+                    customModelDataStrings != null ? new ArrayList<>(customModelDataStrings) : new ArrayList<>(),
+                    customModelDataColors != null ? new IntArrayList(customModelDataColors) : new IntArrayList()
+                )
+            );
+        }
+        
+        if (modifiers != null) {
+            for (var modifier : modifiers) {
+                itemStack = modifier.apply(itemStack);
             }
-            
-            if (lore != null) {
-                ItemLore.Builder lore = ItemLore.lore();
-                for (Component line : this.lore) {
-                    lore.addLine(Languages.getInstance().localized(locale, line));
-                }
-                
-                itemStack.setData(DataComponentTypes.LORE, lore.build());
-            }
-            
-            if (customModelDataFloats != null
-                || customModelDataBooleans != null
-                || customModelDataStrings != null
-                || customModelDataColors != null
-            ) {
-                CraftItemStack.unwrap(itemStack).set(
-                    DataComponents.CUSTOM_MODEL_DATA,
-                    new CustomModelData(
-                        customModelDataFloats != null ? new FloatArrayList(customModelDataFloats) : new FloatArrayList(),
-                        customModelDataBooleans != null ? new BooleanArrayList(customModelDataBooleans) : new BooleanArrayList(),
-                        customModelDataStrings != null ? new ArrayList<>(customModelDataStrings) : new ArrayList<>(),
-                        customModelDataColors != null ? new IntArrayList(customModelDataColors) : new IntArrayList()
-                    )
-                );
-            }
-            
-            if (modifiers != null) {
-                for (var modifier : modifiers) {
-                    itemStack = modifier.apply(itemStack);
-                }
-            }
-            
-            return itemStack;
-        });
+        }
+        
+        return itemStack;
     }
     
     //<editor-fold desc="base">
