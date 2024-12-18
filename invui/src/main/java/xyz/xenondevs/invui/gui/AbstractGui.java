@@ -89,13 +89,20 @@ public sealed abstract class AbstractGui
     
     //<editor-fold desc="inventories">
     protected void handleInvSlotElementClick(SlotElement.InventoryLink element, InventoryClickEvent event) {
+        Inventory inventory = element.inventory();
+        int slot = element.slot();
+        
+        // run custom click handlers
+        for (var handler : inventory.getClickHandlers()) {
+            handler.accept(slot, event);
+        }
+        if (event.isCancelled())
+            return;
+        
         // these actions are ignored as they don't modify the inventory
         InventoryAction action = event.getAction();
         if (action != InventoryAction.DROP_ALL_CURSOR && action != InventoryAction.DROP_ONE_CURSOR) {
             event.setCancelled(true);
-            
-            Inventory inventory = element.inventory();
-            int slot = element.slot();
             
             Player player = (Player) event.getWhoClicked();
             

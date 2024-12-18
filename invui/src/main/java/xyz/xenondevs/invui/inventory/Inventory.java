@@ -1,6 +1,7 @@
 package xyz.xenondevs.invui.inventory;
 
 import org.bukkit.Material;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
@@ -17,6 +18,7 @@ import xyz.xenondevs.invui.window.AbstractWindow;
 import xyz.xenondevs.invui.window.Window;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -51,6 +53,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
     
     protected int size;
     protected @Nullable Set<ViewerAtSlot<AbstractWindow>>[] viewers;
+    private @Nullable List<BiConsumer<Integer, InventoryClickEvent>> clickHandlers;
     private @Nullable Consumer<ItemPreUpdateEvent> preUpdateHandler;
     private @Nullable Consumer<ItemPostUpdateEvent> postUpdateHandler;
     private int guiPriority = 0;
@@ -228,6 +231,43 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
                 }
             }
         }
+    }
+    
+    /**
+     * Gets all registered click handlers of this {@link Inventory}.
+     *
+     * @return The click handlers
+     */
+    public List<BiConsumer<Integer, InventoryClickEvent>> getClickHandlers() {
+        if (clickHandlers == null)
+            return List.of();
+        
+        return Collections.unmodifiableList(clickHandlers);
+    }
+    
+    /**
+     * Sets the click handlers of this {@link Inventory}, which receive the
+     * slot of this {@link Inventory} and the {@link InventoryClickEvent}.
+     * Handlers may cancel the event. If it is, the click will not be processed further.
+     *
+     * @param clickHandlers The click handlers
+     */
+    public void setClickHandlers(List<BiConsumer<Integer, InventoryClickEvent>> clickHandlers) {
+        this.clickHandlers = new ArrayList<>(clickHandlers);
+    }
+    
+    /**
+     * Registers a click handler for this {@link Inventory}, which receives the
+     * slot of this {@link Inventory} and the {@link InventoryClickEvent}.
+     * Handlers may cancel the event. If it is, the click will not be processed further.
+     *
+     * @param clickHandler The click handler
+     */
+    public void addClickHandler(BiConsumer<Integer, InventoryClickEvent> clickHandler) {
+        if (clickHandlers == null)
+            clickHandlers = new ArrayList<>();
+        
+        clickHandlers.add(clickHandler);
     }
     
     /**
