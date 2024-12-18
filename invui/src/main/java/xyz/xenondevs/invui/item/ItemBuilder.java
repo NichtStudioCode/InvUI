@@ -99,7 +99,7 @@ public final class ItemBuilder implements ItemProvider {
     }
     
     /**
-     * Builds the {@link ItemStack}
+     * Builds the {@link ItemStack}. May return a cached instance.
      *
      * @param locale The {@link Locale} to use for localization
      * @return The {@link ItemStack}
@@ -167,6 +167,8 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder setMaterial(Material material) {
+        buildCache.clear();
+        
         itemStack = itemStack.withType(material);
         return this;
     }
@@ -178,6 +180,8 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder setAmount(int amount) {
+        buildCache.clear();
+        
         itemStack.setAmount(amount);
         return this;
     }
@@ -195,6 +199,8 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder setName(Component name) {
+        buildCache.clear();
+        
         this.name = ComponentUtils.withoutPreFormatting(name);
         this.customName = null;
         unset(DataComponentTypes.CUSTOM_NAME);
@@ -231,11 +237,13 @@ public final class ItemBuilder implements ItemProvider {
      * Removes item name.
      * Automatically un-hides the tooltip if hidden.
      *
-     * @param name The custom name
+     * @param customName The custom name
      * @return The builder instance
      */
-    public ItemBuilder setCustomName(Component name) {
-        this.customName = ComponentUtils.withoutPreFormatting(name);
+    public ItemBuilder setCustomName(Component customName) {
+        buildCache.clear();
+        
+        this.customName = ComponentUtils.withoutPreFormatting(customName);
         this.name = null;
         unset(DataComponentTypes.ITEM_NAME);
         unset(DataComponentTypes.HIDE_TOOLTIP);
@@ -247,11 +255,11 @@ public final class ItemBuilder implements ItemProvider {
      * Removes item name.
      * Automatically un-hides the tooltip if hidden.
      *
-     * @param name The name
+     * @param customName The name
      * @return The builder instance
      */
-    public ItemBuilder setCustomName(String name) {
-        return setCustomName(MiniMessage.miniMessage().deserialize(name));
+    public ItemBuilder setCustomName(String customName) {
+        return setCustomName(MiniMessage.miniMessage().deserialize(customName));
     }
     
     /**
@@ -259,11 +267,11 @@ public final class ItemBuilder implements ItemProvider {
      * Removes item name.
      * Automatically un-hides the tooltip if hidden.
      *
-     * @param name The name
+     * @param customName The name
      * @return The builder instance
      */
-    public ItemBuilder setLegacyCustomName(String name) {
-        return setCustomName(LegacyComponentSerializer.legacySection().deserialize(name));
+    public ItemBuilder setLegacyCustomName(String customName) {
+        return setCustomName(LegacyComponentSerializer.legacySection().deserialize(customName));
     }
     
     //</editor-fold>
@@ -277,6 +285,8 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder removeLoreLine(int index) {
+        buildCache.clear();
+        
         if (lore != null)
             lore.remove(index);
         return this;
@@ -288,6 +298,8 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder clearLore() {
+        buildCache.clear();
+        
         this.lore = null;
         itemStack.unsetData(DataComponentTypes.LORE);
         return this;
@@ -301,6 +313,8 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder setLore(List<Component> lore) {
+        buildCache.clear();
+        
         this.lore = lore.stream()
             .map(ComponentUtils::withoutPreFormatting)
             .collect(Collectors.toCollection(ArrayList::new));
@@ -316,6 +330,8 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder setLegacyLore(List<String> lore) {
+        buildCache.clear();
+        
         this.lore = lore.stream()
             .map(line -> LegacyComponentSerializer.legacySection().deserialize(line))
             .map(ComponentUtils::withoutPreFormatting)
@@ -354,6 +370,8 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder addLoreLines(Component... lines) {
+        buildCache.clear();
+        
         if (lore == null)
             lore = new ArrayList<>();
         
@@ -374,6 +392,8 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder addLoreLines(List<Component> lines) {
+        buildCache.clear();
+        
         if (lore == null)
             lore = new ArrayList<>();
         
@@ -394,6 +414,8 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder addMiniMessageLoreLines(List<String> lines) {
+        buildCache.clear();
+        
         if (lore == null)
             lore = new ArrayList<>();
         
@@ -416,6 +438,8 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder addLegacyLoreLines(List<String> lines) {
+        buildCache.clear();
+        
         if (lore == null)
             lore = new ArrayList<>();
         
@@ -441,6 +465,8 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder addCustomModelData(float value) {
+        buildCache.clear();
+        
         if (customModelDataFloats == null)
             customModelDataFloats = new FloatArrayList();
         
@@ -475,6 +501,8 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder addCustomModelData(boolean value) {
+        buildCache.clear();
+        
         if (customModelDataBooleans == null)
             customModelDataBooleans = new BooleanArrayList();
         
@@ -489,6 +517,8 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder addCustomModelData(String value) {
+        buildCache.clear();
+        
         if (customModelDataStrings == null)
             customModelDataStrings = new ArrayList<>();
         
@@ -503,6 +533,8 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder addCustomModelData(Color value) {
+        buildCache.clear();
+        
         if (customModelDataColors == null)
             customModelDataColors = new IntArrayList();
         
@@ -531,6 +563,8 @@ public final class ItemBuilder implements ItemProvider {
     public ItemBuilder setCustomModelData(int index, float value) {
         if (index < 0)
             throw new IndexOutOfBoundsException(index);
+        
+        buildCache.clear();
         
         if (customModelDataFloats == null)
             customModelDataFloats = new FloatArrayList();
@@ -579,6 +613,8 @@ public final class ItemBuilder implements ItemProvider {
         if (index < 0)
             throw new IndexOutOfBoundsException(index);
         
+        buildCache.clear();
+        
         if (customModelDataBooleans == null)
             customModelDataBooleans = new BooleanArrayList();
         
@@ -602,6 +638,8 @@ public final class ItemBuilder implements ItemProvider {
         if (index < 0)
             throw new IndexOutOfBoundsException(index);
         
+        buildCache.clear();
+        
         if (customModelDataStrings == null)
             customModelDataStrings = new ArrayList<>();
         
@@ -624,6 +662,8 @@ public final class ItemBuilder implements ItemProvider {
     public ItemBuilder setCustomModelData(int index, Color value) {
         if (index < 0)
             throw new IndexOutOfBoundsException(index);
+        
+        buildCache.clear();
         
         if (customModelDataColors == null)
             customModelDataColors = new IntArrayList();
@@ -658,6 +698,8 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder setCustomModelData(float[] floats, boolean[] flags, String[] strings, Color[] colors) {
+        buildCache.clear();
+        
         customModelDataFloats = new FloatArrayList(floats);
         customModelDataBooleans = new BooleanArrayList(flags);
         customModelDataStrings = new ArrayList<>(Arrays.asList(strings));
@@ -674,6 +716,8 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder setCustomModelData(float[] floats) {
+        buildCache.clear();
+        
         customModelDataFloats = new FloatArrayList(floats);
         return this;
     }
@@ -685,6 +729,8 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder setCustomModelData(boolean[] flags) {
+        buildCache.clear();
+        
         customModelDataBooleans = new BooleanArrayList(flags);
         return this;
     }
@@ -696,6 +742,8 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder setCustomModelData(String[] strings) {
+        buildCache.clear();
+        
         customModelDataStrings = new ArrayList<>(Arrays.asList(strings));
         return this;
     }
@@ -707,6 +755,8 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder setCustomModelData(Color[] colors) {
+        buildCache.clear();
+        
         customModelDataColors = Arrays.stream(colors)
             .map(Color::asARGB)
             .collect(Collectors.toCollection(IntArrayList::new));
@@ -723,6 +773,8 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder setCustomModelData(List<Float> floats, List<Boolean> flags, List<String> strings, List<Color> colors) {
+        buildCache.clear();
+        
         customModelDataFloats = new FloatArrayList(floats);
         customModelDataBooleans = new BooleanArrayList(flags);
         customModelDataStrings = new ArrayList<>(strings);
@@ -739,6 +791,8 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder setCustomModelDataFloats(List<Float> floats) {
+        buildCache.clear();
+        
         customModelDataFloats = new FloatArrayList(floats);
         return this;
     }
@@ -750,6 +804,8 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder setCustomModelDataFlags(List<Boolean> flags) {
+        buildCache.clear();
+        
         customModelDataBooleans = new BooleanArrayList(flags);
         return this;
     }
@@ -761,6 +817,8 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder setCustomModelDataStrings(List<String> strings) {
+        buildCache.clear();
+        
         customModelDataStrings = new ArrayList<>(strings);
         return this;
     }
@@ -772,6 +830,8 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder setCustomModelDataColors(List<Color> colors) {
+        buildCache.clear();
+        
         customModelDataColors = colors.stream()
             .map(Color::asARGB)
             .collect(Collectors.toCollection(IntArrayList::new));
@@ -784,6 +844,8 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder clearCustomModelData() {
+        buildCache.clear();
+        
         itemStack.unsetData(DataComponentTypes.CUSTOM_MODEL_DATA);
         
         customModelDataFloats = null;
@@ -805,6 +867,8 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder hideTooltip(boolean hide) {
+        buildCache.clear();
+        
         if (hide) {
             itemStack.setData(DataComponentTypes.HIDE_TOOLTIP);
         } else {
@@ -825,8 +889,11 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder addModifier(Function<ItemStack, ItemStack> modifier) {
+        buildCache.clear();
+        
         if (modifiers == null)
             modifiers = new ArrayList<>();
+        
         modifiers.add(modifier);
         return this;
     }
@@ -837,6 +904,8 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder clearModifiers() {
+        buildCache.clear();
+        
         if (modifiers != null)
             modifiers.clear();
         return this;
@@ -857,6 +926,8 @@ public final class ItemBuilder implements ItemProvider {
      */
     @Experimental
     public <T> ItemBuilder set(DataComponentType.Valued<T> type, DataComponentBuilder<T> valueBuilder) {
+        buildCache.clear();
+        
         itemStack.setData(type, valueBuilder);
         return this;
     }
@@ -872,6 +943,8 @@ public final class ItemBuilder implements ItemProvider {
      */
     @Experimental
     public <T> ItemBuilder set(final DataComponentType.Valued<T> type, T value) {
+        buildCache.clear();
+        
         itemStack.setData(type, value);
         return this;
     }
@@ -885,6 +958,8 @@ public final class ItemBuilder implements ItemProvider {
      */
     @Experimental
     public ItemBuilder set(DataComponentType.NonValued type) {
+        buildCache.clear();
+        
         itemStack.setData(type);
         return this;
     }
@@ -898,6 +973,8 @@ public final class ItemBuilder implements ItemProvider {
      */
     @Experimental
     public ItemBuilder unset(DataComponentType type) {
+        buildCache.clear();
+        
         itemStack.unsetData(type);
         return this;
     }
