@@ -384,12 +384,16 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      */
     @Deprecated
     public void setPreUpdateHandler(@Nullable Consumer<ItemPreUpdateEvent> preUpdateHandler) {
-        if (preUpdateHandlers == null)
-            preUpdateHandlers = new ArrayList<>();
-        
         if (preUpdateHandler != null) {
-            preUpdateHandlers.set(0, preUpdateHandler);
-        } else {
+            if (preUpdateHandlers == null)
+                preUpdateHandlers = new ArrayList<>();
+            
+            if (preUpdateHandlers.isEmpty()) {
+                preUpdateHandlers.add(preUpdateHandler);
+            } else {
+                preUpdateHandlers.set(0, preUpdateHandler);
+            }
+        } else if (preUpdateHandlers != null && !preUpdateHandlers.isEmpty()) {
             preUpdateHandlers.removeFirst();
         }
     }
@@ -413,12 +417,16 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      */
     @Deprecated
     public void setPostUpdateHandler(@Nullable Consumer<ItemPostUpdateEvent> inventoryUpdatedHandler) {
-        if (postUpdateHandlers == null)
-            postUpdateHandlers = new ArrayList<>();
-        
         if (inventoryUpdatedHandler != null) {
-            postUpdateHandlers.set(0, inventoryUpdatedHandler);
-        } else {
+            if (postUpdateHandlers == null)
+                postUpdateHandlers = new ArrayList<>();
+            
+            if (postUpdateHandlers.isEmpty()) {
+                postUpdateHandlers.add(inventoryUpdatedHandler);
+            } else {
+                postUpdateHandlers.set(0, inventoryUpdatedHandler);
+            }
+        } else if (postUpdateHandlers != null && !postUpdateHandlers.isEmpty()) {
             postUpdateHandlers.removeFirst();
         }
     }
