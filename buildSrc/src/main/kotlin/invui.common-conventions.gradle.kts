@@ -16,13 +16,25 @@ dependencies {
     paperweight.paperDevBundle("1.21.4-R0.1-SNAPSHOT")
     implementation("org.jetbrains:annotations:26.0.1")
     implementation("org.jspecify:jspecify:1.0.0")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.11.3")
+    
+    testImplementation(platform("org.junit:junit-bom:5.11.4"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.mockbukkit.mockbukkit:mockbukkit-v1.21:4.20.0")
+    configurations.getByName("testImplementation").exclude("io.papermc.paper", "paper-server")
+    testImplementation("ch.qos.logback:logback-classic:1.5.13")
 }
 
 java {
     withSourcesJar()
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+tasks {
+    test {
+        useJUnitPlatform()
     }
 }
 
