@@ -9,7 +9,6 @@ import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.ViewerAtSlot;
 import xyz.xenondevs.invui.internal.util.ArrayUtils;
-import xyz.xenondevs.invui.internal.util.InventoryUtils;
 import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
@@ -548,7 +547,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
         ItemStack currentItem = getUnsafeItem(slot);
         int slotMaxStackSize = getMaxSlotStackSize(slot);
         if (currentItem != null) {
-            return Math.min(InventoryUtils.getMaxStackSize(currentItem), slotMaxStackSize);
+            return Math.min(currentItem.getMaxStackSize(), slotMaxStackSize);
         } else {
             return slotMaxStackSize;
         }
@@ -570,7 +569,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
     public int getMaxStackSize(int slot, int alternative) {
         ItemStack currentItem = getUnsafeItem(slot);
         int slotMaxStackSize = getMaxSlotStackSize(slot);
-        return Math.min(currentItem != null ? InventoryUtils.getMaxStackSize(currentItem) : alternative, slotMaxStackSize);
+        return Math.min(currentItem != null ? currentItem.getMaxStackSize() : alternative, slotMaxStackSize);
     }
     
     /**
@@ -584,7 +583,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      * @return The current maximum allowed stack size on the specific slot.
      */
     public int getMaxStackSize(int slot, @Nullable ItemStack alternativeFrom) {
-        int itemMaxStackSize = alternativeFrom == null ? 64 : InventoryUtils.getMaxStackSize(alternativeFrom);
+        int itemMaxStackSize = alternativeFrom == null ? 64 : alternativeFrom.getMaxStackSize();
         return getMaxStackSize(slot, itemMaxStackSize);
     }
     
@@ -609,7 +608,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      * @return The maximum stack size on that slot
      */
     public int getMaxSlotStackSize(int slot, @Nullable ItemStack alternativeFrom) {
-        int itemMaxStackSize = alternativeFrom == null ? 64 : InventoryUtils.getMaxStackSize(alternativeFrom);
+        int itemMaxStackSize = alternativeFrom == null ? 64 : alternativeFrom.getMaxStackSize();
         return getMaxSlotStackSize(slot, itemMaxStackSize);
     }
     
@@ -1234,7 +1233,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      */
     public int collectSimilar(@Nullable UpdateReason updateReason, ItemStack template, int baseAmount) {
         int amount = baseAmount;
-        int maxStackSize = InventoryUtils.getMaxStackSize(template);
+        int maxStackSize = template.getMaxStackSize();
         if (amount < maxStackSize) {
             @Nullable ItemStack[] items = getUnsafeItems();
             

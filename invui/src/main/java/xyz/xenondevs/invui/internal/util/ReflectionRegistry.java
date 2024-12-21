@@ -1,13 +1,11 @@
 package xyz.xenondevs.invui.internal.util;
 
-import com.mojang.authlib.GameProfile;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.ServerAdvancementManager;
 import net.minecraft.server.level.ServerPlayer;
 import org.bukkit.Bukkit;
 import org.jspecify.annotations.Nullable;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -20,25 +18,13 @@ public class ReflectionRegistry {
     // Classes
     public static final Class<?> PLUGIN_CLASS_LOADER_CLASS = ReflectionUtils.getClass("org.bukkit.plugin.java.PluginClassLoader");
     public static final @Nullable Class<?> PAPER_PLUGIN_CLASS_LOADER_CLASS = getClassOrNull("io.papermc.paper.plugin.entrypoint.classloader.PaperPluginClassLoader");
-    public static final Class<?> CB_CRAFT_META_SKULL_CLASS = getCBClass("inventory.CraftMetaSkull");
-    public static final Class<?> CB_CRAFT_META_ITEM_CLASS = getCBClass("inventory.CraftMetaItem");
-    public static final @Nullable Class<?> RESOLVABLE_PROFILE_CLASS = getClassOrNull("net.minecraft.world.item.component.ResolvableProfile");
-    
-    // Constructors
-    public static final @Nullable Constructor<?> RESOLVABLE_PROFILE_FROM_GAME_PROFILE_CONSTRUCTOR = getConstructorOrNull(RESOLVABLE_PROFILE_CLASS, false, GameProfile.class);
     
     // Methods
     public static final Method PAPER_PLUGIN_CLASS_LOADER_GET_LOADED_JAVA_PLUGIN_METHOD;
-    public static final @Nullable Method CB_CRAFT_META_SKULL_SET_PROFILE_METHOD = getMethodOrNull(CB_CRAFT_META_SKULL_CLASS, true, "setProfile", GameProfile.class); // since spigot 1.14.4 or paper 1.15.1
-    public static final @Nullable Method CB_CRAFT_META_SKULL_SET_RESOLVABLE_PROFILE_METHOD = getMethodOrNull(CB_CRAFT_META_SKULL_CLASS, true, "setProfile", RESOLVABLE_PROFILE_CLASS);
-    
     public static final Method PLAYER_ADVANCEMENTS_REGISTER_LISTENERS_METHOD = ReflectionUtils.getMethod(PlayerAdvancements.class, true, "registerListeners", ServerAdvancementManager.class);
     
     // Fields
     public static final Field PLUGIN_CLASS_LOADER_PLUGIN_FIELD = getField(PLUGIN_CLASS_LOADER_CLASS, true, "plugin");
-    public static final Field CB_CRAFT_META_ITEM_DISPLAY_NAME_FIELD = getField(CB_CRAFT_META_ITEM_CLASS, true, "displayName");
-    public static final Field CB_CRAFT_META_ITEM_LORE_FIELD = getField(CB_CRAFT_META_ITEM_CLASS, true, "lore");
-    public static final Field CB_CRAFT_META_SKULL_PROFILE_FIELD = getField(CB_CRAFT_META_SKULL_CLASS, true, "profile");
     public static final Field SERVER_PLAYER_CONTAINER_LISTENER_FIELD = getField(ServerPlayer.class, true, "containerListener");
     
     static {
