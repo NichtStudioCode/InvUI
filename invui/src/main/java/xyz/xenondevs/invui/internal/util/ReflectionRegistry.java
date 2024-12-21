@@ -3,6 +3,7 @@ package xyz.xenondevs.invui.internal.util;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.ServerAdvancementManager;
+import net.minecraft.server.level.ServerPlayer;
 import org.bukkit.Bukkit;
 import org.jspecify.annotations.Nullable;
 
@@ -38,6 +39,7 @@ public class ReflectionRegistry {
     public static final Field CB_CRAFT_META_ITEM_DISPLAY_NAME_FIELD = getField(CB_CRAFT_META_ITEM_CLASS, true, "displayName");
     public static final Field CB_CRAFT_META_ITEM_LORE_FIELD = getField(CB_CRAFT_META_ITEM_CLASS, true, "lore");
     public static final Field CB_CRAFT_META_SKULL_PROFILE_FIELD = getField(CB_CRAFT_META_SKULL_CLASS, true, "profile");
+    public static final Field SERVER_PLAYER_CONTAINER_LISTENER_FIELD = getField(ServerPlayer.class, true, "containerListener");
     
     static {
         Method getPlugin = getMethodOrNull(PAPER_PLUGIN_CLASS_LOADER_CLASS, false, "getLoadedJavaPlugin");

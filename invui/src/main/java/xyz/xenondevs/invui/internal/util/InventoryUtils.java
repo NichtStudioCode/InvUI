@@ -6,6 +6,8 @@ import net.kyori.adventure.text.Component;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
 import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.*;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
@@ -23,7 +25,11 @@ import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.util.ItemUtils;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+import static xyz.xenondevs.invui.internal.util.ReflectionRegistry.SERVER_PLAYER_CONTAINER_LISTENER_FIELD;
 
 public class InventoryUtils {
     
@@ -78,7 +84,6 @@ public class InventoryUtils {
         openCustomInventory(player, inventory, Component.empty());
     }
     
-    // TODO: bundle packet
     public static void openCustomInventory(Player player, Inventory inventory, Component title) {
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
         MenuType<?> menuType = CraftContainer.getNotchInventoryType(inventory);
@@ -87,11 +92,17 @@ public class InventoryUtils {
         menu = CraftEventFactory.callInventoryOpenEvent(serverPlayer, menu);
         if (menu != null) {
             menu.checkReachable = false;
-            serverPlayer.connection.send(new ClientboundOpenScreenPacket(menu.containerId, menuType, PaperAdventure.asVanilla(title)));
             serverPlayer.containerMenu = menu;
-            serverPlayer.initMenu(menu);
+            
+            var synchronizer = new CapturingContainerSynchronizer(serverPlayer);
+            menu.setSynchronizer(synchronizer);
+            menu.addSlotListener(Objects.requireNonNull(ReflectionUtils.getFieldValue(SERVER_PLAYER_CONTAINER_LISTENER_FIELD, serverPlayer)));
+            
+            var packets = new ArrayList<Packet<? super ClientGamePacketListener>>();
+            packets.add(new ClientboundOpenScreenPacket(menu.containerId, menuType, PaperAdventure.asVanilla(title)));
+            packets.addAll(synchronizer.stopCapture());
+            serverPlayer.connection.send(new ClientboundBundlePacket(packets));
         }
-        
     }
     
 }
