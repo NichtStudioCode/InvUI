@@ -25,7 +25,8 @@ dependencies {
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly(libs.junit.platformLauncher)
     testImplementation(libs.mockbukkit)
-    configurations.getByName("testImplementation").exclude("io.papermc.paper", "paper-server")
+    configurations.getByName("testImplementation")
+        .exclude("io.papermc.paper", "paper-server")
     testImplementation(libs.logback.classic)
 }
 
@@ -34,6 +35,10 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
+}
+
+paperweight {
+    addServerDependencyTo = configurations.named(JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME).map { setOf(it) }
 }
 
 tasks {
