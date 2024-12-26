@@ -17,7 +17,7 @@ repositories {
 }
 
 dependencies {
-    paperweight.paperDevBundle(libs.versions.paper.api.get())
+    paperweight.paperDevBundle(libs.versions.paper.get())
     implementation(libs.jetbrains.annotations)
     implementation(libs.jspecify)
     

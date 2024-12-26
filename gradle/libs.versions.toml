@@ -1,21 +1,18 @@
 [versions]
-paper-paperweightUserdev = "2.0.0-SNAPSHOT"
-paper-api = "1.21.4-R0.1-SNAPSHOT"
-jetbrains-annotations = "26.0.1"
-jspecify = "1.0.0"
-junit = "5.11.4"
-mockbukkit = "4.20.0"
-logback-classic = "1.5.13"
+kotlin = "2.1.0"
+paper = "1.21.4-R0.1-SNAPSHOT"
 
 [libraries]
-jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
-jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
-junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
-junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+commons-provider = { module = "xyz.xenondevs.commons:commons-provider", version = "1.24" }
+jetbrains-annotations = { module = "org.jetbrains:annotations", version = "26.0.1" }
+jspecify = { module = "org.jspecify:jspecify", version = "1.0.0" }
+junit-bom = { module = "org.junit:junit-bom", version = "5.11.4" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 junit-platformLauncher = { module = "org.junit.platform:junit-platform-launcher" }
-mockbukkit = { module = "org.mockbukkit.mockbukkit:mockbukkit-v1.21", version.ref = "mockbukkit" }
-logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback-classic" }
-paper-paperweightUserdev-plugin = { module = "io.papermc.paperweight:paperweight-userdev", version.ref = "paper-paperweightUserdev" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+mockbukkit = { module = "org.mockbukkit.mockbukkit:mockbukkit-v1.21", version = "4.20.0" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version = "1.5.13" }
+paperweight-userdev-plugin = { module = "io.papermc.paperweight:paperweight-userdev", version = "2.0.0-beta.8" }
 
 [plugins]
-paper-paperweightUserdev = { id = "io.papermc.paperweight.userdev", version.ref = "paper-paperweightUserdev" }
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
