@@ -13,7 +13,7 @@ version = "2.0.0-alpha.6"
 
 repositories {
     mavenCentral()
-    maven("https://repo.papermc.io/maven-public/")
+    maven("https://repo.papermc.io/repository/maven-public/")
 }
 
 dependencies {
