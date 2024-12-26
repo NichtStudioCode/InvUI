@@ -1,6 +1,6 @@
 plugins {
     id("invui.common-conventions")
-    kotlin("jvm") version "2.1.0"
+    alias(libs.plugins.kotlin)
 }
 
 repositories {
@@ -14,9 +14,9 @@ repositories {
 }
 
 dependencies {
-    api("org.jetbrains.kotlin:kotlin-stdlib:2.1.0")
     api(project(":invui"))
-    api("xyz.xenondevs.commons:commons-provider:1.23")
+    api(libs.kotlin.stdlib)
+    api(libs.commons.provider)
 }
 
 publishing {

@@ -7,5 +7,8 @@ repositories {
 }
 
 dependencies {
-    implementation("io.papermc.paperweight:paperweight-userdev:1.7.5")
+    implementation(libs.paperweight.userdev.plugin)
+    
+    // https://github.com/gradle/gradle/issues/15383#issuecomment-779893192
+    implementation(files(libs.javaClass.superclass.protectionDomain.codeSource.location))
 }

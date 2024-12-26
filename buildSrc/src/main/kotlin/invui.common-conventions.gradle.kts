@@ -1,5 +1,4 @@
-group = "xyz.xenondevs.invui"
-version = "2.0.0-alpha.6"
+import org.gradle.accessors.dm.LibrariesForLibs
 
 plugins {
     `java-library`
@@ -7,22 +6,26 @@ plugins {
     id("io.papermc.paperweight.userdev")
 }
 
+val libs = the<LibrariesForLibs>()
+
+group = "xyz.xenondevs.invui"
+version = "2.0.0-alpha.6"
+
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/maven-public/")
 }
 
 dependencies {
-    paperweight.paperDevBundle("1.21.4-R0.1-SNAPSHOT")
-    implementation("org.jetbrains:annotations:26.0.1")
-    implementation("org.jspecify:jspecify:1.0.0")
+    paperweight.paperDevBundle(libs.versions.paper.get())
+    implementation(libs.jetbrains.annotations)
+    implementation(libs.jspecify)
     
-    testImplementation(platform("org.junit:junit-bom:5.11.4"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("org.mockbukkit.mockbukkit:mockbukkit-v1.21:4.20.0")
-    configurations.getByName("testImplementation").exclude("io.papermc.paper", "paper-server")
-    testImplementation("ch.qos.logback:logback-classic:1.5.13")
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.platformLauncher)
+    testImplementation(libs.mockbukkit)
+    testImplementation(libs.logback.classic)
 }
 
 java {
@@ -30,6 +33,10 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
+}
+
+paperweight {
+    addServerDependencyTo = configurations.named(JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME).map { setOf(it) }
 }
 
 tasks {
