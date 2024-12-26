@@ -25,8 +25,6 @@ dependencies {
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly(libs.junit.platformLauncher)
     testImplementation(libs.mockbukkit)
-    configurations.getByName("testImplementation")
-        .exclude("io.papermc.paper", "paper-server")
     testImplementation(libs.logback.classic)
 }
 
