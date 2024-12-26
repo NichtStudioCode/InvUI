@@ -20,7 +20,7 @@ dependencies {
     paperweight.paperDevBundle(libs.versions.paper.api.get())
     implementation(libs.jetbrains.annotations)
     implementation(libs.jspecify)
-
+    
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly(libs.junit.platformLauncher)
