@@ -897,7 +897,40 @@ public final class ItemBuilder implements ItemProvider {
     }
     
     //</editor-fold>
-    
+
+    //<editor-fold desc="misc">
+
+    /**
+     * Replaces all placeholders in the name, custom name and lore.
+     *
+     * @param placeholders A map of placeholders (key) and their replacements (value)
+     * @return The builder instance
+     */
+    public ItemBuilder replacePlaceholders(Map<String, String> placeholders) {
+        buildCache.clear();
+
+        if (name != null) {
+            name = name.replaceText(builder ->
+                    placeholders.forEach((key, value) ->
+                            builder.matchLiteral(key).replacement(value)));
+        }
+        if (customName != null) {
+            customName = customName.replaceText(builder ->
+                    placeholders.forEach((key, value) ->
+                            builder.matchLiteral(key).replacement(value)));
+        }
+        if (lore != null && !lore.isEmpty()) {
+            lore = lore.stream()
+                    .map(line -> line.replaceText(builder ->
+                            placeholders.forEach((key, value) ->
+                                    builder.matchLiteral(key).replacement(value))))
+                    .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+        }
+        return this;
+    }
+
+    //</editor-fold>
+
     //<editor-fold desc="modifiers">
     
     /**
