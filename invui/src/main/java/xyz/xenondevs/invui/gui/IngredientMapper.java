@@ -88,6 +88,15 @@ public interface IngredientMapper<S extends IngredientMapper<S>> extends Cloneab
     S addIngredient(char key, Inventory inventory, @Nullable ItemProvider background);
     
     /**
+     * Adds a {@link Gui} ingredient under the given key.
+     *
+     * @param key The key of the ingredient
+     * @param gui The {@link Gui} ingredient
+     * @return This {@link Structure}
+     */
+    S addIngredient(char key, Gui gui);
+    
+    /**
      * Adds a {@link SlotElement} ingredient under the given key.
      *
      * @param key     The key of the ingredient

@@ -909,6 +909,14 @@ public sealed abstract class AbstractGui
         }
         
         @Override
+        public S addIngredient(char key, Gui gui) {
+            if (structure == null)
+                throw new IllegalStateException("Structure is not set");
+            structure.addIngredient(key, gui);
+            return (S) this;
+        }
+        
+        @Override
         public S addIngredient(char key, SlotElement element) {
             if (structure == null)
                 throw new IllegalStateException("Structure is not set");

@@ -57,6 +57,11 @@ abstract class AbstractIngredientMapper<S extends AbstractIngredientMapper<S>> i
     }
     
     @Override
+    public S addIngredient(char key, Gui gui) {
+        return addIngredientElementSupplier(key, new GuiSlotElementSupplier(gui));
+    }
+    
+    @Override
     public S addIngredient(char key, SlotElement element) {
         handleUpdate();
         ingredientMap.put(key, new Ingredient(element));
