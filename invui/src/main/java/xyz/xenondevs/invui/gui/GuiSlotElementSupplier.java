@@ -2,7 +2,7 @@ package xyz.xenondevs.invui.gui;
 
 import java.util.function.Supplier;
 
-class GuiSlotElementSupplier implements Supplier<SlotElement> {
+class GuiSlotElementSupplier implements Supplier<SlotElement.GuiLink> {
     
     private final Gui gui;
     private int slot;
@@ -12,7 +12,7 @@ class GuiSlotElementSupplier implements Supplier<SlotElement> {
     }
     
     @Override
-    public SlotElement get() {
+    public SlotElement.GuiLink get() {
         if (slot >= gui.getSize())
             throw new IllegalStateException("No more slots available");
         

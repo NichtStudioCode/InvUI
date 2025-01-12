@@ -1,17 +1,16 @@
 package xyz.xenondevs.invui.gui;
 
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.invui.gui.SlotElement.InventoryLink;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.ItemProvider;
 
 import java.util.function.Supplier;
 
-class InventorySlotElementSupplier implements Supplier<InventoryLink> {
+class InventorySlotElementSupplier implements Supplier<SlotElement.InventoryLink> {
     
     private final Inventory inventory;
     private final @Nullable ItemProvider background;
-    private int slot = -1;
+    private int slot = 0;
     
     public InventorySlotElementSupplier(Inventory inventory) {
         this.inventory = inventory;
@@ -24,10 +23,11 @@ class InventorySlotElementSupplier implements Supplier<InventoryLink> {
     }
     
     @Override
-    public InventoryLink get() {
-        if (++slot == inventory.getSize())
-            slot = 0;
-        return new InventoryLink(inventory, slot, background);
+    public SlotElement.InventoryLink get() {
+        if (slot >= inventory.getSize())
+            throw new IllegalStateException("No more slots available");
+        
+        return new SlotElement.InventoryLink(inventory, slot++, background);
     }
     
 }
