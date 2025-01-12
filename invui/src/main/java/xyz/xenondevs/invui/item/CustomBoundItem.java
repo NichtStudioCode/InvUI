@@ -223,10 +223,6 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
             
             Paged() {
                 bindHandler = bindHandler.andThen((item, gui) -> {
-                    //noinspection ConstantValue // the generic type is unchecked otherwise
-                    if (!(gui instanceof PagedGui<?>))
-                        throw new IllegalArgumentException("Item can only be bound to PagedGui");
-                    
                     gui.addPageChangeHandler((oldPage, newPage) -> item.notifyWindows());
                     gui.addPageCountChangeHandler((oldCount, newCount) -> item.notifyWindows());
                 });
@@ -238,10 +234,6 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
             
             Scroll() {
                 bindHandler = bindHandler.andThen((item, gui) -> {
-                    //noinspection ConstantValue // the generic type is unchecked otherwise
-                    if (!(gui instanceof ScrollGui<?>))
-                        throw new IllegalArgumentException("Item can only be bound to ScrollGui");
-                    
                     gui.addScrollHandler((oldScroll, newScroll) -> item.notifyWindows());
                     gui.addLineCountChangeHandler((oldCount, newCount) -> item.notifyWindows());
                 });
@@ -252,13 +244,9 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         static class Tab extends Builder<TabGui> {
             
             Tab() {
-                bindHandler = bindHandler.andThen((item, gui) -> {
-                    //noinspection ConstantValue // the generic type is unchecked otherwise
-                    if (!(gui instanceof TabGui))
-                        throw new IllegalArgumentException("Item can only be bound to TabGui");
-                    
-                    gui.addTabChangeHandler((oldTab, newTab) -> item.notifyWindows());
-                });
+                bindHandler = bindHandler.andThen((item, gui) -> 
+                    gui.addTabChangeHandler((oldTab, newTab) -> item.notifyWindows())
+                );
             }
             
         }
