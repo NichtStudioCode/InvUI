@@ -80,6 +80,9 @@ public class ComponentLocalizer {
             // check for escaped %
             var matchedStr = formatString.substring(start, end);
             if ("%%".equals(matchedStr)) {
+                // append text before the escaped %
+                sb.append(formatString, i, start);
+                // append the escaped %
                 sb.append('%');
             } else {
                 // check for invalid format, only %s is supported
