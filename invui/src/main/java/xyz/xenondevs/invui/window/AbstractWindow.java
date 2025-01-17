@@ -129,8 +129,12 @@ public sealed abstract class AbstractWindow
     
     @Override
     public void notifyUpdate(int slot) {
-        synchronized (dirtySlots) {
-            dirtySlots.set(slot);
+        if (WindowManager.getInstance().isInInteractionHandlingContext()) {
+            update(slot);
+        } else {
+            synchronized (dirtySlots) {
+                dirtySlots.set(slot);
+            }
         }
     }
     

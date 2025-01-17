@@ -32,6 +32,7 @@ public class WindowManager implements Listener {
     
     private final Map<Inventory, AbstractWindow> windowsByInventory = new HashMap<>();
     private final Map<Player, AbstractWindow> windowsByPlayer = new HashMap<>();
+    private final ThreadLocal<Boolean> interactionContext = ThreadLocal.withInitial(() -> false);
     
     private WindowManager() {
         Bukkit.getPluginManager().registerEvents(this, InvUI.getInstance().getPlugin());
@@ -99,6 +100,32 @@ public class WindowManager implements Listener {
         return new HashSet<>(windowsByInventory.values());
     }
     
+    /**
+     * Checks whether the current thread is an interaction handling context, i.e.
+     * currently handling a click or drag event.
+     *
+     * @return Whether we are currently in an interaction handling context
+     */
+    boolean isInInteractionHandlingContext() {
+        return interactionContext.get();
+    }
+    
+    /**
+     * Runs the given {@link Runnable} in an interaction handling context,
+     * meaning that {@link #isInInteractionHandlingContext()} will return true
+     * during the execution of the {@link Runnable}.
+     *
+     * @param runnable The {@link Runnable} to run
+     */
+    private void runInInteractionHandlingContext(Runnable runnable) {
+        interactionContext.set(true);
+        try {
+            runnable.run();
+        } finally {
+            interactionContext.set(false);
+        }
+    }
+    
     private void handleTick() {
         for (AbstractWindow window : windowsByPlayer.values()) {
             window.handleTick();
@@ -109,7 +136,7 @@ public class WindowManager implements Listener {
     private void handleInventoryClick(InventoryClickEvent event) {
         AbstractWindow window = (AbstractWindow) getOpenWindow((Player) event.getWhoClicked());
         if (window != null) {
-            window.handleClickEvent(event);
+            runInInteractionHandlingContext(() -> window.handleClickEvent(event));
             
             if (event.getClick().name().equals("SWAP_OFFHAND") && event.isCancelled()) {
                 EntityEquipment equipment = event.getWhoClicked().getEquipment();
@@ -122,7 +149,7 @@ public class WindowManager implements Listener {
     private void handleInventoryDrag(InventoryDragEvent event) {
         AbstractWindow window = (AbstractWindow) getOpenWindow((Player) event.getWhoClicked());
         if (window != null) {
-            window.handleDragEvent(event);
+            runInInteractionHandlingContext(() -> window.handleDragEvent(event));
         }
     }
     
