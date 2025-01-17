@@ -1,5 +1,6 @@
 package xyz.xenondevs.invui;
 
+import io.papermc.paper.plugin.provider.classloader.ConfiguredPluginClassLoader;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -39,15 +40,13 @@ public class InvUI implements Listener {
         return plugin;
     }
     
-    @SuppressWarnings("CallToPrintStackTrace")
+    @SuppressWarnings({"CallToPrintStackTrace", "UnstableApiUsage"})
     private @Nullable Plugin tryFindPlugin() {
-        ClassLoader loader = getClass().getClassLoader();
+        ClassLoader classLoader = getClass().getClassLoader();
         
         try {
-            if (PLUGIN_CLASS_LOADER_CLASS.isInstance(loader)) {
-                return ReflectionUtils.getFieldValue(PLUGIN_CLASS_LOADER_PLUGIN_FIELD, loader);
-            } else if (PAPER_PLUGIN_CLASS_LOADER_CLASS != null && PAPER_PLUGIN_CLASS_LOADER_CLASS.isInstance(loader)) {
-                return ReflectionUtils.invokeMethod(PAPER_PLUGIN_CLASS_LOADER_GET_LOADED_JAVA_PLUGIN_METHOD, loader);
+            if (classLoader instanceof ConfiguredPluginClassLoader pluginClassLoader) {
+                return pluginClassLoader.getPlugin();
             }
         } catch (Throwable t) {
             t.printStackTrace();

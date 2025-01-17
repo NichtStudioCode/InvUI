@@ -9,10 +9,6 @@ import java.lang.reflect.Method;
 @SuppressWarnings({"unchecked", "unused"})
 public class ReflectionUtils {
     
-    public static <T> Class<T> getCBClass(String path) {
-        return getClass(ReflectionRegistry.CRAFT_BUKKIT_PACKAGE_PATH + "." + path);
-    }
-    
     public static <T> Class<T> getClass(String path) {
         try {
             return (Class<T>) Class.forName(path);
