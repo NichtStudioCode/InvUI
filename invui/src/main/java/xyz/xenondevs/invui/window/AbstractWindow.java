@@ -137,9 +137,9 @@ public sealed abstract class AbstractWindow
             int slot = 0;
             while ((slot = dirtySlots.nextSetBit(slot)) != -1) {
                 update(slot);
-                dirtySlots.clear(slot);
                 slot++;
             }
+            dirtySlots.clear();
         }
     }
     
