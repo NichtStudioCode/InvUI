@@ -51,10 +51,13 @@ public class InventoryUtils {
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
         AbstractContainerMenu menu = serverPlayer.containerMenu;
         
-        var open = new ClientboundOpenScreenPacket(menu.containerId, menu.getType(), PaperAdventure.asVanilla(title));
-        var content = new ClientboundContainerSetContentPacket(menu.containerId, menu.incrementStateId(), menu.getItems(), menu.getCarried());
-        var bundle = new ClientboundBundlePacket(List.of(open, content));
-        serverPlayer.connection.send(bundle);
+        var synchronizer = new CapturingContainerSynchronizer(serverPlayer);
+        menu.setSynchronizer(synchronizer);
+        
+        var packets = new ArrayList<Packet<? super ClientGamePacketListener>>();
+        packets.add(new ClientboundOpenScreenPacket(menu.containerId, menu.getType(), PaperAdventure.asVanilla(title)));
+        packets.addAll(synchronizer.stopCapture());
+        serverPlayer.connection.send(new ClientboundBundlePacket(packets));
     }
     
     public static void openCustomInventory(Player player, Inventory inventory, Component title) {
