@@ -6,8 +6,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockbukkit.mockbukkit.MockBukkit;
-import org.mockbukkit.mockbukkit.plugin.PluginMock;
-import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.inventory.VirtualInventory;
 import xyz.xenondevs.invui.item.Item;
 
@@ -18,8 +16,6 @@ public class GuiTest {
     @BeforeAll
     public static void setUp() {
         MockBukkit.mock();
-        PluginMock plugin = MockBukkit.createMockPlugin();
-        InvUI.getInstance().setPlugin(plugin);
     }
     
     @AfterAll
