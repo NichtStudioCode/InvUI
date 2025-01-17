@@ -59,6 +59,8 @@ public sealed abstract class AbstractWindow
     private final @Nullable SlotElement[] elementsDisplayed;
     private final BitSet dirtySlots;
     
+    private @Nullable Component activeTitle;
+    
     AbstractWindow(Player viewer, Supplier<Component> titleSupplier, int size, boolean closeable) {
         this.viewer = viewer;
         this.viewerUUID = viewer.getUniqueId();
@@ -141,6 +143,9 @@ public sealed abstract class AbstractWindow
             }
             dirtySlots.clear();
         }
+        
+        if (titleSupplier instanceof AnimatedTitle)
+            updateTitle();
     }
     
     public void handleDragEvent(InventoryDragEvent event) {
@@ -252,10 +257,12 @@ public sealed abstract class AbstractWindow
     }
     
     protected void openInventory(Player viewer) {
+        var title = getTitle();
+        activeTitle = title;
         InventoryUtils.openCustomInventory(
             viewer,
             getInventories()[0],
-            Languages.getInstance().localized(viewer, getTitle())
+            Languages.getInstance().localized(viewer, title)
         );
     }
     
@@ -330,8 +337,7 @@ public sealed abstract class AbstractWindow
     
     @Override
     public void setTitle(Component title) {
-        this.titleSupplier = () -> title;
-        updateTitle();
+        setTitle(() -> title);
     }
     
     @Override
@@ -346,12 +352,18 @@ public sealed abstract class AbstractWindow
     @Override
     public void updateTitle() {
         Player currentViewer = getCurrentViewer();
-        if (currentViewer != null) {
-            InventoryUtils.updateOpenInventoryTitle(
-                currentViewer,
-                Languages.getInstance().localized(currentViewer, getTitle())
-            );
-        }
+        if (currentViewer == null)
+            return;
+        
+        var title = getTitle();
+        if (title.equals(activeTitle))
+            return;
+        activeTitle = title;
+        
+        InventoryUtils.updateOpenInventoryTitle(
+            currentViewer,
+            Languages.getInstance().localized(currentViewer, title)
+        );
     }
     
     @Override
