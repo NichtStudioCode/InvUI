@@ -11,8 +11,11 @@ import it.unimi.dsi.fastutil.floats.FloatList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.ComponentLike;
+import net.kyori.adventure.text.format.StyleBuilderApplicable;
+import net.kyori.adventure.text.minimessage.tag.TagPattern;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.component.CustomModelData;
 import org.bukkit.Color;
@@ -27,6 +30,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static net.kyori.adventure.text.minimessage.MiniMessage.miniMessage;
+import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
 import static org.jetbrains.annotations.ApiStatus.Experimental;
 
 /**
@@ -36,13 +41,14 @@ import static org.jetbrains.annotations.ApiStatus.Experimental;
 public final class ItemBuilder implements ItemProvider {
     
     private ItemStack itemStack;
-    private @Nullable Component name;
-    private @Nullable Component customName;
-    private @Nullable List<Component> lore;
+    private @Nullable ComponentHolder name;
+    private @Nullable ComponentHolder customName;
+    private @Nullable List<ComponentHolder> lore;
     private @Nullable FloatList customModelDataFloats;
     private @Nullable BooleanList customModelDataBooleans;
     private @Nullable List<String> customModelDataStrings;
     private @Nullable IntList customModelDataColors;
+    private @Nullable Map<String, TagResolver> placeholders;
     private @Nullable List<Function<ItemStack, ItemStack>> modifiers;
     
     private final Map<Locale, ItemStack> buildCache = new HashMap<>();
@@ -76,7 +82,9 @@ public final class ItemBuilder implements ItemProvider {
         
         ItemLore lore = base.getData(DataComponentTypes.LORE);
         if (lore != null) {
-            this.lore = new ArrayList<>(lore.lines());
+            this.lore = lore.lines().stream()
+                .map(DirectComponentHolder::new)
+                .collect(Collectors.toCollection(ArrayList::new));
         }
         
         CustomModelData cmd = CraftItemStack.unwrap(base).get(DataComponents.CUSTOM_MODEL_DATA);
@@ -128,24 +136,28 @@ public final class ItemBuilder implements ItemProvider {
     public ItemStack build(Locale locale) {
         ItemStack itemStack = this.itemStack.clone();
         
-        if (name != null) {
-            itemStack.setData(
-                DataComponentTypes.ITEM_NAME,
-                Languages.getInstance().localized(locale, name)
-            );
+        TagResolver[] resolvers = this.placeholders != null 
+            ? this.placeholders.values().toArray(TagResolver[]::new)
+            : new TagResolver[0];
+        
+        if (this.name != null) {
+            Component name = this.name.get(resolvers);
+            name = Languages.getInstance().localized(locale, name, resolvers);
+            itemStack.setData(DataComponentTypes.ITEM_NAME, name);
         }
         
-        if (customName != null) {
-            itemStack.setData(
-                DataComponentTypes.CUSTOM_NAME,
-                Languages.getInstance().localized(locale, customName)
-            );
+        if (this.customName != null) {
+            Component customName = this.customName.get(resolvers);
+            customName = Languages.getInstance().localized(locale, customName, resolvers);
+            itemStack.setData(DataComponentTypes.CUSTOM_NAME, customName);
         }
         
         if (lore != null) {
             ItemLore.Builder lore = ItemLore.lore();
-            for (Component line : this.lore) {
-                lore.addLine(Languages.getInstance().localized(locale, line));
+            for (ComponentHolder lineHolder : this.lore) {
+                Component line = lineHolder.get(resolvers);
+                line = Languages.getInstance().localized(locale, line, resolvers);
+                lore.addLine(line);
             }
             
             itemStack.setData(DataComponentTypes.LORE, lore.build());
@@ -206,6 +218,157 @@ public final class ItemBuilder implements ItemProvider {
     
     //</editor-fold>
     
+    //<editor-fold desc="placeholders">
+    
+    private ItemBuilder setPlaceholder(@TagPattern String key, TagResolver placeholder) {
+        buildCache.clear();
+        
+        if (placeholders == null)
+            placeholders = new HashMap<>();
+        
+        placeholders.put(key, placeholder);
+        
+        return this;
+    }
+    
+    /**
+     * Sets the placeholder under the given key to the given value.
+     * <p>
+     * Placeholders are applied to item name, custom name and lore, if
+     * they are set using mini-message format.
+     *
+     * @param key   The key
+     * @param value The value, interpreted as a mini-message string
+     * @return The builder instance
+     * @see Placeholder#parsed(String, String)
+     */
+    public ItemBuilder setPlaceholder(@TagPattern String key, String value) {
+        return setPlaceholder(key, Placeholder.parsed(key, value));
+    }
+    
+    /**
+     * Sets the placeholder under the given key to the given value.
+     * <p>
+     * Placeholders are applied to item name, custom name and lore, if
+     * they are set using mini-message format.
+     *
+     * @param key   The key
+     * @param value The value, interpreted as a plain string
+     * @return The builder instance
+     * @see Placeholder#unparsed(String, String)
+     */
+    public ItemBuilder setPlaceholderUnparsed(@TagPattern String key, String value) {
+        return setPlaceholder(key, Placeholder.unparsed(key, value));
+    }
+    
+    /**
+     * Sets the placeholder under the given key to the given value.
+     * <p>
+     * Placeholders are applied to item name, custom name and lore, if
+     * they are set using mini-message format.
+     *
+     * @param key   The key
+     * @param value The value
+     * @return The builder instance
+     * @see Placeholder#component(String, ComponentLike) 
+     */
+    public ItemBuilder setPlaceholder(@TagPattern String key, ComponentLike value) {
+        return setPlaceholder(key, Placeholder.component(key, value));
+    }
+    
+    /**
+     * Sets the placeholder under the given key to the given value.
+     * <p>
+     * Placeholders are applied to item name, custom name and lore, if
+     * they are set using mini-message format.
+     *
+     * @param key   The key
+     * @param style The style to apply to the placeholder
+     * @return The builder instance
+     * @see Placeholder#styling(String, StyleBuilderApplicable...) 
+     */
+    public ItemBuilder setPlaceholder(@TagPattern String key, StyleBuilderApplicable... style) {
+        return setPlaceholder(key, Placeholder.styling(key, style));
+    }
+    
+    private ItemBuilder setPlaceholders(Map<String, TagResolver> placeholders) {
+        buildCache.clear();
+        this.placeholders = placeholders;
+        return this;
+    }
+    
+    /**
+     * Replaces all previously configured placeholders with the given map, where each value
+     * is interpreted as a parsed placeholder.
+     * <p>
+     * Placeholders are applied to item name, custom name and lore, if
+     * they are set using mini-message format.
+     *
+     * @param placeholders The placeholders
+     * @return The builder instance
+     * @see Placeholder#parsed(String, String) 
+     */
+    @SuppressWarnings("PatternValidation")
+    public ItemBuilder setPlaceholdersParsed(Map<String, String> placeholders) {
+        var map = new HashMap<String, TagResolver>();
+        placeholders.forEach((key, value) -> map.put(key, Placeholder.parsed(key, value)));
+        return setPlaceholders(map);
+    }
+    
+    /**
+     * Replaces all previously configured placeholders with the given map, where each value
+     * is interpreted as an unparsed placeholder.
+     * <p>
+     * Placeholders are applied to item name, custom name and lore, if
+     * they are set using mini-message format.
+     *
+     * @param placeholders The placeholders
+     * @return The builder instance
+     * @see Placeholder#unparsed(String, String) 
+     */
+    @SuppressWarnings("PatternValidation")
+    public ItemBuilder setPlaceholdersUnparsed(Map<String, String> placeholders) {
+        var map = new HashMap<String, TagResolver>();
+        placeholders.forEach((key, value) -> map.put(key, Placeholder.unparsed(key, value)));
+        return setPlaceholders(map);
+    }
+    
+    /**
+     * Replaces all previously configured placeholders with the given map.
+     * <p>
+     * Placeholders are applied to item name, custom name and lore, if
+     * they are set using mini-message format.
+     *
+     * @param placeholders The placeholders
+     * @return The builder instance
+     * @see Placeholder#component(String, ComponentLike) 
+     */
+    @SuppressWarnings("PatternValidation")
+    public ItemBuilder setPlaceholdersComponent(Map<String, ComponentLike> placeholders) {
+        var map = new HashMap<String, TagResolver>();
+        placeholders.forEach((key, value) -> map.put(key, Placeholder.component(key, value)));
+        return setPlaceholders(map);
+    }
+    
+    /**
+     * Replaces all previously configured placeholders with the given map.
+     * <p>
+     * Placeholders are applied to item name, custom name and lore, if
+     * they are set using mini-message format.
+     *
+     * @param placeholders The placeholders
+     * @return The builder instance
+     * @see Placeholder#styling(String, StyleBuilderApplicable...) 
+     */
+    @SuppressWarnings("PatternValidation")
+    public ItemBuilder setPlaceholdersStyling(Map<String, StyleBuilderApplicable[]> placeholders) {
+        var map = new HashMap<String, TagResolver>();
+        placeholders.forEach((key, value) -> map.put(key, Placeholder.styling(key, value)));
+        return setPlaceholders(map);
+    }
+    
+    //</editor-fold>
+    
     //<editor-fold desc="name">
     
     /**
@@ -219,7 +382,7 @@ public final class ItemBuilder implements ItemProvider {
     public ItemBuilder setName(Component name) {
         buildCache.clear();
         
-        this.name = ComponentUtils.withoutPreFormatting(name);
+        this.name = new DirectComponentHolder(name);
         this.customName = null;
         unset(DataComponentTypes.CUSTOM_NAME);
         hideTooltip(false);
@@ -235,7 +398,13 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder setName(String name) {
-        return setName(MiniMessage.miniMessage().deserialize(name));
+        buildCache.clear();
+        
+        this.name = new MiniMessageComponentHolder(name);
+        this.customName = null;
+        unset(DataComponentTypes.CUSTOM_NAME);
+        hideTooltip(false);
+        return this;
     }
     
     /**
@@ -247,7 +416,7 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder setLegacyName(String name) {
-        return setName(LegacyComponentSerializer.legacySection().deserialize(name));
+        return setName(legacySection().deserialize(name));
     }
     
     /**
@@ -261,7 +430,7 @@ public final class ItemBuilder implements ItemProvider {
     public ItemBuilder setCustomName(Component customName) {
         buildCache.clear();
         
-        this.customName = ComponentUtils.withoutPreFormatting(customName);
+        this.customName = new DirectComponentHolder(customName);
         this.name = null;
         unset(DataComponentTypes.ITEM_NAME);
         unset(DataComponentTypes.HIDE_TOOLTIP);
@@ -277,7 +446,13 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder setCustomName(String customName) {
-        return setCustomName(MiniMessage.miniMessage().deserialize(customName));
+        buildCache.clear();
+        
+        this.customName = new MiniMessageComponentHolder(customName);
+        this.name = null;
+        unset(DataComponentTypes.ITEM_NAME);
+        unset(DataComponentTypes.HIDE_TOOLTIP);
+        return this;
     }
     
     /**
@@ -289,7 +464,7 @@ public final class ItemBuilder implements ItemProvider {
      * @return The builder instance
      */
     public ItemBuilder setLegacyCustomName(String customName) {
-        return setCustomName(LegacyComponentSerializer.legacySection().deserialize(customName));
+        return setCustomName(legacySection().deserialize(customName));
     }
     
     //</editor-fold>
@@ -334,7 +509,7 @@ public final class ItemBuilder implements ItemProvider {
         buildCache.clear();
         
         this.lore = lore.stream()
-            .map(ComponentUtils::withoutPreFormatting)
+            .map(DirectComponentHolder::new)
             .collect(Collectors.toCollection(ArrayList::new));
         unset(DataComponentTypes.HIDE_TOOLTIP);
         return this;
@@ -351,8 +526,8 @@ public final class ItemBuilder implements ItemProvider {
         buildCache.clear();
         
         this.lore = lore.stream()
-            .map(line -> LegacyComponentSerializer.legacySection().deserialize(line))
-            .map(ComponentUtils::withoutPreFormatting)
+            .map(line -> legacySection().deserialize(line))
+            .map(DirectComponentHolder::new)
             .collect(Collectors.toCollection(ArrayList::new));
         unset(DataComponentTypes.HIDE_TOOLTIP);
         return this;
@@ -394,7 +569,7 @@ public final class ItemBuilder implements ItemProvider {
             lore = new ArrayList<>();
         
         for (Component line : lines) {
-            lore.add(ComponentUtils.withoutPreFormatting(line));
+            lore.add(new DirectComponentHolder(line));
         }
         
         unset(DataComponentTypes.HIDE_TOOLTIP);
@@ -416,7 +591,7 @@ public final class ItemBuilder implements ItemProvider {
             lore = new ArrayList<>();
         
         for (Component line : lines) {
-            lore.add(ComponentUtils.withoutPreFormatting(line));
+            lore.add(new DirectComponentHolder(line));
         }
         
         unset(DataComponentTypes.HIDE_TOOLTIP);
@@ -438,9 +613,7 @@ public final class ItemBuilder implements ItemProvider {
             lore = new ArrayList<>();
         
         for (String line : lines) {
-            Component component = MiniMessage.miniMessage().deserialize(line);
-            component = ComponentUtils.withoutPreFormatting(component);
-            lore.add(component);
+            lore.add(new MiniMessageComponentHolder(line));
         }
         
         unset(DataComponentTypes.HIDE_TOOLTIP);
@@ -462,9 +635,7 @@ public final class ItemBuilder implements ItemProvider {
             lore = new ArrayList<>();
         
         for (String line : lines) {
-            Component component = LegacyComponentSerializer.legacySection().deserialize(line);
-            component = ComponentUtils.withoutPreFormatting(component);
-            lore.add(component);
+            lore.add(new DirectComponentHolder(legacySection().deserialize(line)));
         }
         
         unset(DataComponentTypes.HIDE_TOOLTIP);
@@ -1019,12 +1190,51 @@ public final class ItemBuilder implements ItemProvider {
                 clone.customModelDataStrings = new ArrayList<>(customModelDataStrings);
             if (customModelDataColors != null)
                 clone.customModelDataColors = new IntArrayList(customModelDataColors);
+            if (placeholders != null)
+                clone.placeholders = new HashMap<>(placeholders);
             if (modifiers != null)
                 clone.modifiers = new ArrayList<>(modifiers);
             
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError(e);
+        }
+    }
+    
+    private sealed interface ComponentHolder {
+        
+        Component get(TagResolver[] resolvers);
+        
+    }
+    
+    private static final class DirectComponentHolder implements ComponentHolder {
+        
+        private final Component component;
+        
+        public DirectComponentHolder(Component component) {
+            this.component = ComponentUtils.withoutPreFormatting(component);
+        }
+        
+        @Override
+        public Component get(TagResolver[] resolvers) {
+            return component;
+        }
+        
+    }
+    
+    private static final class MiniMessageComponentHolder implements ComponentHolder {
+        
+        private final String format;
+        
+        public MiniMessageComponentHolder(String format) {
+            this.format = format;
+        }
+        
+        @Override
+        public Component get(TagResolver[] resolvers) {
+            Component component = miniMessage().deserialize(format, resolvers);
+            component = ComponentUtils.withoutPreFormatting(component);
+            return component;
         }
     }
     

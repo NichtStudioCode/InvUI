@@ -2,6 +2,7 @@ package xyz.xenondevs.invui.i18n;
 
 import com.google.gson.stream.JsonReader;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.internal.util.ComponentLocalizer;
@@ -14,6 +15,7 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -38,7 +40,7 @@ public class Languages {
      * <p>
      * This method will replace any existing language with the same lang code.
      *
-     * @param locale         The lang code of the language.
+     * @param locale       The lang code of the language.
      * @param translations The translations of the language.
      */
     public void addLanguage(Locale locale, Map<String, String> translations) {
@@ -52,7 +54,7 @@ public class Languages {
      * their string values. Any other json structure will result in an {@link IllegalStateException}.
      * An example for such a structure are Minecraft's lang files.
      *
-     * @param locale       The locale.
+     * @param locale The locale.
      * @param reader The reader for a language json file.
      * @throws IOException           If an error occurs while reading.
      * @throws IllegalStateException If the json is not valid.
@@ -74,7 +76,7 @@ public class Languages {
     /**
      * Adds a language under the given lang code after reading it from the given file.
      *
-     * @param locale    The locale.
+     * @param locale  The locale.
      * @param file    The file to read the language from.
      * @param charset The charset to use.
      * @throws IOException If an error occurs while reading.
@@ -89,7 +91,7 @@ public class Languages {
      * Retrieves the format string for the given key under the given language.
      *
      * @param locale The locale.
-     * @param key  The key of the format string.
+     * @param key    The key of the format string.
      * @return The format string or null if there is no such language or key.
      */
     public @Nullable String getFormatString(Locale locale, String key) {
@@ -142,22 +144,26 @@ public class Languages {
      *
      * @param player    The player to translate the component for.
      * @param component The component to translate.
+     * @param resolvers Additional mini message tag resolvers that may or may not be used, depending on the
+     *                  configured {@link #setComponentCreator(BiFunction) component creator}
      * @return The translated component or the original component if server-side translations are disabled.
      */
-    public Component localized(Player player, Component component) {
-        return localized(getLocale(player), component);
+    public Component localized(Player player, Component component, TagResolver... resolvers) {
+        return localized(getLocale(player), component, resolvers);
     }
     
     /**
      * Translates the given component into the given language, if server-side translations are enabled.
      *
-     * @param locale   The language to translate the component to.
+     * @param locale    The language to translate the component to.
      * @param component The component to translate.
+     * @param resolvers Additional mini message tag resolvers that may or may not be used, depending on the
+     *                  configured {@link #setComponentCreator(BiFunction) component creator}
      * @return The translated component or the original component if server-side translations are disabled.
      */
-    public Component localized(Locale locale, Component component) {
+    public Component localized(Locale locale, Component component, TagResolver... resolvers) {
         if (serverSideTranslations) {
-            return ComponentLocalizer.getInstance().localize(locale, component);
+            return ComponentLocalizer.getInstance().localize(locale, component, resolvers);
         }
         
         return component;
@@ -168,7 +174,7 @@ public class Languages {
      *
      * @param componentCreator The function that creates components from translation strings.
      */
-    public void setComponentCreator(Function<String, Component> componentCreator) {
+    public void setComponentCreator(BiFunction<String, TagResolver[], Component> componentCreator) {
         ComponentLocalizer.getInstance().setComponentCreator(componentCreator);
     }
     
