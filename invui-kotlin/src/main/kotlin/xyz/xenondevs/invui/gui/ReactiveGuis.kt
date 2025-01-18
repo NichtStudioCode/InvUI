@@ -1,9 +1,79 @@
 package xyz.xenondevs.invui.gui
 
+import xyz.xenondevs.commons.provider.MutableProvider
 import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.commons.provider.combinedProvider
 import xyz.xenondevs.commons.provider.map
 import xyz.xenondevs.invui.ExperimentalReactiveApi
+
+@ExperimentalReactiveApi
+fun <C : Any> PagedGui.Builder<C>.setPage(
+    provider: MutableProvider<Int>
+): PagedGui.Builder<C> {
+    addModifier { gui ->
+        gui.page = provider.get()
+        gui.addPageChangeHandler { _, to -> provider.set(to) }
+        provider.subscribeWeak(gui) { weakGui, page -> weakGui.page = page }
+    }
+    return this
+}
+
+@ExperimentalReactiveApi
+fun <C : Any> PagedGui.Builder<C>.setPage(
+    provider: Provider<Int>
+): PagedGui.Builder<C> {
+    addModifier { gui ->
+        gui.page = provider.get()
+        provider.subscribeWeak(gui) { weakGui, page -> weakGui.page = page }
+    }
+    return this
+}
+
+@ExperimentalReactiveApi
+fun <C : Any> ScrollGui.Builder<C>.setLine(
+    provider: MutableProvider<Int>
+): ScrollGui.Builder<C> {
+    addModifier { gui ->
+        gui.line = provider.get()
+        gui.addScrollHandler { _, to -> provider.set(to) }
+        provider.subscribeWeak(gui) { weakGui, line -> weakGui.line = line }
+    }
+    return this
+}
+
+@ExperimentalReactiveApi
+fun <C : Any> ScrollGui.Builder<C>.setLine(
+    provider: Provider<Int>
+): ScrollGui.Builder<C> {
+    addModifier { gui ->
+        gui.line = provider.get()
+        provider.subscribeWeak(gui) { weakGui, line -> weakGui.line = line }
+    }
+    return this
+}
+
+@ExperimentalReactiveApi
+fun TabGui.Builder.setTab(
+    provider: MutableProvider<Int>
+): TabGui.Builder {
+    addModifier { gui ->
+        gui.tab = provider.get()
+        gui.addTabChangeHandler { _, to -> provider.set(to) }
+        provider.subscribeWeak(gui) { weakGui, tab -> weakGui.tab = tab }
+    }
+    return this
+}
+
+@ExperimentalReactiveApi
+fun TabGui.Builder.setTab(
+    provider: Provider<Int>
+): TabGui.Builder {
+    addModifier { gui ->
+        gui.tab = provider.get()
+        provider.subscribeWeak(gui) { weakGui, tab -> weakGui.tab = tab }
+    }
+    return this
+}
 
 @ExperimentalReactiveApi
 fun <C : Any> PagedGui.Builder<C>.setContent(
