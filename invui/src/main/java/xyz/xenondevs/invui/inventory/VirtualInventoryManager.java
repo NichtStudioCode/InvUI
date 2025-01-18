@@ -60,11 +60,13 @@ public class VirtualInventoryManager {
      * @param uuid          The UUID of the {@link VirtualInventory}.
      * @param size          The size of the {@link VirtualInventory}.
      * @param items         The items of the {@link VirtualInventory}.
+     *                      Can be null for an empty inventory.
      * @param maxStackSizes The max stack sizes of the {@link VirtualInventory}.
+     *                      Can be null for the default stack size of 64.
      * @return The created {@link VirtualInventory}.
      * @throws IllegalArgumentException If a {@link VirtualInventory} with the given UUID already exists.
      */
-    public VirtualInventory createNew(UUID uuid, int size, ItemStack[] items, int[] maxStackSizes) {
+    public VirtualInventory createNew(UUID uuid, int size, @Nullable ItemStack @Nullable [] items, int @Nullable [] maxStackSizes) {
         if (inventories.containsKey(uuid))
             throw new IllegalArgumentException("A Virtual Inventory with that UUID already exists");
         
@@ -103,13 +105,17 @@ public class VirtualInventoryManager {
      * @param uuid          The UUID of the {@link VirtualInventory}.
      * @param size          The size of the {@link VirtualInventory} to create if no such inventory exists.
      * @param items         The items of the {@link VirtualInventory} to create if no such inventory exists.
+     *                      Can be null for an empty inventory.
      * @param maxStackSizes The max stack sizes of the {@link VirtualInventory}.
+     *                      Can be null for the default stack size of 64.
      * @return The {@link VirtualInventory} with the given UUID or a new one with the given size, items and stack sizes if no such inventory exists.
      */
-    public VirtualInventory getOrCreate(UUID uuid, int size, ItemStack[] items, int[] maxStackSizes) {
+    public VirtualInventory getOrCreate(UUID uuid, int size, @Nullable ItemStack @Nullable [] items, int @Nullable [] maxStackSizes) {
         VirtualInventory inventory = getByUuid(uuid);
         if (inventory != null) {
-            inventory.setMaxStackSizes(ArrayUtils.copyOf(maxStackSizes, inventory.size, 64));
+            if (maxStackSizes != null) {
+                inventory.setMaxStackSizes(ArrayUtils.copyOf(maxStackSizes, inventory.size, 64));
+            }
             return inventory;
         } else {
             return createNew(uuid, size, items, maxStackSizes);
