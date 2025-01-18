@@ -85,7 +85,7 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
      *
      * @param tabsSupplier The content supplier to set.
      */
-    void setTabs(Supplier<? extends List<? extends @Nullable Gui>> tabsSupplier);
+    void setTabsSupplier(Supplier<? extends List<? extends @Nullable Gui>> tabsSupplier);
     
     /**
      * Sets the tabs of this {@link TabGui}.
@@ -149,7 +149,7 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
          *
          * @param tabsSupplier The content supplier to set.
          */
-        Builder setTabs(Supplier<? extends List<@Nullable Gui>> tabsSupplier);
+        Builder setTabsSupplier(Supplier<? extends List<@Nullable Gui>> tabsSupplier);
         
         /**
          * Sets the tabs of the {@link TabGui}.

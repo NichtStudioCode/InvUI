@@ -28,7 +28,7 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
         super(structure.getWidth(), structure.getHeight());
         applyStructure(structure);
         contentListSlots = structure.getIngredientList().findContentListSlots();
-        setTabs(tabs);
+        setTabsSupplier(tabs);
     }
     
     @Override
@@ -83,11 +83,11 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     
     @Override
     public void setTabs(List<? extends @Nullable Gui> tabs) {
-        setTabs(() -> tabs);
+        setTabsSupplier(() -> tabs);
     }
     
     @Override
-    public void setTabs(Supplier<? extends List<? extends @Nullable Gui>> tabsSupplier) {
+    public void setTabsSupplier(Supplier<? extends List<? extends @Nullable Gui>> tabsSupplier) {
         this.tabsSupplier = tabsSupplier;
         bake();
     }
@@ -155,7 +155,7 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
         private @Nullable List<BiConsumer<Integer, Integer>> tabChangeHandlers;
         
         @Override
-        public TabGui.Builder setTabs(Supplier<? extends List<@Nullable Gui>> tabsSupplier) {
+        public TabGui.Builder setTabsSupplier(Supplier<? extends List<@Nullable Gui>> tabsSupplier) {
             this.tabSupplier = tabsSupplier;
             return this;
         }

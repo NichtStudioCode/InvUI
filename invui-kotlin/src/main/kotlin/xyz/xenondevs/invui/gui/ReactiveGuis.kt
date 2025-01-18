@@ -1,16 +1,15 @@
 package xyz.xenondevs.invui.gui
 
-import org.checkerframework.checker.units.qual.C
 import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.commons.provider.combinedProvider
 import xyz.xenondevs.commons.provider.map
 import xyz.xenondevs.invui.ExperimentalReactiveApi
 
 @ExperimentalReactiveApi
-private fun <C : Any> PagedGui.Builder<C>.setReactiveContent(
+fun <C : Any> PagedGui.Builder<C>.setContent(
     provider: Provider<List<C>>
 ): PagedGui.Builder<C> {
-    setContent(provider)
+    setContentSupplier(provider)
     addModifier { gui -> provider.observeWeak(gui) { weakGui -> weakGui.bake() } }
     return this
 }
@@ -19,14 +18,14 @@ private fun <C : Any> PagedGui.Builder<C>.setReactiveContent(
 fun <CT : Any, A> PagedGui.Builder<CT>.setContent(
     provider: Provider<A>,
     mapValue: (A) -> List<CT>
-): PagedGui.Builder<CT> = setReactiveContent(provider.map(mapValue))
+): PagedGui.Builder<CT> = setContent(provider.map(mapValue))
 
 @ExperimentalReactiveApi
 fun <CT : Any, A, B> PagedGui.Builder<CT>.setContent(
     a: Provider<A>,
     b: Provider<B>,
     mapValue: (A, B) -> List<CT>
-): PagedGui.Builder<CT> = setReactiveContent(combinedProvider(a, b, mapValue))
+): PagedGui.Builder<CT> = setContent(combinedProvider(a, b, mapValue))
 
 @ExperimentalReactiveApi
 fun <CT : Any, A, B, C> PagedGui.Builder<CT>.setContent(
@@ -34,7 +33,7 @@ fun <CT : Any, A, B, C> PagedGui.Builder<CT>.setContent(
     b: Provider<B>,
     c: Provider<C>,
     mapValue: (A, B, C) -> List<CT>
-): PagedGui.Builder<CT> = setReactiveContent(combinedProvider(a, b, c, mapValue))
+): PagedGui.Builder<CT> = setContent(combinedProvider(a, b, c, mapValue))
 
 @ExperimentalReactiveApi
 fun <CT : Any, A, B, C, D> PagedGui.Builder<CT>.setContent(
@@ -43,7 +42,7 @@ fun <CT : Any, A, B, C, D> PagedGui.Builder<CT>.setContent(
     c: Provider<C>,
     d: Provider<D>,
     mapValue: (A, B, C, D) -> List<CT>
-): PagedGui.Builder<CT> = setReactiveContent(combinedProvider(a, b, c, d, mapValue))
+): PagedGui.Builder<CT> = setContent(combinedProvider(a, b, c, d, mapValue))
 
 @ExperimentalReactiveApi
 fun <CT : Any, A, B, C, D, E> PagedGui.Builder<CT>.setContent(
@@ -53,7 +52,7 @@ fun <CT : Any, A, B, C, D, E> PagedGui.Builder<CT>.setContent(
     d: Provider<D>,
     e: Provider<E>,
     mapValue: (A, B, C, D, E) -> List<CT>
-): PagedGui.Builder<CT> = setReactiveContent(combinedProvider(a, b, c, d, e, mapValue))
+): PagedGui.Builder<CT> = setContent(combinedProvider(a, b, c, d, e, mapValue))
 
 @ExperimentalReactiveApi
 fun <CT : Any, A, B, C, D, E, F> PagedGui.Builder<CT>.setContent(
@@ -64,7 +63,7 @@ fun <CT : Any, A, B, C, D, E, F> PagedGui.Builder<CT>.setContent(
     e: Provider<E>,
     f: Provider<F>,
     mapValue: (A, B, C, D, E, F) -> List<CT>
-): PagedGui.Builder<CT> = setReactiveContent(combinedProvider(a, b, c, d, e, f, mapValue))
+): PagedGui.Builder<CT> = setContent(combinedProvider(a, b, c, d, e, f, mapValue))
 
 @ExperimentalReactiveApi
 fun <CT : Any, A, B, C, D, E, F, G> PagedGui.Builder<CT>.setContent(
@@ -76,7 +75,7 @@ fun <CT : Any, A, B, C, D, E, F, G> PagedGui.Builder<CT>.setContent(
     f: Provider<F>,
     g: Provider<G>,
     mapValue: (A, B, C, D, E, F, G) -> List<CT>
-): PagedGui.Builder<CT> = setReactiveContent(combinedProvider(a, b, c, d, e, f, g, mapValue))
+): PagedGui.Builder<CT> = setContent(combinedProvider(a, b, c, d, e, f, g, mapValue))
 
 @ExperimentalReactiveApi
 fun <CT : Any, A, B, C, D, E, F, G, H> PagedGui.Builder<CT>.setContent(
@@ -89,7 +88,7 @@ fun <CT : Any, A, B, C, D, E, F, G, H> PagedGui.Builder<CT>.setContent(
     g: Provider<G>,
     h: Provider<H>,
     mapValue: (A, B, C, D, E, F, G, H) -> List<CT>
-): PagedGui.Builder<CT> = setReactiveContent(combinedProvider(a, b, c, d, e, f, g, h, mapValue))
+): PagedGui.Builder<CT> = setContent(combinedProvider(a, b, c, d, e, f, g, h, mapValue))
 
 @ExperimentalReactiveApi
 fun <CT : Any, A, B, C, D, E, F, G, H, I> PagedGui.Builder<CT>.setContent(
@@ -103,7 +102,7 @@ fun <CT : Any, A, B, C, D, E, F, G, H, I> PagedGui.Builder<CT>.setContent(
     h: Provider<H>,
     i: Provider<I>,
     mapValue: (A, B, C, D, E, F, G, H, I) -> List<CT>
-): PagedGui.Builder<CT> = setReactiveContent(combinedProvider(a, b, c, d, e, f, g, h, i, mapValue))
+): PagedGui.Builder<CT> = setContent(combinedProvider(a, b, c, d, e, f, g, h, i, mapValue))
 
 @ExperimentalReactiveApi
 fun <CT : Any, A, B, C, D, E, F, G, H, I, J> PagedGui.Builder<CT>.setContent(
@@ -118,13 +117,13 @@ fun <CT : Any, A, B, C, D, E, F, G, H, I, J> PagedGui.Builder<CT>.setContent(
     i: Provider<I>,
     j: Provider<J>,
     mapValue: (A, B, C, D, E, F, G, H, I, J) -> List<CT>
-): PagedGui.Builder<CT> = setReactiveContent(combinedProvider(a, b, c, d, e, f, g, h, i, j, mapValue))
+): PagedGui.Builder<CT> = setContent(combinedProvider(a, b, c, d, e, f, g, h, i, j, mapValue))
 
 @ExperimentalReactiveApi
-private fun <C : Any> ScrollGui.Builder<C>.setReactiveContent(
+fun <C : Any> ScrollGui.Builder<C>.setContent(
     provider: Provider<List<C>>
 ): ScrollGui.Builder<C> {
-    setContent(provider)
+    setContentSupplier(provider)
     addModifier { gui -> provider.observeWeak(gui) { weakGui -> weakGui.bake() } }
     return this
 }
@@ -133,14 +132,14 @@ private fun <C : Any> ScrollGui.Builder<C>.setReactiveContent(
 fun <CT : Any, A> ScrollGui.Builder<CT>.setContent(
     provider: Provider<A>,
     mapValue: (A) -> List<CT>
-): ScrollGui.Builder<CT> = setReactiveContent(provider.map(mapValue))
+): ScrollGui.Builder<CT> = setContent(provider.map(mapValue))
 
 @ExperimentalReactiveApi
 fun <CT : Any, A, B> ScrollGui.Builder<CT>.setContent(
     a: Provider<A>,
     b: Provider<B>,
     mapValue: (A, B) -> List<CT>
-): ScrollGui.Builder<CT> = setReactiveContent(combinedProvider(a, b, mapValue))
+): ScrollGui.Builder<CT> = setContent(combinedProvider(a, b, mapValue))
 
 @ExperimentalReactiveApi
 fun <CT : Any, A, B, C> ScrollGui.Builder<CT>.setContent(
@@ -148,7 +147,7 @@ fun <CT : Any, A, B, C> ScrollGui.Builder<CT>.setContent(
     b: Provider<B>,
     c: Provider<C>,
     mapValue: (A, B, C) -> List<CT>
-): ScrollGui.Builder<CT> = setReactiveContent(combinedProvider(a, b, c, mapValue))
+): ScrollGui.Builder<CT> = setContent(combinedProvider(a, b, c, mapValue))
 
 @ExperimentalReactiveApi
 fun <CT : Any, A, B, C, D> ScrollGui.Builder<CT>.setContent(
@@ -157,7 +156,7 @@ fun <CT : Any, A, B, C, D> ScrollGui.Builder<CT>.setContent(
     c: Provider<C>,
     d: Provider<D>,
     mapValue: (A, B, C, D) -> List<CT>
-): ScrollGui.Builder<CT> = setReactiveContent(combinedProvider(a, b, c, d, mapValue))
+): ScrollGui.Builder<CT> = setContent(combinedProvider(a, b, c, d, mapValue))
 
 @ExperimentalReactiveApi
 fun <CT : Any, A, B, C, D, E> ScrollGui.Builder<CT>.setContent(
@@ -167,7 +166,7 @@ fun <CT : Any, A, B, C, D, E> ScrollGui.Builder<CT>.setContent(
     d: Provider<D>,
     e: Provider<E>,
     mapValue: (A, B, C, D, E) -> List<CT>
-): ScrollGui.Builder<CT> = setReactiveContent(combinedProvider(a, b, c, d, e, mapValue))
+): ScrollGui.Builder<CT> = setContent(combinedProvider(a, b, c, d, e, mapValue))
 
 @ExperimentalReactiveApi
 fun <CT : Any, A, B, C, D, E, F> ScrollGui.Builder<CT>.setContent(
@@ -178,7 +177,7 @@ fun <CT : Any, A, B, C, D, E, F> ScrollGui.Builder<CT>.setContent(
     e: Provider<E>,
     f: Provider<F>,
     mapValue: (A, B, C, D, E, F) -> List<CT>
-): ScrollGui.Builder<CT> = setReactiveContent(combinedProvider(a, b, c, d, e, f, mapValue))
+): ScrollGui.Builder<CT> = setContent(combinedProvider(a, b, c, d, e, f, mapValue))
 
 @ExperimentalReactiveApi
 fun <CT : Any, A, B, C, D, E, F, G> ScrollGui.Builder<CT>.setContent(
@@ -190,7 +189,7 @@ fun <CT : Any, A, B, C, D, E, F, G> ScrollGui.Builder<CT>.setContent(
     f: Provider<F>,
     g: Provider<G>,
     mapValue: (A, B, C, D, E, F, G) -> List<CT>
-): ScrollGui.Builder<CT> = setReactiveContent(combinedProvider(a, b, c, d, e, f, g, mapValue))
+): ScrollGui.Builder<CT> = setContent(combinedProvider(a, b, c, d, e, f, g, mapValue))
 
 @ExperimentalReactiveApi
 fun <CT : Any, A, B, C, D, E, F, G, H> ScrollGui.Builder<CT>.setContent(
@@ -203,7 +202,7 @@ fun <CT : Any, A, B, C, D, E, F, G, H> ScrollGui.Builder<CT>.setContent(
     g: Provider<G>,
     h: Provider<H>,
     mapValue: (A, B, C, D, E, F, G, H) -> List<CT>
-): ScrollGui.Builder<CT> = setReactiveContent(combinedProvider(a, b, c, d, e, f, g, h, mapValue))
+): ScrollGui.Builder<CT> = setContent(combinedProvider(a, b, c, d, e, f, g, h, mapValue))
 
 @ExperimentalReactiveApi
 fun <CT : Any, A, B, C, D, E, F, G, H, I> ScrollGui.Builder<CT>.setContent(
@@ -217,7 +216,7 @@ fun <CT : Any, A, B, C, D, E, F, G, H, I> ScrollGui.Builder<CT>.setContent(
     h: Provider<H>,
     i: Provider<I>,
     mapValue: (A, B, C, D, E, F, G, H, I) -> List<CT>
-): ScrollGui.Builder<CT> = setReactiveContent(combinedProvider(a, b, c, d, e, f, g, h, i, mapValue))
+): ScrollGui.Builder<CT> = setContent(combinedProvider(a, b, c, d, e, f, g, h, i, mapValue))
 
 @ExperimentalReactiveApi
 fun <CT : Any, A, B, C, D, E, F, G, H, I, J> ScrollGui.Builder<CT>.setContent(
@@ -232,13 +231,13 @@ fun <CT : Any, A, B, C, D, E, F, G, H, I, J> ScrollGui.Builder<CT>.setContent(
     i: Provider<I>,
     j: Provider<J>,
     mapValue: (A, B, C, D, E, F, G, H, I, J) -> List<CT>
-): ScrollGui.Builder<CT> = setReactiveContent(combinedProvider(a, b, c, d, e, f, g, h, i, j, mapValue))
+): ScrollGui.Builder<CT> = setContent(combinedProvider(a, b, c, d, e, f, g, h, i, j, mapValue))
 
 @ExperimentalReactiveApi
-private fun  TabGui.Builder.setReactiveTabs(
+fun TabGui.Builder.setTabs(
     provider: Provider<List<Gui?>>
 ): TabGui.Builder {
-    setTabs(provider)
+    setTabsSupplier(provider)
     addModifier { gui -> provider.observeWeak(gui) { weakGui -> weakGui.bake() } }
     return this
 }
@@ -247,14 +246,14 @@ private fun  TabGui.Builder.setReactiveTabs(
 fun <A> TabGui.Builder.setTabs(
     provider: Provider<A>,
     mapValue: (A) -> List<Gui>
-): TabGui.Builder = setReactiveTabs(provider.map(mapValue))
+): TabGui.Builder = setTabs(provider.map(mapValue))
 
 @ExperimentalReactiveApi
 fun <A, B> TabGui.Builder.setTabs(
     a: Provider<A>,
     b: Provider<B>,
     mapValue: (A, B) -> List<Gui>
-): TabGui.Builder = setReactiveTabs(combinedProvider(a, b, mapValue))
+): TabGui.Builder = setTabs(combinedProvider(a, b, mapValue))
 
 @ExperimentalReactiveApi
 fun <A, B, C> TabGui.Builder.setTabs(
@@ -262,7 +261,7 @@ fun <A, B, C> TabGui.Builder.setTabs(
     b: Provider<B>,
     c: Provider<C>,
     mapValue: (A, B, C) -> List<Gui>
-): TabGui.Builder = setReactiveTabs(combinedProvider(a, b, c, mapValue))
+): TabGui.Builder = setTabs(combinedProvider(a, b, c, mapValue))
 
 @ExperimentalReactiveApi
 fun <A, B, C, D> TabGui.Builder.setTabs(
@@ -271,7 +270,7 @@ fun <A, B, C, D> TabGui.Builder.setTabs(
     c: Provider<C>,
     d: Provider<D>,
     mapValue: (A, B, C, D) -> List<Gui>
-): TabGui.Builder = setReactiveTabs(combinedProvider(a, b, c, d, mapValue))
+): TabGui.Builder = setTabs(combinedProvider(a, b, c, d, mapValue))
 
 @ExperimentalReactiveApi
 fun <A, B, C, D, E> TabGui.Builder.setTabs(
@@ -281,7 +280,7 @@ fun <A, B, C, D, E> TabGui.Builder.setTabs(
     d: Provider<D>,
     e: Provider<E>,
     mapValue: (A, B, C, D, E) -> List<Gui>
-): TabGui.Builder = setReactiveTabs(combinedProvider(a, b, c, d, e, mapValue))
+): TabGui.Builder = setTabs(combinedProvider(a, b, c, d, e, mapValue))
 
 @ExperimentalReactiveApi
 fun <A, B, C, D, E, F> TabGui.Builder.setTabs(
@@ -292,7 +291,7 @@ fun <A, B, C, D, E, F> TabGui.Builder.setTabs(
     e: Provider<E>,
     f: Provider<F>,
     mapValue: (A, B, C, D, E, F) -> List<Gui>
-): TabGui.Builder = setReactiveTabs(combinedProvider(a, b, c, d, e, f, mapValue))
+): TabGui.Builder = setTabs(combinedProvider(a, b, c, d, e, f, mapValue))
 
 @ExperimentalReactiveApi
 fun <A, B, C, D, E, F, G> TabGui.Builder.setTabs(
@@ -304,7 +303,7 @@ fun <A, B, C, D, E, F, G> TabGui.Builder.setTabs(
     f: Provider<F>,
     g: Provider<G>,
     mapValue: (A, B, C, D, E, F, G) -> List<Gui>
-): TabGui.Builder = setReactiveTabs(combinedProvider(a, b, c, d, e, f, g, mapValue))
+): TabGui.Builder = setTabs(combinedProvider(a, b, c, d, e, f, g, mapValue))
 
 @ExperimentalReactiveApi
 fun <A, B, C, D, E, F, G, H> TabGui.Builder.setTabs(
@@ -317,7 +316,7 @@ fun <A, B, C, D, E, F, G, H> TabGui.Builder.setTabs(
     g: Provider<G>,
     h: Provider<H>,
     mapValue: (A, B, C, D, E, F, G, H) -> List<Gui>
-): TabGui.Builder = setReactiveTabs(combinedProvider(a, b, c, d, e, f, g, h, mapValue))
+): TabGui.Builder = setTabs(combinedProvider(a, b, c, d, e, f, g, h, mapValue))
 
 @ExperimentalReactiveApi
 fun <A, B, C, D, E, F, G, H, I> TabGui.Builder.setTabs(
@@ -331,7 +330,7 @@ fun <A, B, C, D, E, F, G, H, I> TabGui.Builder.setTabs(
     h: Provider<H>,
     i: Provider<I>,
     mapValue: (A, B, C, D, E, F, G, H, I) -> List<Gui>
-): TabGui.Builder = setReactiveTabs(combinedProvider(a, b, c, d, e, f, g, h, i, mapValue))
+): TabGui.Builder = setTabs(combinedProvider(a, b, c, d, e, f, g, h, i, mapValue))
 
 @ExperimentalReactiveApi
 fun <A, B, C, D, E, F, G, H, I, J> TabGui.Builder.setTabs(
@@ -346,4 +345,4 @@ fun <A, B, C, D, E, F, G, H, I, J> TabGui.Builder.setTabs(
     i: Provider<I>,
     j: Provider<J>,
     mapValue: (A, B, C, D, E, F, G, H, I, J) -> List<Gui>
-): TabGui.Builder = setReactiveTabs(combinedProvider(a, b, c, d, e, f, g, h, i, j, mapValue))
+): TabGui.Builder = setTabs(combinedProvider(a, b, c, d, e, f, g, h, i, j, mapValue))

@@ -13,7 +13,7 @@ final class PagedNestedGuiImpl<C extends Gui> extends AbstractPagedGui<C> {
     
     public PagedNestedGuiImpl(Supplier<? extends List<? extends C>> guis, Structure structure) {
         super(structure.getWidth(), structure.getHeight(), false, structure);
-        setContent(guis);
+        setContentSupplier(guis);
     }
     
     @Override

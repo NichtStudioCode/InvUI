@@ -15,7 +15,7 @@ final class ScrollItemsGuiImpl<C extends Item> extends AbstractScrollGui<C> {
     
     public ScrollItemsGuiImpl(Supplier<? extends List<? extends C>> items, Structure structure) {
         super(structure.getWidth(), structure.getHeight(), false, structure);
-        setContent(items);
+        setContentSupplier(items);
     }
     
     @Override

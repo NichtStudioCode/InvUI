@@ -13,7 +13,7 @@ final class ScrollNestedGuiImpl<C extends Gui> extends AbstractScrollGui<C> {
     
     public ScrollNestedGuiImpl(Supplier<? extends List<? extends C>> guis, Structure structure) {
         super(structure.getWidth(), structure.getHeight(), false, structure);
-        setContent(guis);
+        setContentSupplier(guis);
     }
     
     @Override

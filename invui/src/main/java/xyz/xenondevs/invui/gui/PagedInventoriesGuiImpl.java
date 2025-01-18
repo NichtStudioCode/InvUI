@@ -19,7 +19,7 @@ final class PagedInventoriesGuiImpl<C extends Inventory> extends AbstractPagedGu
     
     public PagedInventoriesGuiImpl(Supplier<? extends List<? extends C>> inventories, Structure structure) {
         super(structure.getWidth(), structure.getHeight(), false, structure);
-        setContent(inventories);
+        setContentSupplier(inventories);
     }
     
     @SuppressWarnings("DuplicatedCode")

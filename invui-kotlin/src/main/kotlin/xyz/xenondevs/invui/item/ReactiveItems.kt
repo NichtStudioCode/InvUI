@@ -13,7 +13,7 @@ import kotlin.experimental.ExperimentalTypeInference
 
 @OverloadResolutionByLambdaReturnType
 @ExperimentalReactiveApi
-private fun <S : Item.Builder<*>> S.setReactiveItemProvider(
+fun <S : Item.Builder<*>> S.setItemProvider(
     itemProviderProvider: Provider<ItemProvider>
 ): S {
     addModifier { item -> itemProviderProvider.observeWeak(item) { weakItem -> weakItem.notifyWindows() } }
@@ -25,7 +25,7 @@ private fun <S : Item.Builder<*>> S.setReactiveItemProvider(
 fun <S : Item.Builder<*>, A> S.setItemProvider(
     a: Provider<A>,
     mapValue: (A) -> ItemProvider
-): S = setReactiveItemProvider(a.map(mapValue))
+): S = setItemProvider(a.map(mapValue))
 
 @OverloadResolutionByLambdaReturnType
 @ExperimentalReactiveApi
@@ -33,7 +33,7 @@ fun <S : Item.Builder<*>, A, B> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     mapValue: (A, B) -> ItemProvider
-): S = setReactiveItemProvider(combinedProvider(a, b, mapValue))
+): S = setItemProvider(combinedProvider(a, b, mapValue))
 
 @OverloadResolutionByLambdaReturnType
 @ExperimentalReactiveApi
@@ -42,7 +42,7 @@ fun <S : Item.Builder<*>, A, B, C> S.setItemProvider(
     b: Provider<B>,
     c: Provider<C>,
     mapValue: (A, B, C) -> ItemProvider
-): S = setReactiveItemProvider(combinedProvider(a, b, c, mapValue))
+): S = setItemProvider(combinedProvider(a, b, c, mapValue))
 
 @OverloadResolutionByLambdaReturnType
 @ExperimentalReactiveApi
@@ -52,7 +52,7 @@ fun <S : Item.Builder<*>, A, B, C, D> S.setItemProvider(
     c: Provider<C>,
     d: Provider<D>,
     mapValue: (A, B, C, D) -> ItemProvider
-): S = setReactiveItemProvider(combinedProvider(a, b, c, d, mapValue))
+): S = setItemProvider(combinedProvider(a, b, c, d, mapValue))
 
 @OverloadResolutionByLambdaReturnType
 @ExperimentalReactiveApi
@@ -63,7 +63,7 @@ fun <S : Item.Builder<*>, A, B, C, D, E> S.setItemProvider(
     d: Provider<D>,
     e: Provider<E>,
     mapValue: (A, B, C, D, E) -> ItemProvider
-): S = setReactiveItemProvider(combinedProvider(a, b, c, d, e, mapValue))
+): S = setItemProvider(combinedProvider(a, b, c, d, e, mapValue))
 
 @OverloadResolutionByLambdaReturnType
 @ExperimentalReactiveApi
@@ -75,7 +75,7 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F> S.setItemProvider(
     e: Provider<E>,
     f: Provider<F>,
     mapValue: (A, B, C, D, E, F) -> ItemProvider
-): S = setReactiveItemProvider(combinedProvider(a, b, c, d, e, f, mapValue))
+): S = setItemProvider(combinedProvider(a, b, c, d, e, f, mapValue))
 
 @OverloadResolutionByLambdaReturnType
 @ExperimentalReactiveApi
@@ -88,7 +88,7 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F, G> S.setItemProvider(
     f: Provider<F>,
     g: Provider<G>,
     mapValue: (A, B, C, D, E, F, G) -> ItemProvider
-): S = setReactiveItemProvider(combinedProvider(a, b, c, d, e, f, g, mapValue))
+): S = setItemProvider(combinedProvider(a, b, c, d, e, f, g, mapValue))
 
 @OverloadResolutionByLambdaReturnType
 @ExperimentalReactiveApi
@@ -102,7 +102,7 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H> S.setItemProvider(
     g: Provider<G>,
     h: Provider<H>,
     mapValue: (A, B, C, D, E, F, G, H) -> ItemProvider
-): S = setReactiveItemProvider(combinedProvider(a, b, c, d, e, f, g, h, mapValue))
+): S = setItemProvider(combinedProvider(a, b, c, d, e, f, g, h, mapValue))
 
 @OverloadResolutionByLambdaReturnType
 @ExperimentalReactiveApi
@@ -117,7 +117,7 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I> S.setItemProvider(
     h: Provider<H>,
     i: Provider<I>,
     mapValue: (A, B, C, D, E, F, G, H, I) -> ItemProvider
-): S = setReactiveItemProvider(combinedProvider(a, b, c, d, e, f, g, h, i, mapValue))
+): S = setItemProvider(combinedProvider(a, b, c, d, e, f, g, h, i, mapValue))
 
 @OverloadResolutionByLambdaReturnType
 @ExperimentalReactiveApi
@@ -133,7 +133,7 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I, J> S.setItemProvider(
     i: Provider<I>,
     j: Provider<J>,
     mapValue: (A, B, C, D, E, F, G, H, I, J) -> ItemProvider
-): S = setReactiveItemProvider(combinedProvider(a, b, c, d, e, f, g, h, i, j, mapValue))
+): S = setItemProvider(combinedProvider(a, b, c, d, e, f, g, h, i, j, mapValue))
 
 private fun <S : Item.Builder<*>> S.observeAndNotify(vararg providers: Provider<*>) {
     providers.forEach { provider -> addModifier { item -> provider.observeWeak(item) { weakItem -> weakItem.notifyWindows() } } }
@@ -297,9 +297,9 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I, J> S.setItemProvider(
 @OverloadResolutionByLambdaReturnType
 @JvmName("reactiveItemProvider1")
 @ExperimentalReactiveApi
-private fun <S : Item.Builder<*>> S.setReactiveItemProvider(
+fun <S : Item.Builder<*>> S.setItemProvider(
     itemStackProvider: Provider<ItemStack>
-): S = setReactiveItemProvider(itemStackProvider.map(::ItemWrapper))
+): S = setItemProvider(itemStackProvider.map(::ItemWrapper))
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider1")
@@ -307,7 +307,7 @@ private fun <S : Item.Builder<*>> S.setReactiveItemProvider(
 fun <S : Item.Builder<*>, A> S.setItemProvider(
     a: Provider<A>,
     mapValue: (A) -> ItemStack
-): S = setReactiveItemProvider(a.map(mapValue))
+): S = setItemProvider(a.map(mapValue))
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider1")
@@ -316,7 +316,7 @@ fun <S : Item.Builder<*>, A, B> S.setItemProvider(
     a: Provider<A>,
     b: Provider<B>,
     mapValue: (A, B) -> ItemStack
-): S = setReactiveItemProvider(combinedProvider(a, b, mapValue))
+): S = setItemProvider(combinedProvider(a, b, mapValue))
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider1")
@@ -326,7 +326,7 @@ fun <S : Item.Builder<*>, A, B, C> S.setItemProvider(
     b: Provider<B>,
     c: Provider<C>,
     mapValue: (A, B, C) -> ItemStack
-): S = setReactiveItemProvider(combinedProvider(a, b, c, mapValue))
+): S = setItemProvider(combinedProvider(a, b, c, mapValue))
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider1")
@@ -337,7 +337,7 @@ fun <S : Item.Builder<*>, A, B, C, D> S.setItemProvider(
     c: Provider<C>,
     d: Provider<D>,
     mapValue: (A, B, C, D) -> ItemStack
-): S = setReactiveItemProvider(combinedProvider(a, b, c, d, mapValue))
+): S = setItemProvider(combinedProvider(a, b, c, d, mapValue))
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider1")
@@ -349,7 +349,7 @@ fun <S : Item.Builder<*>, A, B, C, D, E> S.setItemProvider(
     d: Provider<D>,
     e: Provider<E>,
     mapValue: (A, B, C, D, E) -> ItemStack
-): S = setReactiveItemProvider(combinedProvider(a, b, c, d, e, mapValue))
+): S = setItemProvider(combinedProvider(a, b, c, d, e, mapValue))
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider1")
@@ -362,7 +362,7 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F> S.setItemProvider(
     e: Provider<E>,
     f: Provider<F>,
     mapValue: (A, B, C, D, E, F) -> ItemStack
-): S = setReactiveItemProvider(combinedProvider(a, b, c, d, e, f, mapValue))
+): S = setItemProvider(combinedProvider(a, b, c, d, e, f, mapValue))
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider1")
@@ -376,7 +376,7 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F, G> S.setItemProvider(
     f: Provider<F>,
     g: Provider<G>,
     mapValue: (A, B, C, D, E, F, G) -> ItemStack
-): S = setReactiveItemProvider(combinedProvider(a, b, c, d, e, f, g, mapValue))
+): S = setItemProvider(combinedProvider(a, b, c, d, e, f, g, mapValue))
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider1")
@@ -391,7 +391,7 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H> S.setItemProvider(
     g: Provider<G>,
     h: Provider<H>,
     mapValue: (A, B, C, D, E, F, G, H) -> ItemStack
-): S = setReactiveItemProvider(combinedProvider(a, b, c, d, e, f, g, h, mapValue))
+): S = setItemProvider(combinedProvider(a, b, c, d, e, f, g, h, mapValue))
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider1")
@@ -407,7 +407,7 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I> S.setItemProvider(
     h: Provider<H>,
     i: Provider<I>,
     mapValue: (A, B, C, D, E, F, G, H, I) -> ItemStack
-): S = setReactiveItemProvider(combinedProvider(a, b, c, d, e, f, g, h, i, mapValue))
+): S = setItemProvider(combinedProvider(a, b, c, d, e, f, g, h, i, mapValue))
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider1")
@@ -424,7 +424,7 @@ fun <S : Item.Builder<*>, A, B, C, D, E, F, G, H, I, J> S.setItemProvider(
     i: Provider<I>,
     j: Provider<J>,
     mapValue: (A, B, C, D, E, F, G, H, I, J) -> ItemStack
-): S = setReactiveItemProvider(combinedProvider(a, b, c, d, e, f, g, h, i, j, mapValue))
+): S = setItemProvider(combinedProvider(a, b, c, d, e, f, g, h, i, j, mapValue))
 
 @OverloadResolutionByLambdaReturnType
 @JvmName("itemProvider3")

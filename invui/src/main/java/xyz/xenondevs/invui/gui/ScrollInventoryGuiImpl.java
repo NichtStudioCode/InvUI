@@ -19,7 +19,7 @@ final class ScrollInventoryGuiImpl<C extends Inventory> extends AbstractScrollGu
     
     public ScrollInventoryGuiImpl(Supplier<? extends List<? extends C>> inventories, Structure structure) {
         super(structure.getWidth(), structure.getHeight(), false, structure);
-        setContent(inventories);
+        setContentSupplier(inventories);
     }
     
     @SuppressWarnings("DuplicatedCode")

@@ -216,7 +216,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      *
      * @param contentSupplier The content supplier to set.
      */
-    void setContent(Supplier<? extends List<? extends C>> contentSupplier);
+    void setContentSupplier(Supplier<? extends List<? extends C>> contentSupplier);
     
     /**
      * Sets the content of this {@link PagedGui} for all pages.
@@ -312,7 +312,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
          * @param contentSupplier The content supplier to set.
          * @return This {@link Builder Gui Builder}.
          */
-        Builder<C> setContent(Supplier<? extends List<C>> contentSupplier);
+        Builder<C> setContentSupplier(Supplier<? extends List<C>> contentSupplier);
         
         /**
          * Sets the content of the {@link PagedGui} for all pages.

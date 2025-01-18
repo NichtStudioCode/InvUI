@@ -106,14 +106,14 @@ sealed abstract class AbstractPagedGui<C>
     }
     
     @Override
-    public void setContent(Supplier<? extends List<? extends C>> contentSupplier) {
+    public void setContentSupplier(Supplier<? extends List<? extends C>> contentSupplier) {
         this.contentSupplier = contentSupplier;
         bake();
     }
     
     @Override
     public void setContent(List<? extends C> content) {
-        setContent(() -> content);
+        setContentSupplier(() -> content);
     }
     
     public void setPages(@Nullable List<List<SlotElement>> pages) {
@@ -222,7 +222,7 @@ sealed abstract class AbstractPagedGui<C>
         }
         
         @Override
-        public PagedGui.Builder<C> setContent(Supplier<? extends List<C>> contentSupplier) {
+        public PagedGui.Builder<C> setContentSupplier(Supplier<? extends List<C>> contentSupplier) {
             this.contentSupplier = contentSupplier;
             return this;
         }

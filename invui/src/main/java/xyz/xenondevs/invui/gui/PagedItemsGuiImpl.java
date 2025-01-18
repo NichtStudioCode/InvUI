@@ -15,7 +15,7 @@ final class PagedItemsGuiImpl<C extends Item> extends AbstractPagedGui<C> {
     
     public PagedItemsGuiImpl(Supplier<? extends List<? extends C>> items, Structure structure) {
         super(structure.getWidth(), structure.getHeight(), false, structure);
-        setContent(items);
+        setContentSupplier(items);
     }
     
     @Override

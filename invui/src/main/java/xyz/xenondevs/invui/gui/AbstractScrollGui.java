@@ -120,11 +120,11 @@ sealed abstract class AbstractScrollGui<C>
     
     @Override
     public void setContent(List<? extends C> content) {
-        setContent(() -> content);
+        setContentSupplier(() -> content);
     }
     
     @Override
-    public void setContent(Supplier<? extends List<? extends C>> contentSupplier) {
+    public void setContentSupplier(Supplier<? extends List<? extends C>> contentSupplier) {
         this.contentSupplier = contentSupplier;
         bake();
     }
@@ -225,7 +225,7 @@ sealed abstract class AbstractScrollGui<C>
         }
         
         @Override
-        public ScrollGui.Builder<C> setContent(Supplier<List<C>> contentSupplier) {
+        public ScrollGui.Builder<C> setContentSupplier(Supplier<List<C>> contentSupplier) {
             this.contentSupplier = contentSupplier;
             return this;
         }

@@ -334,14 +334,14 @@ public sealed abstract class AbstractWindow
     }
     
     @Override
-    public void setTitle(Supplier<Component> titleSupplier) {
+    public void setTitleSupplier(Supplier<Component> titleSupplier) {
         this.titleSupplier = titleSupplier;
         updateTitle();
     }
     
     @Override
     public void setTitle(Component title) {
-        setTitle(() -> title);
+        setTitleSupplier(() -> title);
     }
     
     @Override
@@ -499,7 +499,7 @@ public sealed abstract class AbstractWindow
         }
         
         @Override
-        public S setTitle(Supplier<Component> title) {
+        public S setTitleSupplier(Supplier<Component> title) {
             this.titleSupplier = title;
             return (S) this;
         }

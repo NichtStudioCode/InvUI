@@ -123,7 +123,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
      *
      * @param titleSupplier The new title supplier
      */
-    void setTitle(Supplier<Component> titleSupplier);
+    void setTitleSupplier(Supplier<Component> titleSupplier);
     
     /**
      * Changes the title of the {@link Inventory}.
@@ -260,7 +260,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
          * @param title The title supplier
          * @return This {@link Builder Window Builder}
          */
-        S setTitle(Supplier<Component> title);
+        S setTitleSupplier(Supplier<Component> title);
         
         /**
          * Sets the title of the {@link Window}.

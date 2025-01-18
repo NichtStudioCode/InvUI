@@ -11,7 +11,7 @@ import xyz.xenondevs.invui.ExperimentalReactiveApi
 @ExperimentalReactiveApi
 private fun <S : Window.Builder<*, *>> S.setReactiveTitle(provider: Provider<Component>): S {
     addModifier { window -> provider.observeWeak(window) { weakWindow -> weakWindow.updateTitle() } }
-    return setTitle(provider) as S
+    return setTitleSupplier(provider) as S
 }
 
 @ExperimentalReactiveApi

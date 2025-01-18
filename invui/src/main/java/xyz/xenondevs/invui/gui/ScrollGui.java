@@ -195,7 +195,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      *
      * @param contentSupplier The content supplier to set.
      */
-    void setContent(Supplier<? extends List<? extends C>> contentSupplier);
+    void setContentSupplier(Supplier<? extends List<? extends C>> contentSupplier);
     
     /**
      * Sets the content of this {@link ScrollGui} for all lines.
@@ -291,7 +291,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
          * @param contentSupplier The content supplier to set.
          * @return This {@link Builder Gui Builder}.
          */
-        Builder<C> setContent(Supplier<List<C>> contentSupplier);
+        Builder<C> setContentSupplier(Supplier<List<C>> contentSupplier);
         
         /**
          * Sets the content of the {@link ScrollGui} for all lines.
