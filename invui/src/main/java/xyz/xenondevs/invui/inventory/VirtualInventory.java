@@ -1,6 +1,8 @@
 package xyz.xenondevs.invui.inventory;
 
+import net.minecraft.nbt.NbtIo;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.util.CraftMagicNumbers;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
@@ -8,12 +10,10 @@ import xyz.xenondevs.invui.internal.util.DataUtils;
 import xyz.xenondevs.invui.util.ItemUtils;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.logging.Level;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * A serializable {@link Inventory} implementation that is identified by a {@link UUID} and backed by a simple {@link ItemStack} array.
@@ -36,7 +36,6 @@ public final class VirtualInventory extends Inventory {
      * @param items         A predefined array of content. Can be null.
      * @param maxStackSizes An array of maximum allowed stack sizes for each slot in the {@link VirtualInventory}. Can be null for 64.
      * @throws IllegalArgumentException If the given size does not match the length of the items array or the length of the stackSizes array.
-     * @throws IllegalArgumentException If the items array contains air {@link ItemStack ItemStacks}.
      */
     public VirtualInventory(@Nullable UUID uuid, int size, @Nullable ItemStack @Nullable [] items, int @Nullable [] maxStackSizes) {
         super(size);
@@ -188,16 +187,37 @@ public final class VirtualInventory extends Inventory {
         try {
             DataInputStream din = new DataInputStream(in);
             UUID uuid = new UUID(din.readLong(), din.readLong());
+            @Nullable ItemStack[] items;
             
-            byte id = din.readByte(); // id, pre v1.0: 3, v1.0: 4
-            if (id == 3) {
-                // stack sizes are no longer serialized
-                DataUtils.readByteArray(din);
+            byte id = din.readByte(); // id, pre v1.0: 3, v1.0: 4, v2.0: 5
+            switch(id) {
+                case 3, 4 -> {
+                    if (id == 3) {
+                        // stack sizes are no longer serialized
+                        DataUtils.readByteArray(din);
+                    }
+                    
+                    items = Arrays.stream(DataUtils.read2DByteArray(din))
+                        .map(data -> data.length != 0 ? ItemStack.deserializeBytes(data) : null)
+                        .toArray(ItemStack[]::new);
+                }
+                
+                case 5 -> {
+                    int dataVersion = din.readInt();
+                    int size = din.readInt();
+                    var itemsMask = BitSet.valueOf(din.readNBytes((size + 7) / 8)); // ceil(size / 8)
+                    
+                    items = new ItemStack[size];
+                    for (int i = 0; i < size; i++) {
+                        if (!itemsMask.get(i))
+                            continue;
+                        
+                        items[i] = DataUtils.deserializeItemStack(dataVersion, din);
+                    }
+                }
+                
+                default -> throw new UnsupportedOperationException("Unsupported VirtualInventory version: " + id);
             }
-            
-            @Nullable ItemStack[] items = Arrays.stream(DataUtils.read2DByteArray(din))
-                .map(data -> data.length != 0 ? ItemStack.deserializeBytes(data) : null)
-                .toArray(ItemStack[]::new);
             
             return new VirtualInventory(uuid, items);
         } catch (IOException e) {
@@ -227,16 +247,29 @@ public final class VirtualInventory extends Inventory {
      */
     public void serialize(OutputStream out) {
         try {
-            DataOutputStream dos = new DataOutputStream(out);
+            var dos = new DataOutputStream(out);
             dos.writeLong(uuid.getMostSignificantBits());
             dos.writeLong(uuid.getLeastSignificantBits());
-            dos.writeByte((byte) 4); // id, pre v1.0: 3, v1.0: 4
+            dos.writeByte((byte) 5); // id, pre v1.0: 3, v1.0: 4, v2.0: 5
             
-            byte[][] items = Arrays.stream(this.items)
-                .map(itemStack -> itemStack != null ? itemStack.serializeAsBytes() : new byte[0])
-                .toArray(byte[][]::new);
+            dos.writeInt(CraftMagicNumbers.INSTANCE.getDataVersion());
+            dos.writeInt(items.length);
             
-            DataUtils.write2DByteArray(dos, items);
+            var itemMask = new BitSet(items.length);
+            var itemsBin = new ByteArrayOutputStream();
+            var itemsOut = new GZIPOutputStream(itemsBin);
+            
+            for (int i = 0; i < items.length; i++) {
+                var itemStack = items[i];
+                if (ItemUtils.isEmpty(itemStack))
+                    continue;
+                
+                itemMask.set(i, true);
+                DataUtils.serializeItemStack(itemStack, itemsOut);
+            }
+            
+            dos.write(itemMask.toByteArray());
+            dos.write(itemsBin.toByteArray());
             
             dos.flush();
         } catch (IOException e) {
@@ -301,7 +334,7 @@ public final class VirtualInventory extends Inventory {
         this.size = size;
         items = Arrays.copyOf(items, size);
         maxStackSizes = Arrays.copyOf(maxStackSizes, size);
-        synchronized(viewers) { 
+        synchronized (viewers) {
             viewers = Arrays.copyOf(viewers, size);
         }
         
@@ -325,6 +358,9 @@ public final class VirtualInventory extends Inventory {
      * @param stackSizes The array defining the max stack sizes for this {@link Inventory}.
      */
     public void setMaxStackSizes(int[] stackSizes) {
+        if (stackSizes.length != size)
+            throw new IllegalArgumentException("Size of stackSizes array (" + stackSizes.length + ") does not match inventory size (" + size + ")");
+        
         this.maxStackSizes = stackSizes;
     }
     
@@ -335,6 +371,9 @@ public final class VirtualInventory extends Inventory {
      * @param maxStackSize The max stack size
      */
     public void setMaxStackSize(int slot, int maxStackSize) {
+        if (slot < 0 || slot >= size)
+            throw new IndexOutOfBoundsException("Slot " + slot + " out of bounds for size " + size);
+        
         maxStackSizes[slot] = maxStackSize;
     }
     
@@ -354,6 +393,9 @@ public final class VirtualInventory extends Inventory {
     
     @Override
     public int getMaxSlotStackSize(int slot) {
+        if (slot < 0 || slot >= size)
+            throw new IndexOutOfBoundsException("Slot " + slot + " out of bounds for size " + size);
+        
         return maxStackSizes[slot];
     }
     

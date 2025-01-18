@@ -1,7 +1,10 @@
 package xyz.xenondevs.invui.inventory;
 
+import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
+import xyz.xenondevs.invui.internal.util.ArrayUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,8 +19,7 @@ import java.util.logging.Level;
 public class VirtualInventoryManager {
     
     private static final File SAVE_DIR = new File("plugins/InvUI/VirtualInventory/" + InvUI.getInstance().getPlugin().getName() + "/");
-    
-    private static VirtualInventoryManager instance;
+    private static final VirtualInventoryManager INSTANCE = new VirtualInventoryManager();
     
     private final Map<UUID, VirtualInventory> inventories = new HashMap<>();
     
@@ -26,10 +28,22 @@ public class VirtualInventoryManager {
         deserializeAll();
     }
     
+    /**
+     * Gets the singleton instance of the {@link VirtualInventoryManager}.
+     *
+     * @return The singleton instance of the {@link VirtualInventoryManager}.
+     */
     public static VirtualInventoryManager getInstance() {
-        return instance == null ? instance = new VirtualInventoryManager() : instance;
+        return INSTANCE;
     }
     
+    /**
+     * Creates a new {@link VirtualInventory} with the given UUID and size.
+     *
+     * @param uuid The UUID of the {@link VirtualInventory}.
+     * @param size The size of the {@link VirtualInventory}.
+     * @return The created {@link VirtualInventory}.
+     */
     public VirtualInventory createNew(UUID uuid, int size) {
         if (inventories.containsKey(uuid))
             throw new IllegalArgumentException("A VirtualInventory with that UUID already exists");
@@ -40,37 +54,88 @@ public class VirtualInventoryManager {
         return inventory;
     }
     
-    public VirtualInventory createNew(UUID uuid, int size, ItemStack[] items, int[] stackSizes) {
+    /**
+     * Creates a new {@link VirtualInventory} with the given UUID, size, items and stack sizes.
+     *
+     * @param uuid          The UUID of the {@link VirtualInventory}.
+     * @param size          The size of the {@link VirtualInventory}.
+     * @param items         The items of the {@link VirtualInventory}.
+     * @param maxStackSizes The max stack sizes of the {@link VirtualInventory}.
+     * @return The created {@link VirtualInventory}.
+     * @throws IllegalArgumentException If a {@link VirtualInventory} with the given UUID already exists.
+     */
+    public VirtualInventory createNew(UUID uuid, int size, ItemStack[] items, int[] maxStackSizes) {
         if (inventories.containsKey(uuid))
             throw new IllegalArgumentException("A Virtual Inventory with that UUID already exists");
         
-        VirtualInventory inventory = new VirtualInventory(uuid, size, items, stackSizes);
+        VirtualInventory inventory = new VirtualInventory(uuid, size, items, maxStackSizes);
         inventories.put(uuid, inventory);
         
         return inventory;
     }
     
-    public VirtualInventory getByUuid(UUID uuid) {
+    /**
+     * Gets the {@link VirtualInventory} with the given UUID.
+     *
+     * @param uuid The UUID of the {@link VirtualInventory}.
+     * @return The {@link VirtualInventory} with the given UUID or null if no such inventory exists.
+     */
+    public @Nullable VirtualInventory getByUuid(UUID uuid) {
         return inventories.get(uuid);
     }
     
+    /**
+     * Gets the {@link VirtualInventory} with the given UUID or creates a new one with the given size if no such inventory exists.
+     *
+     * @param uuid The UUID of the {@link VirtualInventory}.
+     * @param size The size of the {@link VirtualInventory} to create if no such inventory exists.
+     * @return The {@link VirtualInventory} with the given UUID or a new one with the given size if no such inventory exists.
+     */
     public VirtualInventory getOrCreate(UUID uuid, int size) {
         VirtualInventory inventory = getByUuid(uuid);
         return inventory == null ? createNew(uuid, size) : inventory;
     }
     
-    public VirtualInventory getOrCreate(UUID uuid, int size, ItemStack[] items, int[] stackSizes) {
+    /**
+     * Gets the {@link VirtualInventory} with the given UUID or creates a new one with the given size and items
+     * if no such inventory exists. Since the max stack sizes are not serialized, they are always applied.
+     *
+     * @param uuid          The UUID of the {@link VirtualInventory}.
+     * @param size          The size of the {@link VirtualInventory} to create if no such inventory exists.
+     * @param items         The items of the {@link VirtualInventory} to create if no such inventory exists.
+     * @param maxStackSizes The max stack sizes of the {@link VirtualInventory}.
+     * @return The {@link VirtualInventory} with the given UUID or a new one with the given size, items and stack sizes if no such inventory exists.
+     */
+    public VirtualInventory getOrCreate(UUID uuid, int size, ItemStack[] items, int[] maxStackSizes) {
         VirtualInventory inventory = getByUuid(uuid);
-        return inventory == null ? createNew(uuid, size, items, stackSizes) : inventory;
+        if (inventory != null) {
+            inventory.setMaxStackSizes(ArrayUtils.copyOf(maxStackSizes, inventory.size, 64));
+            return inventory;
+        } else {
+            return createNew(uuid, size, items, maxStackSizes);
+        }
     }
     
+    /**
+     * Gets all {@link VirtualInventory VirtualInventories}.
+     *
+     * @return A list of all {@link VirtualInventory VirtualInventories}.
+     */
     public List<VirtualInventory> getAllInventories() {
         return new ArrayList<>(inventories.values());
     }
     
+    /**
+     * Removes the given {@link VirtualInventory} and deletes the file associated with it.
+     *
+     * @param inventory The {@link VirtualInventory} to remove.
+     */
     public void remove(VirtualInventory inventory) {
         inventories.remove(inventory.getUuid(), inventory);
-        getSaveFile(inventory).delete();
+        Bukkit.getScheduler().runTaskAsynchronously(
+            InvUI.getInstance().getPlugin(),
+            () -> getSaveFile(inventory).delete()
+        );
     }
     
     private void deserializeAll() {
