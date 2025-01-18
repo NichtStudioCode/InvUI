@@ -253,6 +253,14 @@ public sealed abstract class AbstractWindow
         initItems();
         WindowManager.getInstance().addWindow(this);
         for (int i = 0; i < size; i++) {
+            SlotElement element = elementsDisplayed[i];
+            switch (element) {
+                case SlotElement.Item itemElement -> ((AbstractItem) itemElement.item()).addViewer(this, i);
+                case SlotElement.InventoryLink invElement ->
+                    invElement.inventory().addViewer(this, invElement.slot(), i);
+                case null, default -> {}
+            }
+            
             var pair = getGuiAt(i);
             assert pair != null;
             pair.first().addViewer(this, pair.second(), i);
