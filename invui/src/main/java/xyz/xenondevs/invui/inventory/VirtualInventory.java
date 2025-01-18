@@ -13,6 +13,7 @@ import java.io.*;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.logging.Level;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 /**
@@ -206,13 +207,14 @@ public final class VirtualInventory extends Inventory {
                     int dataVersion = din.readInt();
                     int size = din.readInt();
                     var itemsMask = BitSet.valueOf(din.readNBytes((size + 7) / 8)); // ceil(size / 8)
+                    var itemsIn = new BufferedInputStream(new GZIPInputStream(din));
                     
                     items = new ItemStack[size];
                     for (int i = 0; i < size; i++) {
                         if (!itemsMask.get(i))
                             continue;
                         
-                        items[i] = DataUtils.deserializeItemStack(dataVersion, din);
+                        items[i] = DataUtils.deserializeItemStack(dataVersion, itemsIn);
                     }
                 }
                 
@@ -257,7 +259,7 @@ public final class VirtualInventory extends Inventory {
             
             var itemMask = new BitSet(items.length);
             var itemsBin = new ByteArrayOutputStream();
-            var itemsOut = new GZIPOutputStream(itemsBin);
+            var itemsOut = new BufferedOutputStream(new GZIPOutputStream(itemsBin));
             
             for (int i = 0; i < items.length; i++) {
                 var itemStack = items[i];
@@ -268,7 +270,8 @@ public final class VirtualInventory extends Inventory {
                 DataUtils.serializeItemStack(itemStack, itemsOut);
             }
             
-            dos.write(itemMask.toByteArray());
+            itemsOut.close();
+            dos.write(Arrays.copyOf(itemMask.toByteArray(), (items.length + 7) / 8)); // ceil(size / 8)
             dos.write(itemsBin.toByteArray());
             
             dos.flush();
