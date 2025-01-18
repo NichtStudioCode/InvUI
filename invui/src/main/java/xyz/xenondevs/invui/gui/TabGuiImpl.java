@@ -52,9 +52,7 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     }
     
     private void update() {
-        if (currentTab == -1)
-            currentTab = getFirstAvailableTab();
-        
+        correctCurrentTab();
         updateContent();
     }
     
@@ -69,16 +67,6 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
                 setSlotElement(contentListSlots[i], slotElements.get(i));
             else remove(slot);
         }
-    }
-    
-    public int getFirstAvailableTab() {
-        var tabCount = getTabs().size();
-        for (int tab = 0; tab < tabCount; tab++) {
-            if (isTabAvailable(tab))
-                return tab;
-        }
-        
-        return -1;
     }
     
     @Override
@@ -100,24 +88,47 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     @Override
     public boolean isTabAvailable(int tab) {
         var tabs = getTabs();
-        return tabs.size() > tab && tabs.get(tab) != null;
+        return tab >= 0 && tab < tabs.size() && tabs.get(tab) != null;
     }
     
     @Override
     public void setTab(int tab) {
-        if (tab < 0 || tab >= getTabs().size())
-            throw new IllegalArgumentException("Tab out of bounds");
-        if (!isTabAvailable(tab))
-            return;
-        if (tab == currentTab)
+        int previousTab = currentTab;
+        int newTab = correctTab(tab);
+        
+        if (newTab == previousTab)
             return;
         
-        int previous = currentTab;
-        currentTab = tab;
+        currentTab = newTab;
         update();
         
         if (tabChangeHandlers != null) {
-            tabChangeHandlers.forEach(handler -> handler.accept(previous, tab));
+            tabChangeHandlers.forEach(handler -> handler.accept(previousTab, newTab));
+        }
+    }
+    
+    private void correctCurrentTab() {
+        int correctedTab = correctTab(currentTab);
+        if (correctedTab != currentTab)
+            setTab(correctedTab);
+    }
+    
+    private int correctTab(int tab) {
+        if (isTabAvailable(tab))
+            return tab;
+        
+        for (int i = 1;; i++) {
+            int tabLeft = tab - i;
+            int tabRight = tab + i;
+            
+            if (tabLeft < 0 && tabRight >= getTabs().size())
+                return -1;
+            
+            if (isTabAvailable(tabLeft)) {
+                return tabLeft;
+            } else if (isTabAvailable(tabRight)) {
+                return tabRight;
+            }
         }
     }
     
