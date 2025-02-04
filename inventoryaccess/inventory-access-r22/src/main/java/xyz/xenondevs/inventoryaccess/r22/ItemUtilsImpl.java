@@ -33,6 +33,7 @@ class ItemUtilsImpl implements ItemUtils {
         try {
             ItemStack nmsStack = CraftItemStack.asNMSCopy(itemStack);
             CompoundTag nbt = (CompoundTag) nmsStack.save(CraftRegistry.getMinecraftRegistry(), new CompoundTag());
+            nbt.putInt("DataVersion", CraftMagicNumbers.INSTANCE.getDataVersion());
             
             if (compressed) {
                 NbtIo.writeCompressed(nbt, outputStream);
@@ -64,11 +65,15 @@ class ItemUtilsImpl implements ItemUtils {
                 nbt = NbtIo.read(dataIn);
             }
             
+            int dataVersion = nbt.getInt("DataVersion");
+            if (dataVersion == 0)
+                dataVersion = 3700;
+            
             Dynamic<Tag> converted = DataFixers.getDataFixer()
                 .update(
                     References.ITEM_STACK,
                     new Dynamic<>(NbtOps.INSTANCE, nbt),
-                    3700, CraftMagicNumbers.INSTANCE.getDataVersion()
+                    dataVersion, CraftMagicNumbers.INSTANCE.getDataVersion()
                 );
             
             ItemStack itemStack = ItemStack.parse(
