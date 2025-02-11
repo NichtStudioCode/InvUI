@@ -24,8 +24,8 @@ public class Structure extends AbstractIngredientMapper<Structure> {
     private @Nullable IngredientList cachedIngredientList;
     
     /**
-     * Sets the {@link Structure} of the {@link Gui} using the given structure data Strings.
-     * Each String is interpreted as a row of the {@link Gui}. All Strings must have the same length.
+     * Creates a new structure, with each string representing a row of the gui.
+     * All strings must have the same length.
      *
      * @param structureData The structure data
      */
@@ -34,7 +34,7 @@ public class Structure extends AbstractIngredientMapper<Structure> {
     }
     
     /**
-     * Sets the {@link Structure} of the {@link Gui} using the given structure data, width and height.
+     * Creates a new structure of the given width, height, and structure data.
      *
      * @param width         The width of the {@link Gui}
      * @param height        The height of the {@link Gui}
@@ -169,7 +169,6 @@ public class Structure extends AbstractIngredientMapper<Structure> {
     
     /**
      * Gets the {@link IngredientList} for this {@link Structure}.
-     * Calling this method will lock the {@link Structure} and prevent further changes.
      *
      * @return The {@link IngredientList}
      */

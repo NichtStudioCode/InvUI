@@ -15,7 +15,7 @@ import java.util.function.Supplier;
  * Usage:
  * <pre>{@code
  * AnimatedTitle title = AnimatedTitle.of(10, "A", "B");
- * window.setTitle(title);
+ * window.setTitleSupplier(title);
  * }</pre>
  */
 public interface AnimatedTitle extends Supplier<Component> {
