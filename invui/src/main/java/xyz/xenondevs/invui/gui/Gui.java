@@ -3,7 +3,6 @@ package xyz.xenondevs.invui.gui;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.invui.animation.Animation;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
@@ -279,12 +278,11 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
      * Plays an {@link Animation}.
      *
      * @param animation The {@link Animation} to play.
-     * @param filter    The filter that selects which {@link SlotElement SlotElements} should be animated.
      */
-    void playAnimation(Animation animation, @Nullable Predicate<SlotElement> filter);
+    void playAnimation(Animation animation);
     
     /**
-     * Cancels the running {@link Animation} if there is one.
+     * Cancels the running {@link Animation}, if there is one.
      */
     void cancelAnimation();
     

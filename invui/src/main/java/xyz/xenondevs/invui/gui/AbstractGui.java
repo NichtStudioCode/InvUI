@@ -10,7 +10,6 @@ import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
-import xyz.xenondevs.invui.animation.Animation;
 import xyz.xenondevs.invui.internal.Viewer;
 import xyz.xenondevs.invui.internal.ViewerAtSlot;
 import xyz.xenondevs.invui.internal.util.InventoryUtils;
@@ -49,7 +48,7 @@ public sealed abstract class AbstractGui
     private boolean frozen;
     private boolean ignoreObscuredInventorySlots = true;
     private @Nullable ItemProvider background;
-    private @Nullable Animation animation;
+    private @Nullable AnimationImpl animation;
     private @Nullable SlotElement @Nullable [] animationElements;
     
     @SuppressWarnings("unchecked")
@@ -507,32 +506,30 @@ public sealed abstract class AbstractGui
     }
     
     @Override
-    public void playAnimation(Animation animation, @Nullable Predicate<SlotElement> filter) {
+    public void playAnimation(Animation animation) {
         if (this.animation != null)
             cancelAnimation();
         
-        this.animation = animation;
+        var animationImpl = (AnimationImpl) animation;
+        this.animation = animationImpl;
         this.animationElements = slotElements.clone();
-        
-        List<Integer> slots = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            SlotElement element = getSlotElement(i);
-            if (element != null && (filter == null || filter.test(element))) {
-                slots.add(i);
-                setSlotElement(i, null);
-            }
+        animationImpl.bind(this);
+        for (Slot slot : animationImpl.getRemainingSlots()) {
+            setSlotElement(slot.x(), slot.y(), null);
         }
-        
-        animation.setSlots(slots);
-        animation.setGui(this);
-        animation.setWindows(findAllWindows());
-        animation.addShowHandler((frame, index) -> setSlotElement(index, animationElements[index]));
-        animation.addFinishHandler(() -> {
+        animationImpl.addShowHandler(slots -> {
+            for (Slot slot : slots) {
+                int i = convToIndex(slot.x(), slot.y());
+                assert animationElements != null;
+                setSlotElement(i, animationElements[i]);
+            }
+        });
+        animationImpl.addFinishHandler(() -> {
             this.animation = null;
             this.animationElements = null;
         });
         
-        animation.start();
+        animationImpl.start();
     }
     
     @Override
@@ -543,7 +540,10 @@ public sealed abstract class AbstractGui
             animation = null;
             
             // show all SlotElements again
-            for (int i = 0; i < size; i++) setSlotElement(i, animationElements[i]);
+            assert animationElements != null;
+            for (int i = 0; i < size; i++) {
+                setSlotElement(i, animationElements[i]);
+            }
             animationElements = null;
         }
     }
