@@ -278,6 +278,7 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
      * Plays an {@link Animation}.
      *
      * @param animation The {@link Animation} to play.
+     * @throws IllegalStateException If the {@link Animation} is already playing or was already played.
      */
     void playAnimation(Animation animation);
     

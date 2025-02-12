@@ -459,6 +459,22 @@ public class AnimationTest {
         assertTrue(finished.get());
     }
     
+    @Test
+    public void testAnimationCannotBePlayedTwice() {
+        Gui gui1 = createTestGui();
+        Gui gui2 = createTestGui();
+        
+        Animation rowAnimation = Animation.row().build();
+        
+        gui1.playAnimation(rowAnimation);
+        assertThrows(IllegalStateException.class, () -> gui2.playAnimation(rowAnimation));
+        
+        server.getScheduler().performTicks(4);
+        assertTrue(rowAnimation.isFinished());
+        assertThrows(IllegalStateException.class, () -> gui1.playAnimation(rowAnimation));
+        assertThrows(IllegalStateException.class, () -> gui2.playAnimation(rowAnimation));
+    }
+    
     private Gui createTestGui() {
         Gui gui = Gui.empty(WIDTH, 4);
         gui.fill(Item.simple(new ItemStack(Material.DIAMOND)), true);
