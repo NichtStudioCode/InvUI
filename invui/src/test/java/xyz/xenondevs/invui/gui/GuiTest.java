@@ -37,14 +37,7 @@ public class GuiTest {
             .addIngredient('x', inner)
             .build();
         
-        for (int i = 0; i < 9; i++) {
-            var element = outer.getSlotElement(i);
-            assertInstanceOf(SlotElement.GuiLink.class, element);
-            
-            var guiLink = (SlotElement.GuiLink) element;
-            assertSame(inner, guiLink.gui());
-            assertEquals(i, guiLink.slot());
-        }
+        assertSequentialGuiLink(outer, inner);
     }
     
     @Test
@@ -76,6 +69,23 @@ public class GuiTest {
         var inner = Gui.empty(3, 2);
         inner.fill(Item.simple(new ItemStack(Material.DIAMOND)), true);
         
+        var outer = Gui.normal()
+            .setStructure(
+                "x x x",
+                "x x x",
+                "x x x"
+            )
+            .addIngredient('x', inner)
+            .build();
+        
+        assertSequentialGuiLink(outer, inner);
+    }
+    
+    @Test
+    public void testGuiBuilderGuiIngredientInvokedTwice() {
+        var inner = Gui.empty(3, 3);
+        inner.fill(Item.simple(new ItemStack(Material.DIAMOND)), true);
+        
         var builder = Gui.normal()
             .setStructure(
                 "x x x",
@@ -84,7 +94,20 @@ public class GuiTest {
             )
             .addIngredient('x', inner);
         
-        assertThrows(Exception.class, builder::build);
+        assertSequentialGuiLink(builder.build(), inner);
+        builder.addIngredient('a', Markers.CONTENT_LIST_SLOT_HORIZONTAL); // modify builder to invalidate cache
+        assertSequentialGuiLink(builder.build(), inner);
+    }
+    
+    private void assertSequentialGuiLink(Gui gui, Gui linked) {
+        for (int i = 0; i < gui.getSize(); i++) {
+            var element = gui.getSlotElement(i);
+            assertInstanceOf(SlotElement.GuiLink.class, element);
+            
+            var guiLink = (SlotElement.GuiLink) element;
+            assertSame(linked, guiLink.gui());
+            assertEquals(i % linked.getSize(), guiLink.slot());
+        }
     }
     
     @Test
@@ -100,14 +123,7 @@ public class GuiTest {
             .addIngredient('x', inv)
             .build();
         
-        for (int i = 0; i < 9; i++) {
-            var element = outer.getSlotElement(i);
-            assertInstanceOf(SlotElement.InventoryLink.class, element);
-            
-            var guiLink = (SlotElement.InventoryLink) element;
-            assertSame(inv, guiLink.inventory());
-            assertEquals(i, guiLink.slot());
-        }
+        assertSequentialInventoryLink(outer, inv);
     }
     
     @Test
@@ -145,6 +161,34 @@ public class GuiTest {
             )
             .addIngredient('x', inv);
         
-        assertThrows(Exception.class, builder::build);
+        assertSequentialInventoryLink(builder.build(), inv);
+    }
+    
+    @Test
+    public void testGuiBuilderInventoryIngredientInvokedTwice() {
+        var inv = new VirtualInventory(9);
+        
+        var builder = Gui.normal()
+            .setStructure(
+                "x x x",
+                "x x x",
+                "x x x"
+            )
+            .addIngredient('x', inv);
+        
+        assertSequentialInventoryLink(builder.build(), inv);
+        builder.addIngredient('a', Markers.CONTENT_LIST_SLOT_HORIZONTAL); // modify builder to invalidate cache
+        assertSequentialInventoryLink(builder.build(), inv);
+    }
+    
+    private void assertSequentialInventoryLink(Gui gui, Inventory linked) {
+        for (int i = 0; i < gui.getSize(); i++) {
+            var element = gui.getSlotElement(i);
+            assertInstanceOf(SlotElement.InventoryLink.class, element);
+            
+            var inventoryLink = (SlotElement.InventoryLink) element;
+            assertSame(linked, inventoryLink.inventory());
+            assertEquals(i % linked.getSize(), inventoryLink.slot());
+        }
     }
 }

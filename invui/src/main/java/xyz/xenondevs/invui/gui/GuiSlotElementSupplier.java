@@ -8,15 +8,17 @@ class GuiSlotElementSupplier implements Supplier<SlotElement.GuiLink> {
     private int slot;
     
     public GuiSlotElementSupplier(Gui gui) {
+        if (gui.getSize() <= 0)
+            throw new IllegalArgumentException("Illegal gui size: " + gui.getSize());
+        
         this.gui = gui;
     }
     
     @Override
     public SlotElement.GuiLink get() {
-        if (slot >= gui.getSize())
-            throw new IllegalStateException("No more slots available");
-        
-        return new SlotElement.GuiLink(gui, slot++);
+        var element = new SlotElement.GuiLink(gui, slot);
+        slot = (slot + 1) % gui.getSize();
+        return element;
     }
     
 }
