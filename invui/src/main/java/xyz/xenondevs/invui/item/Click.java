@@ -11,17 +11,28 @@ import org.bukkit.inventory.ItemStack;
 
 /**
  * Contains information about a click on an item by a player.
+ *
+ * @param player       The player who clicked.
+ * @param clickType    The type of click.
+ * @param action       The action that would've happened normally.
+ * @param slotType     The type of slot that was clicked.
+ * @param slot         The slot number of the {@link Inventory} that was clicked.
+ * @param rawSlot      The raw slot number of the {@link InventoryView} that was clicked.
+ * @param cursor       The ItemStack on the cursor.
+ * @param hotbarButton The hotbar key that was pressed (in [0; 8]),
+ *                     or -1 if {@link #clickType()} is not {@link ClickType#NUMBER_KEY}.
  */
-public class Click {
-    
-    private final Player player;
-    private final ClickType clickType;
-    private final InventoryAction action;
-    private final InventoryType.SlotType slotType;
-    private final int slot;
-    private final int rawSlot;
-    private final ItemStack cursor;
-    private final int hotbarButton;
+public record Click(
+    Player player,
+    ClickType clickType,
+    InventoryAction action,
+    InventoryType.SlotType slotType,
+    int slot,
+    int rawSlot,
+    ItemStack cursor,
+    int hotbarButton
+)
+{
     
     /**
      * Creates a new click from an {@link InventoryClickEvent}.
@@ -29,88 +40,16 @@ public class Click {
      * @param event The {@link InventoryClickEvent} to create the click from.
      */
     public Click(InventoryClickEvent event) {
-        this.player = (Player) event.getWhoClicked();
-        this.clickType = event.getClick();
-        this.slotType = event.getSlotType();
-        this.cursor = event.getCursor().clone();
-        this.slot = event.getSlot();
-        this.rawSlot = event.getRawSlot();
-        this.hotbarButton = event.getHotbarButton();
-        this.action = event.getAction();
-    }
-    
-    /**
-     * Gets the player who clicked.
-     *
-     * @return The player who clicked.
-     */
-    public Player getPlayer() {
-        return player;
-    }
-    
-    /**
-     * Gets the click type.
-     *
-     * @return The click type.
-     */
-    public ClickType getClickType() {
-        return clickType;
-    }
-    
-    /**
-     * Gets the InventoryAction of this click.
-     * This represents what the normal outcome of the click would have been.
-     *
-     * @return The InventoryAction the click.
-     */
-    public InventoryAction getAction() {
-        return action;
-    }
-    
-    /**
-     * Gets the type of slot that was clicked.
-     *
-     * @return The type of slot that was clicked.
-     */
-    public InventoryType.SlotType getSlotType() {
-        return slotType;
-    }
-    
-    /**
-     * Gets slot number of the {@link Inventory} that was clicked.
-     *
-     * @return The number of the slot that was clicked.
-     */
-    public int getSlot() {
-        return slot;
-    }
-    
-    /**
-     * Gets the slot number of the {@link InventoryView} that was clicked.
-     *
-     * @return The number of the raw slot that was clicked.
-     */
-    public int getRawSlot() {
-        return rawSlot;
-    }
-    
-    /**
-     * Gets the ItemStack on the cursor.
-     *
-     * @return The ItemStack on the cursor.
-     */
-    public ItemStack getCursor() {
-        return cursor;
-    }
-    
-    /**
-     * Gets the hotbar key that was pressed (in [0; 8]),
-     * or -1 if {@link #getClickType()} is not {@link ClickType#NUMBER_KEY}.
-     *
-     * @return The hotbar key that was pressed.
-     */
-    public int getHotbarButton() {
-        return hotbarButton;
+        this(
+            (Player) event.getWhoClicked(),
+            event.getClick(),
+            event.getAction(),
+            event.getSlotType(),
+            event.getSlot(),
+            event.getRawSlot(),
+            event.getCursor().clone(),
+            event.getHotbarButton()
+        );
     }
     
 }
