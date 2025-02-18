@@ -112,8 +112,13 @@ public sealed abstract class AbstractWindow
                     meta.getPersistentDataContainer().set(SLOT_KEY, PersistentDataType.BYTE, (byte) index)
                 );
             }
-        } else {
+        } else { // holding element is null
             // background by gui
+            var initialBackgroundProvider = gui.getBackground();
+            if (initialBackgroundProvider != null) {
+                itemStack = initialBackgroundProvider.get(getLocale());
+            }
+            // if gui link, choose background of lowest gui
             element = gui.getSlotElement(guiSlot);
             while (element instanceof SlotElement.GuiLink(Gui linkedGui, int slot)) {
                 var backgroundProvider = linkedGui.getBackground();
