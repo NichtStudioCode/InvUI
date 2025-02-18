@@ -21,7 +21,7 @@ public class Structure extends AbstractIngredientMapper<Structure> {
     private final int width;
     private final int height;
     
-    private @Nullable IngredientList cachedIngredientList;
+    private @Nullable IngredientMatrix cachedIngredientMatrix;
     
     /**
      * Creates a new structure, with each string representing a row of the gui.
@@ -164,22 +164,22 @@ public class Structure extends AbstractIngredientMapper<Structure> {
     
     @Override
     protected void handleUpdate() {
-        cachedIngredientList = null;
+        cachedIngredientMatrix = null;
     }
     
     /**
-     * Gets the {@link IngredientList} for this {@link Structure}.
+     * Gets the {@link IngredientMatrix} for this {@link Structure}.
      *
-     * @return The {@link IngredientList}
+     * @return The {@link IngredientMatrix}
      */
-    IngredientList getIngredientList() {
-        if (cachedIngredientList != null)
-            return cachedIngredientList;
+    IngredientMatrix getIngredientMatrix() {
+        if (cachedIngredientMatrix != null)
+            return cachedIngredientMatrix;
         
         HashMap<Character, Ingredient> ingredients = new HashMap<>(ingredientMap.size() + globalIngredientMap.size());
         ingredients.putAll(globalIngredientMap);
         ingredients.putAll(ingredientMap);
-        return cachedIngredientList = new IngredientList(width, height, structureData, ingredients);
+        return cachedIngredientMatrix = new IngredientMatrix(width, height, structureData, ingredients);
     }
     
     /**
@@ -203,7 +203,7 @@ public class Structure extends AbstractIngredientMapper<Structure> {
     @Override
     public Structure clone() {
         Structure clone = super.clone();
-        clone.cachedIngredientList = null;
+        clone.cachedIngredientMatrix = null;
         return clone;
     }
     

@@ -1,5 +1,7 @@
 package xyz.xenondevs.invui.internal.util;
 
+import xyz.xenondevs.invui.gui.Slot;
+
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -99,6 +101,15 @@ public class SlotUtils {
     
     public static boolean isNeighbor(Point2D point1, Point2D point2) {
         return Math.abs(point1.x() - point2.x()) + Math.abs(point1.y() - point2.y()) == 1;
+    }
+    
+    public static int[] toSlotIndices(Slot[] slots, int width) {
+        int[] indices = new int[slots.length];
+        for (int i = 0; i < slots.length; i++) {
+            Slot slot = slots[i];
+            indices[i] = convertToIndex(slot.x(), slot.y(), width);
+        }
+        return indices;
     }
     
     public enum Order {

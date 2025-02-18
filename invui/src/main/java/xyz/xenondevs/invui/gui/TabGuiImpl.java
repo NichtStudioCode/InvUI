@@ -1,6 +1,7 @@
 package xyz.xenondevs.invui.gui;
 
 import org.jspecify.annotations.Nullable;
+import xyz.xenondevs.invui.internal.util.SlotUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.function.Supplier;
 
 final class TabGuiImpl extends AbstractGui implements TabGui {
     
-    private final int[] contentListSlots;
+    private int[] contentListSlots = new int[0];
     private @Nullable List<BiConsumer<Integer, Integer>> tabChangeHandlers;
     
     private Supplier<? extends List<? extends @Nullable Gui>> tabsSupplier = List::of;
@@ -26,9 +27,26 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     
     public TabGuiImpl(Supplier<? extends List<? extends @Nullable Gui>> tabs, Structure structure) {
         super(structure.getWidth(), structure.getHeight());
-        applyStructure(structure);
-        contentListSlots = structure.getIngredientList().findContentListSlots();
+        super.applyStructure(structure); // super call to avoid bake() through applyStructure override
+        this.contentListSlots = structure.getIngredientMatrix().findContentListSlots();
         setTabsSupplier(tabs);
+    }
+    
+    @Override
+    public void applyStructure(Structure structure) {
+        super.applyStructure(structure);
+        setContentListSlots(structure.getIngredientMatrix().findContentListSlots());
+    }
+    
+    @Override
+    public void setContentListSlots(Slot[] slots) {
+        setContentListSlots(SlotUtils.toSlotIndices(slots, getWidth()));
+    }
+    
+    @Override
+    public void setContentListSlots(int[] slotIndices) {
+        this.contentListSlots = slotIndices.clone();
+        bake();
     }
     
     @Override

@@ -1,20 +1,17 @@
 package xyz.xenondevs.invui.gui;
 
+import java.util.function.BiConsumer;
+
 /**
  * Used to mark slots in a {@link Structure} as special slots.
  *
  * @see Markers
  */
-public class Marker {
+public abstract class Marker {
     
-    private final boolean horizontal;
-    
-    Marker(boolean horizontal) {
-        this.horizontal = horizontal;
+    Marker() {
     }
     
-    boolean isHorizontal() {
-        return horizontal;
-    }
+    abstract void iterate(int width, int height, BiConsumer<Integer, Integer> consumer);
     
 }

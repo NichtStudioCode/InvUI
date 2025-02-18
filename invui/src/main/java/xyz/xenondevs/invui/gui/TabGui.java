@@ -58,6 +58,20 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
     }
     
     /**
+     * Sets the slots at which tab content should be displayed, in order of appearance.
+     *
+     * @param slots The slots to set.
+     */
+    void setContentListSlots(Slot[] slots);
+    
+    /**
+     * Sets the slot indices at which tab content should be displayed, in order of appearance.
+     *
+     * @param slotIndices The slot indices to set.
+     */
+    void setContentListSlots(int[] slotIndices);
+    
+    /**
      * Gets the current tab index.
      *
      * @return The current tab index.

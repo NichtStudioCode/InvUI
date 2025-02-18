@@ -152,6 +152,20 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
     }
     
     /**
+     * Sets the slots at which page content should be displayed, in order of appearance.
+     *
+     * @param slots The slots to set.
+     */
+    void setContentListSlots(Slot[] slots);
+    
+    /**
+     * Sets the slot indices at which page content should be displayed, in order of appearance.
+     *
+     * @param slotIndices The slot indices to set.
+     */
+    void setContentListSlots(int[] slotIndices);
+    
+    /**
      * Gets the amount of pages this {@link PagedGui} has.
      *
      * @return The amount of pages this {@link PagedGui} has.

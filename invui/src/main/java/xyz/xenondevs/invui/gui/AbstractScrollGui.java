@@ -4,6 +4,7 @@ import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.internal.util.SlotUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -16,9 +17,9 @@ sealed abstract class AbstractScrollGui<C>
 {
     
     private final boolean infiniteLines;
-    private final int lineLength;
-    private final int lineAmount;
-    private final int[] contentListSlots;
+    private int lineLength;
+    private int lineAmount;
+    private int[] contentListSlots = new int[0];
     private int currentLine;
     private int offset;
     
@@ -29,23 +30,44 @@ sealed abstract class AbstractScrollGui<C>
     
     public AbstractScrollGui(int width, int height, boolean infiniteLines, int... contentListSlots) {
         super(width, height);
-        
         this.infiniteLines = infiniteLines;
-        this.contentListSlots = contentListSlots;
-        this.lineLength = SlotUtils.getLongestLineLength(contentListSlots, width);
-        this.lineAmount = (int) Math.ceil((double) contentListSlots.length / (double) lineLength);
-        
-        if (contentListSlots.length == 0)
-            throw new IllegalArgumentException("Content list slots must not be empty");
-        if (lineLength == 0)
-            throw new IllegalArgumentException("Line length can't be 0");
-        if (contentListSlots.length % lineLength != 0)
-            throw new IllegalArgumentException("contentListSlots has to be a multiple of lineLength");
+        setContentListSlots(contentListSlots, false);
     }
     
     public AbstractScrollGui(int width, int height, boolean infiniteLines, Structure structure) {
-        this(width, height, infiniteLines, structure.getIngredientList().findContentListSlots());
-        applyStructure(structure);
+        super(width, height);
+        this.infiniteLines = infiniteLines;
+        super.applyStructure(structure); // super call to avoid bake() through applyStructure override
+        setContentListSlots(structure.getIngredientMatrix().findContentListSlots(), false);
+    }
+    
+    @Override
+    public void applyStructure(Structure structure) {
+        super.applyStructure(structure);
+        setContentListSlots(structure.getIngredientMatrix().findContentListSlots());
+    }
+    
+    @Override
+    public void setContentListSlots(Slot[] slots) {
+        setContentListSlots(SlotUtils.toSlotIndices(slots, getWidth()));
+    }
+    
+    @Override
+    public void setContentListSlots(int[] slotIndices) {
+        setContentListSlots(slotIndices, true);
+    }
+    
+    private void setContentListSlots(int[] slotIndices, boolean bake) {
+        int lineLength = SlotUtils.getLongestLineLength(slotIndices, getWidth());
+        if (slotIndices.length % lineLength != 0)
+            throw new IllegalArgumentException("contentListSlots has to be a multiple of lineLength");
+        
+        this.contentListSlots = slotIndices.clone();
+        this.lineLength = lineLength;
+        this.lineAmount = (int) Math.ceil((double) slotIndices.length / (double) lineLength);
+        
+        if (bake)
+            bake();
     }
     
     public int getLineLength() {

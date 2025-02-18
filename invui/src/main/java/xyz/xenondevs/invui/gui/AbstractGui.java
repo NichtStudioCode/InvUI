@@ -12,6 +12,7 @@ import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.internal.Viewer;
 import xyz.xenondevs.invui.internal.ViewerAtSlot;
+import xyz.xenondevs.invui.internal.util.ArrayUtils;
 import xyz.xenondevs.invui.internal.util.InventoryUtils;
 import xyz.xenondevs.invui.internal.util.SlotUtils;
 import xyz.xenondevs.invui.inventory.Inventory;
@@ -26,7 +27,6 @@ import xyz.xenondevs.invui.window.*;
 
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -50,6 +50,7 @@ public sealed abstract class AbstractGui
     private @Nullable ItemProvider background;
     private @Nullable AnimationImpl animation;
     private @Nullable SlotElement @Nullable [] animationElements;
+    private @Nullable IngredientMatrix ingredientMatrix;
     
     @SuppressWarnings("unchecked")
     AbstractGui(int width, int height) {
@@ -415,11 +416,12 @@ public sealed abstract class AbstractGui
     
     @Override
     public void notifyUpdate(int slot) {
-        // no need for synchronization on viewers because this method is called on-main and read-only
-        var viewers = this.viewers[slot];
-        if (viewers != null) {
-            for (var viewer : viewers) {
-                viewer.notifyUpdate();
+        synchronized (viewers) {
+            var viewers = this.viewers[slot];
+            if (viewers != null) {
+                for (var viewer : viewers) {
+                    viewer.notifyUpdate();
+                }
             }
         }
     }
@@ -433,6 +435,23 @@ public sealed abstract class AbstractGui
                         viewerAtSlot.notifyUpdate();
                     }
                 }
+            }
+        }
+    }
+    
+    @Override
+    public void notifyWindows(int index) {
+        var element = getSlotElement(index);
+        if (element == null)
+            return;
+        
+        synchronized (viewers) {
+            var viewerSet = viewers[index];
+            if (viewerSet == null)
+                return;
+            
+            for (var viewerAtSlot : viewerSet) {
+                viewerAtSlot.notifyUpdate();
             }
         }
     }
@@ -662,7 +681,19 @@ public sealed abstract class AbstractGui
     
     @Override
     public void applyStructure(Structure structure) {
-        structure.getIngredientList().insertIntoGui(this);
+        if (structure.getWidth() != width)
+            throw new IllegalArgumentException("Structure width (" + structure.getWidth() + " does not match gui width (" + width + ")");
+        if (structure.getHeight() != height)
+            throw new IllegalArgumentException("Structure height (" + structure.getHeight() + " does not match gui height (" + height + ")");
+        
+        var matrix = structure.getIngredientMatrix();
+        this.ingredientMatrix = matrix;
+        
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                setSlotElement(x, y, matrix.getSlotElement(x, y));
+            }
+        }
     }
     
     @Override
@@ -690,10 +721,115 @@ public sealed abstract class AbstractGui
         return ignoreObscuredInventorySlots;
     }
     
+    //<editor-fold desc="ingredient-key-based methods">
+    @Override
+    public void notifyWindows(char key, char... keys) {
+        var matrix = ingredientMatrix;
+        if (matrix == null)
+            return;
+        
+        for (char c : ArrayUtils.concat(key, keys)) {
+            for (Slot slot : matrix.getSlots(key)) {
+                notifyWindows(slot);
+            }
+        }
+    }
+    
+    @Override
+    public void setSlotElement(char key, @Nullable SlotElement slotElement) {
+        setSlotElement(key, () -> slotElement);
+    }
+    
+    @Override
+    public void setSlotElement(char key, Supplier<? extends @Nullable SlotElement> elementSupplier) {
+        var matrix = ingredientMatrix;
+        if (matrix == null)
+            return;
+        
+        for (Slot slot : matrix.getSlots(key)) {
+            setSlotElement(slot, elementSupplier.get());
+        }
+    }
+    
+    @Override
+    public void setItem(char key, @Nullable Item item) {
+        setItem(key, () -> item);
+    }
+    
+    @Override
+    public void setItem(char key, Item.Builder<?> itemBuilder) {
+        setItem(key, itemBuilder::build);
+    }
+    
+    @Override
+    public void setItem(char key, Supplier<? extends @Nullable Item> itemSupplier) {
+        var matrix = ingredientMatrix;
+        if (matrix == null)
+            return;
+        
+        for (Slot slot : matrix.getSlots(key)) {
+            setItem(slot, itemSupplier.get());
+        }
+    }
+    
+    @Override
+    public void setInventory(char key, Inventory inventory) {
+        setSlotElement(key, new InventorySlotElementSupplier(inventory));
+    }
+    
+    @Override
+    public void setInventory(char key, Inventory inventory, ItemProvider background) {
+        setSlotElement(key, new InventorySlotElementSupplier(inventory, background));
+    }
+    
+    @Override
+    public void setGui(char key, Gui gui) {
+        setSlotElement(key, new GuiSlotElementSupplier(gui));
+    }
+    
+    @Override
+    public SequencedCollection<? extends Slot> getSlots(char key) {
+        var matrix = ingredientMatrix;
+        if (matrix == null)
+            return List.of();
+        
+        return matrix.getSlots(key);
+    }
+    
+    @Override
+    public boolean isTagged(int i, char key) {
+        var matrix = ingredientMatrix;
+        if (matrix == null)
+            return false;
+        
+        return matrix.getKey(i) == key;
+    }
+    //</editor-fold>
+    
     //<editor-fold desc="coordinate-based methods">
+    @Override
+    public void notifyWindows(Slot slot) {
+        notifyWindows(slot.x(), slot.y());
+    }
+    
+    @Override
+    public void notifyWindows(int x, int y) {
+        notifyWindows(convToIndex(x, y));
+    }
+    
+    @Override
+    public void setSlotElement(Slot slot, @Nullable SlotElement slotElement) {
+        setSlotElement(slot.x(), slot.y(), slotElement);
+    }
+    
     @Override
     public void setSlotElement(int x, int y, @Nullable SlotElement slotElement) {
         setSlotElement(convToIndex(x, y), slotElement);
+    }
+    
+    @Override
+    public @Nullable SlotElement getSlotElement(Slot slot) {
+        return getSlotElement(slot.x(), slot.y());
     }
     
     @Override
@@ -702,8 +838,18 @@ public sealed abstract class AbstractGui
     }
     
     @Override
+    public boolean hasSlotElement(Slot slot) {
+        return hasSlotElement(slot.x(), slot.y());
+    }
+    
+    @Override
     public boolean hasSlotElement(int x, int y) {
         return hasSlotElement(convToIndex(x, y));
+    }
+    
+    @Override
+    public void setItem(Slot slot, @Nullable Item item) {
+        setItem(slot.x(), slot.y(), item);
     }
     
     @Override
@@ -712,13 +858,33 @@ public sealed abstract class AbstractGui
     }
     
     @Override
+    public @Nullable Item getItem(Slot slot) {
+        return getItem(slot.x(), slot.y());
+    }
+    
+    @Override
     public @Nullable Item getItem(int x, int y) {
         return getItem(convToIndex(x, y));
     }
     
     @Override
+    public void remove(Slot slot) {
+        remove(slot.x(), slot.y());
+    }
+    
+    @Override
     public void remove(int x, int y) {
         remove(convToIndex(x, y));
+    }
+    
+    @Override
+    public boolean isTagged(int x, int y, char key) {
+        return isTagged(convToIndex(x, y), key);
+    }
+    
+    @Override
+    public boolean isTagged(Slot slot, char key) {
+        return isTagged(slot.x(), slot.y(), key);
     }
     
     @Override
@@ -815,8 +981,8 @@ public sealed abstract class AbstractGui
     //</editor-fold>
     
     @SuppressWarnings("unchecked")
-    static sealed abstract class AbstractBuilder<G extends Gui, S extends Gui.Builder<G, S>>
-        implements Gui.Builder<G, S>
+    static sealed abstract class AbstractBuilder<G extends Gui, S extends Builder<G, S>>
+        implements Builder<G, S>
         permits NormalGuiImpl.Builder, AbstractPagedGui.AbstractBuilder, AbstractScrollGui.AbstractBuilder, TabGuiImpl.Builder
     {
         

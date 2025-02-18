@@ -25,6 +25,20 @@ public class ArrayUtils {
     }
     
     /**
+     * Concatenates a single char with a char array.
+     *
+     * @param first The first char
+     * @param rest  The rest of the chars
+     * @return The concatenated char array
+     */
+    public static char[] concat(char first, char[] rest) {
+        char[] result = new char[rest.length + 1];
+        result[0] = first;
+        System.arraycopy(rest, 0, result, 1, rest.length);
+        return result;
+    }
+    
+    /**
      * Creates a copy of the original array, truncating or padding with
      * the given value if necessary.
      *

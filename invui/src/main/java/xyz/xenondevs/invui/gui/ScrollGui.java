@@ -154,6 +154,20 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
     }
     
     /**
+     * Sets the slots at which scroll content should be displayed, in order of appearance.
+     *
+     * @param slots The slots to set.
+     */
+    void setContentListSlots(Slot[] slots);
+    
+    /**
+     * Sets the slot indices at which scroll content should be displayed, in order of appearance.
+     *
+     * @param slotIndices The slot indices to set.
+     */
+    void setContentListSlots(int[] slotIndices);
+    
+    /**
      * Gets the current line of this {@link ScrollGui}.
      *
      * @return The current line of this {@link ScrollGui}.

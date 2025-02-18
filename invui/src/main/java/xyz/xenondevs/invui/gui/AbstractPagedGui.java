@@ -1,6 +1,7 @@
 package xyz.xenondevs.invui.gui;
 
 import org.jspecify.annotations.Nullable;
+import xyz.xenondevs.invui.internal.util.SlotUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +16,7 @@ sealed abstract class AbstractPagedGui<C>
 {
     
     private final boolean infinitePages;
-    private final int[] contentListSlots;
+    private int[] contentListSlots;
     private int currentPage;
     
     private @Nullable List<BiConsumer<Integer, Integer>> pageChangeHandlers;
@@ -25,16 +26,32 @@ sealed abstract class AbstractPagedGui<C>
     
     public AbstractPagedGui(int width, int height, boolean infinitePages, int... contentListSlots) {
         super(width, height);
-        if (contentListSlots.length == 0)
-            throw new IllegalArgumentException("Content list slots must not be empty");
-        
         this.infinitePages = infinitePages;
-        this.contentListSlots = contentListSlots;
+        this.contentListSlots = contentListSlots.clone();
     }
     
     public AbstractPagedGui(int width, int height, boolean infinitePages, Structure structure) {
-        this(width, height, infinitePages, structure.getIngredientList().findContentListSlots());
-        applyStructure(structure);
+        super(width, height);
+        this.infinitePages = infinitePages;
+        this.contentListSlots = structure.getIngredientMatrix().findContentListSlots();
+        super.applyStructure(structure); // super call to avoid bake() through applyStructure override
+    }
+    
+    @Override
+    public void applyStructure(Structure structure) {
+        super.applyStructure(structure);
+        setContentListSlots(structure.getIngredientMatrix().findContentListSlots());
+    }
+    
+    @Override
+    public void setContentListSlots(Slot[] slots) {
+        setContentListSlots(SlotUtils.toSlotIndices(slots, getWidth()));
+    }
+    
+    @Override
+    public void setContentListSlots(int[] slotIndices) {
+        this.contentListSlots = slotIndices.clone();
+        bake();
     }
     
     @Override

@@ -9,9 +9,10 @@ import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.window.Window;
 
 import java.util.List;
+import java.util.SequencedCollection;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * A Gui is a container for width * height {@link SlotElement SlotElements}.<br>
@@ -93,21 +94,55 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
     int getHeight();
     
     /**
+     * Sets the {@link SlotElement} on all slots that are associated with the given key through a {@link Structure}.
+     * If you need to set an {@link Item}, prefer {@link #setItem(char, Item)} instead.
+     *
+     * @param key         The key
+     * @param slotElement The {@link SlotElement} to be placed on these slots,
+     *                    or null to remove the elements that are currently there.
+     * @see #applyStructure(Structure)
+     */
+    void setSlotElement(char key, @Nullable SlotElement slotElement);
+    
+    /**
+     * Sets the {@link SlotElement SlotElements} on all slots associated with the given key through a {@link Structure},
+     * invoking the given {@link Supplier} to get the {@link SlotElement} for each slot.
+     * If you need to set an {@link Item}, prefer {@link #setItem(char, Supplier)} instead.
+     *
+     * @param key             The key
+     * @param elementSupplier The {@link Supplier} for the {@link SlotElement SlotElements}
+     * @see #applyStructure(Structure)
+     */
+    void setSlotElement(char key, Supplier<? extends @Nullable SlotElement> elementSupplier);
+    
+    /**
+     * Sets the {@link SlotElement} on the given {@link Slot}. If you need to set an {@link Item},
+     * prefer {@link #setItem(int, Item)} instead.
+     *
+     * @param slot        The slot
+     * @param slotElement The {@link SlotElement} to be placed there, or null to remove the {@link SlotElement}
+     *                    that is currently there.
+     */
+    void setSlotElement(Slot slot, @Nullable SlotElement slotElement);
+    
+    /**
      * Sets the {@link SlotElement} on these coordinates.
-     * If you need to set an {@link Item}, please use {@link #setItem(int, int, Item)} instead.
+     * If you need to set an {@link Item}, prefer {@link #setItem(int, int, Item)} instead.
      *
      * @param x           The x coordinate
      * @param y           The y coordinate
-     * @param slotElement The {@link SlotElement} to be placed there.
+     * @param slotElement The {@link SlotElement} to be placed there, or null to remove the {@link SlotElement}
+     *                    that is currently there.
      */
     void setSlotElement(int x, int y, @Nullable SlotElement slotElement);
     
     /**
      * Sets the {@link SlotElement} on these coordinates.
-     * If you need to set an {@link Item}, please use {@link #setItem(int, Item)} instead.
+     * If you need to set an {@link Item}, prefer {@link #setItem(int, Item)} instead.
      *
      * @param index       The slot index
-     * @param slotElement The {@link SlotElement} to be placed there.
+     * @param slotElement The {@link SlotElement} to be placed there, or null to remove the {@link SlotElement}
+     *                    that is currently there.
      */
     void setSlotElement(int index, @Nullable SlotElement slotElement);
     
@@ -117,6 +152,15 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
      * @param slotElements The {@link SlotElement SlotElements} to add.
      */
     void addSlotElements(SlotElement... slotElements);
+    
+    /**
+     * Gets the {@link SlotElement} on that {@link Slot}.
+     *
+     * @param slot The slot
+     * @return The {@link SlotElement} placed there
+     */
+    @Nullable
+    SlotElement getSlotElement(Slot slot);
     
     /**
      * Gets the {@link SlotElement} on these coordinates.
@@ -136,6 +180,14 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
      */
     @Nullable
     SlotElement getSlotElement(int index);
+    
+    /**
+     * Gets if there is a {@link SlotElement} on that {@link Slot}.
+     *
+     * @param slot The slot
+     * @return If there is a {@link SlotElement} placed there
+     */
+    boolean hasSlotElement(Slot slot);
     
     /**
      * Gets if there is a {@link SlotElement} on these coordinates.
@@ -161,6 +213,45 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
      */
     @Nullable
     SlotElement[] getSlotElements();
+    
+    /**
+     * Sets the {@link Item} on all slots that are associated with the given key through a {@link Structure}.
+     *
+     * @param key  The key
+     * @param item The {@link Item} that should be placed on these slots,
+     *             or null to remove the items that are currently there.
+     * @see #applyStructure(Structure)
+     */
+    void setItem(char key, @Nullable Item item);
+    
+    /**
+     * Sets the {@link Item} on all slots associated with the given key through a {@link Structure},
+     * building a new item using the given {@link Item.Builder} for each slot.
+     *
+     * @param key         The key
+     * @param itemBuilder The {@link Item.Builder} for the {@link Item}
+     * @see #applyStructure(Structure)
+     */
+    void setItem(char key, Item.Builder<?> itemBuilder);
+    
+    /**
+     * Sets the {@link Item} on all slots associated with the given key through a {@link Structure},
+     * invoking the given {@link Supplier} to get the {@link Item} for each slot.
+     *
+     * @param key          The key
+     * @param itemSupplier The {@link Supplier} for the {@link Item}
+     * @see #applyStructure(Structure)
+     */
+    void setItem(char key, Supplier<? extends @Nullable Item> itemSupplier);
+    
+    /**
+     * Sets the {@link Item} on that {@link Slot}.
+     *
+     * @param slot The slot
+     * @param item The {@link Item} that should be placed on that slot or null
+     *             to remove the {@link Item} that is currently there.
+     */
+    void setItem(Slot slot, @Nullable Item item);
     
     /**
      * Sets the {@link Item} on these coordinates.
@@ -189,6 +280,15 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
     void addItems(Item... items);
     
     /**
+     * Gets the {@link Item} on that {@link Slot}.
+     *
+     * @param slot The slot
+     * @return The {@link Item} which is placed on that slot or null if there isn't one
+     */
+    @Nullable
+    Item getItem(Slot slot);
+    
+    /**
      * Gets the {@link Item} on these coordinates.
      *
      * @param x The x coordinate
@@ -208,6 +308,35 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
     Item getItem(int index);
     
     /**
+     * Fills the slots associated with the given key through a {@link Structure} with the given {@link Inventory}.
+     *
+     * @param key       The key
+     * @param inventory The {@link Inventory} that should be placed on these slots
+     * @see #applyStructure(Structure)
+     */
+    void setInventory(char key, Inventory inventory);
+    
+    /**
+     * Fills the slots associated with the given key through a {@link Structure} with the given {@link Inventory},
+     * using the given {@link ItemProvider} as background for empty slots.
+     *
+     * @param key        The key
+     * @param inventory  The {@link Inventory} that should be placed on these slots
+     * @param background The {@link ItemProvider} for empty slots of the {@link Inventory}
+     * @see #applyStructure(Structure)
+     */
+    void setInventory(char key, Inventory inventory, ItemProvider background);
+    
+    /**
+     * Fills the slots associated with the given key through a {@link Structure} with the given {@link Gui},
+     * using the given {@link ItemProvider} as background for empty slots.
+     *
+     * @param key The key
+     * @param gui The {@link Gui} that should be placed on these slots
+     */
+    void setGui(char key, Gui gui);
+    
+    /**
      * Gets the {@link ItemProvider} that will be used if nothing else
      * is placed on a slot.
      *
@@ -223,6 +352,13 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
      * @param itemProvider The {@link ItemProvider}
      */
     void setBackground(@Nullable ItemProvider itemProvider);
+    
+    /**
+     * Removes the {@link SlotElement} that is placed on that {@link Slot}.
+     *
+     * @param slot The slot
+     */
+    void remove(Slot slot);
     
     /**
      * Removes an {@link Item} by its coordinates.
@@ -245,6 +381,46 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
      * @param structure The structure
      */
     void applyStructure(Structure structure);
+    
+    /**
+     * Gets the slots associated with the given key through a {@link Structure}.
+     *
+     * @param key The key
+     * @return An unmodifiable collection of the slots associated with the given key.
+     * @see #applyStructure(Structure)
+     */
+    SequencedCollection<? extends Slot> getSlots(char key);
+    
+    /**
+     * Checks whether the slot at the given index is tagged with the given {@link Structure} key.
+     *
+     * @param i   The slot index
+     * @param key The key
+     * @return Whether the slot is tagged with the key
+     * @see #applyStructure(Structure)
+     */
+    boolean isTagged(int i, char key);
+    
+    /**
+     * Checks whether the slot at the given coordinates is tagged with the given {@link Structure} key.
+     *
+     * @param x   The x coordinate
+     * @param y   The y coordinate
+     * @param key The key
+     * @return Whether the slot is tagged with the key
+     * @see #applyStructure(Structure)
+     */
+    boolean isTagged(int x, int y, char key);
+    
+    /**
+     * Checks whether the slot is tagged with the given {@link Structure} key.
+     *
+     * @param slot The slot
+     * @param key  The key
+     * @return Whether the slot is tagged with the key
+     * @see #applyStructure(Structure)
+     */
+    boolean isTagged(Slot slot, char key);
     
     /**
      * Finds all {@link Window Windows} that show this {@link Gui}.
@@ -273,6 +449,54 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
      * Can be called asynchronously.
      */
     void notifyWindows();
+    
+    /**
+     * Notifies all {@link Window Windows} that display the given {@link Slot} to update their
+     * representative {@link ItemStack ItemStacks}.
+     * <p>
+     * Can be called asynchronously.
+     *
+     * @param slot The slot
+     */
+    void notifyWindows(Slot slot);
+    
+    /**
+     * Notifies all {@link Window Windows} that display the slot at the given coordinates
+     * to update their representative {@link ItemStack ItemStacks}.
+     * <p>
+     * Can be called asynchronously.
+     *
+     * @param x The x coordinate
+     * @param y The y coordinate
+     */
+    void notifyWindows(int x, int y);
+    
+    /**
+     * Notifies all {@link Window Windows} of the slot element at the given index
+     * to update their representative {@link ItemStack ItemStacks}.
+     * <p>
+     * Can be called asynchronously.
+     *
+     * @param index The slot index
+     */
+    void notifyWindows(int index);
+    
+    /**
+     * Notifies all {@link Window Windows} that display the slots associated with
+     * the given key(s) through a {@link Structure} to update their
+     * representative {@link ItemStack ItemStacks}.
+     * <p>
+     * Note that this does not notify the ingredient that was initially associated with the
+     * given key through the structure (if any), but instead just notifies the {@link Window Windows}
+     * displaying the affected slots of this {@link Gui}.
+     * <p>
+     * Can be called asynchronously.
+     *
+     * @param key  The key of the slot elements to notify.
+     * @param keys Additional keys of the slot elements to notify.
+     * @see #applyStructure(Structure)
+     */
+    void notifyWindows(char key, char... keys);
     
     /**
      * Plays an {@link Animation}.
