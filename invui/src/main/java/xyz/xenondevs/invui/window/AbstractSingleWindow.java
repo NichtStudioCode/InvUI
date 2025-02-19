@@ -21,31 +21,28 @@ import java.util.function.Supplier;
  * @hidden
  */
 @ApiStatus.Internal
-public sealed abstract class AbstractSingleWindow
+sealed abstract class AbstractSingleWindow
     extends AbstractWindow
-    permits NormalSingleWindowImpl, AnvilSingleWindowImpl, CartographySingleWindowImpl
+    permits NormalSingleWindowImpl, AnvilSingleWindowImpl, CartographySingleWindowImpl, StonecutterSingleWindowImpl
 {
     
-    private final AbstractGui gui;
-    private final int size;
+    protected final AbstractGui gui;
     protected org.bukkit.inventory.Inventory inventory;
     
     AbstractSingleWindow(Player viewer, Supplier<Component> title, AbstractGui gui, org.bukkit.inventory.Inventory inventory, boolean closeable) {
         super(viewer, title, gui.getSize(), closeable);
         this.gui = gui;
-        this.size = gui.getSize();
+        this.inventory = inventory;
+    }
+    
+    AbstractSingleWindow(Player viewer, Supplier<Component> title, AbstractGui gui, int size, org.bukkit.inventory.Inventory inventory, boolean closeable) {
+        super(viewer, title, size, closeable);
+        this.gui = gui;
         this.inventory = inventory;
     }
     
     @Override
-    protected void initItems() {
-        for (int i = 0; i < size; i++) {
-            update(i);
-        }
-    }
-    
-    @Override
-    protected void setInvItem(int slot, ItemStack itemStack) {
+    protected void setInvItem(int slot, @Nullable ItemStack itemStack) {
         inventory.setItem(slot, itemStack);
     }
     
@@ -61,7 +58,7 @@ public sealed abstract class AbstractSingleWindow
     
     @Override
     public void handleClick(InventoryClickEvent event) {
-        gui.handleClick(event.getSlot(), (Player) event.getWhoClicked(), event.getClick(), event);
+        gui.handleClick(event.getSlot(), (Player) event.getWhoClicked(), event);
     }
     
     @Override
@@ -71,7 +68,7 @@ public sealed abstract class AbstractSingleWindow
     
     @Override
     protected List<Inventory> getContentInventories() {
-        List<Inventory> inventories = new ArrayList<>(gui.getAllInventories());
+        List<Inventory> inventories = new ArrayList<>(gui.getInventories());
         inventories.add(ReferencingInventory.fromStorageContents(getViewer().getInventory()));
         return inventories;
     }
@@ -92,8 +89,8 @@ public sealed abstract class AbstractSingleWindow
     }
     
     @Override
-    public AbstractGui[] getGuis() {
-        return new AbstractGui[] {gui};
+    public List<? extends Gui> getGuis() {
+        return List.of(gui);
     }
     
     public AbstractGui getGui() {
@@ -110,11 +107,16 @@ public sealed abstract class AbstractSingleWindow
         return null;
     }
     
+    @Override
+    public boolean isDouble() {
+        return false;
+    }
+    
     @SuppressWarnings("unchecked")
     static sealed abstract class AbstractBuilder<W extends Window, S extends Builder.Single<W, S>>
         extends AbstractWindow.AbstractBuilder<W, S>
         implements Builder.Single<W, S>
-        permits NormalSingleWindowImpl.BuilderImpl, NormalMergedWindowImpl.BuilderImpl, AnvilSingleWindowImpl.BuilderImpl, CartographySingleWindowImpl.BuilderImpl
+        permits StonecutterSingleWindowImpl.BuilderImpl, AnvilSingleWindowImpl.BuilderImpl, CartographySingleWindowImpl.BuilderImpl, NormalMergedWindowImpl.BuilderImpl, NormalSingleWindowImpl.BuilderImpl
     {
         
         protected @Nullable Supplier<Gui> guiSupplier;

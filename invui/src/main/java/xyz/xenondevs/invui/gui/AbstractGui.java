@@ -2,7 +2,6 @@ package xyz.xenondevs.invui.gui;
 
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -23,7 +22,9 @@ import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
 import xyz.xenondevs.invui.item.*;
 import xyz.xenondevs.invui.util.ItemUtils;
-import xyz.xenondevs.invui.window.*;
+import xyz.xenondevs.invui.window.AbstractWindow;
+import xyz.xenondevs.invui.window.Window;
+import xyz.xenondevs.invui.window.WindowManager;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -61,7 +62,7 @@ public sealed abstract class AbstractGui
         viewers = new Set[size];
     }
     
-    public void handleClick(int slotNumber, Player player, ClickType clickType, InventoryClickEvent event) {
+    public void handleClick(int slotNumber, Player player, InventoryClickEvent event) {
         // cancel all clicks if the gui is frozen or an animation is running
         if (frozen || animation != null) {
             event.setCancelled(true);
@@ -72,12 +73,12 @@ public sealed abstract class AbstractGui
         switch (slotElement) {
             case SlotElement.GuiLink linkedElement -> {
                 AbstractGui gui = (AbstractGui) linkedElement.gui();
-                gui.handleClick(linkedElement.slot(), player, clickType, event);
+                gui.handleClick(linkedElement.slot(), player, event);
             }
             
             case SlotElement.Item itemElement -> {
                 event.setCancelled(true); // if it is an Item, don't let the player move it
-                itemElement.item().handleClick(clickType, player, new Click(event));
+                itemElement.item().handleClick(event.getClick(), player, new Click(event));
             }
             
             case SlotElement.InventoryLink inventorySlotElement ->
@@ -88,7 +89,7 @@ public sealed abstract class AbstractGui
     }
     
     //<editor-fold desc="inventories">
-    protected void handleInvSlotElementClick(SlotElement.InventoryLink element, InventoryClickEvent event) {
+    private void handleInvSlotElementClick(SlotElement.InventoryLink element, InventoryClickEvent event) {
         Inventory inventory = element.inventory();
         int slot = element.slot();
         
@@ -158,7 +159,7 @@ public sealed abstract class AbstractGui
     }
     
     @SuppressWarnings("deprecation")
-    protected void handleInvLeftClick(InventoryClickEvent event, Inventory inventory, int slot, Player player, @Nullable ItemStack clicked, @Nullable ItemStack cursor) {
+    private void handleInvLeftClick(InventoryClickEvent event, Inventory inventory, int slot, Player player, @Nullable ItemStack clicked, @Nullable ItemStack cursor) {
         // nothing happens if both cursor and clicked stack are empty
         if (clicked == null && cursor == null)
             return;
@@ -186,7 +187,7 @@ public sealed abstract class AbstractGui
     }
     
     @SuppressWarnings("deprecation")
-    protected void handleInvRightClick(InventoryClickEvent event, Inventory inventory, int slot, Player player, @Nullable ItemStack clicked, @Nullable ItemStack cursor) {
+    private void handleInvRightClick(InventoryClickEvent event, Inventory inventory, int slot, Player player, @Nullable ItemStack clicked, @Nullable ItemStack cursor) {
         // nothing happens if both cursor and clicked stack are empty
         if (clicked == null && cursor == null)
             return;
@@ -219,47 +220,46 @@ public sealed abstract class AbstractGui
         }
     }
     
-    protected void handleInvItemShift(InventoryClickEvent event, Inventory inventory, int slot, Player player, @Nullable ItemStack clicked) {
+    private void handleInvItemShift(InventoryClickEvent event, Inventory inventory, int slot, Player player, @Nullable ItemStack clicked) {
         if (clicked == null)
             return;
         
-        ItemStack previousStack = clicked.clone();
-        
         UpdateReason updateReason = new PlayerUpdateReason(player, event);
-        Window window = WindowManager.getInstance().getOpenWindow(player);
-        ItemPreUpdateEvent updateEvent = inventory.callPreUpdateEvent(updateReason, slot, previousStack, null);
+        ItemPreUpdateEvent updateEvent = inventory.callPreUpdateEvent(updateReason, slot, clicked, null);
+        if (updateEvent.isCancelled())
+            return;
         
-        if (!updateEvent.isCancelled()) {
-            int leftOverAmount;
-            if (window instanceof AbstractDoubleWindow) {
-                Gui otherGui;
-                if (window instanceof AbstractSplitWindow splitWindow) {
-                    Gui[] guis = splitWindow.getGuis();
-                    otherGui = guis[0] == this ? guis[1] : guis[0];
-                } else {
-                    otherGui = this;
-                }
-                
-                leftOverAmount = ((AbstractGui) otherGui).putIntoFirstInventory(updateReason, clicked, inventory);
-            } else {
-                Inventory playerInventory = ReferencingInventory.fromReversedPlayerStorageContents(player.getInventory());
-                leftOverAmount = playerInventory.addItem(null, inventory.getItem(slot));
-            }
+        var window = WindowManager.getInstance().getOpenWindow(player);
+        assert window != null;
+        
+        int leftOverAmount;
+        if (window.isDouble()) {
+            // for double windows, move into the first inventory that accepts the item, sorted by priority
+            var inventories = window.getGuis().stream()
+                .flatMap(gui -> gui.getInventories(inventory).stream())
+                .sorted(Comparator.comparingInt(Inventory::getGuiPriority).reversed())
+                .toList();
             
-            clicked.setAmount(leftOverAmount);
-            if (ItemUtils.isEmpty(clicked))
-                clicked = null;
-            
-            inventory.setItemSilently(slot, clicked);
-            
-            inventory.callPostUpdateEvent(updateReason, slot, previousStack, clicked);
+            leftOverAmount = putIntoFirstInventory(updateReason, clicked, inventories);
+        } else {
+            // for single windows, the player inventory takes priority
+            Inventory playerInventory = ReferencingInventory.fromReversedPlayerStorageContents(player.getInventory());
+            leftOverAmount = playerInventory.addItem(null, clicked);
         }
+        
+        ItemStack newStack = clicked.clone();
+        newStack.setAmount(leftOverAmount);
+        
+        inventory.setItemSilently(slot, newStack);
+        inventory.callPostUpdateEvent(updateReason, slot, clicked, newStack);
     }
     
     // TODO: add support for merged windows
-    protected void handleInvNumberKey(InventoryClickEvent event, Inventory inventory, int slot, Player player, @Nullable ItemStack clicked) {
+    private void handleInvNumberKey(InventoryClickEvent event, Inventory inventory, int slot, Player player, @Nullable ItemStack clicked) {
         Window window = WindowManager.getInstance().getOpenWindow(player);
-        if (window instanceof AbstractSingleWindow) {
+        assert window != null;
+        
+        if (!window.isDouble()) {
             org.bukkit.inventory.Inventory playerInventory = player.getInventory();
             int hotbarButton = event.getHotbarButton();
             ItemStack hotbarItem = ItemUtils.takeUnlessEmpty(playerInventory.getItem(hotbarButton));
@@ -272,9 +272,11 @@ public sealed abstract class AbstractGui
     }
     
     // TODO: add support for merged windows
-    protected void handleInvOffHandKey(InventoryClickEvent event, Inventory inventory, int slot, Player player, @Nullable ItemStack clicked) {
+    private void handleInvOffHandKey(InventoryClickEvent event, Inventory inventory, int slot, Player player, @Nullable ItemStack clicked) {
         Window window = WindowManager.getInstance().getOpenWindow(player);
-        if (window instanceof AbstractSingleWindow) {
+        assert window != null;
+        
+        if (!window.isDouble()) {
             PlayerInventory playerInventory = player.getInventory();
             ItemStack offhandItem = ItemUtils.takeUnlessEmpty(playerInventory.getItemInOffHand());
             
@@ -285,7 +287,7 @@ public sealed abstract class AbstractGui
         }
     }
     
-    protected void handleInvDrop(boolean ctrl, InventoryClickEvent event, Inventory inventory, int slot, Player player, @Nullable ItemStack clicked) {
+    private void handleInvDrop(boolean ctrl, InventoryClickEvent event, Inventory inventory, int slot, Player player, @Nullable ItemStack clicked) {
         if (clicked == null)
             return;
         
@@ -302,7 +304,7 @@ public sealed abstract class AbstractGui
         
     }
     
-    protected void handleInvDoubleClick(InventoryClickEvent event, Player player, @Nullable ItemStack cursor) {
+    private void handleInvDoubleClick(InventoryClickEvent event, Player player, @Nullable ItemStack cursor) {
         if (cursor == null)
             return;
         
@@ -312,7 +314,7 @@ public sealed abstract class AbstractGui
     }
     
     @SuppressWarnings("deprecation")
-    protected void handleInvMiddleClick(InventoryClickEvent event, Inventory inventory, int slot, Player player) {
+    private void handleInvMiddleClick(InventoryClickEvent event, Inventory inventory, int slot, Player player) {
         if (player.getGameMode() != GameMode.CREATIVE)
             return;
         
@@ -361,22 +363,50 @@ public sealed abstract class AbstractGui
         }
     }
     
+    /**
+     * Puts the given {@link ItemStack} into the first inventory that accepts it, starting with the
+     * {@link Inventory#getGuiPriority() highest priority} inventory. If one inventory accepts any amount
+     * of items, further inventories will not be queried, meaning that an item stack will not be split
+     * across multiple inventories.
+     *
+     * @param updateReason the update reason to use
+     * @param itemStack    the item stack to put
+     * @param ignored      the inventories to ignore
+     * @return the amount of items that are left over
+     */
     protected int putIntoFirstInventory(UpdateReason updateReason, ItemStack itemStack, Inventory... ignored) {
-        Collection<Inventory> inventories = getAllInventories(ignored);
+        return putIntoFirstInventory(updateReason, itemStack, getInventories(ignored));
+    }
+    
+    /**
+     * Puts the given {@link ItemStack} into the first inventory that accepts it of the given collection of inventories.
+     * If one inventory accepts any amount of items, further inventories will not be queried, meaning that an item stack
+     * will not be split across multiple inventories.
+     *
+     * @param updateReason the update reason to use
+     * @param itemStack    the item stack to put
+     * @param inventories  the inventories to put the item stack into
+     * @return the amount of items that are left over
+     */
+    protected int putIntoFirstInventory(UpdateReason updateReason, ItemStack itemStack, SequencedCollection<? extends Inventory> inventories) {
         int originalAmount = itemStack.getAmount();
-        
-        if (!inventories.isEmpty()) {
-            for (Inventory inventory : inventories) {
-                int amountLeft = inventory.addItem(updateReason, itemStack);
-                if (originalAmount != amountLeft)
-                    return amountLeft;
-            }
+        for (Inventory inventory : inventories) {
+            int amountLeft = inventory.addItem(updateReason, itemStack);
+            if (originalAmount != amountLeft)
+                return amountLeft;
         }
         
         return originalAmount;
     }
     
-    public Map<Inventory, Set<Integer>> getAllInventorySlots(Inventory... ignored) {
+    /**
+     * Gets a map of all inventories and their visible slots in this gui, ignoring the specified inventories,
+     * sorted by their {@link Inventory#getGuiPriority()}, with the highest priorities coming first.
+     *
+     * @param ignored the inventories to ignore
+     * @return a map of all inventories and their visible slots
+     */
+    private SequencedMap<Inventory, Set<Integer>> getAllInventorySlots(Inventory... ignored) {
         HashMap<Inventory, Set<Integer>> slots = new HashMap<>();
         Set<Inventory> ignoredSet = Arrays.stream(ignored).collect(Collectors.toSet());
         
@@ -399,9 +429,10 @@ public sealed abstract class AbstractGui
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
     }
     
-    public Collection<Inventory> getAllInventories(Inventory... ignored) {
+    @Override
+    public SequencedCollection<? extends Inventory> getInventories(Inventory... ignored) {
         if (!ignoreObscuredInventorySlots)
-            return getAllInventorySlots(ignored).keySet();
+            return Collections.unmodifiableSequencedCollection(getAllInventorySlots(ignored).sequencedKeySet());
         
         ArrayList<Inventory> inventories = new ArrayList<>();
         for (Map.Entry<Inventory, Set<Integer>> entry : getAllInventorySlots(ignored).entrySet()) {
@@ -410,7 +441,7 @@ public sealed abstract class AbstractGui
             inventories.add(new ObscuredInventory(inventory, slot -> !slots.contains(slot)));
         }
         
-        return inventories;
+        return Collections.unmodifiableList(inventories);
     }
     //</editor-fold>
     

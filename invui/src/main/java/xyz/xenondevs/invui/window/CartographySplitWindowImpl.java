@@ -60,7 +60,7 @@ final class CartographySplitWindowImpl extends AbstractSplitWindow implements Ca
         MapMeta mapMeta = (MapMeta) map.getItemMeta();
         mapMeta.setMapId(mapId);
         map.setItemMeta(mapMeta);
-        getGuis()[0].setItem(0, Item.simple(map));
+        upperGui.setItem(0, Item.simple(map));
     }
     
     @Override

@@ -29,7 +29,7 @@ final class AnvilSingleWindowImpl extends AbstractSingleWindow implements AnvilW
     }
     
     @Override
-    protected void setInvItem(int slot, ItemStack itemStack) {
+    protected void setInvItem(int slot, @Nullable ItemStack itemStack) {
         anvilInventory.setItem(slot, itemStack);
     }
     

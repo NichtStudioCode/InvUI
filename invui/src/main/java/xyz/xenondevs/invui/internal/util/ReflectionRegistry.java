@@ -3,8 +3,6 @@ package xyz.xenondevs.invui.internal.util;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.ServerAdvancementManager;
 import net.minecraft.server.level.ServerPlayer;
-import org.bukkit.Bukkit;
-import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

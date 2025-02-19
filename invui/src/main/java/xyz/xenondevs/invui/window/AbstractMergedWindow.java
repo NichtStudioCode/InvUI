@@ -6,11 +6,10 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
+import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.util.Pair;
 import xyz.xenondevs.invui.internal.util.SlotUtils;
-import xyz.xenondevs.invui.inventory.ReferencingInventory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -41,15 +40,8 @@ sealed abstract class AbstractMergedWindow
     }
     
     @Override
-    public AbstractGui[] getGuis() {
-        return new AbstractGui[] {gui};
-    }
-    
-    @Override
-    protected List<xyz.xenondevs.invui.inventory.Inventory> getContentInventories() {
-        List<xyz.xenondevs.invui.inventory.Inventory> inventories = new ArrayList<>(gui.getAllInventories());
-        inventories.add(ReferencingInventory.fromStorageContents(getViewer().getInventory()));
-        return inventories;
+    public List<? extends Gui> getGuis() {
+        return List.of(gui);
     }
     
 }

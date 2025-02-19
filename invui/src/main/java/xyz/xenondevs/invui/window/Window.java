@@ -21,7 +21,7 @@ import java.util.function.Supplier;
  * @see AnvilWindow
  * @see CartographyWindow
  */
-public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyWindow {
+public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyWindow, StonecutterWindow {
     
     /**
      * Creates a new {@link Builder.Normal.Single Window Builder} for a normal single window.
@@ -85,6 +85,29 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
         consumer.accept(builder);
         return builder.build();
     }
+    
+    /**
+     * Gets whether this {@link Window} is a double window, i.e. whether it uses the player inventory,
+     * such as those created via {@link #split()} or {@link #merged()}.
+     *
+     * @return If this {@link Window} is a double window.
+     */
+    boolean isDouble();
+    
+    /**
+     * Gets an unmodifiable list of all {@link Gui Guis} in this {@link Window},
+     * not including {@link Gui Guis} that are nested in other {@link Gui Guis}.
+     * <p>
+     * The list has the following order:
+     * <ol>
+     *     <li>upper {@link Gui}</li>
+     *     <li>lower {@link Gui} (if present)</li>
+     *     <li>special {@link Gui Gui(s)} (if present, such as the buttons gui in {@link StonecutterWindow}</li>
+     * </ol>
+     *
+     * @return An unmodifiable collection of all {@link Gui Guis} in this {@link Window}.
+     */
+    List<? extends Gui> getGuis();
     
     /**
      * Shows the window to the player.
@@ -242,7 +265,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
      */
     sealed interface Builder<W extends Window, S extends Builder<W, S>>
         extends Cloneable
-        permits AbstractWindow.AbstractBuilder, AnvilWindow.Builder, CartographyWindow.Builder, Builder.Double, Builder.Normal, Builder.Single
+        permits AbstractWindow.AbstractBuilder, AnvilWindow.Builder, CartographyWindow.Builder, StonecutterWindow.Builder, Builder.Double, Builder.Normal, Builder.Single
     {
         
         /**
@@ -393,7 +416,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
          */
         sealed interface Single<W extends Window, S extends Single<W, S>>
             extends Builder<W, S>
-            permits AbstractSingleWindow.AbstractBuilder, AnvilWindow.Builder.Single, CartographyWindow.Builder.Single, Normal.Merged, Normal.Single
+            permits AbstractSingleWindow.AbstractBuilder, AnvilWindow.Builder.Single, CartographyWindow.Builder.Single, StonecutterWindow.Builder.Single, Normal.Merged, Normal.Single
         {
             
             /**
@@ -435,7 +458,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
          */
         sealed interface Double<W extends Window, S extends Builder.Double<W, S>>
             extends Builder<W, S>
-            permits AbstractSplitWindow.AbstractBuilder, AnvilWindow.Builder.Split, CartographyWindow.Builder.Split, Normal.Split
+            permits AbstractSplitWindow.AbstractBuilder, AnvilWindow.Builder.Split, CartographyWindow.Builder.Split, StonecutterWindow.Builder.Split, Normal.Split
         {
             
             /**

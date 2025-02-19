@@ -11,7 +11,6 @@ import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.util.Pair;
 import xyz.xenondevs.invui.internal.util.SlotUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -19,16 +18,20 @@ import java.util.function.Supplier;
  * @hidden
  */
 @ApiStatus.Internal
-public sealed abstract class AbstractSplitWindow 
+sealed abstract class AbstractSplitWindow
     extends AbstractDoubleWindow
-    permits AnvilSplitWindowImpl, CartographySplitWindowImpl, NormalSplitWindowImpl
+    permits AnvilSplitWindowImpl, CartographySplitWindowImpl, StonecutterSplitWindowImpl, NormalSplitWindowImpl
 {
     
-    private final AbstractGui upperGui;
-    private final AbstractGui lowerGui;
+    protected final AbstractGui upperGui;
+    protected final AbstractGui lowerGui;
     
     AbstractSplitWindow(Player player, Supplier<Component> title, AbstractGui upperGui, AbstractGui lowerGui, Inventory upperInventory, boolean closeable) {
-        super(player, title, upperGui.getSize() + lowerGui.getSize(), upperInventory, closeable);
+        this(player, title, upperGui, lowerGui, upperGui.getSize() + lowerGui.getSize(), upperInventory, closeable);
+    }
+    
+    AbstractSplitWindow(Player player, Supplier<Component> title, AbstractGui upperGui, AbstractGui lowerGui, int size, Inventory upperInventory, boolean closeable) {
+        super(player, title, size, upperInventory, closeable);
         this.upperGui = upperGui;
         this.lowerGui = lowerGui;
     }
@@ -56,23 +59,15 @@ public sealed abstract class AbstractSplitWindow
     }
     
     @Override
-    public AbstractGui[] getGuis() {
-        return new AbstractGui[] {upperGui, lowerGui};
-    }
-    
-    @Override
-    protected List<xyz.xenondevs.invui.inventory.Inventory> getContentInventories() {
-        List<xyz.xenondevs.invui.inventory.Inventory> inventories = new ArrayList<>();
-        inventories.addAll(upperGui.getAllInventories());
-        inventories.addAll(lowerGui.getAllInventories());
-        return inventories;
+    public List<? extends Gui> getGuis() {
+        return List.of(upperGui, lowerGui);
     }
     
     @SuppressWarnings("unchecked")
     static sealed abstract class AbstractBuilder<W extends Window, S extends Window.Builder.Double<W, S>>
         extends AbstractWindow.AbstractBuilder<W, S>
         implements Window.Builder.Double<W, S>
-        permits NormalSplitWindowImpl.BuilderImpl, AnvilSplitWindowImpl.BuilderImpl, CartographySplitWindowImpl.BuilderImpl
+        permits AnvilSplitWindowImpl.BuilderImpl, CartographySplitWindowImpl.BuilderImpl, NormalSplitWindowImpl.BuilderImpl, StonecutterSplitWindowImpl.BuilderImpl
     {
         
         protected @Nullable Supplier<Gui> upperGuiSupplier;

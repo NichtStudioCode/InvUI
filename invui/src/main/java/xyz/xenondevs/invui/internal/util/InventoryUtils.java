@@ -54,17 +54,18 @@ public class InventoryUtils {
         var synchronizer = new CapturingContainerSynchronizer(serverPlayer);
         menu.setSynchronizer(synchronizer);
         
-        var packets = new ArrayList<Packet<? super ClientGamePacketListener>>();
-        packets.add(new ClientboundOpenScreenPacket(menu.containerId, menu.getType(), PaperAdventure.asVanilla(title)));
-        packets.addAll(synchronizer.stopCapture());
-        serverPlayer.connection.send(new ClientboundBundlePacket(packets));
+        openScreenBundled(serverPlayer, menu, synchronizer, title);
     }
     
     public static void openCustomInventory(Player player, Inventory inventory, Component title) {
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
-        MenuType<?> menuType = CraftContainer.getNotchInventoryType(inventory);
-        
         AbstractContainerMenu menu = new CraftContainer(inventory, serverPlayer, serverPlayer.nextContainerCounter());
+        openCustomInventory(player, menu, title);
+    }
+    
+    public static void openCustomInventory(Player player, AbstractContainerMenu menu, Component title) {
+        ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
+        
         menu = CraftEventFactory.callInventoryOpenEvent(serverPlayer, menu);
         if (menu != null) {
             menu.checkReachable = false;
@@ -74,11 +75,15 @@ public class InventoryUtils {
             menu.setSynchronizer(synchronizer);
             menu.addSlotListener(Objects.requireNonNull(ReflectionUtils.getFieldValue(SERVER_PLAYER_CONTAINER_LISTENER_FIELD, serverPlayer)));
             
-            var packets = new ArrayList<Packet<? super ClientGamePacketListener>>();
-            packets.add(new ClientboundOpenScreenPacket(menu.containerId, menuType, PaperAdventure.asVanilla(title)));
-            packets.addAll(synchronizer.stopCapture());
-            serverPlayer.connection.send(new ClientboundBundlePacket(packets));
+            openScreenBundled(serverPlayer, menu, synchronizer, title);
         }
+    }
+    
+    private static void openScreenBundled(ServerPlayer player, AbstractContainerMenu menu, CapturingContainerSynchronizer synchronizer, Component title) {
+        var packets = new ArrayList<Packet<? super ClientGamePacketListener>>();
+        packets.add(new ClientboundOpenScreenPacket(menu.containerId, menu.getType(), PaperAdventure.asVanilla(title)));
+        packets.addAll(synchronizer.stopCapture());
+        player.connection.send(new ClientboundBundlePacket(packets));
     }
     
 }

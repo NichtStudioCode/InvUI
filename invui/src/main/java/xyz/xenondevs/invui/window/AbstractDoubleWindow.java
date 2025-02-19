@@ -9,10 +9,12 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
+import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.util.Pair;
 import xyz.xenondevs.invui.internal.util.PlayerUtils;
 import xyz.xenondevs.invui.internal.util.SlotUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -22,7 +24,7 @@ import java.util.function.Supplier;
  * @hidden
  */
 @ApiStatus.Internal
-public sealed abstract class AbstractDoubleWindow 
+sealed abstract class AbstractDoubleWindow 
     extends AbstractWindow
     permits AbstractMergedWindow, AbstractSplitWindow 
 {
@@ -39,11 +41,6 @@ public sealed abstract class AbstractDoubleWindow
     
     @Override
     protected void initItems() {
-        // init upper inventory
-        for (int i = 0; i < upperInventory.getSize(); i++) {
-            update(i);
-        }
-        
         // store and clear player inventory
         Inventory inventory = getViewer().getInventory();
         for (int i = 0; i < 36; i++) {
@@ -51,10 +48,7 @@ public sealed abstract class AbstractDoubleWindow
             inventory.setItem(i, null);
         }
         
-        // init player inventory
-        for (int i = upperInventory.getSize(); i < upperInventory.getSize() + 36; i++) {
-            update(i);
-        }
+        super.initItems();
     }
     
     @Override
@@ -72,7 +66,7 @@ public sealed abstract class AbstractDoubleWindow
     }
     
     @Override
-    protected void setInvItem(int slot, ItemStack itemStack) {
+    protected void setInvItem(int slot, @Nullable ItemStack itemStack) {
         if (slot >= upperInventory.getSize()) {
             if (isOpen()) {
                 int invSlot = SlotUtils.translateGuiToPlayerInv(slot - upperInventory.getSize());
@@ -119,12 +113,21 @@ public sealed abstract class AbstractDoubleWindow
     @Override
     public void handleClick(InventoryClickEvent event) {
         Pair<AbstractGui, Integer> clicked = getWhereClicked(event);
-        clicked.first().handleClick(clicked.second(), (Player) event.getWhoClicked(), event.getClick(), event);
+        clicked.first().handleClick(clicked.second(), (Player) event.getWhoClicked(), event);
     }
     
     @Override
     public void handleItemShift(InventoryClickEvent event) {
         // empty, should not be called by the WindowManager
+    }
+    
+    @Override
+    protected List<xyz.xenondevs.invui.inventory.Inventory> getContentInventories() {
+        List<xyz.xenondevs.invui.inventory.Inventory> inventories = new ArrayList<>();
+        for (Gui gui : getGuis()) {
+            inventories.addAll(gui.getInventories());
+        }
+        return inventories;
     }
     
     @Override
@@ -138,6 +141,11 @@ public sealed abstract class AbstractDoubleWindow
     
     public Inventory getPlayerInventory() {
         return playerInventory;
+    }
+    
+    @Override
+    public boolean isDouble() {
+        return true;
     }
     
     protected abstract Pair<AbstractGui, Integer> getWhereClicked(InventoryClickEvent event);

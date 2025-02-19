@@ -219,7 +219,7 @@ public sealed abstract class AbstractWindow
     }
     
     @SuppressWarnings("deprecation")
-    public void handleCursorCollect(InventoryClickEvent event) {
+    public void handleCursorCollect(InventoryClickEvent event) { // TODO: prioritize the content inventory where the cursor is
         // cancel event as we do the collection logic ourselves
         event.setCancelled(true);
         
@@ -267,13 +267,13 @@ public sealed abstract class AbstractWindow
             }
             
             var pair = getGuiAt(i);
-            assert pair != null;
-            pair.first().addViewer(this, pair.second(), i);
+            if (pair != null)
+                pair.first().addViewer(this, pair.second(), i);
         }
         openInventory(viewer);
     }
     
-    protected void openInventory(Player viewer) {
+    protected void openInventory(Player viewer) { // fixme: overrides don't use active title, nor do they localize
         var title = getTitle();
         activeTitle = title;
         InventoryUtils.openCustomInventory(
@@ -281,6 +281,12 @@ public sealed abstract class AbstractWindow
             getInventories()[0],
             Languages.getInstance().localized(viewer, title)
         );
+    }
+    
+    protected void initItems() {
+        for (int i = 0; i < getSize(); i++) {
+            update(i);
+        }
     }
     
     public void handleOpenEvent(InventoryOpenEvent event) {
@@ -341,8 +347,8 @@ public sealed abstract class AbstractWindow
             }
             
             var pair = getGuiAt(i);
-            assert pair != null;
-            pair.first().removeViewer(this, pair.second(), i);
+            if (pair != null)
+                pair.first().removeViewer(this, pair.second(), i);
         }
     }
     
@@ -469,17 +475,17 @@ public sealed abstract class AbstractWindow
         return currentlyOpen;
     }
     
+    public int getSize() {
+        return size;
+    }
+    
     protected abstract void setInvItem(int slot, @Nullable ItemStack itemStack);
     
     protected abstract @Nullable Pair<AbstractGui, Integer> getGuiAt(int index);
     
-    protected abstract AbstractGui[] getGuis();
-    
     protected abstract org.bukkit.inventory.Inventory[] getInventories();
     
     protected abstract List<xyz.xenondevs.invui.inventory.Inventory> getContentInventories();
-    
-    protected abstract void initItems();
     
     protected abstract void handleOpened();
     
