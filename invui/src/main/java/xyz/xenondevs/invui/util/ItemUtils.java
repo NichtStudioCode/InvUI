@@ -55,4 +55,17 @@ public class ItemUtils {
         return clone;
     }
     
+    /**
+     * Clones the given {@link ItemStack} and returns it, unless it is empty, in which case null is returned.
+     *
+     * @param itemStack The {@link ItemStack} to clone.
+     * @return The cloned {@link ItemStack} or null if it is empty.
+     */
+    public static @Nullable ItemStack cloneUnlessEmpty(@Nullable ItemStack itemStack) {
+        if (isEmpty(itemStack))
+            return null;
+        
+        return itemStack.clone();
+    }
+    
 }

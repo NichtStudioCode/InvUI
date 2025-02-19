@@ -472,7 +472,9 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      * @param updateReason      The {@link UpdateReason}.
      * @param slot              The slot of the affected {@link ItemStack}.
      * @param previousItemStack The {@link ItemStack} that was previously on that slot.
+     *                          Will be cloned to prevent modifications.
      * @param newItemStack      The {@link ItemStack} that will be on that slot.
+     *                          Will be cloned to prevent modifications.
      * @return The {@link ItemPreUpdateEvent} after it has been handled by the pre update handlers.
      */
     public ItemPreUpdateEvent callPreUpdateEvent(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
@@ -496,7 +498,9 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      * @param updateReason      The {@link UpdateReason}.
      * @param slot              The slot of the affected {@link ItemStack}.
      * @param previousItemStack The {@link ItemStack} that was on that slot previously.
+     *                          Will be cloned to prevent modifications.
      * @param newItemStack      The {@link ItemStack} that is on that slot now.
+     *                          Will be cloned to prevent modifications.
      */
     public void callPostUpdateEvent(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
         if (updateReason == UpdateReason.SUPPRESSED)

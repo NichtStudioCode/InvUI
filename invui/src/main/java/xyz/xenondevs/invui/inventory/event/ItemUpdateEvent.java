@@ -4,6 +4,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.inventory.Inventory;
+import xyz.xenondevs.invui.util.ItemUtils;
 
 abstract class ItemUpdateEvent {
     
@@ -31,8 +32,8 @@ abstract class ItemUpdateEvent {
         this.inventory = inventory;
         this.slot = slot;
         this.updateReason = updateReason;
-        this.previousItemStack = previousItem;
-        this.newItemStack = newItem;
+        this.previousItemStack = ItemUtils.cloneUnlessEmpty(previousItem);
+        this.newItemStack = ItemUtils.cloneUnlessEmpty(newItem);
     }
     
     /**
@@ -63,7 +64,7 @@ abstract class ItemUpdateEvent {
     }
     
     /**
-     * Gets clone of the new {@link ItemStack} that will be there if the event isn't cancelled.
+     * Gets a clone of the new {@link ItemStack} that will be there if the event isn't cancelled.
      *
      * @return The new {@link ItemStack}
      */

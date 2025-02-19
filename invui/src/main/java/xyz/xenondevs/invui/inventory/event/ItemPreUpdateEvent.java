@@ -4,6 +4,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.inventory.Inventory;
+import xyz.xenondevs.invui.util.ItemUtils;
 
 /**
  * An event that is called whenever a slot inside a {@link Inventory} gets updated.
@@ -38,7 +39,7 @@ public class ItemPreUpdateEvent extends ItemUpdateEvent {
      *                if the {@link ItemPreUpdateEvent} is not cancelled.
      */
     public void setNewItem(@Nullable ItemStack newItem) {
-        this.newItemStack = newItem;
+        this.newItemStack = ItemUtils.takeUnlessEmpty(newItem);
     }
     
     /**
