@@ -133,6 +133,29 @@ public class AnimationTest {
     }
     
     @Test
+    public void testColumnOddGuiSize() {
+        Gui gui = createOddTestGui();
+        Animation columnAnimation = Animation.column().build();
+        gui.playAnimation(columnAnimation);
+        
+        server.getScheduler().performTicks(3);
+        assertTrue(columnAnimation.isFinished());
+    }
+    
+    @Test
+    public void testColumnNoSlots() {
+        Gui gui = createTestGui();
+        Animation columnAnimation = Animation.column()
+            .addSlotFilter((g, s) -> false)
+            .build();
+        gui.playAnimation(columnAnimation);
+        
+        assertTrue(columnAnimation.isFinished());
+        server.getScheduler().performTicks(1);
+        assertTrue(columnAnimation.isFinished());
+    }
+    
+    @Test
     public void testRow() {
         Gui gui = createTestGui();
         Animation rowAnimation = Animation.row().build();
@@ -186,6 +209,29 @@ public class AnimationTest {
     }
     
     @Test
+    public void testRowOddGuiSize() {
+        Gui gui = createOddTestGui();
+        Animation rowAnimation = Animation.row().build();
+        gui.playAnimation(rowAnimation);
+        
+        server.getScheduler().performTicks(1);
+        assertTrue(rowAnimation.isFinished());
+    }
+    
+    @Test
+    public void testRowNoSlots() {
+        Gui gui = createTestGui();
+        Animation rowAnimiation = Animation.row()
+            .addSlotFilter((g, s) -> false)
+            .build();
+        gui.playAnimation(rowAnimiation);
+        
+        assertTrue(rowAnimiation.isFinished());
+        server.getScheduler().performTicks(1);
+        assertTrue(rowAnimiation.isFinished());
+    }
+    
+    @Test
     public void testHorizontalSnake() {
         Gui gui = createTestGui();
         Animation snakeAnimation = Animation.horizontalSnake().build();
@@ -226,6 +272,29 @@ public class AnimationTest {
         );
         assertVisibility(gui, visMatrix35);
         
+        server.getScheduler().performTicks(1);
+        assertTrue(snakeAnimation.isFinished());
+    }
+    
+    @Test
+    public void testHorizontalSnakeOddGuiSize() {
+        Gui gui = createOddTestGui();
+        Animation snakeAnimation = Animation.horizontalSnake().build();
+        gui.playAnimation(snakeAnimation);
+        
+        server.getScheduler().performTicks(3);
+        assertTrue(snakeAnimation.isFinished());
+    }
+    
+    @Test
+    public void testHorizontalSnakeNoSlots() {
+        Gui gui = createTestGui();
+        Animation snakeAnimation = Animation.horizontalSnake()
+            .addSlotFilter((g, s) -> false)
+            .build();
+        gui.playAnimation(snakeAnimation);
+        
+        assertTrue(snakeAnimation.isFinished());
         server.getScheduler().performTicks(1);
         assertTrue(snakeAnimation.isFinished());
     }
@@ -276,6 +345,29 @@ public class AnimationTest {
     }
     
     @Test
+    public void testVerticalSnakeOddGuiSize() {
+        Gui gui = createOddTestGui();
+        Animation snakeAnimation = Animation.verticalSnake().build();
+        gui.playAnimation(snakeAnimation);
+        
+        server.getScheduler().performTicks(3);
+        assertTrue(snakeAnimation.isFinished());
+    }
+    
+    @Test
+    public void testVerticalSnakeNoSlots() {
+        Gui gui = createTestGui();
+        Animation snakeAnimation = Animation.verticalSnake()
+            .addSlotFilter((g, s) -> false)
+            .build();
+        gui.playAnimation(snakeAnimation);
+        
+        assertTrue(snakeAnimation.isFinished());
+        server.getScheduler().performTicks(1);
+        assertTrue(snakeAnimation.isFinished());
+    }
+    
+    @Test
     public void testSequential() {
         Gui gui = createTestGui();
         Animation sequentialAnimation = Animation.sequential().build();
@@ -321,6 +413,29 @@ public class AnimationTest {
     }
     
     @Test
+    public void testSequentialOddGuiSize() {
+        Gui gui = createOddTestGui();
+        Animation sequentialAnimation = Animation.sequential().build();
+        gui.playAnimation(sequentialAnimation);
+        
+        server.getScheduler().performTicks(3);
+        assertTrue(sequentialAnimation.isFinished());
+    }
+    
+    @Test
+    public void testSequentialNoSlots() {
+        Gui gui = createTestGui();
+        Animation sequentialAnimation = Animation.sequential()
+            .addSlotFilter((g, s) -> false)
+            .build();
+        gui.playAnimation(sequentialAnimation);
+        
+        assertTrue(sequentialAnimation.isFinished());
+        server.getScheduler().performTicks(1);
+        assertTrue(sequentialAnimation.isFinished());
+    }
+    
+    @Test
     public void testSplitSequential() {
         Gui gui = createTestGui();
         Animation sequentialAnimation = Animation.splitSequential().build();
@@ -357,6 +472,29 @@ public class AnimationTest {
     }
     
     @Test
+    public void testSplitSequentialOddGuiSize() {
+        Gui gui = createOddTestGui();
+        Animation sequentialAnimation = Animation.splitSequential().build();
+        gui.playAnimation(sequentialAnimation);
+        
+        server.getScheduler().performTicks(2);
+        assertTrue(sequentialAnimation.isFinished());
+    }
+    
+    @Test
+    public void testSplitSequentialNoSlots() {
+        Gui gui = createTestGui();
+        Animation sequentialAnimation = Animation.splitSequential()
+            .addSlotFilter((g, s) -> false)
+            .build();
+        gui.playAnimation(sequentialAnimation);
+        
+        assertTrue(sequentialAnimation.isFinished());
+        server.getScheduler().performTicks(1);
+        assertTrue(sequentialAnimation.isFinished());
+    }
+    
+    @Test
     public void testRandom() {
         Gui gui = createTestGui();
         Animation randomAnimation = Animation.random().build();
@@ -364,6 +502,29 @@ public class AnimationTest {
         
         server.getScheduler().performTicks(35);
         assertFalse(randomAnimation.isFinished());
+        server.getScheduler().performTicks(1);
+        assertTrue(randomAnimation.isFinished());
+    }
+    
+    @Test
+    public void testRandomOddGuiSize() {
+        Gui gui = createOddTestGui();
+        Animation randomAnimation = Animation.random().build();
+        gui.playAnimation(randomAnimation);
+        
+        server.getScheduler().performTicks(3);
+        assertTrue(randomAnimation.isFinished());
+    }
+    
+    @Test
+    public void testRandomNoSlots() {
+        Gui gui = createTestGui();
+        Animation randomAnimation = Animation.random()
+            .addSlotFilter((g, s) -> false)
+            .build();
+        gui.playAnimation(randomAnimation);
+        
+        assertTrue(randomAnimation.isFinished());
         server.getScheduler().performTicks(1);
         assertTrue(randomAnimation.isFinished());
     }
@@ -473,6 +634,12 @@ public class AnimationTest {
         assertTrue(rowAnimation.isFinished());
         assertThrows(IllegalStateException.class, () -> gui1.playAnimation(rowAnimation));
         assertThrows(IllegalStateException.class, () -> gui2.playAnimation(rowAnimation));
+    }
+    
+    private Gui createOddTestGui() {
+        Gui gui = Gui.empty(3, 1);
+        gui.fill(Item.simple(new ItemStack(Material.DIAMOND)), true);
+        return gui;
     }
     
     private Gui createTestGui() {

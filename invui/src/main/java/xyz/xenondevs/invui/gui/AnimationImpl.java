@@ -105,6 +105,10 @@ final class AnimationImpl implements Animation {
         if (gui == null)
             throw new IllegalStateException("Animation is not bound to a gui");
         
+        // no slots
+        if (remainingSlots.isEmpty())
+            return;
+        
         task = Bukkit.getScheduler().runTaskTimer(InvUI.getInstance().getPlugin(), this::handleTick, 0, tickDelay);
     }
     
@@ -300,8 +304,9 @@ final class AnimationImpl implements Animation {
         
         @Override
         public Set<Slot> apply(Animation animation) {
+            int size = animation.getGui().getSize();
             int width = animation.getGui().getWidth();
-            while (true) {
+            while (i < size) {
                 int x = i % width;
                 int y = i / width;
                 
@@ -311,6 +316,8 @@ final class AnimationImpl implements Animation {
                 
                 i++;
             }
+            
+            return Set.of();
         }
         
     }
@@ -327,7 +334,7 @@ final class AnimationImpl implements Animation {
             
             var slots = new HashSet<Slot>();
             
-            while (true) {
+            while (i1 < size) {
                 int x = i1 % width;
                 int y = i1 / width;
                 
@@ -340,7 +347,7 @@ final class AnimationImpl implements Animation {
                 i1++;
             }
             
-            while (true) {
+            while (i2 < size) {
                 int x = (size - i2) % width;
                 int y = (size - i2) / width;
                 
