@@ -804,6 +804,15 @@ public sealed abstract class AbstractGui
         
         return matrix.getKey(i) == key;
     }
+    
+    @Override
+    public @Nullable Character getKey(int i) {
+        var matrix = ingredientMatrix;
+        if (matrix == null)
+            return null;
+        
+        return matrix.getKey(i);
+    }
     //</editor-fold>
     
     //<editor-fold desc="coordinate-based methods">
@@ -885,6 +894,16 @@ public sealed abstract class AbstractGui
     @Override
     public boolean isTagged(Slot slot, char key) {
         return isTagged(slot.x(), slot.y(), key);
+    }
+    
+    @Override
+    public @Nullable Character getKey(int x, int y) {
+        return getKey(convToIndex(x, y));
+    }
+    
+    @Override
+    public @Nullable Character getKey(Slot slot) {
+        return getKey(slot.x(), slot.y());
     }
     
     @Override

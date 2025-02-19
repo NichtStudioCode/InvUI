@@ -392,6 +392,37 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
     SequencedCollection<? extends Slot> getSlots(char key);
     
     /**
+     * Gets the {@link Structure} key that is associated with the slot at the given index.
+     *
+     * @param i The slot index
+     * @return The {@link Structure} key, or null if the slot is not associated with a {@link Structure}.
+     * @see #applyStructure(Structure)
+     */
+    @Nullable
+    Character getKey(int i);
+    
+    /**
+     * Gets the {@link Structure} key that is associated with the slot at the given coordinates.
+     *
+     * @param x The x coordinate
+     * @param y The y coordinate
+     * @return The {@link Structure} key, or null if the slot is not associated with a {@link Structure}.
+     * @see #applyStructure(Structure)
+     */
+    @Nullable
+    Character getKey(int x, int y);
+    
+    /**
+     * Gets the {@link Structure} key that is associated with the given {@link Slot}.
+     *
+     * @param slot The slot
+     * @return The {@link Structure} key, or null if the slot is not associated with a {@link Structure}.
+     * @see #applyStructure(Structure)
+     */
+    @Nullable
+    Character getKey(Slot slot);
+    
+    /**
      * Checks whether the slot at the given index is tagged with the given {@link Structure} key.
      *
      * @param i   The slot index
