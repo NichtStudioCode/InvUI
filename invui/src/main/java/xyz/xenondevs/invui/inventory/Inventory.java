@@ -1251,7 +1251,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
             // only taking from partial stacks wasn't enough, take from a full slot
             for (int slot = 0; slot < items.length; slot++) {
                 ItemStack currentStack = items[slot];
-                if (currentStack == null || currentStack.getAmount() <= maxStackSize || !template.isSimilar(currentStack))
+                if (currentStack == null || currentStack.getAmount() < maxStackSize || !template.isSimilar(currentStack))
                     continue;
                 
                 amount += takeFrom(updateReason, slot, maxStackSize - amount);
