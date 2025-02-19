@@ -170,12 +170,6 @@ final class AnimationImpl implements Animation {
         }
         
         @Override
-        public Animation.Builder filterEmptySlots() {
-            addSlotFilter((gui, slot) -> gui.getSlotElement(slot.x(), slot.y()) != null);
-            return this;
-        }
-        
-        @Override
         public Animation build() {
             if (slotSelector == null)
                 throw new IllegalStateException("SlotSelector needs to be set");

@@ -3,6 +3,8 @@ package xyz.xenondevs.invui.internal.util;
 import org.jspecify.annotations.NullUnmarked;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.IntFunction;
 
 public class ArrayUtils {
@@ -53,6 +55,25 @@ public class ArrayUtils {
             Arrays.fill(copy, original.length, size, padding);
         }
         return copy;
+    }
+    
+    /**
+     * Creates a set of the given characters.
+     *
+     * @param first The first character
+     * @param rest  The rest of the characters
+     * @return The set of characters
+     */
+    public static Set<Character> toSet(char first, char[] rest) {
+        if (rest.length == 0)
+            return Set.of(first);
+        
+        var set = new HashSet<Character>(first + rest.length);
+        set.add(first);
+        for (char c : rest) {
+            set.add(c);
+        }
+        return set;
     }
     
 }

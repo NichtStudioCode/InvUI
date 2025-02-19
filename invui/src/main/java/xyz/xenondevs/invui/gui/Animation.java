@@ -1,6 +1,7 @@
 package xyz.xenondevs.invui.gui;
 
 import org.bukkit.Sound;
+import xyz.xenondevs.invui.internal.util.ArrayUtils;
 
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -157,6 +158,7 @@ public sealed interface Animation permits AnimationImpl {
          * Sets the delay between invocations of the slot selector.
          *
          * @param tickDelay The delay between invocations of the slot selector.
+         * @return This {@link Builder Animation builder}
          */
         Builder setTickDelay(int tickDelay);
         
@@ -164,13 +166,32 @@ public sealed interface Animation permits AnimationImpl {
          * Adds a filter defining which slots are part of the animation.
          *
          * @param filter The filter defining which slots are part of the animation.
+         * @return This {@link Builder Animation builder}
          */
         Builder addSlotFilter(BiPredicate<Gui, Slot> filter);
         
         /**
-         * Adds a filter that ignores all empty slots.
+         * Adds a {@link #addSlotFilter(BiPredicate) filter} that ignores all empty slots.
+         *
+         * @return This {@link Builder Animation builder}
          */
-        Builder filterEmptySlots();
+        default Builder filterNonEmptySlots() {
+            return addSlotFilter((gui, slot) -> gui.getSlotElement(slot.x(), slot.y()) != null);
+        }
+        
+        /**
+         * Adds a {@link #addSlotFilter(BiPredicate) filter} that only allows slots that are
+         * {@link Gui#isTagged(Slot, char) tagged} with any of the given keys via a {@link Structure}.
+         *
+         * @param key  The key to filter for
+         * @param keys Additional keys to filter for
+         * @return This {@link Builder Animation builder}
+         * @see Gui#applyStructure(Structure)
+         */
+        default Builder filterTaggedSlots(char key, char... keys) {
+            Set<Character> keySet = ArrayUtils.toSet(key, keys);
+            return addSlotFilter((gui, slot) -> keySet.contains(gui.getKey(slot)));
+        }
         
         /**
          * Shortcut for adding a sound effect {@link #addShowHandler(BiConsumer) show handler}.
@@ -178,6 +199,7 @@ public sealed interface Animation permits AnimationImpl {
          * @param sound  The sound effect type
          * @param volume The volume of the sound
          * @param pitch  The pitch of the sound
+         * @return This {@link Builder Animation builder}
          */
         default Builder addSoundEffect(Sound sound, float volume, float pitch) {
             return addShowHandler((animation, slot) ->
@@ -193,6 +215,7 @@ public sealed interface Animation permits AnimationImpl {
          * Slot selectors need to show all slots of {@link Animation#getRemainingSlots()} in order to complete the animation.
          *
          * @param selector The slot selector for the animation.
+         * @return This {@link Builder Animation builder}
          */
         Builder setSlotSelector(Function<Animation, Set<Slot>> selector);
         
@@ -200,6 +223,7 @@ public sealed interface Animation permits AnimationImpl {
          * Adds a handler that is called when slot(s) are shown.
          *
          * @param showHandler The handler that is called when slot(s) are shown.
+         * @return This {@link Builder Animation builder}
          */
         Builder addShowHandler(BiConsumer<Animation, Set<Slot>> showHandler);
         
@@ -207,6 +231,7 @@ public sealed interface Animation permits AnimationImpl {
          * Adds a handler that is called when the animation is finished.
          *
          * @param finishHandler The handler that is called when the animation is finished.
+         * @return This {@link Builder Animation builder}
          */
         Builder addFinishHandler(Consumer<Animation> finishHandler);
         

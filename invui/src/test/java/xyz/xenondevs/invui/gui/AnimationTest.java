@@ -571,6 +571,51 @@ public class AnimationTest {
     }
     
     @Test
+    public void testNonEmptySlotFilter() {
+        Gui gui = Gui.normal()
+            .setStructure(
+                "# # # # # # # # #",
+                ". . . . . . . . ."
+            )
+            .addIngredient('#', ItemStack.of(Material.DIAMOND))
+            .build();
+        Animation sequentialAnimation = Animation.sequential()
+            .filterNonEmptySlots()
+            .build();
+        gui.playAnimation(sequentialAnimation);
+        
+        assertFalse(sequentialAnimation.isFinished());
+        server.getScheduler().performTicks(9);
+        assertTrue(sequentialAnimation.isFinished());
+    }
+    
+    @Test
+    public void testKeySlotFilter() {
+        Gui gui = Gui.normal()
+            .setStructure("a a b c b a a")
+            .addIngredient('a', ItemStack.of(Material.DIAMOND))
+            .addIngredient('b', ItemStack.of(Material.DIAMOND_BLOCK))
+            .addIngredient('c', ItemStack.of(Material.DIAMOND_ORE))
+            .build();
+        Animation sequentialAnimation = Animation.sequential()
+            .filterTaggedSlots('a', 'c')
+            .build();
+        gui.playAnimation(sequentialAnimation);
+        
+        boolean[][] visMatrix0 = createVisibilityMatrix("..x.x..");
+        assertVisibility(gui, visMatrix0);
+        
+        server.getScheduler().performTicks(4);
+        boolean[][] visMatrix4 = createVisibilityMatrix("xxxxxx.");
+        assertVisibility(gui, visMatrix4);
+        
+        server.getScheduler().performTicks(2);
+        boolean[][] visMatrix5 = createVisibilityMatrix("xxxxxxx");
+        assertVisibility(gui, visMatrix5);
+        assertTrue(sequentialAnimation.isFinished());
+    }
+    
+    @Test
     public void testShowHandler() {
         Set<Slot> slotsShown = new HashSet<>();
         
@@ -649,13 +694,10 @@ public class AnimationTest {
     }
     
     private boolean[][] createVisibilityMatrix(String... lines) {
-        boolean[][] matrix = new boolean[lines.length][WIDTH];
+        boolean[][] matrix = new boolean[lines.length][lines[0].length()];
         for (int y = 0; y < lines.length; y++) {
             String line = lines[y];
-            if (line.length() != WIDTH)
-                throw new IllegalArgumentException("Line length must be equal to width");
-            
-            for (int x = 0; x < WIDTH; x++) {
+            for (int x = 0; x < line.length(); x++) {
                 matrix[y][x] = line.charAt(x) == 'x';
             }
         }
