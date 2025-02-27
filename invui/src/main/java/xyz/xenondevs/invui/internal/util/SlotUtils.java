@@ -57,34 +57,20 @@ public class SlotUtils {
         return slots;
     }
     
-    public static int convertToIndex(Point2D point, int width) {
-        return convertToIndex(point.x(), point.y(), width);
-    }
-    
     public static int convertToIndex(int x, int y, int width) {
         return y * width + x;
     }
     
-    public static Point2D convertFromIndex(int index, int width) {
-        return new Point2D(index % width, index / width);
-    }
-    
-    public static int translatePlayerInvToGui(int slot) {
-        if (slot > 8) return slot - 9;
-        else return slot + 27;
-    }
-    
-    public static int translateGuiToPlayerInv(int slot) {
-        if (slot > 26) return slot - 27;
-        else return slot + 9;
+    public static Slot convertFromIndex(int index, int width) {
+        return new Slot(index % width, index / width);
     }
     
     public static int getLongestLineLength(int[] slots, int frameWidth) {
         int longestLength = 0;
         int currentLength = 1;
-        Point2D previous = null;
+        Slot previous = null;
         
-        for (Point2D point : Arrays.stream(slots)
+        for (Slot point : Arrays.stream(slots)
             .mapToObj(index -> convertFromIndex(index, frameWidth))
             .toList()) {
             if (previous != null) {
@@ -99,7 +85,7 @@ public class SlotUtils {
         return longestLength;
     }
     
-    public static boolean isNeighbor(Point2D point1, Point2D point2) {
+    public static boolean isNeighbor(Slot point1, Slot point2) {
         return Math.abs(point1.x() - point2.x()) + Math.abs(point1.y() - point2.y()) == 1;
     }
     
