@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.scheduler.BukkitTask;
 import org.jspecify.annotations.Nullable;
+import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.window.AbstractWindow;
 
@@ -39,7 +40,7 @@ class CustomItem extends AbstractItem {
     }
     
     @Override
-    public void addViewer(AbstractWindow who, int how) {
+    public void addViewer(AbstractWindow<?> who, int how) {
         super.addViewer(who, how);
         if (updatePeriod > 0 && updateTask == null) {
             updateTask = Bukkit.getScheduler().runTaskTimer(
@@ -52,7 +53,7 @@ class CustomItem extends AbstractItem {
     }
     
     @Override
-    public void removeViewer(AbstractWindow who, int how) {
+    public void removeViewer(AbstractWindow<?> who, int how) {
         super.removeViewer(who, how);
         if (updateTask != null && viewers.isEmpty()) {
             updateTask.cancel();

@@ -1,14 +1,16 @@
 package xyz.xenondevs.invui.inventory;
 
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
+import xyz.xenondevs.invui.Click;
+import xyz.xenondevs.invui.inventory.event.InventoryClickEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
 import xyz.xenondevs.invui.window.AbstractWindow;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -20,6 +22,7 @@ import java.util.function.IntPredicate;
 public final class ObscuredInventory extends Inventory {
     
     private final Inventory inventory;
+    private final BitSet mask;
     private final int[] slots;
     
     /**
@@ -31,12 +34,14 @@ public final class ObscuredInventory extends Inventory {
     public ObscuredInventory(Inventory inventory, IntPredicate isObscured) {
         super(calculateSize(inventory, isObscured));
         this.inventory = inventory;
+        this.mask = new BitSet(inventory.getSize());
         
         ArrayList<Integer> slots = new ArrayList<>();
         for (int slot = 0; slot < inventory.getSize(); slot++) {
             if (isObscured.test(slot))
                 continue;
             
+            mask.set(slot);
             slots.add(slot);
         }
         
@@ -50,6 +55,18 @@ public final class ObscuredInventory extends Inventory {
                 size++;
         }
         return size;
+    }
+    
+    @Override
+    public int[] getIterationOrder() {
+        int[] iterationOrder = new int[slots.length];
+        int i = 0;
+        for (int slot : inventory.getIterationOrder()) {
+            if (mask.get(slot)) {
+                iterationOrder[i++] = slot;
+            }
+        }
+        return iterationOrder;
     }
     
     @Override
@@ -115,18 +132,18 @@ public final class ObscuredInventory extends Inventory {
     }
     
     @Override
-    public void addViewer(AbstractWindow viewer, int what, int how) {
+    public void addViewer(AbstractWindow<?> viewer, int what, int how) {
         inventory.addViewer(viewer, what, how);
     }
     
     @Override
-    public void removeViewer(AbstractWindow viewer, int what, int how) {
+    public void removeViewer(AbstractWindow<?> viewer, int what, int how) {
         inventory.removeViewer(viewer, what, how);
     }
     
     @Override
-    public void callClickEvent(int slot, InventoryClickEvent event) {
-        inventory.callClickEvent(slots[slot], event);
+    public boolean callClickEvent(int slot, Click click) {
+        return inventory.callClickEvent(slots[slot], click);
     }
     
     @Override
@@ -150,27 +167,32 @@ public final class ObscuredInventory extends Inventory {
     }
     
     @Override
+    public void setIterationOrder(int[] iterationOrder) {
+        throw new UnsupportedOperationException("Iteration order needs to be set in the backing inventory");
+    }
+    
+    @Override
     public void setGuiPriority(int guiPriority) {
         throw new UnsupportedOperationException("Gui priority needs to be set in the backing inventory");
     }
     
     @Override
-    public List<BiConsumer<Integer, InventoryClickEvent>> getClickHandlers() {
+    public List<Consumer<InventoryClickEvent>> getClickHandlers() {
         throw new UnsupportedOperationException("Click handlers need to be set in the backing inventory");
     }
     
     @Override
-    public void setClickHandlers(List<BiConsumer<Integer, InventoryClickEvent>> clickHandlers) {
+    public void setClickHandlers(List<Consumer<InventoryClickEvent>> clickHandlers) {
         throw new UnsupportedOperationException("Click handlers need to be set in the backing inventory");
     }
     
     @Override
-    public void addClickHandler(BiConsumer<Integer, InventoryClickEvent> clickHandler) {
+    public void addClickHandler(Consumer<InventoryClickEvent> clickHandler) {
         throw new UnsupportedOperationException("Click handlers need to be set in the backing inventory");
     }
     
     @Override
-    public void removeClickHandler(BiConsumer<Integer, InventoryClickEvent> clickHandler) {
+    public void removeClickHandler(Consumer<InventoryClickEvent> clickHandler) {
         throw new UnsupportedOperationException("Click handlers need to be set in the backing inventory");
     }
     
@@ -211,18 +233,6 @@ public final class ObscuredInventory extends Inventory {
     
     @Override
     public void removePostUpdateHandler(Consumer<ItemPostUpdateEvent> postUpdateHandler) {
-        throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
-    }
-    
-    @SuppressWarnings("deprecation")
-    @Override
-    public void setPostUpdateHandler(@Nullable Consumer<ItemPostUpdateEvent> inventoryUpdatedHandler) {
-        throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
-    }
-    
-    @SuppressWarnings("deprecation")
-    @Override
-    public void setPreUpdateHandler(@Nullable Consumer<ItemPreUpdateEvent> preUpdateHandler) {
         throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
     }
     

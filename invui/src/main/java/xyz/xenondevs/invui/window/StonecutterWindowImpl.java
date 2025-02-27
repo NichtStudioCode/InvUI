@@ -1,20 +1,15 @@
 package xyz.xenondevs.invui.window;
 
 import net.kyori.adventure.text.Component;
-import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryAction;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
-import xyz.xenondevs.invui.internal.CustomStonecutterMenu;
-import xyz.xenondevs.invui.internal.util.InventoryUtils;
+import xyz.xenondevs.invui.internal.menu.CustomStonecutterMenu;
 import xyz.xenondevs.invui.internal.util.ItemUtils2;
-import xyz.xenondevs.invui.internal.util.Pair;
+import xyz.xenondevs.invui.Click;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -30,15 +25,14 @@ import java.util.function.Supplier;
  *     <li>[38, ?] -> buttons gui</li>
  * </ul>
  */
-final class StonecutterSplitWindowImpl extends AbstractSplitWindow implements StonecutterWindow {
+final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterMenu> implements StonecutterWindow {
     
     private final AbstractGui buttonsGui;
-    private final CustomStonecutterMenu menu;
     private final @Nullable ItemStack[] buttons;
     private boolean buttonsDirty = false;
     private List<BiConsumer<Integer, Integer>> selectedSlotChangeHandlers;
     
-    public StonecutterSplitWindowImpl(
+    public StonecutterWindowImpl(
         Player player,
         Supplier<Component> title,
         AbstractGui upperGui,
@@ -47,19 +41,19 @@ final class StonecutterSplitWindowImpl extends AbstractSplitWindow implements St
         List<BiConsumer<Integer, Integer>> selectedSlotChangeHandlers,
         boolean closable
     ) {
-        super(player, title, upperGui, lowerGui, upperGui.getSize() + lowerGui.getSize() + buttonsGui.getSize(), null, closable);
-        this.menu = new CustomStonecutterMenu(player, this::selectSlot);
-        this.upperInventory = menu.getBukkitView().getTopInventory();
-        this.buttonsGui = buttonsGui;
-        this.buttons = new ItemStack[buttonsGui.getSize()];
-        this.selectedSlotChangeHandlers = new ArrayList<>(selectedSlotChangeHandlers);
-        
+        super(player, title, upperGui, lowerGui, upperGui.getSize() + lowerGui.getSize() + buttonsGui.getSize(), new CustomStonecutterMenu(player), closable);
         if (upperGui.getWidth() != 2 || upperGui.getHeight() != 1)
             throw new IllegalArgumentException("Gui must of of dimensions 2x1.");
         if (lowerGui.getWidth() != 9 || lowerGui.getHeight() != 4)
             throw new IllegalArgumentException("Lower gui must of of dimensions 9x4.");
         if (buttonsGui.getWidth() != 4)
             throw new IllegalArgumentException("Buttons gui width must be 4.");
+        
+        this.buttonsGui = buttonsGui;
+        this.buttons = new ItemStack[buttonsGui.getSize()];
+        this.selectedSlotChangeHandlers = new ArrayList<>(selectedSlotChangeHandlers);
+        menu.setClickHandler(this::selectSlot);
+        initItems();
     }
     
     private void selectSlot(int prev, int slot) {
@@ -68,34 +62,9 @@ final class StonecutterSplitWindowImpl extends AbstractSplitWindow implements St
         }
         
         if (slot >= 0 && slot < buttonsGui.getSize()) {
-            var event = new InventoryClickEvent(
-                menu.getBukkitView(),
-                InventoryType.SlotType.CONTAINER,
-                slot,
-                ClickType.LEFT,
-                InventoryAction.UNKNOWN
-            )
-            {
-                
-                @Override
-                public @Nullable ItemStack getCurrentItem() {
-                    return buttons[slot];
-                }
-                
-                @Override
-                public void setCurrentItem(@Nullable ItemStack stack) {
-                    throw new UnsupportedOperationException();
-                }
-            };
-            
-            buttonsGui.handleClick(slot, getViewer(), event);
+            var click = new Click(getViewer(), ClickType.LEFT);
+            buttonsGui.handleClick(slot, click);
         }
-    }
-    
-    @Override
-    protected void handleClosed() {
-        super.handleClosed();
-        menu.unregisterRecipes();
     }
     
     @Override
@@ -118,35 +87,15 @@ final class StonecutterSplitWindowImpl extends AbstractSplitWindow implements St
     }
     
     @Override
-    protected void openInventory(Player viewer) {
-        InventoryUtils.openCustomInventory(viewer, menu, getTitle());
-    }
-    
-    @Override
-    protected void setInvItem(int slot, @Nullable ItemStack itemStack) {
-        // refer to slot layout above
-        if (slot >= 38 && slot < buttonsGui.getSize() + 38) {
+    protected void setMenuItem(int slot, @Nullable ItemStack itemStack) {
+        if (slot == 0) {
+            super.setMenuItem(0, ItemUtils2.nonEmpty(itemStack));
+        } else if (slot >= 38 && slot < buttonsGui.getSize() + 38) {
             buttons[slot - 38] = itemStack;
             buttonsDirty = true;
         } else {
-            super.setInvItem(slot, itemStack); // calls setUpperInvItem, setPlayerInvItem
+            super.setMenuItem(slot, itemStack);
         }
-    }
-    
-    @Override
-    protected void setUpperInvItem(int slot, ItemStack itemStack) {
-        if (slot == 0)
-            itemStack = ItemUtils2.nonEmpty(itemStack);
-        menu.setItem(slot, menu.incrementStateId(), CraftItemStack.asNMSCopy(itemStack));
-    }
-    
-    @Override
-    protected @Nullable Pair<AbstractGui, Integer> getGuiAt(int i) {
-        // refer to slot layout above
-        if (i >= 38 && i < buttonsGui.getSize() + 38)
-            return new Pair<>(buttonsGui, i - 38);
-        
-        return super.getGuiAt(i);
     }
     
     @Override
@@ -170,8 +119,8 @@ final class StonecutterSplitWindowImpl extends AbstractSplitWindow implements St
     }
     
     static final class BuilderImpl
-        extends AbstractSplitWindow.AbstractBuilder<StonecutterWindow, StonecutterWindow.Builder.Split>
-        implements StonecutterWindow.Builder.Split
+        extends AbstractSplitWindow.AbstractBuilder<StonecutterWindow, StonecutterWindow.Builder>
+        implements StonecutterWindow.Builder
     {
         
         private @Nullable Supplier<Gui> butonsGuiSupplier;
@@ -208,19 +157,15 @@ final class StonecutterSplitWindowImpl extends AbstractSplitWindow implements St
         }
         
         @Override
-        public StonecutterSplitWindowImpl build(Player viewer) {
-            if (upperGuiSupplier == null)
-                throw new IllegalStateException("Upper gui is not defined.");
-            if (lowerGuiSupplier == null)
-                throw new IllegalStateException("Lower gui is not defined.");
+        public StonecutterWindowImpl build(Player viewer) {
             if (butonsGuiSupplier == null)
                 throw new IllegalStateException("Buttons gui is not defined.");
             
-            return new StonecutterSplitWindowImpl(
+            return new StonecutterWindowImpl(
                 viewer,
                 titleSupplier,
-                (AbstractGui) upperGuiSupplier.get(),
-                (AbstractGui) lowerGuiSupplier.get(),
+                supplyUpperGui(),
+                supplyLowerGui(viewer),
                 (AbstractGui) butonsGuiSupplier.get(),
                 selectedSlotChangeHandlers,
                 closeable

@@ -121,12 +121,12 @@ fun <S : Window.Builder<*, *>, A, B, C, D, E, F, G, H, I, J> S.setTitle(
 
 @Suppress("UNCHECKED_CAST")
 @ExperimentalReactiveApi
-fun <S : AnvilWindow.Builder<*>> S.addRenameHandler(handler: MutableProvider<String>): S {
+fun <S : AnvilWindow.Builder> S.addRenameHandler(handler: MutableProvider<String>): S {
     return addRenameHandler(handler::set) as S
 }
 
 @ExperimentalReactiveApi
-fun <S : StonecutterWindow.Builder<*>> S.setSelectedSlot(provider: MutableProvider<Int>): S {
+fun <S : StonecutterWindow.Builder> S.setSelectedSlot(provider: MutableProvider<Int>): S {
     addModifier { window ->
         window.selectedSlot = provider.get()
         window.addSelectedSlotChangeHandler { _, to -> provider.set(to) }
@@ -136,7 +136,7 @@ fun <S : StonecutterWindow.Builder<*>> S.setSelectedSlot(provider: MutableProvid
 }
 
 @ExperimentalReactiveApi
-fun <S : StonecutterWindow.Builder<*>> S.setSelectedSlot(provider: Provider<Int>): S {
+fun <S : StonecutterWindow.Builder> S.setSelectedSlot(provider: Provider<Int>): S {
     addModifier { window ->
         window.selectedSlot = provider.get()
         provider.subscribeWeak(window) { weakWindow, slot -> weakWindow.selectedSlot = slot }

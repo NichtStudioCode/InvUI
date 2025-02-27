@@ -1,7 +1,6 @@
 package xyz.xenondevs.invui.inventory;
 
 import org.bukkit.Material;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
@@ -9,19 +8,21 @@ import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.ViewerAtSlot;
 import xyz.xenondevs.invui.internal.util.ArrayUtils;
+import xyz.xenondevs.invui.inventory.event.InventoryClickEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
+import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.util.ItemUtils;
 import xyz.xenondevs.invui.window.AbstractWindow;
 import xyz.xenondevs.invui.window.Window;
 
 import java.util.*;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.logging.Level;
+import java.util.stream.IntStream;
 
 /**
  * An inventory that can be embedded in InvUI's {@link Gui Guis}.
@@ -51,16 +52,18 @@ import java.util.logging.Level;
 public sealed abstract class Inventory permits VirtualInventory, CompositeInventory, ObscuredInventory, ReferencingInventory {
     
     protected int size;
-    protected @Nullable Set<ViewerAtSlot<AbstractWindow>>[] viewers;
-    private @Nullable List<BiConsumer<Integer, InventoryClickEvent>> clickHandlers;
+    protected @Nullable Set<ViewerAtSlot<AbstractWindow<?>>>[] viewers;
+    private @Nullable List<Consumer<InventoryClickEvent>> clickHandlers;
     private @Nullable List<Consumer<ItemPreUpdateEvent>> preUpdateHandlers;
     private @Nullable List<Consumer<ItemPostUpdateEvent>> postUpdateHandlers;
     private int guiPriority = 0;
+    private int[] iterationOrder;
     
     @SuppressWarnings("unchecked")
     public Inventory(int size) {
         this.size = size;
         viewers = new Set[size];
+        iterationOrder = IntStream.range(0, size).toArray();
     }
     
     /**
@@ -70,6 +73,45 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      */
     public int getSize() {
         return size;
+    }
+    
+    /**
+     * Sets the order in which slots are iterated over on methods that affect multiple slots,
+     * such as {@link #addItem(UpdateReason, ItemStack)} or {@link #collectSimilar(UpdateReason, ItemStack, int)}.
+     *
+     * @param iterationOrder The new iteration order. Must include all slots and no duplicates.
+     */
+    public void setIterationOrder(int[] iterationOrder) {
+        if (iterationOrder.length != size)
+            throw new IllegalArgumentException("Iteration order size must match inventory size");
+        
+        var includedSlots = new BitSet(size);
+        for (var slot : getIterationOrder()) {
+            includedSlots.set(slot);
+        }
+        
+        if (includedSlots.nextClearBit(0) != size)
+            throw new IllegalArgumentException("Iteration order must include all slots");
+        
+        this.iterationOrder = iterationOrder;
+    }
+    
+    /**
+     * Gets a copy of the order in which slots are iterated over on methods that affect multiple slots,
+     * such as {@link #addItem(UpdateReason, ItemStack)} or {@link #collectSimilar(UpdateReason, ItemStack, int)}.
+     *
+     * @return The current iteration order.
+     */
+    public int[] getIterationOrder() {
+        return iterationOrder.clone();
+    }
+    
+    /**
+     * Reverses the order in which slots are iterated over on methods that affect multiple slots,
+     * such as {@link #addItem(UpdateReason, ItemStack)} or {@link #collectSimilar(UpdateReason, ItemStack, int)}.
+     */
+    public void reverseIterationOrder() {
+        setIterationOrder(ArrayUtils.reversed(iterationOrder));
     }
     
     /**
@@ -153,7 +195,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      * @hidden
      */
     @ApiStatus.Internal
-    public void addViewer(AbstractWindow viewer, int what, int how) {
+    public void addViewer(AbstractWindow<?> viewer, int what, int how) {
         synchronized (viewers) {
             var viewerSet = viewers[what];
             if (viewerSet == null) {
@@ -169,7 +211,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      * @hidden
      */
     @ApiStatus.Internal
-    public void removeViewer(AbstractWindow viewer, int what, int how) {
+    public void removeViewer(AbstractWindow<?> viewer, int what, int how) {
         synchronized (viewers) {
             var viewerSet = viewers[what];
             if (viewerSet != null) {
@@ -237,7 +279,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      *
      * @return The click handlers
      */
-    public List<BiConsumer<Integer, InventoryClickEvent>> getClickHandlers() {
+    public List<Consumer<InventoryClickEvent>> getClickHandlers() {
         if (clickHandlers == null)
             return List.of();
         
@@ -245,24 +287,22 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
     }
     
     /**
-     * Sets the click handlers of this {@link Inventory}, which receive the
-     * slot of this {@link Inventory} and the {@link InventoryClickEvent}.
+     * Sets the click handlers of this {@link Inventory}.
      * Handlers may cancel the event. If it is, the click will not be processed further.
      *
      * @param clickHandlers The click handlers
      */
-    public void setClickHandlers(List<BiConsumer<Integer, InventoryClickEvent>> clickHandlers) {
+    public void setClickHandlers(List<Consumer<InventoryClickEvent>> clickHandlers) {
         this.clickHandlers = new ArrayList<>(clickHandlers);
     }
     
     /**
-     * Registers a click handler for this {@link Inventory}, which receives the
-     * slot of this {@link Inventory} and the {@link InventoryClickEvent}.
+     * Registers a click handler for this {@link Inventory}.
      * Handlers may cancel the event. If it is, the click will not be processed further.
      *
      * @param clickHandler The click handler
      */
-    public void addClickHandler(BiConsumer<Integer, InventoryClickEvent> clickHandler) {
+    public void addClickHandler(Consumer<InventoryClickEvent> clickHandler) {
         if (clickHandlers == null)
             clickHandlers = new ArrayList<>();
         
@@ -274,7 +314,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      *
      * @param clickHandler The click handler to remove
      */
-    public void removeClickHandler(BiConsumer<Integer, InventoryClickEvent> clickHandler) {
+    public void removeClickHandler(Consumer<InventoryClickEvent> clickHandler) {
         if (clickHandlers != null)
             clickHandlers.remove(clickHandler);
     }
@@ -366,71 +406,6 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
     }
     
     /**
-     * Gets the configured pre update handler.
-     *
-     * @return The pre update handler
-     * @deprecated Use {@link #getPreUpdateHandlers()} instead
-     */
-    public @Nullable Consumer<ItemPreUpdateEvent> getPreUpdateHandler() {
-        return preUpdateHandlers != null && !preUpdateHandlers.isEmpty() ? preUpdateHandlers.getFirst() : null;
-    }
-    
-    /**
-     * Sets a handler which is called every time something gets updated in the {@link Inventory}.
-     *
-     * @param preUpdateHandler The new item update handler
-     * @deprecated Use {@link #addPreUpdateHandler(Consumer)} instead
-     */
-    @Deprecated
-    public void setPreUpdateHandler(@Nullable Consumer<ItemPreUpdateEvent> preUpdateHandler) {
-        if (preUpdateHandler != null) {
-            if (preUpdateHandlers == null)
-                preUpdateHandlers = new ArrayList<>();
-            
-            if (preUpdateHandlers.isEmpty()) {
-                preUpdateHandlers.add(preUpdateHandler);
-            } else {
-                preUpdateHandlers.set(0, preUpdateHandler);
-            }
-        } else if (preUpdateHandlers != null && !preUpdateHandlers.isEmpty()) {
-            preUpdateHandlers.removeFirst();
-        }
-    }
-    
-    /**
-     * Gets the configured post update handler.
-     *
-     * @return The post update handler
-     * @deprecated Use {@link #getPostUpdateHandlers()} instead
-     */
-    @Deprecated
-    public @Nullable Consumer<ItemPostUpdateEvent> getPostUpdateHandler() {
-        return postUpdateHandlers != null && !postUpdateHandlers.isEmpty() ? postUpdateHandlers.getFirst() : null;
-    }
-    
-    /**
-     * Sets a handler which is called every time after something has been updated in the {@link Inventory}.
-     *
-     * @param inventoryUpdatedHandler The new handler
-     * @deprecated Use {@link #addPostUpdateHandler(Consumer)} instead
-     */
-    @Deprecated
-    public void setPostUpdateHandler(@Nullable Consumer<ItemPostUpdateEvent> inventoryUpdatedHandler) {
-        if (inventoryUpdatedHandler != null) {
-            if (postUpdateHandlers == null)
-                postUpdateHandlers = new ArrayList<>();
-            
-            if (postUpdateHandlers.isEmpty()) {
-                postUpdateHandlers.add(inventoryUpdatedHandler);
-            } else {
-                postUpdateHandlers.set(0, inventoryUpdatedHandler);
-            }
-        } else if (postUpdateHandlers != null && !postUpdateHandlers.isEmpty()) {
-            postUpdateHandlers.removeFirst();
-        }
-    }
-    
-    /**
      * Whether this {@link Inventory} has any event handlers.
      *
      * @return `true` if this {@link Inventory} has pre- or post-update handlers.
@@ -451,19 +426,23 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
     }
     
     /**
-     * Calls the click handlers of this {@link Inventory} for the given slot and {@link InventoryClickEvent}.
+     * Calls the click handlers of this {@link Inventory} for the given slot and {@link Click}.
      *
      * @param slot  The slot of this {@link Inventory} that was clicked.
-     * @param event The {@link InventoryClickEvent} that occurred.
+     * @param click The {@link Click} that occurred.
+     * @return Whether the click event was cancelled.
      */
-    public void callClickEvent(int slot, InventoryClickEvent event) {
+    public boolean callClickEvent(int slot, Click click) {
+        var clickEvent = new InventoryClickEvent(this, slot, click);
         for (var handler : getClickHandlers()) {
             try {
-                handler.accept(slot, event);
+                handler.accept(clickEvent);
             } catch (Throwable t) {
                 InvUI.getInstance().getLogger().log(Level.SEVERE, "An exception occurred while handling an inventory event", t);
             }
         }
+        
+        return clickEvent.isCancelled();
     }
     
     /**
@@ -617,19 +596,6 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
     }
     
     /**
-     * Checks if the {@link ItemStack} on that slot is the same
-     * as the assumed {@link ItemStack} provided as parameter.
-     *
-     * @param slot         The slot
-     * @param assumedStack The assumed {@link ItemStack}
-     * @return If the {@link ItemStack} on that slot is the same as the assumed {@link ItemStack}
-     */
-    public boolean isSynced(int slot, @Nullable ItemStack assumedStack) {
-        ItemStack actualStack = getUnsafeItem(slot);
-        return Objects.equals(actualStack, assumedStack);
-    }
-    
-    /**
      * Checks if all slots have an {@link ItemStack} with their max stack size on them.
      *
      * @return Whether this {@link Inventory} is full.
@@ -764,7 +730,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      * @param slot      The slot
      * @param itemStack The {@link ItemStack} to set.
      */
-    public void setItemSilently(int slot, @Nullable ItemStack itemStack) {
+    private void setItemSilently(int slot, @Nullable ItemStack itemStack) {
         if (ItemUtils.isEmpty(itemStack))
             itemStack = null;
         
@@ -773,10 +739,8 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
     }
     
     /**
-     * Changes the {@link ItemStack} on a specific slot to that one, regardless of what was
-     * previously on that slot.
-     * <br>
-     * This method ignores the maximum allowed stack size of both the {@link Material} and the slot.
+     * Changes the {@link ItemStack} on a specific slot to that one, regardless of what was previously on that slot and
+     * ignoring the maximum allowed stack size of both the slot and the {@link ItemStack} on it.
      *
      * @param updateReason The reason used in the {@link ItemPreUpdateEvent} and {@link ItemPostUpdateEvent}.
      * @param slot         The slot
@@ -801,11 +765,10 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
     }
     
     /**
-     * Changes the {@link ItemStack} on a specific slot to the given one, regardless of what previously was on
-     * that slot.
+     * Changes the {@link ItemStack} on a specific slot to that one, regardless of what previously was on that slot.
      * <br>
-     * This method will fail if the given {@link ItemStack} does not completely fit because of the
-     * maximum allowed stack size.
+     * This method will fail if the given {@link ItemStack} does not completely fit because of the maximum allowed
+     * stack size of either the slot or the {@link ItemStack} on it.
      *
      * @param updateReason The reason used in the {@link ItemPreUpdateEvent} and {@link ItemPostUpdateEvent}.
      * @param slot         The slot
@@ -1002,7 +965,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
         int amountLeft,
         @Nullable ItemStack[] items
     ) {
-        for (int slot = 0; slot < items.length; slot++) {
+        for (int slot : getIterationOrder()) {
             if (amountLeft <= 0)
                 break;
             
@@ -1045,7 +1008,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
         int amountLeft,
         @Nullable ItemStack[] items
     ) {
-        for (int slot = 0; slot < items.length; slot++) {
+        for (int slot : getIterationOrder()) {
             if (amountLeft <= 0)
                 break;
             
@@ -1163,7 +1126,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
         int amountLeft = itemStack.getAmount();
         
         // find all slots where the item partially fits
-        for (int slot = 0; slot < items.length; slot++) {
+        for (int slot : getIterationOrder()) {
             if (amountLeft == 0)
                 break;
             
@@ -1180,7 +1143,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
         }
         
         // remaining items would be added to empty slots
-        for (int slot = 0; slot < items.length; slot++) {
+        for (int slot : getIterationOrder()) {
             if (amountLeft == 0)
                 break;
             
@@ -1205,8 +1168,8 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
     public int[] simulateMultiAdd(List<ItemStack> itemStacks) {
         Inventory copy = new VirtualInventory(null, getSize(), getItems(), getMaxStackSizes().clone());
         int[] result = new int[itemStacks.size()];
-        for (int index = 0; index != itemStacks.size(); index++) {
-            result[index] = copy.addItem(UpdateReason.SUPPRESSED, itemStacks.get(index));
+        for (int slot : getIterationOrder()) {
+            result[slot] = copy.addItem(UpdateReason.SUPPRESSED, itemStacks.get(slot));
         }
         
         return result;
@@ -1242,7 +1205,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
             @Nullable ItemStack[] items = getUnsafeItems();
             
             // find partial slots and take items from there
-            for (int slot = 0; slot < items.length; slot++) {
+            for (int slot : getIterationOrder()) {
                 ItemStack currentStack = items[slot];
                 if (currentStack == null || currentStack.getAmount() >= maxStackSize || !template.isSimilar(currentStack))
                     continue;
@@ -1253,7 +1216,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
             }
             
             // only taking from partial stacks wasn't enough, take from a full slot
-            for (int slot = 0; slot < items.length; slot++) {
+            for (int slot : getIterationOrder()) {
                 ItemStack currentStack = items[slot];
                 if (currentStack == null || currentStack.getAmount() < maxStackSize || !template.isSimilar(currentStack))
                     continue;
@@ -1278,7 +1241,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
         @Nullable ItemStack[] items = getUnsafeItems();
         
         int removed = 0;
-        for (int slot = 0; slot < items.length; slot++) {
+        for (int slot : getIterationOrder()) {
             ItemStack item = items[slot];
             if (item != null && predicate.test(item.clone()) && setItem(updateReason, slot, null)) {
                 removed += item.getAmount();
@@ -1300,7 +1263,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
         @Nullable ItemStack[] items = getUnsafeItems();
         
         int leftOver = amount;
-        for (int slot = 0; slot < items.length; slot++) {
+        for (int slot : getIterationOrder()) {
             ItemStack item = items[slot];
             if (item != null && predicate.test(item.clone())) {
                 leftOver -= takeFrom(updateReason, slot, leftOver);
@@ -1322,7 +1285,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
         @Nullable ItemStack[] items = getUnsafeItems();
         
         int removed = 0;
-        for (int slot = 0; slot < items.length; slot++) {
+        for (int slot : getIterationOrder()) {
             ItemStack item = items[slot];
             if (item != null && item.isSimilar(itemStack) && setItem(updateReason, slot, null)) {
                 removed += item.getAmount();
@@ -1344,7 +1307,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
         @Nullable ItemStack[] items = getUnsafeItems();
         
         int leftOver = amount;
-        for (int slot = 0; slot < items.length; slot++) {
+        for (int slot : getIterationOrder()) {
             ItemStack item = items[slot];
             if (item != null && item.isSimilar(itemStack)) {
                 leftOver -= takeFrom(updateReason, slot, leftOver);

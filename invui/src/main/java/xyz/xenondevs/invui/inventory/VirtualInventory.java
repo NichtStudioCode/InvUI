@@ -1,7 +1,5 @@
 package xyz.xenondevs.invui.inventory;
 
-import net.minecraft.nbt.NbtIo;
-import org.bukkit.Material;
 import org.bukkit.craftbukkit.util.CraftMagicNumbers;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
@@ -191,7 +189,7 @@ public final class VirtualInventory extends Inventory {
             @Nullable ItemStack[] items;
             
             byte id = din.readByte(); // id, pre v1.0: 3, v1.0: 4, v2.0: 5
-            switch(id) {
+            switch (id) {
                 case 3, 4 -> {
                     if (id == 3) {
                         // stack sizes are no longer serialized

@@ -1,12 +1,14 @@
 package xyz.xenondevs.invui.inventory;
 
+import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.scheduler.BukkitTask;
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.invui.gui.Gui;
+import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.util.TriConsumer;
-import xyz.xenondevs.invui.window.Window;
+import xyz.xenondevs.invui.window.AbstractWindow;
 
 import java.util.Arrays;
 import java.util.function.BiFunction;
@@ -17,11 +19,6 @@ import java.util.function.Function;
  * <p>
  * Changes in this inventory are applied in the referenced inventory and changes in the bukkit inventory are visible
  * in this inventory.
- * <p>
- * Changes done using the methods provided by {@link xyz.xenondevs.invui.inventory.Inventory} will cause displaying
- * {@link Window Windows} to be {@link xyz.xenondevs.invui.inventory.Inventory#notifyWindows() notified}, but changes
- * done directly in the bukkit inventory will not. Therefore, if embedded in a {@link Gui}, it is necessary to call
- * {@link xyz.xenondevs.invui.inventory.Inventory#notifyWindows()} manually in order for changes to be displayed.
  */
 public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.Inventory {
     
@@ -32,6 +29,8 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
     protected final BiFunction<Inventory, Integer, @Nullable ItemStack> itemGetter;
     protected final TriConsumer<Inventory, Integer, @Nullable ItemStack> itemSetter;
     protected final int[] maxStackSizes;
+    
+    private @Nullable BukkitTask updateTask;
     
     /**
      * Constructs a new {@link ReferencingInventory}.
@@ -74,6 +73,17 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
      */
     public static ReferencingInventory fromContents(Inventory inventory) {
         return new ReferencingInventory(inventory, Inventory::getContents, Inventory::getItem, Inventory::setItem);
+    }
+    
+    /**
+     * Creates a new {@link ReferencingInventory} with a view of the {@link PlayerInventory PlayerInventory's}
+     * {@link Inventory#getStorageContents() storage contents}, where the hotbar slots are the last nine slots.
+     *
+     * @param inventory The {@link PlayerInventory} to reference.
+     * @return The new {@link ReferencingInventory}.
+     */
+    public static ReferencingInventory fromPlayerStorageContents(PlayerInventory inventory) {
+        return new PlayerStorageContents(inventory);
     }
     
     /**
@@ -128,6 +138,31 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
         itemSetter.accept(inventory, slot, itemStack);
     }
     
+    // TODO: make this work with delegating inventories
+    @Override
+    public void addViewer(AbstractWindow<?> viewer, int what, int how) {
+        super.addViewer(viewer, what, how);
+        if (updateTask == null) {
+            updateTask = Bukkit.getScheduler().runTaskTimer(
+                InvUI.getInstance().getPlugin(),
+                () -> notifyWindows(),
+                0, 1
+            );
+        }
+    }
+    
+    // TODO: make this work with delegating inventories
+    @Override
+    public void removeViewer(AbstractWindow<?> viewer, int what, int how) {
+        super.removeViewer(viewer, what, how);
+        if (updateTask != null
+            && Arrays.stream(viewers).allMatch(s -> s == null || s.isEmpty())
+        ) {
+            updateTask.cancel();
+            updateTask = null;
+        }
+    }
+    
     private static final class ReversedPlayerContents extends ReferencingInventory {
         
         public ReversedPlayerContents(PlayerInventory inventory) {
@@ -166,6 +201,54 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
             for (int i = 9; i < 36; i++) {
                 reorderedItems[44 - i] = items[i];
             }
+            
+            return reorderedItems;
+        }
+        
+        @Override
+        protected void setCloneBackingItem(int slot, @Nullable ItemStack itemStack) {
+            super.setCloneBackingItem(convertSlot(slot), itemStack);
+        }
+        
+        @Override
+        protected void setDirectBackingItem(int slot, @Nullable ItemStack itemStack) {
+            super.setDirectBackingItem(convertSlot(slot), itemStack);
+        }
+        
+    }
+    
+    private static final class PlayerStorageContents extends ReferencingInventory {
+        
+        public PlayerStorageContents(PlayerInventory inventory) {
+            super(inventory, Inventory::getStorageContents, Inventory::getItem, Inventory::setItem);
+        }
+        
+        private int convertSlot(int invUiSlot) {
+            return (invUiSlot + 9) % 36;
+        }
+        
+        @Override
+        public @Nullable ItemStack getItem(int slot) {
+            return super.getItem(convertSlot(slot));
+        }
+        
+        @Override
+        public @Nullable ItemStack getUnsafeItem(int slot) {
+            return super.getUnsafeItem(convertSlot(slot));
+        }
+        
+        @Override
+        public @Nullable ItemStack[] getUnsafeItems() {
+            return getItems();
+        }
+        
+        @Override
+        public @Nullable ItemStack[] getItems() {
+            @Nullable ItemStack[] items = itemsGetter.apply(inventory);
+            @Nullable ItemStack[] reorderedItems = new ItemStack[items.length];
+            
+            System.arraycopy(items, 0, reorderedItems, 27, 9);
+            System.arraycopy(items, 9, reorderedItems, 0, 27);
             
             return reorderedItems;
         }

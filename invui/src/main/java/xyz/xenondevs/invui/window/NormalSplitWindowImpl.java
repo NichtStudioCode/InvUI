@@ -3,11 +3,11 @@ package xyz.xenondevs.invui.window;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import xyz.xenondevs.invui.gui.AbstractGui;
-import xyz.xenondevs.invui.internal.util.InventoryUtils;
+import xyz.xenondevs.invui.internal.menu.CustomPlainMenu;
 
 import java.util.function.Supplier;
 
-final class NormalSplitWindowImpl extends AbstractSplitWindow {
+final class NormalSplitWindowImpl extends AbstractSplitWindow<CustomPlainMenu> {
     
     public NormalSplitWindowImpl(
         Player player,
@@ -16,7 +16,8 @@ final class NormalSplitWindowImpl extends AbstractSplitWindow {
         AbstractGui lowerGui,
         boolean closeable
     ) {
-        super(player, title, upperGui, lowerGui, InventoryUtils.createMatchingInventory(upperGui), closeable);
+        super(player, title, upperGui, lowerGui, new CustomPlainMenu(upperGui.getWidth(), upperGui.getHeight(), player), closeable);
+        initItems();
     }
     
     public static final class BuilderImpl
@@ -26,16 +27,11 @@ final class NormalSplitWindowImpl extends AbstractSplitWindow {
         
         @Override
         public Window build(Player viewer) {
-            if (upperGuiSupplier == null)
-                throw new IllegalStateException("Upper Gui is not defined.");
-            if (lowerGuiSupplier == null)
-                throw new IllegalStateException("Lower Gui is not defined.");
-            
             var window = new NormalSplitWindowImpl(
                 viewer,
                 titleSupplier,
-                (AbstractGui) upperGuiSupplier.get(),
-                (AbstractGui) lowerGuiSupplier.get(),
+                supplyUpperGui(),
+                supplyLowerGui(viewer),
                 closeable
             );
             

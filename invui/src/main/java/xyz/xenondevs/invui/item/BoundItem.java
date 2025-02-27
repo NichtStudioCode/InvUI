@@ -1,6 +1,7 @@
 package xyz.xenondevs.invui.item;
 
 import org.bukkit.entity.Player;
+import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.PagedGui;
 import xyz.xenondevs.invui.gui.ScrollGui;

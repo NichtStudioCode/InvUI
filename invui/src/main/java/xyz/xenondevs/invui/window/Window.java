@@ -2,47 +2,19 @@ package xyz.xenondevs.invui.window;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
+import xyz.xenondevs.invui.ClickEvent;
 import xyz.xenondevs.invui.gui.Gui;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
  * A Window is the way to show a player a {@link Gui}. Windows can only have one viewer.
- * To create a new {@link Window}, use the builder factory methods {@link Window#single},
- * {@link Window#split} and {@link Window#merged}.
- *
- * @see AnvilWindow
- * @see CartographyWindow
+ * To create a new {@link Window}, use the builder factory methods {@link Window#split} and {@link Window#merged}.
  */
 public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyWindow, StonecutterWindow {
-    
-    /**
-     * Creates a new {@link Builder.Normal.Single Window Builder} for a normal single window.
-     *
-     * @return The new {@link Builder.Normal.Single Window Builder}.
-     */
-    static Builder.Normal.Single single() {
-        return new NormalSingleWindowImpl.BuilderImpl();
-    }
-    
-    /**
-     * Creates a new normal single {@link Window} after configuring a {@link Builder.Normal.Split Window Builder} with the given {@link Consumer}.
-     *
-     * @param consumer The {@link Consumer} to configure the {@link Builder.Normal.Split Window Builder}.
-     * @return The new {@link Window}.
-     */
-    static Window single(Consumer<Builder.Normal.Single> consumer) {
-        Builder.Normal.Single builder = single();
-        consumer.accept(builder);
-        return builder.build();
-    }
     
     /**
      * Creates a new {@link Builder.Normal.Split Window Builder} for a normal split window.
@@ -87,21 +59,13 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
     }
     
     /**
-     * Gets whether this {@link Window} is a double window, i.e. whether it uses the player inventory,
-     * such as those created via {@link #split()} or {@link #merged()}.
-     *
-     * @return If this {@link Window} is a double window.
-     */
-    boolean isDouble();
-    
-    /**
      * Gets an unmodifiable list of all {@link Gui Guis} in this {@link Window},
      * not including {@link Gui Guis} that are nested in other {@link Gui Guis}.
      * <p>
      * The list has the following order:
      * <ol>
      *     <li>upper {@link Gui}</li>
-     *     <li>lower {@link Gui} (if present)</li>
+     *     <li>lower {@link Gui}</li>
      *     <li>special {@link Gui Gui(s)} (if present, such as the buttons gui in {@link StonecutterWindow}</li>
      * </ol>
      *
@@ -111,25 +75,29 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
     
     /**
      * Shows the window to the player.
+     *
+     * @throws IllegalStateException If the window is already open.
      */
     void open();
     
     /**
-     * Gets if the player is able to close the {@link Inventory}.
+     * Whether the player is able to close the {@link Window}.
      *
-     * @return If the player is able to close the {@link Inventory}.
+     * @return If the player is able to close the {@link Window}.
      */
     boolean isCloseable();
     
     /**
-     * Sets if the player should be able to close the {@link Inventory}.
+     * Sets whether the {@link Window} is closable by the viewer.
+     * Plugins can always close inventories.
      *
-     * @param closeable If the player should be able to close the {@link Inventory}.
+     * @param closeable If the {@link Window} is closeable.
      */
     void setCloseable(boolean closeable);
     
     /**
-     * Closes the underlying {@link Inventory} for its viewer.
+     * Closes the {@link Window} for the {@link #getViewer() viewer}, if they are
+     * {@link #isOpen() currently viewing} the {@link Window}.
      */
     void close();
     
@@ -141,7 +109,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
     boolean isOpen();
     
     /**
-     * Sets the {@link Supplier} used to retrieve the title of the {@link Inventory}.
+     * Sets the {@link Supplier} used to retrieve the title of the {@link Window}.
      * Refreshes can be triggered via {@link #updateTitle()}.
      *
      * @param titleSupplier The new title supplier
@@ -149,14 +117,14 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
     void setTitleSupplier(Supplier<Component> titleSupplier);
     
     /**
-     * Changes the title of the {@link Inventory}.
+     * Changes the title of the {@link Window}.
      *
      * @param title The new title
      */
     void setTitle(Component title);
     
     /**
-     * Changes the title of the {@link Inventory}.
+     * Changes the title of the {@link Window}.
      *
      * @param title The new title
      */
@@ -173,33 +141,6 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
      * @return The viewer of this window.
      */
     Player getViewer();
-    
-    /**
-     * Gets the current {@link Player} that is viewing this
-     * {@link Window} or null of there isn't one.
-     *
-     * @return The current viewer of this {@link Window} (can be null)
-     */
-    @Nullable
-    Player getCurrentViewer();
-    
-    /**
-     * Gets the viewer's {@link UUID}
-     *
-     * @return The viewer's {@link UUID}
-     */
-    UUID getViewerUUID();
-    
-    /**
-     * Gets the contents of the {@link Window#getCurrentViewer() viewer's} inventory.
-     * This method will always return the actual inventory contents and will not be affected by double windows placing
-     * gui items in the {@link Player Player's} inventory.
-     *
-     * @return The contents of the {@link Window#getCurrentViewer() viewer's} inventory,
-     * or null if the {@link Window} {@link Window#isOpen() isn't open}.
-     */
-    @Nullable
-    ItemStack @Nullable [] getPlayerItems();
     
     /**
      * Replaces the currently registered open handlers with the given list.
@@ -241,21 +182,21 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
      *
      * @param outsideClickHandlers The new outside click handlers
      */
-    void setOutsideClickHandlers(@Nullable List<Consumer<InventoryClickEvent>> outsideClickHandlers);
+    void setOutsideClickHandlers(@Nullable List<Consumer<ClickEvent>> outsideClickHandlers);
     
     /**
      * Adds an outside click handler that will be called when a player clicks outside the inventory.
      *
      * @param outsideClickHandler The outside click handler to add
      */
-    void addOutsideClickHandler(Consumer<InventoryClickEvent> outsideClickHandler);
+    void addOutsideClickHandler(Consumer<ClickEvent> outsideClickHandler);
     
     /**
      * Removes an outside click handler that has been added previously.
      *
      * @param outsideClickHandler The outside click handler to remove
      */
-    void removeOutsideClickHandler(Consumer<InventoryClickEvent> outsideClickHandler);
+    void removeOutsideClickHandler(Consumer<ClickEvent> outsideClickHandler);
     
     /**
      * A {@link Window} builder.
@@ -265,7 +206,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
      */
     sealed interface Builder<W extends Window, S extends Builder<W, S>>
         extends Cloneable
-        permits AbstractWindow.AbstractBuilder, AnvilWindow.Builder, CartographyWindow.Builder, StonecutterWindow.Builder, Builder.Double, Builder.Normal, Builder.Single
+        permits AbstractWindow.AbstractBuilder, Builder.Split, Builder.Normal, Builder.Merged
     {
         
         /**
@@ -277,7 +218,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
         S setViewer(Player viewer);
         
         /**
-         * Sets the {@link Supplier} used to retrieve the title of the {@link Inventory}.
+         * Sets the {@link Supplier} used to retrieve the title of the {@link Window}.
          * Refreshes can be triggered via {@link #updateTitle()}.
          *
          * @param title The title supplier
@@ -302,7 +243,8 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
         S setTitle(String title);
         
         /**
-         * Configures if the {@link Window} is closeable.
+         * Configures whether the {@link Window} is closable by the viewer.
+         * Plugins can always close inventories.
          *
          * @param closeable If the {@link Window} is closeable
          * @return This {@link Builder Window Builder}
@@ -347,7 +289,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
          * @param outsideClickHandlers The outside click handlers of the {@link Window}
          * @return This {@link Builder Window Builder}
          */
-        S setOutsideClickHandlers(List<Consumer<InventoryClickEvent>> outsideClickHandlers);
+        S setOutsideClickHandlers(List<Consumer<ClickEvent>> outsideClickHandlers);
         
         /**
          * Adds an outside click handler to the {@link Window}.
@@ -355,7 +297,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
          * @param outsideClickHandler The outside click handler to add
          * @return This {@link Builder Window Builder}
          */
-        S addOutsideClickHandler(Consumer<InventoryClickEvent> outsideClickHandler);
+        S addOutsideClickHandler(Consumer<ClickEvent> outsideClickHandler);
         
         /**
          * Sets the modifiers of the {@link Window}.
@@ -409,39 +351,35 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
          *
          * @param <W> The window type
          * @param <S> The builder type
-         * @see Window.Builder.Normal.Single
-         * @see Window.Builder.Normal.Merged
-         * @see AnvilWindow.Builder.Single
-         * @see CartographyWindow.Builder.Single
          */
-        sealed interface Single<W extends Window, S extends Single<W, S>>
+        sealed interface Merged<W extends Window, S extends Merged<W, S>>
             extends Builder<W, S>
-            permits AbstractSingleWindow.AbstractBuilder, AnvilWindow.Builder.Single, CartographyWindow.Builder.Single, StonecutterWindow.Builder.Single, Normal.Merged, Normal.Single
+            permits AbstractMergedWindow.AbstractBuilder, Normal.Merged
         {
             
             /**
              * Sets the {@link Gui} of the {@link Window}.
              *
              * @param gui The {@link Gui} of the {@link Window}
-             * @return This {@link Single Window Builder}
+             * @return This {@link Merged Window Builder}
              */
             S setGui(Gui gui);
             
             /**
-             * Sets the {@link Gui.Builder} for this {@link Single Window Builder}.
+             * Sets the {@link Gui.Builder} for this {@link Merged Window Builder}.
              * The {@link Gui.Builder} will be called every time a new {@link Window} is created using this builder.
              *
-             * @param builder The {@link Gui.Builder} for this {@link Single Window Builder}
-             * @return This {@link Single Window Builder}
+             * @param builder The {@link Gui.Builder} for this {@link Merged Window Builder}
+             * @return This {@link Merged Window Builder}
              */
             S setGui(Gui.Builder<?, ?> builder);
             
             /**
-             * Sets the {@link Gui} {@link Supplier} for this {@link Single Window Builder}.
+             * Sets the {@link Gui} {@link Supplier} for this {@link Merged Window Builder}.
              * The {@link Supplier} will be called every time a new {@link Window} is created using this builder.
              *
              * @param guiSupplier The {@link Gui} {@link Supplier}
-             * @return This {@link Single Window Builder}
+             * @return This {@link Merged Window Builder}
              */
             S setGui(Supplier<Gui> guiSupplier);
             
@@ -452,38 +390,35 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
          *
          * @param <W> The window type
          * @param <S> The builder type
-         * @see Window.Builder.Normal.Split
-         * @see AnvilWindow.Builder.Split
-         * @see CartographyWindow.Builder.Split
          */
-        sealed interface Double<W extends Window, S extends Builder.Double<W, S>>
+        sealed interface Split<W extends Window, S extends Split<W, S>>
             extends Builder<W, S>
-            permits AbstractSplitWindow.AbstractBuilder, AnvilWindow.Builder.Split, CartographyWindow.Builder.Split, StonecutterWindow.Builder.Split, Normal.Split
+            permits AbstractSplitWindow.AbstractBuilder, AnvilWindow.Builder, CartographyWindow.Builder, StonecutterWindow.Builder, Normal.Split
         {
             
             /**
              * Sets the upper {@link Gui} of the {@link Window}.
              *
              * @param gui The upper {@link Gui} of the {@link Window}
-             * @return This {@link Double Window Builder}
+             * @return This {@link Split Window Builder}
              */
             S setUpperGui(Gui gui);
             
             /**
-             * Sets the {@link Gui.Builder} for the upper {@link Gui} of this {@link Double Window Builder}.
+             * Sets the {@link Gui.Builder} for the upper {@link Gui} of this {@link Split Window Builder}.
              * The {@link Gui.Builder} will be called every time a new {@link Window} is created using this builder.
              *
-             * @param builder The {@link Gui.Builder} for the upper {@link Gui} of this {@link Double Window Builder}
-             * @return This {@link Double Window Builder}
+             * @param builder The {@link Gui.Builder} for the upper {@link Gui} of this {@link Split Window Builder}
+             * @return This {@link Split Window Builder}
              */
             S setUpperGui(Gui.Builder<?, ?> builder);
             
             /**
-             * Sets the {@link Gui} {@link Supplier} for the upper {@link Gui} of this {@link Double Window Builder}.
+             * Sets the {@link Gui} {@link Supplier} for the upper {@link Gui} of this {@link Split Window Builder}.
              * The {@link Supplier} will be called every time a new {@link Window} is created using this builder.
              *
-             * @param guiSupplier The {@link Gui} {@link Supplier} for the upper {@link Gui} of this {@link Double Window Builder}
-             * @return This {@link Double Window Builder}
+             * @param guiSupplier The {@link Gui} {@link Supplier} for the upper {@link Gui} of this {@link Split Window Builder}
+             * @return This {@link Split Window Builder}
              */
             S setUpperGui(Supplier<Gui> guiSupplier);
             
@@ -491,25 +426,25 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
              * Sets the lower {@link Gui} of the {@link Window}.
              *
              * @param gui The lower {@link Gui} of the {@link Window}
-             * @return This {@link Double Window Builder}
+             * @return This {@link Split Window Builder}
              */
             S setLowerGui(Gui gui);
             
             /**
-             * Sets the {@link Gui.Builder} for the lower {@link Gui} of this {@link Double Window Builder}.
+             * Sets the {@link Gui.Builder} for the lower {@link Gui} of this {@link Split Window Builder}.
              * The {@link Gui.Builder} will be called every time a new {@link Window} is created using this builder.
              *
-             * @param builder The {@link Gui.Builder} for the lower {@link Gui} of this {@link Double Window Builder}
-             * @return This {@link Double Window Builder}
+             * @param builder The {@link Gui.Builder} for the lower {@link Gui} of this {@link Split Window Builder}
+             * @return This {@link Split Window Builder}
              */
             S setLowerGui(Gui.Builder<?, ?> builder);
             
             /**
-             * Sets the {@link Gui} {@link Supplier} for the lower {@link Gui} of this {@link Double Window Builder}.
+             * Sets the {@link Gui} {@link Supplier} for the lower {@link Gui} of this {@link Split Window Builder}.
              * The {@link Supplier} will be called every time a new {@link Window} is created using this builder.
              *
-             * @param guiSupplier The {@link Gui} {@link Supplier} for the lower {@link Gui} of this {@link Double Window Builder}
-             * @return This {@link Double Window Builder}
+             * @param guiSupplier The {@link Gui} {@link Supplier} for the lower {@link Gui} of this {@link Split Window Builder}
+             * @return This {@link Split Window Builder}
              */
             S setLowerGui(Supplier<Gui> guiSupplier);
             
@@ -521,38 +456,26 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
          *
          * @param <V> The viewer type
          * @param <S> The builder type
-         * @see AnvilWindow.Builder
-         * @see CartographyWindow.Builder
          */
         sealed interface Normal<V, S extends Normal<V, S>> extends Builder<Window, S> {
             
             /**
-             * A normal single {@link Window} builder. Combines both {@link Builder.Single} and {@link Builder.Normal}
-             * for a normal {@link Window} with only one {@link Gui} that does not access the {@link Player Player's} inventory.
-             *
-             * @see AnvilWindow.Builder.Single
-             * @see CartographyWindow.Builder.Single
-             */
-            sealed interface Single extends Builder.Normal<UUID, Single>, Builder.Single<Window, Single>
-                permits NormalSingleWindowImpl.BuilderImpl {}
-            
-            /**
-             * A normal split {@link Window} builder. Combines both {@link Builder.Double} and {@link Builder.Normal}
+             * A normal split {@link Window} builder. Combines both {@link Builder.Split} and {@link Builder.Normal}
              * for a normal {@link Window} with two {@link Gui Guis}, where the lower {@link Gui} is used to fill the
              * {@link Player Player's} inventory.
              *
              * @see AnvilWindow.Builder.Split
              * @see CartographyWindow.Builder.Split
              */
-            sealed interface Split extends Builder.Normal<Player, Split>, Builder.Double<Window, Split>
+            sealed interface Split extends Builder.Normal<Player, Split>, Builder.Split<Window, Split>
                 permits NormalSplitWindowImpl.BuilderImpl {}
             
             /**
-             * A normal merged {@link Window} builder. Combines both {@link Builder.Single} and {@link Builder.Normal}
+             * A normal merged {@link Window} builder. Combines both {@link Builder.Merged} and {@link Builder.Normal}
              * for a normal {@link Window} with one {@link Gui}, which fills both the upper inventory and the
              * {@link Player Player's} inventory.
              */
-            sealed interface Merged extends Builder.Normal<Player, Merged>, Builder.Single<Window, Merged>
+            sealed interface Merged extends Builder.Normal<Player, Merged>, Builder.Merged<Window, Merged>
                 permits NormalMergedWindowImpl.BuilderImpl {}
             
         }

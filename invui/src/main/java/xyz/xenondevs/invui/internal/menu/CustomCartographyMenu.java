@@ -1,46 +1,83 @@
-package xyz.xenondevs.invui.internal.util;
+package xyz.xenondevs.invui.internal.menu;
 
 import io.papermc.paper.adventure.PaperAdventure;
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket;
-import net.minecraft.server.PlayerAdvancements;
-import net.minecraft.server.ServerAdvancementManager;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.saveddata.maps.*;
-import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.CraftServer;
-import org.bukkit.craftbukkit.entity.CraftPlayer;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
+import xyz.xenondevs.invui.internal.network.PacketListener;
+import xyz.xenondevs.invui.internal.util.MathUtils;
 import xyz.xenondevs.invui.util.MapIcon;
 import xyz.xenondevs.invui.util.MapPatch;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-import static xyz.xenondevs.invui.internal.util.ReflectionRegistry.PLAYER_ADVANCEMENTS_REGISTER_LISTENERS_METHOD;
+import static io.papermc.paper.datacomponent.item.MapId.mapId;
 
-public class PlayerUtils {
+/**
+ * A packet-based cartography table menu.
+ */
+public class CustomCartographyMenu extends CustomContainerMenu {
     
-    public static void stopAdvancementListening(Player player) {
-        ((CraftPlayer) player).getHandle().getAdvancements().stopListening();
+    private static final int MAP_SIZE = 128;
+    private int mapId = -MathUtils.RANDOM.nextInt(Integer.MAX_VALUE);
+    
+    /**
+     * Creates a new {@link CustomCartographyMenu} for the specified viewer.
+     *
+     * @param player The player that will view the menu
+     */
+    public CustomCartographyMenu(Player player) {
+        super(MenuType.CARTOGRAPHY_TABLE, player);
     }
     
-    public static void startAdvancementListening(Player player) {
-        PlayerAdvancements advancements = ((CraftPlayer) player).getHandle().getAdvancements();
-        ServerAdvancementManager manager = ((CraftServer) Bukkit.getServer()).getServer().getAdvancements();
-        ReflectionUtils.invokeMethod(PLAYER_ADVANCEMENTS_REGISTER_LISTENERS_METHOD, advancements, manager);
+    @SuppressWarnings("UnstableApiUsage")
+    @Override
+    public void setItem(int slot, @Nullable ItemStack item) {
+        if (slot == 0 && item != null) {
+            var clone = item.clone();
+            clone.setData(DataComponentTypes.MAP_ID, mapId(mapId));
+            super.setItem(slot, clone);
+        } else {
+            super.setItem(slot, item);
+        }
     }
     
-    public static void sendMapUpdate(Player player, int mapId, byte scale, boolean locked, @Nullable MapPatch mapPatch, @Nullable List<MapIcon> icons) {
-        List<MapDecoration> decorations = icons != null ? icons.stream().map(PlayerUtils::toMapDecoration).collect(Collectors.toCollection(ArrayList::new)) : null;
-        MapItemSavedData.MapPatch patch = toMapPatch(mapPatch);
-        ClientboundMapItemDataPacket packet = new ClientboundMapItemDataPacket(new MapId(mapId), scale, locked, decorations, patch);
-        ((CraftPlayer) player).getHandle().connection.send(packet);
+    public void resetMap() {
+        mapId = -MathUtils.RANDOM.nextInt(Integer.MAX_VALUE);
+        setItem(0, CraftItemStack.asCraftMirror(items.getFirst()));
     }
     
-    private static MapDecoration toMapDecoration(MapIcon icon) {
+    public void sendMapUpdate(@Nullable MapPatch patch, @Nullable List<MapIcon> icons) {
+        if (patch != null && (patch.startX() + patch.width() > MAP_SIZE || patch.startY() + patch.height() > MAP_SIZE))
+            throw new IllegalArgumentException("Map patch is out of bounds");
+        
+        var packet = new ClientboundMapItemDataPacket(
+            new MapId(mapId),
+            (byte) 0,
+            false,
+            toNmsDecorations(icons),
+            toNmsMapPatch(patch)
+        );
+        PacketListener.getInstance().injectOutgoing(player, packet);
+    }
+    
+    private static @Nullable List<MapDecoration> toNmsDecorations(@Nullable List<MapIcon> icons) {
+        if (icons == null)
+            return null;
+        
+        return icons.stream()
+            .map(CustomCartographyMenu::toNmsDecoration)
+            .toList();
+    }
+    
+    private static MapDecoration toNmsDecoration(MapIcon icon) {
         return new MapDecoration(
             getDecorationTypeByIconType(icon.type()),
             icon.x(), icon.y(),
@@ -49,10 +86,9 @@ public class PlayerUtils {
         );
     }
     
-    private static MapItemSavedData.@Nullable MapPatch toMapPatch(@Nullable MapPatch patch) {
+    private static MapItemSavedData.@Nullable MapPatch toNmsMapPatch(@Nullable MapPatch patch) {
         if (patch == null)
             return null;
-        
         return new MapItemSavedData.MapPatch(
             patch.startX(), patch.startY(),
             patch.width(), patch.height(),
@@ -91,4 +127,5 @@ public class PlayerUtils {
             case RED_CROSS -> MapDecorationTypes.RED_X;
         };
     }
+    
 }

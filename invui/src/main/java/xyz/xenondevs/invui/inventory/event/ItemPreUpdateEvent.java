@@ -7,7 +7,17 @@ import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.util.ItemUtils;
 
 /**
- * An event that is called whenever a slot inside a {@link Inventory} gets updated.
+ * An event that is called before a slot in an {@link Inventory} is updated.
+ * <p>
+ * Cancelling this event affects the source of the change, i.e. a {@link Player} would for example keep the item they
+ * tried to place on their cursor. In certain situations, changing the amount of {@link #getNewItem()} will also be
+ * reflected in the source.
+ * <p>
+ * Note that a fired {@link ItemPreUpdateEvent} does not necessitate that the given action will actually take place,
+ * even if the event remains uncancelled. For example, moving an item from one inventory to another via shift-clicking
+ * may be allowed by update handlers of one inventory, but rejected by the other.
+ * As such, {@link ItemPreUpdateEvent} is not a reliable way to determine inventory state changes.
+ * For that, use {@link ItemPostUpdateEvent} instead.
  */
 public class ItemPreUpdateEvent extends ItemUpdateEvent {
     

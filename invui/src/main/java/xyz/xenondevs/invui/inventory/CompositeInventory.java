@@ -1,10 +1,11 @@
 package xyz.xenondevs.invui.inventory;
 
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
+import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.internal.util.ArrayUtils;
 import xyz.xenondevs.invui.internal.util.Pair;
+import xyz.xenondevs.invui.inventory.event.InventoryClickEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
@@ -12,7 +13,6 @@ import xyz.xenondevs.invui.window.AbstractWindow;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
@@ -38,7 +38,7 @@ public final class CompositeInventory extends Inventory {
      *
      * @param inventories The {@link Inventory Inventories}. Cannot be empty.
      */
-    public CompositeInventory(Collection<Inventory> inventories) {
+    public CompositeInventory(Collection<? extends Inventory> inventories) {
         super(calculateSize(inventories));
         if (inventories.isEmpty())
             throw new IllegalArgumentException("CompositeInventory must contain at least one Inventory");
@@ -54,12 +54,27 @@ public final class CompositeInventory extends Inventory {
         return size;
     }
     
-    private static int calculateSize(Collection<Inventory> inventories) {
+    private static int calculateSize(Collection<? extends Inventory> inventories) {
         int size = 0;
         for (Inventory inventory : inventories) {
             size += inventory.getSize();
         }
         return size;
+    }
+    
+    @Override
+    public int[] getIterationOrder() {
+        int[] iterationOrder = new int[getSize()];
+        int i = 0;
+        int offset = 0;
+        for (Inventory inventory : inventories) {
+            int[] invOrder = inventory.getIterationOrder();
+            for (var slot : invOrder) {
+                iterationOrder[i++] = offset + slot;
+            }
+            offset += inventory.getSize();
+        }
+        return iterationOrder;
     }
     
     @Override
@@ -158,21 +173,21 @@ public final class CompositeInventory extends Inventory {
     }
     
     @Override
-    public void addViewer(AbstractWindow viewer, int what, int how) {
+    public void addViewer(AbstractWindow<?> viewer, int what, int how) {
         var invSlot = findInventory(what);
         invSlot.first().addViewer(viewer, invSlot.second(), how);
     }
     
     @Override
-    public void removeViewer(AbstractWindow viewer, int what, int how) {
+    public void removeViewer(AbstractWindow<?> viewer, int what, int how) {
         var invSlot = findInventory(what);
         invSlot.first().removeViewer(viewer, invSlot.second(), how);
     }
     
     @Override
-    public void callClickEvent(int slot, InventoryClickEvent event) {
+    public boolean callClickEvent(int slot, Click click) {
         var invSlot = findInventory(slot);
-        invSlot.first().callClickEvent(invSlot.second(), event);
+        return invSlot.first().callClickEvent(invSlot.second(), click);
     }
     
     @Override
@@ -198,22 +213,27 @@ public final class CompositeInventory extends Inventory {
     }
     
     @Override
-    public List<BiConsumer<Integer, InventoryClickEvent>> getClickHandlers() {
+    public void setIterationOrder(int[] iterationOrder) {
+        throw new UnsupportedOperationException("Iteration order needs to be set in the backing inventories");
+    }
+    
+    @Override
+    public List<Consumer<InventoryClickEvent>> getClickHandlers() {
         throw new UnsupportedOperationException("Click handlers need to be set in the backing inventory");
     }
     
     @Override
-    public void setClickHandlers(List<BiConsumer<Integer, InventoryClickEvent>> clickHandlers) {
+    public void setClickHandlers(List<Consumer<InventoryClickEvent>> clickHandlers) {
         throw new UnsupportedOperationException("Click handlers need to be set in the backing inventory");
     }
     
     @Override
-    public void addClickHandler(BiConsumer<Integer, InventoryClickEvent> clickHandler) {
+    public void addClickHandler(Consumer<InventoryClickEvent> clickHandler) {
         throw new UnsupportedOperationException("Click handlers need to be set in the backing inventory");
     }
     
     @Override
-    public void removeClickHandler(BiConsumer<Integer, InventoryClickEvent> clickHandler) {
+    public void removeClickHandler(Consumer<InventoryClickEvent> clickHandler) {
         throw new UnsupportedOperationException("Click handlers need to be set in the backing inventory");
     }
     
@@ -254,18 +274,6 @@ public final class CompositeInventory extends Inventory {
     
     @Override
     public void removePostUpdateHandler(Consumer<ItemPostUpdateEvent> postUpdateHandler) {
-        throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
-    }
-    
-    @SuppressWarnings("deprecation")
-    @Override
-    public void setPostUpdateHandler(@Nullable Consumer<ItemPostUpdateEvent> inventoryUpdatedHandler) {
-        throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
-    }
-    
-    @SuppressWarnings("deprecation")
-    @Override
-    public void setPreUpdateHandler(@Nullable Consumer<ItemPreUpdateEvent> preUpdateHandler) {
         throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
     }
     

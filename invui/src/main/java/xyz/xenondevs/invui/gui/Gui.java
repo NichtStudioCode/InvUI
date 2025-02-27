@@ -538,6 +538,13 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
     void playAnimation(Animation animation);
     
     /**
+     * Checks whether an {@link Animation} is currently running.
+     *
+     * @return Whether an {@link Animation} is currently running.
+     */
+    boolean isAnimationRunning();
+    
+    /**
      * Cancels the running {@link Animation}, if there is one.
      */
     void cancelAnimation();

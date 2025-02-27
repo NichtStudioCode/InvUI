@@ -1,13 +1,13 @@
 package xyz.xenondevs.invui.item;
 
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Locale;
-import java.util.UUID;
 
 /**
  * An {@link ItemProvider} that just returns the {@link ItemStack}
- * passed to it in the constructor regardless of the {@link UUID players uuid}.
+ * passed to it in the constructor regardless of the {@link Player#locale() player's locale}.
  */
 public final class ItemWrapper implements ItemProvider {
     
@@ -34,7 +34,7 @@ public final class ItemWrapper implements ItemProvider {
             clone.itemStack = itemStack.clone();
             return clone;
         } catch (CloneNotSupportedException e) {
-            throw new Error(e);
+            throw new AssertionError(e);
         }
     }
     

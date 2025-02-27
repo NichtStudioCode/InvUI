@@ -1,34 +1,34 @@
 package xyz.xenondevs.invui.window;
 
+import it.unimi.dsi.fastutil.ints.IntSet;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
+import org.bukkit.GameMode;
 import org.bukkit.NamespacedKey;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
+import xyz.xenondevs.invui.Click;
+import xyz.xenondevs.invui.ClickEvent;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.i18n.Languages;
 import xyz.xenondevs.invui.internal.Viewer;
+import xyz.xenondevs.invui.internal.menu.CustomContainerMenu;
 import xyz.xenondevs.invui.internal.util.InventoryUtils;
 import xyz.xenondevs.invui.internal.util.Pair;
 import xyz.xenondevs.invui.inventory.CompositeInventory;
 import xyz.xenondevs.invui.inventory.Inventory;
+import xyz.xenondevs.invui.inventory.InventorySlot;
 import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
 import xyz.xenondevs.invui.item.AbstractItem;
+import xyz.xenondevs.invui.util.ItemUtils;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -38,18 +38,18 @@ import java.util.function.Supplier;
  * @hidden
  */
 @ApiStatus.Internal
-public sealed abstract class AbstractWindow
+public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
     implements Window, Viewer
-    permits AbstractSingleWindow, AbstractDoubleWindow
+    permits AbstractMergedWindow, AbstractSplitWindow
 {
     
     private static final NamespacedKey SLOT_KEY = new NamespacedKey(InvUI.getInstance().getPlugin(), "slot");
     
+    protected final M menu;
     private final Player viewer;
-    private final UUID viewerUUID;
     private @Nullable List<Runnable> openHandlers;
     private @Nullable List<Runnable> closeHandlers;
-    private @Nullable List<Consumer<InventoryClickEvent>> outsideClickHandlers;
+    private @Nullable List<Consumer<ClickEvent>> outsideClickHandlers;
     private Supplier<Component> titleSupplier;
     private boolean closeable;
     private boolean currentlyOpen;
@@ -61,18 +61,26 @@ public sealed abstract class AbstractWindow
     
     private @Nullable Component activeTitle;
     
-    AbstractWindow(Player viewer, Supplier<Component> titleSupplier, int size, boolean closeable) {
+    AbstractWindow(Player viewer, Supplier<Component> titleSupplier, int size, M menu, boolean closeable) {
+        this.menu = menu;
         this.viewer = viewer;
-        this.viewerUUID = viewer.getUniqueId();
         this.titleSupplier = titleSupplier;
         this.closeable = closeable;
         this.size = size;
         this.elementsDisplayed = new SlotElement[size];
         this.dirtySlots = new BitSet(size);
+        
+        menu.setWindow(this);
     }
     
-    protected void update(int index) {
-        Pair<AbstractGui, Integer> guiSlotPair = getGuiAt(index);
+    protected void initItems() {
+        for (int i = 0; i < size; i++) {
+            update(i);
+        }
+    }
+    
+    protected void update(int slot) {
+        Pair<AbstractGui, Integer> guiSlotPair = getGuiAt(slot);
         if (guiSlotPair == null)
             return;
         AbstractGui gui = guiSlotPair.first();
@@ -82,23 +90,23 @@ public sealed abstract class AbstractWindow
         element = element == null ? null : element.getHoldingElement();
         
         // update the slot element's viewers if necessary
-        SlotElement previousElement = elementsDisplayed[index];
+        SlotElement previousElement = elementsDisplayed[slot];
         if (previousElement != element) {
             switch (previousElement) {
-                case SlotElement.Item itemElement -> ((AbstractItem) itemElement.item()).removeViewer(this, index);
+                case SlotElement.Item itemElement -> ((AbstractItem) itemElement.item()).removeViewer(this, slot);
                 case SlotElement.InventoryLink invElement ->
-                    invElement.inventory().removeViewer(this, invElement.slot(), index);
+                    invElement.inventory().removeViewer(this, invElement.slot(), slot);
                 case null, default -> {}
             }
             
             switch (element) {
-                case SlotElement.Item itemElement -> ((AbstractItem) itemElement.item()).addViewer(this, index);
+                case SlotElement.Item itemElement -> ((AbstractItem) itemElement.item()).addViewer(this, slot);
                 case SlotElement.InventoryLink invElement ->
-                    invElement.inventory().addViewer(this, invElement.slot(), index);
+                    invElement.inventory().addViewer(this, invElement.slot(), slot);
                 case null, default -> {}
             }
             
-            elementsDisplayed[index] = element;
+            elementsDisplayed[slot] = element;
         }
         
         // create and place item stack in inventory
@@ -109,7 +117,7 @@ public sealed abstract class AbstractWindow
                 // This makes every item unique to prevent Shift-DoubleClick "clicking" multiple items at the same time.
                 itemStack = itemStack.clone(); // clone ItemStack in order to not modify the original
                 itemStack.editMeta(meta ->
-                    meta.getPersistentDataContainer().set(SLOT_KEY, PersistentDataType.BYTE, (byte) index)
+                    meta.getPersistentDataContainer().set(SLOT_KEY, PersistentDataType.BYTE, (byte) slot)
                 );
             }
         } else { // holding element is null
@@ -120,21 +128,25 @@ public sealed abstract class AbstractWindow
             }
             // if gui link, choose background of lowest gui
             element = gui.getSlotElement(guiSlot);
-            while (element instanceof SlotElement.GuiLink(Gui linkedGui, int slot)) {
+            while (element instanceof SlotElement.GuiLink(Gui linkedGui, int linkedSlot)) {
                 var backgroundProvider = linkedGui.getBackground();
                 if (backgroundProvider != null) {
                     itemStack = backgroundProvider.get(getLocale());
                 }
-                element = linkedGui.getSlotElement(slot);
+                element = linkedGui.getSlotElement(linkedSlot);
             }
         }
         
-        setInvItem(index, itemStack);
+        setMenuItem(slot, itemStack);
+    }
+    
+    protected void setMenuItem(int slot, @Nullable ItemStack itemStack) {
+        menu.setItem(slot, itemStack);
     }
     
     @Override
     public void notifyUpdate(int slot) {
-        if (WindowManager.getInstance().isInInteractionHandlingContext()) {
+        if (CustomContainerMenu.isInInteractionHandlingContext()) {
             update(slot);
         } else {
             synchronized (dirtySlots) {
@@ -155,90 +167,161 @@ public sealed abstract class AbstractWindow
         
         if (titleSupplier instanceof AnimatedTitle)
             updateTitle();
+        
+        menu.sendChangesToRemote();
     }
     
-    public void handleDragEvent(InventoryDragEvent event) {
-        Player player = ((Player) event.getWhoClicked()).getPlayer();
-        assert player != null;
-        UpdateReason updateReason = new PlayerUpdateReason(player, event);
-        Map<Integer, ItemStack> newItems = event.getNewItems();
-        
-        int itemsLeft = event.getCursor() == null ? 0 : event.getCursor().getAmount();
-        for (int rawSlot : event.getRawSlots()) { // loop over all affected slots
-            ItemStack currentStack = event.getView().getItem(rawSlot);
-            if (currentStack != null && currentStack.getType() == Material.AIR) currentStack = null;
-            
-            // get the Gui at that slot and ask for permission to drag an Item there
-            Pair<AbstractGui, Integer> pair = getGuiAt(rawSlot);
-            if (pair != null && !pair.first().handleItemDrag(updateReason, pair.second(), currentStack, newItems.get(rawSlot))) {
-                // the drag was cancelled
-                int currentAmount = currentStack == null ? 0 : currentStack.getAmount();
-                int newAmount = newItems.get(rawSlot).getAmount();
-                
-                itemsLeft += newAmount - currentAmount;
+    public void handleClick(int slot, Click click) {
+        if (slot != -999) { // inside
+            var pair = getGuiAt(slot);
+            if (pair != null) {
+                pair.first().handleClick(pair.second(), click);
             }
-        }
-        
-        // Redraw all items after the event so there won't be any Items that aren't actually there
-        Bukkit.getScheduler().runTask(InvUI.getInstance().getPlugin(),
-            () -> event.getRawSlots().forEach(rawSlot -> {
-                if (getGuiAt(rawSlot) != null) update(rawSlot);
-            })
-        );
-        
-        // update the amount on the cursor
-        ItemStack cursorStack = event.getOldCursor();
-        cursorStack.setAmount(itemsLeft);
-        event.setCursor(cursorStack);
-    }
-    
-    public void handleClickEvent(InventoryClickEvent event) {
-        if (Arrays.asList(getInventories()).contains(event.getClickedInventory())) {
-            // The inventory that was clicked is part of the open window
-            handleClick(event);
-        } else if (event.getSlotType() == InventoryType.SlotType.OUTSIDE) {
-            // The player clicked outside the inventory
+        } else { // outside
+            boolean cancelled = false;
             if (outsideClickHandlers != null) {
+                var event = new ClickEvent(click);
                 for (var handler : outsideClickHandlers) {
                     handler.accept(event);
                 }
+                cancelled = event.isCancelled();
             }
-        } else {
-            switch (event.getAction()) {
-                // The inventory that was clicked is not part of the open window, so it is the player inventory
-                case MOVE_TO_OTHER_INVENTORY:
-                    handleItemShift(event);
-                    break;
-                
-                // items have been collected by clicking a slot in the player inv
-                case COLLECT_TO_CURSOR:
-                    handleCursorCollect(event);
-                    break;
+            
+            var cursor = viewer.getItemOnCursor();
+            if (!cancelled && !ItemUtils.isEmpty(cursor)) {
+                switch (click.clickType()) {
+                    case LEFT -> {
+                        InventoryUtils.dropItemLikePlayer(viewer, cursor);
+                        viewer.setItemOnCursor(null);
+                    }
+                    
+                    case RIGHT -> {
+                        var drop = cursor.clone();
+                        drop.setAmount(1);
+                        InventoryUtils.dropItemLikePlayer(viewer, drop);
+                        cursor.setAmount(cursor.getAmount() - 1);
+                    }
+                    
+                    default -> {}
+                }
             }
         }
     }
     
-    @SuppressWarnings("deprecation")
-    public void handleCursorCollect(InventoryClickEvent event) { // TODO: prioritize the content inventory where the cursor is
-        // cancel event as we do the collection logic ourselves
-        event.setCancelled(true);
+    public void handleBundleSelect(int slot, int bundleSlot) {
+        var pair = getGuiAt(slot);
+        if (pair == null)
+            return;
+        pair.first().handleBundleSelect(getViewer(), pair.second(), bundleSlot);
+    }
+    
+    public void handleDrag(IntSet slots, ClickType mode) {
+        if (mode == ClickType.MIDDLE && viewer.getGameMode() != GameMode.CREATIVE)
+            return;
         
-        Player player = (Player) event.getWhoClicked();
+        // fixme: this does not consider in-between gui's frozen/animation state
+        List<InventorySlot> invSlots = slots.intStream()
+            .mapToObj(this::getGuiAt)
+            .filter(Objects::nonNull)
+            .filter(pair -> !pair.first().isFrozen() && !pair.first().isAnimationRunning())
+            .map(pair -> {
+                var element = pair.first().getSlotElement(pair.second());
+                if (element != null)
+                    element = element.getHoldingElement();
+                
+                if (element instanceof SlotElement.InventoryLink link)
+                    return new InventorySlot(link.inventory(), link.slot());
+                
+                return null;
+            })
+            .filter(Objects::nonNull)
+            .toList();
+        
+        if (invSlots.isEmpty())
+            return;
+        
+        ItemStack cursor = viewer.getItemOnCursor();
+        var updateReason = new PlayerUpdateReason.Drag(viewer, mode, invSlots);
+        switch (mode) {
+            // distribute items from cursor equally onto all slots
+            case ClickType.LEFT -> {
+                //noinspection StatementWithEmptyBody
+                while (distributeItems(updateReason, invSlots)) {
+                    // repeat until no more items can be distributed
+                }
+            }
+            
+            // put one item from cursor onto each slot
+            case ClickType.RIGHT -> {
+                int amount = cursor.getAmount();
+                ItemStack toAdd = cursor.clone();
+                toAdd.setAmount(1);
+                for (var slot : invSlots) {
+                    int leftover = slot.inventory().putItem(updateReason, slot.slot(), toAdd);
+                    amount -= 1 - leftover;
+                    if (amount <= 0)
+                        break;
+                }
+                
+                cursor.setAmount(amount);
+            }
+            
+            // put full stack of cursor onto each slot
+            case ClickType.MIDDLE -> {
+                ItemStack toAdd = cursor.clone();
+                toAdd.setAmount(toAdd.getMaxStackSize());
+                for (var slot : invSlots) {
+                    slot.inventory().putItem(updateReason, slot.slot(), toAdd);
+                }
+                
+                cursor.setAmount(0);
+            }
+        }
+    }
+    
+    private boolean distributeItems(UpdateReason updateReason, List<InventorySlot> slots) {
+        ItemStack cursor = viewer.getItemOnCursor();
+        int amount = cursor.getAmount();
+        int itemsPerSlot = amount / slots.size();
+        
+        if (itemsPerSlot <= 0)
+            return false;
+        
+        var toAdd = cursor.clone();
+        toAdd.setAmount(itemsPerSlot);
+        
+        boolean changed = false;
+        for (var slot : slots) {
+            int leftover = slot.inventory().putItem(updateReason, slot.slot(), toAdd);
+            if (leftover < itemsPerSlot) {
+                changed = true;
+                amount -= itemsPerSlot - leftover;
+            }
+        }
+        
+        cursor.setAmount(amount);
+        return changed;
+    }
+    
+    public void handleCursorCollect(Click click) { // TODO: prioritize the content inventory where the cursor is
+        Player player = click.player();
         
         // the template item stack that is used to collect similar items
-        ItemStack template = event.getCursor();
+        ItemStack template = player.getItemOnCursor();
         
         // create a composite inventory consisting of all the gui's inventories and the player's inventory
-        List<Inventory> inventories = getContentInventories();
+        List<? extends Inventory> inventories = getGuis().stream()
+            .flatMap(g -> g.getInventories().stream())
+            .toList();
         Inventory inventory = new CompositeInventory(inventories);
         
         // collect items from inventories until the cursor is full
-        UpdateReason updateReason = new PlayerUpdateReason(player, event);
+        UpdateReason updateReason = new PlayerUpdateReason.Click(player, click);
         int amount = inventory.collectSimilar(updateReason, template);
         
         // put collected items on cursor
         template.setAmount(amount);
-        event.setCursor(template);
+        player.setItemOnCursor(template);
     }
     
     @Override
@@ -248,14 +331,15 @@ public sealed abstract class AbstractWindow
             throw new IllegalStateException("Window is already open");
         
         // call handleCloseEvent() close for currently open window
-        AbstractWindow openWindow = (AbstractWindow) WindowManager.getInstance().getOpenWindow(viewer);
+        AbstractWindow<?> openWindow = (AbstractWindow<?>) WindowManager.getInstance().getOpenWindow(viewer);
         if (openWindow != null) {
-            openWindow.handleCloseEvent(true);
+            openWindow.handleClose();
         }
         
         currentlyOpen = true;
         hasHandledClose = false;
-        initItems();
+        
+        // track window and elements
         WindowManager.getInstance().addWindow(this);
         for (int i = 0; i < size; i++) {
             SlotElement element = elementsDisplayed[i];
@@ -270,67 +354,41 @@ public sealed abstract class AbstractWindow
             if (pair != null)
                 pair.first().addViewer(this, pair.second(), i);
         }
-        openInventory(viewer);
-    }
-    
-    protected void openInventory(Player viewer) { // fixme: overrides don't use active title, nor do they localize
+        
+        // open inventory
         var title = getTitle();
         activeTitle = title;
-        InventoryUtils.openCustomInventory(
-            viewer,
-            getInventories()[0],
-            Languages.getInstance().localized(viewer, title)
-        );
-    }
-    
-    protected void initItems() {
-        for (int i = 0; i < getSize(); i++) {
-            update(i);
-        }
-    }
-    
-    public void handleOpenEvent(InventoryOpenEvent event) {
-        if (!event.getPlayer().equals(getViewer())) {
-            event.setCancelled(true);
-        } else {
-            handleOpened();
-            
-            if (openHandlers != null) {
-                openHandlers.forEach(Runnable::run);
-            }
+        menu.open(Languages.getInstance().localized(viewer, title));
+        
+        // open handlers
+        if (openHandlers != null) {
+            openHandlers.forEach(Runnable::run);
         }
     }
     
     @Override
     public void close() {
-        Player viewer = getCurrentViewer();
-        if (viewer != null) {
-            handleCloseEvent(true);
-            viewer.closeInventory();
+        if (isOpen()) {
+            viewer.closeInventory(); // WindowManager then calls handleClose
         }
     }
     
-    public void handleCloseEvent(boolean forceClose) {
+    public void handleClose() {
         // handleCloseEvent might have already been called by close() or open() if the window was replaced by another one
         if (hasHandledClose)
             return;
         
-        if (closeable || forceClose) {
-            if (!currentlyOpen)
-                throw new IllegalStateException("Window is already closed!");
-            
-            closeable = true;
-            currentlyOpen = false;
-            hasHandledClose = true;
-            
-            remove();
-            handleClosed();
-            
-            if (closeHandlers != null) {
-                closeHandlers.forEach(Runnable::run);
-            }
-        } else {
-            Bukkit.getScheduler().runTaskLater(InvUI.getInstance().getPlugin(), () -> openInventory(viewer), 0);
+        if (!currentlyOpen)
+            throw new IllegalStateException("Window is already closed!");
+        
+        currentlyOpen = false;
+        hasHandledClose = true;
+        
+        remove();
+        menu.handleClosed();
+        
+        if (closeHandlers != null) {
+            closeHandlers.forEach(Runnable::run);
         }
     }
     
@@ -374,8 +432,7 @@ public sealed abstract class AbstractWindow
     
     @Override
     public void updateTitle() {
-        Player currentViewer = getCurrentViewer();
-        if (currentViewer == null)
+        if (!isOpen())
             return;
         
         var title = getTitle();
@@ -383,11 +440,26 @@ public sealed abstract class AbstractWindow
             return;
         activeTitle = title;
         
-        InventoryUtils.updateOpenInventoryTitle(
-            currentViewer,
-            Languages.getInstance().localized(currentViewer, title)
-        );
+        menu.sendOpenPacket(Languages.getInstance().localized(viewer, title));
     }
+    
+    protected @Nullable Pair<AbstractGui, Integer> getGuiAt(int i) {
+        if (i < 0)
+            return null;
+        
+        int off = 0;
+        for (Gui gui : getGuis()) {
+            int size = gui.getSize();
+            if (i < off + size)
+                return new Pair<>((AbstractGui) gui, i - off);
+            
+            off += size;
+        }
+        
+        return null;
+    }
+    
+    public abstract @Nullable Pair<AbstractGui, Integer> getGuiAtHotbar(int i);
     
     @Override
     public void setOpenHandlers(@Nullable List<Runnable> openHandlers) {
@@ -422,28 +494,21 @@ public sealed abstract class AbstractWindow
     }
     
     @Override
-    public void setOutsideClickHandlers(@Nullable List<Consumer<InventoryClickEvent>> outsideClickHandlers) {
+    public void setOutsideClickHandlers(@Nullable List<Consumer<ClickEvent>> outsideClickHandlers) {
         this.outsideClickHandlers = outsideClickHandlers;
     }
     
     @Override
-    public void addOutsideClickHandler(Consumer<InventoryClickEvent> outsideClickHandler) {
-        if (this.outsideClickHandlers == null)
-            this.outsideClickHandlers = new ArrayList<>();
-        
-        this.outsideClickHandlers.add(outsideClickHandler);
+    public void addOutsideClickHandler(Consumer<ClickEvent> outsideClickHandler) {
+        if (outsideClickHandlers == null)
+            outsideClickHandlers = new ArrayList<>();
+        outsideClickHandlers.add(outsideClickHandler);
     }
     
     @Override
-    public void removeOutsideClickHandler(Consumer<InventoryClickEvent> outsideClickHandler) {
+    public void removeOutsideClickHandler(Consumer<ClickEvent> outsideClickHandler) {
         if (this.outsideClickHandlers != null)
             this.outsideClickHandlers.remove(outsideClickHandler);
-    }
-    
-    @Override
-    public @Nullable Player getCurrentViewer() {
-        List<HumanEntity> viewers = getInventories()[0].getViewers();
-        return viewers.isEmpty() ? null : (Player) viewers.getFirst();
     }
     
     @Override
@@ -453,11 +518,6 @@ public sealed abstract class AbstractWindow
     
     public Locale getLocale() {
         return Languages.getInstance().getLocale(getViewer());
-    }
-    
-    @Override
-    public UUID getViewerUUID() {
-        return viewerUUID;
     }
     
     @Override
@@ -475,32 +535,10 @@ public sealed abstract class AbstractWindow
         return currentlyOpen;
     }
     
-    public int getSize() {
-        return size;
-    }
-    
-    protected abstract void setInvItem(int slot, @Nullable ItemStack itemStack);
-    
-    protected abstract @Nullable Pair<AbstractGui, Integer> getGuiAt(int index);
-    
-    protected abstract org.bukkit.inventory.Inventory[] getInventories();
-    
-    protected abstract List<xyz.xenondevs.invui.inventory.Inventory> getContentInventories();
-    
-    protected abstract void handleOpened();
-    
-    protected abstract void handleClosed();
-    
-    protected abstract void handleClick(InventoryClickEvent event);
-    
-    protected abstract void handleItemShift(InventoryClickEvent event);
-    
-    public abstract void handleViewerDeath(PlayerDeathEvent event);
-    
     @SuppressWarnings("unchecked")
     static sealed abstract class AbstractBuilder<W extends Window, S extends Window.Builder<W, S>>
         implements Window.Builder<W, S>
-        permits AbstractSingleWindow.AbstractBuilder, AbstractSplitWindow.AbstractBuilder
+        permits AbstractMergedWindow.AbstractBuilder, AbstractSplitWindow.AbstractBuilder
     {
         
         protected @Nullable Player viewer;
@@ -508,7 +546,7 @@ public sealed abstract class AbstractWindow
         protected boolean closeable = true;
         protected @Nullable List<Runnable> openHandlers;
         protected @Nullable List<Runnable> closeHandlers;
-        protected @Nullable List<Consumer<InventoryClickEvent>> outsideClickHandlers;
+        protected @Nullable List<Consumer<ClickEvent>> outsideClickHandlers;
         protected @Nullable List<Consumer<W>> modifiers;
         
         @Override
@@ -572,13 +610,13 @@ public sealed abstract class AbstractWindow
         }
         
         @Override
-        public S setOutsideClickHandlers(List<Consumer<InventoryClickEvent>> outsideClickHandlers) {
+        public S setOutsideClickHandlers(List<Consumer<ClickEvent>> outsideClickHandlers) {
             this.outsideClickHandlers = outsideClickHandlers;
             return (S) this;
         }
         
         @Override
-        public S addOutsideClickHandler(Consumer<InventoryClickEvent> outsideClickHandler) {
+        public S addOutsideClickHandler(Consumer<ClickEvent> outsideClickHandler) {
             if (outsideClickHandlers == null)
                 outsideClickHandlers = new ArrayList<>();
             

@@ -58,6 +58,20 @@ public class ArrayUtils {
     }
     
     /**
+     * Creates a reversed copy of the original array.
+     *
+     * @param original The original array
+     * @return The reversed array
+     */
+    public static int[] reversed(int[] original) {
+        int[] reversed = new int[original.length];
+        for (int i = 0; i < original.length; i++) {
+            reversed[i] = original[original.length - i - 1];
+        }
+        return reversed;
+    }
+    
+    /**
      * Creates a set of the given characters.
      *
      * @param first The first character

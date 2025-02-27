@@ -7,13 +7,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.plugin.Plugin;
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.invui.internal.util.ReflectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-
-import static xyz.xenondevs.invui.internal.util.ReflectionRegistry.*;
 
 public class InvUI implements Listener {
     
