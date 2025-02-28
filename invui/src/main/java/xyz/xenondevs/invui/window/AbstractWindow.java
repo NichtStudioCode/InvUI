@@ -327,6 +327,8 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
     @Override
     public void open() {
         Player viewer = getViewer();
+        if (!viewer.isValid())
+            throw new IllegalStateException("Viewer is not valid");
         if (currentlyOpen)
             throw new IllegalStateException("Window is already open");
         
