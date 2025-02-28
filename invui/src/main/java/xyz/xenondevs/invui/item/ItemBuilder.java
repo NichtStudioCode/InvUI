@@ -136,7 +136,7 @@ public final class ItemBuilder implements ItemProvider {
     public ItemStack build(Locale locale) {
         ItemStack itemStack = this.itemStack.clone();
         
-        TagResolver[] resolvers = this.placeholders != null 
+        TagResolver[] resolvers = this.placeholders != null
             ? this.placeholders.values().toArray(TagResolver[]::new)
             : new TagResolver[0];
         
@@ -270,7 +270,7 @@ public final class ItemBuilder implements ItemProvider {
      * @param key   The key
      * @param value The value
      * @return The builder instance
-     * @see Placeholder#component(String, ComponentLike) 
+     * @see Placeholder#component(String, ComponentLike)
      */
     public ItemBuilder setPlaceholder(@TagPattern String key, ComponentLike value) {
         return setPlaceholder(key, Placeholder.component(key, value));
@@ -285,7 +285,7 @@ public final class ItemBuilder implements ItemProvider {
      * @param key   The key
      * @param style The style to apply to the placeholder
      * @return The builder instance
-     * @see Placeholder#styling(String, StyleBuilderApplicable...) 
+     * @see Placeholder#styling(String, StyleBuilderApplicable...)
      */
     public ItemBuilder setPlaceholder(@TagPattern String key, StyleBuilderApplicable... style) {
         return setPlaceholder(key, Placeholder.styling(key, style));
@@ -306,7 +306,7 @@ public final class ItemBuilder implements ItemProvider {
      *
      * @param placeholders The placeholders
      * @return The builder instance
-     * @see Placeholder#parsed(String, String) 
+     * @see Placeholder#parsed(String, String)
      */
     @SuppressWarnings("PatternValidation")
     public ItemBuilder setPlaceholdersParsed(Map<String, String> placeholders) {
@@ -324,7 +324,7 @@ public final class ItemBuilder implements ItemProvider {
      *
      * @param placeholders The placeholders
      * @return The builder instance
-     * @see Placeholder#unparsed(String, String) 
+     * @see Placeholder#unparsed(String, String)
      */
     @SuppressWarnings("PatternValidation")
     public ItemBuilder setPlaceholdersUnparsed(Map<String, String> placeholders) {
@@ -341,7 +341,7 @@ public final class ItemBuilder implements ItemProvider {
      *
      * @param placeholders The placeholders
      * @return The builder instance
-     * @see Placeholder#component(String, ComponentLike) 
+     * @see Placeholder#component(String, ComponentLike)
      */
     @SuppressWarnings("PatternValidation")
     public ItemBuilder setPlaceholdersComponent(Map<String, ComponentLike> placeholders) {
@@ -358,7 +358,7 @@ public final class ItemBuilder implements ItemProvider {
      *
      * @param placeholders The placeholders
      * @return The builder instance
-     * @see Placeholder#styling(String, StyleBuilderApplicable...) 
+     * @see Placeholder#styling(String, StyleBuilderApplicable...)
      */
     @SuppressWarnings("PatternValidation")
     public ItemBuilder setPlaceholdersStyling(Map<String, StyleBuilderApplicable[]> placeholders) {
@@ -1207,11 +1207,9 @@ public final class ItemBuilder implements ItemProvider {
         
     }
     
-    private static final class DirectComponentHolder implements ComponentHolder {
+    private record DirectComponentHolder(Component component) implements ComponentHolder {
         
-        private final Component component;
-        
-        public DirectComponentHolder(Component component) {
+        private DirectComponentHolder(Component component) {
             this.component = ComponentUtils.withoutPreFormatting(component);
         }
         
@@ -1222,13 +1220,7 @@ public final class ItemBuilder implements ItemProvider {
         
     }
     
-    private static final class MiniMessageComponentHolder implements ComponentHolder {
-        
-        private final String format;
-        
-        public MiniMessageComponentHolder(String format) {
-            this.format = format;
-        }
+    private record MiniMessageComponentHolder(String format) implements ComponentHolder {
         
         @Override
         public Component get(TagResolver[] resolvers) {
@@ -1236,6 +1228,7 @@ public final class ItemBuilder implements ItemProvider {
             component = ComponentUtils.withoutPreFormatting(component);
             return component;
         }
+        
     }
     
 }
