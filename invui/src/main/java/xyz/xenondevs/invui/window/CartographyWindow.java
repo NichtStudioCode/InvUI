@@ -1,12 +1,11 @@
 package xyz.xenondevs.invui.window;
 
-import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.util.ColorPalette;
 import xyz.xenondevs.invui.util.MapIcon;
 import xyz.xenondevs.invui.util.MapPatch;
 
 import java.awt.image.BufferedImage;
-import java.util.List;
+import java.util.Collection;
 import java.util.function.Consumer;
 
 /**
@@ -36,33 +35,46 @@ public sealed interface CartographyWindow extends Window permits CartographyWind
     }
     
     /**
-     * Updates the map in the cartography table.
+     * Updates the map in the cartography table by drawing the image (max 128x128) starting at the given coordinates.
      *
-     * @param patch The {@link MapPatch} to apply to the map.
-     * @param icons The {@link MapIcon MapIcons} to display on the map.
+     * @param x     The x-coordinate to start drawing the image.
+     * @param y     The y-coordinate to start drawing the image.
+     * @param image The image to draw. Cannot exceed 128x128 pixels. Any x or y offset limits this further.
      */
-    void updateMap(@Nullable MapPatch patch, @Nullable List<MapIcon> icons);
-    
-    /**
-     * Updates the map in the cartography table.
-     *
-     * @param patch The {@link MapPatch} to apply to the map.
-     */
-    default void updateMap(@Nullable MapPatch patch) {
-        updateMap(patch, null);
+    default void applyPatch(int x, int y, BufferedImage image) {
+        applyPatch(new MapPatch(x, y, image.getWidth(), image.getHeight(), ColorPalette.convertImage(image)));
     }
     
     /**
-     * Updates the map in the cartography table.
+     * Updates the map in the cartography table by applying the given {@link MapPatch}.
      *
-     * @param icons The {@link MapIcon MapIcons} to display on the map.
+     * @param patch The {@link MapPatch} to apply.
      */
-    default void updateMap(@Nullable List<MapIcon> icons) {
-        updateMap(null, icons);
-    }
+    void applyPatch(MapPatch patch);
     
     /**
-     * Resets the map in the cartography table.
+     * Adds a {@link MapIcon} to the map in the cartography table.
+     *
+     * @param icon The {@link MapIcon} to add.
+     */
+    void addIcon(MapIcon icon);
+    
+    /**
+     * Removes a {@link MapIcon} from the map in the cartography table.
+     *
+     * @param icon The {@link MapIcon} to remove.
+     */
+    void removeIcon(MapIcon icon);
+    
+    /**
+     * Sets the {@link MapIcon MapIcons} of the map in the cartography table.
+     *
+     * @param icons The {@link MapIcon MapIcons} to set.
+     */
+    void setIcons(Collection<? extends MapIcon> icons);
+    
+    /**
+     * Resets the map in the cartography table, removing all {@link MapIcon MapIcons} and patches.
      */
     void resetMap();
     
@@ -73,6 +85,41 @@ public sealed interface CartographyWindow extends Window permits CartographyWind
      * @see Window.Builder
      */
     sealed interface Builder extends Window.Builder.Split<CartographyWindow, Builder> permits CartographyWindowImpl.BuilderImpl {
+        
+        /**
+         * Adds a {@link MapIcon} to the map.
+         *
+         * @param icon The {@link MapIcon} to add.
+         * @return The {@link Builder} instance.
+         */
+        Builder addIcon(MapIcon icon);
+        
+        /**
+         * Sets the {@link MapIcon MapIcons} of the map.
+         *
+         * @param icons The {@link MapIcon MapIcons} to set.
+         * @return The {@link Builder} instance.
+         */
+        Builder setIcons(Collection<? extends MapIcon> icons);
+        
+        /**
+         * Sets the map colors of the map.
+         *
+         * @param colors The map colors to set.
+         * @return The {@link Builder} instance.
+         * @throws IllegalArgumentException If colors length is not 128x128
+         */
+        Builder setMap(byte[] colors);
+        
+        /**
+         * Sets the map colors of the map.
+         *
+         * @param image The image to read the colors from
+         * @return The {@link Builder} instance.
+         * @throws IllegalArgumentException If the image dimensions are not 128x128
+         */
+        Builder setMap(BufferedImage image);
+        
     }
     
 }

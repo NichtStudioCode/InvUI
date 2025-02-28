@@ -2,6 +2,7 @@ package xyz.xenondevs.invui.internal.menu;
 
 import io.papermc.paper.adventure.PaperAdventure;
 import io.papermc.paper.datacomponent.DataComponentTypes;
+import net.kyori.adventure.text.Component;
 import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket;
 import net.minecraft.world.inventory.MenuType;
@@ -15,8 +16,10 @@ import xyz.xenondevs.invui.internal.util.MathUtils;
 import xyz.xenondevs.invui.util.MapIcon;
 import xyz.xenondevs.invui.util.MapPatch;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import static io.papermc.paper.datacomponent.item.MapId.mapId;
 
@@ -27,6 +30,8 @@ public class CustomCartographyMenu extends CustomContainerMenu {
     
     private static final int MAP_SIZE = 128;
     private int mapId = -MathUtils.RANDOM.nextInt(Integer.MAX_VALUE);
+    private byte[] canvas = new byte[MAP_SIZE * MAP_SIZE];
+    private final Set<MapDecoration> decorations = new HashSet<>();
     
     /**
      * Creates a new {@link CustomCartographyMenu} for the specified viewer.
@@ -49,26 +54,67 @@ public class CustomCartographyMenu extends CustomContainerMenu {
         }
     }
     
+    @Override
+    public void open(Component title) {
+        super.open(title);
+        sendMapUpdate(new MapItemSavedData.MapPatch(0, 0, MAP_SIZE, MAP_SIZE, canvas), decorations);
+    }
+    
+    public void addIcon(MapIcon icon, boolean sendUpdate) {
+        var decoration = toNmsDecoration(icon);
+        decorations.add(decoration);
+        
+        if (sendUpdate)
+            sendMapUpdate(null, decorations);
+    }
+    
+    public void removeIcon(MapIcon icon, boolean sendUpdate) {
+        var decoration = toNmsDecoration(icon);
+        decorations.remove(decoration);
+        
+        if (sendUpdate)
+            sendMapUpdate(null, decorations);
+    }
+    
+    public void setIcons(Collection<? extends MapIcon> icons, boolean sendUpdate) {
+        decorations.clear();
+        decorations.addAll(icons.stream()
+            .map(CustomCartographyMenu::toNmsDecoration)
+            .toList());
+        
+        if (sendUpdate)
+            sendMapUpdate(null, decorations);
+    }
+    
+    public void applyPatch(MapPatch patch, boolean sendUpdate) {
+        if (patch.startX() + patch.width() > MAP_SIZE || patch.startY() + patch.height() > MAP_SIZE)
+            throw new IllegalArgumentException("Map patch is out of bounds");
+        
+        for (int y = 0; y < patch.height(); y++) {
+            for (int x = 0; x < patch.width(); x++) {
+                int i = (patch.startY() + y) * MAP_SIZE + patch.startX() + x;
+                canvas[i] = patch.colors()[y * patch.width() + x];
+            }
+        }
+        
+        if (sendUpdate)
+            sendMapUpdate(toNmsMapPatch(patch), null);
+    }
+    
     public void resetMap() {
         mapId = -MathUtils.RANDOM.nextInt(Integer.MAX_VALUE);
+        canvas = new byte[MAP_SIZE * MAP_SIZE];
+        decorations.clear();
+        
         setItem(0, CraftItemStack.asCraftMirror(items.getFirst()));
     }
     
-    public void sendMapUpdate(@Nullable MapPatch patch, @Nullable List<MapIcon> icons) {
-        if (patch != null && (patch.startX() + patch.width() > MAP_SIZE || patch.startY() + patch.height() > MAP_SIZE))
-            throw new IllegalArgumentException("Map patch is out of bounds");
-        
-        var packet = new ClientboundMapItemDataPacket(
-            new MapId(mapId),
-            (byte) 0,
-            false,
-            toNmsDecorations(icons),
-            toNmsMapPatch(patch)
-        );
+    private void sendMapUpdate(MapItemSavedData.@Nullable MapPatch patch, @Nullable Collection<MapDecoration> icons) {
+        var packet = new ClientboundMapItemDataPacket(new MapId(mapId), (byte) 0, false, icons, patch);
         PacketListener.getInstance().injectOutgoing(player, packet);
     }
     
-    private static @Nullable List<MapDecoration> toNmsDecorations(@Nullable List<MapIcon> icons) {
+    private static @Nullable Collection<MapDecoration> toNmsDecorations(@Nullable Collection<MapIcon> icons) {
         if (icons == null)
             return null;
         
@@ -80,8 +126,8 @@ public class CustomCartographyMenu extends CustomContainerMenu {
     private static MapDecoration toNmsDecoration(MapIcon icon) {
         return new MapDecoration(
             getDecorationTypeByIconType(icon.type()),
-            icon.x(), icon.y(),
-            icon.rot(),
+            (byte) (icon.x() - 128), (byte) (icon.y() - 128),
+            (byte) icon.rot(),
             Optional.ofNullable(icon.component()).map(PaperAdventure::asVanilla)
         );
     }
