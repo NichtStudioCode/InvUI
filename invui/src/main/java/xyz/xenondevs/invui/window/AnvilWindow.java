@@ -1,7 +1,10 @@
 package xyz.xenondevs.invui.window;
 
+import xyz.xenondevs.invui.gui.Gui;
+
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * A {@link Window} that uses an anvil inventory.
@@ -54,17 +57,44 @@ public sealed interface AnvilWindow extends Window permits AnvilWindowImpl {
     
     /**
      * An {@link AnvilWindow} builder.
-     *
-     * @see Window.Builder.Normal
-     * @see CartographyWindow.Builder
      */
     sealed interface Builder extends Window.Builder.Split<AnvilWindow, Builder> permits AnvilWindowImpl.BuilderImpl {
+        
+        /**
+         * Sets the upper {@link Gui} of the {@link AnvilWindow}.
+         *
+         * @param gui The upper {@link Gui}
+         * @return This {@link Builder}
+         */
+        default Builder setUpperGui(Gui gui) {
+            return setUpperGui(() -> gui);
+        }
+        
+        /**
+         * Sets the {@link Gui.Builder} for the upper {@link Gui} of this {@link Builder}.
+         * The {@link Gui.Builder} will be called every time a new {@link AnvilWindow} is created using this builder.
+         *
+         * @param builder The {@link Gui.Builder} for the upper {@link Gui}
+         * @return This {@link Builder}
+         */
+        default Builder setUpperGui(Gui.Builder<?, ?> builder) {
+            return setUpperGui(builder::build);
+        }
+        
+        /**
+         * Sets the {@link Gui} {@link Supplier} for the upper {@link Gui} of this {@link Builder}.
+         * The {@link Supplier} will be called every time a new {@link AnvilWindow} is created using this builder.
+         *
+         * @param guiSupplier The {@link Gui} {@link Supplier} for the upper {@link Gui}
+         * @return This {@link Builder}
+         */
+        Builder setUpperGui(Supplier<Gui> guiSupplier);
         
         /**
          * Sets the rename handlers of the {@link AnvilWindow}.
          *
          * @param renameHandlers The new rename handlers.
-         * @return The current builder.
+         * @return This {@link Builder}
          */
         Builder setRenameHandlers(List<Consumer<String>> renameHandlers);
         
@@ -72,7 +102,7 @@ public sealed interface AnvilWindow extends Window permits AnvilWindowImpl {
          * Adds a rename handler to the {@link AnvilWindow}.
          *
          * @param renameHandler The rename handler to add.
-         * @return The current builder.
+         * @return This {@link Builder}
          */
         Builder addRenameHandler(Consumer<String> renameHandler);
         

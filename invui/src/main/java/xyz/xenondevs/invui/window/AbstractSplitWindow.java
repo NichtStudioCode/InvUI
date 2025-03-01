@@ -11,7 +11,6 @@ import xyz.xenondevs.invui.internal.util.Pair;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.inventory.ReferencingInventory;
 
-import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -20,28 +19,17 @@ import java.util.function.Supplier;
 @ApiStatus.Internal
 sealed abstract class AbstractSplitWindow<M extends CustomContainerMenu>
     extends AbstractWindow<M>
-    permits AnvilWindowImpl, CartographyWindowImpl, NormalSplitWindowImpl, StonecutterWindowImpl
+    permits AnvilWindowImpl, CartographyWindowImpl, CrafterWindowImpl, NormalSplitWindowImpl, StonecutterWindowImpl
 {
     
-    protected final AbstractGui upperGui;
-    protected final AbstractGui lowerGui;
+    private final AbstractGui lowerGui;
     
-    AbstractSplitWindow(Player player, Supplier<Component> title, AbstractGui upperGui, AbstractGui lowerGui, M menu, boolean closeable) {
-        this(player, title, upperGui, lowerGui, upperGui.getSize() + lowerGui.getSize(), menu, closeable);
-    }
-    
-    AbstractSplitWindow(Player player, Supplier<Component> title, AbstractGui upperGui, AbstractGui lowerGui, int size, M menu, boolean closeable) {
+    AbstractSplitWindow(Player player, Supplier<Component> title, AbstractGui lowerGui, int size, M menu, boolean closeable) {
         super(player, title, size, menu, closeable);
-        this.upperGui = upperGui;
         this.lowerGui = lowerGui;
         
         if (lowerGui.getWidth() != 9 || lowerGui.getHeight() != 4)
-            throw new IllegalArgumentException("Lower gui must of of dimensions 9x4.");
-    }
-    
-    @Override
-    public List<? extends Gui> getGuis() {
-        return List.of(upperGui, lowerGui);
+            throw new IllegalArgumentException("Lower gui must of of dimensions 9x4");
     }
     
     @Override
@@ -53,52 +41,15 @@ sealed abstract class AbstractSplitWindow<M extends CustomContainerMenu>
     static sealed abstract class AbstractBuilder<W extends Window, S extends Builder.Split<W, S>>
         extends AbstractWindow.AbstractBuilder<W, S>
         implements Builder.Split<W, S>
-        permits AnvilWindowImpl.BuilderImpl, CartographyWindowImpl.BuilderImpl, NormalSplitWindowImpl.BuilderImpl, StonecutterWindowImpl.BuilderImpl
+        permits AnvilWindowImpl.BuilderImpl, CartographyWindowImpl.BuilderImpl, CrafterWindowImpl.BuilderImpl, NormalSplitWindowImpl.BuilderImpl, StonecutterWindowImpl.BuilderImpl
     {
         
-        private @Nullable Supplier<Gui> upperGuiSupplier;
         private @Nullable Supplier<Gui> lowerGuiSupplier;
-        
-        @Override
-        public S setUpperGui(Supplier<Gui> guiSupplier) {
-            this.upperGuiSupplier = guiSupplier;
-            return (S) this;
-        }
-        
-        @Override
-        public S setUpperGui(Gui gui) {
-            this.upperGuiSupplier = () -> gui;
-            return (S) this;
-        }
-        
-        @Override
-        public S setUpperGui(Gui.Builder<?, ?> builder) {
-            this.upperGuiSupplier = builder::build;
-            return (S) this;
-        }
         
         @Override
         public S setLowerGui(Supplier<Gui> guiSupplier) {
             this.lowerGuiSupplier = guiSupplier;
             return (S) this;
-        }
-        
-        @Override
-        public S setLowerGui(Gui gui) {
-            this.lowerGuiSupplier = () -> gui;
-            return (S) this;
-        }
-        
-        @Override
-        public S setLowerGui(Gui.Builder<?, ?> builder) {
-            this.lowerGuiSupplier = builder::build;
-            return (S) this;
-        }
-        
-        protected AbstractGui supplyUpperGui() {
-            if (upperGuiSupplier == null)
-                throw new IllegalStateException("Upper Gui is undefined.");
-            return (AbstractGui) upperGuiSupplier.get();
         }
         
         protected AbstractGui supplyLowerGui(Player viewer) {

@@ -14,7 +14,7 @@ import java.util.function.Supplier;
  * A Window is the way to show a player a {@link Gui}. Windows can only have one viewer.
  * To create a new {@link Window}, use the builder factory methods {@link Window#split} and {@link Window#merged}.
  */
-public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyWindow, StonecutterWindow {
+public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyWindow, CrafterWindow, StonecutterWindow {
     
     /**
      * Creates a new {@link Builder.Normal.Split Window Builder} for a normal split window.
@@ -393,34 +393,8 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
          */
         sealed interface Split<W extends Window, S extends Split<W, S>>
             extends Builder<W, S>
-            permits AbstractSplitWindow.AbstractBuilder, AnvilWindow.Builder, CartographyWindow.Builder, StonecutterWindow.Builder, Normal.Split
+            permits AbstractSplitWindow.AbstractBuilder, AnvilWindow.Builder, CartographyWindow.Builder, CrafterWindow.Builder, StonecutterWindow.Builder, Normal.Split
         {
-            
-            /**
-             * Sets the upper {@link Gui} of the {@link Window}.
-             *
-             * @param gui The upper {@link Gui} of the {@link Window}
-             * @return This {@link Split Window Builder}
-             */
-            S setUpperGui(Gui gui);
-            
-            /**
-             * Sets the {@link Gui.Builder} for the upper {@link Gui} of this {@link Split Window Builder}.
-             * The {@link Gui.Builder} will be called every time a new {@link Window} is created using this builder.
-             *
-             * @param builder The {@link Gui.Builder} for the upper {@link Gui} of this {@link Split Window Builder}
-             * @return This {@link Split Window Builder}
-             */
-            S setUpperGui(Gui.Builder<?, ?> builder);
-            
-            /**
-             * Sets the {@link Gui} {@link Supplier} for the upper {@link Gui} of this {@link Split Window Builder}.
-             * The {@link Supplier} will be called every time a new {@link Window} is created using this builder.
-             *
-             * @param guiSupplier The {@link Gui} {@link Supplier} for the upper {@link Gui} of this {@link Split Window Builder}
-             * @return This {@link Split Window Builder}
-             */
-            S setUpperGui(Supplier<Gui> guiSupplier);
             
             /**
              * Sets the lower {@link Gui} of the {@link Window}.
@@ -428,7 +402,9 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
              * @param gui The lower {@link Gui} of the {@link Window}
              * @return This {@link Split Window Builder}
              */
-            S setLowerGui(Gui gui);
+            default S setLowerGui(Gui gui) {
+                return setLowerGui(() -> gui);
+            }
             
             /**
              * Sets the {@link Gui.Builder} for the lower {@link Gui} of this {@link Split Window Builder}.
@@ -437,7 +413,9 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
              * @param builder The {@link Gui.Builder} for the lower {@link Gui} of this {@link Split Window Builder}
              * @return This {@link Split Window Builder}
              */
-            S setLowerGui(Gui.Builder<?, ?> builder);
+            default S setLowerGui(Gui.Builder<?, ?> builder) {
+                return setLowerGui(builder::build);
+            }
             
             /**
              * Sets the {@link Gui} {@link Supplier} for the lower {@link Gui} of this {@link Split Window Builder}.
@@ -467,8 +445,39 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
              * @see AnvilWindow.Builder.Split
              * @see CartographyWindow.Builder.Split
              */
-            sealed interface Split extends Builder.Normal<Player, Split>, Builder.Split<Window, Split>
-                permits NormalSplitWindowImpl.BuilderImpl {}
+            sealed interface Split extends Builder.Normal<Player, Split>, Builder.Split<Window, Split> permits NormalSplitWindowImpl.BuilderImpl {
+                
+                /**
+                 * Sets the upper {@link Gui} of the {@link Window}.
+                 *
+                 * @param gui The upper {@link Gui} of the {@link Window}
+                 * @return This {@link Normal.Split}
+                 */
+                default Normal.Split setUpperGui(Gui gui) {
+                    return setUpperGui(() -> gui);
+                }
+                
+                /**
+                 * Sets the {@link Gui.Builder} for the upper {@link Gui} of this {@link Normal.Split}.
+                 * The {@link Gui.Builder} will be called every time a new {@link Window} is created using this builder.
+                 *
+                 * @param builder The {@link Gui.Builder} for the upper {@link Gui}
+                 * @return This {@link Normal.Split}
+                 */
+                default Normal.Split setUpperGui(Gui.Builder<?, ?> builder) {
+                    return setUpperGui(builder::build);
+                }
+                
+                /**
+                 * Sets the {@link Gui} {@link Supplier} for the upper {@link Gui} of this {@link Normal.Split}.
+                 * The {@link Supplier} will be called every time a new {@link Window} is created using this builder.
+                 *
+                 * @param guiSupplier The {@link Gui} {@link Supplier} for the upper {@link Gui
+                 * @return This {@link Normal.Split}
+                 */
+                Normal.Split setUpperGui(Supplier<Gui> guiSupplier);
+                
+            }
             
             /**
              * A normal merged {@link Window} builder. Combines both {@link Builder.Merged} and {@link Builder.Normal}

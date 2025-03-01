@@ -5,13 +5,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
+import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomStonecutterMenu;
 import xyz.xenondevs.invui.internal.util.ItemUtils2;
-import xyz.xenondevs.invui.Click;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
@@ -20,13 +23,15 @@ import java.util.function.Supplier;
  * <p>
  * Slot layout:
  * <ul>
- *     <li>[0, 1] -> gui</li>
- *     <li>[2, 37] -> player inventory</li>
+ *     <li>[0, 1] -> upper gui</li>
+ *     <li>[2, 37] -> lower gui</li>
  *     <li>[38, ?] -> buttons gui</li>
  * </ul>
  */
 final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterMenu> implements StonecutterWindow {
     
+    private final AbstractGui upperGui;
+    private final AbstractGui lowerGui;
     private final AbstractGui buttonsGui;
     private final @Nullable ItemStack[] buttons;
     private boolean buttonsDirty = false;
@@ -41,7 +46,7 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
         List<BiConsumer<Integer, Integer>> selectedSlotChangeHandlers,
         boolean closable
     ) {
-        super(player, title, upperGui, lowerGui, upperGui.getSize() + lowerGui.getSize() + buttonsGui.getSize(), new CustomStonecutterMenu(player), closable);
+        super(player, title, lowerGui, upperGui.getSize() + lowerGui.getSize() + buttonsGui.getSize(), new CustomStonecutterMenu(player), closable);
         if (upperGui.getWidth() != 2 || upperGui.getHeight() != 1)
             throw new IllegalArgumentException("Gui must of of dimensions 2x1.");
         if (lowerGui.getWidth() != 9 || lowerGui.getHeight() != 4)
@@ -49,6 +54,8 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
         if (buttonsGui.getWidth() != 4)
             throw new IllegalArgumentException("Buttons gui width must be 4.");
         
+        this.upperGui = upperGui;
+        this.lowerGui = lowerGui;
         this.buttonsGui = buttonsGui;
         this.buttons = new ItemStack[buttonsGui.getSize()];
         this.selectedSlotChangeHandlers = new ArrayList<>(selectedSlotChangeHandlers);
@@ -123,18 +130,13 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
         implements StonecutterWindow.Builder
     {
         
-        private @Nullable Supplier<Gui> butonsGuiSupplier;
+        private Supplier<Gui> upperGuiSupplier = () -> Gui.empty(2, 1);
+        private Supplier<Gui> butonsGuiSupplier = () -> Gui.empty(0, 0);
         private List<BiConsumer<Integer, Integer>> selectedSlotChangeHandlers = new ArrayList<>();
         
         @Override
-        public BuilderImpl setButtonsGui(Gui gui) {
-            this.butonsGuiSupplier = () -> gui;
-            return this;
-        }
-        
-        @Override
-        public BuilderImpl setButtonsGui(Gui.Builder<?, ?> builder) {
-            this.butonsGuiSupplier = builder::build;
+        public StonecutterWindow.Builder setUpperGui(Supplier<Gui> guiSupplier) {
+            this.upperGuiSupplier = guiSupplier;
             return this;
         }
         
@@ -158,13 +160,10 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
         
         @Override
         public StonecutterWindowImpl build(Player viewer) {
-            if (butonsGuiSupplier == null)
-                throw new IllegalStateException("Buttons gui is not defined.");
-            
             return new StonecutterWindowImpl(
                 viewer,
                 titleSupplier,
-                supplyUpperGui(),
+                (AbstractGui) upperGuiSupplier.get(),
                 supplyLowerGui(viewer),
                 (AbstractGui) butonsGuiSupplier.get(),
                 selectedSlotChangeHandlers,

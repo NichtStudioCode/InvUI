@@ -80,6 +80,8 @@ public class InventoryUtils {
             return 1;
         if (type == MenuType.STONECUTTER)
             return 1;
+        if (type == MenuType.CRAFTER_3x3)
+            return 9;
         
         // TODO: all types
         

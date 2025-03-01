@@ -1,10 +1,18 @@
 package xyz.xenondevs.invui.window;
 
 import net.kyori.adventure.text.Component;
+import net.minecraft.network.protocol.game.ClientboundHorseScreenOpenPacket;
+import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
+import net.minecraft.server.level.ServerPlayer;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
+import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomCartographyMenu;
+import xyz.xenondevs.invui.internal.network.PacketListener;
 import xyz.xenondevs.invui.util.ColorPalette;
 import xyz.xenondevs.invui.util.MapIcon;
 import xyz.xenondevs.invui.util.MapPatch;
@@ -12,23 +20,32 @@ import xyz.xenondevs.invui.util.MapPatch;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
 final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyMenu> implements CartographyWindow {
     
     private static final int MAP_SIZE = 128;
+    private final AbstractGui inputGui;
+    private final AbstractGui outputGui;
+    private final AbstractGui lowerGui;
     
     public CartographyWindowImpl(
         Player player,
         Supplier<Component> title,
-        AbstractGui upperGui,
+        AbstractGui inputGui,
+        AbstractGui outputGui,
         AbstractGui lowerGui,
         boolean closeable
     ) {
-        super(player, title, upperGui, lowerGui, new CustomCartographyMenu(player), closeable);
-        if (upperGui.getWidth() != 3 || upperGui.getHeight() != 1)
-            throw new IllegalArgumentException("Upper gui must be of dimensions 3x1");
+        super(player, title, lowerGui, 3 + 36, new CustomCartographyMenu(player), closeable);
+        if (inputGui.getWidth() != 1 || inputGui.getHeight() != 2)
+            throw new IllegalArgumentException("Input gui must be of dimensions 1x2");
+        
+        this.inputGui = inputGui;
+        this.outputGui = outputGui;
+        this.lowerGui = lowerGui;
         initItems();
     }
     
@@ -57,13 +74,32 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
         menu.setIcons(icons, isOpen());
     }
     
+    @Override
+    public List<? extends Gui> getGuis() {
+        return List.of(inputGui, outputGui, lowerGui);
+    }
+    
     public static final class BuilderImpl
         extends AbstractSplitWindow.AbstractBuilder<CartographyWindow, CartographyWindow.Builder>
         implements CartographyWindow.Builder
     {
         
+        private Supplier<Gui> inputGuiSupplier = () -> Gui.empty(1, 2);
+        private Supplier<Gui> outputGuiSupplier = () -> Gui.empty(1, 2);
         private final Set<MapIcon> icons = new HashSet<>();
         private byte @Nullable [] canvas;
+        
+        @Override
+        public CartographyWindow.Builder setInputGui(Supplier<Gui> guiSupplier) {
+            this.inputGuiSupplier = guiSupplier;
+            return this;
+        }
+        
+        @Override
+        public CartographyWindow.Builder setOutputGui(Supplier<Gui> guiSupplier) {
+            this.outputGuiSupplier = guiSupplier;
+            return this;
+        }
         
         @Override
         public CartographyWindow.Builder addIcon(MapIcon icon) {
@@ -98,7 +134,8 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
             var window = new CartographyWindowImpl(
                 viewer,
                 titleSupplier,
-                supplyUpperGui(),
+                (AbstractGui) inputGuiSupplier.get(),
+                (AbstractGui) outputGuiSupplier.get(),
                 supplyLowerGui(viewer),
                 closeable
             );

@@ -1,5 +1,6 @@
 package xyz.xenondevs.invui.window;
 
+import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.util.ColorPalette;
 import xyz.xenondevs.invui.util.MapIcon;
 import xyz.xenondevs.invui.util.MapPatch;
@@ -7,6 +8,7 @@ import xyz.xenondevs.invui.util.MapPatch;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * A {@link Window} that uses a cartography table inventory.
@@ -87,10 +89,70 @@ public sealed interface CartographyWindow extends Window permits CartographyWind
     sealed interface Builder extends Window.Builder.Split<CartographyWindow, Builder> permits CartographyWindowImpl.BuilderImpl {
         
         /**
+         * Sets the 1x2 input {@link Gui} (map and paper) of the {@link CartographyWindow}.
+         *
+         * @param gui The 1x2 input {@link Gui} (map and paper) of the {@link CartographyWindow}
+         * @return This {@link Builder}
+         */
+        default Builder setInputGui(Gui gui) {
+            return setInputGui(() -> gui);
+        }
+        
+        /**
+         * Sets the {@link Gui.Builder} for the 1x2 input {@link Gui} (map and paper) of this {@link Builder}.
+         * The {@link Gui.Builder} will be called every time a new {@link CartographyWindow} is created using this {@link Builder}.
+         *
+         * @param builder The {@link Gui.Builder} for the 1x2 input {@link Gui} (map and paper)
+         * @return This {@link Builder}
+         */
+        default Builder setInputGui(Gui.Builder<?, ?> builder) {
+            return setInputGui(builder::build);
+        }
+        
+        /**
+         * Sets the {@link Gui} {@link Supplier} for the 1x2 input {@link Gui} (map and paper) of this {@link Builder}.
+         * The {@link Supplier} will be called every time a new {@link CartographyWindow} is created using this builder.
+         *
+         * @param guiSupplier The {@link Gui} {@link Supplier} for the 1x2 input {@link Gui} (map and paper)
+         * @return This {@link Builder}
+         */
+        Builder setInputGui(Supplier<Gui> guiSupplier);
+        
+        /**
+         * Sets the 1x1 output {@link Gui} of the {@link CartographyWindow}.
+         *
+         * @param gui The 1x1 output {@link Gui}
+         * @return This {@link Builder}
+         */
+        default Builder setOutputGui(Gui gui) {
+            return setOutputGui(() -> gui);
+        }
+        
+        /**
+         * Sets the {@link Gui.Builder} for the 1x1 output {@link Gui} of this {@link Builder}.
+         * The {@link Gui.Builder} will be called every time a new {@link CartographyWindow} is created using this builder.
+         *
+         * @param builder The {@link Gui.Builder} for the 1x1 output {@link Gui}
+         * @return This {@link Builder}
+         */
+        default Builder setOutputGui(Gui.Builder<?, ?> builder) {
+            return setOutputGui(builder::build);
+        }
+        
+        /**
+         * Sets the {@link Gui} {@link Supplier} for the 1x1 output {@link Gui} of this {@link Builder}.
+         * The {@link Supplier} will be called every time a new {@link CartographyWindow} is created using this builder.
+         *
+         * @param guiSupplier The {@link Gui} {@link Supplier} for the 1x1 output {@link Gui}
+         * @return This {@link Builder}
+         */
+        Builder setOutputGui(Supplier<Gui> guiSupplier);
+        
+        /**
          * Adds a {@link MapIcon} to the map.
          *
          * @param icon The {@link MapIcon} to add.
-         * @return The {@link Builder} instance.
+         * @return This {@link Builder}
          */
         Builder addIcon(MapIcon icon);
         
@@ -98,7 +160,7 @@ public sealed interface CartographyWindow extends Window permits CartographyWind
          * Sets the {@link MapIcon MapIcons} of the map.
          *
          * @param icons The {@link MapIcon MapIcons} to set.
-         * @return The {@link Builder} instance.
+         * @return This {@link Builder}
          */
         Builder setIcons(Collection<? extends MapIcon> icons);
         
@@ -106,7 +168,7 @@ public sealed interface CartographyWindow extends Window permits CartographyWind
          * Sets the map colors of the map.
          *
          * @param colors The map colors to set.
-         * @return The {@link Builder} instance.
+         * @return This {@link Builder}
          * @throws IllegalArgumentException If colors length is not 128x128
          */
         Builder setMap(byte[] colors);
@@ -115,7 +177,7 @@ public sealed interface CartographyWindow extends Window permits CartographyWind
          * Sets the map colors of the map.
          *
          * @param image The image to read the colors from
-         * @return The {@link Builder} instance.
+         * @return This {@link Builder}
          * @throws IllegalArgumentException If the image dimensions are not 128x128
          */
         Builder setMap(BufferedImage image);
