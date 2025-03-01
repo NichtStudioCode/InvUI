@@ -73,6 +73,45 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
     }
     
     /**
+     * Creates a new 1x1 {@link Gui} with the given item on the only slot.
+     *
+     * @param item The {@link Item} to be placed on the only slot.
+     * @return The created {@link Gui}.
+     */
+    static Gui single(Item item) {
+        Gui gui = empty(1, 1);
+        gui.setItem(0, item);
+        return gui;
+    }
+    
+    /**
+     * Creates a new 1x1 {@link Gui} with a link to the given inventory's slot on the only slot.
+     *
+     * @param inventory The {@link Inventory} to be linked.
+     * @param slot      The slot of the inventory to be linked.
+     * @return The created {@link Gui}.
+     */
+    static Gui single(Inventory inventory, int slot) {
+        Gui gui = empty(1, 1);
+        gui.setSlotElement(0, new SlotElement.InventoryLink(inventory, slot));
+        return gui;
+    }
+    
+    /**
+     * Creates a new 1x1 {@link Gui} with a link to the given inventory's slot on the only slot.
+     *
+     * @param inventory  The {@link Inventory} to be linked.
+     * @param slot       The slot of the inventory to be linked.
+     * @param background The {@link ItemProvider} to display when the slot is empty.
+     * @return The created {@link Gui}.
+     */
+    static Gui single(Inventory inventory, int slot, ItemProvider background) {
+        Gui gui = empty(1, 1);
+        gui.setSlotElement(0, new SlotElement.InventoryLink(inventory, slot, background));
+        return gui;
+    }
+    
+    /**
      * Gets the size of the {@link Gui}.
      *
      * @return The size of the gui.
