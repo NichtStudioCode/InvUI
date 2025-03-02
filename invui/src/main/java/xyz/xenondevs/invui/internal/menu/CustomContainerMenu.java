@@ -453,7 +453,7 @@ public abstract class CustomContainerMenu {
     protected void handleButtonClick(int buttonId) {
     }
     
-    private void runInInteractionContext(Runnable run) {
+    protected void runInInteractionContext(Runnable run) {
         try {
             interactionContext.set(true);
             run.run();

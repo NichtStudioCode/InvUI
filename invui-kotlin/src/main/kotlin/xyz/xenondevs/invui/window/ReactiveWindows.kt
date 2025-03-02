@@ -143,3 +143,45 @@ fun <S : StonecutterWindow.Builder> S.setSelectedSlot(provider: Provider<Int>): 
     }
     return this
 }
+
+@ExperimentalReactiveApi
+fun <S : MerchantWindow.Builder> S.setTrades(trades: Provider<List<MerchantWindow.Trade>>): S {
+    addModifier { window -> trades.observeWeak(window) { window -> window.updateTrades() } }
+    setTradesSupplier(trades)
+    return this
+}
+
+@ExperimentalReactiveApi
+fun <S : MerchantWindow.Builder> S.setLevel(level: Provider<Int>): S {
+    addModifier { window -> level.observeWeak(window) { window -> window.updateTrades() } }
+    setLevelSupplier(level)
+    return this
+}
+
+@ExperimentalReactiveApi
+fun <S : MerchantWindow.Builder> S.setProgress(progress: Provider<Double>): S {
+    addModifier { window -> progress.observeWeak(window) { window -> window.updateTrades() } }
+    setProgressSupplier(progress)
+    return this
+}
+
+@ExperimentalReactiveApi
+fun <S : MerchantWindow.Builder> S.setRestockMessageEnabled(restockMessageEnabled: Provider<Boolean>): S {
+    addModifier { window -> restockMessageEnabled.observeWeak(window) { window -> window.updateTrades() } }
+    setRestockMessageEnabledSupplier(restockMessageEnabled)
+    return this
+}
+
+@ExperimentalReactiveApi
+fun <S : MerchantWindow.Trade.Builder> S.setDiscount(discount: Provider<Int>): S {
+    addModifier { trade -> discount.observeWeak(trade) { trade -> trade.notifyWindows() } }
+    setDiscountSupplier(discount)
+    return this
+}
+
+@ExperimentalReactiveApi
+fun <S : MerchantWindow.Trade.Builder> S.setAvailable(available: Provider<Boolean>): S {
+    addModifier { trade -> available.observeWeak(trade) { trade -> trade.notifyWindows() } }
+    setAvailableSupplier(available)
+    return this
+}

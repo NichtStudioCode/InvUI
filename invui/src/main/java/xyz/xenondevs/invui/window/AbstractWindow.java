@@ -343,6 +343,20 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
         
         // track window and elements
         WindowManager.getInstance().addWindow(this);
+        registerAsViewer();
+        
+        // open inventory
+        var title = getTitle();
+        activeTitle = title;
+        menu.open(Languages.getInstance().localized(viewer, title));
+        
+        // open handlers
+        if (openHandlers != null) {
+            openHandlers.forEach(Runnable::run);
+        }
+    }
+    
+    protected void registerAsViewer() {
         for (int i = 0; i < size; i++) {
             SlotElement element = elementsDisplayed[i];
             switch (element) {
@@ -355,16 +369,6 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
             var pair = getGuiAt(i);
             if (pair != null)
                 pair.first().addViewer(this, pair.second(), i);
-        }
-        
-        // open inventory
-        var title = getTitle();
-        activeTitle = title;
-        menu.open(Languages.getInstance().localized(viewer, title));
-        
-        // open handlers
-        if (openHandlers != null) {
-            openHandlers.forEach(Runnable::run);
         }
     }
     
@@ -396,7 +400,10 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
     
     private void remove() {
         WindowManager.getInstance().removeWindow(this);
-        
+        unregisterAsViewer();
+    }
+    
+    protected void unregisterAsViewer() {
         for (int i = 0; i < size; i++) {
             SlotElement element = elementsDisplayed[i];
             switch (element) {

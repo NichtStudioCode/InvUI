@@ -19,7 +19,7 @@ import java.util.function.Supplier;
 @ApiStatus.Internal
 sealed abstract class AbstractSplitWindow<M extends CustomContainerMenu>
     extends AbstractWindow<M>
-    permits AnvilWindowImpl, CartographyWindowImpl, CrafterWindowImpl, NormalSplitWindowImpl, StonecutterWindowImpl
+    permits AnvilWindowImpl, CartographyWindowImpl, CrafterWindowImpl, MerchantWindowImpl, NormalSplitWindowImpl, StonecutterWindowImpl
 {
     
     private final AbstractGui lowerGui;
@@ -41,7 +41,7 @@ sealed abstract class AbstractSplitWindow<M extends CustomContainerMenu>
     static sealed abstract class AbstractBuilder<W extends Window, S extends Builder.Split<W, S>>
         extends AbstractWindow.AbstractBuilder<W, S>
         implements Builder.Split<W, S>
-        permits AnvilWindowImpl.BuilderImpl, CartographyWindowImpl.BuilderImpl, CrafterWindowImpl.BuilderImpl, NormalSplitWindowImpl.BuilderImpl, StonecutterWindowImpl.BuilderImpl
+        permits AnvilWindowImpl.BuilderImpl, CartographyWindowImpl.BuilderImpl, CrafterWindowImpl.BuilderImpl, MerchantWindowImpl.BuilderImpl, NormalSplitWindowImpl.BuilderImpl, StonecutterWindowImpl.BuilderImpl
     {
         
         private @Nullable Supplier<Gui> lowerGuiSupplier;
