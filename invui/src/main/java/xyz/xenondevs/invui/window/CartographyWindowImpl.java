@@ -46,7 +46,6 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
         this.inputGui = inputGui;
         this.outputGui = outputGui;
         this.lowerGui = lowerGui;
-        initItems();
     }
     
     @Override

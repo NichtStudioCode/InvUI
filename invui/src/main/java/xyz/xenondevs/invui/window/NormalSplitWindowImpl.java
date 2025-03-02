@@ -11,6 +11,9 @@ import java.util.function.Supplier;
 
 final class NormalSplitWindowImpl extends AbstractSplitWindow<CustomPlainMenu> {
     
+    private final AbstractGui upperGui;
+    private final AbstractGui lowerGui;
+    
     public NormalSplitWindowImpl(
         Player player,
         Supplier<Component> title,
@@ -19,12 +22,13 @@ final class NormalSplitWindowImpl extends AbstractSplitWindow<CustomPlainMenu> {
         boolean closeable
     ) {
         super(player, title, lowerGui, upperGui.getSize() + lowerGui.getSize(), new CustomPlainMenu(upperGui.getWidth(), upperGui.getHeight(), player), closeable);
-        initItems();
+        this.upperGui = upperGui;
+        this.lowerGui = lowerGui;
     }
     
     @Override
     public List<? extends Gui> getGuis() {
-        return List.of();
+        return List.of(upperGui, lowerGui);
     }
     
     public static final class BuilderImpl

@@ -40,7 +40,6 @@ final class CrafterWindowImpl extends AbstractSplitWindow<CustomCrafterMenu> imp
         this.slotToggleHandlers = slotToggleHandlers;
         
         menu.setSlotStateChangeHandler(this::handleSlotToggled);
-        initItems();
     }
     
     private void handleSlotToggled(int slot, boolean disabled) {

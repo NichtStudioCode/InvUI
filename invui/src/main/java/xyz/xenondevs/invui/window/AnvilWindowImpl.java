@@ -31,8 +31,6 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
         
         this.upperGui = upperGui;
         this.lowerGui = lowerGui;
-        
-        initItems();
     }
     
     @Override

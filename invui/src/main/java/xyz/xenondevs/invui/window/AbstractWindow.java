@@ -73,12 +73,6 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
         menu.setWindow(this);
     }
     
-    protected void initItems() {
-        for (int i = 0; i < size; i++) {
-            update(i);
-        }
-    }
-    
     protected void update(int slot) {
         Pair<AbstractGui, Integer> guiSlotPair = getGuiAt(slot);
         if (guiSlotPair == null)
@@ -344,6 +338,11 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
         // track window and elements
         WindowManager.getInstance().addWindow(this);
         registerAsViewer();
+        
+        // init items
+        for (int i = 0; i < size; i++) {
+            update(i);
+        }
         
         // open inventory
         var title = getTitle();

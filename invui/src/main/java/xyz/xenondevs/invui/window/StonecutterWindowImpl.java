@@ -60,7 +60,6 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
         this.buttons = new ItemStack[buttonsGui.getSize()];
         this.selectedSlotChangeHandlers = new ArrayList<>(selectedSlotChangeHandlers);
         menu.setClickHandler(this::selectSlot);
-        initItems();
     }
     
     private void selectSlot(int prev, int slot) {

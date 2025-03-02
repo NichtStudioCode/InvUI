@@ -16,7 +16,6 @@ final class NormalMergedWindowImpl extends AbstractMergedWindow<CustomPlainMenu>
         boolean closeable
     ) {
         super(player, title, gui, new CustomPlainMenu(gui.getWidth(), gui.getHeight() - 4, player), closeable);
-        initItems();
     }
     
     public static final class BuilderImpl

@@ -51,7 +51,6 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
         this.restockMessageSupplier = restockMessageSupplier;
         
         menu.setTradeSelectHandler(this::handleTradeSelect);
-        initItems();
         updateTrades();
     }
     
