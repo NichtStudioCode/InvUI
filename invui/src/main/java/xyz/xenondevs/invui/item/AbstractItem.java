@@ -1,5 +1,6 @@
 package xyz.xenondevs.invui.item;
 
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
 import xyz.xenondevs.invui.internal.ViewerAtSlot;
 import xyz.xenondevs.invui.window.AbstractWindow;
@@ -36,6 +37,11 @@ public non-sealed abstract class AbstractItem implements Item {
         synchronized (viewers) {
             viewers.remove(new ViewerAtSlot<>(who, how));
         }
+    }
+    
+    @Override
+    public void handleBundleSelect(Player player, int bundleSlot) {
+        // empty
     }
     
     @Override

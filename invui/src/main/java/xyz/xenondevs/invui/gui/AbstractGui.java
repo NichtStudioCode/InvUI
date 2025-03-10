@@ -78,8 +78,11 @@ public sealed abstract class AbstractGui
             return;
         
         SlotElement slotElement = slotElements[slot];
-        if (slotElement instanceof SlotElement.InventoryLink ie) {
-            handleInvBundleSelect(player, ie.inventory(), ie.slot(), bundleSlot);
+        switch(slotElement) {
+            case SlotElement.GuiLink le -> ((AbstractGui)le.gui()).handleBundleSelect(player, le.slot(), bundleSlot);
+            case SlotElement.Item ie -> ie.item().handleBundleSelect(player, bundleSlot);
+            case SlotElement.InventoryLink ie -> handleInvBundleSelect(player, ie.inventory(), ie.slot(), bundleSlot);
+            case null -> {}
         }
     }
     

@@ -6,6 +6,7 @@ import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.PagedGui;
 import xyz.xenondevs.invui.gui.ScrollGui;
 import xyz.xenondevs.invui.gui.TabGui;
+import xyz.xenondevs.invui.util.QuadConsumer;
 import xyz.xenondevs.invui.util.TriConsumer;
 
 import java.util.function.BiConsumer;
@@ -101,6 +102,17 @@ public sealed interface BoundItem extends Item permits AbstractBoundItem {
          * @return This builder.
          */
         Builder<G> addClickHandler(TriConsumer<Item, G, Click> handler);
+        
+        /**
+         * Adds a handler that is called when the {@link ItemProvider} has bundle contents and the {@link Player}
+         * selects a bundle slot.
+         *
+         * @param handler The select handler, receiving the {@link Item}, the bound {@link Gui}, the {@link Player}
+         *                that interacted and the selected bundle slot or -1 if the player's cursor left the
+         *                {@link ItemProvider}.
+         * @return This builder.
+         */
+        Builder<G> addBundleSelectHandler(QuadConsumer<Item, G, Player, Integer> handler);
         
         /**
          * Sets the item provider that provides the item for a specific player and {@link Gui}.

@@ -6,6 +6,7 @@ import org.bukkit.inventory.ItemStack;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.util.ArrayUtils;
+import xyz.xenondevs.invui.util.TriConsumer;
 import xyz.xenondevs.invui.window.Window;
 
 import java.util.List;
@@ -47,6 +48,14 @@ public sealed interface Item permits AbstractItem, BoundItem {
      * @param click     Contains additional information about the click event.
      */
     void handleClick(ClickType clickType, Player player, Click click);
+    
+    /**
+     * Called when the {@link #getItemProvider(Player) ItemProvider} has bundle contents
+     * and the player selects a bundle slot.
+     *
+     * @param bundleSlot The selected bundle slot, or -1 if the player's cursor left the {@link ItemProvider}.
+     */
+    void handleBundleSelect(Player player, int bundleSlot);
     
     /**
      * Creates a new {@link Builder} for an {@link Item}.
@@ -181,6 +190,16 @@ public sealed interface Item permits AbstractItem, BoundItem {
          * @return This builder.
          */
         S addClickHandler(BiConsumer<Item, Click> clickHandler);
+        
+        /**
+         * Adds a handler that is called when the {@link ItemProvider} has bundle contents and the {@link Player}
+         * selects a bundle slot.
+         *
+         * @param selectHandler The select handler, receiving the {@link Item}, the {@link Player} that interacted
+         *                      and the selected bundle slot or -1 if the player's cursor left the {@link ItemProvider}.
+         * @return This builder.
+         */
+        S addBundleSelectHandler(TriConsumer<Item, Player, Integer> selectHandler);
         
         /**
          * Adds a modifier that is run on the {@link Item} when it is being built.

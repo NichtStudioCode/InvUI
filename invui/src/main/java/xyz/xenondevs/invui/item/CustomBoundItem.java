@@ -12,6 +12,7 @@ import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.PagedGui;
 import xyz.xenondevs.invui.gui.ScrollGui;
 import xyz.xenondevs.invui.gui.TabGui;
+import xyz.xenondevs.invui.util.QuadConsumer;
 import xyz.xenondevs.invui.util.TriConsumer;
 import xyz.xenondevs.invui.window.AbstractWindow;
 
@@ -22,14 +23,22 @@ import java.util.function.*;
 class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
     
     private final TriConsumer<Item, G, Click> clickHandler;
+    private final QuadConsumer<Item, G, Player, Integer> selectHandler;
     private volatile BiFunction<Player, G, ItemProvider> itemProvider;
     private final BiConsumer<Item, G> bindHandler;
     private final long updatePeriod;
     private @Nullable BukkitTask updateTask;
     
-    public CustomBoundItem(BiConsumer<Item, G> bindHandler, TriConsumer<Item, G, Click> clickHandler, BiFunction<Player, G, ItemProvider> itemProvider, long updatePeriod) {
+    public CustomBoundItem(
+        BiConsumer<Item, G> bindHandler,
+        TriConsumer<Item, G, Click> clickHandler,
+        QuadConsumer<Item, G, Player, Integer> selectHandler,
+        BiFunction<Player, G, ItemProvider> itemProvider,
+        long updatePeriod
+    ) {
         this.bindHandler = bindHandler;
         this.clickHandler = clickHandler;
+        this.selectHandler = selectHandler;
         this.itemProvider = itemProvider;
         this.updatePeriod = updatePeriod;
     }
@@ -58,6 +67,11 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
     }
     
     @Override
+    public void handleBundleSelect(Player player, int bundleSlot) {
+        selectHandler.accept(this, getGui(), player, bundleSlot);
+    }
+    
+    @Override
     public void addViewer(AbstractWindow<?> who, int how) {
         super.addViewer(who, how);
         if (updatePeriod > 0 && updateTask == null) {
@@ -83,6 +97,7 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         
         protected BiConsumer<Item, G> bindHandler = (item, gui) -> {};
         private TriConsumer<Item, G, Click> clickHandler = (item, gui, click) -> {};
+        private QuadConsumer<Item, G, Player, Integer> selectHandler = (item, gui, player, slot) -> {};
         private @Nullable BiFunction<Player, G, ItemProvider> itemProviderFn;
         private @Nullable ItemProvider asyncPlaceholder;
         private @Nullable Supplier<ItemProvider> asyncSupplier;
@@ -165,6 +180,18 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         }
         
         @Override
+        public Builder<G> addBundleSelectHandler(QuadConsumer<Item, G, Player, Integer> handler) {
+            selectHandler = selectHandler.andThen(handler);
+            return this;
+        }
+        
+        @Override
+        public Builder<G> addBundleSelectHandler(TriConsumer<Item, Player, Integer> selectHandler) {
+            this.selectHandler = this.selectHandler.andThen((item, gui, player, slot) -> selectHandler.accept(item, player, slot));
+            return this;
+        }
+        
+        @Override
         public Builder<G> addBindHandler(BiConsumer<Item, G> handler) {
             bindHandler = bindHandler.andThen(handler);
             return this;
@@ -187,6 +214,7 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
                 customItem = new CustomBoundItem<>(
                     bindHandler,
                     clickHandler,
+                    selectHandler,
                     (viewer, gui) -> asyncPlaceholder,
                     updatePeriod
                 );
@@ -210,6 +238,7 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
                 customItem = new CustomBoundItem<>(
                     bindHandler,
                     clickHandler,
+                    selectHandler,
                     itemProviderFn != null ? itemProviderFn : (viewer, gui) -> ItemProvider.EMPTY,
                     updatePeriod
                 );

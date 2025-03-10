@@ -7,6 +7,7 @@ import org.bukkit.scheduler.BukkitTask;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.InvUI;
+import xyz.xenondevs.invui.util.TriConsumer;
 import xyz.xenondevs.invui.window.AbstractWindow;
 
 import java.util.List;
@@ -19,12 +20,19 @@ import java.util.function.Supplier;
 class CustomItem extends AbstractItem {
     
     private final BiConsumer<Item, Click> clickHandler;
+    private final TriConsumer<Item, Player, Integer> selectHandler;
     private volatile Function<Player, ItemProvider> itemProvider;
     private final long updatePeriod;
     private @Nullable BukkitTask updateTask;
     
-    public CustomItem(BiConsumer<Item, Click> clickHandler, Function<Player, ItemProvider> itemProvider, long updatePeriod) {
+    public CustomItem(
+        BiConsumer<Item, Click> clickHandler,
+        TriConsumer<Item, Player, Integer> selectHandler,
+        Function<Player, ItemProvider> itemProvider,
+        long updatePeriod
+    ) {
         this.clickHandler = clickHandler;
+        this.selectHandler = selectHandler;
         this.itemProvider = itemProvider;
         this.updatePeriod = updatePeriod;
     }
@@ -37,6 +45,11 @@ class CustomItem extends AbstractItem {
     @Override
     public void handleClick(ClickType clickType, Player player, Click click) {
         clickHandler.accept(this, click);
+    }
+    
+    @Override
+    public void handleBundleSelect(Player player, int bundleSlot) {
+        selectHandler.accept(this, player, bundleSlot);
     }
     
     @Override
@@ -64,6 +77,7 @@ class CustomItem extends AbstractItem {
     static final class Builder implements Item.Builder<Builder> {
         
         private BiConsumer<Item, Click> clickHandler = (item, click) -> {};
+        private TriConsumer<Item, Player, Integer> selectHandler = (item, player, slot) -> {};
         private @Nullable Function<Player, ItemProvider> itemProviderFn;
         private @Nullable ItemProvider asyncPlaceholder;
         private @Nullable Supplier<ItemProvider> asyncSupplier;
@@ -129,7 +143,13 @@ class CustomItem extends AbstractItem {
         
         @Override
         public Builder addClickHandler(BiConsumer<Item, Click> clickHandler) {
-            this.clickHandler = clickHandler;
+            this.clickHandler = this.clickHandler.andThen(clickHandler);
+            return this;
+        }
+        
+        @Override
+        public Builder addBundleSelectHandler(TriConsumer<Item, Player, Integer> selectHandler) {
+            this.selectHandler = this.selectHandler.andThen(selectHandler);
             return this;
         }
         
@@ -149,6 +169,7 @@ class CustomItem extends AbstractItem {
             if (asyncPlaceholder != null) {
                 customItem = new CustomItem(
                     clickHandler,
+                    selectHandler,
                     viewer -> asyncPlaceholder,
                     updatePeriod
                 );
@@ -171,6 +192,7 @@ class CustomItem extends AbstractItem {
             } else {
                 customItem = new CustomItem(
                     clickHandler,
+                    selectHandler,
                     itemProviderFn != null ? itemProviderFn : viewer -> ItemProvider.EMPTY,
                     updatePeriod
                 );
