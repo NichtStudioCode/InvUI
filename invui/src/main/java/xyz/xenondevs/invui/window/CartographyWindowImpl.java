@@ -1,18 +1,13 @@
 package xyz.xenondevs.invui.window;
 
 import net.kyori.adventure.text.Component;
-import net.minecraft.network.protocol.game.ClientboundHorseScreenOpenPacket;
-import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
-import net.minecraft.server.level.ServerPlayer;
-import org.bukkit.craftbukkit.entity.CraftPlayer;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomCartographyMenu;
-import xyz.xenondevs.invui.internal.network.PacketListener;
+import xyz.xenondevs.invui.internal.util.ItemUtils2;
 import xyz.xenondevs.invui.util.ColorPalette;
 import xyz.xenondevs.invui.util.MapIcon;
 import xyz.xenondevs.invui.util.MapPatch;
@@ -46,6 +41,15 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
         this.inputGui = inputGui;
         this.outputGui = outputGui;
         this.lowerGui = lowerGui;
+    }
+    
+    @Override
+    protected void setMenuItem(int slot, @Nullable ItemStack itemStack) {
+        if (slot == 0) {
+            super.setMenuItem(0, ItemUtils2.nonEmpty(itemStack));
+        } else {
+            super.setMenuItem(slot, itemStack);
+        }
     }
     
     @Override

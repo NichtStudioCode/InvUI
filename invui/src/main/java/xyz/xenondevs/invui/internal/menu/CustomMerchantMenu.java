@@ -146,8 +146,8 @@ public class CustomMerchantMenu extends CustomContainerMenu {
         var itemStack = CraftItemStack.unwrap(ItemUtils2.nonEmpty(item.getItemProvider(player).get(player.locale())));
         // add random tag value to prevent client-side insertion of matching items
         itemStack.update(
-            DataComponents.CUSTOM_DATA, 
-            CustomData.EMPTY, 
+            DataComponents.CUSTOM_DATA,
+            CustomData.EMPTY,
             d -> d.update(c -> c.putInt("invui_merchant", MathUtils.RANDOM.nextInt()))
         );
         return itemStack;
