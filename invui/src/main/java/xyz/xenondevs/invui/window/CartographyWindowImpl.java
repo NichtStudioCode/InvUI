@@ -84,7 +84,7 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
     {
         
         private Supplier<Gui> inputGuiSupplier = () -> Gui.empty(1, 2);
-        private Supplier<Gui> outputGuiSupplier = () -> Gui.empty(1, 2);
+        private Supplier<Gui> outputGuiSupplier = () -> Gui.empty(1, 1);
         private final Set<MapIcon> icons = new HashSet<>();
         private byte @Nullable [] canvas;
         
