@@ -48,12 +48,14 @@ public class PacketListener implements Listener {
         getPacketHandler(player.getUniqueId()).discardRules.remove(clazz);
     }
     
-    public void injectOutgoing(Player player, Packet<ClientGamePacketListener> packet) {
-        getPacketHandler(player.getUniqueId()).injectOutgoing(packet);
+    public void injectOutgoing(Player player, List<Packet<? super ClientGamePacketListener>> packets) {
+        if (packets.isEmpty())
+            return;
+        injectOutgoing(player, new ClientboundBundlePacket(packets));
     }
     
-    public void injectOutgoing(Player player, List<Packet<? super ClientGamePacketListener>> packets) {
-        getPacketHandler(player.getUniqueId()).injectOutgoing(new ClientboundBundlePacket(packets));
+    public void injectOutgoing(Player player, Packet<ClientGamePacketListener> packet) {
+        getPacketHandler(player.getUniqueId()).injectOutgoing(packet);
     }
     
     @SuppressWarnings("unchecked")
@@ -116,7 +118,7 @@ public class PacketListener implements Listener {
             
             try {
                 print(packet, "injected");
-                super.write(channel.pipeline().context(this), packet, channel.newPromise());
+                channel.writeAndFlush(packet, new ForceChannelPromise(channel));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -125,7 +127,7 @@ public class PacketListener implements Listener {
         @SuppressWarnings("unchecked")
         @Override
         public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
-            if (msg instanceof Packet<?> packet) {
+            if (msg instanceof Packet<?> packet && !(promise instanceof ForceChannelPromise)) {
                 if (packet instanceof ClientboundBundlePacket bundle) {
                     var subPackets = StreamSupport.stream(bundle.subPackets().spliterator(), false)
                         .<Packet<? super ClientGamePacketListener>>map(this::singleWrite)

@@ -205,8 +205,7 @@ public abstract class CustomContainerMenu {
             }
         }
         
-        var bundle = new ClientboundBundlePacket(packets);
-        PacketListener.getInstance().injectOutgoing(player, bundle);
+        PacketListener.getInstance().injectOutgoing(player, packets);
     }
     
     /**
