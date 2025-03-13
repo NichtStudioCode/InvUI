@@ -41,8 +41,8 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
      * under {@code merchant.level.<level>}.
      * The following levels exist: 1 (Novice), 2 (Apprentice), 3 (Journeyman), 4 (Expert), 5 (Master).
      * <br>
-     * If the level is set to <= 0, no level name and an always-empty progress bar will be displayed.
-     * If the level is set to > 5, no level name and no progress bar will be displayed.
+     * If the level is set to {@code <= 0}, no level name and an always-empty progress bar will be displayed.
+     * If the level is set to {@code > 5}, no level name and no progress bar will be displayed.
      *
      * @param level The level of the merchant
      */
@@ -56,8 +56,8 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
      * under {@code merchant.level.<level>}.
      * The following levels exist: 1 (Novice), 2 (Apprentice), 3 (Journeyman), 4 (Expert), 5 (Master).
      * <br>
-     * If the level is set to <= 0, no level name and an always-empty progress bar will be displayed.
-     * If the level is set to > 5, no level name and no progress bar will be displayed.
+     * If the level is set to {@code <= 0}, no level name and an always-empty progress bar will be displayed.
+     * If the level is set to {@code > 5}, no level name and no progress bar will be displayed.
      *
      * @param levelSupplier The supplier to retrieve the level of the merchant
      */
@@ -72,7 +72,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
     
     /**
      * Sets the progress of the experience bar (from 0 to 1).
-     * If set to any value < 0, the progress bar and the merchant level name will be hidden.
+     * If set to any value {@code < 0}, the progress bar and the merchant level name will be hidden.
      *
      * @param progress The progress of the experience bar
      */
@@ -82,7 +82,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
     
     /**
      * Sets a supplier to retrieve the progress of the experience bar (from 0 to 1).
-     * If set to any value < 0, the progress bar and the merchant level name will be hidden.
+     * If set to any value {@code < 0}, the progress bar and the merchant level name will be hidden.
      *
      * @param progressSupplier The supplier to retrieve the progress of the experience bar
      */
@@ -339,8 +339,8 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
          * under {@code merchant.level.<level>}.
          * The following levels exist: 1 (Novice), 2 (Apprentice), 3 (Journeyman), 4 (Expert), 5 (Master).
          * <br>
-         * If the level is set to <= 0, no level name and an always-empty progress bar will be displayed.
-         * If the level is set to > 5, no level name and no progress bar will be displayed.
+         * If the level is set to {@code <= 0}, no level name and an always-empty progress bar will be displayed.
+         * If the level is set to {@code > 5}, no level name and no progress bar will be displayed.
          * <br>
          * Defaults to 0.
          *
@@ -357,8 +357,8 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
          * under {@code merchant.level.<level>}.
          * The following levels exist: 1 (Novice), 2 (Apprentice), 3 (Journeyman), 4 (Expert), 5 (Master).
          * <br>
-         * If the level is set to <= 0, no level name and an always-empty progress bar will be displayed.
-         * If the level is set to > 5, no level name and no progress bar will be displayed.
+         * If the level is set to {@code <= 0}, no level name and an always-empty progress bar will be displayed.
+         * If the level is set to {@code > 5}, no level name and no progress bar will be displayed.
          * <br>
          * Defaults to 0.
          *
@@ -369,7 +369,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
         
         /**
          * Sets the progress of the experience bar (from 0 to 1).
-         * If set to any value < 0, the progress bar and the merchant level name will be hidden.
+         * If set to any value {@code < 0}, the progress bar and the merchant level name will be hidden.
          * <br>
          * Defaults to -1 (hidden).
          *
@@ -382,7 +382,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
         
         /**
          * Sets a supplier to retrieve the progress of the experience bar (from 0 to 1).
-         * If set to any value < 0, the progress bar and the merchant level name will be hidden.
+         * If set to any value {@code < 0}, the progress bar and the merchant level name will be hidden.
          * <br>
          * Defaults to -1 (hidden).
          *

@@ -509,7 +509,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
                  * Sets the {@link Gui} {@link Supplier} for the upper {@link Gui} of this {@link Normal.Split}.
                  * The {@link Supplier} will be called every time a new {@link Window} is created using this builder.
                  *
-                 * @param guiSupplier The {@link Gui} {@link Supplier} for the upper {@link Gui
+                 * @param guiSupplier The {@link Gui} {@link Supplier} for the upper {@link Gui}
                  * @return This {@link Normal.Split}
                  */
                 Normal.Split setUpperGui(Supplier<Gui> guiSupplier);
