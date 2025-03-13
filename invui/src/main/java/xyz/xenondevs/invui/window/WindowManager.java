@@ -6,11 +6,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Manages all {@link Window Windows} and provides methods for searching them.
@@ -51,7 +53,7 @@ public class WindowManager implements Listener {
      * @param window The {@link AbstractWindow} to remove
      */
     void removeWindow(AbstractWindow<?> window) {
-        windowsByPlayer.remove(window.getViewer());
+        windowsByPlayer.remove(window.getViewer(), window);
     }
     
     /**
@@ -79,22 +81,13 @@ public class WindowManager implements Listener {
             window.handleTick();
         }
     }
-   
+    
     @EventHandler(priority = EventPriority.HIGHEST)
     private void handleInventoryClose(InventoryCloseEvent event) {
         Player player = (Player) event.getPlayer();
         AbstractWindow<?> window = (AbstractWindow<?>) getOpenWindow(player);
         if (window != null) {
-            window.handleClose();
-        }
-    }
-
-    @EventHandler
-    private void handlePlayerQuit(PlayerQuitEvent event) {
-        Player player = event.getPlayer();
-        AbstractWindow<?> window = (AbstractWindow<?>) getOpenWindow(player);
-        if (window != null) {
-            window.handleClose();
+            window.handleClose(event.getReason());
         }
     }
     

@@ -24,13 +24,14 @@ import org.bukkit.craftbukkit.inventory.CraftInventoryView;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.jspecify.annotations.Nullable;
+import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.internal.network.PacketListener;
 import xyz.xenondevs.invui.internal.util.InventoryUtils;
-import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.window.AbstractWindow;
 
 import java.util.ArrayList;
@@ -134,6 +135,24 @@ public abstract class CustomContainerMenu {
         items.set(slot, item == null ? ItemStack.EMPTY : CraftItemStack.unwrap(item));
     }
     
+    /**
+     * Sets the {@link org.bukkit.inventory.ItemStack} on the cursor.
+     *
+     * @param item The {@link org.bukkit.inventory.ItemStack} to set on the cursor
+     */
+    public void setCursor(org.bukkit.inventory.@Nullable ItemStack item) {
+        carried = item == null ? ItemStack.EMPTY : CraftItemStack.unwrap(item);
+    }
+    
+    /**
+     * Gets the {@link org.bukkit.inventory.ItemStack} on the cursor.
+     *
+     * @return The {@link org.bukkit.inventory.ItemStack} on the cursor
+     */
+    public org.bukkit.inventory.ItemStack getCursor() {
+        return CraftItemStack.asCraftMirror(carried);
+    }
+    
     //<editor-fold desc="synchronization">
     
     /**
@@ -142,6 +161,11 @@ public abstract class CustomContainerMenu {
      * @param all Whether to send all data or only changes
      */
     public void sendToRemote(boolean all) {
+        // the window might have been closed, for example while handling a click
+        // in such cases, no more updates should be sent
+        if (!getWindow().isOpen())
+            return;
+        
         if (all) {
             sendAllToRemote();
         } else {
@@ -276,8 +300,6 @@ public abstract class CustomContainerMenu {
         pl.stopDiscard(player, ClientboundContainerSetDataPacket.class);
         pl.stopDiscard(player, ClientboundContainerSetSlotPacket.class);
         
-        // TODO: handle cursor item (drop?)
-        
         // transfer remote items state to inventory menu
         for (int i = 0; i < LOWER_INVENTORY_SIZE; i++) {
             var item = remoteItems.get((remoteItems.size() - LOWER_INVENTORY_SIZE) + i);
@@ -302,7 +324,7 @@ public abstract class CustomContainerMenu {
         
         var window = getWindow();
         if (window.isCloseable()) {
-            window.handleClose();
+            window.handleClose(InventoryCloseEvent.Reason.PLAYER);
         } else {
             sendOpenPacket(title);
         }
@@ -327,100 +349,127 @@ public abstract class CustomContainerMenu {
         remoteCarried = DIRTY_MARKER;
         
         if (packet.getClickType() == net.minecraft.world.inventory.ClickType.QUICK_CRAFT) {
-            // item dragging is split into multiple packets:
-            // - drag start
-            // - place item (one packet per item)
-            // - drag end
-            switch (packet.getButtonNum()) {
-                // add slot for left, right, middle drag
-                case 1, 5, 9 -> {
-                    var slot = packet.getSlotNum();
-                    if (slot >= 0 && slot < items.size()) {
-                        dragSlots.add(packet.getSlotNum());
-                    }
-                    
-                    dragMode = switch (packet.getButtonNum()) {
-                        case 1 -> ClickType.LEFT;
-                        case 5 -> ClickType.RIGHT;
-                        case 9 -> ClickType.MIDDLE;
-                        default -> throw new AssertionError();
-                    };
-                    
-                    return; // no update required, further quick_craft packets incoming
-                }
-                
-                // end left, right, middle drag
-                case 2, 6, 10 -> {
-                    runInInteractionContext(() -> {
-                        if (dragSlots.size() == 1) {
-                            // handle one slot drags as simple clicks
-                            int slot = dragSlots.iterator().nextInt();
-                            getWindow().handleClick(slot, new Click(player, dragMode, -1));
-                        } else {
-                            getWindow().handleDrag(dragSlots, dragMode);
-                            
-                        }
-                    });
-                    dragSlots.clear();
-                }
-                
-                // drag start can be ignored
-                default -> {
-                    return; // no update required, further quick_craft packets incoming
-                }
-            }
+            if (!handleDragClick(packet))
+                return;
         } else {
-            int hotbarBtn = -1;
-            ClickType clickType = switch (packet.getClickType()) {
-                case PICKUP -> switch (packet.getButtonNum()) {
-                    case 0 -> ClickType.LEFT;
-                    case 1 -> ClickType.RIGHT;
-                    default -> ClickType.UNKNOWN;
-                };
-                
-                case QUICK_MOVE -> switch (packet.getButtonNum()) {
-                    case 0 -> ClickType.SHIFT_LEFT;
-                    case 1 -> ClickType.SHIFT_RIGHT;
-                    default -> ClickType.UNKNOWN;
-                };
-                
-                case SWAP -> switch (packet.getButtonNum()) {
-                    case 0, 1, 2, 3, 4, 5, 6, 7, 8 -> {
-                        hotbarBtn = packet.getButtonNum();
-                        yield ClickType.NUMBER_KEY;
-                    }
-                    case 40 -> {
-                        remoteOffHand = DIRTY_MARKER;
-                        yield ClickType.SWAP_OFFHAND;
-                    }
-                    default -> ClickType.UNKNOWN;
-                };
-                
-                case CLONE -> ClickType.MIDDLE;
-                
-                case THROW -> switch (packet.getButtonNum()) {
-                    case 0 -> ClickType.DROP;
-                    case 1 -> ClickType.CONTROL_DROP;
-                    default -> ClickType.UNKNOWN;
-                };
-                
-                case PICKUP_ALL -> ClickType.DOUBLE_CLICK;
-                
-                case QUICK_CRAFT -> throw new AssertionError(); // should never be reached
-            };
-            
-            // let window handle the click
-            int finalHotbarBtn = hotbarBtn;
-            runInInteractionContext(() -> {
-                Click click = new Click(player, clickType, finalHotbarBtn);
-                getWindow().handleClick(packet.getSlotNum(), click);
-            });
+            handleNormalClick(packet);
         }
         
         // syncs server and client state, if necessary
         sendToRemote(requiresFullUpdate);
     }
     
+    /**
+     * Handles a non-drag click packet.
+     *
+     * @param packet The packet that was received
+     */
+    private void handleNormalClick(ServerboundContainerClickPacket packet) {
+        int hotbarBtn = -1;
+        ClickType clickType = switch (packet.getClickType()) {
+            case PICKUP -> switch (packet.getButtonNum()) {
+                case 0 -> ClickType.LEFT;
+                case 1 -> ClickType.RIGHT;
+                default -> ClickType.UNKNOWN;
+            };
+            
+            case QUICK_MOVE -> switch (packet.getButtonNum()) {
+                case 0 -> ClickType.SHIFT_LEFT;
+                case 1 -> ClickType.SHIFT_RIGHT;
+                default -> ClickType.UNKNOWN;
+            };
+            
+            case SWAP -> switch (packet.getButtonNum()) {
+                case 0, 1, 2, 3, 4, 5, 6, 7, 8 -> {
+                    hotbarBtn = packet.getButtonNum();
+                    yield ClickType.NUMBER_KEY;
+                }
+                case 40 -> {
+                    remoteOffHand = DIRTY_MARKER;
+                    yield ClickType.SWAP_OFFHAND;
+                }
+                default -> ClickType.UNKNOWN;
+            };
+            
+            case CLONE -> ClickType.MIDDLE;
+            
+            case THROW -> switch (packet.getButtonNum()) {
+                case 0 -> ClickType.DROP;
+                case 1 -> ClickType.CONTROL_DROP;
+                default -> ClickType.UNKNOWN;
+            };
+            
+            case PICKUP_ALL -> ClickType.DOUBLE_CLICK;
+            
+            case QUICK_CRAFT -> throw new AssertionError(); // should never be reached
+        };
+        
+        // let window handle the click
+        int finalHotbarBtn = hotbarBtn;
+        runInInteractionContext(() -> {
+            Click click = new Click(player, clickType, finalHotbarBtn);
+            getWindow().handleClick(packet.getSlotNum(), click);
+        });
+    }
+    
+    /**
+     * Handles a drag click packet.
+     *
+     * @param packet The packet that was received
+     * @return Whether the remote state should be updated
+     */
+    private boolean handleDragClick(ServerboundContainerClickPacket packet) {
+        // item dragging is split into multiple packets:
+        // - drag start
+        // - place item (one packet per item)
+        // - drag end
+        switch (packet.getButtonNum()) {
+            // add slot for left, right, middle drag
+            case 1, 5, 9 -> {
+                var slot = packet.getSlotNum();
+                if (slot >= 0 && slot < items.size()) {
+                    dragSlots.add(packet.getSlotNum());
+                }
+                
+                dragMode = switch (packet.getButtonNum()) {
+                    case 1 -> ClickType.LEFT;
+                    case 5 -> ClickType.RIGHT;
+                    case 9 -> ClickType.MIDDLE;
+                    default -> throw new AssertionError();
+                };
+                
+                return false; // no update required, further quick_craft packets incoming
+            }
+            
+            // end left, right, middle drag
+            case 2, 6, 10 -> {
+                runInInteractionContext(() -> {
+                    if (dragSlots.size() == 1) {
+                        // handle one slot drags as simple clicks
+                        int slot = dragSlots.iterator().nextInt();
+                        getWindow().handleClick(slot, new Click(player, dragMode, -1));
+                    } else {
+                        getWindow().handleDrag(dragSlots, dragMode);
+                        
+                    }
+                });
+                dragSlots.clear();
+            }
+            
+            // drag start can be ignored
+            default -> {
+                return false; // no update required, further quick_craft packets incoming
+            }
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Handles a bundle item selection packet.
+     *
+     * @param packet The packet that was received
+     */
     private void handleBundleSelect(ServerboundSelectBundleItemPacket packet) {
         // verify legal slot
         int slot = packet.slotId();
@@ -453,6 +502,12 @@ public abstract class CustomContainerMenu {
     protected void handleButtonClick(int buttonId) {
     }
     
+    /**
+     * Runs the given {@link Runnable} in a catching interaction context.
+     * In an interaction context, item items will be propagated to this container immediately.
+     *
+     * @param run The {@link Runnable} to run in the interaction context
+     */
     protected void runInInteractionContext(Runnable run) {
         try {
             interactionContext.set(true);

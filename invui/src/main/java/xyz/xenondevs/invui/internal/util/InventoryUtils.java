@@ -137,4 +137,17 @@ public class InventoryUtils {
         item.setVelocity(location.getDirection().multiply(0.35));
     }
     
+    /**
+     * Adds an item stack to the player's inventory or drops it if it doesn't fit.
+     * @param player The player
+     * @param itemStack The item stack
+     */
+    public static void addToInventoryOrDrop(Player player, ItemStack itemStack) {
+        player.getInventory().addItem(itemStack.clone())
+            .entrySet()
+            .stream()
+            .findFirst()
+            .ifPresent(entry -> dropItemLikePlayer(player, entry.getValue()));
+    }
+    
 }

@@ -2,6 +2,7 @@ package xyz.xenondevs.invui.window;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryCloseEvent.Reason;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.ClickEvent;
 import xyz.xenondevs.invui.gui.Gui;
@@ -147,7 +148,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
      *
      * @param openHandlers The new open handlers
      */
-    void setOpenHandlers(@Nullable List<Runnable> openHandlers);
+    void setOpenHandlers(@Nullable List<? extends Runnable> openHandlers);
     
     /**
      * Adds an open handler that will be called when this window gets opened.
@@ -159,44 +160,62 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
     /**
      * Replaces the currently registered close handlers with the given list.
      *
-     * @param closeHandlers The new close handlers
+     * @param closeHandlers The new close handlers, receiving the {@link Reason} why the {@link Window} was closed
      */
-    void setCloseHandlers(@Nullable List<Runnable> closeHandlers);
+    void setCloseHandlers(@Nullable List<? extends Consumer<? super Reason>> closeHandlers);
     
     /**
      * Adds a close handler that will be called when this window gets closed.
      *
-     * @param closeHandler The close handler to add
+     * @param closeHandler The close handler to add, receiving the {@link Reason} why the {@link Window} was closed
      */
-    void addCloseHandler(Runnable closeHandler);
+    void addCloseHandler(Consumer<? super Reason> closeHandler);
     
     /**
      * Removes a close handler that has been added previously.
      *
      * @param closeHandler The close handler to remove
      */
-    void removeCloseHandler(Runnable closeHandler);
+    void removeCloseHandler(Consumer<? super Reason> closeHandler);
     
     /**
      * Replaces the currently registered outside click handlers with the given list.
      *
      * @param outsideClickHandlers The new outside click handlers
      */
-    void setOutsideClickHandlers(@Nullable List<Consumer<ClickEvent>> outsideClickHandlers);
+    void setOutsideClickHandlers(@Nullable List<? extends Consumer<? super ClickEvent>> outsideClickHandlers);
     
     /**
      * Adds an outside click handler that will be called when a player clicks outside the inventory.
      *
      * @param outsideClickHandler The outside click handler to add
      */
-    void addOutsideClickHandler(Consumer<ClickEvent> outsideClickHandler);
+    void addOutsideClickHandler(Consumer<? super ClickEvent> outsideClickHandler);
     
     /**
      * Removes an outside click handler that has been added previously.
      *
      * @param outsideClickHandler The outside click handler to remove
      */
-    void removeOutsideClickHandler(Consumer<ClickEvent> outsideClickHandler);
+    void removeOutsideClickHandler(Consumer<? super ClickEvent> outsideClickHandler);
+    
+    /**
+     * Sets the fallback {@link Window} that is opened when this {@link Window} is closed
+     * by the viewer pressing the close inventory key ({@code E} or {@code ESC} by default).
+     *
+     * @param fallbackWindow The fallback {@link Window}
+     */
+    default void setFallbackWindow(@Nullable Window fallbackWindow) {
+        setFallbackWindow(() -> fallbackWindow);
+    }
+    
+    /**
+     * Sets a {@link Supplier} that provides the fallback {@link Window} that is opened when this {@link Window} is
+     * closed by the viewer pressing the close inventory key ({@code E} or {@code ESC} by default).
+     *
+     * @param fallbackWindow The fallback {@link Window} supplier
+     */
+    void setFallbackWindow(Supplier<? extends @Nullable Window> fallbackWindow);
     
     /**
      * A {@link Window} builder.
@@ -257,7 +276,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
          * @param openHandlers The open handlers of the {@link Window}
          * @return This {@link Builder Window Builder}
          */
-        S setOpenHandlers(@Nullable List<Runnable> openHandlers);
+        S setOpenHandlers(@Nullable List<? extends Runnable> openHandlers);
         
         /**
          * Adds an open handler to the {@link Window}.
@@ -270,18 +289,18 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
         /**
          * Sets the close handlers of the {@link Window}.
          *
-         * @param closeHandlers The close handlers of the {@link Window}
+         * @param closeHandlers The close handlers, receiving the {@link Reason} why the {@link Window} was closed
          * @return This {@link Builder Window Builder}
          */
-        S setCloseHandlers(@Nullable List<Runnable> closeHandlers);
+        S setCloseHandlers(@Nullable List<? extends Consumer<? super Reason>> closeHandlers);
         
         /**
          * Adds a close handler to the {@link Window}.
          *
-         * @param closeHandler The close handler to add
+         * @param closeHandler The close handler, receiving the {@link Reason} why the {@link Window} was closed
          * @return This {@link Builder Window Builder}
          */
-        S addCloseHandler(Runnable closeHandler);
+        S addCloseHandler(Consumer<? super Reason> closeHandler);
         
         /**
          * Sets the outside click handlers of the {@link Window}.
@@ -289,7 +308,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
          * @param outsideClickHandlers The outside click handlers of the {@link Window}
          * @return This {@link Builder Window Builder}
          */
-        S setOutsideClickHandlers(List<Consumer<ClickEvent>> outsideClickHandlers);
+        S setOutsideClickHandlers(@Nullable List<? extends Consumer<? super ClickEvent>> outsideClickHandlers);
         
         /**
          * Adds an outside click handler to the {@link Window}.
@@ -297,7 +316,25 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
          * @param outsideClickHandler The outside click handler to add
          * @return This {@link Builder Window Builder}
          */
-        S addOutsideClickHandler(Consumer<ClickEvent> outsideClickHandler);
+        S addOutsideClickHandler(Consumer<? super ClickEvent> outsideClickHandler);
+        
+        /**
+         * Sets the fallback {@link Window} that is opened when this {@link Window} is closed
+         * by the viewer pressing the close inventory key ({@code E} or {@code ESC} by default).
+         *
+         * @param fallbackWindow The fallback {@link Window}
+         */
+        default S setFallbackWindow(@Nullable Window fallbackWindow) {
+            return setFallbackWindow(() -> fallbackWindow);
+        }
+        
+        /**
+         * Sets a {@link Supplier} that provides the fallback {@link Window} that is opened when this {@link Window} is
+         * closed by the viewer pressing the close inventory key ({@code E} or {@code ESC} by default).
+         *
+         * @param fallbackWindow The fallback {@link Window} supplier
+         */
+        S setFallbackWindow(Supplier<? extends @Nullable Window> fallbackWindow);
         
         /**
          * Sets the modifiers of the {@link Window}.
@@ -305,7 +342,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
          * @param modifiers The modifiers of the {@link Window}
          * @return This {@link Builder Window Builder}
          */
-        S setModifiers(@Nullable List<Consumer<W>> modifiers);
+        S setModifiers(@Nullable List<? extends Consumer<? super W>> modifiers);
         
         /**
          * Adds a modifier to the {@link Window}.
@@ -313,7 +350,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
          * @param modifier The modifier to add
          * @return This {@link Builder Window Builder}
          */
-        S addModifier(Consumer<W> modifier);
+        S addModifier(Consumer<? super W> modifier);
         
         /**
          * Builds the {@link Window}.
