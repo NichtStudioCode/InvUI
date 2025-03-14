@@ -6,8 +6,8 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
+import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.internal.menu.CustomContainerMenu;
-import xyz.xenondevs.invui.internal.util.Pair;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.inventory.ReferencingInventory;
 
@@ -33,8 +33,8 @@ sealed abstract class AbstractSplitWindow<M extends CustomContainerMenu>
     }
     
     @Override
-    public @Nullable Pair<AbstractGui, Integer> getGuiAtHotbar(int i) {
-        return new Pair<>(lowerGui, 9 * 3 + i);
+    public SlotElement.@Nullable GuiLink getGuiAtHotbar(int i) {
+        return new SlotElement.GuiLink(lowerGui, 9 * 3 + i);
     }
     
     @SuppressWarnings("unchecked")

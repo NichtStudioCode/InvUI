@@ -11,6 +11,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.ClickEvent;
@@ -19,10 +20,8 @@ import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.i18n.Languages;
-import xyz.xenondevs.invui.internal.Viewer;
 import xyz.xenondevs.invui.internal.menu.CustomContainerMenu;
 import xyz.xenondevs.invui.internal.util.InventoryUtils;
-import xyz.xenondevs.invui.internal.util.Pair;
 import xyz.xenondevs.invui.inventory.CompositeInventory;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.inventory.InventorySlot;
@@ -34,6 +33,8 @@ import xyz.xenondevs.invui.util.ItemUtils;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static xyz.xenondevs.invui.internal.util.CollectionUtils.forEachCatching;
 
@@ -42,7 +43,7 @@ import static xyz.xenondevs.invui.internal.util.CollectionUtils.forEachCatching;
  */
 @ApiStatus.Internal
 public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
-    implements Window, Viewer
+    implements Window
     permits AbstractMergedWindow, AbstractSplitWindow
 {
     
@@ -61,7 +62,7 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
     private boolean isOpen;
     
     private final int size;
-    private final @Nullable SlotElement[] elementsDisplayed;
+    private final List<List<SlotElement>> elementsDisplayed;
     private final BitSet dirtySlots;
     
     private @Nullable Component activeTitle;
@@ -72,47 +73,35 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
         this.titleSupplier = titleSupplier;
         this.closeable = closeable;
         this.size = size;
-        this.elementsDisplayed = new SlotElement[size];
         this.dirtySlots = new BitSet(size);
+        this.elementsDisplayed = IntStream.range(0, size)
+            .<List<SlotElement>>mapToObj(i -> new ArrayList<>())
+            .collect(Collectors.toCollection(ArrayList::new));
         
         menu.setWindow(this);
     }
     
     protected void update(int slot) {
-        Pair<AbstractGui, Integer> guiSlotPair = getGuiAt(slot);
-        if (guiSlotPair == null)
+        SlotElement.GuiLink root = getGuiAt(slot);
+        if (root == null)
             return;
-        AbstractGui gui = guiSlotPair.first();
-        int guiSlot = guiSlotPair.second();
         
-        SlotElement element = gui.getSlotElement(guiSlot);
-        element = element == null ? null : element.getHoldingElement();
+        List<SlotElement> newPath = root.traverse();
+        List<SlotElement> oldPath = elementsDisplayed.get(slot);
         
-        // update the slot element's viewers if necessary
-        SlotElement previousElement = elementsDisplayed[slot];
-        if (previousElement != element) {
-            switch (previousElement) {
-                case SlotElement.Item itemElement -> ((AbstractItem) itemElement.item()).removeViewer(this, slot);
-                case SlotElement.InventoryLink invElement ->
-                    invElement.inventory().removeViewer(this, invElement.slot(), slot);
-                case null, default -> {}
-            }
-            
-            switch (element) {
-                case SlotElement.Item itemElement -> ((AbstractItem) itemElement.item()).addViewer(this, slot);
-                case SlotElement.InventoryLink invElement ->
-                    invElement.inventory().addViewer(this, invElement.slot(), slot);
-                case null, default -> {}
-            }
-            
-            elementsDisplayed[slot] = element;
+        // if path has changed, viewers need to be updated
+        if (!newPath.equals(oldPath)) {
+            unregisterAsViewer(slot, oldPath);
+            registerAsViewer(slot, newPath);
+            elementsDisplayed.set(slot, newPath);
         }
         
         // create and place item stack in inventory
-        ItemStack itemStack = null;
-        if (element != null) {
-            itemStack = element.getItemStack(getViewer());
-            if (itemStack != null && element instanceof SlotElement.Item) {
+        ItemStack itemStack;
+        SlotElement holdingElement = newPath.getLast().getHoldingElement();
+        if (holdingElement != null) {
+            itemStack = holdingElement.getItemStack(getViewer());
+            if (itemStack != null && holdingElement instanceof SlotElement.Item) {
                 // This makes every item unique to prevent Shift-DoubleClick "clicking" multiple items at the same time.
                 itemStack = itemStack.clone(); // clone ItemStack in order to not modify the original
                 itemStack.editMeta(meta ->
@@ -121,29 +110,73 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
             }
         } else { // holding element is null
             // background by gui
-            var initialBackgroundProvider = gui.getBackground();
-            if (initialBackgroundProvider != null) {
-                itemStack = initialBackgroundProvider.get(getLocale());
-            }
-            // if gui link, choose background of lowest gui
-            element = gui.getSlotElement(guiSlot);
-            while (element instanceof SlotElement.GuiLink(Gui linkedGui, int linkedSlot)) {
-                var backgroundProvider = linkedGui.getBackground();
-                if (backgroundProvider != null) {
-                    itemStack = backgroundProvider.get(getLocale());
-                }
-                element = linkedGui.getSlotElement(linkedSlot);
-            }
+            itemStack = newPath.reversed().stream()
+                .filter(e -> e instanceof SlotElement.GuiLink)
+                .map(e -> ((SlotElement.GuiLink) e).gui().getBackground())
+                .filter(Objects::nonNull)
+                .findFirst()
+                .map(background -> background.get(getLocale()))
+                .orElse(null);
         }
         
         setMenuItem(slot, itemStack);
+    }
+    
+    /**
+     * Registers this window as a viewer using slot from all elements in the path.
+     *
+     * @param slot The slot to register as viewer
+     * @param path The elements where the window should be registered as viewer
+     */
+    private void registerAsViewer(int slot, List<? extends SlotElement> path) {
+        for (SlotElement newElement : path) {
+            switch (newElement) {
+                case SlotElement.Item ie -> ((AbstractItem) ie.item()).addViewer(this, slot);
+                case SlotElement.InventoryLink il -> il.inventory().addViewer(this, il.slot(), slot);
+                case SlotElement.GuiLink gl -> ((AbstractGui) gl.gui()).addViewer(this, gl.slot(), slot);
+                default -> {}
+            }
+        }
+    }
+    
+    /**
+     * Unregisters this window as a viewer using slot from all elements in the path.
+     *
+     * @param slot The slot to unregister as viewer
+     * @param path The elements where the window should be unregistered as viewer
+     */
+    private void unregisterAsViewer(int slot, List<? extends SlotElement> path) {
+        for (SlotElement oldElement : path) {
+            switch (oldElement) {
+                case SlotElement.Item ie -> ((AbstractItem) ie.item()).removeViewer(this, slot);
+                case SlotElement.InventoryLink il -> il.inventory().removeViewer(this, il.slot(), slot);
+                case SlotElement.GuiLink gl -> ((AbstractGui) gl.gui()).removeViewer(this, gl.slot(), slot);
+                default -> {}
+            }
+        }
+    }
+    
+    /**
+     * Registers this window as a viewer for all elements.
+     */
+    protected void registerAsViewer() {
+        // individual slot element viewers are registered through item init
+    }
+    
+    /**
+     * Unregisters this window as viewer from all elements and clears elementsDisplayed accordingly.
+     */
+    protected void unregisterAsViewer() {
+        for (int i = 0; i < size; i++) {
+            unregisterAsViewer(i, elementsDisplayed.get(i));
+            elementsDisplayed.set(i, List.of());
+        }
     }
     
     protected void setMenuItem(int slot, @Nullable ItemStack itemStack) {
         menu.setItem(slot, itemStack);
     }
     
-    @Override
     public void notifyUpdate(int slot) {
         if (CustomContainerMenu.isInInteractionHandlingContext()) {
             update(slot);
@@ -172,9 +205,9 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
     
     public void handleClick(int slot, Click click) {
         if (slot != -999) { // inside
-            var pair = getGuiAt(slot);
-            if (pair != null) {
-                pair.first().handleClick(pair.second(), click);
+            var link = getGuiAt(slot);
+            if (link != null) {
+                ((AbstractGui) link.gui()).handleClick(link.slot(), click);
             }
         } else { // outside
             var event = new ClickEvent(click);
@@ -202,34 +235,17 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
     }
     
     public void handleBundleSelect(int slot, int bundleSlot) {
-        var pair = getGuiAt(slot);
-        if (pair == null)
+        var link = getGuiAt(slot);
+        if (link == null)
             return;
-        pair.first().handleBundleSelect(getViewer(), pair.second(), bundleSlot);
+        ((AbstractGui) link.gui()).handleBundleSelect(getViewer(), link.slot(), bundleSlot);
     }
     
     public void handleDrag(IntSet slots, ClickType mode) {
         if (mode == ClickType.MIDDLE && viewer.getGameMode() != GameMode.CREATIVE)
             return;
         
-        // fixme: this does not consider in-between gui's frozen/animation state
-        List<InventorySlot> invSlots = slots.intStream()
-            .mapToObj(this::getGuiAt)
-            .filter(Objects::nonNull)
-            .filter(pair -> !pair.first().isFrozen() && !pair.first().isAnimationRunning())
-            .map(pair -> {
-                var element = pair.first().getSlotElement(pair.second());
-                if (element != null)
-                    element = element.getHoldingElement();
-                
-                if (element instanceof SlotElement.InventoryLink link)
-                    return new InventorySlot(link.inventory(), link.slot());
-                
-                return null;
-            })
-            .filter(Objects::nonNull)
-            .toList();
-        
+        List<InventorySlot> invSlots = getActiveInventorySlots(slots);
         if (invSlots.isEmpty())
             return;
         
@@ -272,6 +288,39 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
         }
     }
     
+    /**
+     * Gets a list of all active (non-frozen, non-animating) inventory slots that are linked to by
+     * the specified window slots.
+     *
+     * @param slots The window slots
+     * @return A list of all active inventory slots referenced by the window slots
+     */
+    private @NotNull List<InventorySlot> getActiveInventorySlots(IntSet slots) {
+        List<InventorySlot> invSlots = new ArrayList<>();
+        
+        slotLoop:
+        for (int slot : slots) {
+            List<SlotElement> path = elementsDisplayed.get(slot);
+            if (path.isEmpty())
+                continue;
+            
+            // skip frozen and animating slots
+            for (SlotElement element : path) {
+                if (element instanceof SlotElement.GuiLink guiLink) {
+                    if (guiLink.gui().isFrozen() || guiLink.gui().isAnimationRunning())
+                        continue slotLoop;
+                }
+            }
+            
+            SlotElement bottom = path.getLast();
+            if (bottom instanceof SlotElement.InventoryLink link) {
+                invSlots.add(new InventorySlot(link.inventory(), link.slot()));
+            }
+        }
+        
+        return invSlots;
+    }
+    
     private boolean distributeItems(UpdateReason updateReason, List<InventorySlot> slots) {
         ItemStack cursor = viewer.getItemOnCursor();
         int amount = cursor.getAmount();
@@ -296,7 +345,9 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
         return changed;
     }
     
-    public void handleCursorCollect(Click click) { // TODO: prioritize the content inventory where the cursor is
+    // TODO: respect frozen / animating state
+    // TODO: prioritize the content inventory where the cursor is
+    public void handleCursorCollect(Click click) {
         Player player = click.player();
         
         // the template item stack that is used to collect similar items
@@ -366,22 +417,6 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
         }
     }
     
-    protected void registerAsViewer() {
-        for (int i = 0; i < size; i++) {
-            SlotElement element = elementsDisplayed[i];
-            switch (element) {
-                case SlotElement.Item itemElement -> ((AbstractItem) itemElement.item()).addViewer(this, i);
-                case SlotElement.InventoryLink invElement ->
-                    invElement.inventory().addViewer(this, invElement.slot(), i);
-                case null, default -> {}
-            }
-            
-            var pair = getGuiAt(i);
-            if (pair != null)
-                pair.first().addViewer(this, pair.second(), i);
-        }
-    }
-    
     @Override
     public void close() {
         if (isOpen()) {
@@ -413,22 +448,6 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
             forEachCatching(closeHandlers, handler -> handler.accept(cause), "Failed to handle window close");
         } finally {
             isInCloseHandlerContext.set(isInCloseHandlerContext.get() - 1);
-        }
-    }
-    
-    protected void unregisterAsViewer() {
-        for (int i = 0; i < size; i++) {
-            SlotElement element = elementsDisplayed[i];
-            switch (element) {
-                case SlotElement.Item itemElement -> ((AbstractItem) itemElement.item()).removeViewer(this, i);
-                case SlotElement.InventoryLink invElement ->
-                    invElement.inventory().removeViewer(this, invElement.slot(), i);
-                case null, default -> {}
-            }
-            
-            var pair = getGuiAt(i);
-            if (pair != null)
-                pair.first().removeViewer(this, pair.second(), i);
         }
     }
     
@@ -465,7 +484,7 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
         menu.sendOpenPacket(Languages.getInstance().localized(viewer, title));
     }
     
-    protected @Nullable Pair<AbstractGui, Integer> getGuiAt(int i) {
+    protected SlotElement.@Nullable GuiLink getGuiAt(int i) {
         if (i < 0)
             return null;
         
@@ -473,7 +492,7 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
         for (Gui gui : getGuis()) {
             int size = gui.getSize();
             if (i < off + size)
-                return new Pair<>((AbstractGui) gui, i - off);
+                return new SlotElement.GuiLink(gui, i - off);
             
             off += size;
         }
@@ -481,7 +500,7 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
         return null;
     }
     
-    public abstract @Nullable Pair<AbstractGui, Integer> getGuiAtHotbar(int i);
+    public abstract SlotElement.@Nullable GuiLink getGuiAtHotbar(int i);
     
     @Override
     public void setOpenHandlers(@Nullable List<? extends Runnable> openHandlers) {

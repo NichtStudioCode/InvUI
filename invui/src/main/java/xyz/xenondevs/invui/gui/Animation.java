@@ -203,7 +203,7 @@ public sealed interface Animation permits AnimationImpl {
          */
         default Builder addSoundEffect(Sound sound, float volume, float pitch) {
             return addShowHandler((animation, slot) ->
-                animation.getGui().findAllCurrentViewers().forEach(viewer ->
+                animation.getGui().getCurrentViewers().forEach(viewer ->
                     viewer.playSound(viewer, sound, volume, pitch)
                 )
             );

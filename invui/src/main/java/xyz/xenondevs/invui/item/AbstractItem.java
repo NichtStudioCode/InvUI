@@ -17,7 +17,7 @@ public non-sealed abstract class AbstractItem implements Item {
      * @hidden
      */
     @ApiStatus.Internal
-    protected final Set<ViewerAtSlot<AbstractWindow<?>>> viewers = new HashSet<>();
+    protected final Set<ViewerAtSlot> viewers = new HashSet<>();
     
     /**
      * @hidden
@@ -25,7 +25,7 @@ public non-sealed abstract class AbstractItem implements Item {
     @ApiStatus.Internal
     public void addViewer(AbstractWindow<?> who, int how) {
         synchronized (viewers) {
-            viewers.add(new ViewerAtSlot<>(who, how));
+            viewers.add(new ViewerAtSlot(who, how));
         }
     }
     
@@ -35,7 +35,7 @@ public non-sealed abstract class AbstractItem implements Item {
     @ApiStatus.Internal
     public void removeViewer(AbstractWindow<?> who, int how) {
         synchronized (viewers) {
-            viewers.remove(new ViewerAtSlot<>(who, how));
+            viewers.remove(new ViewerAtSlot(who, how));
         }
     }
     

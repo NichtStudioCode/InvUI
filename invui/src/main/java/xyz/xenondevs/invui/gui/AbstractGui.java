@@ -8,7 +8,6 @@ import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
-import xyz.xenondevs.invui.internal.Viewer;
 import xyz.xenondevs.invui.internal.ViewerAtSlot;
 import xyz.xenondevs.invui.internal.util.*;
 import xyz.xenondevs.invui.inventory.Inventory;
@@ -16,7 +15,10 @@ import xyz.xenondevs.invui.inventory.ObscuredInventory;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
-import xyz.xenondevs.invui.item.*;
+import xyz.xenondevs.invui.item.BoundItem;
+import xyz.xenondevs.invui.item.Item;
+import xyz.xenondevs.invui.item.ItemProvider;
+import xyz.xenondevs.invui.item.ItemWrapper;
 import xyz.xenondevs.invui.util.ItemUtils;
 import xyz.xenondevs.invui.window.AbstractWindow;
 import xyz.xenondevs.invui.window.Window;
@@ -32,7 +34,7 @@ import java.util.stream.Collectors;
  */
 @Internal
 public sealed abstract class AbstractGui
-    implements Gui, Viewer
+    implements Gui
     permits NormalGuiImpl, AbstractPagedGui, AbstractScrollGui, TabGuiImpl
 {
     
@@ -40,7 +42,7 @@ public sealed abstract class AbstractGui
     private final int height;
     private final int size;
     private final @Nullable SlotElement[] slotElements;
-    private final @Nullable Set<ViewerAtSlot<?>>[] viewers;
+    private final @Nullable Set<ViewerAtSlot>[] viewers;
     
     private boolean frozen;
     private boolean ignoreObscuredInventorySlots = true;
@@ -78,8 +80,8 @@ public sealed abstract class AbstractGui
             return;
         
         SlotElement slotElement = slotElements[slot];
-        switch(slotElement) {
-            case SlotElement.GuiLink le -> ((AbstractGui)le.gui()).handleBundleSelect(player, le.slot(), bundleSlot);
+        switch (slotElement) {
+            case SlotElement.GuiLink le -> ((AbstractGui) le.gui()).handleBundleSelect(player, le.slot(), bundleSlot);
             case SlotElement.Item ie -> ie.item().handleBundleSelect(player, bundleSlot);
             case SlotElement.InventoryLink ie -> handleInvBundleSelect(player, ie.inventory(), ie.slot(), bundleSlot);
             case null -> {}
@@ -240,10 +242,10 @@ public sealed abstract class AbstractGui
         AbstractWindow<?> window = (AbstractWindow<?>) WindowManager.getInstance().getOpenWindow(player);
         assert window != null;
         
-        Pair<AbstractGui, Integer> pair = window.getGuiAtHotbar(click.hotbarButton());
-        if (pair == null)
+        SlotElement.GuiLink link = window.getGuiAtHotbar(click.hotbarButton());
+        if (link == null)
             return;
-        SlotElement hotbarElement = pair.first().getSlotElement(pair.second());
+        SlotElement hotbarElement = link.gui().getSlotElement(link.slot());
         if (hotbarElement == null)
             return;
         hotbarElement = hotbarElement.getHoldingElement();
@@ -414,18 +416,6 @@ public sealed abstract class AbstractGui
     //</editor-fold>
     
     @Override
-    public void notifyUpdate(int slot) {
-        synchronized (viewers) {
-            var viewers = this.viewers[slot];
-            if (viewers != null) {
-                for (var viewer : viewers) {
-                    viewer.notifyUpdate();
-                }
-            }
-        }
-    }
-    
-    @Override
     public void notifyWindows() {
         synchronized (viewers) {
             for (var viewerSet : viewers) {
@@ -455,22 +445,22 @@ public sealed abstract class AbstractGui
         }
     }
     
-    public void addViewer(Viewer who, int what, int how) {
+    public void addViewer(AbstractWindow<?> who, int what, int how) {
         synchronized (viewers) {
             var viewerSet = this.viewers[what];
             if (viewerSet == null) {
                 viewerSet = new HashSet<>();
                 this.viewers[what] = viewerSet;
             }
-            viewerSet.add(new ViewerAtSlot<>(who, how));
+            viewerSet.add(new ViewerAtSlot(who, how));
         }
     }
     
-    public void removeViewer(Viewer who, int what, int how) {
+    public void removeViewer(AbstractWindow<?> who, int what, int how) {
         synchronized (viewers) {
             var viewerSet = this.viewers[what];
             if (viewerSet != null) {
-                viewerSet.remove(new ViewerAtSlot<>(who, how));
+                viewerSet.remove(new ViewerAtSlot(who, how));
                 if (viewerSet.isEmpty())
                     this.viewers[what] = null;
             }
@@ -478,49 +468,32 @@ public sealed abstract class AbstractGui
     }
     
     @Override
-    public List<Window> findAllWindows() {
-        // no need for synchronization on viewers because this method is called on-main and read-only
-        var windows = new ArrayList<Window>();
-        
-        var explored = new HashSet<Viewer>();
-        var queue = new LinkedList<Viewer>();
-        queue.add(this);
-        
-        while (!queue.isEmpty()) {
-            var current = queue.poll();
-            explored.add(current);
-            
-            if (current instanceof AbstractGui viewable) {
-                for (var viewers : viewable.viewers) {
-                    if (viewers == null)
-                        continue;
-                    
-                    for (var viewerAtSlot : viewers) {
-                        var viewer = viewerAtSlot.viewer();
-                        if (!explored.contains(viewer)) {
-                            queue.add(viewer);
-                        }
+    public Collection<Window> getWindows() {
+        synchronized (viewers) {
+            var windows = new HashSet<Window>();
+            for (var viewerSet : viewers) {
+                if (viewerSet != null) {
+                    for (var viewerAtSlot : viewerSet) {
+                        windows.add(viewerAtSlot.window());
                     }
                 }
-            } else if (current instanceof Window window) {
-                windows.add(window);
             }
+            
+            return Collections.unmodifiableSet(windows);
         }
-        
-        return windows;
     }
     
     @Override
-    public Set<Player> findAllCurrentViewers() {
-        return findAllWindows().stream()
+    public Collection<Player> getCurrentViewers() {
+        return getWindows().stream()
             .filter(Window::isOpen)
             .map(Window::getViewer)
-            .collect(Collectors.toSet());
+            .collect(Collectors.toUnmodifiableSet());
     }
     
     @Override
     public void closeForAllViewers() {
-        findAllCurrentViewers().forEach(Player::closeInventory);
+        getCurrentViewers().forEach(Player::closeInventory);
     }
     
     @Override
@@ -573,7 +546,6 @@ public sealed abstract class AbstractGui
     
     @Override
     public void setSlotElement(int index, @Nullable SlotElement slotElement) {
-        SlotElement oldElement = slotElements[index];
         slotElements[index] = slotElement;
         
         // set the gui if it is a bound item
@@ -581,16 +553,6 @@ public sealed abstract class AbstractGui
             if (item instanceof BoundItem boundItem && !boundItem.isBound()) {
                 boundItem.bind(this);
             }
-        }
-        
-        // remove this gui as a viewer from the old slot element's gui
-        if (oldElement instanceof SlotElement.GuiLink(Gui gui, int slot)) {
-            ((AbstractGui) gui).removeViewer(this, slot, index);
-        }
-        
-        // add this gui as a viewer to the new slot element's viewable
-        if (slotElement instanceof SlotElement.GuiLink(Gui gui, int slot)) {
-            ((AbstractGui) gui).addViewer(this, slot, index);
         }
         
         // notify parents that a slot element has been changed

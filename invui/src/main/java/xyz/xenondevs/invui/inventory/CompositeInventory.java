@@ -4,7 +4,6 @@ import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.internal.util.ArrayUtils;
-import xyz.xenondevs.invui.internal.util.Pair;
 import xyz.xenondevs.invui.inventory.event.InventoryClickEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
@@ -93,8 +92,8 @@ public final class CompositeInventory extends Inventory {
     
     @Override
     public int getMaxSlotStackSize(int slot) {
-        Pair<Inventory, Integer> pair = findInventory(slot);
-        return pair.first().getMaxSlotStackSize(pair.second());
+        var invSlot = findInventory(slot);
+        return invSlot.inventory().getMaxSlotStackSize(invSlot.slot());
     }
     
     @Override
@@ -123,34 +122,34 @@ public final class CompositeInventory extends Inventory {
     
     @Override
     public @Nullable ItemStack getItem(int slot) {
-        Pair<Inventory, Integer> pair = findInventory(slot);
-        return pair.first().getItem(pair.second());
+        var invSlot = findInventory(slot);
+        return invSlot.inventory().getItem(invSlot.slot());
     }
     
     @Override
     public @Nullable ItemStack getUnsafeItem(int slot) {
-        Pair<Inventory, Integer> pair = findInventory(slot);
-        return pair.first().getUnsafeItem(pair.second());
+        var invSlot = findInventory(slot);
+        return invSlot.inventory().getUnsafeItem(invSlot.slot());
     }
     
     @Override
     protected void setCloneBackingItem(int slot, @Nullable ItemStack itemStack) {
-        Pair<Inventory, Integer> pair = findInventory(slot);
-        pair.first().setCloneBackingItem(pair.second(), itemStack);
+        var invSlot = findInventory(slot);
+        invSlot.inventory().setCloneBackingItem(invSlot.slot(), itemStack);
     }
     
     @Override
     protected void setDirectBackingItem(int slot, @Nullable ItemStack itemStack) {
-        Pair<Inventory, Integer> pair = findInventory(slot);
-        pair.first().setDirectBackingItem(pair.second(), itemStack);
+        var invSlot = findInventory(slot);
+        invSlot.inventory().setDirectBackingItem(invSlot.slot(), itemStack);
     }
     
-    private Pair<Inventory, Integer> findInventory(int slot) {
+    private InventorySlot findInventory(int slot) {
         int pos = 0;
         for (Inventory inv : inventories) {
             int invSize = inv.getSize();
             if (slot < pos + invSize) {
-                return new Pair<>(inv, slot - pos);
+                return new InventorySlot(inv, slot - pos);
             }
             
             pos += invSize;
@@ -169,37 +168,37 @@ public final class CompositeInventory extends Inventory {
     @Override
     public void notifyWindows(int slot) {
         var invSlot = findInventory(slot);
-        invSlot.first().notifyWindows(invSlot.second());
+        invSlot.inventory().notifyWindows(invSlot.slot());
     }
     
     @Override
     public void addViewer(AbstractWindow<?> viewer, int what, int how) {
         var invSlot = findInventory(what);
-        invSlot.first().addViewer(viewer, invSlot.second(), how);
+        invSlot.inventory().addViewer(viewer, invSlot.slot(), how);
     }
     
     @Override
     public void removeViewer(AbstractWindow<?> viewer, int what, int how) {
         var invSlot = findInventory(what);
-        invSlot.first().removeViewer(viewer, invSlot.second(), how);
+        invSlot.inventory().removeViewer(viewer, invSlot.slot(), how);
     }
     
     @Override
     public boolean callClickEvent(int slot, Click click) {
         var invSlot = findInventory(slot);
-        return invSlot.first().callClickEvent(invSlot.second(), click);
+        return invSlot.inventory().callClickEvent(invSlot.slot(), click);
     }
     
     @Override
     public ItemPreUpdateEvent callPreUpdateEvent(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
         var invSlot = findInventory(slot);
-        return invSlot.first().callPreUpdateEvent(updateReason, invSlot.second(), previousItemStack, newItemStack);
+        return invSlot.inventory().callPreUpdateEvent(updateReason, invSlot.slot(), previousItemStack, newItemStack);
     }
     
     @Override
     public void callPostUpdateEvent(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
         var invSlot = findInventory(slot);
-        invSlot.first().callPostUpdateEvent(updateReason, invSlot.second(), previousItemStack, newItemStack);
+        invSlot.inventory().callPostUpdateEvent(updateReason, invSlot.slot(), previousItemStack, newItemStack);
     }
     
     @Override

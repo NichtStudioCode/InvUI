@@ -7,6 +7,10 @@ import xyz.xenondevs.invui.i18n.Languages;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.ItemProvider;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Represents an element in a slot in a {@link Gui}.
  * You will rarely need to use this interface directly.
@@ -99,6 +103,26 @@ public sealed interface SlotElement {
         public @Nullable ItemStack getItemStack(Player player) {
             SlotElement holdingElement = getHoldingElement();
             return holdingElement != null ? holdingElement.getItemStack(player) : null;
+        }
+        
+        /**
+         * Creates a {@link List} of all {@link SlotElement SlotElements} that are linked together,
+         * starting with this {@link GuiLink}.
+         *
+         * @return A {@link List} of all linked {@link SlotElement SlotElements}
+         */
+        public List<SlotElement> traverse() {
+            var elements = new ArrayList<SlotElement>();
+            
+            SlotElement current = this;
+            while (current instanceof GuiLink(Gui g, int s)) {
+                elements.add(current);
+                current = g.getSlotElement(s);
+            }
+            if (current != null)
+                elements.add(current);
+            
+            return Collections.unmodifiableList(elements);
         }
         
     }

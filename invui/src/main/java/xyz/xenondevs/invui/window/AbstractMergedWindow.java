@@ -6,8 +6,8 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
+import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.internal.menu.CustomContainerMenu;
-import xyz.xenondevs.invui.internal.util.Pair;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -31,8 +31,8 @@ sealed abstract class AbstractMergedWindow<M extends CustomContainerMenu> extend
     }
     
     @Override
-    public @Nullable Pair<AbstractGui, Integer> getGuiAtHotbar(int i) {
-        return new Pair<>(gui, gui.getSize() - 9 + i);
+    public SlotElement.@Nullable GuiLink getGuiAtHotbar(int i) {
+        return new SlotElement.GuiLink(gui, gui.getSize() - 9 + i);
     }
     
     @SuppressWarnings("unchecked")

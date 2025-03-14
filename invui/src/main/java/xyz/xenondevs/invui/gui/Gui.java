@@ -8,6 +8,7 @@ import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.window.Window;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.SequencedCollection;
 import java.util.Set;
@@ -493,22 +494,21 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
     boolean isTagged(Slot slot, char key);
     
     /**
-     * Finds all {@link Window Windows} that show this {@link Gui}.
+     * Gets all {@link Window Windows} that show this {@link Gui}.
      *
-     * @return The list of {@link Window} that show this {@link Gui}
+     * @return The collection of {@link Window} that show this {@link Gui}
      */
-    List<Window> findAllWindows();
+    Collection<Window> getWindows();
     
     /**
-     * Finds all {@link Player Players} that are currently seeing this {@link Window}.
+     * Gets all {@link Player Players} that are currently seeing this {@link Window}.
      *
-     * @return The list of {@link Player Players} that are currently seeing this {@link Window}
+     * @return The collection of {@link Player Players} that are currently seeing this {@link Window}
      */
-    Set<Player> findAllCurrentViewers();
+    Collection<Player> getCurrentViewers();
     
     /**
-     * Closes the open {@link org.bukkit.inventory.Inventory} for all viewers of {@link Window Windows}
-     * where this {@link Gui} is displayed.
+     * Closes the all open {@link Window Windows} that display this {@link Gui}.
      */
     void closeForAllViewers();
     

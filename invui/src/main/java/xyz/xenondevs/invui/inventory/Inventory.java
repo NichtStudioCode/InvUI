@@ -52,7 +52,7 @@ import java.util.stream.IntStream;
 public sealed abstract class Inventory permits VirtualInventory, CompositeInventory, ObscuredInventory, ReferencingInventory {
     
     protected int size;
-    protected @Nullable Set<ViewerAtSlot<AbstractWindow<?>>>[] viewers;
+    protected @Nullable Set<ViewerAtSlot>[] viewers;
     private @Nullable List<Consumer<InventoryClickEvent>> clickHandlers;
     private @Nullable List<Consumer<ItemPreUpdateEvent>> preUpdateHandlers;
     private @Nullable List<Consumer<ItemPostUpdateEvent>> postUpdateHandlers;
@@ -203,7 +203,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
                 viewers[what] = viewerSet;
             }
             
-            viewerSet.add(new ViewerAtSlot<>(viewer, how));
+            viewerSet.add(new ViewerAtSlot(viewer, how));
         }
     }
     
@@ -215,7 +215,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
         synchronized (viewers) {
             var viewerSet = viewers[what];
             if (viewerSet != null) {
-                viewerSet.remove(new ViewerAtSlot<>(viewer, how));
+                viewerSet.remove(new ViewerAtSlot(viewer, how));
                 if (viewerSet.isEmpty())
                     viewers[what] = null;
             }
@@ -227,11 +227,13 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      */
     public List<Window> getWindows() {
         var windows = new ArrayList<Window>();
-        for (var viewerSet : viewers) { // does not need synchronization because this method is on-main and read-only
-            if (viewerSet == null)
-                continue;
-            for (var viewerAtSlot : viewerSet) {
-                windows.add(viewerAtSlot.viewer());
+        synchronized (viewers) {
+            for (var viewerSet : viewers) {
+                if (viewerSet == null)
+                    continue;
+                for (var viewerAtSlot : viewerSet) {
+                    windows.add(viewerAtSlot.window());
+                }
             }
         }
         return windows;

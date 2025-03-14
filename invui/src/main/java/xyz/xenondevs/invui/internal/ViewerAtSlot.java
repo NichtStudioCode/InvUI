@@ -1,9 +1,11 @@
 package xyz.xenondevs.invui.internal;
 
-public record ViewerAtSlot<V extends Viewer>(V viewer, int slot) {
+import xyz.xenondevs.invui.window.AbstractWindow;
+
+public record ViewerAtSlot(AbstractWindow<?> window, int slot) {
     
     public void notifyUpdate() {
-        viewer.notifyUpdate(slot);
+        window.notifyUpdate(slot);
     }
     
 }
