@@ -11,7 +11,6 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.ClickEvent;
@@ -295,7 +294,7 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
      * @param slots The window slots
      * @return A list of all active inventory slots referenced by the window slots
      */
-    private @NotNull List<InventorySlot> getActiveInventorySlots(IntSet slots) {
+    private List<InventorySlot> getActiveInventorySlots(IntSet slots) {
         List<InventorySlot> invSlots = new ArrayList<>();
         
         slotLoop:
