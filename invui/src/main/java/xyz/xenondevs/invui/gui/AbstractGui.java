@@ -506,7 +506,7 @@ public sealed abstract class AbstractGui
         this.animationElements = slotElements.clone();
         animationImpl.bind(this);
         for (Slot slot : animationImpl.getRemainingSlots()) {
-            setSlotElement(slot.x(), slot.y(), null);
+            setSlotElement(slot.x(), slot.y(), animationImpl.getIntermediarySlotElement(slot));
         }
         animationImpl.addShowHandler(slots -> {
             for (Slot slot : slots) {

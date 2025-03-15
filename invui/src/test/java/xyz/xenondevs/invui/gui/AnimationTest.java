@@ -1,6 +1,7 @@
 package xyz.xenondevs.invui.gui;
 
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -679,6 +680,54 @@ public class AnimationTest {
         assertTrue(rowAnimation.isFinished());
         assertThrows(IllegalStateException.class, () -> gui1.playAnimation(rowAnimation));
         assertThrows(IllegalStateException.class, () -> gui2.playAnimation(rowAnimation));
+    }
+    
+    @Test
+    public void testIntermediaryGenerator() {
+        Player player = server.addPlayer();
+        
+        Gui gui1 = createTestGui();
+        Animation rowAnimation = Animation.row()
+            .setIntermediaryElementGenerator(s -> new SlotElement.Item(Item.simple(ItemStack.of(Material.STONE, s.y() * 9 + s.x() + 1))))
+            .build();
+        
+        gui1.playAnimation(rowAnimation);
+        
+        for (int i = 0; i < 9 * 4; i++) {
+            SlotElement element = gui1.getSlotElement(i);
+            assertNotNull(element, "i: " + i);
+            ItemStack itemStack = element.getItemStack(player);
+            assertNotNull(itemStack, "i: " + i);
+            assertEquals(i + 1, itemStack.getAmount(), "i: " + i);
+        }
+        
+        server.getScheduler().performTicks(2);
+        
+        for (int i = 0; i < 9 * 2; i++) {
+            SlotElement element = gui1.getSlotElement(i);
+            assertNotNull(element, "i: " + i);
+            ItemStack itemStack = element.getItemStack(player);
+            assertNotNull(itemStack, "i: " + i);
+            assertEquals(Material.DIAMOND, itemStack.getType(), "i: " + i);
+        }
+        for (int i = 9 * 2; i < 9 * 4; i++) {
+            SlotElement element = gui1.getSlotElement(i);
+            assertNotNull(element, "i: " + i);
+            ItemStack itemStack = element.getItemStack(player);
+            assertNotNull(itemStack, "i: " + i);
+            assertEquals(i + 1, itemStack.getAmount(), "i: " + i);
+        }
+        
+        server.getScheduler().performTicks(2);
+        assertTrue(rowAnimation.isFinished());
+        
+        for (int i = 0; i < 9 * 4; i++) {
+            SlotElement element = gui1.getSlotElement(i);
+            assertNotNull(element, "i: " + i);
+            ItemStack itemStack = element.getItemStack(player);
+            assertNotNull(itemStack, "i: " + i);
+            assertEquals(Material.DIAMOND, itemStack.getType(), "i: " + i);
+        }
     }
     
     private Gui createOddTestGui() {

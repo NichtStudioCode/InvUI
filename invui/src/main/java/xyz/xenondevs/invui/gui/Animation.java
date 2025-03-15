@@ -1,7 +1,10 @@
 package xyz.xenondevs.invui.gui;
 
 import org.bukkit.Sound;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.internal.util.ArrayUtils;
+import xyz.xenondevs.invui.item.Item;
+import xyz.xenondevs.invui.item.ItemProvider;
 
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -16,6 +19,8 @@ import java.util.function.Function;
  * <ul>
  *     <li>Slot filter: Defines which slots are part of the animation.</li>
  *     <li>Slot selector: Selects the slots that are shown in each frame.</li>
+ *     <li>Intermediary generator: Creates intermediary {@link SlotElement SlotElements} that are displayed before
+ *     the slots pop in.</li>
  *     <li>Show handler: Called when slot(s) are shown, for example to play a sound effect.</li>
  *     <li>Finish handler: Called when the animation is finished.</li>
  * </ul>
@@ -168,7 +173,7 @@ public sealed interface Animation permits AnimationImpl {
          * @param filter The filter defining which slots are part of the animation.
          * @return This {@link Builder Animation builder}
          */
-        Builder addSlotFilter(BiPredicate<Gui, Slot> filter);
+        Builder addSlotFilter(BiPredicate<? super Gui, ? super Slot> filter);
         
         /**
          * Adds a {@link #addSlotFilter(BiPredicate) filter} that ignores all empty slots.
@@ -217,7 +222,51 @@ public sealed interface Animation permits AnimationImpl {
          * @param selector The slot selector for the animation.
          * @return This {@link Builder Animation builder}
          */
-        Builder setSlotSelector(Function<Animation, Set<Slot>> selector);
+        Builder setSlotSelector(Function<? super Animation, ? extends Set<? extends Slot>> selector);
+        
+        /**
+         * Sets the intermediary {@link ItemProvider} that is displayed before the slots pop in.
+         *
+         * @param provider The intermediary {@link ItemProvider}.
+         * @return This {@link Builder Animation builder}
+         */
+        default Builder setIntermediary(ItemProvider provider) {
+            return setIntermediary(Item.simple(provider));
+        }
+        
+        /**
+         * Sets the intermediary {@link Item} that is displayed before the slots pop in.
+         *
+         * @param item The intermediary {@link Item}.
+         * @return This {@link Builder Animation builder}
+         */
+        default Builder setIntermediary(Item item) {
+            var element = new SlotElement.Item(item);
+            return setIntermediaryElementGenerator(slot -> element);
+        }
+        
+        /**
+         * Sets the generator function that creates intermediary {@link ItemProvider ItemProviders} that are displayed
+         * before the {@link Gui Gui's} slots pop in.
+         *
+         * @param intermediaryGenerator The generator function that creates intermediary {@link ItemProvider ItemProviders}.
+         * @return This {@link Builder Animation builder}
+         */
+        default Builder setIntermediaryGenerator(Function<? super Slot, ? extends @Nullable ItemProvider> intermediaryGenerator) {
+            return setIntermediaryElementGenerator(slot -> {
+                ItemProvider provider = intermediaryGenerator.apply(slot);
+                return provider != null ? new SlotElement.Item(Item.simple(provider)) : null;
+            });
+        }
+        
+        /**
+         * Sets the generator function that creates intermediary {@link SlotElement SlotElements} that are displayed
+         * before the {@link Gui Gui's} slots pop in.
+         *
+         * @param intermediaryGenerator The generator function that creates intermediary {@link SlotElement SlotElements}.
+         * @return This {@link Builder Animation builder}
+         */
+        Builder setIntermediaryElementGenerator(Function<? super Slot, ? extends @Nullable SlotElement> intermediaryGenerator);
         
         /**
          * Adds a handler that is called when slot(s) are shown.
@@ -225,7 +274,7 @@ public sealed interface Animation permits AnimationImpl {
          * @param showHandler The handler that is called when slot(s) are shown.
          * @return This {@link Builder Animation builder}
          */
-        Builder addShowHandler(BiConsumer<Animation, Set<Slot>> showHandler);
+        Builder addShowHandler(BiConsumer<? super Animation, ? super Set<? extends Slot>> showHandler);
         
         /**
          * Adds a handler that is called when the animation is finished.
@@ -233,7 +282,7 @@ public sealed interface Animation permits AnimationImpl {
          * @param finishHandler The handler that is called when the animation is finished.
          * @return This {@link Builder Animation builder}
          */
-        Builder addFinishHandler(Consumer<Animation> finishHandler);
+        Builder addFinishHandler(Consumer<? super Animation> finishHandler);
         
         /**
          * Builds the animation.
