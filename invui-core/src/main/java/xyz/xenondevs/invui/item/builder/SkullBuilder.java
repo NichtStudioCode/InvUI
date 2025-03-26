@@ -35,7 +35,9 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
      * @param uuid The {@link UUID} of the skull owner.
      * @throws MojangApiException If the Mojang API returns an error.
      * @throws IOException        If an I/O error occurs.
+     * @deprecated Prefer using {@link SkullBuilder#SkullBuilder(HeadTexture)} with a hardcoded texture value instead of querying the Mojang API.
      */
+    @Deprecated
     public SkullBuilder(@NotNull UUID uuid) throws MojangApiException, IOException {
         this(HeadTexture.of(uuid));
     }
@@ -46,7 +48,9 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
      * @param username The username of the skull owner.
      * @throws MojangApiException If the Mojang API returns an error.
      * @throws IOException        If an I/O error occurs.
+     * @deprecated Prefer using {@link SkullBuilder#SkullBuilder(HeadTexture)} with a hardcoded texture value instead of querying the Mojang API.
      */
+    @Deprecated
     public SkullBuilder(@NotNull String username) throws MojangApiException, IOException {
         this(HeadTexture.of(username));
     }
@@ -140,7 +144,9 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
          * @throws MojangApiException If the Mojang API returns an error.
          * @throws IOException        If an I/O error occurs.
          * @see HeadTexture#of(UUID)
+         * @deprecated Prefer using {@link HeadTexture#HeadTexture(String)} with a hardcoded texture value instead of querying the Mojang API.
          */
+        @Deprecated
         public static @NotNull HeadTexture of(@NotNull OfflinePlayer offlinePlayer) throws MojangApiException, IOException {
             return of(offlinePlayer.getUniqueId());
         }
@@ -158,8 +164,9 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
          * @throws MojangApiException If the Mojang API returns an error.
          * @throws IOException        If an I/O error occurs.
          * @see HeadTexture#of(UUID)
+         * @deprecated Prefer using {@link HeadTexture#HeadTexture(String)} with a hardcoded texture value instead of querying the Mojang API.
          */
-        @SuppressWarnings("deprecation")
+        @Deprecated
         public static @NotNull HeadTexture of(@NotNull String playerName) throws MojangApiException, IOException {
             if (Bukkit.getServer().getOnlineMode()) {
                 // if the server is in online mode, the Minecraft UUID cache (usercache.json) can be used
@@ -190,7 +197,9 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
          * @return The {@link HeadTexture} of that player.
          * @throws MojangApiException If the Mojang API returns an error.
          * @throws IOException        If an I/O error occurs.
+         * @deprecated Prefer using {@link HeadTexture#HeadTexture(String)} with a hardcoded texture value instead of querying the Mojang API.
          */
+        @Deprecated
         public static @NotNull HeadTexture of(@NotNull UUID uuid) throws MojangApiException, IOException {
             try {
                 return new HeadTexture(textureCache.get(uuid, () -> MojangApiUtils.getSkinData(uuid, false)[0]));
@@ -211,7 +220,10 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
          * This means that when {@link HeadTexture#of(OfflinePlayer)}, {@link HeadTexture#of(UUID)}
          * and {@link HeadTexture#of(String)} are called, these values will be pulled from the
          * Mojang API again.
+         *
+         * @deprecated Prefer using {@link HeadTexture#HeadTexture(String)} with a hardcoded texture value instead of querying the Mojang API.
          */
+        @Deprecated
         public static void invalidateCache() {
             uuidCache.invalidateAll();
             textureCache.invalidateAll();

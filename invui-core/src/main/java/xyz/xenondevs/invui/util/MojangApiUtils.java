@@ -10,6 +10,7 @@ import java.io.Reader;
 import java.net.URL;
 import java.util.UUID;
 
+@Deprecated
 public class MojangApiUtils {
     
     private static final String SKIN_DATA_URL = "https://sessionserver.mojang.com/session/minecraft/profile/%s?unsigned=%s";
