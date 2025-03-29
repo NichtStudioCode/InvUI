@@ -7,6 +7,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerSynchronizer;
 import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.inventory.RemoteSlot;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 
@@ -27,7 +28,7 @@ class CapturingContainerSynchronizer implements ContainerSynchronizer {
     }
     
     @Override
-    public void sendInitialData(AbstractContainerMenu handler, NonNullList<ItemStack> stacks, ItemStack cursorStack, int[] properties) {
+    public void sendInitialData(AbstractContainerMenu handler, List<ItemStack> stacks, ItemStack cursorStack, int[] properties) {
         send(
             new ClientboundContainerSetContentPacket(
                 handler.containerId,
@@ -74,6 +75,11 @@ class CapturingContainerSynchronizer implements ContainerSynchronizer {
     @Override
     public void sendDataChange(AbstractContainerMenu handler, int property, int value) {
         send(new ClientboundContainerSetDataPacket(handler.containerId, property, value));
+    }
+    
+    @Override
+    public RemoteSlot createSlot() {
+        return player.containerSynchronizer.createSlot();
     }
     
     private void send(Packet<? super ClientGamePacketListener> packet) {
