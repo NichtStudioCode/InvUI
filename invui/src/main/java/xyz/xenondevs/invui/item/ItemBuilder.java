@@ -1,9 +1,11 @@
 package xyz.xenondevs.invui.item;
 
+import com.google.common.collect.Sets;
 import io.papermc.paper.datacomponent.DataComponentBuilder;
 import io.papermc.paper.datacomponent.DataComponentType;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.ItemLore;
+import io.papermc.paper.datacomponent.item.TooltipDisplay;
 import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
 import it.unimi.dsi.fastutil.booleans.BooleanList;
 import it.unimi.dsi.fastutil.floats.FloatArrayList;
@@ -24,6 +26,7 @@ import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.i18n.Languages;
+import xyz.xenondevs.invui.internal.util.ArrayUtils;
 import xyz.xenondevs.invui.internal.util.ComponentUtils;
 
 import java.util.*;
@@ -433,7 +436,7 @@ public final class ItemBuilder implements ItemProvider {
         this.customName = new DirectComponentHolder(customName);
         this.name = null;
         unset(DataComponentTypes.ITEM_NAME);
-        unset(DataComponentTypes.HIDE_TOOLTIP);
+        hideTooltip(false);
         return this;
     }
     
@@ -451,7 +454,7 @@ public final class ItemBuilder implements ItemProvider {
         this.customName = new MiniMessageComponentHolder(customName);
         this.name = null;
         unset(DataComponentTypes.ITEM_NAME);
-        unset(DataComponentTypes.HIDE_TOOLTIP);
+        hideTooltip(false);
         return this;
     }
     
@@ -511,7 +514,7 @@ public final class ItemBuilder implements ItemProvider {
         this.lore = lore.stream()
             .map(DirectComponentHolder::new)
             .collect(Collectors.toCollection(ArrayList::new));
-        unset(DataComponentTypes.HIDE_TOOLTIP);
+        hideTooltip(false);
         return this;
     }
     
@@ -529,7 +532,7 @@ public final class ItemBuilder implements ItemProvider {
             .map(line -> legacySection().deserialize(line))
             .map(DirectComponentHolder::new)
             .collect(Collectors.toCollection(ArrayList::new));
-        unset(DataComponentTypes.HIDE_TOOLTIP);
+        hideTooltip(false);
         return this;
     }
     
@@ -572,7 +575,7 @@ public final class ItemBuilder implements ItemProvider {
             lore.add(new DirectComponentHolder(line));
         }
         
-        unset(DataComponentTypes.HIDE_TOOLTIP);
+        hideTooltip(false);
         
         return this;
     }
@@ -594,7 +597,7 @@ public final class ItemBuilder implements ItemProvider {
             lore.add(new DirectComponentHolder(line));
         }
         
-        unset(DataComponentTypes.HIDE_TOOLTIP);
+        hideTooltip(false);
         
         return this;
     }
@@ -616,7 +619,7 @@ public final class ItemBuilder implements ItemProvider {
             lore.add(new MiniMessageComponentHolder(line));
         }
         
-        unset(DataComponentTypes.HIDE_TOOLTIP);
+        hideTooltip(false);
         
         return this;
     }
@@ -638,7 +641,7 @@ public final class ItemBuilder implements ItemProvider {
             lore.add(new DirectComponentHolder(legacySection().deserialize(line)));
         }
         
-        unset(DataComponentTypes.HIDE_TOOLTIP);
+        hideTooltip(false);
         
         return this;
     }
@@ -1058,11 +1061,69 @@ public final class ItemBuilder implements ItemProvider {
     public ItemBuilder hideTooltip(boolean hide) {
         buildCache.clear();
         
-        if (hide) {
-            itemStack.setData(DataComponentTypes.HIDE_TOOLTIP);
-        } else {
-            itemStack.unsetData(DataComponentTypes.HIDE_TOOLTIP);
-        }
+        TooltipDisplay display = itemStack.getData(DataComponentTypes.TOOLTIP_DISPLAY);
+        itemStack.setData(
+            DataComponentTypes.TOOLTIP_DISPLAY,
+            TooltipDisplay.tooltipDisplay()
+                .hideTooltip(hide)
+                .hiddenComponents(display != null ? display.hiddenComponents() : Set.of())
+                .build()
+        );
+        
+        return this;
+    }
+    
+    /**
+     * Hides the tooltip for the given data components.
+     *
+     * @param type  The first data component type to hide the tooltip for
+     * @param types Additional data component types to hide the tooltip for
+     * @return The builder instance
+     * @see #showTooltip(DataComponentType, DataComponentType...)
+     * @see #hideTooltip(boolean)
+     */
+    public ItemBuilder hideTooltip(DataComponentType type, DataComponentType... types) {
+        buildCache.clear();
+        
+        TooltipDisplay display = itemStack.getData(DataComponentTypes.TOOLTIP_DISPLAY);
+        itemStack.setData(
+            DataComponentTypes.TOOLTIP_DISPLAY,
+            TooltipDisplay.tooltipDisplay()
+                .hideTooltip(display != null && display.hideTooltip())
+                .hiddenComponents(display != null ? display.hiddenComponents() : Set.of())
+                .hiddenComponents(Set.of(ArrayUtils.concat(DataComponentType[]::new, type, types)))
+                .build()
+        );
+        
+        return this;
+    }
+    
+    /**
+     * Un-hides the tooltip for the given data components that were previously hidden.
+     *
+     * @param type  The first data component type to un-hide the tooltip for
+     * @param types Additional data component types to un-hide the tooltip for
+     * @return The builder instance
+     * @see #hideTooltip(DataComponentType, DataComponentType...)
+     * @see #hideTooltip(boolean)
+     */
+    public ItemBuilder showTooltip(DataComponentType type, DataComponentType... types) {
+        TooltipDisplay display = itemStack.getData(DataComponentTypes.TOOLTIP_DISPLAY);
+        if (display == null)
+            return this;
+        
+        buildCache.clear();
+        
+        itemStack.setData(
+            DataComponentTypes.TOOLTIP_DISPLAY,
+            TooltipDisplay.tooltipDisplay()
+                .hideTooltip(display.hideTooltip())
+                .hiddenComponents(Sets.difference(
+                    display.hiddenComponents(),
+                    Set.of(ArrayUtils.concat(DataComponentType[]::new, type, types))
+                ))
+                .build()
+        );
         
         return this;
     }
