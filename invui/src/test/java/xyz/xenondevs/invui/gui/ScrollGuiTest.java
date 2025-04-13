@@ -5,13 +5,16 @@ import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.ServerMock;
-import xyz.xenondevs.invui.inventory.VirtualInventory;
+import xyz.xenondevs.invui.item.BoundItem;
 import xyz.xenondevs.invui.item.Item;
+import xyz.xenondevs.invui.item.ItemProvider;
+import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,67 +35,65 @@ public class ScrollGuiTest {
     }
     
     @Test
-    public void testScrollContentUpdateOnVirtualInventoryResize() {
-        var inv1 = new VirtualInventory(3);
-        var inv2 = new VirtualInventory(3);
+    public void testScrollHorizontalLineLength1() {
+        var items = List.of(
+            Item.simple(ItemStack.of(Material.STONE)),
+            Item.simple(ItemStack.of(Material.DIRT)),
+            Item.simple(ItemStack.of(Material.GRASS_BLOCK)),
+            Item.simple(ItemStack.of(Material.COBBLESTONE)),
+            Item.simple(ItemStack.of(Material.BARRIER))
+        );
         
-        var gui = ScrollGui.inventories()
+        var gui = ScrollGui.items()
             .setStructure(
-                "x x x",
-                "x x x",
-                "x x x")
+                "x . .",
+                "x . .",
+                "x . ."
+            )
             .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
-            .setContent(List.of(inv1, inv2))
+            .setContent(items)
             .build();
         
-        for (int i = 0; i < 6; i++) {
-            assertInstanceOf(SlotElement.InventoryLink.class, gui.getSlotElement(i));
-        }
-        for (int i = 6; i < 9; i++) {
-            assertNull(gui.getSlotElement(i));
-        }
+        assertEquals(items.get(0), gui.getItem(0, 0));
+        assertEquals(items.get(1), gui.getItem(0, 1));
+        assertEquals(items.get(2), gui.getItem(0, 2));
         
-        // resize to fill entire gui with inventories
-        inv1.resize(5);
-        inv2.resize(4);
+        gui.setLine(gui.getLine() + 1);
         
-        for (int i = 0; i < 9; i++) {
-            assertInstanceOf(SlotElement.InventoryLink.class, gui.getSlotElement(i));
-        }
-        
-        // resize to original state
-        inv1.resize(3);
-        inv2.resize(3);
-        
-        for (int i = 0; i < 6; i++) {
-            assertInstanceOf(SlotElement.InventoryLink.class, gui.getSlotElement(i));
-        }
-        for (int i = 6; i < 9; i++) {
-            assertNull(gui.getSlotElement(i));
-        }
+        assertEquals(items.get(1), gui.getItem(0, 0));
+        assertEquals(items.get(2), gui.getItem(0, 1));
+        assertEquals(items.get(3), gui.getItem(0, 2));
     }
     
     @Test
-    public void testScrollInventoriesRemoveResizeHandlers() {
-        var inv1 = new VirtualInventory(3);
-        var inv2 = new VirtualInventory(3);
+    public void testScrollVerticalLineLength1() {
+        var items = List.of(
+            Item.simple(ItemStack.of(Material.STONE)),
+            Item.simple(ItemStack.of(Material.DIRT)),
+            Item.simple(ItemStack.of(Material.GRASS_BLOCK)),
+            Item.simple(ItemStack.of(Material.COBBLESTONE)),
+            Item.simple(ItemStack.of(Material.BARRIER))
+        );
         
-        var gui = ScrollGui.inventories()
+        var gui = ScrollGui.items()
             .setStructure(
                 "x x x",
-                "x x x",
-                "x x x")
-            .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
-            .setContent(List.of(inv1))
+                ". . .",
+                ". . ."
+            )
+            .addIngredient('x', Markers.CONTENT_LIST_SLOT_VERTICAL)
+            .setContent(items)
             .build();
         
-        assertEquals(1, Objects.requireNonNull(inv1.getResizeHandlers()).size());
-        assertTrue(inv2.getResizeHandlers() == null || inv2.getResizeHandlers().isEmpty());
+        assertEquals(items.get(0), gui.getItem(0, 0));
+        assertEquals(items.get(1), gui.getItem(1, 0));
+        assertEquals(items.get(2), gui.getItem(2, 0));
         
-        gui.setContent(List.of(inv2));
+        gui.setLine(gui.getLine() + 1);
         
-        assertTrue(inv1.getResizeHandlers() == null || inv1.getResizeHandlers().isEmpty());
-        assertEquals(1, Objects.requireNonNull(inv2.getResizeHandlers()).size());
+        assertEquals(items.get(1), gui.getItem(0, 0));
+        assertEquals(items.get(2), gui.getItem(1, 0));
+        assertEquals(items.get(3), gui.getItem(2, 0));
     }
     
     @Test
@@ -169,6 +170,70 @@ public class ScrollGuiTest {
             assertNotNull(itemStack);
             assertEquals(Material.BLACK_STAINED_GLASS, itemStack.getType());
         }
+    }
+    
+    @ParameterizedTest
+    @ValueSource(ints = {0, 10, 99, 1000})
+    public void testLineProperty(int itemCount) {
+        int maxLine = Math.max(0, (int) Math.ceil(itemCount / 3.0) - 1);
+        
+        var line = MutableProperty.of(0);
+        
+        var gui = ScrollGui.items()
+            .setLine(line)
+            .setStructure(
+                ". . .",
+                "x x x",
+                ". . ."
+            )
+            .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
+            .setContent(IntStream.range(0, itemCount).mapToObj(i -> Item.simple(ItemStack.of(Material.DIAMOND))).toList())
+            .build();
+        
+        // check that property value is updated on line change
+        assertEquals(0, line.get());
+        gui.setLine(Integer.MAX_VALUE);
+        assertEquals(maxLine, line.get());
+        
+        // check that line value is coerced into valid range
+        line.set(0);
+        assertEquals(0, gui.getLine());
+        line.set(Integer.MAX_VALUE);
+        assertEquals(maxLine, gui.getLine());
+        assertEquals(maxLine, line.get());
+    }
+    
+    @Test
+    public void testContentProperty() {
+        MutableProperty<List<Item>> content = MutableProperty.of(List.of());
+        
+        var gui = ScrollGui.items()
+            .setStructure("x")
+            .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
+            .setContent(content)
+            .build();
+        
+        assertNull(gui.getItem(0));
+        
+        var items = List.of(
+            Item.simple(ItemStack.of(Material.STONE)),
+            Item.simple(ItemStack.of(Material.DIRT)),
+            Item.simple(ItemStack.of(Material.COBWEB))
+        );
+        content.set(items);
+        
+        assertEquals(gui.getItem(0), items.getFirst());
+        for (int i = 0; i < items.size(); i++) {
+            gui.setLine(i);
+            assertEquals(gui.getItem(0), items.get(i));
+        }
+        
+        content.set(List.of());
+        assertNull(gui.getItem(0));
+        
+        gui.setContent(MutableProperty.of(List.of()));
+        content.set(items);
+        assertNull(gui.getItem(0));
     }
     
 }

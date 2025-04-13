@@ -1,13 +1,17 @@
 package xyz.xenondevs.invui.gui;
 
+import org.jetbrains.annotations.Unmodifiable;
+import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.internal.util.SlotUtils;
+import xyz.xenondevs.invui.state.MutableProperty;
+import xyz.xenondevs.invui.state.Property;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.SequencedSet;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-import java.util.function.Supplier;
 
 sealed abstract class AbstractPagedGui<C>
     extends AbstractGui
@@ -15,24 +19,40 @@ sealed abstract class AbstractPagedGui<C>
     permits PagedInventoriesGuiImpl, PagedItemsGuiImpl, PagedNestedGuiImpl
 {
     
-    private final boolean infinitePages;
-    private int[] contentListSlots;
-    private int currentPage;
+    protected int[] contentListSlots;
     
-    private @Nullable List<BiConsumer<Integer, Integer>> pageChangeHandlers;
-    private @Nullable List<BiConsumer<Integer, Integer>> pageCountChangeHandlers;
-    private Supplier<? extends List<? extends C>> contentSupplier = List::of;
-    private @Nullable List<List<SlotElement>> pages;
+    private final Runnable bakeFn = this::bake;
+    private final Runnable updateFn = this::update;
     
-    public AbstractPagedGui(int width, int height, boolean infinitePages, int... contentListSlots) {
+    private MutableProperty<Integer> page;
+    private Property<? extends List<? extends C>> content;
+    private final List<BiConsumer<? super Integer, ? super Integer>> pageChangeHandlers = new ArrayList<>(0);
+    private final List<BiConsumer<? super Integer, ? super Integer>> pageCountChangeHandlers = new ArrayList<>(0);
+    private @Nullable List<? extends List<SlotElement>> pages;
+    
+    public AbstractPagedGui(
+        int width, int height,
+        SequencedSet<Slot> contentListSlots,
+        Property<? extends List<? extends C>> content
+    ) {
         super(width, height);
-        this.infinitePages = infinitePages;
-        this.contentListSlots = contentListSlots.clone();
+        this.page = MutableProperty.of(0);
+        page.observe(updateFn);
+        this.content = content;
+        content.observe(bakeFn);
+        this.contentListSlots = SlotUtils.toSlotIndices(contentListSlots, getWidth());
     }
     
-    public AbstractPagedGui(int width, int height, boolean infinitePages, Structure structure) {
-        super(width, height);
-        this.infinitePages = infinitePages;
+    public AbstractPagedGui(
+        Structure structure,
+        MutableProperty<Integer> page,
+        Property<? extends List<? extends C>> content
+    ) {
+        super(structure.getWidth(), structure.getHeight());
+        this.page = page;
+        page.observe(updateFn);
+        this.content = content;
+        content.observe(bakeFn);
         this.contentListSlots = structure.getIngredientMatrix().findContentListSlots();
         super.applyStructure(structure); // super call to avoid bake() through applyStructure override
     }
@@ -40,71 +60,44 @@ sealed abstract class AbstractPagedGui<C>
     @Override
     public void applyStructure(Structure structure) {
         super.applyStructure(structure);
-        setContentListSlots(structure.getIngredientMatrix().findContentListSlots());
-    }
-    
-    @Override
-    public void setContentListSlots(Slot[] slots) {
-        setContentListSlots(SlotUtils.toSlotIndices(slots, getWidth()));
-    }
-    
-    @Override
-    public void setContentListSlots(int[] slotIndices) {
-        this.contentListSlots = slotIndices.clone();
+        this.contentListSlots = structure.getIngredientMatrix().findContentListSlots();
         bake();
     }
     
     @Override
-    public void goForward() {
-        if (hasNextPage())
-            setPage(currentPage + 1);
+    public void setContentListSlots(SequencedSet<Slot> slots) {
+        this.contentListSlots = SlotUtils.toSlotIndices(slots, getWidth());
+        bake();
     }
     
     @Override
-    public void goBack() {
-        if (hasPreviousPage())
-            setPage(currentPage - 1);
+    public @Unmodifiable SequencedSet<Slot> getContentListSlots() {
+        return Collections.unmodifiableSequencedSet(SlotUtils.toSlotSet(contentListSlots, getWidth()));
     }
     
     @Override
     public void setPage(int page) {
-        int previousPage = currentPage;
+        int previousPage = getPage();
         int newPage = correctPage(page);
         
         if (previousPage == newPage)
             return;
         
-        currentPage = newPage;
+        this.page.set(newPage);
         update();
         
-        if (pageChangeHandlers != null) {
-            pageChangeHandlers.forEach(handler -> handler.accept(previousPage, newPage));
-        }
+        pageChangeHandlers.forEach(handler -> handler.accept(previousPage, newPage));
     }
     
     private int correctPage(int page) {
-        // page 0 always exist, every positive page exist for infinite pages
-        if (page == 0 || (infinitePages && page > 0))
-            return page;
-        
         // 0 <= page < pageAmount
-        return Math.max(0, Math.min(page, getPageAmount() - 1));
+        return Math.max(0, Math.min(page, getPageCount() - 1));
     }
     
     private void correctCurrentPage() {
-        int correctedPage = correctPage(currentPage);
-        if (correctedPage != currentPage)
+        int correctedPage = correctPage(getPage());
+        if (correctedPage != getPage())
             setPage(correctedPage);
-    }
-    
-    @Override
-    public boolean hasNextPage() {
-        return currentPage < getPageAmount() - 1 || infinitePages;
-    }
-    
-    @Override
-    public boolean hasPreviousPage() {
-        return currentPage > 0;
     }
     
     protected void update() {
@@ -113,7 +106,7 @@ sealed abstract class AbstractPagedGui<C>
     }
     
     private void updatePageContent() {
-        List<SlotElement> slotElements = (pages != null && !pages.isEmpty()) ? pages.get(currentPage) : List.of();
+        List<SlotElement> slotElements = (pages != null && !pages.isEmpty()) ? pages.get(getPage()) : List.of();
         
         for (int i = 0; i < contentListSlots.length; i++) {
             if (slotElements.size() > i)
@@ -123,103 +116,91 @@ sealed abstract class AbstractPagedGui<C>
     }
     
     @Override
-    public void setContentSupplier(Supplier<? extends List<? extends C>> contentSupplier) {
-        this.contentSupplier = contentSupplier;
-        bake();
+    public void setPage(MutableProperty<Integer> page) {
+        this.page.unobserve(updateFn);
+        this.page = page;
+        page.observe(updateFn);
+        update();
     }
     
     @Override
-    public void setContent(List<? extends C> content) {
-        setContentSupplier(() -> content);
+    public void setContent(Property<? extends List<? extends C>> content) {
+        this.content.unobserve(bakeFn);
+        this.content = content;
+        content.observe(bakeFn);
+        bake();
     }
     
-    public void setPages(@Nullable List<List<SlotElement>> pages) {
-        int prevPageCount = getPageAmount();
+    public void setPages(@Nullable List<? extends List<SlotElement>> pages) {
+        int prevPageCount = getPageCount();
         this.pages = pages;
-        int newPageCount = getPageAmount();
+        int newPageCount = getPageCount();
         
-        if (pageCountChangeHandlers != null) {
-            for (var handler : pageCountChangeHandlers) {
-                handler.accept(prevPageCount, newPageCount);
-            }
+        for (var handler : pageCountChangeHandlers) {
+            handler.accept(prevPageCount, newPageCount);
         }
     }
     
     @Override
     public List<? extends C> getContent() {
-        return contentSupplier.get();
+        return content.get();
     }
     
     @Override
-    public int getPageAmount() {
+    public int getPageCount() {
         return pages != null ? pages.size() : 0;
     }
     
     @Override
     public int getPage() {
-        return currentPage;
+        return page.get();
     }
     
     @Override
-    public boolean hasInfinitePages() {
-        return infinitePages;
-    }
-    
-    @Override
-    public int[] getContentListSlots() {
-        return contentListSlots;
-    }
-    
-    @Override
-    public void addPageChangeHandler(BiConsumer<Integer, Integer> pageChangeHandler) {
-        if (pageChangeHandlers == null) {
-            pageChangeHandlers = new ArrayList<>();
-        }
-        
+    public void addPageChangeHandler(BiConsumer<? super Integer, ? super Integer> pageChangeHandler) {
         pageChangeHandlers.add(pageChangeHandler);
     }
     
     @Override
-    public void removePageChangeHandler(BiConsumer<Integer, Integer> pageChangeHandler) {
-        if (pageChangeHandlers != null) {
-            pageChangeHandlers.remove(pageChangeHandler);
-        }
+    public void removePageChangeHandler(BiConsumer<? super Integer, ? super Integer> pageChangeHandler) {
+        pageChangeHandlers.remove(pageChangeHandler);
     }
     
     @Override
-    public void setPageChangeHandlers(@Nullable List<BiConsumer<Integer, Integer>> handlers) {
-        this.pageChangeHandlers = handlers;
+    public void setPageChangeHandlers(@Nullable List<? extends BiConsumer<? super Integer, ? super Integer>> handlers) {
+        pageChangeHandlers.clear();
+        if (handlers != null)
+            pageChangeHandlers.addAll(handlers);
     }
     
-    @Nullable
-    public List<BiConsumer<Integer, Integer>> getPageChangeHandlers() {
-        return pageChangeHandlers;
-    }
-    
-    @Override
-    public void addPageCountChangeHandler(BiConsumer<Integer, Integer> pageChangeHandler) {
-        if (pageCountChangeHandlers == null) {
-            pageCountChangeHandlers = new ArrayList<>();
-        }
-        
-        pageCountChangeHandlers.add(pageChangeHandler);
+    public @UnmodifiableView List<BiConsumer<? super Integer, ? super Integer>> getPageChangeHandlers() {
+        return Collections.unmodifiableList(pageChangeHandlers);
     }
     
     @Override
-    public void removePageCountChangeHandler(BiConsumer<Integer, Integer> pageChangeHandler) {
-        if (pageCountChangeHandlers != null) {
-            pageCountChangeHandlers.remove(pageChangeHandler);
-        }
+    public void addPageCountChangeHandler(BiConsumer<? super Integer, ? super Integer> handler) {
+        pageCountChangeHandlers.add(handler);
     }
     
     @Override
-    public void setPageCountChangeHandlers(@Nullable List<BiConsumer<Integer, Integer>> handlers) {
-        this.pageCountChangeHandlers = handlers;
+    public void removePageCountChangeHandler(BiConsumer<? super Integer, ? super Integer> handler) {
+        pageCountChangeHandlers.remove(handler);
     }
     
-    @Nullable
-    public List<BiConsumer<Integer, Integer>> getPageCountChangeHandlers() {
-        return pageCountChangeHandlers;
+    @Override
+    public void setPageCountChangeHandlers(@Nullable List<? extends BiConsumer<? super Integer, ? super Integer>> handlers) {
+        pageCountChangeHandlers.clear();
+        if (handlers != null)
+            pageCountChangeHandlers.addAll(handlers);
+    }
+    
+    public @UnmodifiableView List<BiConsumer<? super Integer, ? super Integer>> getPageCountChangeHandlers() {
+        return Collections.unmodifiableList(pageCountChangeHandlers);
+    }
+    
+    @FunctionalInterface
+    public interface Constructor<C> {
+        PagedGui<C> create(Structure structure, MutableProperty<Integer> page, Property<? extends List<? extends C>> content);
     }
     
     public static sealed abstract class AbstractBuilder<C>
@@ -228,63 +209,50 @@ sealed abstract class AbstractPagedGui<C>
         permits PagedItemsGuiImpl.Builder, PagedNestedGuiImpl.Builder, PagedInventoriesGuiImpl.Builder
     {
         
-        private final BiFunction<Supplier<? extends List<? extends C>>, Structure, PagedGui<C>> ctor;
-        private @Nullable Supplier<? extends List<C>> contentSupplier;
-        private @Nullable List<C> content = null;
-        private @Nullable List<BiConsumer<Integer, Integer>> pageChangeHandlers;
-        private @Nullable List<BiConsumer<Integer, Integer>> pageCountChangeHandlers;
+        private final Constructor<C> ctor;
+        private Property<? extends List<? extends C>> content = Property.of(List.of());
+        private MutableProperty<Integer> page = MutableProperty.of(0);
+        private List<BiConsumer<? super Integer, ? super Integer>> pageChangeHandlers = new ArrayList<>(0);
+        private List<BiConsumer<? super Integer, ? super Integer>> pageCountChangeHandlers = new ArrayList<>(0);
         
-        public AbstractBuilder(BiFunction<Supplier<? extends List<? extends C>>, Structure, PagedGui<C>> ctor) {
+        public AbstractBuilder(Constructor<C> ctor) {
             this.ctor = ctor;
         }
         
         @Override
-        public PagedGui.Builder<C> setContentSupplier(Supplier<? extends List<C>> contentSupplier) {
-            this.contentSupplier = contentSupplier;
-            return this;
-        }
-        
-        @Override
-        public PagedGui.Builder<C> setContent(List<C> content) {
+        public PagedGui.Builder<C> setContent(Property<? extends List<? extends C>> content) {
             this.content = content;
             return this;
         }
         
         @Override
-        public PagedGui.Builder<C> addContent(C content) {
-            if (this.content == null)
-                this.content = new ArrayList<>();
-            
-            this.content.add(content);
+        public PagedGui.Builder<C> setPage(MutableProperty<Integer> page) {
+            this.page = page;
             return this;
         }
         
         @Override
-        public PagedGui.Builder<C> setPageChangeHandlers(List<BiConsumer<Integer, Integer>> handlers) {
-            pageChangeHandlers = handlers;
+        public PagedGui.Builder<C> setPageChangeHandlers(List<? extends BiConsumer<? super Integer, ? super Integer>> handlers) {
+            pageChangeHandlers.clear();
+            pageChangeHandlers.addAll(handlers);
             return this;
         }
         
         @Override
-        public PagedGui.Builder<C> addPageChangeHandler(BiConsumer<Integer, Integer> handler) {
-            if (pageChangeHandlers == null)
-                pageChangeHandlers = new ArrayList<>(1);
-            
+        public PagedGui.Builder<C> addPageChangeHandler(BiConsumer<? super Integer, ? super Integer> handler) {
             pageChangeHandlers.add(handler);
             return this;
         }
         
         @Override
-        public PagedGui.Builder<C> setPageCountChangeHandlers(List<BiConsumer<Integer, Integer>> handlers) {
-            pageCountChangeHandlers = handlers;
+        public PagedGui.Builder<C> setPageCountChangeHandlers(List<? extends BiConsumer<? super Integer, ? super Integer>> handlers) {
+            pageCountChangeHandlers.clear();
+            pageCountChangeHandlers.addAll(handlers);
             return this;
         }
         
         @Override
-        public PagedGui.Builder<C> addPageCountChangeHandler(BiConsumer<Integer, Integer> handler) {
-            if (pageCountChangeHandlers == null)
-                pageCountChangeHandlers = new ArrayList<>(1);
-            
+        public PagedGui.Builder<C> addPageCountChangeHandler(BiConsumer<? super Integer, ? super Integer> handler) {
             pageCountChangeHandlers.add(handler);
             return this;
         }
@@ -294,23 +262,9 @@ sealed abstract class AbstractPagedGui<C>
             if (structure == null)
                 throw new IllegalStateException("Structure is not defined.");
             
-            Supplier<? extends List<C>> supplier = contentSupplier != null 
-                ? contentSupplier 
-                : () -> content != null ? content : List.of();
-            
-            var gui = ctor.apply(supplier, structure);
-            
-            if (pageChangeHandlers != null) {
-                for (var handler : pageChangeHandlers) {
-                    gui.addPageChangeHandler(handler);
-                }
-            }
-            if (pageCountChangeHandlers != null) {
-                for (var handler : pageCountChangeHandlers) {
-                    gui.addPageChangeHandler(handler);
-                }
-            }
-            
+            var gui = ctor.create(structure, page, content);
+            pageChangeHandlers.forEach(gui::addPageChangeHandler);
+            pageCountChangeHandlers.forEach(gui::addPageCountChangeHandler);
             applyModifiers(gui);
             
             return gui;
@@ -319,10 +273,8 @@ sealed abstract class AbstractPagedGui<C>
         @Override
         public PagedGui.Builder<C> clone() {
             var clone = (AbstractBuilder<C>) super.clone();
-            if (this.content != null)
-                clone.content = new ArrayList<>(this.content);
-            if (this.pageChangeHandlers != null)
-                clone.pageChangeHandlers = new ArrayList<>(this.pageChangeHandlers);
+            clone.pageChangeHandlers = new ArrayList<>(pageChangeHandlers);
+            clone.pageCountChangeHandlers = new ArrayList<>(pageCountChangeHandlers);
             return clone;
         }
         

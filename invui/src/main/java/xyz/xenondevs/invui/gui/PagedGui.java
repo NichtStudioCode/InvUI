@@ -1,13 +1,17 @@
 package xyz.xenondevs.invui.gui;
 
+import org.jetbrains.annotations.Unmodifiable;
+import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.Item;
+import xyz.xenondevs.invui.state.MutableProperty;
+import xyz.xenondevs.invui.state.Property;
 
 import java.util.List;
+import java.util.SequencedSet;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * A {@link Gui} that can display multiple pages of content.
@@ -31,7 +35,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
      * @return The created {@link PagedGui}.
      */
-    static PagedGui<Item> items(Consumer<Builder<Item>> consumer) {
+    static PagedGui<Item> items(Consumer<? super Builder<Item>> consumer) {
         Builder<Item> builder = items();
         consumer.accept(builder);
         return builder.build();
@@ -46,7 +50,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link PagedGui}.
      */
-    static PagedGui<Item> ofItems(int width, int height, List<? extends Item> items, int... contentListSlots) {
+    static PagedGui<Item> ofItems(int width, int height, List<? extends Item> items, SequencedSet<Slot> contentListSlots) {
         return new PagedItemsGuiImpl<>(width, height, items, contentListSlots);
     }
     
@@ -58,7 +62,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @return The created {@link PagedGui}.
      */
     static PagedGui<Item> ofItems(Structure structure, List<? extends Item> items) {
-        return new PagedItemsGuiImpl<>(() -> items, structure);
+        return new PagedItemsGuiImpl<>(structure, MutableProperty.of(0), Property.of(items));
     }
     
     /**
@@ -76,7 +80,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
      * @return The created {@link PagedGui}.
      */
-    static PagedGui<Gui> guis(Consumer<Builder<Gui>> consumer) {
+    static PagedGui<Gui> guis(Consumer<? super Builder<Gui>> consumer) {
         Builder<Gui> builder = guis();
         consumer.accept(builder);
         return builder.build();
@@ -91,7 +95,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link PagedGui}.
      */
-    static PagedGui<Gui> ofGuis(int width, int height, List<? extends Gui> guis, int... contentListSlots) {
+    static PagedGui<Gui> ofGuis(int width, int height, List<? extends Gui> guis, SequencedSet<Slot> contentListSlots) {
         return new PagedNestedGuiImpl<>(width, height, guis, contentListSlots);
     }
     
@@ -103,7 +107,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @return The created {@link PagedGui}.
      */
     static PagedGui<Gui> ofGuis(Structure structure, List<? extends Gui> guis) {
-        return new PagedNestedGuiImpl<>(() -> guis, structure);
+        return new PagedNestedGuiImpl<>(structure, MutableProperty.of(0), Property.of(guis));
     }
     
     /**
@@ -121,7 +125,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
      * @return The created {@link PagedGui}.
      */
-    static PagedGui<Inventory> inventories(Consumer<Builder<Inventory>> consumer) {
+    static PagedGui<Inventory> inventories(Consumer<? super Builder<Inventory>> consumer) {
         Builder<Inventory> builder = inventories();
         consumer.accept(builder);
         return builder.build();
@@ -136,7 +140,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link PagedGui}.
      */
-    static PagedGui<Inventory> ofInventories(int width, int height, List<? extends Inventory> inventories, int... contentListSlots) {
+    static PagedGui<Inventory> ofInventories(int width, int height, List<? extends Inventory> inventories, SequencedSet<Slot> contentListSlots) {
         return new PagedInventoriesGuiImpl<>(width, height, inventories, contentListSlots);
     }
     
@@ -148,7 +152,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @return The created {@link PagedGui}.
      */
     static PagedGui<Inventory> ofInventories(Structure structure, List<? extends Inventory> inventories) {
-        return new PagedInventoriesGuiImpl<>(() -> inventories, structure);
+        return new PagedInventoriesGuiImpl<>(structure, MutableProperty.of(0), Property.of(inventories));
     }
     
     /**
@@ -156,21 +160,14 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      *
      * @param slots The slots to set.
      */
-    void setContentListSlots(Slot[] slots);
+    void setContentListSlots(SequencedSet<Slot> slots);
     
     /**
-     * Sets the slot indices at which page content should be displayed, in order of appearance.
+     * Gets the slots that are used to display content in this {@link PagedGui}.
      *
-     * @param slotIndices The slot indices to set.
+     * @return The slots that are used to display content in this {@link PagedGui}.
      */
-    void setContentListSlots(int[] slotIndices);
-    
-    /**
-     * Gets the amount of pages this {@link PagedGui} has.
-     *
-     * @return The amount of pages this {@link PagedGui} has.
-     */
-    int getPageAmount();
+    @Unmodifiable SequencedSet<Slot> getContentListSlots();
     
     /**
      * Gets the current page of this {@link PagedGui} as an index.
@@ -187,57 +184,34 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
     void setPage(int page);
     
     /**
-     * Checks if there is a next page.
+     * Sets the property that contains the page of this {@link PagedGui}.
      *
-     * @return Whether there is a next page.
+     * @param page The page property to set.
      */
-    boolean hasNextPage();
+    void setPage(MutableProperty<Integer> page);
     
     /**
-     * Checks if there is a previous page.
+     * Gets the amount of pages this {@link PagedGui} has.
      *
-     * @return Whether there is a previous page.
+     * @return The amount of pages this {@link PagedGui} has.
      */
-    boolean hasPreviousPage();
+    int getPageCount();
     
     /**
-     * Gets if there are infinite pages in this {@link PagedGui}.
+     * Sets the property that contains the content of this {@link PagedGui}.
      *
-     * @return Whether there are infinite pages in this {@link PagedGui}.
+     * @param content The content property to set.
      */
-    boolean hasInfinitePages();
-    
-    /**
-     * Displays the next page if there is one.
-     */
-    void goForward();
-    
-    /**
-     * Displays the previous page if there is one.
-     */
-    void goBack();
-    
-    /**
-     * Gets the slot indices that are used to display content in this {@link PagedGui}.
-     *
-     * @return The slot indices that are used to display content in this {@link PagedGui}.
-     */
-    int[] getContentListSlots();
-    
-    /**
-     * Sets the supplier used to retrieve the content of this {@link PagedGui} for all pages.
-     * Refreshes can be triggered via {@link PagedGui#bake}.
-     *
-     * @param contentSupplier The content supplier to set.
-     */
-    void setContentSupplier(Supplier<? extends List<? extends C>> contentSupplier);
+    void setContent(Property<? extends List<? extends C>> content);
     
     /**
      * Sets the content of this {@link PagedGui} for all pages.
      *
      * @param content The content to set.
      */
-    void setContent(List<? extends C> content);
+    default void setContent(List<? extends C> content) {
+        setContent(Property.of(content));
+    }
     
     /**
      * Gets the content of this {@link PagedGui}.
@@ -259,58 +233,58 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      *
      * @return The registered page change handlers.
      */
-    @Nullable
-    List<BiConsumer<Integer, Integer>> getPageChangeHandlers();
+    @UnmodifiableView
+    List<BiConsumer<? super Integer, ? super Integer>> getPageChangeHandlers();
     
     /**
      * Replaces the currently registered page change handlers with the given list.
      *
      * @param handlers The new page change handlers.
      */
-    void setPageChangeHandlers(@Nullable List<BiConsumer<Integer, Integer>> handlers);
+    void setPageChangeHandlers(@Nullable List<? extends BiConsumer<? super Integer, ? super Integer>> handlers);
     
     /**
      * Registers a page change handler.
      *
      * @param handler The handler to register.
      */
-    void addPageChangeHandler(BiConsumer<Integer, Integer> handler);
+    void addPageChangeHandler(BiConsumer<? super Integer, ? super Integer> handler);
     
     /**
      * Unregisters a page change handler.
      *
      * @param handler The handler to unregister.
      */
-    void removePageChangeHandler(BiConsumer<Integer, Integer> handler);
+    void removePageChangeHandler(BiConsumer<? super Integer, ? super Integer> handler);
     
     /**
      * Gets the registered page count change handlers.
      *
      * @return The registered page count change handlers.
      */
-    @Nullable
-    List<BiConsumer<Integer, Integer>> getPageCountChangeHandlers();
+    @UnmodifiableView
+    List<BiConsumer<? super Integer, ? super Integer>> getPageCountChangeHandlers();
     
     /**
      * Replaces the currently registered page count change handlers with the given list.
      *
      * @param handlers The new page count change handlers.
      */
-    void setPageCountChangeHandlers(@Nullable List<BiConsumer<Integer, Integer>> handlers);
+    void setPageCountChangeHandlers(@Nullable List<? extends BiConsumer<? super Integer, ? super Integer>> handlers);
     
     /**
      * Registers a page count change handler.
      *
      * @param handler The handler to register.
      */
-    void addPageCountChangeHandler(BiConsumer<Integer, Integer> handler);
+    void addPageCountChangeHandler(BiConsumer<? super Integer, ? super Integer> handler);
     
     /**
      * Unregisters a page count change handler.
      *
      * @param handler The handler to unregister.
      */
-    void removePageCountChangeHandler(BiConsumer<Integer, Integer> handler);
+    void removePageCountChangeHandler(BiConsumer<? super Integer, ? super Integer> handler);
     
     /**
      * A {@link PagedGui} builder.
@@ -320,13 +294,12 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
     sealed interface Builder<C> extends Gui.Builder<PagedGui<C>, Builder<C>> permits AbstractPagedGui.AbstractBuilder {
         
         /**
-         * Sets the supplier used to retrieve the content of the {@link PagedGui} for all pages.
-         * Refreshes can be triggered via {@link PagedGui#bake}.
+         * Sets the property that contains the content of the {@link PagedGui}.
          *
-         * @param contentSupplier The content supplier to set.
+         * @param content The content property to set.
          * @return This {@link Builder Gui Builder}.
          */
-        Builder<C> setContentSupplier(Supplier<? extends List<C>> contentSupplier);
+        Builder<C> setContent(Property<? extends List<? extends C>> content);
         
         /**
          * Sets the content of the {@link PagedGui} for all pages.
@@ -334,15 +307,17 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
          * @param content The content to set.
          * @return This {@link Builder Gui Builder}.
          */
-        Builder<C> setContent(List<C> content);
+        default Builder<C> setContent(List<? extends C> content) {
+            return setContent(Property.of(content));
+        }
         
         /**
-         * Adds content to the {@link PagedGui}.
+         * Sets the property that contains the page of the {@link PagedGui}.
          *
-         * @param content The content to add.
+         * @param page The page property to set.
          * @return This {@link Builder Gui Builder}.
          */
-        Builder<C> addContent(C content);
+        Builder<C> setPage(MutableProperty<Integer> page);
         
         /**
          * Sets the page change handlers of the {@link PagedGui}.
@@ -350,7 +325,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
          * @param handlers The page change handlers to set.
          * @return This {@link Builder Gui Builder}.
          */
-        Builder<C> setPageChangeHandlers(List<BiConsumer<Integer, Integer>> handlers);
+        Builder<C> setPageChangeHandlers(List<? extends BiConsumer<? super Integer, ? super Integer>> handlers);
         
         /**
          * Adds a page change handler to the {@link PagedGui}.
@@ -358,7 +333,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
          * @param handler The page change handler to add.
          * @return This {@link Builder Gui Builder}.
          */
-        Builder<C> addPageChangeHandler(BiConsumer<Integer, Integer> handler);
+        Builder<C> addPageChangeHandler(BiConsumer<? super Integer, ? super Integer> handler);
         
         /**
          * Sets the page count change handlers of the {@link PagedGui}.
@@ -366,7 +341,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
          * @param handlers The page change handlers to set.
          * @return This {@link Builder Gui Builder}.
          */
-        Builder<C> setPageCountChangeHandlers(List<BiConsumer<Integer, Integer>> handlers);
+        Builder<C> setPageCountChangeHandlers(List<? extends BiConsumer<? super Integer, ? super Integer>> handlers);
         
         /**
          * Adds a page count change handler to the {@link PagedGui}.
@@ -374,7 +349,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
          * @param handler The page change handler to add.
          * @return This {@link Builder Gui Builder}.
          */
-        Builder<C> addPageCountChangeHandler(BiConsumer<Integer, Integer> handler);
+        Builder<C> addPageCountChangeHandler(BiConsumer<? super Integer, ? super Integer> handler);
         
     }
     

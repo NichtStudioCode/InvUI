@@ -2,32 +2,38 @@ package xyz.xenondevs.invui.gui;
 
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.inventory.VirtualInventory;
+import xyz.xenondevs.invui.state.MutableProperty;
+import xyz.xenondevs.invui.state.Property;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.function.Supplier;
 
 final class PagedInventoriesGuiImpl<C extends Inventory> extends AbstractPagedGui<C> {
     
     private final BiConsumer<Integer, Integer> resizeHandler = (from, to) -> bake();
     private final Set<VirtualInventory> lastKnownInventories = new HashSet<>();
     
-    public PagedInventoriesGuiImpl(int width, int height, List<? extends C> inventories, int... contentListSlots) {
-        super(width, height, false, contentListSlots);
-        setContent(inventories);
+    public PagedInventoriesGuiImpl(
+        int width, int height,
+        List<? extends C> inventories,
+        SequencedSet<Slot> contentListSlots
+    ) {
+        super(width, height, contentListSlots, Property.of(inventories));
+        bake();
     }
     
-    public PagedInventoriesGuiImpl(Supplier<? extends List<? extends C>> inventories, Structure structure) {
-        super(structure.getWidth(), structure.getHeight(), false, structure);
-        setContentSupplier(inventories);
+    public PagedInventoriesGuiImpl(
+        Structure structure,
+        MutableProperty<Integer> page,
+        Property<? extends List<? extends C>> inventories
+    ) {
+        super(structure, page, inventories);
+        bake();
     }
     
     @Override
     public void bake() {
-        int contentSize = getContentListSlots().length;
+        int contentSize = contentListSlots.length;
         
         List<? extends Inventory> inventories = getContent();
         List<List<SlotElement>> pages = new ArrayList<>();

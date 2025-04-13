@@ -2,14 +2,20 @@ package xyz.xenondevs.invui.gui;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.ServerMock;
 import xyz.xenondevs.invui.item.Item;
+import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -27,6 +33,161 @@ public class TabGuiTest {
     public static void tearDown() {
         MockBukkit.unmock();
     }
+    
+    @Test
+    public void testTabSwitching() {
+        var tabs = List.of(
+            Gui.normal()
+                .setStructure("xxx")
+                .addIngredient('x', Item.simple(ItemStack.of(Material.ANDESITE)))
+                .build(),
+            Gui.normal()
+                .setStructure("xxx")
+                .addIngredient('x', Item.simple(ItemStack.of(Material.BARRIER)))
+                .build(),
+            Gui.normal()
+                .setStructure("xxx")
+                .addIngredient('x', Item.simple(ItemStack.of(Material.COBBLESTONE)))
+                .build()
+        );
+        
+        var gui = TabGui.normal()
+            .setStructure(
+                "# # #",
+                "x x x"
+            )
+            .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
+            .setTabs(tabs)
+            .build();
+        
+        assertEquals(0, gui.getTab());
+        
+        for (int tab = -1; tab <= tabs.size(); tab++) {
+            gui.setTab(tab);
+            int coercedTab = Math.max(0, Math.min(2, tab));
+            assertEquals(coercedTab, gui.getTab());
+            for (int itemIdx = 3; itemIdx < 6; itemIdx++) {
+                var slotElement = gui.getSlotElement(itemIdx);
+                assertInstanceOf(SlotElement.GuiLink.class, slotElement);
+                assertEquals(
+                    tabs.get(coercedTab),
+                    ((SlotElement.GuiLink)slotElement).gui(),
+                    "tab=" + tab + ", itemIdx=" + itemIdx
+                );
+                assertEquals(
+                    itemIdx - 3, 
+                    ((SlotElement.GuiLink)slotElement).slot(),
+                    "tab=" + tab + ", itemIdx=" + itemIdx
+                );
+            }
+        }
+    }
+    
+    @Test
+    public void testTabsProperty() {
+        MutableProperty<List<@Nullable Gui>> tabs = MutableProperty.of(List.of());
+        
+        var gui = TabGui.normal()
+            .setStructure("x")
+            .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
+            .setTabs(tabs)
+            .build();
+        
+        assertNull(gui.getSlotElement(0));
+        
+        var tabsList = List.of(
+            Gui.empty(1, 1),
+            Gui.empty(1, 1),
+            Gui.empty(1, 1)
+        );
+        tabs.set(tabsList);
+        
+        assertEquals(
+            ((SlotElement.GuiLink) Objects.requireNonNull(gui.getSlotElement(0))).gui(),
+            tabsList.getFirst()
+        );
+        for (int i = 0; i < tabsList.size(); i++) {
+            gui.setTab(i);
+            assertEquals(
+                ((SlotElement.GuiLink) Objects.requireNonNull(gui.getSlotElement(0))).gui(),
+                tabsList.get(i)
+            );
+        }
+        
+        tabs.set(List.of());
+        assertNull(gui.getItem(0));
+        
+        gui.setTabs(MutableProperty.of(List.of()));
+        tabs.set(tabsList);
+        assertNull(gui.getItem(0));
+    }
+    
+    @ParameterizedTest
+    @ValueSource(ints = {0, 1, 10})
+    public void testTabProperty(int tabCount) {
+        var tab = MutableProperty.of(0);
+        var gui = TabGui.normal()
+            .setTab(tab)
+            .setStructure(
+                "x x x",
+                "x x x",
+                "x x x"
+            )
+            .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
+            .setTabs(IntStream.range(0, tabCount).mapToObj(i -> Gui.empty(3, 3)).toList())
+            .build();
+        
+        // check that property value is updated on tab change
+        assertEquals(Math.min(tabCount - 1, 0), tab.get());
+        gui.setTab(Integer.MAX_VALUE);
+        assertEquals(tabCount - 1, tab.get());
+        
+        // check that tab value is coerced into valid range
+        tab.set(0);
+        assertEquals(Math.min(tabCount - 1, 0), gui.getTab());
+        tab.set(Integer.MAX_VALUE);
+        assertEquals(tabCount - 1, gui.getTab());
+        assertEquals(tabCount - 1, tab.get());
+    }
+    
+    @Test
+    public void testNoTabs() {
+        // validate that tab guis can be created without tabs
+        var gui = TabGui.normal()
+            .setStructure(
+                "# # #",
+                "x x x",
+                "x x x"
+            )
+            .addIngredient('#', ItemStack.of(Material.BLACK_STAINED_GLASS_PANE))
+            .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
+            .build();
+        
+        assertEquals(-1, gui.getTab());
+        for (int i = 0; i < 3; i++) {
+            assertNotNull(gui.getItem(i));
+        }
+        for (int i = 3; i < 9; i++) {
+            assertNull(gui.getSlotElement(i));
+        }
+        
+        // test that tabs can be added later and the gui will switch to the first tab
+        gui.setTabs(List.of(Gui.empty(3, 3), Gui.empty(3, 3)));
+        assertEquals(0, gui.getTab());
+        gui.setTab(Integer.MAX_VALUE);
+        assertEquals(1, gui.getTab());
+        for (int i = 3; i < 9; i++) {
+            assertInstanceOf(SlotElement.GuiLink.class, gui.getSlotElement(i));
+        }
+        
+        // test that all tabs can be removed again
+        gui.setTabs(List.of());
+        assertEquals(-1, gui.getTab());
+        for (int i = 3; i < 9; i++) {
+            assertNull(gui.getSlotElement(i));
+        }
+    }
+    
     
     @Test
     public void testTabContentChangeWithApplyStructure() {

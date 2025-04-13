@@ -1,19 +1,30 @@
 package xyz.xenondevs.invui.gui;
 
+import xyz.xenondevs.invui.state.MutableProperty;
+import xyz.xenondevs.invui.state.Property;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
+import java.util.SequencedSet;
 
 final class PagedNestedGuiImpl<C extends Gui> extends AbstractPagedGui<C> {
     
-    public PagedNestedGuiImpl(int width, int height, List<? extends C> guis, int... contentListSlots) {
-        super(width, height, false, contentListSlots);
-        setContent(guis);
+    public PagedNestedGuiImpl(
+        int width, int height,
+        List<? extends C> guis,
+        SequencedSet<Slot> contentListSlots
+    ) {
+        super(width, height, contentListSlots, Property.of(guis));
+        bake();
     }
     
-    public PagedNestedGuiImpl(Supplier<? extends List<? extends C>> guis, Structure structure) {
-        super(structure.getWidth(), structure.getHeight(), false, structure);
-        setContentSupplier(guis);
+    public PagedNestedGuiImpl(
+        Structure structure,
+        MutableProperty<Integer> page,
+        Property<? extends List<? extends C>> guis
+    ) {
+        super(structure, page, guis);
+        bake();
     }
     
     @Override

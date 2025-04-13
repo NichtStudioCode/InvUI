@@ -2,9 +2,7 @@ package xyz.xenondevs.invui.internal.util;
 
 import org.jspecify.annotations.NullUnmarked;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.function.IntFunction;
 
 public class ArrayUtils {
@@ -87,6 +85,48 @@ public class ArrayUtils {
         for (char c : rest) {
             set.add(c);
         }
+        return set;
+    }
+    
+    /**
+     * Converts a collection of integers to an int array.
+     *
+     * @param collection The collection
+     * @return The int array
+     */
+    public static int[] toIntArray(Collection<Integer> collection) {
+        int[] array = new int[collection.size()];
+        int i = 0;
+        for (int e : collection) {
+            array[i++] = e;
+        }
+        return array;
+    }
+    
+    /**
+     * Converts an int array to a sequenced set.
+     *
+     * @param array The int array
+     * @return The sequenced set
+     */
+    public static SequencedSet<Integer> toSequencedSet(int[] array) {
+        var set = new LinkedHashSet<Integer>(array.length);
+        for (int i : array) {
+            set.add(i);
+        }
+        return set;
+    }
+    
+    /**
+     * Converts a generic array to a sequenced set.
+     *
+     * @param array The generic array
+     * @param <T>   The type of the array
+     * @return The sequenced set
+     */
+    public static <T> SequencedSet<T> toSequencedSet(T[] array) {
+        var set = new LinkedHashSet<T>(array.length);
+        Collections.addAll(set, array);
         return set;
     }
     

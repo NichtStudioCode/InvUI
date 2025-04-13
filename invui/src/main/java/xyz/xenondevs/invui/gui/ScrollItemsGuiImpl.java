@@ -1,21 +1,33 @@
 package xyz.xenondevs.invui.gui;
 
 import xyz.xenondevs.invui.item.Item;
+import xyz.xenondevs.invui.state.MutableProperty;
+import xyz.xenondevs.invui.state.Property;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SequencedSet;
 import java.util.function.Supplier;
 
 final class ScrollItemsGuiImpl<C extends Item> extends AbstractScrollGui<C> {
     
-    public ScrollItemsGuiImpl(int width, int height, List<? extends C> items, int... contentListSlots) {
-        super(width, height, false, contentListSlots);
-        setContent(items);
+    public ScrollItemsGuiImpl(
+        int width, int height,
+        List<? extends C> items,
+        SequencedSet<Slot> contentListSlots,
+        boolean horizontalLines
+    ) {
+        super(width, height, contentListSlots, horizontalLines, Property.of(items));
+        bake();
     }
     
-    public ScrollItemsGuiImpl(Supplier<? extends List<? extends C>> items, Structure structure) {
-        super(structure.getWidth(), structure.getHeight(), false, structure);
-        setContentSupplier(items);
+    public ScrollItemsGuiImpl(
+        Structure structure,
+        MutableProperty<Integer> line,
+        Property<? extends List<? extends C>> items
+    ) {
+        super(structure, line, items);
+        bake();
     }
     
     @Override

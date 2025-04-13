@@ -2,27 +2,34 @@ package xyz.xenondevs.invui.gui;
 
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.inventory.VirtualInventory;
+import xyz.xenondevs.invui.state.MutableProperty;
+import xyz.xenondevs.invui.state.Property;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.function.Supplier;
 
 final class ScrollInventoryGuiImpl<C extends Inventory> extends AbstractScrollGui<C> {
     
     private final BiConsumer<Integer, Integer> resizeHandler = (from, to) -> bake();
     private final Set<VirtualInventory> lastKnownInventories = new HashSet<>();
     
-    public ScrollInventoryGuiImpl(int width, int height, List<? extends C> inventories, int... contentListSlots) {
-        super(width, height, false, contentListSlots);
-        setContent(inventories);
+    public ScrollInventoryGuiImpl(
+        int width, int height,
+        List<? extends C> inventories,
+        SequencedSet<Slot> contentListSlots,
+        boolean horizontalLines
+    ) {
+        super(width, height, contentListSlots, horizontalLines, Property.of(inventories));
+        bake();
     }
     
-    public ScrollInventoryGuiImpl(Supplier<? extends List<? extends C>> inventories, Structure structure) {
-        super(structure.getWidth(), structure.getHeight(), false, structure);
-        setContentSupplier(inventories);
+    public ScrollInventoryGuiImpl(
+        Structure structure,
+        MutableProperty<Integer> line,
+        Property<? extends List<? extends C>> inventories
+    ) {
+        super(structure, line, inventories);
+        bake();
     }
     
     @Override

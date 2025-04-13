@@ -882,7 +882,11 @@ public sealed abstract class AbstractGui
         return height;
     }
     
-    private int convToIndex(int x, int y) {
+    protected int convToIndex(Slot slot) {
+        return convToIndex(slot.x(), slot.y());
+    }
+    
+    protected int convToIndex(int x, int y) {
         if (x >= width || y >= height) throw new IllegalArgumentException("Coordinates out of bounds");
         return SlotUtils.convertToIndex(x, y, width);
     }

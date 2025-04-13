@@ -1,16 +1,21 @@
 package xyz.xenondevs.invui.gui;
 
+import org.jetbrains.annotations.Unmodifiable;
+import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.Item;
+import xyz.xenondevs.invui.state.MutableProperty;
+import xyz.xenondevs.invui.state.Property;
 
 import java.util.List;
+import java.util.SequencedSet;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * A {@link Gui} that displays content in lines that can be scrolled through.
+ *
  * @param <C> The content type.
  */
 public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
@@ -31,7 +36,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
      * @return The created {@link ScrollGui}.
      */
-    static ScrollGui<Item> items(Consumer<Builder<Item>> consumer) {
+    static ScrollGui<Item> items(Consumer<? super Builder<Item>> consumer) {
         Builder<Item> builder = items();
         consumer.accept(builder);
         return builder.build();
@@ -46,8 +51,8 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link ScrollGui}.
      */
-    static ScrollGui<Item> ofItems(int width, int height, List<? extends Item> items, int... contentListSlots) {
-        return new ScrollItemsGuiImpl<>(width, height, items, contentListSlots);
+    static ScrollGui<Item> ofItems(int width, int height, List<? extends Item> items, SequencedSet<Slot> contentListSlots, ScrollDirection direction) {
+        return new ScrollItemsGuiImpl<>(width, height, items, contentListSlots, direction == ScrollDirection.VERTICAL);
     }
     
     /**
@@ -58,7 +63,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @return The created {@link ScrollGui}.
      */
     static ScrollGui<Item> ofItems(Structure structure, List<? extends Item> items) {
-        return new ScrollItemsGuiImpl<>(() -> items, structure);
+        return new ScrollItemsGuiImpl<>(structure, MutableProperty.of(0), Property.of(items));
     }
     
     /**
@@ -77,7 +82,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
      * @return The created {@link ScrollGui}.
      */
-    static ScrollGui<Gui> guis(Consumer<Builder<Gui>> consumer) {
+    static ScrollGui<Gui> guis(Consumer<? super Builder<Gui>> consumer) {
         Builder<Gui> builder = guis();
         consumer.accept(builder);
         return builder.build();
@@ -92,8 +97,8 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link ScrollGui}.
      */
-    static ScrollGui<Gui> ofGuis(int width, int height, List<? extends Gui> guis, int... contentListSlots) {
-        return new ScrollNestedGuiImpl<>(width, height, guis, contentListSlots);
+    static ScrollGui<Gui> ofGuis(int width, int height, List<? extends Gui> guis, SequencedSet<Slot> contentListSlots, ScrollDirection direction) {
+        return new ScrollNestedGuiImpl<>(width, height, guis, contentListSlots, direction == ScrollDirection.VERTICAL);
     }
     
     /**
@@ -104,7 +109,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @return The created {@link ScrollGui}.
      */
     static ScrollGui<Gui> ofGuis(Structure structure, List<? extends Gui> guis) {
-        return new ScrollNestedGuiImpl<>(() -> guis, structure);
+        return new ScrollNestedGuiImpl<>(structure, MutableProperty.of(0), Property.of(guis));
     }
     
     /**
@@ -123,7 +128,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
      * @return The created {@link ScrollGui}.
      */
-    static ScrollGui<Inventory> inventories(Consumer<Builder<Inventory>> consumer) {
+    static ScrollGui<Inventory> inventories(Consumer<? super Builder<Inventory>> consumer) {
         Builder<Inventory> builder = inventories();
         consumer.accept(builder);
         return builder.build();
@@ -138,8 +143,8 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link ScrollGui}.
      */
-    static ScrollGui<Inventory> ofInventories(int width, int height, List<? extends Inventory> inventories, int... contentListSlots) {
-        return new ScrollInventoryGuiImpl<>(width, height, inventories, contentListSlots);
+    static ScrollGui<Inventory> ofInventories(int width, int height, List<? extends Inventory> inventories, SequencedSet<Slot> contentListSlots, ScrollDirection direction) {
+        return new ScrollInventoryGuiImpl<>(width, height, inventories, contentListSlots, direction == ScrollDirection.VERTICAL);
     }
     
     /**
@@ -150,78 +155,91 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @return The created {@link ScrollGui}.
      */
     static ScrollGui<Inventory> ofInventories(Structure structure, List<? extends Inventory> inventories) {
-        return new ScrollInventoryGuiImpl<>(() -> inventories, structure);
+        return new ScrollInventoryGuiImpl<>(structure, MutableProperty.of(0), Property.of(inventories));
     }
     
     /**
-     * Sets the slots at which scroll content should be displayed, in order of appearance.
+     * Sets the slots at which scroll content should be displayed, in order of appearance,
+     * assuming a horizontal line orientation.
      *
      * @param slots The slots to set.
+     * @throws IllegalArgumentException If there are differing line lengths
      */
-    void setContentListSlots(Slot[] slots);
+    void setContentListSlotsHorizontal(SequencedSet<Slot> slots);
     
     /**
-     * Sets the slot indices at which scroll content should be displayed, in order of appearance.
+     * Sets the slots at which scroll content should be displayed, in order of appearance,
+     * assuming a vertical line orientation.
      *
-     * @param slotIndices The slot indices to set.
+     * @param slots The slots to set
+     * @throws IllegalArgumentException If there are differing line lengths
      */
-    void setContentListSlots(int[] slotIndices);
+    void setContentListSlotsVertical(SequencedSet<Slot> slots);
     
     /**
-     * Gets the current line of this {@link ScrollGui}.
+     * Gets the slots that are used to display the content.
      *
-     * @return The current line of this {@link ScrollGui}.
+     * @return The slots that are used to display the content.
+     */
+    @Unmodifiable
+    SequencedSet<Slot> getContentListSlots();
+    
+    /**
+     * Gets the current line, which is the index of the first line to be displayed.
+     *
+     * @return The current line.
      */
     int getLine();
     
     /**
-     * Gets the max line index of this {@link ScrollGui}.
-     *
-     * @return The max line index of this {@link ScrollGui}.
-     */
-    int getMaxLine();
-    
-    /**
-     * Sets the current line of this {@link ScrollGui}.
+     * Sets the current line, which is the index of the first line to be displayed.
      *
      * @param line The line to set.
      */
     void setLine(int line);
     
     /**
-     * Checks if it is possible to scroll the specified amount of lines.
+     * Sets the property that contains the current line.
      *
-     * @param lines The amount of lines to check.
-     * @return Whether it is possible to scroll the specified amount of lines.
+     * @param line The line property to set.
      */
-    boolean canScroll(int lines);
+    void setLine(MutableProperty<Integer> line);
     
     /**
-     * Scrolls the specified amount of lines.
+     * Gets the amount of lines.
      *
-     * @param lines The amount of lines to scroll.
+     * @return The amount of lines.
      */
-    void scroll(int lines);
+    int getLineCount();
     
     /**
-     * Sets the supplier used to retrieve the content of this {@link ScrollGui} for all lines.
-     * Refreshes can be triggered via {@link ScrollGui#bake}.
+     * Gets the maximum selectable line index.
+     * This index is chosen such that the last line fills the last row / column.
      *
-     * @param contentSupplier The content supplier to set.
+     * @return The maximum selectable line index.
      */
-    void setContentSupplier(Supplier<? extends List<? extends C>> contentSupplier);
+    int getMaxLine();
     
     /**
-     * Sets the content of this {@link ScrollGui} for all lines.
+     * Sets the content for all lines.
      *
      * @param content The content to set.
      */
-    void setContent(List<? extends C> content);
+    default void setContent(List<? extends C> content) {
+        setContent(Property.of(content));
+    }
     
     /**
-     * Gets the content of this {@link ScrollGui}.
+     * Sets the property that contains the scrollable content.
      *
-     * @return The content of this {@link ScrollGui}.
+     * @param content The content property to set.
+     */
+    void setContent(Property<? extends List<? extends C>> content);
+    
+    /**
+     * Gets the scrollable content.
+     *
+     * @return The scrollable content.
      */
     List<? extends C> getContent();
     
@@ -238,58 +256,58 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      *
      * @return The scroll handlers of this {@link ScrollGui}.
      */
-    @Nullable
-    List<BiConsumer<Integer, Integer>> getScrollHandlers();
+    @UnmodifiableView
+    List<BiConsumer<? super Integer, ? super Integer>> getScrollHandlers();
     
     /**
      * Replaces the currently registered scroll handlers with the specified ones.
      *
-     * @param scrollHandlers The new scroll handlers.
+     * @param handlers The new scroll handlers.
      */
-    void setScrollHandlers(@Nullable List<BiConsumer<Integer, Integer>> scrollHandlers);
+    void setScrollHandlers(@Nullable List<? extends BiConsumer<? super Integer, ? super Integer>> handlers);
     
     /**
      * Adds a scroll handler to this {@link ScrollGui}.
      *
-     * @param scrollHandler The scroll handler to add.
+     * @param handler The scroll handler to add.
      */
-    void addScrollHandler(BiConsumer<Integer, Integer> scrollHandler);
+    void addScrollHandler(BiConsumer<? super Integer, ? super Integer> handler);
     
     /**
      * Removes the specified scroll handler from this {@link ScrollGui}.
      *
-     * @param scrollHandler The scroll handler to remove.
+     * @param handler The scroll handler to remove.
      */
-    void removeScrollHandler(BiConsumer<Integer, Integer> scrollHandler);
+    void removeScrollHandler(BiConsumer<? super Integer, ? super Integer> handler);
     
     /**
      * Gets the line count change handlers of this {@link ScrollGui}.
      *
      * @return The line count change handlers of this {@link ScrollGui}.
      */
-    @Nullable
-    List<BiConsumer<Integer, Integer>> getLineCountChangeHandlers();
+    @UnmodifiableView
+    List<BiConsumer<? super Integer, ? super Integer>> getLineCountChangeHandlers();
     
     /**
      * Replaces the currently registered line count change handlers with the specified ones.
      *
      * @param handlers The new line count change handlers.
      */
-    void setLineCountChangeHandlers(@Nullable List<BiConsumer<Integer, Integer>> handlers);
+    void setLineCountChangeHandlers(@Nullable List<? extends BiConsumer<? super Integer, ? super Integer>> handlers);
     
     /**
      * Adds a line count change handlers to this {@link ScrollGui}.
      *
      * @param handler The line count change handlers to add.
      */
-    void addLineCountChangeHandler(BiConsumer<Integer, Integer> handler);
+    void addLineCountChangeHandler(BiConsumer<? super Integer, ? super Integer> handler);
     
     /**
      * Removes the specified line count change handlers from this {@link ScrollGui}.
      *
      * @param handler The line count change handlers to remove.
      */
-    void removeLineCountChangeHandler(BiConsumer<Integer, Integer> handler);
+    void removeLineCountChangeHandler(BiConsumer<? super Integer, ? super Integer> handler);
     
     /**
      * A {@link ScrollGui} builder.
@@ -299,29 +317,30 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
     sealed interface Builder<C> extends Gui.Builder<ScrollGui<C>, Builder<C>> permits AbstractScrollGui.AbstractBuilder {
         
         /**
-         * Sets the supplier used to retrieve the content of the {@link ScrollGui} for all lines.
-         * Refreshes can be triggered via {@link ScrollGui#bake}.
-         *
-         * @param contentSupplier The content supplier to set.
-         * @return This {@link Builder Gui Builder}.
-         */
-        Builder<C> setContentSupplier(Supplier<List<C>> contentSupplier);
-        
-        /**
          * Sets the content of the {@link ScrollGui} for all lines.
          *
          * @param content The content to set.
          * @return This {@link Builder Gui Builder}.
          */
-        Builder<C> setContent(List<C> content);
+        default Builder<C> setContent(List<? extends C> content) {
+            return setContent(Property.of(content));
+        }
         
         /**
-         * Adds content to the {@link ScrollGui}.
+         * Sets the property that contains the content of the {@link ScrollGui}.
          *
-         * @param content The content to add.
+         * @param content The content property to set.
          * @return This {@link Builder Gui Builder}.
          */
-        Builder<C> addContent(C content);
+        Builder<C> setContent(Property<? extends List<? extends C>> content);
+        
+        /**
+         * Sets the property that contains the page of the {@link PagedGui}.
+         *
+         * @param line The line property to set.
+         * @return This {@link Builder Gui Builder}.
+         */
+        Builder<C> setLine(MutableProperty<Integer> line);
         
         /**
          * Sets the scroll handlers of the {@link ScrollGui}.
@@ -329,7 +348,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
          * @param handlers The scroll handlers to set.
          * @return This {@link Builder Gui Builder}.
          */
-        Builder<C> setScrollHandlers(List<BiConsumer<Integer, Integer>> handlers);
+        Builder<C> setScrollHandlers(List<? extends BiConsumer<? super Integer, ? super Integer>> handlers);
         
         /**
          * Adds a scroll handler to the {@link ScrollGui}.
@@ -337,7 +356,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
          * @param handler The scroll handler to add.
          * @return This {@link Builder Gui Builder}.
          */
-        Builder<C> addScrollHandler(BiConsumer<Integer, Integer> handler);
+        Builder<C> addScrollHandler(BiConsumer<? super Integer, ? super Integer> handler);
         
         /**
          * Sets the line count change handlers of the {@link ScrollGui}.
@@ -345,7 +364,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
          * @param handlers The line count change handlers to set.
          * @return This {@link Builder Gui Builder}.
          */
-        Builder<C> setLineCountChangeHandlers(List<BiConsumer<Integer, Integer>> handlers);
+        Builder<C> setLineCountChangeHandlers(List<? extends BiConsumer<? super Integer, ? super Integer>> handlers);
         
         /**
          * Adds a line count change handler to the {@link ScrollGui}.
@@ -353,8 +372,23 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
          * @param handler The scroll handler to add.
          * @return This {@link Builder Gui Builder}.
          */
-        Builder<C> addLineCountChangeHandler(BiConsumer<Integer, Integer> handler);
+        Builder<C> addLineCountChangeHandler(BiConsumer<? super Integer, ? super Integer> handler);
         
+    }
+    
+    /**
+     * The direction in which a {@link ScrollGui} scrolls.
+     */
+    enum ScrollDirection {
+        /**
+         * The {@link ScrollGui} scrolls vertically, i.e. uses horizontal lines.
+         */
+        VERTICAL,
+        
+        /**
+         * The {@link ScrollGui} scrolls horizontally, i.e. uses vertical lines.
+         */
+        HORIZONTAL
     }
     
 }

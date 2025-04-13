@@ -1,26 +1,33 @@
 package xyz.xenondevs.invui.gui;
 
 import xyz.xenondevs.invui.item.Item;
+import xyz.xenondevs.invui.state.MutableProperty;
+import xyz.xenondevs.invui.state.Property;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SequencedSet;
 import java.util.function.Supplier;
 
 final class PagedItemsGuiImpl<C extends Item> extends AbstractPagedGui<C> {
     
-    public PagedItemsGuiImpl(int width, int height, List<? extends C> items, int... contentListSlots) {
-        super(width, height, false, contentListSlots);
-        setContent(items);
+    public PagedItemsGuiImpl(int width, int height, List<? extends C> items, SequencedSet<Slot> contentListSlots) {
+        super(width, height, contentListSlots, Property.of(items));
+        bake();
     }
     
-    public PagedItemsGuiImpl(Supplier<? extends List<? extends C>> items, Structure structure) {
-        super(structure.getWidth(), structure.getHeight(), false, structure);
-        setContentSupplier(items);
+    public PagedItemsGuiImpl(
+        Structure structure,
+        MutableProperty<Integer> page,
+        Property<? extends List<? extends C>> items
+    ) {
+        super(structure, page, items);
+        bake();
     }
     
     @Override
     public void bake() {
-        int contentSize = getContentListSlots().length;
+        int contentSize = contentListSlots.length;
         
         List<List<SlotElement>> pages = new ArrayList<>();
         List<SlotElement> page = new ArrayList<>(contentSize);

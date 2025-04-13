@@ -1,11 +1,15 @@
 package xyz.xenondevs.invui.gui;
 
+import org.jetbrains.annotations.Unmodifiable;
+import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
+import xyz.xenondevs.invui.state.MutableProperty;
+import xyz.xenondevs.invui.state.Property;
 
 import java.util.List;
+import java.util.SequencedSet;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * A {@link Gui} that displays multiple tabs, which themselves are {@link Gui Guis} as well.
@@ -27,7 +31,7 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
      * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
      * @return The created {@link TabGui}.
      */
-    static TabGui normal(Consumer<Builder> consumer) {
+    static TabGui normal(Consumer<? super Builder> consumer) {
         Builder builder = normal();
         consumer.accept(builder);
         return builder.build();
@@ -42,8 +46,8 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link TabGui}.
      */
-    static TabGui of(int width, int height, List<? extends @Nullable Gui> tabs, int... contentListSlots) {
-        return new TabGuiImpl(width, height, tabs, contentListSlots);
+    static TabGui of(int width, int height, List<? extends @Nullable Gui> tabs, SequencedSet<Slot> contentListSlots) {
+        return new TabGuiImpl(width, height, contentListSlots, Property.of(tabs));
     }
     
     /**
@@ -54,7 +58,7 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
      * @return The created {@link TabGui}.
      */
     static TabGui of(Structure structure, List<? extends @Nullable Gui> tabs) {
-        return new TabGuiImpl(() -> tabs, structure);
+        return new TabGuiImpl(structure, MutableProperty.of(0), Property.of(tabs));
     }
     
     /**
@@ -62,14 +66,14 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
      *
      * @param slots The slots to set.
      */
-    void setContentListSlots(Slot[] slots);
+    void setContentListSlots(SequencedSet<Slot> slots);
     
     /**
-     * Sets the slot indices at which tab content should be displayed, in order of appearance.
-     *
-     * @param slotIndices The slot indices to set.
+     * Gets the slots that are used to display the tabs.
+     * @return The slots that are used to display the tabs.
      */
-    void setContentListSlots(int[] slotIndices);
+    @Unmodifiable
+    SequencedSet<Slot> getContentListSlots();
     
     /**
      * Gets the current tab index.
@@ -86,6 +90,13 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
     void setTab(int tab);
     
     /**
+     * Sets the property that contains the current tab.
+     *
+     * @param tab The tab property to set.
+     */
+    void setTab(MutableProperty<Integer> tab);
+    
+    /**
      * Checks if the given tab is available.
      *
      * @param tab The index of the tab to check.
@@ -94,19 +105,20 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
     boolean isTabAvailable(int tab);
     
     /**
-     * Sets the supplier used to retrieve the tabs of this {@link TabGui}.
-     * Refreshes can be triggered via {@link TabGui#bake}.
-     *
-     * @param tabsSupplier The content supplier to set.
-     */
-    void setTabsSupplier(Supplier<? extends List<? extends @Nullable Gui>> tabsSupplier);
-    
-    /**
-     * Sets the tabs of this {@link TabGui}.
+     * Sets the tabs.
      *
      * @param tabs The tabs to set.
      */
-    void setTabs(List<? extends @Nullable Gui> tabs);
+    default void setTabs(List<? extends @Nullable Gui> tabs) {
+        setTabs(Property.of(tabs));
+    }
+    
+    /**
+     * Sets the property that contains the configured tabs.
+     *
+     * @param tabs The tabs property to set.
+     */
+    void setTabs(Property<? extends List<? extends @Nullable Gui>> tabs);
     
     /**
      * Gets the configured tabs.
@@ -128,29 +140,29 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
      *
      * @return The registered tab change handlers.
      */
-    @Nullable
-    List<BiConsumer<Integer, Integer>> getTabChangeHandlers();
+    @UnmodifiableView
+    List<BiConsumer<? super Integer, ? super Integer>> getTabChangeHandlers();
     
     /**
      * Replaces the currently registered tab change handlers with the given list.
      *
      * @param handlers The new page change handlers.
      */
-    void setTabChangeHandlers(@Nullable List<BiConsumer<Integer, Integer>> handlers);
+    void setTabChangeHandlers(@Nullable List<? extends BiConsumer<? super Integer, ? super Integer>> handlers);
     
     /**
      * Registers a page change handler.
      *
      * @param handler The handler to register.
      */
-    void addTabChangeHandler(BiConsumer<Integer, Integer> handler);
+    void addTabChangeHandler(BiConsumer<? super Integer, ? super Integer> handler);
     
     /**
      * Unregisters a page change handler.
      *
      * @param handler The handler to unregister.
      */
-    void removeTabChangeHandler(BiConsumer<Integer, Integer> handler);
+    void removeTabChangeHandler(BiConsumer<? super Integer, ? super Integer> handler);
     
     /**
      * A {@link TabGui} builder.
@@ -158,12 +170,12 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
     sealed interface Builder extends Gui.Builder<TabGui, Builder> permits TabGuiImpl.Builder {
         
         /**
-         * Sets the supplier used to retrieve the tabs of this {@link TabGui}.
-         * Refreshes can be triggered via {@link TabGui#bake}.
+         * Sets the property that contains the tabs.
          *
-         * @param tabsSupplier The content supplier to set.
+         * @param tabs The tabs property to set.
+         * @return This {@link Builder Gui Builder}.
          */
-        Builder setTabsSupplier(Supplier<? extends List<@Nullable Gui>> tabsSupplier);
+        Builder setTabs(Property<? extends List<? extends @Nullable Gui>> tabs);
         
         /**
          * Sets the tabs of the {@link TabGui}.
@@ -172,16 +184,17 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
          * @param tabs The tabs of the {@link TabGui}.
          * @return This {@link Builder Gui Builder}.
          */
-        Builder setTabs(List<@Nullable Gui> tabs);
+        default Builder setTabs(List<? extends @Nullable Gui> tabs) {
+            return setTabs(Property.of(tabs));
+        }
         
         /**
-         * Adds a tab to the {@link TabGui}.
-         * Individual tabs can be null to disable them, but there must at least one tab.
+         * Sets the property that contains the current tab.
          *
-         * @param tab The tab to add.
+         * @param tab The tab property to set.
          * @return This {@link Builder Gui Builder}.
          */
-        Builder addTab(@Nullable Gui tab);
+        Builder setTab(MutableProperty<Integer> tab);
         
         /**
          * Sets the tab change handlers of the {@link TabGui}.
@@ -189,7 +202,7 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
          * @param handlers The tab change handlers of the {@link TabGui}.
          * @return This {@link Builder Gui Builder}.
          */
-        Builder setTabChangeHandlers(List<BiConsumer<Integer, Integer>> handlers);
+        Builder setTabChangeHandlers(List<? extends BiConsumer<? super Integer, ? super Integer>> handlers);
         
         /**
          * Adds a tab change handler to the {@link TabGui}.
@@ -197,7 +210,7 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
          * @param handler The tab change handler to add.
          * @return This {@link Builder Gui Builder}.
          */
-        Builder addTabChangeHandler(BiConsumer<Integer, Integer> handler);
+        Builder addTabChangeHandler(BiConsumer<? super Integer, ? super Integer> handler);
         
     }
     
