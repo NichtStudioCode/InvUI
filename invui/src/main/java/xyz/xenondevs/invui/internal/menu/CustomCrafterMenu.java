@@ -1,6 +1,7 @@
 package xyz.xenondevs.invui.internal.menu;
 
 import net.kyori.adventure.text.Component;
+import net.minecraft.network.HashedStack;
 import net.minecraft.network.protocol.game.ServerboundContainerSlotStateChangedPacket;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
@@ -60,7 +61,7 @@ public class CustomCrafterMenu extends CustomContainerMenu {
      */
     public void setSlotDisabled(int slot, boolean state) {
         dataSlots[slot] = state ? 1 : 0;
-        remoteItems.set(slot, ItemStack.EMPTY);
+        remoteItems.set(slot, HashedStack.EMPTY);
     }
     
     /**

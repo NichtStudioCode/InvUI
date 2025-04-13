@@ -1,7 +1,7 @@
 package xyz.xenondevs.invui.internal.menu;
 
 import net.kyori.adventure.text.Component;
-import net.minecraft.core.component.DataComponentPredicate;
+import net.minecraft.core.component.DataComponentExactPredicate;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.protocol.game.ClientboundMerchantOffersPacket;
 import net.minecraft.network.protocol.game.ServerboundSelectTradePacket;
@@ -157,7 +157,7 @@ public class CustomMerchantMenu extends CustomContainerMenu {
         return new ItemCost(
             itemStack.getItemHolder(),
             itemStack.getCount(),
-            DataComponentPredicate.allOf(itemStack.getComponents()),
+            DataComponentExactPredicate.allOf(itemStack.getComponents()),
             itemStack
         );
     }

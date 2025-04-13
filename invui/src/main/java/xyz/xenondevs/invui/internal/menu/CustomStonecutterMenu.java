@@ -1,6 +1,7 @@
 package xyz.xenondevs.invui.internal.menu;
 
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.HashedStack;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket;
 import net.minecraft.resources.ResourceKey;
@@ -60,8 +61,8 @@ public class CustomStonecutterMenu extends CustomContainerMenu {
         // this also triggers result and selected slot to be reset, requiring them to be resent
         var packet = new ClientboundContainerSetSlotPacket(containerId, incrementStateId(), 0, ItemStack.EMPTY);
         PacketListener.getInstance().injectOutgoing(player, packet);
-        remoteItems.set(0, ItemStack.EMPTY);
-        remoteItems.set(1, ItemStack.EMPTY);
+        remoteItems.set(0, HashedStack.EMPTY);
+        remoteItems.set(1, HashedStack.EMPTY);
         remoteDataSlots[0] = -1;
         sendChangesToRemote();
     }
@@ -127,7 +128,7 @@ public class CustomStonecutterMenu extends CustomContainerMenu {
         int prev = dataSlots[0];
         dataSlots[0] = clicked;
         remoteDataSlots[0] = clicked;
-        remoteItems.set(1, ItemStack.EMPTY);
+        remoteItems.set(1, HashedStack.EMPTY);
         
         if (clickHandler != null)
             clickHandler.accept(prev, clicked);

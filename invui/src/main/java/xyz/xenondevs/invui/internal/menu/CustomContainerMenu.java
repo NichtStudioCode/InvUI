@@ -1,17 +1,29 @@
 package xyz.xenondevs.invui.internal.menu;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.hash.HashCode;
+import com.mojang.serialization.DynamicOps;
 import io.papermc.paper.adventure.PaperAdventure;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.IntLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import net.kyori.adventure.text.Component;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.component.TypedDataComponent;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.HashedPatchMap;
+import net.minecraft.network.HashedStack;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.HashOps;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
@@ -34,6 +46,7 @@ import xyz.xenondevs.invui.internal.network.PacketListener;
 import xyz.xenondevs.invui.internal.util.InventoryUtils;
 import xyz.xenondevs.invui.window.AbstractWindow;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -54,19 +67,47 @@ public abstract class CustomContainerMenu {
     private static final int OFF_HAND_SLOT = 45;
     
     /**
+     * A thread local that stores whether the current thread is an interaction handling context (i.e. handling a click).
+     */
+    private static final ThreadLocal<Boolean> interactionContext = ThreadLocal.withInitial(() -> false);
+    
+    /**
+     * Hash generator for {@link HashedStack}.
+     */
+    private static final HashedPatchMap.HashGenerator HASH_GENERATOR = new HashedPatchMap.HashGenerator() {
+        
+        private final LoadingCache<TypedDataComponent<?>, Integer> cache = CacheBuilder.newBuilder()
+            .expireAfterAccess(Duration.ofMinutes(1))
+            .build(new CacheLoader<>() {
+                
+                private final DynamicOps<HashCode> hashOps = RegistryOps.create(
+                    HashOps.CRC32C_INSTANCE,
+                    MinecraftServer.getServer().registryAccess()
+                );
+                
+                @Override
+                public Integer load(TypedDataComponent<?> key) {
+                    return key.encodeValue(hashOps).getOrThrow().asInt();
+                }
+                
+            });
+        
+        @Override
+        public Integer apply(TypedDataComponent<?> typedDataComponent) {
+            return cache.getUnchecked(typedDataComponent);
+        }
+        
+    };
+    
+    /**
      * An item stack used for marking a remote slot dirty.
      */
-    protected static final ItemStack DIRTY_MARKER = new ItemStack(
+    protected static final HashedStack DIRTY_MARKER = HashedStack.create(new ItemStack(
         BuiltInRegistries.ITEM.wrapAsHolder(Items.DIRT), 1,
         DataComponentPatch.builder()
             .set(DataComponents.ITEM_MODEL, ResourceLocation.fromNamespaceAndPath("invui", "dirty_marker"))
             .build()
-    );
-    
-    /**
-     * A thread local that stores whether the current thread is an interaction handling context (i.e. handling a click).
-     */
-    private static final ThreadLocal<Boolean> interactionContext = ThreadLocal.withInitial(() -> false);
+    ), HASH_GENERATOR);
     
     private final MenuType<?> menuType;
     protected final int containerId;
@@ -76,10 +117,10 @@ public abstract class CustomContainerMenu {
     private final ContainerMenuProxy proxy;
     
     protected final NonNullList<ItemStack> items;
-    protected final NonNullList<ItemStack> remoteItems;
+    protected final NonNullList<HashedStack> remoteItems;
     private ItemStack carried = ItemStack.EMPTY;
-    private ItemStack remoteCarried = ItemStack.EMPTY;
-    private ItemStack remoteOffHand;
+    private HashedStack remoteCarried = HashedStack.EMPTY;
+    private HashedStack remoteOffHand;
     protected final int[] dataSlots;
     protected final int[] remoteDataSlots;
     private int stateId;
@@ -102,8 +143,8 @@ public abstract class CustomContainerMenu {
         
         int size = InventoryUtils.getSizeOf(menuType) + LOWER_INVENTORY_SIZE;
         this.items = NonNullList.withSize(size, ItemStack.EMPTY);
-        this.remoteItems = NonNullList.withSize(size, ItemStack.EMPTY);
-        this.remoteOffHand = serverPlayer.getInventory().offhand.getFirst().copy();
+        this.remoteItems = NonNullList.withSize(size, HashedStack.EMPTY);
+        this.remoteOffHand = HashedStack.create(serverPlayer.getOffhandItem(), HASH_GENERATOR);
         
         int dataSize = InventoryUtils.getDataSlotCountOf(menuType);
         this.dataSlots = new int[dataSize];
@@ -181,21 +222,21 @@ public abstract class CustomContainerMenu {
         
         for (int i = 0; i < items.size(); i++) {
             var item = items.get(i);
-            if (!ItemStack.matches(item, remoteItems.get(i))) {
+            if (!remoteItems.get(i).matches(item, HASH_GENERATOR, false)) {
                 packets.add(new ClientboundContainerSetSlotPacket(containerId, incrementStateId(), i, item));
-                remoteItems.set(i, item.copy());
+                remoteItems.set(i, HashedStack.create(item, HASH_GENERATOR));
             }
         }
         
-        var offHand = serverPlayer.getInventory().offhand.getFirst();
-        if (!ItemStack.matches(offHand, remoteOffHand)) {
+        var offHand = serverPlayer.getOffhandItem();
+        if (!remoteOffHand.matches(offHand, HASH_GENERATOR, false)) {
             packets.add(new ClientboundContainerSetSlotPacket(serverPlayer.inventoryMenu.containerId, incrementStateId(), OFF_HAND_SLOT, offHand));
-            remoteOffHand = offHand.copy();
+            remoteOffHand = HashedStack.create(offHand, HASH_GENERATOR);
         }
         
-        if (!ItemStack.matches(carried, remoteCarried)) {
+        if (!remoteCarried.matches(carried, HASH_GENERATOR, false)) {
             packets.add(new ClientboundSetCursorItemPacket(carried));
-            remoteCarried = carried.copy();
+            remoteCarried = HashedStack.create(carried, HASH_GENERATOR);
         }
         
         for (int i = 0; i < dataSlots.length; i++) {
@@ -214,7 +255,7 @@ public abstract class CustomContainerMenu {
     public void sendCarriedToRemote() {
         var content = new ClientboundSetCursorItemPacket(carried);
         PacketListener.getInstance().injectOutgoing(player, content);
-        remoteCarried = carried.copy();
+        remoteCarried = HashedStack.create(carried, HASH_GENERATOR);
     }
     
     /**
@@ -258,9 +299,9 @@ public abstract class CustomContainerMenu {
      */
     private void markRemoteSynced() {
         for (int i = 0; i < items.size(); i++) {
-            remoteItems.set(i, items.get(i).copy());
+            remoteItems.set(i, HashedStack.create(items.get(i), HASH_GENERATOR));
         }
-        remoteCarried = carried.copy();
+        remoteCarried = HashedStack.create(carried, HASH_GENERATOR);
         System.arraycopy(dataSlots, 0, remoteDataSlots, 0, dataSlots.length);
     }
     //</editor-fold>
@@ -303,9 +344,9 @@ public abstract class CustomContainerMenu {
         for (int i = 0; i < LOWER_INVENTORY_SIZE; i++) {
             var item = remoteItems.get((remoteItems.size() - LOWER_INVENTORY_SIZE) + i);
             // in the inventory menu, contents start at 9
-            serverPlayer.inventoryMenu.setRemoteSlot(9 + i, item);
+            serverPlayer.inventoryMenu.setRemoteSlotUnsafe(9 + i, item);
         }
-        serverPlayer.inventoryMenu.setRemoteSlot(OFF_HAND_SLOT, remoteOffHand);
+        serverPlayer.inventoryMenu.setRemoteSlotUnsafe(OFF_HAND_SLOT, remoteOffHand);
         
         serverPlayer.containerMenu = serverPlayer.inventoryMenu;
     }
@@ -336,18 +377,19 @@ public abstract class CustomContainerMenu {
      * @param packet The packet that was received
      */
     private void handleClick(ServerboundContainerClickPacket packet) {
-        boolean requiresFullUpdate = packet.getStateId() != stateId;
+        boolean requiresFullUpdate = packet.stateId() != stateId;
         
         // update remote slots
-        for (var entry : packet.getChangedSlots().int2ObjectEntrySet()) {
+        for (Int2ObjectMap.Entry<HashedStack> entry : packet.changedSlots().int2ObjectEntrySet()) {
             int slot = entry.getIntKey();
+            HashedStack stack = entry.getValue();
             if (slot < 0 || slot > remoteItems.size())
                 continue;
-            remoteItems.set(entry.getIntKey(), entry.getValue());
+            remoteItems.set(slot, stack);
         }
         remoteCarried = DIRTY_MARKER;
         
-        if (packet.getClickType() == net.minecraft.world.inventory.ClickType.QUICK_CRAFT) {
+        if (packet.clickType() == net.minecraft.world.inventory.ClickType.QUICK_CRAFT) {
             if (!handleDragClick(packet))
                 return;
         } else {
@@ -365,22 +407,22 @@ public abstract class CustomContainerMenu {
      */
     private void handleNormalClick(ServerboundContainerClickPacket packet) {
         int hotbarBtn = -1;
-        ClickType clickType = switch (packet.getClickType()) {
-            case PICKUP -> switch (packet.getButtonNum()) {
+        ClickType clickType = switch (packet.clickType()) {
+            case PICKUP -> switch (packet.buttonNum()) {
                 case 0 -> ClickType.LEFT;
                 case 1 -> ClickType.RIGHT;
                 default -> ClickType.UNKNOWN;
             };
             
-            case QUICK_MOVE -> switch (packet.getButtonNum()) {
+            case QUICK_MOVE -> switch (packet.buttonNum()) {
                 case 0 -> ClickType.SHIFT_LEFT;
                 case 1 -> ClickType.SHIFT_RIGHT;
                 default -> ClickType.UNKNOWN;
             };
             
-            case SWAP -> switch (packet.getButtonNum()) {
+            case SWAP -> switch (packet.buttonNum()) {
                 case 0, 1, 2, 3, 4, 5, 6, 7, 8 -> {
-                    hotbarBtn = packet.getButtonNum();
+                    hotbarBtn = packet.buttonNum();
                     yield ClickType.NUMBER_KEY;
                 }
                 case 40 -> {
@@ -392,7 +434,7 @@ public abstract class CustomContainerMenu {
             
             case CLONE -> ClickType.MIDDLE;
             
-            case THROW -> switch (packet.getButtonNum()) {
+            case THROW -> switch (packet.buttonNum()) {
                 case 0 -> ClickType.DROP;
                 case 1 -> ClickType.CONTROL_DROP;
                 default -> ClickType.UNKNOWN;
@@ -407,7 +449,7 @@ public abstract class CustomContainerMenu {
         int finalHotbarBtn = hotbarBtn;
         runInInteractionContext(() -> {
             Click click = new Click(player, clickType, finalHotbarBtn);
-            getWindow().handleClick(packet.getSlotNum(), click);
+            getWindow().handleClick(packet.slotNum(), click);
         });
     }
     
@@ -422,15 +464,15 @@ public abstract class CustomContainerMenu {
         // - drag start
         // - place item (one packet per item)
         // - drag end
-        switch (packet.getButtonNum()) {
+        switch (packet.buttonNum()) {
             // add slot for left, right, middle drag
             case 1, 5, 9 -> {
-                var slot = packet.getSlotNum();
+                var slot = packet.slotNum();
                 if (slot >= 0 && slot < items.size()) {
-                    dragSlots.add(packet.getSlotNum());
+                    dragSlots.add(packet.slotNum());
                 }
                 
-                dragMode = switch (packet.getButtonNum()) {
+                dragMode = switch (packet.buttonNum()) {
                     case 1 -> ClickType.LEFT;
                     case 5 -> ClickType.RIGHT;
                     case 9 -> ClickType.MIDDLE;
@@ -476,7 +518,7 @@ public abstract class CustomContainerMenu {
             return;
         
         // verify bundle at slot
-        var bundle = remoteItems.get(slot);
+        var bundle = items.get(slot);
         var bundleContents = bundle.get(DataComponents.BUNDLE_CONTENTS);
         if (bundleContents == null)
             return;
