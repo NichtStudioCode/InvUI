@@ -5,7 +5,9 @@ import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.*;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBundlePacket;
+import net.minecraft.network.protocol.game.ServerGamePacketListener;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
@@ -117,7 +119,6 @@ public class PacketListener implements Listener {
             }
             
             try {
-                print(packet, "injected");
                 channel.writeAndFlush(packet, new ForceChannelPromise(channel));
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -135,58 +136,20 @@ public class PacketListener implements Listener {
                         .toList();
                     
                     if (subPackets.isEmpty()) {
-                        print(packet, "intercepted");
                         promise.setSuccess();
                     } else {
-                        print(packet, "forwarded");
                         ctx.write(new ClientboundBundlePacket(subPackets), promise);
                     }
                 } else {
                     var newPacket = singleWrite((Packet<ClientGamePacketListener>) packet);
                     if (newPacket == null) {
-                        print(packet, "intercepted");
                         promise.setSuccess();
                     } else {
-                        print(packet, "forwarded");
                         ctx.write(newPacket, promise);
                     }
                 }
             } else {
                 ctx.write(msg, promise);
-            }
-        }
-        
-        private void print(Packet<?> packet, String status) {
-            if (packet instanceof ClientboundBundlePacket bundle) {
-                bundle.subPackets().forEach(p -> print(p, status));
-            }
-            
-            switch (packet) {
-                case ClientboundOpenScreenPacket p -> {
-                    System.out.println(status + ": open screen");
-                }
-                
-                case ClientboundContainerSetContentPacket p -> {
-                    System.out.println(status + ": Container content");
-                }
-                
-                case ClientboundContainerSetSlotPacket p -> {
-                    System.out.println(status + ": Set slot: " + p.getSlot() + " item: "+p.getItem());
-                }
-                
-                case ClientboundContainerSetDataPacket p -> {
-                    System.out.println(status + ": Set data: " + p.getId() + "=" + p.getValue());
-                }
-                
-                case ClientboundSetCursorItemPacket p -> {
-                    System.out.println(status + ": Cursor: " + p.contents());
-                }
-                
-                case ClientboundMapItemDataPacket p -> {
-                    System.out.println(status + ": Map data " + p);
-                }
-                
-                default -> {}
             }
         }
         
