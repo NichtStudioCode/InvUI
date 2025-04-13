@@ -1,9 +1,11 @@
 package xyz.xenondevs.invui.internal.menu;
 
+import net.kyori.adventure.text.Component;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.HashedStack;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket;
+import net.minecraft.network.protocol.game.ServerboundContainerSlotStateChangedPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -37,6 +39,27 @@ public class CustomStonecutterMenu extends CustomContainerMenu {
     public CustomStonecutterMenu(org.bukkit.entity.Player player) {
         super(MenuType.STONECUTTER, player);
         dataSlots[0] = -1;
+    }
+    
+    @Override
+    public void open(Component title) {
+        var pl = PacketListener.getInstance();
+        pl.discard(player, ClientboundUpdateRecipesPacket.class);
+        
+        super.open(title);
+    }
+    
+    @Override
+    public void handleClosed() {
+        var pl = PacketListener.getInstance();
+        pl.stopDiscard(player, ClientboundUpdateRecipesPacket.class);
+        
+        super.handleClosed();
+        
+        // unregister recipes
+        var recipeManager = MinecraftServer.getServer().getRecipeManager();
+        var packet = new ClientboundUpdateRecipesPacket(recipeManager.getSynchronizedItemProperties(), recipeManager.getSynchronizedStonecutterRecipes());
+        PacketListener.getInstance().injectOutgoing(player, packet);
     }
     
     @Override
@@ -82,7 +105,6 @@ public class CustomStonecutterMenu extends CustomContainerMenu {
         ).toList();
         var stonecutterRecipes = new SelectableRecipe.SingleInputSet<>(entries);
         
-        // fixme: this breaks if recipes are updated while the menu is open
         var packet = new ClientboundUpdateRecipesPacket(recipeManager.getSynchronizedItemProperties(), stonecutterRecipes);
         PacketListener.getInstance().injectOutgoing(player, packet);
     }
@@ -111,16 +133,6 @@ public class CustomStonecutterMenu extends CustomContainerMenu {
                 )
             );
         }).toList();
-    }
-    
-    @Override
-    public void handleClosed() {
-        super.handleClosed();
-        
-        // unregister recipes
-        var recipeManager = MinecraftServer.getServer().getRecipeManager();
-        var packet = new ClientboundUpdateRecipesPacket(recipeManager.getSynchronizedItemProperties(), recipeManager.getSynchronizedStonecutterRecipes());
-        PacketListener.getInstance().injectOutgoing(player, packet);
     }
     
     @Override
