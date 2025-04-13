@@ -1,5 +1,6 @@
 package xyz.xenondevs.invui.window;
 
+import org.jetbrains.annotations.UnmodifiableView;
 import xyz.xenondevs.invui.gui.Gui;
 
 import java.util.List;
@@ -26,7 +27,7 @@ public sealed interface AnvilWindow extends Window permits AnvilWindowImpl {
      * @param consumer The {@link Consumer} to configure the {@link Builder Window Builder}.
      * @return The created {@link AnvilWindow}.
      */
-    static AnvilWindow split(Consumer<Builder> consumer) {
+    static AnvilWindow split(Consumer<? super Builder> consumer) {
         Builder builder = split();
         consumer.accept(builder);
         return builder.build();
@@ -53,7 +54,30 @@ public sealed interface AnvilWindow extends Window permits AnvilWindowImpl {
      */
     void setEnchantmentCost(int enchantmentCost);
     
-    // TODO: add/set/remove rename handler
+    /**
+     * Registers a rename handler that is called when the input text changes.
+     * @param handler The rename handler to add.
+     */
+    void addRenameHandler(Consumer<? super String> handler);
+    
+    /**
+     * Removes a previously registered rename handler.
+     * @param handler The rename handler to remove.
+     */
+    void removeRenameHandler(Consumer<? super String> handler);
+    
+    /**
+     * Replaces all rename handlers with the given list.
+     * @param handlers The new rename handlers.
+     */
+    void setRenameHandlers(List<? extends Consumer<? super String>> handlers);
+    
+    /**
+     * Gets the registered rename handlers.
+     * @return The registered rename handlers.
+     */
+    @UnmodifiableView
+    List<Consumer<? super String>> getRenameHandlers();
     
     /**
      * An {@link AnvilWindow} builder.
@@ -88,23 +112,23 @@ public sealed interface AnvilWindow extends Window permits AnvilWindowImpl {
          * @param guiSupplier The {@link Gui} {@link Supplier} for the upper {@link Gui}
          * @return This {@link Builder}
          */
-        Builder setUpperGui(Supplier<Gui> guiSupplier);
+        Builder setUpperGui(Supplier<? extends Gui> guiSupplier);
         
         /**
          * Sets the rename handlers of the {@link AnvilWindow}.
          *
-         * @param renameHandlers The new rename handlers.
+         * @param handlers The new rename handlers.
          * @return This {@link Builder}
          */
-        Builder setRenameHandlers(List<Consumer<String>> renameHandlers);
+        Builder setRenameHandlers(List<? extends Consumer<? super String>> handlers);
         
         /**
          * Adds a rename handler to the {@link AnvilWindow}.
          *
-         * @param renameHandler The rename handler to add.
+         * @param handlers The rename handler to add.
          * @return This {@link Builder}
          */
-        Builder addRenameHandler(Consumer<String> renameHandler);
+        Builder addRenameHandler(Consumer<? super String> handlers);
         
     }
     

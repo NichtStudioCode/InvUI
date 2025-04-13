@@ -4,9 +4,9 @@ import net.kyori.adventure.text.Component;
 import net.minecraft.network.protocol.game.ServerboundRenameItemPacket;
 import net.minecraft.world.inventory.MenuType;
 import org.bukkit.entity.Player;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.internal.network.PacketListener;
 
-import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -14,18 +14,16 @@ import java.util.function.Consumer;
  */
 public class CustomAnvilMenu extends CustomContainerMenu {
     
-    private final List<Consumer<String>> renameHandlers;
     private String renameText = "";
+    private @Nullable Consumer<? super String> renameHandler;
     
     /**
      * Creates a new {@link CustomAnvilMenu} for the specified viewer.
      *
-     * @param player         The player that will view the menu
-     * @param renameHandlers A list of handlers that will be called when the rename text field is updated
+     * @param player The player that will view the menu
      */
-    public CustomAnvilMenu(Player player, List<Consumer<String>> renameHandlers) {
+    public CustomAnvilMenu(Player player) {
         super(MenuType.ANVIL, player);
-        this.renameHandlers = renameHandlers;
     }
     
     @Override
@@ -44,10 +42,18 @@ public class CustomAnvilMenu extends CustomContainerMenu {
     
     private void handleRename(ServerboundRenameItemPacket packet) {
         renameText = packet.getName();
-        for (Consumer<String> handler : renameHandlers) {
-            handler.accept(packet.getName());
-        }
+        if (renameHandler != null)
+            renameHandler.accept(renameText);
         remoteItems.set(2, DIRTY_MARKER);
+    }
+    
+    /**
+     * Sets the rename handler that is called when the input text changes.
+     *
+     * @param renameHandler The rename handler to set.
+     */
+    public void setRenameHandler(Consumer<? super String> renameHandler) {
+        this.renameHandler = renameHandler;
     }
     
     /**
