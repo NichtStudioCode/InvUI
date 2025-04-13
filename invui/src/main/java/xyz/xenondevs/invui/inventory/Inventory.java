@@ -4,6 +4,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
+import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.ViewerAtSlot;
@@ -12,7 +13,6 @@ import xyz.xenondevs.invui.inventory.event.InventoryClickEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
-import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.util.ItemUtils;
 import xyz.xenondevs.invui.window.AbstractWindow;
 import xyz.xenondevs.invui.window.Window;
@@ -789,6 +789,42 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
     }
     
     /**
+     * Tries to change the {@link ItemStack} on a specific slot to that one, regardless of what was on that slot,
+     * then returns the {@link ItemStack} that is actually on that slot now.
+     * <br>
+     * This method will fail if the given {@link ItemStack} does not completely fit because of the maximum allowed
+     * stack size of either the slot or the {@link ItemStack} on it.
+     *
+     * @param updateReason The reason used in the {@link ItemPreUpdateEvent} and {@link ItemPostUpdateEvent}.
+     * @param slot         The slot
+     * @param itemStack    The {@link ItemStack} to set.
+     * @return The {@link ItemStack} that is actually on that slot now.
+     */
+    public @Nullable ItemStack changeItem(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack itemStack) {
+        if (ItemUtils.isEmpty(itemStack))
+            itemStack = null;
+        
+        int maxStackSize = getMaxSlotStackSize(slot, itemStack);
+        if (itemStack != null && itemStack.getAmount() > maxStackSize)
+            return getItem(slot);
+        
+        if (!shouldCallEvents(updateReason)) {
+            setItemSilently(slot, itemStack);
+            return ItemUtils.cloneUnlessEmpty(itemStack);
+        } else {
+            ItemStack previousStack = getItem(slot);
+            ItemPreUpdateEvent event = callPreUpdateEvent(updateReason, slot, previousStack, itemStack);
+            if (!event.isCancelled()) {
+                ItemStack newStack = event.getNewItem();
+                setItemSilently(slot, newStack);
+                callPostUpdateEvent(updateReason, slot, previousStack, newStack);
+                return ItemUtils.cloneUnlessEmpty(event.getNewItem());
+            }
+            return getItem(slot);
+        }
+    }
+    
+    /**
      * Changes the {@link ItemStack} on a specific slot based on the current {@link ItemStack} on that slot,
      * using a modifier consumer.
      *
@@ -813,7 +849,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      *                     the return value is the new {@link ItemStack}.
      * @return If the action was successful.
      */
-    public boolean replaceItem(@Nullable UpdateReason updateReason, int slot, Function<@Nullable ItemStack, @Nullable ItemStack> function) {
+    public boolean changeItem(@Nullable UpdateReason updateReason, int slot, Function<@Nullable ItemStack, @Nullable ItemStack> function) {
         ItemStack currentStack = getItem(slot);
         ItemStack newStack = function.apply(currentStack);
         return setItem(updateReason, slot, newStack);

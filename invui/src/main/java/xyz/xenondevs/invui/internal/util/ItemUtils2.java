@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.papermc.paper.datacomponent.item.BundleContents.bundleContents;
+
 @SuppressWarnings("UnstableApiUsage")
 public class ItemUtils2 {
     
@@ -81,8 +83,15 @@ public class ItemUtils2 {
         return bundle.hasData(DataComponentTypes.BUNDLE_CONTENTS);
     }
     
-
-    public static boolean addToBundle(ItemStack bundle, ItemStack target) {
+    
+    /**
+     * Adds the given target stack to the given bundle stack, updating both stacks appropriately.
+     *
+     * @param bundle the bundle item stack
+     * @param target the target item stack
+     * @return true if anything was added to the bundle, false otherwise
+     */
+    public static boolean tryMoveIntoBundle(ItemStack bundle, ItemStack target) {
         if (ItemUtils.isEmpty(target))
             return false;
         
@@ -104,27 +113,104 @@ public class ItemUtils2 {
     }
     
     /**
-     * Removes the first item stack from the bundle and returns it.
+     * Calculates the difference in item amounts between two bundles, matching for a given target item stack.
      *
-     * @param bundle the bundle item stack
-     * @return the first item stack from the bundle
+     * @param bundleA the first bundle item stack
+     * @param bundleB the second bundle item stack
+     * @param target  the target item stack to look for in the bundles
+     * @return the difference in item amounts between the two bundles for the given target item stack
      */
-    public static @Nullable ItemStack takeFirstFromBundle(ItemStack bundle) {
-        var nmsBundle = CraftItemStack.unwrap(bundle);
-        var bundleContents = nmsBundle.get(DataComponents.BUNDLE_CONTENTS);
-        if (bundleContents != null && !bundleContents.isEmpty()) {
-            var items = bundleContents.itemCopyStream()
-                .collect(Collectors.toCollection(ArrayList::new));
-            var taken = items.removeFirst();
-            nmsBundle.set(DataComponents.BUNDLE_CONTENTS, new BundleContents(items));
-            return CraftItemStack.asCraftMirror(taken);
-        }
+    public static int getBundleDifference(ItemStack bundleA, ItemStack bundleB, ItemStack target) {
+        var contentsA = bundleA.getData(DataComponentTypes.BUNDLE_CONTENTS);
+        var contentsB = bundleB.getData(DataComponentTypes.BUNDLE_CONTENTS);
+        if (contentsA == null || contentsB == null)
+            return 0;
         
-        return null;
+        var countA = contentsA.contents().stream()
+            .filter(is -> is.isSimilar(target))
+            .mapToInt(ItemStack::getAmount)
+            .sum();
+        var countB = contentsB.contents().stream()
+            .filter(is -> is.isSimilar(target))
+            .mapToInt(ItemStack::getAmount)
+            .sum();
+        
+        return countA - countB;
     }
     
     /**
-     * Removes the selected item stack from the bundle and returns it.
+     * Gets the maximum amount of items from the given target stack that can be added to the given bundle.
+     *
+     * @param bundle The bundle item stack
+     * @param target The target item stack
+     * @return The maximum amount of items from the target stack that can be added to the bundle
+     */
+    public static int getMaxAmountToAddToBundle(ItemStack bundle, ItemStack target) {
+        if (ItemUtils.isEmpty(target))
+            return 0;
+        
+        var nmsBundle = CraftItemStack.unwrap(bundle);
+        var bundleContents = nmsBundle.get(DataComponents.BUNDLE_CONTENTS);
+        if (bundleContents == null)
+            return 0;
+        
+        var nmsTarget = CraftItemStack.unwrap(target);
+        return Math.min(target.getAmount(), bundleContents.getMaxAmountToAdd(nmsTarget));
+    }
+    
+    /**
+     * Gets the first item stack from the bundle without removing it.
+     *
+     * @param bundle the bundle item stack
+     * @return the first item stack in the bundle, or null if there is none
+     */
+    public static @Nullable ItemStack getFirstFromBundle(ItemStack bundle) {
+        var bundleContents = bundle.getData(DataComponentTypes.BUNDLE_CONTENTS);
+        if (bundleContents == null)
+            return null;
+        
+        var contents = bundleContents.contents();
+        return contents.isEmpty() ? null : contents.getFirst();
+    }
+    
+    /**
+     * Updates the given bundle by removing target's amount of items similar to target from the bundle.
+     *
+     * @param bundle the bundle item stack
+     * @param target the target item stack
+     * @return The remaining amount of items that were not in the bundle and could not be removed.
+     */
+    public static int removeFromBundle(ItemStack bundle, ItemStack target) {
+        if (ItemUtils.isEmpty(bundle) || ItemUtils.isEmpty(target))
+            return target.getAmount();
+        
+        var bundleContents = bundle.getData(DataComponentTypes.BUNDLE_CONTENTS);
+        if (bundleContents == null)
+            return target.getAmount();
+        
+        int amountLeft = target.getAmount();
+        var contents = new ArrayList<>(bundleContents.contents());
+        var iterator = contents.iterator();
+        while (iterator.hasNext() && amountLeft > 0) {
+            var itemStack = iterator.next();
+            if (itemStack.isSimilar(target)) {
+                int amount = itemStack.getAmount();
+                if (amount > amountLeft) {
+                    itemStack.setAmount(amount - amountLeft);
+                    amountLeft = 0;
+                } else {
+                    iterator.remove();
+                    amountLeft -= amount;
+                }
+            }
+        }
+        
+        bundle.setData(DataComponentTypes.BUNDLE_CONTENTS, bundleContents(contents));
+        return amountLeft;
+    }
+    
+    /**
+     * Removes the selected item stack from the given bundle item stack and returns it.
      *
      * @param bundle the bundle item stack
      * @return the item stack that was removed from the bundle, or null if the
@@ -143,22 +229,6 @@ public class ItemUtils2 {
         }
         
         return null;
-    }
-    
-    /**
-     * Returns the selected bundle slot of the given bundle item stack, or -1 if no slot is
-     * selected or the item stack does not have the bundle contents data component.
-     *
-     * @param bundle the bundle item stack
-     * @return the selected bundle slot
-     */
-    public static int getSelectedBundleSlot(ItemStack bundle) {
-        var nmsBundle = CraftItemStack.unwrap(bundle);
-        var bundleContents = nmsBundle.get(DataComponents.BUNDLE_CONTENTS);
-        if (bundleContents != null) {
-            return bundleContents.getSelectedItem();
-        }
-        return -1;
     }
     
     /**

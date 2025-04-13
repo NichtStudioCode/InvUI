@@ -9,7 +9,10 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.internal.ViewerAtSlot;
-import xyz.xenondevs.invui.internal.util.*;
+import xyz.xenondevs.invui.internal.util.ArrayUtils;
+import xyz.xenondevs.invui.internal.util.InventoryUtils;
+import xyz.xenondevs.invui.internal.util.ItemUtils2;
+import xyz.xenondevs.invui.internal.util.SlotUtils;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.inventory.ObscuredInventory;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
@@ -122,20 +125,29 @@ public sealed abstract class AbstractGui
         
         if (cursor == null) {
             // if the cursor is empty, pick the stack up
-            if (inventory.setItem(updateReason, slot, null))
-                player.setItemOnCursor(clicked);
+            int amount = -inventory.addItemAmount(updateReason, slot, -clicked.getAmount());
+            clicked.setAmount(amount);
+            player.setItemOnCursor(clicked);
         } else if (clicked != null && ItemUtils2.isBundle(cursor)) {
             // insert clicked item into bundle on cursor
-            // TODO: react to events, don't set if nothing changed
-            ItemUtils2.addToBundle(cursor, clicked);
-            inventory.setItem(updateReason, slot, clicked);
+            int toAdd = ItemUtils2.getMaxAmountToAddToBundle(cursor, clicked);
+            toAdd = -inventory.addItemAmount(updateReason, slot, -toAdd);
+            clicked.setAmount(toAdd);
+            ItemUtils2.tryMoveIntoBundle(cursor, clicked); // writes back into clicked and cursor
             player.setItemOnCursor(cursor);
         } else if (clicked != null && ItemUtils2.isBundle(clicked)) {
             // insert cursor item into clicked bundle
-            // TODO: react to events, don't set if nothing changed
-            ItemUtils2.addToBundle(clicked, cursor);
-            inventory.setItem(updateReason, slot, clicked);
-            player.setItemOnCursor(cursor);
+            ItemStack bundle = clicked.clone();
+            if (ItemUtils2.tryMoveIntoBundle(bundle, cursor.clone())) { // writes back into bundle
+                // some items were inserted, now try to place the updated bundle into the inventory
+                ItemStack bundleInInv = inventory.changeItem(updateReason, slot, bundle);
+                if (bundleInInv != null) {
+                    // adjust cursor based on the amount of items that was actually inserted into the bundle
+                    int amountAddedToBundle = ItemUtils2.getBundleDifference(bundleInInv, clicked, cursor);
+                    cursor.setAmount(cursor.getAmount() - amountAddedToBundle);
+                    player.setItemOnCursor(cursor);
+                }
+            }
         } else if (clicked == null || cursor.isSimilar(clicked)) {
             // if there are no items, or they're similar to the cursor, add the cursor items to the stack
             int remains = inventory.putItem(updateReason, slot, cursor);
@@ -165,30 +177,37 @@ public sealed abstract class AbstractGui
         
         if (cursor == null && ItemUtils2.isBundle(clicked)) {
             // take the selected item from the bundle
-            // TODO: react to events
-            var taken = ItemUtils2.takeSelectedFromBundle(clicked);
-            inventory.setItem(updateReason, slot, clicked);
-            player.setItemOnCursor(taken);
+            ItemStack bundle = clicked.clone();
+            ItemStack taken = ItemUtils2.takeSelectedFromBundle(bundle); // writes back to bundle
+            if (taken != null) {
+                // an item was taken from the bundle, now try to place the updated bundle into the inventory
+                ItemStack bundleInInv = inventory.changeItem(updateReason, slot, bundle);
+                // place the actual taken amount of this item onto the cursor
+                int amountTaken = bundleInInv != null
+                    ? ItemUtils2.getBundleDifference(clicked, bundleInInv, taken)
+                    : taken.getAmount();
+                taken.setAmount(amountTaken);
+                player.setItemOnCursor(taken);
+            }
         } else if (cursor == null) {
             // if the cursor is empty, split the stack to the cursor
             // if the stack is not divisible by 2, give the cursor the bigger part
-            int clickedAmount = clicked.getAmount();
-            int newClickedAmount = clickedAmount / 2;
-            int newCursorAmount = clickedAmount - newClickedAmount;
-            
-            cursor = clicked.clone();
-            
-            clicked.setAmount(newClickedAmount);
-            cursor.setAmount(newCursorAmount);
-            
-            if (inventory.setItem(updateReason, slot, clicked))
-                player.setItemOnCursor(cursor);
+            int newCursorAmount = (int) Math.ceil(clicked.getAmount() / 2.0);
+            newCursorAmount = -inventory.addItemAmount(updateReason, slot, -newCursorAmount);
+            ItemStack newCursor = clicked.clone();
+            newCursor.setAmount(newCursorAmount);
+            player.setItemOnCursor(newCursor);
         } else if (clicked == null && ItemUtils2.isBundle(cursor)) {
             // if the player right-clicked on an empty slot with a bundle, place the first item from the bundle there
-            // TODO: react to events, don't set if nothing changed (i.e. taken is null)
-            var taken = ItemUtils2.takeFirstFromBundle(cursor);
-            inventory.setItem(updateReason, slot, taken);
-            player.setItemOnCursor(cursor);
+            ItemStack toTake = ItemUtils2.getFirstFromBundle(cursor);
+            if (toTake != null) {
+                int amountTaken = toTake.getAmount() - inventory.putItem(updateReason, slot, toTake);
+                if (amountTaken > 0) {
+                    toTake.setAmount(amountTaken);
+                    ItemUtils2.removeFromBundle(cursor, toTake);
+                    player.setItemOnCursor(cursor);
+                }
+            }
         } else if (clicked == null || cursor.isSimilar(clicked)) {
             // put one item from the cursor in the inventory
             ItemStack toAdd = cursor.clone();
