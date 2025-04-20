@@ -26,7 +26,7 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
     private final QuadConsumer<? super Item, ? super G, ? super Player, ? super Integer> selectHandler;
     private volatile BiFunction<? super Player, ? super G, ? extends ItemProvider> itemProvider;
     private final BiConsumer<? super Item, ? super G> bindHandler;
-    private final long updatePeriod;
+    private final int updatePeriod;
     private @Nullable BukkitTask updateTask;
     
     public CustomBoundItem(
@@ -34,7 +34,7 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         TriConsumer<? super Item, ? super G, ? super Click> clickHandler,
         QuadConsumer<? super Item, ? super G, ? super Player, ? super Integer> selectHandler,
         BiFunction<? super Player, ? super G, ? extends ItemProvider> itemProvider,
-        long updatePeriod
+        int updatePeriod
     ) {
         this.bindHandler = bindHandler;
         this.clickHandler = clickHandler;
@@ -104,7 +104,7 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         private @Nullable CompletableFuture<? extends ItemProvider> asyncFuture;
         private Consumer<Item> modifier = item -> {};
         private boolean updateOnClick;
-        private long updatePeriod = -1L;
+        private int updatePeriod = -1;
         
         @Override
         public Builder<G> setItemProvider(ItemProvider itemProvider) {
@@ -125,14 +125,14 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         }
         
         @Override
-        public BoundItem.Builder<G> setCyclingItemProvider(long period, List<? extends ItemProvider> itemProviders) {
+        public BoundItem.Builder<G> setCyclingItemProvider(int period, List<? extends ItemProvider> itemProviders) {
             if (itemProviders.isEmpty())
                 throw new IllegalArgumentException("itemProviders must not be empty");
             
             if (itemProviders.size() > 1) {
                 updatePeriodically(period);
                 this.itemProviderFn = (viewer, gui) -> {
-                    int i = (int)(Bukkit.getCurrentTick() / period) % itemProviders.size();
+                    int i = (Bukkit.getCurrentTick() / period) % itemProviders.size();
                     return itemProviders.get(i);
                 };
             } else {
@@ -156,7 +156,7 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         }
         
         @Override
-        public Builder<G> updatePeriodically(long period) {
+        public Builder<G> updatePeriodically(int period) {
             this.updatePeriod = period;
             return this;
         }

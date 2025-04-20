@@ -22,14 +22,14 @@ class CustomItem extends AbstractItem {
     private final BiConsumer<? super Item, ? super Click> clickHandler;
     private final TriConsumer<? super Item, ? super Player, ? super Integer> selectHandler;
     private volatile Function<? super Player, ? extends ItemProvider> itemProvider;
-    private final long updatePeriod;
+    private final int updatePeriod;
     private @Nullable BukkitTask updateTask;
     
     public CustomItem(
         BiConsumer<? super Item, ? super Click> clickHandler,
         TriConsumer<? super Item, ? super Player, ? super Integer> selectHandler,
         Function<? super Player, ? extends ItemProvider> itemProvider,
-        long updatePeriod
+        int updatePeriod
     ) {
         this.clickHandler = clickHandler;
         this.selectHandler = selectHandler;
@@ -84,7 +84,7 @@ class CustomItem extends AbstractItem {
         private @Nullable CompletableFuture<? extends ItemProvider> asyncFuture;
         private Consumer<Item> modifier = item -> {};
         private boolean updateOnClick;
-        private long updatePeriod = -1L;
+        private int updatePeriod = -1;
         
         @Override
         public Builder setItemProvider(ItemProvider itemProvider) {
@@ -99,14 +99,14 @@ class CustomItem extends AbstractItem {
         }
         
         @Override
-        public Builder setCyclingItemProvider(long period, List<? extends ItemProvider> itemProviders) {
+        public Builder setCyclingItemProvider(int period, List<? extends ItemProvider> itemProviders) {
             if (itemProviders.isEmpty())
                 throw new IllegalArgumentException("itemProviders must not be empty");
             
             if (itemProviders.size() > 1) {
                 updatePeriodically(period);
                 this.itemProviderFn = viewer -> {
-                    int i = (int) (Bukkit.getCurrentTick() / period) % itemProviders.size();
+                    int i = (Bukkit.getCurrentTick() / period) % itemProviders.size();
                     return itemProviders.get(i);
                 };
             } else {
@@ -130,7 +130,7 @@ class CustomItem extends AbstractItem {
         }
         
         @Override
-        public Builder updatePeriodically(long period) {
+        public Builder updatePeriodically(int period) {
             this.updatePeriod = period;
             return this;
         }

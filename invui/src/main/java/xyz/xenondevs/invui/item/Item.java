@@ -9,7 +9,6 @@ import xyz.xenondevs.invui.internal.util.ArrayUtils;
 import xyz.xenondevs.invui.util.TriConsumer;
 import xyz.xenondevs.invui.window.Window;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
@@ -130,7 +129,7 @@ public sealed interface Item permits AbstractItem, BoundItem {
          * @param itemProviders The rest of the {@link ItemProvider ItemProviders}.
          * @return This builder.
          */
-        default S setCyclingItemProvider(long period, ItemProvider itemProvider, ItemProvider... itemProviders) {
+        default S setCyclingItemProvider(int period, ItemProvider itemProvider, ItemProvider... itemProviders) {
             return setCyclingItemProvider(period, List.of(ArrayUtils.concat(ItemProvider[]::new, itemProvider, itemProviders)));
         }
         
@@ -141,7 +140,7 @@ public sealed interface Item permits AbstractItem, BoundItem {
          * @param itemProviders The {@link ItemProvider ItemProviders}.
          * @return This builder.
          */
-        S setCyclingItemProvider(long period, List<? extends ItemProvider> itemProviders);
+        S setCyclingItemProvider(int period, List<? extends ItemProvider> itemProviders);
         
         /**
          * Configures the resulting {@link Item} to resolve the {@link ItemProvider} asynchronously.
@@ -175,7 +174,7 @@ public sealed interface Item permits AbstractItem, BoundItem {
          * @param period The period in ticks between each update.
          * @return This builder.
          */
-        S updatePeriodically(long period);
+        S updatePeriodically(int period);
         
         /**
          * Configures the resulting {@link Item} to automatically call {@link #notifyWindows()} when it is clicked.
