@@ -223,19 +223,19 @@ public abstract class CustomContainerMenu {
         for (int i = 0; i < items.size(); i++) {
             var item = items.get(i);
             if (!remoteItems.get(i).matches(item, HASH_GENERATOR, false)) {
-                packets.add(new ClientboundContainerSetSlotPacket(containerId, incrementStateId(), i, item));
+                packets.add(new ClientboundContainerSetSlotPacket(containerId, incrementStateId(), i, item.copy()));
                 remoteItems.set(i, HashedStack.create(item, HASH_GENERATOR));
             }
         }
         
         var offHand = serverPlayer.getOffhandItem();
         if (!remoteOffHand.matches(offHand, HASH_GENERATOR, false)) {
-            packets.add(new ClientboundContainerSetSlotPacket(serverPlayer.inventoryMenu.containerId, incrementStateId(), OFF_HAND_SLOT, offHand));
+            packets.add(new ClientboundContainerSetSlotPacket(serverPlayer.inventoryMenu.containerId, incrementStateId(), OFF_HAND_SLOT, offHand.copy()));
             remoteOffHand = HashedStack.create(offHand, HASH_GENERATOR);
         }
         
         if (!remoteCarried.matches(carried, HASH_GENERATOR, false)) {
-            packets.add(new ClientboundSetCursorItemPacket(carried));
+            packets.add(new ClientboundSetCursorItemPacket(carried.copy()));
             remoteCarried = HashedStack.create(carried, HASH_GENERATOR);
         }
         
@@ -253,7 +253,7 @@ public abstract class CustomContainerMenu {
      * Sends the cursor item stack to the remote client.
      */
     public void sendCarriedToRemote() {
-        var content = new ClientboundSetCursorItemPacket(carried);
+        var content = new ClientboundSetCursorItemPacket(carried.copy());
         PacketListener.getInstance().injectOutgoing(player, content);
         remoteCarried = HashedStack.create(carried, HASH_GENERATOR);
     }
@@ -287,7 +287,12 @@ public abstract class CustomContainerMenu {
      */
     private List<Packet<? super ClientGamePacketListener>> createContainerInitPacketList() {
         var packets = new ArrayList<Packet<? super ClientGamePacketListener>>();
-        packets.add(new ClientboundContainerSetContentPacket(containerId, incrementStateId(), items, carried));
+        packets.add(new ClientboundContainerSetContentPacket(
+            containerId, 
+            incrementStateId(), 
+            items.stream().map(ItemStack::copy).toList(),
+            carried.copy()
+        ));
         for (int i = 0; i < dataSlots.length; i++) {
             packets.add(new ClientboundContainerSetDataPacket(containerId, i, dataSlots[i]));
         }
