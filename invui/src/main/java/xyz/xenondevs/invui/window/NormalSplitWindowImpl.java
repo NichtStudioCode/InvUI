@@ -2,6 +2,7 @@ package xyz.xenondevs.invui.window;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Unmodifiable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomPlainMenu;
@@ -16,7 +17,7 @@ final class NormalSplitWindowImpl extends AbstractSplitWindow<CustomPlainMenu> {
     
     public NormalSplitWindowImpl(
         Player player,
-        Supplier<Component> title,
+        Supplier<? extends Component> title,
         AbstractGui upperGui,
         AbstractGui lowerGui,
         boolean closeable
@@ -27,7 +28,7 @@ final class NormalSplitWindowImpl extends AbstractSplitWindow<CustomPlainMenu> {
     }
     
     @Override
-    public List<? extends Gui> getGuis() {
+    public @Unmodifiable List<Gui> getGuis() {
         return List.of(upperGui, lowerGui);
     }
     
@@ -36,10 +37,10 @@ final class NormalSplitWindowImpl extends AbstractSplitWindow<CustomPlainMenu> {
         implements Window.Builder.Normal.Split
     {
         
-        private Supplier<Gui> upperGuiSupplier = () -> Gui.empty(9, 6);
+        private Supplier<? extends Gui> upperGuiSupplier = () -> Gui.empty(9, 6);
         
         @Override
-        public Normal.Split setUpperGui(Supplier<Gui> guiSupplier) {
+        public Normal.Split setUpperGui(Supplier<? extends Gui> guiSupplier) {
             this.upperGuiSupplier = guiSupplier;
             return this;
         }

@@ -2,8 +2,8 @@ package xyz.xenondevs.invui.window;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
-import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomAnvilMenu;
@@ -22,7 +22,7 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
     
     public AnvilWindowImpl(
         Player player,
-        Supplier<Component> title,
+        Supplier<? extends Component> title,
         AbstractGui upperGui,
         AbstractGui lowerGui,
         boolean closeable
@@ -79,7 +79,7 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
     }
     
     @Override
-    public List<? extends Gui> getGuis() {
+    public @Unmodifiable List<Gui> getGuis() {
         return List.of(upperGui, lowerGui);
     }
     

@@ -56,7 +56,7 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
     private final List<Consumer<? super InventoryCloseEvent.Reason>> closeHandlers = new ArrayList<>(0);
     private final List<Consumer<? super ClickEvent>> outsideClickHandlers = new ArrayList<>(0);
     private Supplier<? extends @Nullable Window> fallbackWindow = () -> null;
-    private Supplier<Component> titleSupplier;
+    private Supplier<? extends Component> titleSupplier;
     private boolean closeable;
     private boolean isOpen;
     
@@ -66,7 +66,7 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
     
     private @Nullable Component activeTitle;
     
-    AbstractWindow(Player viewer, Supplier<Component> titleSupplier, int size, M menu, boolean closeable) {
+    AbstractWindow(Player viewer, Supplier<? extends Component> titleSupplier, int size, M menu, boolean closeable) {
         this.menu = menu;
         this.viewer = viewer;
         this.titleSupplier = titleSupplier;
@@ -451,7 +451,7 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
     }
     
     @Override
-    public void setTitleSupplier(Supplier<Component> titleSupplier) {
+    public void setTitleSupplier(Supplier<? extends Component> titleSupplier) {
         this.titleSupplier = titleSupplier;
         updateTitle();
     }
@@ -583,7 +583,7 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
     {
         
         private @Nullable Player viewer;
-        protected Supplier<Component> titleSupplier = Component::empty;
+        protected Supplier<? extends Component> titleSupplier = Component::empty;
         protected boolean closeable = true;
         private List<Runnable> openHandlers = new ArrayList<>(0);
         private List<Consumer<? super InventoryCloseEvent.Reason>> closeHandlers = new ArrayList<>(0);
@@ -598,7 +598,7 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
         }
         
         @Override
-        public S setTitleSupplier(Supplier<Component> title) {
+        public S setTitleSupplier(Supplier<? extends Component> title) {
             this.titleSupplier = title;
             return (S) this;
         }

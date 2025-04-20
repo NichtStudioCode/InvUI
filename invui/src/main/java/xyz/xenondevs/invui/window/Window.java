@@ -3,6 +3,7 @@ package xyz.xenondevs.invui.window;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent.Reason;
+import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.ClickEvent;
 import xyz.xenondevs.invui.gui.Gui;
@@ -48,7 +49,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
      *
      * @return An unmodifiable collection of all {@link Gui Guis} in this {@link Window}.
      */
-    List<? extends Gui> getGuis();
+    @Unmodifiable List<Gui> getGuis();
     
     /**
      * Shows the window to the player.
@@ -91,7 +92,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
      *
      * @param titleSupplier The new title supplier
      */
-    void setTitleSupplier(Supplier<Component> titleSupplier);
+    void setTitleSupplier(Supplier<? extends Component> titleSupplier);
     
     /**
      * Changes the title of the {@link Window}.
@@ -219,7 +220,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
          * @param title The title supplier
          * @return This {@link Builder Window Builder}
          */
-        S setTitleSupplier(Supplier<Component> title);
+        S setTitleSupplier(Supplier<? extends Component> title);
         
         /**
          * Sets the title of the {@link Window}.
@@ -394,7 +395,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
              * @param guiSupplier The {@link Gui} {@link Supplier}
              * @return This {@link Merged Window Builder}
              */
-            S setGui(Supplier<Gui> guiSupplier);
+            S setGui(Supplier<? extends Gui> guiSupplier);
             
         }
         
@@ -437,7 +438,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
              * @param guiSupplier The {@link Gui} {@link Supplier} for the lower {@link Gui} of this {@link Split Window Builder}
              * @return This {@link Split Window Builder}
              */
-            S setLowerGui(Supplier<Gui> guiSupplier);
+            S setLowerGui(Supplier<? extends Gui> guiSupplier);
             
         }
         
@@ -488,7 +489,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
                  * @param guiSupplier The {@link Gui} {@link Supplier} for the upper {@link Gui}
                  * @return This {@link Normal.Split}
                  */
-                Normal.Split setUpperGui(Supplier<Gui> guiSupplier);
+                Normal.Split setUpperGui(Supplier<? extends Gui> guiSupplier);
                 
             }
             

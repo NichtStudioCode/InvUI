@@ -4,6 +4,8 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Unmodifiable;
+import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.gui.AbstractGui;
@@ -35,15 +37,15 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
     private final AbstractGui buttonsGui;
     private final @Nullable ItemStack[] buttons;
     private boolean buttonsDirty = false;
-    private List<BiConsumer<Integer, Integer>> selectedSlotChangeHandlers;
+    private final List<BiConsumer<? super Integer, ? super Integer>> selectedSlotChangeHandlers;
     
     public StonecutterWindowImpl(
         Player player,
-        Supplier<Component> title,
+        Supplier<? extends Component> title,
         AbstractGui upperGui,
         AbstractGui lowerGui,
         AbstractGui buttonsGui,
-        List<BiConsumer<Integer, Integer>> selectedSlotChangeHandlers,
+        List<BiConsumer<? super Integer, ? super Integer>> selectedSlotChangeHandlers,
         boolean closable
     ) {
         super(player, title, lowerGui, upperGui.getSize() + lowerGui.getSize() + buttonsGui.getSize(), new CustomStonecutterMenu(player), closable);
@@ -105,22 +107,24 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
     }
     
     @Override
-    public List<? extends Gui> getGuis() {
+    public @Unmodifiable List<Gui> getGuis() {
         return List.of(upperGui, lowerGui, buttonsGui);
     }
     
     @Override
-    public List<? extends BiConsumer<Integer, Integer>> getSelectedSlotChangeHandlers() {
+    public @UnmodifiableView List<BiConsumer<? super Integer, ? super Integer>> getSelectedSlotChangeHandlers() {
         return Collections.unmodifiableList(selectedSlotChangeHandlers);
     }
     
     @Override
-    public void setSelectedSlotChangeHandlers(List<BiConsumer<Integer, Integer>> handlers) {
-        selectedSlotChangeHandlers = new ArrayList<>(handlers);
+    public void setSelectedSlotChangeHandlers(@Nullable List<? extends BiConsumer<? super Integer, ? super Integer>> handlers) {
+        selectedSlotChangeHandlers.clear();
+        if (handlers != null)
+            selectedSlotChangeHandlers.addAll(handlers);
     }
     
     @Override
-    public void addSelectedSlotChangeHandler(BiConsumer<Integer, Integer> handler) {
+    public void addSelectedSlotChangeHandler(BiConsumer<? super Integer, ? super Integer> handler) {
         selectedSlotChangeHandlers.add(handler);
     }
     
@@ -129,30 +133,30 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
         implements StonecutterWindow.Builder
     {
         
-        private Supplier<Gui> upperGuiSupplier = () -> Gui.empty(2, 1);
-        private Supplier<Gui> butonsGuiSupplier = () -> Gui.empty(0, 0);
-        private List<BiConsumer<Integer, Integer>> selectedSlotChangeHandlers = new ArrayList<>();
+        private Supplier<? extends Gui> upperGuiSupplier = () -> Gui.empty(2, 1);
+        private Supplier<? extends Gui> butonsGuiSupplier = () -> Gui.empty(0, 0);
+        private List<BiConsumer<? super Integer, ? super Integer>> selectedSlotChangeHandlers = new ArrayList<>();
         
         @Override
-        public StonecutterWindow.Builder setUpperGui(Supplier<Gui> guiSupplier) {
+        public StonecutterWindow.Builder setUpperGui(Supplier<? extends Gui> guiSupplier) {
             this.upperGuiSupplier = guiSupplier;
             return this;
         }
         
         @Override
-        public BuilderImpl setButtonsGui(Supplier<Gui> guiSupplier) {
+        public BuilderImpl setButtonsGui(Supplier<? extends Gui> guiSupplier) {
             this.butonsGuiSupplier = guiSupplier;
             return this;
         }
         
         @Override
-        public BuilderImpl setSelectedSlotChangeHandlers(List<BiConsumer<Integer, Integer>> handlers) {
+        public BuilderImpl setSelectedSlotChangeHandlers(List<? extends BiConsumer<? super Integer, ? super Integer>> handlers) {
             this.selectedSlotChangeHandlers = new ArrayList<>(handlers);
             return this;
         }
         
         @Override
-        public BuilderImpl addSelectedSlotChangeHandler(BiConsumer<Integer, Integer> handler) {
+        public BuilderImpl addSelectedSlotChangeHandler(BiConsumer<? super Integer, ? super Integer> handler) {
             selectedSlotChangeHandlers.add(handler);
             return this;
         }

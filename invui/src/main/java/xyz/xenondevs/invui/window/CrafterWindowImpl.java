@@ -2,6 +2,9 @@ package xyz.xenondevs.invui.window;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Unmodifiable;
+import org.jetbrains.annotations.UnmodifiableView;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomCrafterMenu;
@@ -17,15 +20,15 @@ final class CrafterWindowImpl extends AbstractSplitWindow<CustomCrafterMenu> imp
     private final AbstractGui craftingGui;
     private final AbstractGui resultGui;
     private final AbstractGui lowerGui;
-    private final List<BiConsumer<Integer, Boolean>> slotToggleHandlers;
+    private final List<BiConsumer<? super Integer, ? super Boolean>> slotToggleHandlers;
     
     CrafterWindowImpl(
         Player player,
-        Supplier<Component> title,
+        Supplier<? extends Component> title,
         AbstractGui craftingGui,
         AbstractGui resultGui,
         AbstractGui lowerGui,
-        List<BiConsumer<Integer, Boolean>> slotToggleHandlers,
+        List<BiConsumer<? super Integer, ? super Boolean>> slotToggleHandlers,
         boolean closeable
     ) {
         super(player, title, lowerGui, 46, new CustomCrafterMenu(player), closeable);
@@ -59,28 +62,29 @@ final class CrafterWindowImpl extends AbstractSplitWindow<CustomCrafterMenu> imp
     }
     
     @Override
-    public List<? extends BiConsumer<Integer, Boolean>> getSlotToggleHandlers() {
+    public @UnmodifiableView List<BiConsumer<? super Integer, ? super Boolean>> getSlotToggleHandlers() {
         return Collections.unmodifiableList(slotToggleHandlers);
     }
     
     @Override
-    public void setSlotToggleHandlers(List<? extends BiConsumer<Integer, Boolean>> handlers) {
+    public void setSlotToggleHandlers(@Nullable List<? extends BiConsumer<? super Integer, ? super Boolean>> handlers) {
         slotToggleHandlers.clear();
-        slotToggleHandlers.addAll(handlers);
+        if (handlers != null)
+            slotToggleHandlers.addAll(handlers);
     }
     
     @Override
-    public void addSlotToggleHandler(BiConsumer<Integer, Boolean> handler) {
+    public void addSlotToggleHandler(BiConsumer<? super Integer, ? super Boolean> handler) {
         slotToggleHandlers.add(handler);
     }
     
     @Override
-    public void removeSlotToggleHandler(BiConsumer<Integer, Boolean> handler) {
+    public void removeSlotToggleHandler(BiConsumer<? super Integer, ? super Boolean> handler) {
         slotToggleHandlers.remove(handler);
     }
     
     @Override
-    public List<? extends Gui> getGuis() {
+    public @Unmodifiable List<Gui> getGuis() {
         return List.of(craftingGui, lowerGui, resultGui);
     }
     
@@ -89,31 +93,31 @@ final class CrafterWindowImpl extends AbstractSplitWindow<CustomCrafterMenu> imp
         implements CrafterWindow.Builder
     {
         
-        private Supplier<Gui> craftingGuiSupplier = () -> Gui.empty(3, 3);
-        private Supplier<Gui> resultGuiSupplier = () -> Gui.empty(1, 1);
-        private final List<BiConsumer<Integer, Boolean>> slotToggleHandlers = new ArrayList<>();
+        private Supplier<? extends Gui> craftingGuiSupplier = () -> Gui.empty(3, 3);
+        private Supplier<? extends Gui> resultGuiSupplier = () -> Gui.empty(1, 1);
+        private final List<BiConsumer<? super Integer, ? super Boolean>> slotToggleHandlers = new ArrayList<>();
         
         @Override
-        public CrafterWindow.Builder setCraftingGui(Supplier<Gui> guiSupplier) {
+        public CrafterWindow.Builder setCraftingGui(Supplier<? extends Gui> guiSupplier) {
             this.craftingGuiSupplier = guiSupplier;
             return this;
         }
         
         @Override
-        public CrafterWindow.Builder setResultGui(Supplier<Gui> guiSupplier) {
+        public CrafterWindow.Builder setResultGui(Supplier<? extends Gui> guiSupplier) {
             this.resultGuiSupplier = guiSupplier;
             return this;
         }
         
         @Override
-        public CrafterWindow.Builder setSlotToggleHandlers(List<? extends BiConsumer<Integer, Boolean>> handlers) {
+        public CrafterWindow.Builder setSlotToggleHandlers(List<? extends BiConsumer<? super Integer, ? super Boolean>> handlers) {
             slotToggleHandlers.clear();
             slotToggleHandlers.addAll(handlers);
             return this;
         }
         
         @Override
-        public CrafterWindow.Builder addSlotToggleHandler(BiConsumer<Integer, Boolean> handler) {
+        public CrafterWindow.Builder addSlotToggleHandler(BiConsumer<? super Integer, ? super Boolean> handler) {
             slotToggleHandlers.add(handler);
             return this;
         }

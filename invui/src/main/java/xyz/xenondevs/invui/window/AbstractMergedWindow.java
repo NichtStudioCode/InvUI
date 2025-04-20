@@ -3,6 +3,7 @@ package xyz.xenondevs.invui.window;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
@@ -20,13 +21,13 @@ sealed abstract class AbstractMergedWindow<M extends CustomContainerMenu> extend
     
     private final AbstractGui gui;
     
-    AbstractMergedWindow(Player viewer, Supplier<Component> title, AbstractGui gui, M menu, boolean closeable) {
+    AbstractMergedWindow(Player viewer, Supplier<? extends Component> title, AbstractGui gui, M menu, boolean closeable) {
         super(viewer, title, gui.getSize(), menu, closeable);
         this.gui = gui;
     }
     
     @Override
-    public List<? extends Gui> getGuis() {
+    public @Unmodifiable List<Gui> getGuis() {
         return List.of(gui);
     }
     
@@ -41,10 +42,10 @@ sealed abstract class AbstractMergedWindow<M extends CustomContainerMenu> extend
         implements Builder.Merged<W, S> permits NormalMergedWindowImpl.BuilderImpl
     {
         
-        protected @Nullable Supplier<Gui> guiSupplier;
+        protected @Nullable Supplier<? extends Gui> guiSupplier;
         
         @Override
-        public S setGui(Supplier<Gui> guiSupplier) {
+        public S setGui(Supplier<? extends Gui> guiSupplier) {
             this.guiSupplier = guiSupplier;
             return (S) this;
         }

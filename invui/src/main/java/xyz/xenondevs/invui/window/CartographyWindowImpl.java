@@ -3,6 +3,7 @@ package xyz.xenondevs.invui.window;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
@@ -13,10 +14,7 @@ import xyz.xenondevs.invui.util.MapIcon;
 import xyz.xenondevs.invui.util.MapPatch;
 
 import java.awt.image.BufferedImage;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 
 final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyMenu> implements CartographyWindow {
@@ -28,7 +26,7 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
     
     public CartographyWindowImpl(
         Player player,
-        Supplier<Component> title,
+        Supplier<? extends Component> title,
         AbstractGui inputGui,
         AbstractGui outputGui,
         AbstractGui lowerGui,
@@ -78,7 +76,7 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
     }
     
     @Override
-    public List<? extends Gui> getGuis() {
+    public @Unmodifiable List<Gui> getGuis() {
         return List.of(inputGui, outputGui, lowerGui);
     }
     
@@ -87,19 +85,19 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
         implements CartographyWindow.Builder
     {
         
-        private Supplier<Gui> inputGuiSupplier = () -> Gui.empty(1, 2);
-        private Supplier<Gui> outputGuiSupplier = () -> Gui.empty(1, 1);
+        private Supplier<? extends Gui> inputGuiSupplier = () -> Gui.empty(1, 2);
+        private Supplier<? extends Gui> outputGuiSupplier = () -> Gui.empty(1, 1);
         private final Set<MapIcon> icons = new HashSet<>();
         private byte @Nullable [] canvas;
         
         @Override
-        public CartographyWindow.Builder setInputGui(Supplier<Gui> guiSupplier) {
+        public CartographyWindow.Builder setInputGui(Supplier<? extends Gui> guiSupplier) {
             this.inputGuiSupplier = guiSupplier;
             return this;
         }
         
         @Override
-        public CartographyWindow.Builder setOutputGui(Supplier<Gui> guiSupplier) {
+        public CartographyWindow.Builder setOutputGui(Supplier<? extends Gui> guiSupplier) {
             this.outputGuiSupplier = guiSupplier;
             return this;
         }

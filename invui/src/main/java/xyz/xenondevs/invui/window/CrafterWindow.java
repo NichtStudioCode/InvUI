@@ -1,5 +1,7 @@
 package xyz.xenondevs.invui.window;
 
+import org.jetbrains.annotations.UnmodifiableView;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.Slot;
 
@@ -84,28 +86,29 @@ public sealed interface CrafterWindow extends Window permits CrafterWindowImpl {
      *
      * @return The slot toggle handlers, each receiving the slot and the new state
      */
-    List<? extends BiConsumer<Integer, Boolean>> getSlotToggleHandlers();
+    @UnmodifiableView
+    List<BiConsumer<? super Integer, ? super Boolean>> getSlotToggleHandlers();
     
     /**
      * Sets the handlers that are called when the viewer enables/disables a slot.
      *
      * @param handlers The slot toggle handlers, each receiving the slot and the new state
      */
-    void setSlotToggleHandlers(List<? extends BiConsumer<Integer, Boolean>> handlers);
+    void setSlotToggleHandlers(@Nullable List<? extends BiConsumer<? super Integer, ? super Boolean>> handlers);
     
     /**
      * Adds a handler that is called when the viewer enables/disables a slot.
      *
      * @param handler The slot toggle handler, receiving the slot and the new state
      */
-    void addSlotToggleHandler(BiConsumer<Integer, Boolean> handler);
+    void addSlotToggleHandler(BiConsumer<? super Integer, ? super Boolean> handler);
     
     /**
      * Removes a previously registered slot toggle handler.
      *
      * @param handler The slot toggle handler to remove
      */
-    void removeSlotToggleHandler(BiConsumer<Integer, Boolean> handler);
+    void removeSlotToggleHandler(BiConsumer<? super Integer, ? super Boolean> handler);
     
     /**
      * A {@link CrafterWindow} builder.
@@ -140,7 +143,7 @@ public sealed interface CrafterWindow extends Window permits CrafterWindowImpl {
          * @param guiSupplier The {@link Gui} {@link Supplier} for the 3x3 crafting input {@link Gui}
          * @return This {@link Builder}
          */
-        Builder setCraftingGui(Supplier<Gui> guiSupplier);
+        Builder setCraftingGui(Supplier<? extends Gui> guiSupplier);
         
         /**
          * Sets the result {@link Gui} of the {@link CrafterWindow}.
@@ -170,21 +173,21 @@ public sealed interface CrafterWindow extends Window permits CrafterWindowImpl {
          * @param guiSupplier The {@link Gui} {@link Supplier} for the result input {@link Gui}
          * @return This {@link Builder}
          */
-        Builder setResultGui(Supplier<Gui> guiSupplier);
+        Builder setResultGui(Supplier<? extends Gui> guiSupplier);
         
         /**
          * Sets the handlers that are called when the viewer enables/disables a slot.
          *
          * @param handlers The slot toggle handlers, each receiving the slot and the new state
          */
-        Builder setSlotToggleHandlers(List<? extends BiConsumer<Integer, Boolean>> handlers);
+        Builder setSlotToggleHandlers(List<? extends BiConsumer<? super Integer, ? super Boolean>> handlers);
         
         /**
          * Adds a handler that is called when the viewer enables/disables a slot.
          *
          * @param handler The slot toggle handler, receiving the slot and the new state
          */
-        Builder addSlotToggleHandler(BiConsumer<Integer, Boolean> handler);
+        Builder addSlotToggleHandler(BiConsumer<? super Integer, ? super Boolean> handler);
         
     }
     

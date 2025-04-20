@@ -1,5 +1,7 @@
 package xyz.xenondevs.invui.window;
 
+import org.jetbrains.annotations.UnmodifiableView;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
 
 import java.util.List;
@@ -39,21 +41,21 @@ public sealed interface StonecutterWindow extends Window permits StonecutterWind
      *
      * @return The selected slot change handlers, each receiving the old and new selected slot.
      */
-    List<? extends BiConsumer<Integer, Integer>> getSelectedSlotChangeHandlers();
+    @UnmodifiableView List<BiConsumer<? super Integer, ? super Integer>> getSelectedSlotChangeHandlers();
     
     /**
      * Sets the handlers that are called when the selected slot is changed.
      *
      * @param handlers The selected slot change handlers, each receiving the old and new selected slot.
      */
-    void setSelectedSlotChangeHandlers(List<BiConsumer<Integer, Integer>> handlers);
+    void setSelectedSlotChangeHandlers(@Nullable List<? extends BiConsumer<? super Integer, ? super Integer>> handlers);
     
     /**
      * Adds a handler that is called when the selected slot is changed.
      *
      * @param handler The selected slot change handler, receiving the old and new selected slot.
      */
-    void addSelectedSlotChangeHandler(BiConsumer<Integer, Integer> handler);
+    void addSelectedSlotChangeHandler(BiConsumer<? super Integer, ? super Integer> handler);
     
     /**
      * A {@link StonecutterWindow} builder.
@@ -88,7 +90,7 @@ public sealed interface StonecutterWindow extends Window permits StonecutterWind
          * @param guiSupplier The {@link Gui} {@link Supplier} for the upper {@link Gui}
          * @return This {@link Builder}
          */
-        Builder setUpperGui(Supplier<Gui> guiSupplier);
+        Builder setUpperGui(Supplier<? extends Gui> guiSupplier);
         
         /**
          * Sets the buttons {@link Gui} of the {@link StonecutterWindow}, which will
@@ -121,7 +123,7 @@ public sealed interface StonecutterWindow extends Window permits StonecutterWind
          * @param guiSupplier The {@link Gui} {@link Supplier} for the buttons {@link Gui}
          * @return This {@link Builder}
          */
-        Builder setButtonsGui(Supplier<Gui> guiSupplier);
+        Builder setButtonsGui(Supplier<? extends Gui> guiSupplier);
         
         /**
          * Sets the handlers that are called when the selected slot is changed.
@@ -129,7 +131,7 @@ public sealed interface StonecutterWindow extends Window permits StonecutterWind
          * @param handlers The selected slot change handlers, each receiving the old and new selected slot.
          * @return This {@link Builder}
          */
-        Builder setSelectedSlotChangeHandlers(List<BiConsumer<Integer, Integer>> handlers);
+        Builder setSelectedSlotChangeHandlers(List<? extends BiConsumer<? super Integer, ? super Integer>> handlers);
         
         /**
          * Adds a handler that is called when the selected slot is changed.
@@ -137,7 +139,7 @@ public sealed interface StonecutterWindow extends Window permits StonecutterWind
          * @param handler The selected slot change handler, receiving the old and new selected slot.
          * @return This {@link Builder}
          */
-        Builder addSelectedSlotChangeHandler(BiConsumer<Integer, Integer> handler);
+        Builder addSelectedSlotChangeHandler(BiConsumer<? super Integer, ? super Integer> handler);
         
     }
     

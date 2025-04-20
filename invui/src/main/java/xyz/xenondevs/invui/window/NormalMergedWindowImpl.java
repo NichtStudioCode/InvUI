@@ -11,7 +11,7 @@ final class NormalMergedWindowImpl extends AbstractMergedWindow<CustomPlainMenu>
     
     public NormalMergedWindowImpl(
         Player player,
-        Supplier<Component> title,
+        Supplier<? extends Component> title,
         AbstractGui gui,
         boolean closeable
     ) {

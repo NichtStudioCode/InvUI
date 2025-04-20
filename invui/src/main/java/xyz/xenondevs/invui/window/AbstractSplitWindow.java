@@ -24,7 +24,7 @@ sealed abstract class AbstractSplitWindow<M extends CustomContainerMenu>
     
     private final AbstractGui lowerGui;
     
-    AbstractSplitWindow(Player player, Supplier<Component> title, AbstractGui lowerGui, int size, M menu, boolean closeable) {
+    AbstractSplitWindow(Player player, Supplier<? extends Component> title, AbstractGui lowerGui, int size, M menu, boolean closeable) {
         super(player, title, size, menu, closeable);
         this.lowerGui = lowerGui;
         
@@ -44,10 +44,10 @@ sealed abstract class AbstractSplitWindow<M extends CustomContainerMenu>
         permits AnvilWindowImpl.BuilderImpl, CartographyWindowImpl.BuilderImpl, CrafterWindowImpl.BuilderImpl, MerchantWindowImpl.BuilderImpl, NormalSplitWindowImpl.BuilderImpl, StonecutterWindowImpl.BuilderImpl
     {
         
-        private @Nullable Supplier<Gui> lowerGuiSupplier;
+        private @Nullable Supplier<? extends Gui> lowerGuiSupplier;
         
         @Override
-        public S setLowerGui(Supplier<Gui> guiSupplier) {
+        public S setLowerGui(Supplier<? extends Gui> guiSupplier) {
             this.lowerGuiSupplier = guiSupplier;
             return (S) this;
         }

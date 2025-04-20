@@ -103,7 +103,7 @@ public sealed interface CartographyWindow extends Window permits CartographyWind
          * @param guiSupplier The {@link Gui} {@link Supplier} for the 1x2 input {@link Gui} (map and paper)
          * @return This {@link Builder}
          */
-        Builder setInputGui(Supplier<Gui> guiSupplier);
+        Builder setInputGui(Supplier<? extends Gui> guiSupplier);
         
         /**
          * Sets the 1x1 output {@link Gui} of the {@link CartographyWindow}.
@@ -133,7 +133,7 @@ public sealed interface CartographyWindow extends Window permits CartographyWind
          * @param guiSupplier The {@link Gui} {@link Supplier} for the 1x1 output {@link Gui}
          * @return This {@link Builder}
          */
-        Builder setOutputGui(Supplier<Gui> guiSupplier);
+        Builder setOutputGui(Supplier<? extends Gui> guiSupplier);
         
         /**
          * Adds a {@link MapIcon} to the map.

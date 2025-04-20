@@ -1,5 +1,6 @@
 package xyz.xenondevs.invui.window;
 
+import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.item.Item;
@@ -48,7 +49,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
      *
      * @param levelSupplier The supplier to retrieve the level of the merchant
      */
-    void setLevelSupplier(Supplier<Integer> levelSupplier);
+    void setLevelSupplier(Supplier<? extends Integer> levelSupplier);
     
     /**
      * Gets the level of the merchant.
@@ -73,7 +74,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
      *
      * @param progressSupplier The supplier to retrieve the progress of the experience bar
      */
-    void setProgressSupplier(Supplier<Double> progressSupplier);
+    void setProgressSupplier(Supplier<? extends Double> progressSupplier);
     
     /**
      * Gets the progress of the experience bar.
@@ -98,7 +99,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
      *
      * @param restockMessageEnabledSupplier The supplier to retrieve whether the restocking message should be displayed
      */
-    void setRestockMessageEnabledSupplier(Supplier<Boolean> restockMessageEnabledSupplier);
+    void setRestockMessageEnabledSupplier(Supplier<? extends Boolean> restockMessageEnabledSupplier);
     
     /**
      * Gets whether the restocking message is enabled.
@@ -121,14 +122,14 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
      *
      * @param tradesSupplier The supplier to retrieve the trades of the window
      */
-    void setTradesSupplier(Supplier<List<? extends Trade>> tradesSupplier);
+    void setTradesSupplier(Supplier<? extends List<? extends Trade>> tradesSupplier);
     
     /**
      * Gets the trades of the window.
      *
      * @return The trades of the window
      */
-    List<? extends Trade> getTrades();
+    @UnmodifiableView List<Trade> getTrades();
     
     /**
      * Updates the trades of the window by retrieving them from the registered supplier.
@@ -245,7 +246,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
              * @param discountSupplier The supplier to retrieve the discount
              * @return This {@link Builder}
              */
-            Builder setDiscountSupplier(Supplier<Integer> discountSupplier);
+            Builder setDiscountSupplier(Supplier<? extends Integer> discountSupplier);
             
             /**
              * Sets whether the trade is available. If the trade is unavailable, the arrow will be crossed out.
@@ -264,7 +265,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
              * @param availableSupplier The supplier to retrieve whether the trade is available
              * @return This {@link Builder}
              */
-            Builder setAvailableSupplier(Supplier<Boolean> availableSupplier);
+            Builder setAvailableSupplier(Supplier<? extends Boolean> availableSupplier);
             
             /**
              * Adds a consumer that is run when the trade is built.
@@ -272,7 +273,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
              * @param modifier The modifier
              * @return This {@link Builder}
              */
-            Builder addModifier(Consumer<Trade> modifier);
+            Builder addModifier(Consumer<? super Trade> modifier);
             
             /**
              * Builds the {@link Trade}.
@@ -318,7 +319,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
          * @param guiSupplier The {@link Gui} {@link Supplier} for the result input {@link Gui}
          * @return This {@link Builder}
          */
-        Builder setUpperGui(Supplier<Gui> guiSupplier);
+        Builder setUpperGui(Supplier<? extends Gui> guiSupplier);
         
         /**
          * Sets the level of the merchant.
@@ -352,7 +353,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
          * @param levelSupplier The supplier to retrieve the level of the merchant
          * @return This {@link Builder}
          */
-        Builder setLevelSupplier(Supplier<Integer> levelSupplier);
+        Builder setLevelSupplier(Supplier<? extends Integer> levelSupplier);
         
         /**
          * Sets the progress of the experience bar (from 0 to 1).
@@ -376,7 +377,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
          * @param progressSupplier The supplier to retrieve the progress of the experience bar
          * @return This {@link Builder}
          */
-        Builder setProgressSupplier(Supplier<Double> progressSupplier);
+        Builder setProgressSupplier(Supplier<? extends Double> progressSupplier);
         
         /**
          * Sets whether the message "Villagers restock up to two times per day" should be displayed when hovering over
@@ -400,7 +401,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
          * @param restockMessageEnabledSupplier The supplier to retrieve whether the restocking message should be displayed
          * @return This {@link Builder}
          */
-        Builder setRestockMessageEnabledSupplier(Supplier<Boolean> restockMessageEnabledSupplier);
+        Builder setRestockMessageEnabledSupplier(Supplier<? extends Boolean> restockMessageEnabledSupplier);
         
         /**
          * Sets the trades of the window, which are visualized as buttons on the left-hand side.
@@ -418,7 +419,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
          * @param tradesSupplier The supplier to retrieve the trades of the window
          * @return This {@link Builder}
          */
-        Builder setTradesSupplier(Supplier<List<? extends Trade>> tradesSupplier);
+        Builder setTradesSupplier(Supplier<? extends List<? extends Trade>> tradesSupplier);
         
     }
     
