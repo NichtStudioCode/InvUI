@@ -15,17 +15,7 @@ fun <C : Any> PagedGui.Builder<C>.setPage(provider: MutableProvider<Int>): Paged
 }
 
 @ExperimentalReactiveApi
-fun <C : Any> PagedGui<C>.setPage(provider: MutableProvider<Int>) {
-    setPage(MutablePropertyAdapter(provider))
-}
-
-@ExperimentalReactiveApi
 fun <C : Any> PagedGui.Builder<C>.setContent(provider: Provider<List<C>>): PagedGui.Builder<C> {
     setContent(PropertyAdapter(provider))
     return this
-}
-
-@ExperimentalReactiveApi
-fun <C : Any> PagedGui<C>.setContent(provider: Provider<List<C>>) {
-    setContent(PropertyAdapter(provider))
 }

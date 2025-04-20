@@ -22,7 +22,6 @@ sealed abstract class AbstractPagedGui<C>
     protected int[] contentListSlots;
     
     private final Runnable bakeFn = this::bake;
-    private final Runnable updateFn = this::update;
     
     private MutableProperty<Integer> page;
     private Property<? extends List<? extends C>> content;
@@ -37,7 +36,7 @@ sealed abstract class AbstractPagedGui<C>
     ) {
         super(width, height);
         this.page = MutableProperty.of(0);
-        page.observe(updateFn);
+        page.observe(this::update);
         this.content = content;
         content.observe(bakeFn);
         this.contentListSlots = SlotUtils.toSlotIndices(contentListSlots, getWidth());
@@ -50,7 +49,7 @@ sealed abstract class AbstractPagedGui<C>
     ) {
         super(structure.getWidth(), structure.getHeight());
         this.page = page;
-        page.observe(updateFn);
+        page.observe(this::update);
         this.content = content;
         content.observe(bakeFn);
         this.contentListSlots = structure.getIngredientMatrix().findContentListSlots();
@@ -116,18 +115,9 @@ sealed abstract class AbstractPagedGui<C>
     }
     
     @Override
-    public void setPage(MutableProperty<Integer> page) {
-        this.page.unobserve(updateFn);
-        this.page = page;
-        page.observe(updateFn);
-        update();
-    }
-    
-    @Override
-    public void setContent(Property<? extends List<? extends C>> content) {
+    public void setContent(List<? extends C> content) {
         this.content.unobserve(bakeFn);
-        this.content = content;
-        content.observe(bakeFn);
+        this.content = Property.of(content);
         bake();
     }
     

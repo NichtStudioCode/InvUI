@@ -15,17 +15,7 @@ fun <C : Any> ScrollGui.Builder<C>.setLine(provider: MutableProvider<Int>): Scro
 }
 
 @ExperimentalReactiveApi
-fun <C : Any> ScrollGui<C>.setLine(provider: MutableProvider<Int>) {
-    setLine(MutablePropertyAdapter(provider))
-}
-
-@ExperimentalReactiveApi
 fun <C : Any> ScrollGui.Builder<C>.setContent(provider: Provider<List<C>>): ScrollGui.Builder<C> {
     setContent(PropertyAdapter(provider))
     return this
-}
-
-@ExperimentalReactiveApi
-fun <C : Any> ScrollGui<C>.setContent(provider: Provider<List<C>>) {
-    setContent(PropertyAdapter(provider))
 }

@@ -77,13 +77,6 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
     void setTab(int tab);
     
     /**
-     * Sets the property that contains the current tab.
-     *
-     * @param tab The tab property to set.
-     */
-    void setTab(MutableProperty<Integer> tab);
-    
-    /**
      * Checks if the given tab is available.
      *
      * @param tab The index of the tab to check.
@@ -96,16 +89,7 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
      *
      * @param tabs The tabs to set.
      */
-    default void setTabs(List<? extends @Nullable Gui> tabs) {
-        setTabs(Property.of(tabs));
-    }
-    
-    /**
-     * Sets the property that contains the configured tabs.
-     *
-     * @param tabs The tabs property to set.
-     */
-    void setTabs(Property<? extends List<? extends @Nullable Gui>> tabs);
+    void setTabs(List<? extends @Nullable Gui> tabs);
     
     /**
      * Gets the configured tabs.

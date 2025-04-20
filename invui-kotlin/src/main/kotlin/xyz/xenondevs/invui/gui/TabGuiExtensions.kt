@@ -13,18 +13,7 @@ fun TabGui.Builder.setTab(provider: MutableProvider<Int>): TabGui.Builder {
 }
 
 @ExperimentalReactiveApi
-fun TabGui.setTab(provider: MutableProvider<Int>): TabGui {
-    setTab(MutablePropertyAdapter(provider))
-    return this
-}
-
-@ExperimentalReactiveApi
 fun TabGui.Builder.setTabs(provider: Provider<List<Gui?>>): TabGui.Builder {
     setTabs(PropertyAdapter(provider))
     return this
-}
-
-@ExperimentalReactiveApi
-fun TabGui.setTabs(provider: Provider<List<Gui?>>) {
-    setTabs(PropertyAdapter(provider))
 }

@@ -160,13 +160,6 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
     void setLine(int line);
     
     /**
-     * Sets the property that contains the current line.
-     *
-     * @param line The line property to set.
-     */
-    void setLine(MutableProperty<Integer> line);
-    
-    /**
      * Gets the amount of lines.
      *
      * @return The amount of lines.
@@ -186,16 +179,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      *
      * @param content The content to set.
      */
-    default void setContent(List<? extends C> content) {
-        setContent(Property.of(content));
-    }
-    
-    /**
-     * Sets the property that contains the scrollable content.
-     *
-     * @param content The content property to set.
-     */
-    void setContent(Property<? extends List<? extends C>> content);
+    void setContent(List<? extends C> content);
     
     /**
      * Gets the scrollable content.

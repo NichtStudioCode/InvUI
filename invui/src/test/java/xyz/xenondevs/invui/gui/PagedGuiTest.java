@@ -167,10 +167,6 @@ public class PagedGuiTest {
         
         content.set(List.of());
         assertNull(gui.getItem(0));
-        
-        gui.setContent(MutableProperty.of(List.of()));
-        content.set(items);
-        assertNull(gui.getItem(0));
     }
     
 }

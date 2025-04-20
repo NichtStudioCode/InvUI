@@ -18,9 +18,8 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     private int[] contentListSlots;
     
     private final Runnable bakeFn = this::bake;
-    private final Runnable updateFn = this::update;
     
-    private MutableProperty<Integer> tab;
+    private final MutableProperty<Integer> tab;
     private Property<? extends List<? extends @Nullable Gui>> tabs;
     private final List<BiConsumer<? super Integer, ? super Integer>> tabChangeHandlers = new ArrayList<>(0);
     private List<@Nullable List<SlotElement.GuiLink>> linkingElements = List.of();
@@ -34,7 +33,7 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
         if (contentListSlots.isEmpty())
             throw new IllegalArgumentException("Content list slots must not be empty");
         this.tab = MutableProperty.of(0);
-        tab.observe(updateFn);
+        tab.observe(this::update);
         this.tabs = tabs;
         tabs.observe(bakeFn);
         this.contentListSlots = SlotUtils.toSlotIndices(contentListSlots, getWidth());
@@ -48,7 +47,7 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     ) {
         super(structure.getWidth(), structure.getHeight());
         this.tab = tab;
-        tab.observe(updateFn);
+        tab.observe(this::update);
         this.tabs = tabs;
         tabs.observe(bakeFn);
         super.applyStructure(structure); // super call to avoid bake() through applyStructure override
@@ -117,10 +116,9 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     }
     
     @Override
-    public void setTabs(Property<? extends List<? extends @Nullable Gui>> tabs) {
+    public void setTabs(List<? extends @Nullable Gui> tabs) {
         this.tabs.unobserve(bakeFn);
-        this.tabs = tabs;
-        tabs.observe(bakeFn);
+        this.tabs = Property.of(tabs);
         bake();
     }
     
@@ -133,14 +131,6 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     public boolean isTabAvailable(int tab) {
         var tabs = getTabs();
         return tab >= 0 && tab < tabs.size() && tabs.get(tab) != null;
-    }
-    
-    @Override
-    public void setTab(MutableProperty<Integer> tab) {
-        this.tab.unobserve(updateFn);
-        this.tab = tab;
-        tab.observe(updateFn);
-        update();
     }
     
     @Override

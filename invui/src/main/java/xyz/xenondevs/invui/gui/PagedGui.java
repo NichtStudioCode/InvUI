@@ -147,13 +147,6 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
     void setPage(int page);
     
     /**
-     * Sets the property that contains the page of this {@link PagedGui}.
-     *
-     * @param page The page property to set.
-     */
-    void setPage(MutableProperty<Integer> page);
-    
-    /**
      * Gets the amount of pages this {@link PagedGui} has.
      *
      * @return The amount of pages this {@link PagedGui} has.
@@ -161,20 +154,11 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
     int getPageCount();
     
     /**
-     * Sets the property that contains the content of this {@link PagedGui}.
-     *
-     * @param content The content property to set.
-     */
-    void setContent(Property<? extends List<? extends C>> content);
-    
-    /**
      * Sets the content of this {@link PagedGui} for all pages.
      *
      * @param content The content to set.
      */
-    default void setContent(List<? extends C> content) {
-        setContent(Property.of(content));
-    }
+    void setContent(List<? extends C> content);
     
     /**
      * Gets the content of this {@link PagedGui}.

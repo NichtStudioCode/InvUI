@@ -116,10 +116,6 @@ public class TabGuiTest {
         
         tabs.set(List.of());
         assertNull(gui.getItem(0));
-        
-        gui.setTabs(MutableProperty.of(List.of()));
-        tabs.set(tabsList);
-        assertNull(gui.getItem(0));
     }
     
     @ParameterizedTest

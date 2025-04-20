@@ -24,9 +24,8 @@ sealed abstract class AbstractScrollGui<C>
     private int[] contentListSlots = new int[0];
     
     private final Runnable bakeFn = this::bake;
-    private final Runnable updateFn = this::update;
     
-    private MutableProperty<Integer> line;
+    private final MutableProperty<Integer> line;
     private Property<? extends List<? extends C>> content;
     private final List<BiConsumer<? super Integer, ? super Integer>> scrollHandlers = new ArrayList<>(0);
     private final List<BiConsumer<? super Integer, ? super Integer>> lineCountChangeHandlers = new ArrayList<>(0);
@@ -40,7 +39,7 @@ sealed abstract class AbstractScrollGui<C>
     ) {
         super(width, height);
         this.line = MutableProperty.of(0);
-        line.observe(updateFn);
+        line.observe(this::update);
         this.content = content;
         content.observe(bakeFn);
         setContentListSlots(SlotUtils.toSlotIndicesSet(contentListSlots, getWidth()), horizontalLines);
@@ -53,7 +52,7 @@ sealed abstract class AbstractScrollGui<C>
     ) {
         super(structure.getWidth(), structure.getHeight());
         this.line = line;
-        line.observe(updateFn);
+        line.observe(this::update);
         this.content = content;
         content.observe(bakeFn);
         super.applyStructure(structure); // super call to avoid bake() through applyStructure override
@@ -158,18 +157,9 @@ sealed abstract class AbstractScrollGui<C>
     }
     
     @Override
-    public void setLine(MutableProperty<Integer> line) {
-        this.line.unobserve(updateFn);
-        this.line = line;
-        line.observe(updateFn);
-        update();
-    }
-    
-    @Override
-    public void setContent(Property<? extends List<? extends C>> content) {
+    public void setContent(List<? extends C> content) {
         this.content.unobserve(bakeFn);
-        this.content = content;
-        content.observe(bakeFn);
+        this.content = Property.of(content);
         bake();
     }
     
