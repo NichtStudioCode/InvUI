@@ -17,20 +17,8 @@ public sealed interface AnvilWindow extends Window permits AnvilWindowImpl {
      *
      * @return The new {@link Builder Window Builder}.
      */
-    static Builder split() {
+    static Builder builder() {
         return new AnvilWindowImpl.BuilderImpl();
-    }
-    
-    /**
-     * Creates a new split {@link AnvilWindow} after configuring a {@link Builder Window Builder} using the given {@link Consumer}.
-     *
-     * @param consumer The {@link Consumer} to configure the {@link Builder Window Builder}.
-     * @return The created {@link AnvilWindow}.
-     */
-    static AnvilWindow split(Consumer<? super Builder> consumer) {
-        Builder builder = split();
-        consumer.accept(builder);
-        return builder.build();
     }
     
     /**

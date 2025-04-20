@@ -31,7 +31,7 @@ public class ScrollGuisGuiTest {
     @Test
     public void testScrollGuisInitWithBuilder() {
         testScrollGuisInit(content ->
-            ScrollGui.guis()
+            ScrollGui.guisBuilder()
                 .setStructure(
                     "x x x",
                     "x x x",

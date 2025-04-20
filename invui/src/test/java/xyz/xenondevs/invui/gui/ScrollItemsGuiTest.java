@@ -33,7 +33,7 @@ public class ScrollItemsGuiTest {
     
     @Test
     public void testScrollItemsInitWithBuilder() {
-        testScrollItemsInit(content -> ScrollGui.items()
+        testScrollItemsInit(content -> ScrollGui.itemsBuilder()
             .setStructure(
                 "x x x",
                 "x x x",

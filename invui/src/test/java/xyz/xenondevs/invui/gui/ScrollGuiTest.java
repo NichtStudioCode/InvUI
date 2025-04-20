@@ -9,9 +9,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.ServerMock;
-import xyz.xenondevs.invui.item.BoundItem;
 import xyz.xenondevs.invui.item.Item;
-import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.List;
@@ -44,7 +42,7 @@ public class ScrollGuiTest {
             Item.simple(ItemStack.of(Material.BARRIER))
         );
         
-        var gui = ScrollGui.items()
+        var gui = ScrollGui.itemsBuilder()
             .setStructure(
                 "x . .",
                 "x . .",
@@ -75,7 +73,7 @@ public class ScrollGuiTest {
             Item.simple(ItemStack.of(Material.BARRIER))
         );
         
-        var gui = ScrollGui.items()
+        var gui = ScrollGui.itemsBuilder()
             .setStructure(
                 "x x x",
                 ". . .",
@@ -117,7 +115,7 @@ public class ScrollGuiTest {
         var content = IntStream.range(0, 100)
             .mapToObj(i -> Item.simple(ItemStack.of(Material.DIAMOND)))
             .toList();
-        var gui = ScrollGui.items()
+        var gui = ScrollGui.itemsBuilder()
             .setStructure(s1)
             .setContent(content)
             .build();
@@ -179,7 +177,7 @@ public class ScrollGuiTest {
         
         var line = MutableProperty.of(0);
         
-        var gui = ScrollGui.items()
+        var gui = ScrollGui.itemsBuilder()
             .setLine(line)
             .setStructure(
                 ". . .",
@@ -207,7 +205,7 @@ public class ScrollGuiTest {
     public void testContentProperty() {
         MutableProperty<List<Item>> content = MutableProperty.of(List.of());
         
-        var gui = ScrollGui.items()
+        var gui = ScrollGui.itemsBuilder()
             .setStructure("x")
             .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
             .setContent(content)

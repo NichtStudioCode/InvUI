@@ -30,99 +30,85 @@ import java.util.function.Function;
 public sealed interface Animation permits AnimationImpl {
     
     /**
-     * Creates a new animation builder that uses a slot selector which
-     * shows the slots in a column-by-column order, from left to right.
+     * Creates a new animation builder.
      *
      * @return The animation builder.
      */
-    static Builder column() {
-        var builder = new AnimationImpl.BuilderImpl();
-        builder.setSlotSelector(new AnimationImpl.ColumnSlotSelector());
-        return builder;
-    }
-    
-    /**
-     * Creates a new animation builder that uses a slot selector which
-     * shows the slots in a row-by-row order, from top to bottom.
-     *
-     * @return The animation builder.
-     */
-    static Builder row() {
-        var builder = new AnimationImpl.BuilderImpl();
-        builder.setSlotSelector(new AnimationImpl.RowSlotSelector());
-        return builder;
-    }
-    
-    /**
-     * Creates a new animation builder that uses a slot selector which
-     * moves like a snake in horizontal direction, starting from (0,0)
-     * then moving all the way right, one down, all the way left and repeats.
-     *
-     * @return The animation builder.
-     */
-    static Builder horizontalSnake() {
-        var builder = new AnimationImpl.BuilderImpl();
-        builder.setSlotSelector(new AnimationImpl.HorizontalSnakeSlotSelector());
-        return builder;
-    }
-    
-    /**
-     * Creates a new animation builder that uses a slot selector which
-     * moves like a snake in vertical direction, starting from (0,0)
-     * then moving all the way down, one right, all the way up and repeats.
-     *
-     * @return The animation builder.
-     */
-    static Builder verticalSnake() {
-        var builder = new AnimationImpl.BuilderImpl();
-        builder.setSlotSelector(new AnimationImpl.VerticalSnakeSlotSelector());
-        return builder;
-    }
-    
-    /**
-     * Creates a new animation builder that uses a slot selector which
-     * shows the slots individually, from left to right, top to bottom.
-     *
-     * @return The animation builder.
-     */
-    static Builder sequential() {
-        var builder = new AnimationImpl.BuilderImpl();
-        builder.setSlotSelector(new AnimationImpl.SequentialSlotSelector());
-        return builder;
-    }
-    
-    /**
-     * Creates a new animation builder that uses a slot selector which
-     * shows the slots individually like {@link #sequential()}, but from
-     * both the top-left and the bottom-right corner.
-     *
-     * @return The animation builder.
-     */
-    static Builder splitSequential() {
-        var builder = new AnimationImpl.BuilderImpl();
-        builder.setSlotSelector(new AnimationImpl.SplitSequentialSlotSelector());
-        return builder;
-    }
-    
-    /**
-     * Creates a new animation builder that uses a slot selector which
-     * selects the slots randomly.
-     *
-     * @return The animation builder.
-     */
-    static Builder random() {
-        var builder = new AnimationImpl.BuilderImpl();
-        builder.setSlotSelector(AnimationImpl.RANDOM_SLOT_SELECTOR);
-        return builder;
-    }
-    
-    /**
-     * Creates a new animation builder without any predefined slot selector.
-     *
-     * @return The animation builder.
-     */
-    static Builder custom() {
+    static Builder builder() {
         return new AnimationImpl.BuilderImpl();
+    }
+    
+    /**
+     * Creates a slot selector which shows the slots in a column-by-column order,
+     * from left to right.
+     *
+     * @return The slot selector.
+     */
+    static Function<Animation, Set<Slot>> columnSlotSelector() {
+        return new AnimationImpl.ColumnSlotSelector();
+    }
+    
+    /**
+     * Creates a slot selector which shows the slots in a row-by-row order,
+     * from top to bottom.
+     *
+     * @return The slot selector.
+     */
+    static Function<Animation, Set<Slot>> rowSlotSelector() {
+        return new AnimationImpl.RowSlotSelector();
+    }
+    
+    /**
+     * Creates a slot selector which moves like a snake in horizontal direction,
+     * starting from (0,0) then moving all
+     * the way right, one down, all the way left and repeats.
+     *
+     * @return The slot selector.
+     */
+    static Function<Animation, Set<Slot>> horizontalSnakeSlotSelector() {
+        return new AnimationImpl.HorizontalSnakeSlotSelector();
+    }
+    
+    /**
+     * Creates a slot selector which moves like a snake in vertical direction,
+     * starting from (0,0) then moving all the way down, one right, all the way
+     * up and repeats.
+     *
+     * @return The slot selector.
+     */
+    static Function<Animation, Set<Slot>> verticalSnakeSlotSelector() {
+        return new AnimationImpl.VerticalSnakeSlotSelector();
+    }
+    
+    /**
+     * Creates a slot selector which shows the slots individually,
+     * from left to right, top to bottom.
+     *
+     * @return The slot selector.
+     */
+    static Function<Animation, Set<Slot>> sequentialSlotSelector() {
+        return new AnimationImpl.SequentialSlotSelector();
+    }
+    
+    /**
+     * Creates a slot selector which shows the slots individually like
+     * {@link #sequentialSlotSelector()}, but from both the top-left
+     * and the bottom-right corner.
+     *
+     * @return The slot selector.
+     */
+    static Function<Animation, Set<Slot>> splitSequentialSlotSelector() {
+        return new AnimationImpl.SplitSequentialSlotSelector();
+    }
+    
+    /**
+     * Creates a new animation builder that uses a slot selector which selects
+     * the slots randomly.
+     *
+     * @return The slot selector.
+     */
+    static Function<Animation, Set<Slot>> randomSlotSelector() {
+        return AnimationImpl.RANDOM_SLOT_SELECTOR;
     }
     
     /**

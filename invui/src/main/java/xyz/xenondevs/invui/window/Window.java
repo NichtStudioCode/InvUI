@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 
 /**
  * A Window is the way to show a player a {@link Gui}. Windows can only have one viewer.
- * To create a new {@link Window}, use the builder factory methods {@link Window#split} and {@link Window#merged}.
+ * To create a new {@link Window}, use the builder factory methods {@link Window#builder} and {@link Window#mergedBuilder}.
  */
 public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyWindow, CrafterWindow, MerchantWindow, StonecutterWindow {
     
@@ -22,20 +22,8 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
      *
      * @return The new {@link Builder.Normal.Split Window Builder}.
      */
-    static Builder.Normal.Split split() {
+    static Builder.Normal.Split builder() {
         return new NormalSplitWindowImpl.BuilderImpl();
-    }
-    
-    /**
-     * Creates a new normal split {@link Window} after configuring a {@link Builder.Normal.Split Window Builder} with the given {@link Consumer}.
-     *
-     * @param consumer The {@link Consumer} to configure the {@link Builder.Normal.Split Window Builder}.
-     * @return The new {@link Window}.
-     */
-    static Window split(Consumer<Builder.Normal.Split> consumer) {
-        Builder.Normal.Split builder = split();
-        consumer.accept(builder);
-        return builder.build();
     }
     
     /**
@@ -43,20 +31,8 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
      *
      * @return The new {@link Builder.Normal.Merged Window Builder}.
      */
-    static Builder.Normal.Merged merged() {
+    static Builder.Normal.Merged mergedBuilder() {
         return new NormalMergedWindowImpl.BuilderImpl();
-    }
-    
-    /**
-     * Creates a new normal merged {@link Window} after configuring a {@link Builder.Normal.Merged Window Builder} with the given {@link Consumer}.
-     *
-     * @param consumer The {@link Consumer} to configure the {@link Builder.Normal.Merged Window Builder}.
-     * @return The new {@link Window}.
-     */
-    static Window merged(Consumer<Builder.Normal.Merged> consumer) {
-        Builder.Normal.Merged builder = merged();
-        consumer.accept(builder);
-        return builder.build();
     }
     
     /**

@@ -33,7 +33,7 @@ public class PagedInventoriesGuiTest {
     @Test
     public void testPagedInventoriesInitWithBuilder() {
         testPagedInventoriesInit(content ->
-            PagedGui.inventories()
+            PagedGui.inventoriesBuilder()
                 .setStructure(
                     "x x x",
                     "x x x",
@@ -77,7 +77,7 @@ public class PagedInventoriesGuiTest {
         var inv1 = new VirtualInventory(3);
         var inv2 = new VirtualInventory(3);
         
-        var gui = PagedGui.inventories()
+        var gui = PagedGui.inventoriesBuilder()
             .setStructure(
                 "x x x",
                 "x x x",
@@ -118,7 +118,7 @@ public class PagedInventoriesGuiTest {
         var inv1 = new VirtualInventory(3);
         var inv2 = new VirtualInventory(3);
         
-        var gui = PagedGui.inventories()
+        var gui = PagedGui.inventoriesBuilder()
             .setStructure(
                 "x x x",
                 "x x x",

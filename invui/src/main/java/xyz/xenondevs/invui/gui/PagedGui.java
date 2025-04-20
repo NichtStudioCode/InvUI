@@ -11,7 +11,6 @@ import xyz.xenondevs.invui.state.Property;
 import java.util.List;
 import java.util.SequencedSet;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 /**
  * A {@link Gui} that can display multiple pages of content.
@@ -25,20 +24,8 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      *
      * @return The new {@link Builder Gui Builder}.
      */
-    static Builder<Item> items() {
+    static Builder<Item> itemsBuilder() {
         return new PagedItemsGuiImpl.Builder<>();
-    }
-    
-    /**
-     * Creates a new {@link PagedGui} after configuring a {@link Builder Gui Builder} using the given {@link Consumer}.
-     *
-     * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
-     * @return The created {@link PagedGui}.
-     */
-    static PagedGui<Item> items(Consumer<? super Builder<Item>> consumer) {
-        Builder<Item> builder = items();
-        consumer.accept(builder);
-        return builder.build();
     }
     
     /**
@@ -70,20 +57,8 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      *
      * @return The new {@link Builder Gui Builder}.
      */
-    static Builder<Gui> guis() {
+    static Builder<Gui> guisBuilder() {
         return new PagedNestedGuiImpl.Builder<>();
-    }
-    
-    /**
-     * Creates a new {@link PagedGui} after configuring a {@link Builder Gui Builder} using the given {@link Consumer}.
-     *
-     * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
-     * @return The created {@link PagedGui}.
-     */
-    static PagedGui<Gui> guis(Consumer<? super Builder<Gui>> consumer) {
-        Builder<Gui> builder = guis();
-        consumer.accept(builder);
-        return builder.build();
     }
     
     /**
@@ -115,20 +90,8 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      *
      * @return The new {@link Builder Gui Builder}.
      */
-    static Builder<Inventory> inventories() {
+    static Builder<Inventory> inventoriesBuilder() {
         return new PagedInventoriesGuiImpl.Builder<>();
-    }
-    
-    /**
-     * Creates a new {@link PagedGui} after configuring a {@link Builder Gui Builder} using the given {@link Consumer}.
-     *
-     * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
-     * @return The created {@link PagedGui}.
-     */
-    static PagedGui<Inventory> inventories(Consumer<? super Builder<Inventory>> consumer) {
-        Builder<Inventory> builder = inventories();
-        consumer.accept(builder);
-        return builder.build();
     }
     
     /**

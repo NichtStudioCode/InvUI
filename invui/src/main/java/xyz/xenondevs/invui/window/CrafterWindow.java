@@ -5,7 +5,6 @@ import xyz.xenondevs.invui.gui.Slot;
 
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -18,21 +17,8 @@ public sealed interface CrafterWindow extends Window permits CrafterWindowImpl {
      *
      * @return The new {@link Builder}
      */
-    static Builder split() {
+    static Builder builder() {
         return new CrafterWindowImpl.BuilderImpl();
-    }
-    
-    /**
-     * Creates a new split {@link CrafterWindow} after configuring a
-     * {@link Builder} using the given {@link Consumer}.
-     *
-     * @param consumer The consumer to configure the {@link Builder}
-     * @return The created {@link CrafterWindow}
-     */
-    static CrafterWindow split(Consumer<Builder> consumer) {
-        Builder builder = split();
-        consumer.accept(builder);
-        return builder.build();
     }
     
     /**

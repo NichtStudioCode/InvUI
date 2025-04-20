@@ -37,7 +37,7 @@ public class GuiTest {
         var inner = Gui.empty(3, 3);
         inner.fill(Item.simple(new ItemStack(Material.DIAMOND)), true);
         
-        var outer = Gui.normal()
+        var outer = Gui.builder()
             .setStructure(
                 "x x x",
                 "x x x",
@@ -54,7 +54,7 @@ public class GuiTest {
         var inner = Gui.empty(3, 3);
         inner.fill(Item.simple(new ItemStack(Material.DIAMOND)), true);
         
-        var outer = Gui.normal()
+        var outer = Gui.builder()
             .setStructure(
                 ". . .",
                 "x x x",
@@ -78,7 +78,7 @@ public class GuiTest {
         var inner = Gui.empty(3, 2);
         inner.fill(Item.simple(new ItemStack(Material.DIAMOND)), true);
         
-        var outer = Gui.normal()
+        var outer = Gui.builder()
             .setStructure(
                 "x x x",
                 "x x x",
@@ -95,7 +95,7 @@ public class GuiTest {
         var inner = Gui.empty(3, 3);
         inner.fill(Item.simple(new ItemStack(Material.DIAMOND)), true);
         
-        var builder = Gui.normal()
+        var builder = Gui.builder()
             .setStructure(
                 "x x x",
                 "x x x",
@@ -123,7 +123,7 @@ public class GuiTest {
     public void testGuiBuilderInventoryIngredient() {
         var inv = new VirtualInventory(9);
         
-        var outer = Gui.normal()
+        var outer = Gui.builder()
             .setStructure(
                 "x x x",
                 "x x x",
@@ -139,7 +139,7 @@ public class GuiTest {
     public void testGuiBuilderInventoryIngredientNotEnoughSlots() {
         var inv = new VirtualInventory(9);
         
-        var outer = Gui.normal()
+        var outer = Gui.builder()
             .setStructure(
                 ". . .",
                 "x x x",
@@ -162,7 +162,7 @@ public class GuiTest {
     public void testGuiBuilderInventoryIngredientTooManySlots() {
         var inv = new VirtualInventory(6);
         
-        var builder = Gui.normal()
+        var builder = Gui.builder()
             .setStructure(
                 "x x x",
                 "x x x",
@@ -177,7 +177,7 @@ public class GuiTest {
     public void testGuiBuilderInventoryIngredientInvokedTwice() {
         var inv = new VirtualInventory(9);
         
-        var builder = Gui.normal()
+        var builder = Gui.builder()
             .setStructure(
                 "x x x",
                 "x x x",
@@ -203,7 +203,7 @@ public class GuiTest {
     
     @Test
     public void testGetSlots() {
-        var gui = Gui.normal()
+        var gui = Gui.builder()
             .setStructure(
                 "a b c",
                 "a a a",
@@ -217,7 +217,7 @@ public class GuiTest {
     
     @Test
     public void testIsTagged() {
-        var gui = Gui.normal()
+        var gui = Gui.builder()
             .setStructure(
                 "a b c",
                 "a a a",
@@ -234,7 +234,7 @@ public class GuiTest {
     @SuppressWarnings("DataFlowIssue")
     @Test
     public void testSetItemUsingIngredientKey() {
-        var gui = Gui.normal()
+        var gui = Gui.builder()
             .setStructure("a a b")
             .addIngredient('a', Item.simple(ItemStack.of(Material.DIRT)))
             .addIngredient('b', Item.simple(ItemStack.of(Material.DIAMOND)))
@@ -251,7 +251,7 @@ public class GuiTest {
     @SuppressWarnings("DataFlowIssue")
     @Test
     public void testSetItemBuilderUsingIngredientKey() {
-        var gui = Gui.normal()
+        var gui = Gui.builder()
             .setStructure("a a b")
             .addIngredient('a', Item.simple(ItemStack.of(Material.DIRT)))
             .addIngredient('b', Item.simple(ItemStack.of(Material.DIAMOND)))
@@ -269,7 +269,7 @@ public class GuiTest {
     @SuppressWarnings("DataFlowIssue")
     @Test
     public void testSetItemSupplierUsingIngredientKey() {
-        var gui = Gui.normal()
+        var gui = Gui.builder()
             .setStructure("a a b")
             .addIngredient('a', Item.simple(ItemStack.of(Material.DIRT)))
             .addIngredient('b', Item.simple(ItemStack.of(Material.DIAMOND)))
@@ -288,7 +288,7 @@ public class GuiTest {
     @SuppressWarnings("DataFlowIssue")
     @Test
     public void setInventoryUsingIngredientKey() {
-        var gui = Gui.normal()
+        var gui = Gui.builder()
             .setStructure("x x x")
             .addIngredient('x', Item.simple(ItemStack.of(Material.DIRT)))
             .build();
@@ -305,7 +305,7 @@ public class GuiTest {
     @SuppressWarnings("DataFlowIssue")
     @Test
     public void testSetGuiUsingIngredientKey() {
-        var gui = Gui.normal()
+        var gui = Gui.builder()
             .setStructure("x x x")
             .addIngredient('x', Item.simple(ItemStack.of(Material.DIRT)))
             .build();

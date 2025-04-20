@@ -46,7 +46,7 @@ public sealed interface BoundItem extends Item permits AbstractBoundItem {
      *
      * @return A new {@link Builder} for a {@link BoundItem}.
      */
-    static Builder<Gui> gui() {
+    static Builder<Gui> builder() {
         return new CustomBoundItem.Builder<>();
     }
     
@@ -56,7 +56,7 @@ public sealed interface BoundItem extends Item permits AbstractBoundItem {
      *
      * @return A new {@link Builder} for a {@link BoundItem}.
      */
-    static Builder<PagedGui<?>> pagedGui() {
+    static Builder<PagedGui<?>> pagedBuilder() {
         return new CustomBoundItem.Builder.Paged();
     }
     
@@ -66,7 +66,7 @@ public sealed interface BoundItem extends Item permits AbstractBoundItem {
      *
      * @return A new {@link Builder} for a {@link BoundItem}.
      */
-    static Builder<ScrollGui<?>> scrollGui() {
+    static Builder<ScrollGui<?>> scrollBuilder() {
         return new CustomBoundItem.Builder.Scroll();
     }
     
@@ -76,7 +76,7 @@ public sealed interface BoundItem extends Item permits AbstractBoundItem {
      *
      * @return A new {@link Builder} for a {@link BoundItem}.
      */
-    static Builder<TabGui> tabGui() {
+    static Builder<TabGui> tabBuilder() {
         return new CustomBoundItem.Builder.Tab();
     }
     

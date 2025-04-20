@@ -33,7 +33,7 @@ public class ScrollInventoriesGuiTest {
     @Test
     public void testScrollInventoriesInitWithBuilder() {
         testScrollInventoriesInit(content ->
-            ScrollGui.inventories()
+            ScrollGui.inventoriesBuilder()
                 .setStructure(
                     "x x x",
                     "x x x",
@@ -78,7 +78,7 @@ public class ScrollInventoriesGuiTest {
         var inv1 = new VirtualInventory(3);
         var inv2 = new VirtualInventory(3);
         
-        var gui = ScrollGui.inventories()
+        var gui = ScrollGui.inventoriesBuilder()
             .setStructure(
                 "x x x",
                 "x x x",
@@ -119,7 +119,7 @@ public class ScrollInventoriesGuiTest {
         var inv1 = new VirtualInventory(3);
         var inv2 = new VirtualInventory(3);
         
-        var gui = ScrollGui.inventories()
+        var gui = ScrollGui.inventoriesBuilder()
             .setStructure(
                 "x x x",
                 "x x x",

@@ -25,21 +25,8 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      *
      * @return The new {@link Builder Gui Builder}.
      */
-    static Builder<Item> items() {
+    static Builder<Item> itemsBuilder() {
         return new ScrollItemsGuiImpl.Builder<>();
-    }
-    
-    /**
-     * Creates a new {@link ScrollGui} that uses {@link Item Items} as content after configuring a
-     * {@link Builder Gui Builder} using the given {@link Consumer}.
-     *
-     * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
-     * @return The created {@link ScrollGui}.
-     */
-    static ScrollGui<Item> items(Consumer<? super Builder<Item>> consumer) {
-        Builder<Item> builder = items();
-        consumer.accept(builder);
-        return builder.build();
     }
     
     /**
@@ -71,21 +58,8 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      *
      * @return The new {@link Builder Gui Builder}.
      */
-    static Builder<Gui> guis() {
+    static Builder<Gui> guisBuilder() {
         return new ScrollNestedGuiImpl.Builder<>();
-    }
-    
-    /**
-     * Creates a new {@link ScrollGui} that uses {@link Gui Guis} as content after configuring a
-     * {@link Builder Gui Builder} using the given {@link Consumer}.
-     *
-     * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
-     * @return The created {@link ScrollGui}.
-     */
-    static ScrollGui<Gui> guis(Consumer<? super Builder<Gui>> consumer) {
-        Builder<Gui> builder = guis();
-        consumer.accept(builder);
-        return builder.build();
     }
     
     /**
@@ -117,21 +91,8 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      *
      * @return The new {@link Builder Gui Builder}.
      */
-    static Builder<Inventory> inventories() {
+    static Builder<Inventory> inventoriesBuilder() {
         return new ScrollInventoryGuiImpl.Builder<>();
-    }
-    
-    /**
-     * Creates a new {@link ScrollGui} that uses {@link Inventory VirtualInventories} as content after configuring a
-     * {@link Builder Gui Builder} using the given {@link Consumer}.
-     *
-     * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
-     * @return The created {@link ScrollGui}.
-     */
-    static ScrollGui<Inventory> inventories(Consumer<? super Builder<Inventory>> consumer) {
-        Builder<Inventory> builder = inventories();
-        consumer.accept(builder);
-        return builder.build();
     }
     
     /**

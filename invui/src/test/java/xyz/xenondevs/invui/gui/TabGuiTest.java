@@ -37,21 +37,21 @@ public class TabGuiTest {
     @Test
     public void testTabSwitching() {
         var tabs = List.of(
-            Gui.normal()
+            Gui.builder()
                 .setStructure("xxx")
                 .addIngredient('x', Item.simple(ItemStack.of(Material.ANDESITE)))
                 .build(),
-            Gui.normal()
+            Gui.builder()
                 .setStructure("xxx")
                 .addIngredient('x', Item.simple(ItemStack.of(Material.BARRIER)))
                 .build(),
-            Gui.normal()
+            Gui.builder()
                 .setStructure("xxx")
                 .addIngredient('x', Item.simple(ItemStack.of(Material.COBBLESTONE)))
                 .build()
         );
         
-        var gui = TabGui.normal()
+        var gui = TabGui.builder()
             .setStructure(
                 "# # #",
                 "x x x"
@@ -87,7 +87,7 @@ public class TabGuiTest {
     public void testTabsProperty() {
         MutableProperty<List<@Nullable Gui>> tabs = MutableProperty.of(List.of());
         
-        var gui = TabGui.normal()
+        var gui = TabGui.builder()
             .setStructure("x")
             .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
             .setTabs(tabs)
@@ -126,7 +126,7 @@ public class TabGuiTest {
     @ValueSource(ints = {0, 1, 10})
     public void testTabProperty(int tabCount) {
         var tab = MutableProperty.of(0);
-        var gui = TabGui.normal()
+        var gui = TabGui.builder()
             .setTab(tab)
             .setStructure(
                 "x x x",
@@ -153,7 +153,7 @@ public class TabGuiTest {
     @Test
     public void testNoTabs() {
         // validate that tab guis can be created without tabs
-        var gui = TabGui.normal()
+        var gui = TabGui.builder()
             .setStructure(
                 "# # #",
                 "x x x",
@@ -213,7 +213,7 @@ public class TabGuiTest {
         var tab = Gui.empty(9, 2);
         tab.fill(Item.simple(ItemStack.of(Material.DIAMOND)), true);
         
-        var gui = TabGui.normal()
+        var gui = TabGui.builder()
             .setStructure(s1)
             .setTabs(List.of(tab))
             .build();

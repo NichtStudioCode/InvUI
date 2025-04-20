@@ -18,21 +18,8 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
      *
      * @return The new {@link Builder}
      */
-    static Builder split() {
+    static Builder builder() {
         return new MerchantWindowImpl.BuilderImpl();
-    }
-    
-    /**
-     * Creates a new split {@link MerchantWindow} after configuring a
-     * {@link Builder} using the given {@link Consumer}.
-     *
-     * @param consumer The consumer to configure the {@link Builder}
-     * @return The created {@link MerchantWindow}
-     */
-    static MerchantWindow split(Consumer<Builder> consumer) {
-        Builder builder = split();
-        consumer.accept(builder);
-        return builder.build();
     }
     
     /**

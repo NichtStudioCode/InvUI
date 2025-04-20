@@ -33,7 +33,7 @@ public class PagedItemsGuiTest {
     
     @Test
     public void testPagedItemsInitWithBuilder() {
-        testPagedItemsInit(content -> PagedGui.items()
+        testPagedItemsInit(content -> PagedGui.itemsBuilder()
             .setStructure(
                 "x x x",
                 "x x x",

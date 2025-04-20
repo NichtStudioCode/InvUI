@@ -7,7 +7,6 @@ import xyz.xenondevs.invui.util.MapPatch;
 
 import java.awt.image.BufferedImage;
 import java.util.Collection;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -20,20 +19,8 @@ public sealed interface CartographyWindow extends Window permits CartographyWind
      *
      * @return The new {@link Builder Window Builder}.
      */
-    static Builder split() {
+    static Builder builder() {
         return new CartographyWindowImpl.BuilderImpl();
-    }
-    
-    /**
-     * Creates a new split {@link CartographyWindow} after configuring a {@link Builder Window Builder} using the given {@link Consumer}.
-     *
-     * @param consumer The {@link Consumer} to configure the {@link Builder Window Builder}.
-     * @return The created {@link CartographyWindow}.
-     */
-    static CartographyWindow split(Consumer<Builder> consumer) {
-        Builder builder = split();
-        consumer.accept(builder);
-        return builder.build();
     }
     
     /**

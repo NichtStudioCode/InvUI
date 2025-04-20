@@ -4,7 +4,6 @@ import xyz.xenondevs.invui.gui.Gui;
 
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -17,21 +16,8 @@ public sealed interface StonecutterWindow extends Window permits StonecutterWind
      *
      * @return The new {@link Builder Window Builder}
      */
-    static Builder split() {
+    static Builder builder() {
         return new StonecutterWindowImpl.BuilderImpl();
-    }
-    
-    /**
-     * Creates a new split {@link StonecutterWindow} after configuring a
-     * {@link Builder Window Builder} using the given {@link Consumer}.
-     *
-     * @param consumer The consumer to configure the {@link Builder Window Builder}
-     * @return The created {@link StonecutterWindow}
-     */
-    static StonecutterWindow split(Consumer<Builder> consumer) {
-        Builder builder = split();
-        consumer.accept(builder);
-        return builder.build();
     }
     
     /**

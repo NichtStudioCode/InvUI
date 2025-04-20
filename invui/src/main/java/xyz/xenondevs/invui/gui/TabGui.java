@@ -9,7 +9,6 @@ import xyz.xenondevs.invui.state.Property;
 import java.util.List;
 import java.util.SequencedSet;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 /**
  * A {@link Gui} that displays multiple tabs, which themselves are {@link Gui Guis} as well.
@@ -21,20 +20,8 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
      *
      * @return The new {@link Builder Gui Builder}.
      */
-    static Builder normal() {
+    static Builder builder() {
         return new TabGuiImpl.Builder();
-    }
-    
-    /**
-     * Creates a new {@link TabGui} after configuring a {@link Builder Gui Builder} using the given {@link Consumer}.
-     *
-     * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
-     * @return The created {@link TabGui}.
-     */
-    static TabGui normal(Consumer<? super Builder> consumer) {
-        Builder builder = normal();
-        consumer.accept(builder);
-        return builder.build();
     }
     
     /**

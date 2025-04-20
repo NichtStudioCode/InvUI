@@ -54,7 +54,7 @@ public class PagedGuiTest {
         var content = IntStream.range(0, 100)
             .mapToObj(i -> Item.simple(ItemStack.of(Material.DIAMOND)))
             .toList();
-        var gui = PagedGui.items()
+        var gui = PagedGui.itemsBuilder()
             .setStructure(s1)
             .setContent(content)
             .build();
@@ -116,7 +116,7 @@ public class PagedGuiTest {
         
         var page = MutableProperty.of(0);
         
-        var gui = PagedGui.items()
+        var gui = PagedGui.itemsBuilder()
             .setPage(page)
             .setStructure(
                 ". . .",
@@ -144,7 +144,7 @@ public class PagedGuiTest {
     public void testContentProperty() {
         MutableProperty<List<Item>> content = MutableProperty.of(List.of());
         
-        var gui = PagedGui.items()
+        var gui = PagedGui.itemsBuilder()
             .setStructure("x")
             .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
             .setContent(content)

@@ -11,7 +11,6 @@ import xyz.xenondevs.invui.window.Window;
 import java.util.Collection;
 import java.util.List;
 import java.util.SequencedCollection;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -36,20 +35,8 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
      *
      * @return The new {@link Builder Gui Builder}.
      */
-    static Builder<?, ?> normal() {
+    static Builder<?, ?> builder() {
         return new NormalGuiImpl.Builder();
-    }
-    
-    /**
-     * Creates a new normal {@link Gui} after configuring a {@link Builder Gui Builder} with the given {@link Consumer}.
-     *
-     * @param consumer The {@link Consumer} to configure the {@link Builder Gui Builder}.
-     * @return The created {@link Gui}.
-     */
-    static Gui normal(Consumer<Builder<?, ?>> consumer) {
-        Builder<?, ?> builder = normal();
-        consumer.accept(builder);
-        return builder.build();
     }
     
     /**

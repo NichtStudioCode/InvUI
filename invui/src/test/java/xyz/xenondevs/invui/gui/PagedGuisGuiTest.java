@@ -30,7 +30,7 @@ public class PagedGuisGuiTest {
     @Test
     public void testPagedGuisInitWithBuilder() {
         testPagedGuisInit(content ->
-            PagedGui.guis()
+            PagedGui.guisBuilder()
                 .setStructure(
                     "x x x",
                     "x x x",
