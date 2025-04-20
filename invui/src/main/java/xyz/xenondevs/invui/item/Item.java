@@ -9,6 +9,7 @@ import xyz.xenondevs.invui.internal.util.ArrayUtils;
 import xyz.xenondevs.invui.util.TriConsumer;
 import xyz.xenondevs.invui.window.Window;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
@@ -93,7 +94,7 @@ public sealed interface Item permits AbstractItem, BoundItem {
      * @param itemProvider The function that resolves the {@link ItemProvider}, receiving the viewing {@link Player}.
      * @return A simple {@link Item}.
      */
-    static Item simple(Function<Player, ItemProvider> itemProvider) {
+    static Item simple(Function<? super Player, ? extends ItemProvider> itemProvider) {
         return builder().setItemProvider(itemProvider).build();
     }
     
@@ -119,7 +120,7 @@ public sealed interface Item permits AbstractItem, BoundItem {
          * @param itemProvider The function that resolves the {@link ItemProvider}.
          * @return This builder.
          */
-        S setItemProvider(Function<Player, ItemProvider> itemProvider);
+        S setItemProvider(Function<? super Player, ? extends ItemProvider> itemProvider);
         
         /**
          * Configures the {@link Item} to automatically cycle through a given array of {@link ItemProvider ItemProviders}.
@@ -129,7 +130,7 @@ public sealed interface Item permits AbstractItem, BoundItem {
          * @param itemProviders The rest of the {@link ItemProvider ItemProviders}.
          * @return This builder.
          */
-        default S setCyclingItemProvider(int period, ItemProvider itemProvider, ItemProvider... itemProviders) {
+        default S setCyclingItemProvider(long period, ItemProvider itemProvider, ItemProvider... itemProviders) {
             return setCyclingItemProvider(period, List.of(ArrayUtils.concat(ItemProvider[]::new, itemProvider, itemProviders)));
         }
         
@@ -140,7 +141,7 @@ public sealed interface Item permits AbstractItem, BoundItem {
          * @param itemProviders The {@link ItemProvider ItemProviders}.
          * @return This builder.
          */
-        S setCyclingItemProvider(int period, List<? extends ItemProvider> itemProviders);
+        S setCyclingItemProvider(long period, List<? extends ItemProvider> itemProviders);
         
         /**
          * Configures the resulting {@link Item} to resolve the {@link ItemProvider} asynchronously.
@@ -153,7 +154,7 @@ public sealed interface Item permits AbstractItem, BoundItem {
          * @param itemProviderSupplier The supplier that resolves the {@link ItemProvider}.
          * @return This builder.
          */
-        S async(ItemProvider placeholder, Supplier<ItemProvider> itemProviderSupplier);
+        S async(ItemProvider placeholder, Supplier<? extends ItemProvider> itemProviderSupplier);
         
         /**
          * Configures the resulting {@link Item} to display a placeholder {@link ItemProvider} until
@@ -165,7 +166,7 @@ public sealed interface Item permits AbstractItem, BoundItem {
          * @param itemProviderFuture The future that resolves the {@link ItemProvider}.
          * @return This builder.
          */
-        S async(ItemProvider placeholder, CompletableFuture<ItemProvider> itemProviderFuture);
+        S async(ItemProvider placeholder, CompletableFuture<? extends ItemProvider> itemProviderFuture);
         
         /**
          * Configures the resulting to automatically call {@link #notifyWindows()} every period ticks, while it is
@@ -189,7 +190,7 @@ public sealed interface Item permits AbstractItem, BoundItem {
          * @param clickHandler The click handler, receiving the {@link Item} itself and the {@link Click}.
          * @return This builder.
          */
-        S addClickHandler(BiConsumer<Item, Click> clickHandler);
+        S addClickHandler(BiConsumer<? super Item, ? super Click> clickHandler);
         
         /**
          * Adds a handler that is called when the {@link ItemProvider} has bundle contents and the {@link Player}
@@ -199,7 +200,7 @@ public sealed interface Item permits AbstractItem, BoundItem {
          *                      and the selected bundle slot or -1 if the player's cursor left the {@link ItemProvider}.
          * @return This builder.
          */
-        S addBundleSelectHandler(TriConsumer<Item, Player, Integer> selectHandler);
+        S addBundleSelectHandler(TriConsumer<? super Item, ? super Player, ? super Integer> selectHandler);
         
         /**
          * Adds a modifier that is run on the {@link Item} when it is being built.
@@ -207,7 +208,7 @@ public sealed interface Item permits AbstractItem, BoundItem {
          * @param modifier The modifier.
          * @return This builder.
          */
-        S addModifier(Consumer<Item> modifier);
+        S addModifier(Consumer<? super Item> modifier);
         
         /**
          * Builds the {@link Item}.

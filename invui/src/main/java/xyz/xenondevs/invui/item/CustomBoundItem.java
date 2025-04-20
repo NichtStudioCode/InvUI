@@ -22,18 +22,18 @@ import java.util.function.*;
 
 class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
     
-    private final TriConsumer<Item, G, Click> clickHandler;
-    private final QuadConsumer<Item, G, Player, Integer> selectHandler;
-    private volatile BiFunction<Player, G, ItemProvider> itemProvider;
-    private final BiConsumer<Item, G> bindHandler;
+    private final TriConsumer<? super Item, ? super G, ? super Click> clickHandler;
+    private final QuadConsumer<? super Item, ? super G, ? super Player, ? super Integer> selectHandler;
+    private volatile BiFunction<? super Player, ? super G, ? extends ItemProvider> itemProvider;
+    private final BiConsumer<? super Item, ? super G> bindHandler;
     private final long updatePeriod;
     private @Nullable BukkitTask updateTask;
     
     public CustomBoundItem(
-        BiConsumer<Item, G> bindHandler,
-        TriConsumer<Item, G, Click> clickHandler,
-        QuadConsumer<Item, G, Player, Integer> selectHandler,
-        BiFunction<Player, G, ItemProvider> itemProvider,
+        BiConsumer<? super Item, ? super G> bindHandler,
+        TriConsumer<? super Item, ? super G, ? super Click> clickHandler,
+        QuadConsumer<? super Item, ? super G, ? super Player, ? super Integer> selectHandler,
+        BiFunction<? super Player, ? super G, ? extends ItemProvider> itemProvider,
         long updatePeriod
     ) {
         this.bindHandler = bindHandler;
@@ -98,10 +98,10 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         protected BiConsumer<Item, G> bindHandler = (item, gui) -> {};
         private TriConsumer<Item, G, Click> clickHandler = (item, gui, click) -> {};
         private QuadConsumer<Item, G, Player, Integer> selectHandler = (item, gui, player, slot) -> {};
-        private @Nullable BiFunction<Player, G, ItemProvider> itemProviderFn;
+        private @Nullable BiFunction<? super Player, ? super G, ? extends ItemProvider> itemProviderFn;
         private @Nullable ItemProvider asyncPlaceholder;
-        private @Nullable Supplier<ItemProvider> asyncSupplier;
-        private @Nullable CompletableFuture<ItemProvider> asyncFuture;
+        private @Nullable Supplier<? extends ItemProvider> asyncSupplier;
+        private @Nullable CompletableFuture<? extends ItemProvider> asyncFuture;
         private Consumer<Item> modifier = item -> {};
         private boolean updateOnClick;
         private long updatePeriod = -1L;
@@ -113,26 +113,26 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         }
         
         @Override
-        public Builder<G> setItemProvider(Function<Player, ItemProvider> itemProvider) {
+        public Builder<G> setItemProvider(Function<? super Player, ? extends ItemProvider> itemProvider) {
             this.itemProviderFn = (viewer, gui) -> itemProvider.apply(viewer);
             return this;
         }
         
         @Override
-        public Builder<G> setItemProvider(BiFunction<Player, G, ItemProvider> itemProvider) {
+        public Builder<G> setItemProvider(BiFunction<? super Player, ? super G, ? extends ItemProvider> itemProvider) {
             this.itemProviderFn = itemProvider;
             return this;
         }
         
         @Override
-        public BoundItem.Builder<G> setCyclingItemProvider(int period, List<? extends ItemProvider> itemProviders) {
+        public BoundItem.Builder<G> setCyclingItemProvider(long period, List<? extends ItemProvider> itemProviders) {
             if (itemProviders.isEmpty())
                 throw new IllegalArgumentException("itemProviders must not be empty");
             
             if (itemProviders.size() > 1) {
                 updatePeriodically(period);
                 this.itemProviderFn = (viewer, gui) -> {
-                    int i = (Bukkit.getCurrentTick() / period) % itemProviders.size();
+                    int i = (int)(Bukkit.getCurrentTick() / period) % itemProviders.size();
                     return itemProviders.get(i);
                 };
             } else {
@@ -142,14 +142,14 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         }
         
         @Override
-        public BoundItem.Builder<G> async(ItemProvider placeholder, Supplier<ItemProvider> itemProviderSupplier) {
+        public BoundItem.Builder<G> async(ItemProvider placeholder, Supplier<? extends ItemProvider> itemProviderSupplier) {
             this.asyncPlaceholder = placeholder;
             this.asyncSupplier = itemProviderSupplier;
             return this;
         }
         
         @Override
-        public BoundItem.Builder<G> async(ItemProvider placeholder, CompletableFuture<ItemProvider> itemProviderFuture) {
+        public BoundItem.Builder<G> async(ItemProvider placeholder, CompletableFuture<? extends ItemProvider> itemProviderFuture) {
             this.asyncPlaceholder = placeholder;
             this.asyncFuture = itemProviderFuture;
             return this;
@@ -168,37 +168,37 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         }
         
         @Override
-        public Builder<G> addClickHandler(BiConsumer<Item, Click> clickHandler) {
+        public Builder<G> addClickHandler(BiConsumer<? super Item, ? super Click> clickHandler) {
             this.clickHandler.andThen((item, gui, click) -> clickHandler.accept(item, click));
             return this;
         }
         
         @Override
-        public Builder<G> addClickHandler(TriConsumer<Item, G, Click> handler) {
+        public Builder<G> addClickHandler(TriConsumer<? super Item, ? super G, ? super Click> handler) {
             clickHandler = clickHandler.andThen(handler);
             return this;
         }
         
         @Override
-        public Builder<G> addBundleSelectHandler(QuadConsumer<Item, G, Player, Integer> handler) {
+        public Builder<G> addBundleSelectHandler(QuadConsumer<? super Item, ? super G, ? super Player, ? super Integer> handler) {
             selectHandler = selectHandler.andThen(handler);
             return this;
         }
         
         @Override
-        public Builder<G> addBundleSelectHandler(TriConsumer<Item, Player, Integer> selectHandler) {
+        public Builder<G> addBundleSelectHandler(TriConsumer<? super Item, ? super Player, ? super Integer> selectHandler) {
             this.selectHandler = this.selectHandler.andThen((item, gui, player, slot) -> selectHandler.accept(item, player, slot));
             return this;
         }
         
         @Override
-        public Builder<G> addBindHandler(BiConsumer<Item, G> handler) {
+        public Builder<G> addBindHandler(BiConsumer<? super Item, ? super G> handler) {
             bindHandler = bindHandler.andThen(handler);
             return this;
         }
         
         @Override
-        public Builder<G> addModifier(Consumer<Item> modifier) {
+        public Builder<G> addModifier(Consumer<? super Item> modifier) {
             this.modifier = this.modifier.andThen(modifier);
             return this;
         }

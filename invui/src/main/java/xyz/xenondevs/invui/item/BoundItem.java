@@ -93,7 +93,7 @@ public sealed interface BoundItem extends Item permits AbstractBoundItem {
          * @param handler The bind handler.
          * @return This builder.
          */
-        Builder<G> addBindHandler(BiConsumer<Item, G> handler);
+        Builder<G> addBindHandler(BiConsumer<? super Item, ? super G> handler);
         
         /**
          * Adds a click handler that is called when the item is clicked.
@@ -101,7 +101,7 @@ public sealed interface BoundItem extends Item permits AbstractBoundItem {
          * @param handler The click handler, receiving the {@link Item} itself, the bound {@link Gui} and the {@link Click}.
          * @return This builder.
          */
-        Builder<G> addClickHandler(TriConsumer<Item, G, Click> handler);
+        Builder<G> addClickHandler(TriConsumer<? super Item, ? super G, ? super Click> handler);
         
         /**
          * Adds a handler that is called when the {@link ItemProvider} has bundle contents and the {@link Player}
@@ -112,7 +112,7 @@ public sealed interface BoundItem extends Item permits AbstractBoundItem {
          *                {@link ItemProvider}.
          * @return This builder.
          */
-        Builder<G> addBundleSelectHandler(QuadConsumer<Item, G, Player, Integer> handler);
+        Builder<G> addBundleSelectHandler(QuadConsumer<? super Item, ? super G, ? super Player, ? super Integer> handler);
         
         /**
          * Sets the item provider that provides the item for a specific player and {@link Gui}.
@@ -120,7 +120,7 @@ public sealed interface BoundItem extends Item permits AbstractBoundItem {
          * @param itemProvider The item provider.
          * @return This builder.
          */
-        Builder<G> setItemProvider(BiFunction<Player, G, ItemProvider> itemProvider);
+        Builder<G> setItemProvider(BiFunction<? super Player, ? super G, ? extends ItemProvider> itemProvider);
         
     }
     

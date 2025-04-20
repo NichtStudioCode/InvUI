@@ -27,7 +27,7 @@ public interface QuadConsumer<A, B, C, D> {
      * @param after The operation to perform after this operation
      * @return A composed {@code QuadConsumer} that performs in sequence this operation followed by the {@code after} operation
      */
-    default QuadConsumer<A, B, C, D> andThen(QuadConsumer<A, B, C, D> after) {
+    default QuadConsumer<A, B, C, D> andThen(QuadConsumer<? super A, ? super B, ? super C, ? super D> after) {
         return (a, b, c, d) -> {
             accept(a, b, c, d);
             after.accept(a, b, c, d);
