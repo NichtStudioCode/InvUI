@@ -2,6 +2,7 @@ package xyz.xenondevs.invui.state;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 @ApiStatus.Experimental
@@ -13,9 +14,11 @@ public interface Property<T> extends Supplier<T> {
     
     T get();
     
-    void observe(Runnable observer);
+    <O> void observeWeak(O owner, Consumer<? super O> observer);
     
-    void unobserve(Runnable observer);
+    <O> void unobserveWeak(O owner, Consumer<? super O> observer);
+    
+    void unobserveWeak(Object owner);
     
 }
 
@@ -33,12 +36,17 @@ class PropertyImpl<T> implements Property<T> {
     }
     
     @Override
-    public void observe(Runnable observer) {
+    public <O> void observeWeak(O owner, Consumer<? super O> observer) {
         // empty
     }
     
     @Override
-    public void unobserve(Runnable observer) {
+    public <O> void unobserveWeak(O owner, Consumer<? super O> observer) {
+        // empty
+    }
+    
+    @Override
+    public void unobserveWeak(Object owner) {
         // empty
     }
     

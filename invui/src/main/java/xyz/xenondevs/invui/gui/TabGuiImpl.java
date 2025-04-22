@@ -17,8 +17,6 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     
     private int[] contentListSlots;
     
-    private final Runnable bakeFn = this::bake;
-    
     private final MutableProperty<Integer> tab;
     private Property<? extends List<? extends @Nullable Gui>> tabs;
     private final List<BiConsumer<? super Integer, ? super Integer>> tabChangeHandlers = new ArrayList<>(0);
@@ -33,9 +31,9 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
         if (contentListSlots.isEmpty())
             throw new IllegalArgumentException("Content list slots must not be empty");
         this.tab = MutableProperty.of(0);
-        tab.observe(this::update);
+        tab.observeWeak(this, TabGuiImpl::update);
         this.tabs = tabs;
-        tabs.observe(bakeFn);
+        tabs.observeWeak(this, TabGuiImpl::bake);
         this.contentListSlots = SlotUtils.toSlotIndices(contentListSlots, getWidth());
         bake();
     }
@@ -47,9 +45,9 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     ) {
         super(structure.getWidth(), structure.getHeight());
         this.tab = tab;
-        tab.observe(this::update);
+        tab.observeWeak(this, TabGuiImpl::update);
         this.tabs = tabs;
-        tabs.observe(bakeFn);
+        tabs.observeWeak(this, TabGuiImpl::bake);
         super.applyStructure(structure); // super call to avoid bake() through applyStructure override
         this.contentListSlots = structure.getIngredientMatrix().findContentListSlots();
         bake();
@@ -117,7 +115,7 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     
     @Override
     public void setTabs(List<? extends @Nullable Gui> tabs) {
-        this.tabs.unobserve(bakeFn);
+        this.tabs.unobserveWeak(this);
         this.tabs = Property.of(tabs);
         bake();
     }

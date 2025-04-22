@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.SequencedSet;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 sealed abstract class AbstractPagedGui<C>
     extends AbstractGui
@@ -21,9 +22,7 @@ sealed abstract class AbstractPagedGui<C>
     
     protected int[] contentListSlots;
     
-    private final Runnable bakeFn = this::bake;
-    
-    private MutableProperty<Integer> page;
+    private final MutableProperty<Integer> page;
     private Property<? extends List<? extends C>> content;
     private final List<BiConsumer<? super Integer, ? super Integer>> pageChangeHandlers = new ArrayList<>(0);
     private final List<BiConsumer<? super Integer, ? super Integer>> pageCountChangeHandlers = new ArrayList<>(0);
@@ -36,9 +35,9 @@ sealed abstract class AbstractPagedGui<C>
     ) {
         super(width, height);
         this.page = MutableProperty.of(0);
-        page.observe(this::update);
+        page.observeWeak(this, AbstractPagedGui::update);
         this.content = content;
-        content.observe(bakeFn);
+        content.observeWeak(this, AbstractPagedGui::bake);
         this.contentListSlots = SlotUtils.toSlotIndices(contentListSlots, getWidth());
     }
     
@@ -49,9 +48,9 @@ sealed abstract class AbstractPagedGui<C>
     ) {
         super(structure.getWidth(), structure.getHeight());
         this.page = page;
-        page.observe(this::update);
+        page.observeWeak(this, AbstractPagedGui::update);
         this.content = content;
-        content.observe(bakeFn);
+        content.observeWeak(this, AbstractPagedGui::bake);
         this.contentListSlots = structure.getIngredientMatrix().findContentListSlots();
         super.applyStructure(structure); // super call to avoid bake() through applyStructure override
     }
@@ -116,7 +115,7 @@ sealed abstract class AbstractPagedGui<C>
     
     @Override
     public void setContent(List<? extends C> content) {
-        this.content.unobserve(bakeFn);
+        this.content.unobserveWeak(this);
         this.content = Property.of(content);
         bake();
     }

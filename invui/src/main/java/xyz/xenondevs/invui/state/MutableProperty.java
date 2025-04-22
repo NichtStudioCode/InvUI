@@ -2,8 +2,7 @@ package xyz.xenondevs.invui.state;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 @ApiStatus.Experimental
@@ -24,7 +23,7 @@ public interface MutableProperty<T> extends Property<T>, Consumer<T> {
 
 class MutablePropertyImpl<T> implements MutableProperty<T> {
     
-    private final Set<Runnable> observers = new HashSet<>();
+    private final Map<Object, List<Consumer<Object>>> weakObservers = new WeakHashMap<>();
     private T value;
     
     public MutablePropertyImpl(T value) {
@@ -34,7 +33,7 @@ class MutablePropertyImpl<T> implements MutableProperty<T> {
     @Override
     public void set(T value) {
         this.value = value;
-        observers.forEach(Runnable::run);
+        weakObservers.forEach((owner, observers) -> observers.forEach(observer -> observer.accept(owner)));
     }
     
     @Override
@@ -42,14 +41,27 @@ class MutablePropertyImpl<T> implements MutableProperty<T> {
         return value;
     }
     
+    @SuppressWarnings("unchecked")
     @Override
-    public void observe(Runnable observer) {
-        observers.add(observer);
+    public <O> void observeWeak(O owner, Consumer<? super O> observer) {
+        weakObservers.computeIfAbsent(owner, k -> new ArrayList<>())
+            .add((Consumer<Object>)observer);
     }
     
     @Override
-    public void unobserve(Runnable observer) {
-        observers.remove(observer);
+    public <O> void unobserveWeak(O owner, Consumer<? super O> observer) {
+        List<Consumer<Object>> observers = weakObservers.get(owner);
+        if (observers != null) {
+            observers.remove(observer);
+            if (observers.isEmpty()) {
+                weakObservers.remove(owner);
+            }
+        }
+    }
+    
+    @Override
+    public void unobserveWeak(Object owner) {
+        weakObservers.remove(owner);
     }
     
 }

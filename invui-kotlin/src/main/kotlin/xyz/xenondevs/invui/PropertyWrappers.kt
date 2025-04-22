@@ -4,6 +4,7 @@ import xyz.xenondevs.commons.provider.MutableProvider
 import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.invui.state.MutableProperty
 import xyz.xenondevs.invui.state.Property
+import java.util.function.Consumer
 
 internal class PropertyAdapter<T : Any>(private val provider: Provider<T>) : Property<T> {
     
@@ -11,14 +12,17 @@ internal class PropertyAdapter<T : Any>(private val provider: Provider<T>) : Pro
         return provider.get()
     }
     
-    override fun observe(observer: Runnable) {
-        provider.observe(observer::run)
+    override fun <O : Any> observeWeak(owner: O, observer: Consumer<in O>) {
+        provider.observeWeak(owner, observer::accept)
     }
     
-    override fun unobserve(observer: Runnable) {
-        provider.unobserve(observer::run)
+    override fun <O : Any> unobserveWeak(owner: O, observer: Consumer<in O>) {
+        provider.unobserveWeak(owner, observer::accept)
     }
     
+    override fun unobserveWeak(owner: Any) {
+        provider.unobserveWeak(owner)
+    }
     
 }
 
@@ -32,12 +36,16 @@ internal class MutablePropertyAdapter<T : Any>(private val provider: MutableProv
         provider.set(value)
     }
     
-    override fun observe(observer: Runnable) {
-        provider.observe(observer::run)
+    override fun <O : Any> observeWeak(owner: O, observer: Consumer<in O>) {
+        provider.observeWeak(owner, observer::accept)
     }
     
-    override fun unobserve(observer: Runnable) {
-        provider.unobserve(observer::run)
+    override fun <O : Any> unobserveWeak(owner: O, observer: Consumer<in O>) {
+        provider.unobserveWeak(owner, observer::accept)
+    }
+    
+    override fun unobserveWeak(owner: Any) {
+        provider.unobserveWeak(owner)
     }
     
 }

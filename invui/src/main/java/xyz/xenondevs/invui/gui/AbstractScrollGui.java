@@ -23,8 +23,6 @@ sealed abstract class AbstractScrollGui<C>
     private int lineLength;
     private int[] contentListSlots = new int[0];
     
-    private final Runnable bakeFn = this::bake;
-    
     private final MutableProperty<Integer> line;
     private Property<? extends List<? extends C>> content;
     private final List<BiConsumer<? super Integer, ? super Integer>> scrollHandlers = new ArrayList<>(0);
@@ -39,9 +37,9 @@ sealed abstract class AbstractScrollGui<C>
     ) {
         super(width, height);
         this.line = MutableProperty.of(0);
-        line.observe(this::update);
+        line.observeWeak(this, AbstractScrollGui::update);
         this.content = content;
-        content.observe(bakeFn);
+        content.observeWeak(this, AbstractScrollGui::bake);
         setContentListSlots(SlotUtils.toSlotIndicesSet(contentListSlots, getWidth()), horizontalLines);
     }
     
@@ -52,9 +50,9 @@ sealed abstract class AbstractScrollGui<C>
     ) {
         super(structure.getWidth(), structure.getHeight());
         this.line = line;
-        line.observe(this::update);
+        line.observeWeak(this, AbstractScrollGui::update);
         this.content = content;
-        content.observe(bakeFn);
+        content.observeWeak(this, AbstractScrollGui::bake);
         super.applyStructure(structure); // super call to avoid bake() through applyStructure override
         setContentListSlotsFromStructure(structure);
     }
@@ -158,7 +156,7 @@ sealed abstract class AbstractScrollGui<C>
     
     @Override
     public void setContent(List<? extends C> content) {
-        this.content.unobserve(bakeFn);
+        this.content.unobserveWeak(this);
         this.content = Property.of(content);
         bake();
     }
