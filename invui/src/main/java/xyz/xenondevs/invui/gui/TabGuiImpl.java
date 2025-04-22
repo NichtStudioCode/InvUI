@@ -240,7 +240,7 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
                 throw new IllegalStateException("Structure is not defined.");
             
             var gui = new TabGuiImpl(structure, tab, tabs);
-            gui.setTabChangeHandlers(tabChangeHandlers);
+            tabChangeHandlers.forEach(gui::addTabChangeHandler);
             applyModifiers(gui);
             
             return gui;
