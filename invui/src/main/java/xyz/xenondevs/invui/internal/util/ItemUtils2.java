@@ -1,6 +1,7 @@
 package xyz.xenondevs.invui.internal.util;
 
 import io.papermc.paper.datacomponent.DataComponentTypes;
+import net.kyori.adventure.key.Key;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.component.BundleContents;
 import org.bukkit.Material;
@@ -19,9 +20,9 @@ import static io.papermc.paper.datacomponent.item.BundleContents.bundleContents;
 @SuppressWarnings("UnstableApiUsage")
 public class ItemUtils2 {
     
-    private static final ItemStack NON_EMPTY_PLACEHOLDER = new ItemBuilder(Material.BARRIER)
-        .setName("<red>InvUI Placeholder Item</red>")
-        .addLoreLines("<red>Empty slots are not supported at this position</red>")
+    private static final ItemStack NON_EMPTY_PLACEHOLDER = new ItemBuilder(Material.STONE)
+        .hideTooltip(true)
+        .set(DataComponentTypes.ITEM_MODEL, Key.key("air"))
         .build();
     
     /**
