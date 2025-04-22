@@ -12,6 +12,7 @@ import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomStonecutterMenu;
 import xyz.xenondevs.invui.internal.util.ItemUtils2;
+import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,6 +39,7 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
     private final @Nullable ItemStack[] buttons;
     private boolean buttonsDirty = false;
     private final List<BiConsumer<? super Integer, ? super Integer>> selectedSlotChangeHandlers;
+    private final MutableProperty<Integer> selectedSlot;
     
     public StonecutterWindowImpl(
         Player player,
@@ -45,6 +47,7 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
         AbstractGui upperGui,
         AbstractGui lowerGui,
         AbstractGui buttonsGui,
+        MutableProperty<Integer> selectedSlot,
         List<BiConsumer<? super Integer, ? super Integer>> selectedSlotChangeHandlers,
         boolean closable
     ) {
@@ -60,11 +63,16 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
         this.lowerGui = lowerGui;
         this.buttonsGui = buttonsGui;
         this.buttons = new ItemStack[buttonsGui.getSize()];
+        this.selectedSlot = selectedSlot;
         this.selectedSlotChangeHandlers = new ArrayList<>(selectedSlotChangeHandlers);
-        menu.setClickHandler(this::selectSlot);
+        
+        selectedSlot.observeWeak(this, thisRef -> thisRef.menu.setSelectedSlot(selectedSlot.get()));
+        menu.setSelectedSlot(selectedSlot.get());
+        menu.setClickHandler(this::playerSelectSlot);
     }
     
-    private void selectSlot(int prev, int slot) {
+    private void playerSelectSlot(int prev, int slot) {
+        selectedSlot.set(slot);
         for (var handler : selectedSlotChangeHandlers) {
             handler.accept(prev, slot);
         }
@@ -92,6 +100,7 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
     @Override
     public void setSelectedSlot(int i) {
         menu.setSelectedSlot(i);
+        selectedSlot.set(i);
     }
     
     @Override
@@ -136,6 +145,7 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
         private Supplier<? extends Gui> upperGuiSupplier = () -> Gui.empty(2, 1);
         private Supplier<? extends Gui> butonsGuiSupplier = () -> Gui.empty(0, 0);
         private List<BiConsumer<? super Integer, ? super Integer>> selectedSlotChangeHandlers = new ArrayList<>();
+        private MutableProperty<Integer> selectedSlot = MutableProperty.of(-1);
         
         @Override
         public StonecutterWindow.Builder setUpperGui(Supplier<? extends Gui> guiSupplier) {
@@ -162,16 +172,25 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
         }
         
         @Override
+        public BuilderImpl setSelectedSlot(MutableProperty<Integer> slot) {
+            this.selectedSlot = slot;
+            return this;
+        }
+        
+        @Override
         public StonecutterWindowImpl build(Player viewer) {
-            return new StonecutterWindowImpl(
+            var window = new StonecutterWindowImpl(
                 viewer,
                 titleSupplier,
                 (AbstractGui) upperGuiSupplier.get(),
                 supplyLowerGui(viewer),
                 (AbstractGui) butonsGuiSupplier.get(),
+                selectedSlot,
                 selectedSlotChangeHandlers,
                 closeable
             );
+            applyModifiers(window);
+            return window;
         }
         
     }

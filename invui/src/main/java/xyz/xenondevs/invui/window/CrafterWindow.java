@@ -4,6 +4,7 @@ import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.Slot;
+import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -188,6 +189,51 @@ public sealed interface CrafterWindow extends Window permits CrafterWindowImpl {
          * @param handler The slot toggle handler, receiving the slot and the new state
          */
         Builder addSlotToggleHandler(BiConsumer<? super Integer, ? super Boolean> handler);
+        
+        /**
+         * Sets the property that contains the disabled state of the slot at the given index.
+         *
+         * @param slot  The slot index
+         * @param state The property that contains the disabled state of the slot
+         * @return This {@link Builder}
+         * @throws IllegalArgumentException If the slot index is out of bounds (0-8)
+         */
+        Builder setSlot(int slot, MutableProperty<Boolean> state);
+        
+        /**
+         * Sets the property that contains the disabled state of the slot at the given coordinates.
+         *
+         * @param x     The x coordinate of the slot
+         * @param y     The y coordinate of the slot
+         * @param state The property that contains the disabled state of the slot
+         * @return This {@link Builder}
+         * @throws IllegalArgumentException If the slot coordinates are out of bounds (0-2, 0-2)
+         */
+        default Builder setSlot(int x, int y, MutableProperty<Boolean> state) {
+            return setSlot(x + y * 3, state);
+        }
+        
+        /**
+         * Sets the property that contains the disabled state of the slot at the given coordinates.
+         *
+         * @param slot  The slot
+         * @param state The property that contains the disabled state of the slot
+         * @return This {@link Builder}
+         * @throws IllegalArgumentException If the slot coordinates are out of bounds (0-2, 0-2)
+         */
+        default Builder setSlot(Slot slot, MutableProperty<Boolean> state) {
+            return setSlot(slot.x(), slot.y(), state);
+        }
+        
+        /**
+         * Sets the slot properties that contain the disabled state of the slots, ordered by their slot index.
+         * The given list must contain exactly 9 properties.
+         *
+         * @param slots The slot properties that contain the disabled state of the slots
+         * @return This {@link Builder}
+         * @throws IllegalArgumentException If the list does not contain exactly 9 properties
+         */
+        Builder setSlots(List<? extends MutableProperty<Boolean>> slots);
         
     }
     

@@ -20,7 +20,7 @@ import static io.papermc.paper.datacomponent.item.BundleContents.bundleContents;
 @SuppressWarnings("UnstableApiUsage")
 public class ItemUtils2 {
     
-    private static final ItemStack NON_EMPTY_PLACEHOLDER = new ItemBuilder(Material.STONE)
+    private static final ItemStack NON_EMPTY_PLACEHOLDER = new ItemBuilder(Material.BARRIER)
         .hideTooltip(true)
         .set(DataComponentTypes.ITEM_MODEL, Key.key("air"))
         .build();

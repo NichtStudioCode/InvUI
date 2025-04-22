@@ -80,7 +80,7 @@ public class CustomCrafterMenu extends CustomContainerMenu {
         dataSlots[slot] = value;
         
         if (slotStateChangeHandler != null)
-            slotStateChangeHandler.accept(slot, packet.newState());
+            slotStateChangeHandler.accept(slot, !packet.newState());
     }
     
 }

@@ -12,6 +12,7 @@ import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomMerchantMenu;
 import xyz.xenondevs.invui.item.AbstractItem;
 import xyz.xenondevs.invui.item.Item;
+import xyz.xenondevs.invui.state.Property;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -19,26 +20,26 @@ import java.util.function.Supplier;
 
 final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> implements MerchantWindow {
     
-    private static final int TRADE_MAGIC_SLOT = 100;
+    private static final int TRADE_MAGIC_SLOT = 100; // magic slot number that, when notified, updates trades
     
     private final AbstractGui upperGui;
     private final AbstractGui lowerGui;
-    private final List<TradeImpl> trades = new ArrayList<>();
+    private final List<TradeImpl> lastKnownTrades = new ArrayList<>();
     
-    private Supplier<? extends List<? extends Trade>> tradesSupplier;
-    private Supplier<? extends Integer> levelSupplier;
-    private Supplier<? extends Double> progressSupplier;
-    private Supplier<? extends Boolean> restockMessageSupplier;
+    private Property<? extends List<? extends Trade>> trades;
+    private Property<? extends Integer> level;
+    private Property<? extends Double> progress;
+    private Property<? extends Boolean> restockMessage;
     
     MerchantWindowImpl(
         Player player,
         Supplier<? extends Component> title,
         AbstractGui upperGui,
         AbstractGui lowerGui,
-        Supplier<? extends List<? extends Trade>> tradesSupplier,
-        Supplier<? extends Integer> levelSupplier,
-        Supplier<? extends Double> progressSupplier,
-        Supplier<? extends Boolean> restockMessageSupplier,
+        Property<? extends List<? extends Trade>> trades,
+        Property<? extends Integer> level,
+        Property<? extends Double> progress,
+        Property<? extends Boolean> restockMessage,
         boolean closeable
     ) {
         super(player, title, lowerGui, 3 + 36, new CustomMerchantMenu(player), closeable);
@@ -47,100 +48,110 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
         
         this.upperGui = upperGui;
         this.lowerGui = lowerGui;
-        this.tradesSupplier = tradesSupplier;
-        this.levelSupplier = levelSupplier;
-        this.progressSupplier = progressSupplier;
-        this.restockMessageSupplier = restockMessageSupplier;
+        this.trades = trades;
+        this.level = level;
+        this.progress = progress;
+        this.restockMessage = restockMessage;
+        
+        trades.observeWeak(this, MerchantWindowImpl::updateTrades);
+        this.level.observeWeak(this, MerchantWindowImpl::updateTrades);
+        progress.observeWeak(this, MerchantWindowImpl::updateTrades);
+        restockMessage.observeWeak(this, MerchantWindowImpl::updateTrades);
         
         menu.setTradeSelectHandler(this::handleTradeSelect);
         updateTrades();
     }
     
     private void handleTradeSelect(int tradeIndex) {
-        if (tradeIndex < 0 || tradeIndex >= trades.size())
+        if (tradeIndex < 0 || tradeIndex >= lastKnownTrades.size())
             return;
-        trades.get(tradeIndex).handleClick(getViewer());
+        lastKnownTrades.get(tradeIndex).handleClick(getViewer());
     }
     
     @Override
-    public void setLevelSupplier(Supplier<? extends Integer> levelSupplier) {
-        this.levelSupplier = levelSupplier;
-        notifyUpdate(TRADE_MAGIC_SLOT);
+    public void setLevel(int level) {
+        this.level.unobserveWeak(this);
+        this.level = Property.of(level);
+        updateTrades();
     }
     
     @Override
-    public void setProgressSupplier(Supplier<? extends Double> progressSupplier) {
-        this.progressSupplier = progressSupplier;
-        notifyUpdate(TRADE_MAGIC_SLOT);
+    public void setProgress(double progress) {
+        this.progress.unobserveWeak(this);
+        this.progress = Property.of(progress);
+        updateTrades();
     }
     
     @Override
-    public void setRestockMessageEnabledSupplier(Supplier<? extends Boolean> restockMessageEnabledSupplier) {
-        this.restockMessageSupplier = restockMessageEnabledSupplier;
-        notifyUpdate(TRADE_MAGIC_SLOT);
+    public void setRestockMessageEnabled(boolean enabled) {
+        this.restockMessage.unobserveWeak(this);
+        this.restockMessage = Property.of(enabled);
+        updateTrades();
     }
     
     @Override
-    public void setTradesSupplier(Supplier<? extends List<? extends Trade>> tradesSupplier) {
-        this.tradesSupplier = tradesSupplier;
+    public void setTrades(List<? extends Trade> trades) {
+        this.trades.unobserveWeak(this);
+        this.trades = Property.of(trades);
         updateTrades();
     }
     
     @Override
     public @UnmodifiableView List<Trade> getTrades() {
-        return Collections.unmodifiableList(trades);
+        return Collections.unmodifiableList(lastKnownTrades);
     }
     
     @Override
     public int getLevel() {
-        return levelSupplier.get();
+        return level.get();
     }
     
     @Override
     public double getProgress() {
-        return progressSupplier.get();
+        return progress.get();
     }
     
     @Override
     public boolean isRestockMessageEnabled() {
-        return restockMessageSupplier.get();
+        return restockMessage.get();
     }
     
     @SuppressWarnings("unchecked")
-    @Override
-    public void updateTrades() {
-        this.trades.forEach(this::removeTradeViewer);
-        this.trades.clear();
-        this.trades.addAll((List<TradeImpl>) tradesSupplier.get());
-        this.trades.forEach(this::addTradeViewer);
+    private void updateTrades() {
+        this.lastKnownTrades.forEach(this::removeTradeViewer);
+        this.lastKnownTrades.clear();
+        this.lastKnownTrades.addAll((List<TradeImpl>) trades.get());
+        this.lastKnownTrades.forEach(this::addTradeViewer);
         
         notifyUpdate(TRADE_MAGIC_SLOT);
     }
     
     private void removeTradeViewer(TradeImpl trade) {
-        trade.removeViewer(this);
         if (trade.getFirstInput() != null)
             trade.getFirstInput().removeViewer(this, TRADE_MAGIC_SLOT);
         if (trade.getSecondInput() != null)
             trade.getSecondInput().removeViewer(this, TRADE_MAGIC_SLOT);
         if (trade.getOutput() != null)
             trade.getOutput().removeViewer(this, TRADE_MAGIC_SLOT);
+        trade.getDiscountProperty().unobserveWeak(this);
+        trade.getAvailableProperty().unobserveWeak(this);
     }
     
     private void addTradeViewer(TradeImpl trade) {
-        trade.addViewer(this);
         if (trade.getFirstInput() != null)
             trade.getFirstInput().addViewer(this, TRADE_MAGIC_SLOT);
         if (trade.getSecondInput() != null)
             trade.getSecondInput().addViewer(this, TRADE_MAGIC_SLOT);
         if (trade.getOutput() != null)
             trade.getOutput().addViewer(this, TRADE_MAGIC_SLOT);
+        trade.getDiscountProperty().observeWeak(this, MerchantWindowImpl::updateTrades);
+        trade.getAvailableProperty().observeWeak(this, MerchantWindowImpl::updateTrades);
     }
     
     @Override
     protected void registerAsViewer() {
         super.registerAsViewer();
-        this.trades.forEach(this::addTradeViewer);
+        this.lastKnownTrades.forEach(this::addTradeViewer);
         
         notifyUpdate(TRADE_MAGIC_SLOT);
     }
@@ -148,13 +159,13 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
     @Override
     protected void unregisterAsViewer() {
         super.unregisterAsViewer();
-        this.trades.forEach(this::removeTradeViewer);
+        this.lastKnownTrades.forEach(this::removeTradeViewer);
     }
     
     @Override
     protected void update(int slot) {
         if (slot == TRADE_MAGIC_SLOT) {
-            menu.sendTrades(trades, levelSupplier.get(), progressSupplier.get(), restockMessageSupplier.get());
+            menu.sendTrades(lastKnownTrades, level.get(), progress.get(), restockMessage.get());
         } else {
             super.update(slot);
         }
@@ -170,23 +181,21 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
         private final @Nullable AbstractItem firstInput;
         private final @Nullable AbstractItem secondInput;
         private final @Nullable AbstractItem output;
-        private final Supplier<? extends Integer> discountSupplier;
-        private final Supplier<? extends Boolean> availableSupplier;
-        
-        private final Set<MerchantWindowImpl> viewers = new HashSet<>();
+        private final Property<? extends Integer> discount;
+        private final Property<? extends Boolean> available;
         
         public TradeImpl(
             @Nullable AbstractItem firstInput,
             @Nullable AbstractItem secondInput,
             @Nullable AbstractItem output,
-            Supplier<? extends Integer> discountSupplier,
-            Supplier<? extends Boolean> availableSupplier
+            Property<? extends Integer> discount,
+            Property<? extends Boolean> available
         ) {
             this.firstInput = firstInput;
             this.secondInput = secondInput;
             this.output = output;
-            this.discountSupplier = discountSupplier;
-            this.availableSupplier = availableSupplier;
+            this.discount = discount;
+            this.available = available;
         }
         
         @Override
@@ -206,24 +215,20 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
         
         @Override
         public int getDiscount() {
-            return discountSupplier.get();
+            return discount.get();
         }
         
         @Override
         public boolean isAvailable() {
-            return availableSupplier.get();
+            return available.get();
         }
         
-        public void addViewer(MerchantWindowImpl viewer) {
-            synchronized (viewers) {
-                viewers.add(viewer);
-            }
+        public Property<? extends Integer> getDiscountProperty() {
+            return discount;
         }
         
-        public void removeViewer(MerchantWindowImpl viewer) {
-            synchronized (viewers) {
-                viewers.remove(viewer);
-            }
+        public Property<? extends Boolean> getAvailableProperty() {
+            return available;
         }
         
         public void handleClick(Player player) {
@@ -236,23 +241,14 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
                 output.handleClick(ClickType.LEFT, player, click);
         }
         
-        @Override
-        public void notifyWindows() {
-            synchronized (viewers) {
-                for (var viewer : viewers) {
-                    viewer.notifyUpdate(TRADE_MAGIC_SLOT);
-                }
-            }
-        }
-        
         final static class BuilderImpl implements MerchantWindow.Trade.Builder {
             
             private @Nullable AbstractItem firstInput;
             private @Nullable AbstractItem secondInput;
             private @Nullable AbstractItem output;
             
-            private Supplier<? extends Integer> discountSupplier = () -> 0;
-            private Supplier<? extends Boolean> availableSupplier = () -> true;
+            private Property<? extends Integer> discount = Property.of(0);
+            private Property<? extends Boolean> available = Property.of(true);
             private Consumer<Trade> modifier = trade -> {};
             
             @Override
@@ -274,26 +270,14 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
             }
             
             @Override
-            public Builder setDiscount(int discount) {
-                this.discountSupplier = () -> discount;
+            public Builder setDiscount(Property<? extends Integer> discount) {
+                this.discount = discount;
                 return this;
             }
             
             @Override
-            public Builder setDiscountSupplier(Supplier<? extends Integer> discountSupplier) {
-                this.discountSupplier = discountSupplier;
-                return this;
-            }
-            
-            @Override
-            public Trade.Builder setAvailable(boolean available) {
-                this.availableSupplier = () -> available;
-                return this;
-            }
-            
-            @Override
-            public Trade.Builder setAvailableSupplier(Supplier<? extends Boolean> availableSupplier) {
-                this.availableSupplier = availableSupplier;
+            public Builder setAvailable(Property<? extends Boolean> available) {
+                this.available = available;
                 return this;
             }
             
@@ -305,7 +289,7 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
             
             @Override
             public Trade build() {
-                var trade = new TradeImpl(firstInput, secondInput, output, discountSupplier, availableSupplier);
+                var trade = new TradeImpl(firstInput, secondInput, output, discount, available);
                 modifier.accept(trade);
                 return trade;
             }
@@ -320,32 +304,32 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
     {
         
         private Supplier<? extends Gui> upperGuiSupplier = () -> Gui.empty(3, 1);
-        private Supplier<? extends List<? extends Trade>> tradesSupplier = List::of;
-        private Supplier<? extends Integer> levelSupplier = () -> 0;
-        private Supplier<? extends Double> progressSupplier = () -> -1d;
-        private Supplier<? extends Boolean> restockMessageSupplier = () -> false;
+        private Property<? extends List<? extends Trade>> trades = Property.of(List.of());
+        private Property<? extends Integer> level = Property.of(0);
+        private Property<? extends Double> progress = Property.of(-1d);
+        private Property<? extends Boolean> restockMessageEnabled = Property.of(false);
         
         @Override
-        public MerchantWindow.Builder setLevelSupplier(Supplier<? extends Integer> levelSupplier) {
-            this.levelSupplier = levelSupplier;
+        public MerchantWindow.Builder setLevel(Property<? extends Integer> level) {
+            this.level = level;
             return this;
         }
         
         @Override
-        public MerchantWindow.Builder setProgressSupplier(Supplier<? extends Double> progressSupplier) {
-            this.progressSupplier = progressSupplier;
+        public MerchantWindow.Builder setProgress(Property<? extends Double> progress) {
+            this.progress = progress;
             return this;
         }
         
         @Override
-        public MerchantWindow.Builder setRestockMessageEnabledSupplier(Supplier<? extends Boolean> restockMessageEnabledSupplier) {
-            this.restockMessageSupplier = restockMessageEnabledSupplier;
+        public MerchantWindow.Builder setRestockMessageEnabled(Property<? extends Boolean> enabled) {
+            this.restockMessageEnabled = enabled;
             return this;
         }
         
         @Override
-        public MerchantWindow.Builder setTradesSupplier(Supplier<? extends List<? extends Trade>> tradesSupplier) {
-            this.tradesSupplier = tradesSupplier;
+        public MerchantWindow.Builder setTrades(Property<? extends List<? extends Trade>> trades) {
+            this.trades = trades;
             return this;
         }
         
@@ -362,10 +346,10 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
                 titleSupplier,
                 (AbstractGui) upperGuiSupplier.get(),
                 supplyLowerGui(viewer),
-                tradesSupplier,
-                levelSupplier,
-                progressSupplier,
-                restockMessageSupplier,
+                trades,
+                level,
+                progress,
+                restockMessageEnabled,
                 closeable
             );
             applyModifiers(window);

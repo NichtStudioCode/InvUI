@@ -3,6 +3,7 @@ package xyz.xenondevs.invui.window;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
+import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -37,21 +38,22 @@ public sealed interface StonecutterWindow extends Window permits StonecutterWind
     void setSelectedSlot(int i);
     
     /**
-     * Gets the handlers that are called when the selected slot is changed.
+     * Gets the handlers that are called when the selected slot is changed by the player.
      *
      * @return The selected slot change handlers, each receiving the old and new selected slot.
      */
-    @UnmodifiableView List<BiConsumer<? super Integer, ? super Integer>> getSelectedSlotChangeHandlers();
+    @UnmodifiableView
+    List<BiConsumer<? super Integer, ? super Integer>> getSelectedSlotChangeHandlers();
     
     /**
-     * Sets the handlers that are called when the selected slot is changed.
+     * Sets the handlers that are called when the selected slot is changed by the player.
      *
      * @param handlers The selected slot change handlers, each receiving the old and new selected slot.
      */
     void setSelectedSlotChangeHandlers(@Nullable List<? extends BiConsumer<? super Integer, ? super Integer>> handlers);
     
     /**
-     * Adds a handler that is called when the selected slot is changed.
+     * Adds a handler that is called when the selected slot is changed by the player.
      *
      * @param handler The selected slot change handler, receiving the old and new selected slot.
      */
@@ -126,7 +128,7 @@ public sealed interface StonecutterWindow extends Window permits StonecutterWind
         Builder setButtonsGui(Supplier<? extends Gui> guiSupplier);
         
         /**
-         * Sets the handlers that are called when the selected slot is changed.
+         * Sets the handlers that are called when the selected slot is changed by the player.
          *
          * @param handlers The selected slot change handlers, each receiving the old and new selected slot.
          * @return This {@link Builder}
@@ -134,12 +136,20 @@ public sealed interface StonecutterWindow extends Window permits StonecutterWind
         Builder setSelectedSlotChangeHandlers(List<? extends BiConsumer<? super Integer, ? super Integer>> handlers);
         
         /**
-         * Adds a handler that is called when the selected slot is changed.
+         * Adds a handler that is called when the selected slot is changed by the player.
          *
          * @param handler The selected slot change handler, receiving the old and new selected slot.
          * @return This {@link Builder}
          */
         Builder addSelectedSlotChangeHandler(BiConsumer<? super Integer, ? super Integer> handler);
+        
+        /**
+         * Sets the property containing the selected slot.
+         *
+         * @param slot The property containing the selected slot, or -1 if no slot is selected.
+         * @return This {@link Builder}
+         */
+        Builder setSelectedSlot(MutableProperty<Integer> slot);
         
     }
     

@@ -4,6 +4,7 @@ import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.item.Item;
+import xyz.xenondevs.invui.state.Property;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -34,22 +35,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
      *
      * @param level The level of the merchant
      */
-    default void setLevel(int level) {
-        setLevelSupplier(() -> level);
-    }
-    
-    /**
-     * Sets a supplier to retrieve the level of the merchant.
-     * This level appears after the {@link Window#setTitle(String) title}, using the translation found
-     * under {@code merchant.level.<level>}.
-     * The following levels exist: 1 (Novice), 2 (Apprentice), 3 (Journeyman), 4 (Expert), 5 (Master).
-     * <br>
-     * If the level is set to {@code <= 0}, no level name and an always-empty progress bar will be displayed.
-     * If the level is set to {@code > 5}, no level name and no progress bar will be displayed.
-     *
-     * @param levelSupplier The supplier to retrieve the level of the merchant
-     */
-    void setLevelSupplier(Supplier<? extends Integer> levelSupplier);
+    void setLevel(int level);
     
     /**
      * Gets the level of the merchant.
@@ -64,17 +50,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
      *
      * @param progress The progress of the experience bar
      */
-    default void setProgress(double progress) {
-        setProgressSupplier(() -> progress);
-    }
-    
-    /**
-     * Sets a supplier to retrieve the progress of the experience bar (from 0 to 1).
-     * If set to any value {@code < 0}, the progress bar and the merchant level name will be hidden.
-     *
-     * @param progressSupplier The supplier to retrieve the progress of the experience bar
-     */
-    void setProgressSupplier(Supplier<? extends Double> progressSupplier);
+    void setProgress(double progress);
     
     /**
      * Gets the progress of the experience bar.
@@ -89,17 +65,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
      *
      * @param enabled Whether the restocking message should be displayed
      */
-    default void setRestockMessageEnabled(boolean enabled) {
-        setRestockMessageEnabledSupplier(() -> enabled);
-    }
-    
-    /**
-     * Sets a supplier to retrieve whether the message "Villagers restock up to two times per day" should be displayed
-     * when hovering over the arrow of disabled trades.
-     *
-     * @param restockMessageEnabledSupplier The supplier to retrieve whether the restocking message should be displayed
-     */
-    void setRestockMessageEnabledSupplier(Supplier<? extends Boolean> restockMessageEnabledSupplier);
+    void setRestockMessageEnabled(boolean enabled);
     
     /**
      * Gets whether the restocking message is enabled.
@@ -113,28 +79,15 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
      *
      * @param trades The trades of the window
      */
-    default void setTrades(List<? extends Trade> trades) {
-        setTradesSupplier(() -> trades);
-    }
-    
-    /**
-     * Sets a supplier to retrieve the trades of the window, which are visualized as buttons on the left-hand side.
-     *
-     * @param tradesSupplier The supplier to retrieve the trades of the window
-     */
-    void setTradesSupplier(Supplier<? extends List<? extends Trade>> tradesSupplier);
+    void setTrades(List<? extends Trade> trades);
     
     /**
      * Gets the trades of the window.
      *
      * @return The trades of the window
      */
-    @UnmodifiableView List<Trade> getTrades();
-    
-    /**
-     * Updates the trades of the window by retrieving them from the registered supplier.
-     */
-    void updateTrades();
+    @UnmodifiableView
+    List<Trade> getTrades();
     
     /**
      * A trade in a {@link MerchantWindow}.
@@ -193,11 +146,6 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
         boolean isAvailable();
         
         /**
-         * Notifies all {@link MerchantWindow Windows} displaying this {@link Trade} to update their trade buttons.
-         */
-        void notifyWindows();
-        
-        /**
          * A {@link Trade} builder.
          */
         sealed interface Builder permits MerchantWindowImpl.TradeImpl.BuilderImpl {
@@ -233,20 +181,20 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
              *
              * @return This {@link Builder}
              */
-            Builder setDiscount(int discount);
+            default Builder setDiscount(int discount) {
+                return setDiscount(Property.of(discount));
+            }
             
             /**
-             * Sets a supplier to retrieve the discount of the trade.
-             * This will be visualized as crossed out amount on the first input item  and the discounted amount
-             * displayed next to it (discounted amount = amount - discount).
+             * Sets the property containing the discount of the trade.
+             * This will be visualized as crossed out amount on the first input item
+             * and the discounted amount displayed next to it (discounted amount = amount - discount).
              * The second input item is unaffected by this.
-             * <br>
-             * The supplier will be called every time the trade is {@link Trade#notifyWindows()} refreshed.
              *
-             * @param discountSupplier The supplier to retrieve the discount
+             * @param discount The discount property
              * @return This {@link Builder}
              */
-            Builder setDiscountSupplier(Supplier<? extends Integer> discountSupplier);
+            Builder setDiscount(Property<? extends Integer> discount);
             
             /**
              * Sets whether the trade is available. If the trade is unavailable, the arrow will be crossed out.
@@ -254,18 +202,18 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
              * @param available Whether the trade is available
              * @return This {@link Builder}
              */
-            Builder setAvailable(boolean available);
+            default Builder setAvailable(boolean available) {
+                return setAvailable(Property.of(available));
+            }
             
             /**
-             * Sets a supplier to retrieve whether the trade is available. If the trade is unavailable,
-             * the arrow will be crossed out.
-             * <br>
-             * The supplier will be called every time the trade is {@link Trade#notifyWindows()} refreshed.
+             * Sets the property containing the availability status of the trade.
+             * If the trade is unavailable, the arrow will be crossed out.
              *
-             * @param availableSupplier The supplier to retrieve whether the trade is available
+             * @param available Whether the trade is available
              * @return This {@link Builder}
              */
-            Builder setAvailableSupplier(Supplier<? extends Boolean> availableSupplier);
+            Builder setAvailable(Property<? extends Boolean> available);
             
             /**
              * Adds a consumer that is run when the trade is built.
@@ -336,11 +284,11 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
          * @return This {@link Builder}
          */
         default Builder setLevel(int level) {
-            return setLevelSupplier(() -> level);
+            return setLevel(Property.of(level));
         }
         
         /**
-         * Sets a supplier to retrieve the level of the merchant.
+         * Sets the property containing the level of the merchant.
          * This level appears after the {@link Window.Builder#setTitle(String) title}, using the translation found
          * under {@code merchant.level.<level>}.
          * The following levels exist: 1 (Novice), 2 (Apprentice), 3 (Journeyman), 4 (Expert), 5 (Master).
@@ -350,10 +298,10 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
          * <br>
          * Defaults to 0.
          *
-         * @param levelSupplier The supplier to retrieve the level of the merchant
+         * @param level The property containing the level of the merchant
          * @return This {@link Builder}
          */
-        Builder setLevelSupplier(Supplier<? extends Integer> levelSupplier);
+        Builder setLevel(Property<? extends Integer> level);
         
         /**
          * Sets the progress of the experience bar (from 0 to 1).
@@ -365,19 +313,19 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
          * @return This {@link Builder}
          */
         default Builder setProgress(double progress) {
-            return setProgressSupplier(() -> progress);
+            return setProgress(Property.of(progress));
         }
         
         /**
-         * Sets a supplier to retrieve the progress of the experience bar (from 0 to 1).
+         * Sets the property containing the progress of the experience bar (from 0 to 1).
          * If set to any value {@code < 0}, the progress bar and the merchant level name will be hidden.
          * <br>
          * Defaults to -1 (hidden).
          *
-         * @param progressSupplier The supplier to retrieve the progress of the experience bar
+         * @param progress The property containing the progress of the experience bar
          * @return This {@link Builder}
          */
-        Builder setProgressSupplier(Supplier<? extends Double> progressSupplier);
+        Builder setProgress(Property<? extends Double> progress);
         
         /**
          * Sets whether the message "Villagers restock up to two times per day" should be displayed when hovering over
@@ -389,19 +337,17 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
          * @return This {@link Builder}
          */
         default Builder setRestockMessageEnabled(boolean enabled) {
-            return setRestockMessageEnabledSupplier(() -> enabled);
+            return setRestockMessageEnabled(Property.of(enabled));
         }
         
         /**
-         * Sets a supplier to retrieve whether the message "Villagers restock up to two times per day" should be displayed
-         * when hovering over the arrow of disabled trades.
-         * <br>
-         * Defaults to false.
+         * Sets the property containing whether the message "Villagers restock up to two times per day" should
+         * be displayed when hovering over the arrow of disabled trades.
          *
-         * @param restockMessageEnabledSupplier The supplier to retrieve whether the restocking message should be displayed
+         * @param enabled The property containing whether the restocking message should be displayed
          * @return This {@link Builder}
          */
-        Builder setRestockMessageEnabledSupplier(Supplier<? extends Boolean> restockMessageEnabledSupplier);
+        Builder setRestockMessageEnabled(Property<? extends Boolean> enabled);
         
         /**
          * Sets the trades of the window, which are visualized as buttons on the left-hand side.
@@ -410,16 +356,16 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
          * @return This {@link Builder}
          */
         default Builder setTrades(List<? extends Trade> trades) {
-            return setTradesSupplier(() -> trades);
+            return setTrades(Property.of(trades));
         }
         
         /**
-         * Sets a supplier to retrieve the trades of the window, which are visualized as buttons on the left-hand side.
+         * Sets the property containing the trades of the window, which are visualized as buttons on the left-hand side.
          *
-         * @param tradesSupplier The supplier to retrieve the trades of the window
+         * @param trades The property containing the trades of the window
          * @return This {@link Builder}
          */
-        Builder setTradesSupplier(Supplier<? extends List<? extends Trade>> tradesSupplier);
+        Builder setTrades(Property<? extends List<? extends Trade>> trades);
         
     }
     
