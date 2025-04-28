@@ -11,28 +11,26 @@ import java.util.Locale;
  */
 public final class ItemWrapper implements ItemProvider {
     
-    private ItemStack itemStack;
+    private final ItemStack itemStack;
     
     public ItemWrapper(ItemStack itemStack) {
-        this.itemStack = itemStack;
+        this.itemStack = itemStack.clone();
     }
     
     @Override
     public ItemStack get(Locale locale) {
-        return itemStack;
+        return itemStack.clone();
     }
     
     @Override
     public ItemStack get() {
-        return itemStack;
+        return itemStack.clone();
     }
     
     @Override
     public ItemWrapper clone() {
         try {
-            ItemWrapper clone = (ItemWrapper) super.clone();
-            clone.itemStack = itemStack.clone();
-            return clone;
+            return (ItemWrapper) super.clone();
         } catch (CloneNotSupportedException e) {
             throw new AssertionError(e);
         }
