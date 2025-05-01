@@ -1206,8 +1206,8 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
     public int[] simulateMultiAdd(List<ItemStack> itemStacks) {
         Inventory copy = new VirtualInventory(null, getSize(), getItems(), getMaxStackSizes().clone());
         int[] result = new int[itemStacks.size()];
-        for (int slot : getIterationOrder()) {
-            result[slot] = copy.addItem(UpdateReason.SUPPRESSED, itemStacks.get(slot));
+        for (int i = 0; i < itemStacks.size(); i++) {
+            result[i] = copy.addItem(UpdateReason.SUPPRESSED, itemStacks.get(i));
         }
         
         return result;
