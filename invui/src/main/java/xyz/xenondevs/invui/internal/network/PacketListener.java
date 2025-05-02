@@ -119,7 +119,12 @@ public class PacketListener implements Listener {
             }
             
             try {
-                channel.writeAndFlush(packet, new ForceChannelPromise(channel));
+                // This is a workaround for "promise.channel does not match: com.comphenix.protocol.injector.netty.channel.NettyChannelProxy"
+                // If ProtocolLib is installed, this.channel is a proxy channel that delegates to the real channel.
+                // Using channel.newPromise(), we can obtain a promise bound to the real channel. Otherwise, netty will throw this exception.
+                var channelForPromise = channel.newPromise().channel();
+                
+                channel.writeAndFlush(packet, new ForceChannelPromise(channelForPromise));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
