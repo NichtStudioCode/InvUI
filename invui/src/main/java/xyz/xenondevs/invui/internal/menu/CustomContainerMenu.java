@@ -222,19 +222,19 @@ public abstract class CustomContainerMenu {
         
         for (int i = 0; i < items.size(); i++) {
             var item = items.get(i);
-            if (!remoteItems.get(i).matches(item, HASH_GENERATOR, false)) {
+            if (!remoteItems.get(i).matches(item, HASH_GENERATOR)) {
                 packets.add(new ClientboundContainerSetSlotPacket(containerId, incrementStateId(), i, item.copy()));
                 remoteItems.set(i, HashedStack.create(item, HASH_GENERATOR));
             }
         }
         
         var offHand = serverPlayer.getOffhandItem();
-        if (!remoteOffHand.matches(offHand, HASH_GENERATOR, false)) {
+        if (!remoteOffHand.matches(offHand, HASH_GENERATOR)) {
             packets.add(new ClientboundContainerSetSlotPacket(serverPlayer.inventoryMenu.containerId, incrementStateId(), OFF_HAND_SLOT, offHand.copy()));
             remoteOffHand = HashedStack.create(offHand, HASH_GENERATOR);
         }
         
-        if (!remoteCarried.matches(carried, HASH_GENERATOR, false)) {
+        if (!remoteCarried.matches(carried, HASH_GENERATOR)) {
             packets.add(new ClientboundSetCursorItemPacket(carried.copy()));
             remoteCarried = HashedStack.create(carried, HASH_GENERATOR);
         }
