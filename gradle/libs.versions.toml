@@ -12,7 +12,7 @@ junit-platformLauncher = { module = "org.junit.platform:junit-platform-launcher"
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 mockbukkit = { module = "org.mockbukkit.mockbukkit:mockbukkit-v1.21", version = "4.20.0" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version = "1.5.13" }
-paperweight-userdev-plugin = { module = "io.papermc.paperweight:paperweight-userdev", version = "2.0.0-beta.14" }
+paperweight-userdev-plugin = { module = "io.papermc.paperweight:paperweight-userdev", version = "2.0.0-beta.17" }
 
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
