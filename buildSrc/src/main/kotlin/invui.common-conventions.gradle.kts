@@ -9,7 +9,7 @@ plugins {
 val libs = the<LibrariesForLibs>()
 
 group = "xyz.xenondevs.invui"
-version = "2.0.0-alpha.12"
+version = "2.0.0-alpha.13"
 
 repositories {
     mavenCentral()
