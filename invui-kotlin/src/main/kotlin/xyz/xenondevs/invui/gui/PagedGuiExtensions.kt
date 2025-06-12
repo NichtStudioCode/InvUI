@@ -2,8 +2,6 @@ package xyz.xenondevs.invui.gui
 
 import xyz.xenondevs.commons.provider.MutableProvider
 import xyz.xenondevs.commons.provider.Provider
-import xyz.xenondevs.commons.provider.combinedProvider
-import xyz.xenondevs.commons.provider.map
 import xyz.xenondevs.invui.ExperimentalReactiveApi
 import xyz.xenondevs.invui.MutablePropertyAdapter
 import xyz.xenondevs.invui.PropertyAdapter

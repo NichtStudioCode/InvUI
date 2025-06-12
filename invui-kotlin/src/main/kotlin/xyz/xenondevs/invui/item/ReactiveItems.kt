@@ -7,7 +7,6 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.commons.provider.combinedProvider
-import xyz.xenondevs.commons.provider.map
 import xyz.xenondevs.invui.ExperimentalReactiveApi
 import kotlin.experimental.ExperimentalTypeInference
 
