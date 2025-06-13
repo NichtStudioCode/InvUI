@@ -142,6 +142,8 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
         
         /**
          * Gets whether the trade is available. If the trade is unavailable, the arrow will be crossed out.
+         *
+         * @return Whether the trade is available
          */
         boolean isAvailable();
         
@@ -179,6 +181,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
              * and the discounted amount displayed next to it (discounted amount = amount - discount).
              * The second input item is unaffected by this.
              *
+             * @param discount The discount of the trade
              * @return This {@link Builder}
              */
             default Builder setDiscount(int discount) {

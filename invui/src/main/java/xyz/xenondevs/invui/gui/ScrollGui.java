@@ -11,7 +11,6 @@ import xyz.xenondevs.invui.state.Property;
 import java.util.List;
 import java.util.SequencedSet;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 /**
  * A {@link Gui} that displays content in lines that can be scrolled through.
@@ -36,6 +35,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @param height           The height of the {@link ScrollGui}.
      * @param items            The {@link Item Items} to use.
      * @param contentListSlots The slots where content should be displayed.
+     * @param direction        The direction in which the {@link ScrollGui} will scroll.
      * @return The created {@link ScrollGui}.
      */
     static ScrollGui<Item> ofItems(int width, int height, List<? extends Item> items, SequencedSet<Slot> contentListSlots, ScrollDirection direction) {
@@ -69,6 +69,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @param height           The height of the {@link ScrollGui}.
      * @param guis             The {@link Gui Guis} to use.
      * @param contentListSlots The slots where content should be displayed.
+     * @param direction        The direction in which the {@link ScrollGui} will scroll.
      * @return The created {@link ScrollGui}.
      */
     static ScrollGui<Gui> ofGuis(int width, int height, List<? extends Gui> guis, SequencedSet<Slot> contentListSlots, ScrollDirection direction) {
@@ -102,6 +103,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @param height           The height of the {@link ScrollGui}.
      * @param inventories      The {@link Inventory VirtualInventories} to use.
      * @param contentListSlots The slots where content should be displayed.
+     * @param direction        The direction in which the {@link ScrollGui} will scroll.
      * @return The created {@link ScrollGui}.
      */
     static ScrollGui<Inventory> ofInventories(int width, int height, List<? extends Inventory> inventories, SequencedSet<Slot> contentListSlots, ScrollDirection direction) {

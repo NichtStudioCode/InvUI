@@ -300,6 +300,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
          * by the viewer pressing the close inventory key ({@code E} or {@code ESC} by default).
          *
          * @param fallbackWindow The fallback {@link Window}
+         * @return This {@link Builder Window Builder}
          */
         default S setFallbackWindow(@Nullable Window fallbackWindow) {
             return setFallbackWindow(() -> fallbackWindow);
@@ -310,6 +311,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
          * closed by the viewer pressing the close inventory key ({@code E} or {@code ESC} by default).
          *
          * @param fallbackWindow The fallback {@link Window} supplier
+         * @return This {@link Builder Window Builder}
          */
         S setFallbackWindow(Supplier<? extends @Nullable Window> fallbackWindow);
         

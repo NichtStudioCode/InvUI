@@ -12,6 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+/**
+ * Main class of InvUI, managing the plugin instance.
+ */
 public class InvUI implements Listener {
     
     private static final InvUI INSTANCE = new InvUI();
@@ -22,10 +25,23 @@ public class InvUI implements Listener {
     private InvUI() {
     }
     
+    /**
+     * Returns the singleton instance of InvUI.
+     *
+     * @return the InvUI instance
+     */
     public static InvUI getInstance() {
         return INSTANCE;
     }
     
+    /**
+     * Gets the plugin instance that InvUI is running under.
+     * If possible, the plugin instance is inferred from the class loader.
+     * If this is not possible, the plugin instance must be set manually using {@link #setPlugin(Plugin)} beforehand.
+     *
+     * @return The plugin instance.
+     * @throws IllegalStateException If the plugin instance is not set and cannot be inferred.
+     */
     public Plugin getPlugin() {
         if (plugin == null) {
             setPlugin(tryFindPlugin());
@@ -52,6 +68,13 @@ public class InvUI implements Listener {
         return null;
     }
     
+    /**
+     * Sets the plugin instance that InvUI is running under.
+     * This is used to register event listeners, schedule tasks, etc.
+     *
+     * @param plugin The plugin instance to set.
+     * @throws IllegalStateException If the plugin instance is already set.
+     */
     public void setPlugin(@Nullable Plugin plugin) {
         if (this.plugin != null)
             throw new IllegalStateException("Plugin is already set");
@@ -63,10 +86,21 @@ public class InvUI implements Listener {
         this.plugin = plugin;
     }
     
+    /**
+     * Gets the logger of the configured plugin instance.
+     *
+     * @return The logger of the plugin instance.
+     * @throws IllegalStateException If the plugin instance is not set and cannot be inferred.
+     */
     public Logger getLogger() {
         return getPlugin().getLogger();
     }
     
+    /**
+     * Adds a {@link Runnable} that is executed when the plugin is disabled.
+     *
+     * @param runnable The runnable to execute on plugin disable.
+     */
     public void addDisableHandler(Runnable runnable) {
         disableHandlers.add(runnable);
     }

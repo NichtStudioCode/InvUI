@@ -31,6 +31,10 @@ public class Languages {
     private Languages() {
     }
     
+    /**
+     * Gets the singleton instance of Languages.
+     * @return The singleton instance of Languages.
+     */
     public static Languages getInstance() {
         return INSTANCE;
     }

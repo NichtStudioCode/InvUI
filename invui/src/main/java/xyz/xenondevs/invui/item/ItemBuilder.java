@@ -1173,6 +1173,7 @@ public final class ItemBuilder implements ItemProvider {
      * @param type         the data component type
      * @param valueBuilder value builder
      * @param <T>          value type
+     * @return The builder instance
      */
     @Experimental
     public <T> ItemBuilder set(DataComponentType.Valued<T> type, DataComponentBuilder<T> valueBuilder) {
@@ -1190,6 +1191,7 @@ public final class ItemBuilder implements ItemProvider {
      * @param type  the data component type
      * @param value value to set
      * @param <T>   value type
+     * @return The builder instance
      */
     @Experimental
     public <T> ItemBuilder set(final DataComponentType.Valued<T> type, T value) {
@@ -1205,6 +1207,7 @@ public final class ItemBuilder implements ItemProvider {
      * Marks the given component as present in the item stack.
      *
      * @param type the data component type
+     * @return The builder instance
      */
     @Experimental
     public ItemBuilder set(DataComponentType.NonValued type) {
@@ -1220,6 +1223,7 @@ public final class ItemBuilder implements ItemProvider {
      * Marks the given component as removed from the item stack.
      *
      * @param type the data component type
+     * @return The builder instance
      */
     @Experimental
     public ItemBuilder unset(DataComponentType type) {

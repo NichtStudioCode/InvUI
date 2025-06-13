@@ -2,6 +2,9 @@ package xyz.xenondevs.invui.inventory;
 
 /**
  * A record encapsulating a slot of an {@link Inventory}.
+ * 
+ * @param inventory The {@link Inventory} this slot belongs to.
+ * @param slot The slot index in the {@link Inventory}.
  */
 public record InventorySlot(Inventory inventory, int slot) {
     

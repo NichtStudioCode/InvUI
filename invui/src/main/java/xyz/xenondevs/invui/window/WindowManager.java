@@ -30,7 +30,9 @@ public class WindowManager implements Listener {
     }
     
     /**
-     * Gets the {@link WindowManager} instance.
+     * Gets the {@link WindowManager} singleton instance.
+     *
+     * @return The {@link WindowManager} singleton instance
      */
     public static WindowManager getInstance() {
         return INSTANCE;

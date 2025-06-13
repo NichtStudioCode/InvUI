@@ -26,6 +26,7 @@ public interface AnimatedTitle extends Supplier<Component> {
      * @param frameTime The time in ticks each frame should be displayed
      * @param frame     The first frame
      * @param frames    The following frames
+     * @return A new {@link AnimatedTitle} that displays the given frames in a loop
      * @throws IllegalArgumentException If frameTime is less than 1
      */
     static AnimatedTitle of(int frameTime, Component frame, Component... frames) {
@@ -38,6 +39,7 @@ public interface AnimatedTitle extends Supplier<Component> {
      * @param frameTime The time in ticks each frame should be displayed
      * @param frame     The first frame
      * @param frames    The following frames
+     * @return A new {@link AnimatedTitle} that displays the given frames in a loop
      * @throws IllegalArgumentException If frameTime is less than 1
      */
     static AnimatedTitle of(int frameTime, String frame, String... frames) {
@@ -49,6 +51,7 @@ public interface AnimatedTitle extends Supplier<Component> {
      *
      * @param frameTime The time in ticks each frame should be displayed
      * @param frames    The frames
+     * @return A new {@link AnimatedTitle} that displays the given frames in a loop
      * @throws IllegalArgumentException If frameTime is less than 1
      * @throws IllegalArgumentException If frames is empty
      */
@@ -61,6 +64,7 @@ public interface AnimatedTitle extends Supplier<Component> {
      *
      * @param frameTime The time in ticks each frame should be displayed
      * @param frames    The frames
+     * @return A new {@link AnimatedTitle} that displays the given frames in a loop
      * @throws IllegalArgumentException If frameTime is less than 1
      * @throws IllegalArgumentException If frames is empty
      */
@@ -76,6 +80,7 @@ public interface AnimatedTitle extends Supplier<Component> {
      *
      * @param frameTime The time in ticks each frame should be displayed
      * @param frames    The frames
+     * @return A new {@link AnimatedTitle} that displays the given frames in a loop
      * @throws IllegalArgumentException If frameTime is less than 1
      * @throws IllegalArgumentException If frames is empty
      */

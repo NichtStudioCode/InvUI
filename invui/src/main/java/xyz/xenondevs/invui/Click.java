@@ -15,8 +15,15 @@ public record Click(
     Player player,
     ClickType clickType,
     int hotbarButton
-) {
+)
+{
     
+    /**
+     * Creates a new {@link Click} with the given player and click type.
+     *
+     * @param player    The player who clicked.
+     * @param clickType The type of click.
+     */
     public Click(Player player, ClickType clickType) {
         this(player, clickType, -1);
     }

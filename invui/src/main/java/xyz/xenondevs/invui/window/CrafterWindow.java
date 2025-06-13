@@ -180,6 +180,7 @@ public sealed interface CrafterWindow extends Window permits CrafterWindowImpl {
          * Sets the handlers that are called when the viewer enables/disables a slot.
          *
          * @param handlers The slot toggle handlers, each receiving the slot and the new state
+         * @return This {@link Builder}
          */
         Builder setSlotToggleHandlers(List<? extends BiConsumer<? super Integer, ? super Boolean>> handlers);
         
@@ -187,6 +188,7 @@ public sealed interface CrafterWindow extends Window permits CrafterWindowImpl {
          * Adds a handler that is called when the viewer enables/disables a slot.
          *
          * @param handler The slot toggle handler, receiving the slot and the new state
+         * @return This {@link Builder}
          */
         Builder addSlotToggleHandler(BiConsumer<? super Integer, ? super Boolean> handler);
         

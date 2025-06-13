@@ -13,6 +13,9 @@ import java.util.function.Supplier;
 @SuppressWarnings("unchecked")
 abstract class AbstractIngredientMapper<S extends AbstractIngredientMapper<S>> implements IngredientMapper<S> {
     
+    /**
+     * Maps ingredient keys ({@link Character characters}) to their corresponding {@link Ingredient} instances.
+     */
     protected HashMap<Character, Ingredient> ingredientMap = new HashMap<>();
     
     @Override
@@ -93,6 +96,9 @@ abstract class AbstractIngredientMapper<S extends AbstractIngredientMapper<S>> i
         }
     }
     
+    /**
+     * Called when the ingredient mapping is updated.
+     */
     protected void handleUpdate() {}
     
 }

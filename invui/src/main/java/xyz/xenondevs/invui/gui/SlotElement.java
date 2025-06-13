@@ -62,6 +62,12 @@ public sealed interface SlotElement {
      */
     record InventoryLink(Inventory inventory, int slot, @Nullable ItemProvider background) implements SlotElement {
         
+        /**
+         * Creates a new {@link InventoryLink} using the given {@link Inventory} and slot.
+         *
+         * @param inventory The {@link Inventory} to link to
+         * @param slot      The slot in the {@link Inventory} to link to
+         */
         public InventoryLink(Inventory inventory, int slot) {
             this(inventory, slot, null);
         }

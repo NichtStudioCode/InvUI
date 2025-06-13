@@ -29,6 +29,11 @@ public sealed interface PlayerUpdateReason extends UpdateReason {
      */
     record Click(Player player, xyz.xenondevs.invui.Click click) implements PlayerUpdateReason {
         
+        /**
+         * Creates a new {@link Click} update reason from a {@link xyz.xenondevs.invui.Click}.
+         *
+         * @param click The click that was performed.
+         */
         public Click(xyz.xenondevs.invui.Click click) {
             this(click.player(), click);
         }
@@ -52,7 +57,7 @@ public sealed interface PlayerUpdateReason extends UpdateReason {
     /**
      * A {@link PlayerUpdateReason} for selecting an item in a bundle.
      *
-     * @param player The player that selected the item.
+     * @param player     The player that selected the item.
      * @param bundleSlot The slot inside the bundle that was selected.
      */
     record BundleSelect(Player player, int bundleSlot) implements PlayerUpdateReason {}

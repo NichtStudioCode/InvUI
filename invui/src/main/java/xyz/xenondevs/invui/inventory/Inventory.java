@@ -224,6 +224,8 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
     
     /**
      * Gets all {@link Window Windows} displaying this {@link Inventory}.
+     *
+     * @return A list of all {@link Window Windows} displaying this {@link Inventory}.
      */
     public List<Window> getWindows() {
         var windows = new ArrayList<Window>();
