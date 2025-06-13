@@ -584,11 +584,6 @@ public sealed abstract class AbstractGui
     }
     
     @Override
-    public void remove(int index) {
-        setSlotElement(index, null);
-    }
-    
-    @Override
     public @Nullable SlotElement getSlotElement(int index) {
         return slotElements[index];
     }
@@ -606,11 +601,7 @@ public sealed abstract class AbstractGui
     
     @Override
     public void setItem(int index, @Nullable Item item) {
-        if (item == null) {
-            remove(index);
-            return;
-        }
-        setSlotElement(index, new SlotElement.Item(item));
+        setSlotElement(index, item != null ? new SlotElement.Item(item) : null);
     }
     
     @Override
@@ -859,16 +850,6 @@ public sealed abstract class AbstractGui
     @Override
     public @Nullable Item getItem(int x, int y) {
         return getItem(convToIndex(x, y));
-    }
-    
-    @Override
-    public void remove(Slot slot) {
-        remove(slot.x(), slot.y());
-    }
-    
-    @Override
-    public void remove(int x, int y) {
-        remove(convToIndex(x, y));
     }
     
     @Override

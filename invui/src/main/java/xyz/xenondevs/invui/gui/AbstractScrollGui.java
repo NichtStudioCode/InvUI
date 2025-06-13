@@ -182,8 +182,7 @@ sealed abstract class AbstractScrollGui<C>
         List<SlotElement> slotElements = elements.subList(offset, Math.min(elements.size(), contentListSlots.length + offset));
         
         for (int i = 0; i < contentListSlots.length; i++) {
-            if (slotElements.size() > i) setSlotElement(contentListSlots[i], slotElements.get(i));
-            else remove(contentListSlots[i]);
+            setSlotElement(contentListSlots[i], slotElements.size() > i ? slotElements.get(i) : null);
         }
     }
     

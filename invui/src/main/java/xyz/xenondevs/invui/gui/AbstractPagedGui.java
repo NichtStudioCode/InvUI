@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.SequencedSet;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 sealed abstract class AbstractPagedGui<C>
     extends AbstractGui
@@ -107,9 +106,7 @@ sealed abstract class AbstractPagedGui<C>
         List<SlotElement> slotElements = (pages != null && !pages.isEmpty()) ? pages.get(getPage()) : List.of();
         
         for (int i = 0; i < contentListSlots.length; i++) {
-            if (slotElements.size() > i)
-                setSlotElement(contentListSlots[i], slotElements.get(i));
-            else remove(contentListSlots[i]);
+            setSlotElement(contentListSlots[i], slotElements.size() > i ? slotElements.get(i) : null);
         }
     }
     

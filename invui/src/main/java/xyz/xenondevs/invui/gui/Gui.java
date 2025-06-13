@@ -381,28 +381,6 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
     void setBackground(@Nullable ItemProvider itemProvider);
     
     /**
-     * Removes the {@link SlotElement} that is placed on that {@link Slot}.
-     *
-     * @param slot The slot
-     */
-    void remove(Slot slot);
-    
-    /**
-     * Removes an {@link Item} by its coordinates.
-     *
-     * @param x The x coordinate
-     * @param y The y coordinate
-     */
-    void remove(int x, int y);
-    
-    /**
-     * Remove the {@link SlotElement} that is placed on the slot.
-     *
-     * @param index The slot index of the {@link SlotElement} that should be removed
-     */
-    void remove(int index);
-    
-    /**
      * Applies the given {@link Structure} to the {@link Gui}.
      *
      * @param structure The structure

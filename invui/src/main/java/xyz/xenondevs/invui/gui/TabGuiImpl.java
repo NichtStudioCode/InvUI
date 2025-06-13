@@ -101,10 +101,7 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
         if (currentTab != -1) {
             List<SlotElement.GuiLink> slotElements = linkingElements.get(currentTab);
             for (int i = 0; i < contentListSlots.length; i++) {
-                int slot = contentListSlots[i];
-                if (slotElements != null && slotElements.size() > i)
-                    setSlotElement(contentListSlots[i], slotElements.get(i));
-                else remove(slot);
+                setSlotElement(contentListSlots[i], slotElements != null && slotElements.size() > i ? slotElements.get(i) : null);
             }
         } else {
             for (int slot : contentListSlots) {
