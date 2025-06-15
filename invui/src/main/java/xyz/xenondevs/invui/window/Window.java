@@ -16,7 +16,7 @@ import java.util.function.Supplier;
  * A Window is the way to show a player a {@link Gui}. Windows can only have one viewer.
  * To create a new {@link Window}, use the builder factory methods {@link Window#builder} and {@link Window#mergedBuilder}.
  */
-public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyWindow, CrafterWindow, MerchantWindow, StonecutterWindow {
+public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyWindow, CrafterWindow, CraftingTableWindow, FurnaceWindow, MerchantWindow, StonecutterWindow {
     
     /**
      * Creates a new {@link Builder.Normal.Split Window Builder} for a normal split window.
@@ -409,7 +409,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, CartographyW
          */
         sealed interface Split<W extends Window, S extends Split<W, S>>
             extends Builder<W, S>
-            permits AbstractSplitWindow.AbstractBuilder, AnvilWindow.Builder, CartographyWindow.Builder, CrafterWindow.Builder, MerchantWindow.Builder, StonecutterWindow.Builder, Normal.Split
+            permits AbstractSplitWindow.AbstractBuilder, AnvilWindow.Builder, CartographyWindow.Builder, CrafterWindow.Builder, CraftingTableWindow.Builder, FurnaceWindow.Builder, MerchantWindow.Builder, StonecutterWindow.Builder, Normal.Split
         {
             
             /**
