@@ -86,6 +86,7 @@
         <module>inventoryaccess/inventory-access-r21</module>
         <module>inventoryaccess/inventory-access-r22</module>
         <module>inventoryaccess/inventory-access-r23</module>
+        <module>inventoryaccess/inventory-access-r24</module>
         <module>invui-core</module>
         <module>invui-kotlin</module>
         <module>invui</module>

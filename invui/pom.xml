@@ -138,6 +138,11 @@
             <artifactId>inventory-access-r23</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>xyz.xenondevs.invui</groupId>
+            <artifactId>inventory-access-r24</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>
