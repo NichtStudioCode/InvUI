@@ -6,7 +6,7 @@
 
     <groupId>xyz.xenondevs.invui</groupId>
     <artifactId>invui-parent</artifactId>
-    <version>1.45</version>
+    <version>1.46</version>
     <packaging>pom</packaging>
 
     <properties>
