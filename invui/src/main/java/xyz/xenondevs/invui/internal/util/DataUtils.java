@@ -40,8 +40,13 @@ public class DataUtils {
      */
     public static void serializeItemStack(ItemStack itemStack, OutputStream out) {
         try {
-            var tag = CraftItemStack.unwrap(itemStack).save(MinecraftServer.getServer().registryAccess());
-            NbtIo.write((CompoundTag) tag, new DataOutputStream(out));
+            var tag = (CompoundTag) net.minecraft.world.item.ItemStack.CODEC.encodeStart(
+                MinecraftServer.getServer()
+                    .registryAccess()
+                    .createSerializationContext(NbtOps.INSTANCE),
+                CraftItemStack.unwrap(itemStack)
+            ).getOrThrow();
+            NbtIo.write(tag, new DataOutputStream(out));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -63,9 +68,12 @@ public class DataUtils {
                 dataVersion, CraftMagicNumbers.INSTANCE.getDataVersion()
             ).getValue();
             
-            return net.minecraft.world.item.ItemStack.parse(MinecraftServer.getServer().registryAccess(), tag)
-                .orElseThrow()
-                .asBukkitMirror();
+            return net.minecraft.world.item.ItemStack.CODEC.parse(
+                MinecraftServer.getServer()
+                    .registryAccess()
+                    .createSerializationContext(NbtOps.INSTANCE),
+                tag
+            ).resultOrPartial().orElseThrow().asBukkitMirror();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

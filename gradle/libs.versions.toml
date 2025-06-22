@@ -1,6 +1,6 @@
 [versions]
 kotlin = "2.1.0"
-paper = "1.21.5-R0.1-SNAPSHOT"
+paper = "1.21.6-R0.1-SNAPSHOT"
 
 [libraries]
 commons-provider = { module = "xyz.xenondevs.commons:commons-provider", version = "2.0.0-alpha.2" }
