@@ -26,13 +26,13 @@ import java.util.stream.StreamSupport;
 public class PacketListener implements Listener {
     
     private static final String MC_PACKET_HANDLER_NAME = "packet_handler";
-    private static final String INVUI_PACKET_HANDLER_NAME = "invui_packet_handler";
-    
     private static final PacketListener INSTANCE = new PacketListener();
     
+    private final String invuiPacketHandlerName;
     private final Map<UUID, PacketHandler> packetHandlers = new HashMap<>();
     
     private PacketListener() {
+        invuiPacketHandlerName = "invui_packet_handler_" + InvUI.getInstance().getPlugin().getName();
         Bukkit.getOnlinePlayers().forEach(this::injectChannelHandler);
         Bukkit.getPluginManager().registerEvents(this, InvUI.getInstance().getPlugin());
         InvUI.getInstance().addDisableHandler(() -> Bukkit.getOnlinePlayers().forEach(this::removeChannelHandler));
@@ -93,13 +93,13 @@ public class PacketListener implements Listener {
         var channel = ((CraftPlayer) player).getHandle().connection.connection.channel;
         var packetHandler = new PacketHandler(channel);
         packetHandlers.put(player.getUniqueId(), packetHandler);
-        channel.pipeline().addBefore(MC_PACKET_HANDLER_NAME, INVUI_PACKET_HANDLER_NAME, packetHandler);
+        channel.pipeline().addBefore(MC_PACKET_HANDLER_NAME, invuiPacketHandlerName, packetHandler);
     }
     
     private void removeChannelHandler(Player player) {
         packetHandlers.remove(player.getUniqueId());
         var channel = ((CraftPlayer) player).getHandle().connection.connection.channel;
-        channel.pipeline().remove(INVUI_PACKET_HANDLER_NAME);
+        channel.pipeline().remove(invuiPacketHandlerName);
     }
     
     private static class PacketHandler extends ChannelDuplexHandler {
