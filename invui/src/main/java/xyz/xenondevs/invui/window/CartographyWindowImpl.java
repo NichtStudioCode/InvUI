@@ -21,23 +21,25 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
     
     private static final int MAP_SIZE = 128;
     private final AbstractGui inputGui;
-    private final AbstractGui outputGui;
+    private final AbstractGui resultGui;
     private final AbstractGui lowerGui;
     
     public CartographyWindowImpl(
         Player player,
         Supplier<? extends Component> title,
         AbstractGui inputGui,
-        AbstractGui outputGui,
+        AbstractGui resultGui,
         AbstractGui lowerGui,
         boolean closeable
     ) {
         super(player, title, lowerGui, 3 + 36, new CustomCartographyMenu(player), closeable);
         if (inputGui.getWidth() != 1 || inputGui.getHeight() != 2)
             throw new IllegalArgumentException("Input gui must be of dimensions 1x2");
+        if (resultGui.getWidth() != 1 || resultGui.getHeight() != 1)
+            throw new IllegalArgumentException("Result gui must be of dimensions 1x1");
         
         this.inputGui = inputGui;
-        this.outputGui = outputGui;
+        this.resultGui = resultGui;
         this.lowerGui = lowerGui;
     }
     
@@ -77,7 +79,7 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
     
     @Override
     public @Unmodifiable List<Gui> getGuis() {
-        return List.of(inputGui, outputGui, lowerGui);
+        return List.of(inputGui, resultGui, lowerGui);
     }
     
     public static final class BuilderImpl
@@ -86,7 +88,7 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
     {
         
         private Supplier<? extends Gui> inputGuiSupplier = () -> Gui.empty(1, 2);
-        private Supplier<? extends Gui> outputGuiSupplier = () -> Gui.empty(1, 1);
+        private Supplier<? extends Gui> resultGuiSupplier = () -> Gui.empty(1, 1);
         private final Set<MapIcon> icons = new HashSet<>();
         private byte @Nullable [] canvas;
         
@@ -97,8 +99,8 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
         }
         
         @Override
-        public CartographyWindow.Builder setOutputGui(Supplier<? extends Gui> guiSupplier) {
-            this.outputGuiSupplier = guiSupplier;
+        public CartographyWindow.Builder setResultGui(Supplier<? extends Gui> guiSupplier) {
+            this.resultGuiSupplier = guiSupplier;
             return this;
         }
         
@@ -136,7 +138,7 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
                 viewer,
                 titleSupplier,
                 (AbstractGui) inputGuiSupplier.get(),
-                (AbstractGui) outputGuiSupplier.get(),
+                (AbstractGui) resultGuiSupplier.get(),
                 supplyLowerGui(viewer),
                 closeable
             );

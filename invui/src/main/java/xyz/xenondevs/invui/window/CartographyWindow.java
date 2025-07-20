@@ -106,34 +106,34 @@ public sealed interface CartographyWindow extends Window permits CartographyWind
         Builder setInputGui(Supplier<? extends Gui> guiSupplier);
         
         /**
-         * Sets the 1x1 output {@link Gui} of the {@link CartographyWindow}.
+         * Sets the 1x1 result {@link Gui} of the {@link CartographyWindow}.
          *
-         * @param gui The 1x1 output {@link Gui}
+         * @param gui The 1x1 result {@link Gui}
          * @return This {@link Builder}
          */
-        default Builder setOutputGui(Gui gui) {
-            return setOutputGui(() -> gui);
+        default Builder setResultGui(Gui gui) {
+            return setResultGui(() -> gui);
         }
         
         /**
-         * Sets the {@link Gui.Builder} for the 1x1 output {@link Gui} of this {@link Builder}.
+         * Sets the {@link Gui.Builder} for the 1x1 result {@link Gui} of this {@link Builder}.
          * The {@link Gui.Builder} will be called every time a new {@link CartographyWindow} is created using this builder.
          *
-         * @param builder The {@link Gui.Builder} for the 1x1 output {@link Gui}
+         * @param builder The {@link Gui.Builder} for the 1x1 result {@link Gui}
          * @return This {@link Builder}
          */
-        default Builder setOutputGui(Gui.Builder<?, ?> builder) {
-            return setOutputGui(builder::build);
+        default Builder setResultGui(Gui.Builder<?, ?> builder) {
+            return setResultGui(builder::build);
         }
         
         /**
-         * Sets the {@link Gui} {@link Supplier} for the 1x1 output {@link Gui} of this {@link Builder}.
+         * Sets the {@link Gui} {@link Supplier} for the 1x1 result {@link Gui} of this {@link Builder}.
          * The {@link Supplier} will be called every time a new {@link CartographyWindow} is created using this builder.
          *
-         * @param guiSupplier The {@link Gui} {@link Supplier} for the 1x1 output {@link Gui}
+         * @param guiSupplier The {@link Gui} {@link Supplier} for the 1x1 result {@link Gui}
          * @return This {@link Builder}
          */
-        Builder setOutputGui(Supplier<? extends Gui> guiSupplier);
+        Builder setResultGui(Supplier<? extends Gui> guiSupplier);
         
         /**
          * Adds a {@link MapIcon} to the map.
