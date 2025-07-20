@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 /**
  * A packet-based furnace menu.
  */
-public class CustomFurnaceMenu extends CustomRecipeBookPoweredMenu{
+public class CustomFurnaceMenu extends CustomRecipeBookPoweredMenu {
     
     /**
      * Creates a new {@link CustomFurnaceMenu} for the specified viewer.

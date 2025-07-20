@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 /**
  * A packet-based crafting table menu.
  */
-public class CustomCraftingTableMenu extends CustomRecipeBookPoweredMenu{
+public class CustomCraftingTableMenu extends CustomRecipeBookPoweredMenu {
     
     /**
      * Creates a new {@link CustomCraftingTableMenu} for the specified viewer.
