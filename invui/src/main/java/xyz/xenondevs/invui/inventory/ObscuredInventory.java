@@ -3,18 +3,17 @@ package xyz.xenondevs.invui.inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
+import xyz.xenondevs.invui.internal.util.ArrayUtils;
 import xyz.xenondevs.invui.inventory.event.InventoryClickEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
 import xyz.xenondevs.invui.window.AbstractWindow;
 
-import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.IntPredicate;
+import java.util.stream.IntStream;
 
 /**
  * An {@link Inventory} that delegates to another {@link Inventory} while hiding certain slots.
@@ -22,8 +21,8 @@ import java.util.function.IntPredicate;
 public final class ObscuredInventory extends Inventory {
     
     private final Inventory inventory;
-    private final BitSet mask;
-    private final int[] slots;
+    private final int[] slots; // this slot -> delegate slot
+    private final int[] inverseSlots; // delegate slot -> this slot
     
     /**
      * Constructs a new {@link ObscuredInventory}.
@@ -34,18 +33,13 @@ public final class ObscuredInventory extends Inventory {
     public ObscuredInventory(Inventory inventory, IntPredicate isObscured) {
         super(calculateSize(inventory, isObscured));
         this.inventory = inventory;
-        this.mask = new BitSet(inventory.getSize());
-        
-        ArrayList<Integer> slots = new ArrayList<>();
-        for (int slot = 0; slot < inventory.getSize(); slot++) {
-            if (isObscured.test(slot))
-                continue;
-            
-            mask.set(slot);
-            slots.add(slot);
+        this.slots = IntStream.range(0, inventory.getSize())
+            .filter(slot -> !isObscured.test(slot))
+            .toArray();
+        this.inverseSlots = ArrayUtils.newIntArray(inventory.getSize(), -1);
+        for (int i = 0; i < this.slots.length; i++) {
+            inverseSlots[this.slots[i]] = i;
         }
-        
-        this.slots = slots.stream().mapToInt(Integer::intValue).toArray();
     }
     
     private static int calculateSize(Inventory inventory, IntPredicate isObscured) {
@@ -62,8 +56,8 @@ public final class ObscuredInventory extends Inventory {
         int[] iterationOrder = new int[slots.length];
         int i = 0;
         for (int slot : inventory.getIterationOrder()) {
-            if (mask.get(slot)) {
-                iterationOrder[i++] = slot;
+            if (slot < inverseSlots.length && inverseSlots[slot] != -1) {
+                iterationOrder[i++] = inverseSlots[slot];
             }
         }
         return iterationOrder;

@@ -130,4 +130,17 @@ public class ArrayUtils {
         return set;
     }
     
+    /**
+     * Creates a new int array of the given size, filled with the given value.
+     *
+     * @param size  the size of the array
+     * @param value the value to fill the array with
+     * @return a new int array of the given size, filled with the given value
+     */
+    public static int[] newIntArray(int size, int value) {
+        int[] array = new int[size];
+        Arrays.fill(array, value);
+        return array;
+    }
+    
 }

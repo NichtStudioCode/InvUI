@@ -25,7 +25,7 @@ public class ObscuredInventoryTest {
         inv.setIterationOrder(new int[] {4, 3, 0, 1, 2});
         
         var obscured = new ObscuredInventory(inv, i -> i % 2 == 0);
-        assertArrayEquals(new int[] {3, 1}, obscured.getIterationOrder());
+        assertArrayEquals(new int[] {1, 0}, obscured.getIterationOrder());
     }
     
 }
