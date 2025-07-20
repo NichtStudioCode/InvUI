@@ -143,7 +143,7 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
     {
         
         private Supplier<? extends Gui> upperGuiSupplier = () -> Gui.empty(2, 1);
-        private Supplier<? extends Gui> butonsGuiSupplier = () -> Gui.empty(0, 0);
+        private Supplier<? extends Gui> butonsGuiSupplier = () -> Gui.empty(4, 0);
         private List<BiConsumer<? super Integer, ? super Integer>> selectedSlotChangeHandlers = new ArrayList<>();
         private MutableProperty<Integer> selectedSlot = MutableProperty.of(-1);
         
