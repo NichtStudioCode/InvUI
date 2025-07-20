@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component;
 import net.minecraft.network.protocol.game.ServerboundRenameItemPacket;
 import net.minecraft.world.inventory.MenuType;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.internal.network.PacketListener;
 
@@ -13,6 +14,8 @@ import java.util.function.Consumer;
  * A packet-based anvil menu.
  */
 public class CustomAnvilMenu extends CustomContainerMenu {
+    
+    private static final int ENCHANTMENT_COST_DIRTY_MARKER = Integer.MIN_VALUE;
     
     private String renameText = "";
     private @Nullable Consumer<? super String> renameHandler;
@@ -40,11 +43,22 @@ public class CustomAnvilMenu extends CustomContainerMenu {
         super.handleClosed();
     }
     
+    @Override
+    public void setItem(int slot, @Nullable ItemStack item) {
+        super.setItem(slot, item);
+        
+        // updating second input slot causes client-side prediction of enchantment cost
+        if (slot == 1) {
+            remoteDataSlots[0] = ENCHANTMENT_COST_DIRTY_MARKER;
+        }
+    }
+    
     private void handleRename(ServerboundRenameItemPacket packet) {
         renameText = packet.getName();
         if (renameHandler != null)
             renameHandler.accept(renameText);
         remoteItems.set(2, DIRTY_MARKER);
+        remoteDataSlots[0] = ENCHANTMENT_COST_DIRTY_MARKER;
     }
     
     /**
