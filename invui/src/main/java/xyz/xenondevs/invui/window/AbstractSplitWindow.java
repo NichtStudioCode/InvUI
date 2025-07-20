@@ -19,7 +19,7 @@ import java.util.function.Supplier;
 @ApiStatus.Internal
 sealed abstract class AbstractSplitWindow<M extends CustomContainerMenu>
     extends AbstractWindow<M>
-    permits AnvilWindowImpl, BrewerWindowImpl, CartographyWindowImpl, CrafterWindowImpl, CraftingTableWindowImpl, FurnaceWindowImpl, GrindstoneWindowImpl, MerchantWindowImpl, NormalSplitWindowImpl, SmithingWindowImpl, StonecutterWindowImpl
+    permits AnvilWindowImpl, BrewerWindowImpl, CartographyWindowImpl, CrafterWindowImpl, CraftingWindowImpl, FurnaceWindowImpl, GrindstoneWindowImpl, MerchantWindowImpl, NormalSplitWindowImpl, SmithingWindowImpl, StonecutterWindowImpl
 {
     
     private final AbstractGui lowerGui;
@@ -41,7 +41,7 @@ sealed abstract class AbstractSplitWindow<M extends CustomContainerMenu>
     static sealed abstract class AbstractBuilder<W extends Window, S extends Builder.Split<W, S>>
         extends AbstractWindow.AbstractBuilder<W, S>
         implements Builder.Split<W, S>
-        permits AnvilWindowImpl.BuilderImpl, BrewerWindowImpl.BuilderImpl, CartographyWindowImpl.BuilderImpl, CrafterWindowImpl.BuilderImpl, CraftingTableWindowImpl.BuilderImpl, FurnaceWindowImpl.BuilderImpl, GrindstoneWindowImpl.BuilderImpl, MerchantWindowImpl.BuilderImpl, NormalSplitWindowImpl.BuilderImpl, SmithingWindowImpl.BuilderImpl, StonecutterWindowImpl.BuilderImpl
+        permits AnvilWindowImpl.BuilderImpl, BrewerWindowImpl.BuilderImpl, CartographyWindowImpl.BuilderImpl, CrafterWindowImpl.BuilderImpl, CraftingWindowImpl.BuilderImpl, FurnaceWindowImpl.BuilderImpl, GrindstoneWindowImpl.BuilderImpl, MerchantWindowImpl.BuilderImpl, NormalSplitWindowImpl.BuilderImpl, SmithingWindowImpl.BuilderImpl, StonecutterWindowImpl.BuilderImpl
     {
         
         private @Nullable Supplier<? extends Gui> lowerGuiSupplier;

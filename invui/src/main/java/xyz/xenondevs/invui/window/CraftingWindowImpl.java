@@ -7,21 +7,20 @@ import org.jetbrains.annotations.Unmodifiable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomCraftingTableMenu;
-import xyz.xenondevs.invui.internal.menu.CustomRecipeBookPoweredMenu;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-final class CraftingTableWindowImpl extends AbstractSplitWindow<CustomCraftingTableMenu> implements CraftingTableWindow {
+final class CraftingWindowImpl extends AbstractSplitWindow<CustomCraftingTableMenu> implements CraftingWindow {
     
     private final AbstractGui craftingGui;
     private final AbstractGui resultGui;
     private final AbstractGui lowerGui;
     private final List<Consumer<? super Key>> recipeClickHandlers = new ArrayList<>();
     
-    public CraftingTableWindowImpl(
+    public CraftingWindowImpl(
         Player player,
         Supplier<? extends Component> title,
         AbstractGui craftingGui,
@@ -76,8 +75,8 @@ final class CraftingTableWindowImpl extends AbstractSplitWindow<CustomCraftingTa
     }
     
     public static final class BuilderImpl
-        extends AbstractSplitWindow.AbstractBuilder<CraftingTableWindow, CraftingTableWindow.Builder>
-        implements CraftingTableWindow.Builder
+        extends AbstractSplitWindow.AbstractBuilder<CraftingWindow, CraftingWindow.Builder>
+        implements CraftingWindow.Builder
     {
         
         private final List<Consumer<? super Key>> recipeClickHandlers = new ArrayList<>();
@@ -85,33 +84,33 @@ final class CraftingTableWindowImpl extends AbstractSplitWindow<CustomCraftingTa
         private Supplier<? extends Gui> resultGuiSupplier = () -> Gui.empty(1, 1);
         
         @Override
-        public CraftingTableWindow.Builder setCraftingGui(Supplier<? extends Gui> guiSupplier) {
+        public CraftingWindow.Builder setCraftingGui(Supplier<? extends Gui> guiSupplier) {
             this.craftingGuiSupplier = guiSupplier;
             return this;
         }
         
         @Override
-        public CraftingTableWindow.Builder setResultGui(Supplier<? extends Gui> guiSupplier) {
+        public CraftingWindow.Builder setResultGui(Supplier<? extends Gui> guiSupplier) {
             this.resultGuiSupplier = guiSupplier;
             return this;
         }
         
         @Override
-        public CraftingTableWindow.Builder setRecipeClickHandlers(List<? extends Consumer<? super Key>> handlers) {
+        public CraftingWindow.Builder setRecipeClickHandlers(List<? extends Consumer<? super Key>> handlers) {
             this.recipeClickHandlers.clear();
             this.recipeClickHandlers.addAll(handlers);
             return this;
         }
         
         @Override
-        public CraftingTableWindow.Builder addRecipeClickHandler(Consumer<? super Key> handler) {
+        public CraftingWindow.Builder addRecipeClickHandler(Consumer<? super Key> handler) {
             this.recipeClickHandlers.add(handler);
             return this;
         }
         
         @Override
-        public CraftingTableWindow build(Player viewer) {
-            var window = new CraftingTableWindowImpl(
+        public CraftingWindow build(Player viewer) {
+            var window = new CraftingWindowImpl(
                 viewer,
                 titleSupplier,
                 (AbstractGui) craftingGuiSupplier.get(),

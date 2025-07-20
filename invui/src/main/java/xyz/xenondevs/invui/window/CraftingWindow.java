@@ -7,24 +7,24 @@ import java.util.function.Supplier;
 /**
  * A {@link Window} that uses a crafter inventory.
  */
-public sealed interface CraftingTableWindow extends Window, RecipeBookPowered permits CraftingTableWindowImpl {
+public sealed interface CraftingWindow extends Window, RecipeBookPowered permits CraftingWindowImpl {
     
     /**
-     * Creates a new {@link Builder} for a split {@link CraftingTableWindow}.
+     * Creates a new {@link Builder} for a split {@link CraftingWindow}.
      *
      * @return The new {@link Builder}
      */
     static Builder builder() {
-        return new CraftingTableWindowImpl.BuilderImpl();
+        return new CraftingWindowImpl.BuilderImpl();
     }
     
     /**
-     * A {@link CraftingTableWindow} builder.
+     * A {@link CraftingWindow} builder.
      */
-    sealed interface Builder extends Window.Builder.Split<CraftingTableWindow, Builder>, RecipeBookPowered.Builder<CraftingTableWindow.Builder> permits CraftingTableWindowImpl.BuilderImpl {
+    sealed interface Builder extends Window.Builder.Split<CraftingWindow, Builder>, RecipeBookPowered.Builder<CraftingWindow.Builder> permits CraftingWindowImpl.BuilderImpl {
         
         /**
-         * Sets the 3x3 crafting input {@link Gui} of the {@link CraftingTableWindow}.
+         * Sets the 3x3 crafting input {@link Gui} of the {@link CraftingWindow}.
          *
          * @param gui The 3x3 crafting input {@link Gui}
          * @return This {@link Builder}
@@ -35,7 +35,7 @@ public sealed interface CraftingTableWindow extends Window, RecipeBookPowered pe
         
         /**
          * Sets the {@link Gui.Builder} for the 3x3 crafting input {@link Gui} of this {@link Builder}.
-         * The {@link Gui.Builder} will be called every time a new {@link CraftingTableWindow} is created using this builder.
+         * The {@link Gui.Builder} will be called every time a new {@link CraftingWindow} is created using this builder.
          *
          * @param builder The {@link Gui.Builder} for the 3x3 crafting input {@link Gui}
          * @return This {@link Builder}
@@ -46,7 +46,7 @@ public sealed interface CraftingTableWindow extends Window, RecipeBookPowered pe
         
         /**
          * Sets the {@link Gui} {@link Supplier} for the 3x3 crafting input {@link Gui} of this {@link Builder}.
-         * The {@link Supplier} will be called every time a new {@link CraftingTableWindow} is created using this builder.
+         * The {@link Supplier} will be called every time a new {@link CraftingWindow} is created using this builder.
          *
          * @param guiSupplier The {@link Gui} {@link Supplier} for the 3x3 crafting input {@link Gui}
          * @return This {@link Builder}
@@ -54,9 +54,9 @@ public sealed interface CraftingTableWindow extends Window, RecipeBookPowered pe
         Builder setCraftingGui(Supplier<? extends Gui> guiSupplier);
         
         /**
-         * Sets the result {@link Gui} of the {@link CraftingTableWindow}.
+         * Sets the result {@link Gui} of the {@link CraftingWindow}.
          *
-         * @param gui The result input {@link Gui} of the {@link CraftingTableWindow}
+         * @param gui The result input {@link Gui} of the {@link CraftingWindow}
          * @return This {@link Builder}
          */
         default Builder setResultGui(Gui gui) {
@@ -65,7 +65,7 @@ public sealed interface CraftingTableWindow extends Window, RecipeBookPowered pe
         
         /**
          * Sets the {@link Gui.Builder} for the result input {@link Gui} of this {@link Builder}.
-         * The {@link Gui.Builder} will be called every time a new {@link CraftingTableWindow} is created using this builder.
+         * The {@link Gui.Builder} will be called every time a new {@link CraftingWindow} is created using this builder.
          *
          * @param builder The {@link Gui.Builder} for the result input {@link Gui}
          * @return This {@link Builder}
@@ -76,7 +76,7 @@ public sealed interface CraftingTableWindow extends Window, RecipeBookPowered pe
         
         /**
          * Sets the {@link Gui} {@link Supplier} for the result input {@link Gui} of this {@link Builder}.
-         * The {@link Supplier} will be called every time a new {@link CraftingTableWindow} is created using this builder.
+         * The {@link Supplier} will be called every time a new {@link CraftingWindow} is created using this builder.
          *
          * @param guiSupplier The {@link Gui} {@link Supplier} for the result input {@link Gui}
          * @return This {@link Builder}

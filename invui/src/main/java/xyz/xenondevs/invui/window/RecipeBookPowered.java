@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 /**
  * An interface for windows that have a recipe book.
  */
-public sealed interface RecipeBookPowered permits CraftingTableWindow, FurnaceWindow {
+public sealed interface RecipeBookPowered permits CraftingWindow, FurnaceWindow {
     
     /**
      * Displays a ghost recipe in the window.
@@ -46,7 +46,7 @@ public sealed interface RecipeBookPowered permits CraftingTableWindow, FurnaceWi
      *
      * @param <S> Self type of the builder, used for method chaining.
      */
-    sealed interface Builder<S extends Builder<S>> permits CraftingTableWindow.Builder, FurnaceWindow.Builder {
+    sealed interface Builder<S extends Builder<S>> permits CraftingWindow.Builder, FurnaceWindow.Builder {
         
         /**
          * Sets the recipe click handlers of the {@link AnvilWindow}.
