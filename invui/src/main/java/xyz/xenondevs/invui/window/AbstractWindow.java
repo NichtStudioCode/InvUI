@@ -4,17 +4,14 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.GameMode;
-import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.ClickEvent;
-import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
@@ -46,7 +43,6 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
     permits AbstractMergedWindow, AbstractSplitWindow
 {
     
-    private static final NamespacedKey SLOT_KEY = new NamespacedKey(InvUI.getInstance().getPlugin(), "slot");
     private static final ThreadLocal<Boolean> isInOpeningContext = ThreadLocal.withInitial(() -> false);
     private static final ThreadLocal<Integer> isInCloseHandlerContext = ThreadLocal.withInitial(() -> 0);
     
@@ -100,13 +96,6 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
         SlotElement holdingElement = newPath.getLast().getHoldingElement();
         if (holdingElement != null) {
             itemStack = holdingElement.getItemStack(getViewer());
-            if (itemStack != null && holdingElement instanceof SlotElement.Item) {
-                // This makes every item unique to prevent Shift-DoubleClick "clicking" multiple items at the same time.
-                itemStack = itemStack.clone(); // clone ItemStack in order to not modify the original
-                itemStack.editMeta(meta ->
-                    meta.getPersistentDataContainer().set(SLOT_KEY, PersistentDataType.BYTE, (byte) slot)
-                );
-            }
         } else { // holding element is null
             // background by gui
             itemStack = newPath.reversed().stream()
