@@ -45,8 +45,8 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
     
     @Override
     protected void setMenuItem(int slot, @Nullable ItemStack itemStack) {
-        if (slot == 0) {
-            super.setMenuItem(0, ItemUtils2.nonEmpty(itemStack));
+        if (slot == 0 || slot == 1) {
+            super.setMenuItem(slot, ItemUtils2.nonEmpty(itemStack));
         } else {
             super.setMenuItem(slot, itemStack);
         }
