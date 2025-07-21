@@ -52,10 +52,10 @@ public final class ObscuredInventory extends Inventory {
     }
     
     @Override
-    public int[] getIterationOrder() {
+    public int[] getIterationOrder(IterationOrderCategory category) {
         int[] iterationOrder = new int[slots.length];
         int i = 0;
-        for (int slot : inventory.getIterationOrder()) {
+        for (int slot : inventory.getIterationOrder(category)) {
             if (slot < inverseSlots.length && inverseSlots[slot] != -1) {
                 iterationOrder[i++] = inverseSlots[slot];
             }
@@ -161,7 +161,7 @@ public final class ObscuredInventory extends Inventory {
     }
     
     @Override
-    public void setIterationOrder(int[] iterationOrder) {
+    public void setIterationOrder(IterationOrderCategory category, int[] iterationOrder) {
         throw new UnsupportedOperationException("Iteration order needs to be set in the backing inventory");
     }
     

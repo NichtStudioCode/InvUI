@@ -9,6 +9,7 @@ import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.internal.menu.CustomContainerMenu;
 import xyz.xenondevs.invui.inventory.Inventory;
+import xyz.xenondevs.invui.inventory.IterationOrderCategory;
 import xyz.xenondevs.invui.inventory.ReferencingInventory;
 
 import java.util.function.Supplier;
@@ -56,7 +57,7 @@ sealed abstract class AbstractSplitWindow<M extends CustomContainerMenu>
             if (lowerGuiSupplier == null) {
                 AbstractGui gui = (AbstractGui) Gui.empty(9, 4);
                 Inventory inv = ReferencingInventory.fromPlayerStorageContents(viewer.getInventory());
-                inv.reverseIterationOrder();
+                inv.reverseIterationOrder(IterationOrderCategory.ADD);
                 inv.setGuiPriority(Integer.MAX_VALUE); // expected vanilla-like behavior: shift-click moves between upper and lower inv
                 gui.fillRectangle(0, 0, 9, inv, true);
                 return gui;

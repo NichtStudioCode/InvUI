@@ -62,12 +62,12 @@ public final class CompositeInventory extends Inventory {
     }
     
     @Override
-    public int[] getIterationOrder() {
+    public int[] getIterationOrder(IterationOrderCategory category) {
         int[] iterationOrder = new int[getSize()];
         int i = 0;
         int offset = 0;
         for (Inventory inventory : inventories) {
-            int[] invOrder = inventory.getIterationOrder();
+            int[] invOrder = inventory.getIterationOrder(category);
             for (var slot : invOrder) {
                 iterationOrder[i++] = offset + slot;
             }
@@ -212,7 +212,7 @@ public final class CompositeInventory extends Inventory {
     }
     
     @Override
-    public void setIterationOrder(int[] iterationOrder) {
+    public void setIterationOrder(IterationOrderCategory category, int[] iterationOrder) {
         throw new UnsupportedOperationException("Iteration order needs to be set in the backing inventories");
     }
     

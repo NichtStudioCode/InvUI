@@ -9,6 +9,7 @@ import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.ViewerAtSlot;
 import xyz.xenondevs.invui.internal.util.ArrayUtils;
+import xyz.xenondevs.invui.internal.util.CollectionUtils;
 import xyz.xenondevs.invui.inventory.event.InventoryClickEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
@@ -57,13 +58,13 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
     private @Nullable List<Consumer<ItemPreUpdateEvent>> preUpdateHandlers;
     private @Nullable List<Consumer<ItemPostUpdateEvent>> postUpdateHandlers;
     private int guiPriority = 0;
-    private int[] iterationOrder;
+    private final Map<IterationOrderCategory, int[]> iterationOrders;
     
     @SuppressWarnings("unchecked")
     public Inventory(int size) {
         this.size = size;
         viewers = new Set[size];
-        iterationOrder = IntStream.range(0, size).toArray();
+        iterationOrders = CollectionUtils.newEnumMap(IterationOrderCategory.class, k -> IntStream.range(0, size).toArray());
     }
     
     /**
@@ -76,34 +77,33 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
     }
     
     /**
-     * Sets the order in which slots are iterated over on methods that affect multiple slots,
-     * such as {@link #addItem(UpdateReason, ItemStack)} or {@link #collectSimilar(UpdateReason, ItemStack, int)}.
+     * Sets the order in which slots are iterated over for the given category.
      *
      * @param iterationOrder The new iteration order. Must include all slots and no duplicates.
      */
-    public void setIterationOrder(int[] iterationOrder) {
+    public void setIterationOrder(IterationOrderCategory category, int[] iterationOrder) {
         if (iterationOrder.length != size)
             throw new IllegalArgumentException("Iteration order size must match inventory size");
         
         var includedSlots = new BitSet(size);
-        for (var slot : getIterationOrder()) {
+        for (var slot : iterationOrder) {
             includedSlots.set(slot);
         }
         
         if (includedSlots.nextClearBit(0) != size)
             throw new IllegalArgumentException("Iteration order must include all slots");
         
-        this.iterationOrder = iterationOrder;
+        iterationOrders.put(category, iterationOrder);
     }
     
     /**
-     * Gets a copy of the order in which slots are iterated over on methods that affect multiple slots,
-     * such as {@link #addItem(UpdateReason, ItemStack)} or {@link #collectSimilar(UpdateReason, ItemStack, int)}.
+     * Gets a copy of the order in which slots are iterated over for the given category.
      *
+     * @param category The category of iteration operations
      * @return The current iteration order.
      */
-    public int[] getIterationOrder() {
-        return iterationOrder.clone();
+    public int[] getIterationOrder(IterationOrderCategory category) {
+        return iterationOrders.get(category).clone();
     }
     
     /**
@@ -111,7 +111,18 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      * such as {@link #addItem(UpdateReason, ItemStack)} or {@link #collectSimilar(UpdateReason, ItemStack, int)}.
      */
     public void reverseIterationOrder() {
-        setIterationOrder(ArrayUtils.reversed(iterationOrder));
+        for (var category : IterationOrderCategory.values()) {
+            reverseIterationOrder(category);
+        }
+    }
+    
+    /**
+     * Reverses the order in which slots are iterated over for the given category.
+     *
+     * @param category The category of operations where the iteration order should be reversed
+     */
+    public void reverseIterationOrder(IterationOrderCategory category) {
+        setIterationOrder(category, ArrayUtils.reversed(getIterationOrder(category)));
     }
     
     /**
@@ -1005,7 +1016,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
         int amountLeft,
         @Nullable ItemStack[] items
     ) {
-        for (int slot : getIterationOrder()) {
+        for (int slot : getIterationOrder(IterationOrderCategory.ADD)) {
             if (amountLeft <= 0)
                 break;
             
@@ -1048,7 +1059,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
         int amountLeft,
         @Nullable ItemStack[] items
     ) {
-        for (int slot : getIterationOrder()) {
+        for (int slot : getIterationOrder(IterationOrderCategory.ADD)) {
             if (amountLeft <= 0)
                 break;
             
@@ -1166,7 +1177,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
         int amountLeft = itemStack.getAmount();
         
         // find all slots where the item partially fits
-        for (int slot : getIterationOrder()) {
+        for (int slot : getIterationOrder(IterationOrderCategory.ADD)) {
             if (amountLeft == 0)
                 break;
             
@@ -1183,7 +1194,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
         }
         
         // remaining items would be added to empty slots
-        for (int slot : getIterationOrder()) {
+        for (int slot : getIterationOrder(IterationOrderCategory.ADD)) {
             if (amountLeft == 0)
                 break;
             
@@ -1245,7 +1256,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
             @Nullable ItemStack[] items = getUnsafeItems();
             
             // find partial slots and take items from there
-            for (int slot : getIterationOrder()) {
+            for (int slot : getIterationOrder(IterationOrderCategory.COLLECT)) {
                 ItemStack currentStack = items[slot];
                 if (currentStack == null || currentStack.getAmount() >= maxStackSize || !template.isSimilar(currentStack))
                     continue;
@@ -1256,7 +1267,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
             }
             
             // only taking from partial stacks wasn't enough, take from a full slot
-            for (int slot : getIterationOrder()) {
+            for (int slot : getIterationOrder(IterationOrderCategory.COLLECT)) {
                 ItemStack currentStack = items[slot];
                 if (currentStack == null || currentStack.getAmount() < maxStackSize || !template.isSimilar(currentStack))
                     continue;
@@ -1281,7 +1292,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
         @Nullable ItemStack[] items = getUnsafeItems();
         
         int removed = 0;
-        for (int slot : getIterationOrder()) {
+        for (int slot : getIterationOrder(IterationOrderCategory.OTHER)) {
             ItemStack item = items[slot];
             if (item != null && predicate.test(item.clone()) && setItem(updateReason, slot, null)) {
                 removed += item.getAmount();
@@ -1303,7 +1314,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
         @Nullable ItemStack[] items = getUnsafeItems();
         
         int leftOver = amount;
-        for (int slot : getIterationOrder()) {
+        for (int slot : getIterationOrder(IterationOrderCategory.OTHER)) {
             ItemStack item = items[slot];
             if (item != null && predicate.test(item.clone())) {
                 leftOver -= takeFrom(updateReason, slot, leftOver);
@@ -1325,7 +1336,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
         @Nullable ItemStack[] items = getUnsafeItems();
         
         int removed = 0;
-        for (int slot : getIterationOrder()) {
+        for (int slot : getIterationOrder(IterationOrderCategory.OTHER)) {
             ItemStack item = items[slot];
             if (item != null && item.isSimilar(itemStack) && setItem(updateReason, slot, null)) {
                 removed += item.getAmount();
@@ -1347,7 +1358,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
         @Nullable ItemStack[] items = getUnsafeItems();
         
         int leftOver = amount;
-        for (int slot : getIterationOrder()) {
+        for (int slot : getIterationOrder(IterationOrderCategory.OTHER)) {
             ItemStack item = items[slot];
             if (item != null && item.isSimilar(itemStack)) {
                 leftOver -= takeFrom(updateReason, slot, leftOver);

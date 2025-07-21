@@ -25,10 +25,11 @@ public class CompositeInventoryTest {
         var inv2 = new VirtualInventory(3);
         inv2.reverseIterationOrder();
         var inv3 = new VirtualInventory(3);
-        inv3.setIterationOrder(new int[] {2, 0, 1});
+        inv3.setIterationOrder(IterationOrderCategory.ADD, new int[] {2, 0, 1});
         
         var composite = new CompositeInventory(inv1, inv2, inv3);
-        assertArrayEquals(new int[] {0, 1, 2, 5, 4, 3, 8, 6, 7}, composite.getIterationOrder());
+        assertArrayEquals(new int[] {0, 1, 2, 5, 4, 3, 8, 6, 7}, composite.getIterationOrder(IterationOrderCategory.ADD));
+        assertArrayEquals(new int[] {0, 1, 2, 5, 4, 3, 6, 7, 8}, composite.getIterationOrder(IterationOrderCategory.COLLECT));
     }
     
 }
