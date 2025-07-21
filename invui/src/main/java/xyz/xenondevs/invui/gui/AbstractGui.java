@@ -50,7 +50,7 @@ public sealed abstract class AbstractGui
     private boolean frozen;
     private boolean ignoreObscuredInventorySlots = true;
     private @Nullable ItemProvider background;
-    private @Nullable AnimationImpl animation;
+    private AnimationImpl.@Nullable StateImpl animation;
     private @Nullable SlotElement @Nullable [] animationElements;
     private @Nullable IngredientMatrix ingredientMatrix;
     
@@ -520,26 +520,33 @@ public sealed abstract class AbstractGui
         if (this.animation != null)
             cancelAnimation();
         
-        var animationImpl = (AnimationImpl) animation;
-        this.animation = animationImpl;
-        this.animationElements = slotElements.clone();
-        animationImpl.bind(this);
-        for (Slot slot : animationImpl.getRemainingSlots()) {
-            setSlotElement(slot.x(), slot.y(), animationImpl.getIntermediarySlotElement(slot));
-        }
-        animationImpl.addShowHandler(slots -> {
-            for (Slot slot : slots) {
-                int i = convToIndex(slot.x(), slot.y());
-                assert animationElements != null;
-                setSlotElement(i, animationElements[i]);
+        var animState = ((AnimationImpl) animation).new StateImpl(
+            this,
+            slots -> {
+                for (Slot slot : slots) {
+                    int i = convToIndex(slot.x(), slot.y());
+                    assert animationElements != null;
+                    setSlotElement(i, animationElements[i]);
+                }
+            },
+            () -> {
+                this.animation = null;
+                this.animationElements = null;
             }
-        });
-        animationImpl.addFinishHandler(() -> {
-            this.animation = null;
-            this.animationElements = null;
-        });
+        );
         
-        animationImpl.start();
+        // no slots to animate?
+        if (animState.isFinished())
+            return;
+        
+        this.animation = animState;
+        this.animationElements = slotElements.clone();
+        
+        for (Slot slot : animState.getRemainingSlots()) {
+            setSlotElement(slot.x(), slot.y(), animState.getIntermediarySlotElement(slot));
+        }
+        
+        animState.start();
     }
     
     @Override

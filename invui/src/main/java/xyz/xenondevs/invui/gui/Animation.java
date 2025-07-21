@@ -44,7 +44,7 @@ public sealed interface Animation permits AnimationImpl {
      *
      * @return The slot selector.
      */
-    static Function<Animation, Set<Slot>> columnSlotSelector() {
+    static Function<State, Set<Slot>> columnSlotSelector() {
         return new AnimationImpl.ColumnSlotSelector();
     }
     
@@ -54,7 +54,7 @@ public sealed interface Animation permits AnimationImpl {
      *
      * @return The slot selector.
      */
-    static Function<Animation, Set<Slot>> rowSlotSelector() {
+    static Function<State, Set<Slot>> rowSlotSelector() {
         return new AnimationImpl.RowSlotSelector();
     }
     
@@ -65,7 +65,7 @@ public sealed interface Animation permits AnimationImpl {
      *
      * @return The slot selector.
      */
-    static Function<Animation, Set<Slot>> horizontalSnakeSlotSelector() {
+    static Function<State, Set<Slot>> horizontalSnakeSlotSelector() {
         return new AnimationImpl.HorizontalSnakeSlotSelector();
     }
     
@@ -76,7 +76,7 @@ public sealed interface Animation permits AnimationImpl {
      *
      * @return The slot selector.
      */
-    static Function<Animation, Set<Slot>> verticalSnakeSlotSelector() {
+    static Function<State, Set<Slot>> verticalSnakeSlotSelector() {
         return new AnimationImpl.VerticalSnakeSlotSelector();
     }
     
@@ -86,7 +86,7 @@ public sealed interface Animation permits AnimationImpl {
      *
      * @return The slot selector.
      */
-    static Function<Animation, Set<Slot>> sequentialSlotSelector() {
+    static Function<State, Set<Slot>> sequentialSlotSelector() {
         return new AnimationImpl.SequentialSlotSelector();
     }
     
@@ -97,7 +97,7 @@ public sealed interface Animation permits AnimationImpl {
      *
      * @return The slot selector.
      */
-    static Function<Animation, Set<Slot>> splitSequentialSlotSelector() {
+    static Function<State, Set<Slot>> splitSequentialSlotSelector() {
         return new AnimationImpl.SplitSequentialSlotSelector();
     }
     
@@ -107,38 +107,45 @@ public sealed interface Animation permits AnimationImpl {
      *
      * @return The slot selector.
      */
-    static Function<Animation, Set<Slot>> randomSlotSelector() {
+    static Function<State, Set<Slot>> randomSlotSelector() {
         return AnimationImpl.RANDOM_SLOT_SELECTOR;
     }
     
     /**
-     * Gets the {@link Gui} that this animation is bound to, or throws an exception if the animation is not bound to a gui.
-     *
-     * @return The {@link Gui} that this animation is bound to.
-     * @throws IllegalStateException If the animation is not bound to a gui.
+     * Contains the state of a running animation.
      */
-    Gui getGui();
-    
-    /**
-     * Gets the current frame of the animation.
-     *
-     * @return The current frame of the animation.
-     */
-    int getFrame();
-    
-    /**
-     * Gets an immutable view of the slots that are still remaining to be shown.
-     *
-     * @return An immutable view of the slots that are still remaining to be shown.
-     */
-    Set<Slot> getRemainingSlots();
-    
-    /**
-     * Gets whether the animation is finished.
-     *
-     * @return Whether the animation is finished.
-     */
-    boolean isFinished();
+    sealed interface State permits AnimationImpl.StateImpl {
+        
+        /**
+         * Gets the {@link Gui} that this animation is bound to, or throws an exception if the animation is not bound to a gui.
+         *
+         * @return The {@link Gui} that this animation is bound to.
+         * @throws IllegalStateException If the animation is not bound to a gui.
+         */
+        Gui getGui();
+        
+        /**
+         * Gets the current frame of the animation.
+         *
+         * @return The current frame of the animation.
+         */
+        int getFrame();
+        
+        /**
+         * Gets an immutable view of the slots that are still remaining to be shown.
+         *
+         * @return An immutable view of the slots that are still remaining to be shown.
+         */
+        Set<Slot> getRemainingSlots();
+        
+        /**
+         * Gets whether the animation is finished.
+         *
+         * @return Whether the animation is finished.
+         */
+        boolean isFinished();
+        
+    }
     
     /**
      * A builder for an {@link Animation}.
@@ -203,12 +210,12 @@ public sealed interface Animation permits AnimationImpl {
         /**
          * Sets the slot selector for the animation.
          * The slot selector determines which slots are shown in which order.
-         * Slot selectors need to show all slots of {@link Animation#getRemainingSlots()} in order to complete the animation.
+         * Slot selectors need to show all slots of {@link State#getRemainingSlots()} in order to complete the animation.
          *
          * @param selector The slot selector for the animation.
          * @return This {@link Builder Animation builder}
          */
-        Builder setSlotSelector(Function<? super Animation, ? extends Set<? extends Slot>> selector);
+        Builder setSlotSelector(Function<? super State, ? extends Set<? extends Slot>> selector);
         
         /**
          * Sets the intermediary {@link ItemProvider} that is displayed before the slots pop in.
@@ -260,7 +267,7 @@ public sealed interface Animation permits AnimationImpl {
          * @param showHandler The handler that is called when slot(s) are shown.
          * @return This {@link Builder Animation builder}
          */
-        Builder addShowHandler(BiConsumer<? super Animation, ? super Set<? extends Slot>> showHandler);
+        Builder addShowHandler(BiConsumer<? super State, ? super Set<? extends Slot>> showHandler);
         
         /**
          * Adds a handler that is called when the animation is finished.
@@ -268,7 +275,7 @@ public sealed interface Animation permits AnimationImpl {
          * @param finishHandler The handler that is called when the animation is finished.
          * @return This {@link Builder Animation builder}
          */
-        Builder addFinishHandler(Consumer<? super Animation> finishHandler);
+        Builder addFinishHandler(Consumer<? super State> finishHandler);
         
         /**
          * Builds the animation.

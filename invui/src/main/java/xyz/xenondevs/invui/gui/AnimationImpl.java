@@ -1,6 +1,7 @@
 package xyz.xenondevs.invui.gui;
 
 import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
@@ -18,24 +19,18 @@ final class AnimationImpl implements Animation {
     
     private final int tickDelay;
     private final BiPredicate<? super Gui, ? super Slot> slotFilter;
-    private final Function<? super Animation, ? extends Set<? extends Slot>> slotSelector;
+    private final Function<? super State, ? extends Set<? extends Slot>> slotSelector;
     private final Function<? super Slot, ? extends @Nullable SlotElement> intermediaryGenerator;
-    private BiConsumer<? super Animation, Set<? extends Slot>> showHandler;
-    private Consumer<? super Animation> finishHandler;
-    
-    private final Set<Slot> remainingSlots = new HashSet<>();
-    private @Nullable Gui gui;
-    private @Nullable BukkitTask task;
-    private int currentFrame;
-    private boolean completed;
+    private final BiConsumer<? super State, ? super Set<? extends Slot>> showHandler;
+    private final Consumer<? super State> finishHandler;
     
     public AnimationImpl(
         int tickDelay,
         BiPredicate<? super Gui, ? super Slot> slotFilter,
-        Function<? super Animation, ? extends Set<? extends Slot>> slotSelector,
+        Function<? super State, ? extends Set<? extends Slot>> slotSelector,
         Function<? super Slot, ? extends @Nullable SlotElement> intermediaryGenerator,
-        BiConsumer<? super Animation, Set<? extends Slot>> showHandler,
-        Consumer<? super Animation> finishHandler
+        BiConsumer<? super State, ? super Set<? extends Slot>> showHandler,
+        Consumer<? super State> finishHandler
     ) {
         this.tickDelay = tickDelay;
         this.slotFilter = slotFilter;
@@ -45,116 +40,110 @@ final class AnimationImpl implements Animation {
         this.finishHandler = finishHandler;
     }
     
-    @Override
-    public Gui getGui() {
-        if (this.gui == null)
-            throw new IllegalStateException("Animation is not bound to a gui");
+    final class StateImpl implements State {
         
-        return gui;
-    }
-    
-    @Override
-    public int getFrame() {
-        return currentFrame;
-    }
-    
-    @Override
-    public Set<Slot> getRemainingSlots() {
-        return Collections.unmodifiableSet(remainingSlots);
-    }
-    
-    @Override
-    public boolean isFinished() {
-        return remainingSlots.isEmpty();
-    }
-    
-    public void addShowHandler(Consumer<? super Set<? extends Slot>> showHandler) {
-        this.showHandler = this.showHandler.andThen((animation, slot) -> showHandler.accept(slot));
-    }
-    
-    public void addFinishHandler(Runnable finishHandler) {
-        this.finishHandler = this.finishHandler.andThen(animation -> finishHandler.run());
-    }
-    
-    public @Nullable SlotElement getIntermediarySlotElement(Slot slot) {
-        return intermediaryGenerator.apply(slot);
-    }
-    
-    /**
-     * Binds the animation to a gui and populates the remaining slots.
-     *
-     * @param gui The gui to bind the animation to.
-     */
-    public void bind(Gui gui) {
-        if (this.gui != null)
-            throw new IllegalStateException("Animation is already bound to a gui");
+        private final Consumer<? super Set<? extends Slot>> extraShowHandler;
+        private final Runnable extraFinishHandler;
+        private final Set<Slot> remainingSlots = new HashSet<>();
+        private final Gui gui;
         
-        this.gui = gui;
+        private @Nullable BukkitTask task;
+        private int currentFrame;
         
-        // populate remaining slots
-        for (int x = 0; x < gui.getWidth(); x++) {
-            for (int y = 0; y < gui.getHeight(); y++) {
-                if (!slotFilter.test(gui, new Slot(x, y)))
-                    continue;
-                remainingSlots.add(new Slot(x, y));
+        public StateImpl(
+            Gui gui,
+            Consumer<? super Set<? extends Slot>> extraShowHandler,
+            Runnable extraFinishHandler
+        ) {
+            this.gui = gui;
+            this.extraShowHandler = extraShowHandler;
+            this.extraFinishHandler = extraFinishHandler;
+            
+            // populate remaining slots
+            for (int x = 0; x < gui.getWidth(); x++) {
+                for (int y = 0; y < gui.getHeight(); y++) {
+                    if (!slotFilter.test(gui, new Slot(x, y)))
+                        continue;
+                    remainingSlots.add(new Slot(x, y));
+                }
             }
         }
-    }
-    
-    /**
-     * Starts the animation task timer.
-     */
-    public void start() {
-        if (completed)
-            throw new IllegalStateException("Animation is already completed");
-        if (task != null)
-            throw new IllegalStateException("Animation is already running");
-        if (gui == null)
-            throw new IllegalStateException("Animation is not bound to a gui");
         
-        // no slots
-        if (remainingSlots.isEmpty())
-            return;
-        
-        task = Bukkit.getScheduler().runTaskTimer(InvUI.getInstance().getPlugin(), this::handleTick, 0, tickDelay);
-    }
-    
-    private void handleTick() {
-        var nextSlots = slotSelector.apply(this);
-        remainingSlots.removeAll(nextSlots);
-        showHandler.accept(this, nextSlots);
-        
-        currentFrame++;
-        
-        if (remainingSlots.isEmpty())
-            cancel();
-    }
-    
-    public void cancel() {
-        if (task != null) {
-            completed = true;
-            task.cancel();
-            finishHandler.accept(this);
+        /**
+         * Starts the animation task timer.
+         */
+        public void start() {
+            if (isFinished())
+                throw new IllegalStateException("Animation is already completed");
+            if (task != null)
+                throw new IllegalStateException("Animation is already running");
+            
+            task = Bukkit.getScheduler().runTaskTimer(InvUI.getInstance().getPlugin(), this::handleTick, 0, tickDelay);
         }
+        
+        private void handleTick() {
+            var nextSlots = slotSelector.apply(this);
+            remainingSlots.removeAll(nextSlots);
+            showHandler.accept(this, nextSlots);
+            extraShowHandler.accept(nextSlots);
+            
+            currentFrame++;
+            
+            if (remainingSlots.isEmpty())
+                cancel();
+        }
+        
+        public void cancel() {
+            if (task != null) {
+                task.cancel();
+                finishHandler.accept(this);
+                extraFinishHandler.run();
+            }
+        }
+        
+        public @Nullable SlotElement getIntermediarySlotElement(Slot slot) {
+            return intermediaryGenerator.apply(slot);
+        }
+        
+        @Override
+        public Gui getGui() {
+            return gui;
+        }
+        
+        @Override
+        public int getFrame() {
+            return currentFrame;
+        }
+        
+        @Override
+        public Set<Slot> getRemainingSlots() {
+            return Collections.unmodifiableSet(remainingSlots);
+        }
+        
+        @Override
+        public boolean isFinished() {
+            return remainingSlots.isEmpty();
+        }
+    
     }
     
     static final class BuilderImpl implements Animation.Builder {
         
         private int tickDelay = 1;
         private BiPredicate<Gui, Slot> slotFilter = (gui, slot) -> true;
-        private @Nullable Function<? super Animation, ? extends Set<? extends Slot>> slotSelector;
+        private @Nullable Function<? super State, ? extends Set<? extends Slot>> slotSelector;
         private Function<? super Slot, ? extends @Nullable SlotElement> intermediaryGenerator = slot -> null;
-        private BiConsumer<Animation, Set<? extends Slot>> showHandler = (animation, slot) -> {};
-        private Consumer<Animation> finishHandler = gui -> {};
+        private BiConsumer<State, Set<? extends Slot>> showHandler = (state, slot) -> {};
+        private Consumer<State> finishHandler = gui -> {};
         
         @Override
-        public Animation.Builder setTickDelay(int tickDelay) {
+        public Builder setTickDelay(int tickDelay) {
             this.tickDelay = tickDelay;
             return this;
         }
         
         @Override
-        public Animation.Builder setSlotSelector(Function<? super Animation, ? extends Set<? extends Slot>> selector) {
+        public Builder setSlotSelector(Function<? super State, ? extends Set<? extends Slot>> selector) {
             this.slotSelector = selector;
             return this;
         }
@@ -166,19 +155,19 @@ final class AnimationImpl implements Animation {
         }
         
         @Override
-        public Animation.Builder addShowHandler(BiConsumer<? super Animation, ? super Set<? extends Slot>> showHandler) {
+        public Builder addShowHandler(BiConsumer<? super State, ? super Set<? extends Slot>> showHandler) {
             this.showHandler = this.showHandler.andThen(showHandler);
             return this;
         }
         
         @Override
-        public Animation.Builder addFinishHandler(Consumer<? super Animation> finishHandler) {
+        public Builder addFinishHandler(Consumer<? super State> finishHandler) {
             this.finishHandler = this.finishHandler.andThen(finishHandler);
             return this;
         }
         
         @Override
-        public Animation.Builder addSlotFilter(BiPredicate<? super Gui, ? super Slot> filter) {
+        public Builder addSlotFilter(BiPredicate<? super Gui, ? super Slot> filter) {
             this.slotFilter = this.slotFilter.and(filter);
             return this;
         }
@@ -193,21 +182,21 @@ final class AnimationImpl implements Animation {
         
     }
     
-    static final class ColumnSlotSelector implements Function<Animation, Set<Slot>> {
+    static final class ColumnSlotSelector implements Function<State, Set<Slot>> {
         
         private int column;
         
         @Override
-        public Set<Slot> apply(Animation animation) {
-            int width = animation.getGui().getWidth();
-            int height = animation.getGui().getHeight();
+        public Set<Slot> apply(State state) {
+            int width = state.getGui().getWidth();
+            int height = state.getGui().getHeight();
             
             var slots = new HashSet<Slot>();
             
             while (slots.isEmpty() && column < width) {
                 for (int y = 0; y < height; y++) {
                     var slot = new Slot(column, y);
-                    if (animation.getRemainingSlots().contains(slot)) {
+                    if (state.getRemainingSlots().contains(slot)) {
                         slots.add(slot);
                     }
                 }
@@ -220,20 +209,20 @@ final class AnimationImpl implements Animation {
         
     }
     
-    static final class RowSlotSelector implements Function<Animation, Set<Slot>> {
+    static final class RowSlotSelector implements Function<State, Set<Slot>> {
         
         private int row;
         
         @Override
-        public Set<Slot> apply(Animation animation) {
-            int width = animation.getGui().getWidth();
-            int height = animation.getGui().getHeight();
+        public Set<Slot> apply(State state) {
+            int width = state.getGui().getWidth();
+            int height = state.getGui().getHeight();
             
             var slots = new HashSet<Slot>();
             while (slots.isEmpty() && row < height) {
                 for (int x = 0; x < width; x++) {
                     Slot slot = new Slot(x, row);
-                    if (animation.getRemainingSlots().contains(slot)) {
+                    if (state.getRemainingSlots().contains(slot)) {
                         slots.add(slot);
                     }
                 }
@@ -246,18 +235,18 @@ final class AnimationImpl implements Animation {
         
     }
     
-    static final class HorizontalSnakeSlotSelector implements Function<Animation, Set<Slot>> {
+    static final class HorizontalSnakeSlotSelector implements Function<State, Set<Slot>> {
         
         private int x;
         private int y;
         private boolean left;
         
         @Override
-        public Set<Slot> apply(Animation animation) {
-            int width = animation.getGui().getWidth();
+        public Set<Slot> apply(State state) {
+            int width = state.getGui().getWidth();
             while (true) {
                 Slot slot = new Slot(x, y);
-                if (animation.getRemainingSlots().contains(slot))
+                if (state.getRemainingSlots().contains(slot))
                     return Set.of(slot);
                 
                 if (left) {
@@ -276,18 +265,18 @@ final class AnimationImpl implements Animation {
         
     }
     
-    static final class VerticalSnakeSlotSelector implements Function<Animation, Set<Slot>> {
+    static final class VerticalSnakeSlotSelector implements Function<State, Set<Slot>> {
         
         private int x;
         private int y;
         private boolean up;
         
         @Override
-        public Set<Slot> apply(Animation animation) {
-            int height = animation.getGui().getWidth();
+        public Set<Slot> apply(State state) {
+            int height = state.getGui().getWidth();
             while (true) {
                 Slot slot = new Slot(x, y);
-                if (animation.getRemainingSlots().contains(slot))
+                if (state.getRemainingSlots().contains(slot))
                     return Set.of(slot);
                 
                 if (up) {
@@ -306,20 +295,20 @@ final class AnimationImpl implements Animation {
         
     }
     
-    static final class SequentialSlotSelector implements Function<Animation, Set<Slot>> {
+    static final class SequentialSlotSelector implements Function<State, Set<Slot>> {
         
         private int i;
         
         @Override
-        public Set<Slot> apply(Animation animation) {
-            int size = animation.getGui().getSize();
-            int width = animation.getGui().getWidth();
+        public Set<Slot> apply(State state) {
+            int size = state.getGui().getSize();
+            int width = state.getGui().getWidth();
             while (i < size) {
                 int x = i % width;
                 int y = i / width;
                 
                 Slot slot = new Slot(x, y);
-                if (animation.getRemainingSlots().contains(slot))
+                if (state.getRemainingSlots().contains(slot))
                     return Set.of(slot);
                 
                 i++;
@@ -330,15 +319,15 @@ final class AnimationImpl implements Animation {
         
     }
     
-    static final class SplitSequentialSlotSelector implements Function<Animation, Set<Slot>> {
+    static final class SplitSequentialSlotSelector implements Function<State, Set<Slot>> {
         
         private int i1;
         private int i2;
         
         @Override
-        public Set<Slot> apply(Animation animation) {
-            int size = animation.getGui().getSize();
-            int width = animation.getGui().getWidth();
+        public Set<Slot> apply(State state) {
+            int size = state.getGui().getSize();
+            int width = state.getGui().getWidth();
             
             var slots = new HashSet<Slot>();
             
@@ -347,7 +336,7 @@ final class AnimationImpl implements Animation {
                 int y = i1 / width;
                 
                 var slot = new Slot(x, y);
-                if (animation.getRemainingSlots().contains(slot)) {
+                if (state.getRemainingSlots().contains(slot)) {
                     slots.add(slot);
                     break;
                 }
@@ -360,7 +349,7 @@ final class AnimationImpl implements Animation {
                 int y = (size - i2) / width;
                 
                 var slot = new Slot(x, y);
-                if (animation.getRemainingSlots().contains(slot)) {
+                if (state.getRemainingSlots().contains(slot)) {
                     slots.add(slot);
                     break;
                 }
@@ -373,8 +362,8 @@ final class AnimationImpl implements Animation {
         
     }
     
-    static final Function<Animation, Set<Slot>> RANDOM_SLOT_SELECTOR = animation -> {
-        var slots = animation.getRemainingSlots().toArray(Slot[]::new);
+    static final Function<State, Set<Slot>> RANDOM_SLOT_SELECTOR = state -> {
+        var slots = state.getRemainingSlots().toArray(Slot[]::new);
         return Set.of(slots[MathUtils.RANDOM.nextInt(slots.length)]);
     };
     
