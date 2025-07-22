@@ -15,11 +15,8 @@ import xyz.xenondevs.invui.item.ItemWrapper;
 @SuppressWarnings("UnstableApiUsage")
 public class ItemUtils {
     
-    private static final ItemStack PLACEHOLDER = new ItemBuilder(Material.BARRIER)
-        .hideTooltip(true)
-        .set(DataComponentTypes.ITEM_MODEL, Key.key("air"))
-        .build();
-    private static final ItemWrapper PLACEHOLDER_PROVIDER = new ItemWrapper(PLACEHOLDER);
+    private static @Nullable ItemStack placeholder;
+    private static @Nullable ItemWrapper placeholderProvider;
     
     /**
      * Checks whether the given {@link ItemStack} is empty.
@@ -86,7 +83,14 @@ public class ItemUtils {
      * @return the non-empty placeholder item
      */
     public static ItemStack getPlaceholder() {
-        return PLACEHOLDER.clone();
+        if (placeholder == null) {
+            placeholder = new ItemBuilder(Material.BARRIER)
+                .hideTooltip(true)
+                .set(DataComponentTypes.ITEM_MODEL, Key.key("air"))
+                .build();
+        }
+        
+        return placeholder.clone();
     }
     
     /**
@@ -95,7 +99,11 @@ public class ItemUtils {
      * @return the placeholder item provider
      */
     public static ItemProvider getPlaceholderProvider() {
-        return PLACEHOLDER_PROVIDER;
+        if (placeholderProvider == null) {
+            placeholderProvider = new ItemWrapper(getPlaceholder());
+        }
+        
+        return placeholderProvider;
     }
     
     /**
