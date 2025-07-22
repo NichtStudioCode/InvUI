@@ -62,7 +62,7 @@ public final class ItemBuilder implements ItemProvider {
      * @param material The {@link Material}
      */
     public ItemBuilder(Material material) {
-        this(new ItemStack(material));
+        this(ItemStack.of(material));
     }
     
     /**
@@ -72,7 +72,7 @@ public final class ItemBuilder implements ItemProvider {
      * @param amount   The amount
      */
     public ItemBuilder(Material material, int amount) {
-        this(new ItemStack(material, amount));
+        this(ItemStack.of(material, amount));
     }
     
     /**

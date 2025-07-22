@@ -238,7 +238,7 @@ public class ItemUtils2 {
         if (original.isEmpty())
             return ItemStack.empty();
         
-        ItemStack result = new ItemStack(targetType, original.getAmount());
+        ItemStack result = ItemStack.of(targetType, original.getAmount());
         for (var type : Registry.DATA_COMPONENT_TYPE) {
             if (original.hasData(type)) {
                 if (type instanceof DataComponentType.Valued<?> valuedType) {

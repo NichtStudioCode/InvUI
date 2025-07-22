@@ -35,7 +35,7 @@ public class GuiTest {
     @Test
     public void testGuiBuilderGuiIngredient() {
         var inner = Gui.empty(3, 3);
-        inner.fill(Item.simple(new ItemStack(Material.DIAMOND)), true);
+        inner.fill(Item.simple(ItemStack.of(Material.DIAMOND)), true);
         
         var outer = Gui.builder()
             .setStructure(
@@ -54,7 +54,7 @@ public class GuiTest {
     @Test
     public void testGuiBuilderGuiIngredientNotEnoughSlots() {
         var inner = Gui.empty(3, 3);
-        inner.fill(Item.simple(new ItemStack(Material.DIAMOND)), true);
+        inner.fill(Item.simple(ItemStack.of(Material.DIAMOND)), true);
         
         var outer = Gui.builder()
             .setStructure(
@@ -78,7 +78,7 @@ public class GuiTest {
     @Test
     public void testGuiBuilderGuiIngredientTooManySlots() {
         var inner = Gui.empty(3, 2);
-        inner.fill(Item.simple(new ItemStack(Material.DIAMOND)), true);
+        inner.fill(Item.simple(ItemStack.of(Material.DIAMOND)), true);
         
         assertThrows(
             IllegalStateException.class,
@@ -96,7 +96,7 @@ public class GuiTest {
     @Test
     public void testGuiBuilderGuiIngredientInvokedTwice() {
         var inner = Gui.empty(3, 3);
-        inner.fill(Item.simple(new ItemStack(Material.DIAMOND)), true);
+        inner.fill(Item.simple(ItemStack.of(Material.DIAMOND)), true);
         
         var builder = Gui.builder()
             .setStructure(

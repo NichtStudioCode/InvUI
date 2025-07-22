@@ -758,13 +758,13 @@ public class AnimationTest {
     
     private Gui createOddTestGui() {
         Gui gui = Gui.empty(3, 1);
-        gui.fill(Item.simple(new ItemStack(Material.DIAMOND)), true);
+        gui.fill(Item.simple(ItemStack.of(Material.DIAMOND)), true);
         return gui;
     }
     
     private Gui createTestGui() {
         Gui gui = Gui.empty(WIDTH, 4);
-        gui.fill(Item.simple(new ItemStack(Material.DIAMOND)), true);
+        gui.fill(Item.simple(ItemStack.of(Material.DIAMOND)), true);
         return gui;
     }
     

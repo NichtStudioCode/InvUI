@@ -24,7 +24,7 @@ class VirtualInventoryTest {
     
     @Test
     void testFilterAirInConstructor() {
-        var items = new ItemStack[] {new ItemStack(Material.DIRT), new ItemStack(Material.AIR)};
+        var items = new ItemStack[] {ItemStack.of(Material.DIRT), ItemStack.of(Material.AIR)};
         var inv = new VirtualInventory(null, items);
         
         assertNull(inv.getItem(1));
