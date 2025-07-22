@@ -156,7 +156,7 @@ public sealed interface Animation permits AnimationImpl {
          * Sets the delay between invocations of the slot selector.
          *
          * @param tickDelay The delay between invocations of the slot selector.
-         * @return This {@link Builder Animation builder}
+         * @return This {@link Builder}
          */
         Builder setTickDelay(int tickDelay);
         
@@ -164,14 +164,14 @@ public sealed interface Animation permits AnimationImpl {
          * Adds a filter defining which slots are part of the animation.
          *
          * @param filter The filter defining which slots are part of the animation.
-         * @return This {@link Builder Animation builder}
+         * @return This {@link Builder}
          */
         Builder addSlotFilter(BiPredicate<? super Gui, ? super Slot> filter);
         
         /**
          * Adds a {@link #addSlotFilter(BiPredicate) filter} that ignores all empty slots.
          *
-         * @return This {@link Builder Animation builder}
+         * @return This {@link Builder}
          */
         default Builder filterNonEmptySlots() {
             return addSlotFilter((gui, slot) -> gui.getSlotElement(slot.x(), slot.y()) != null);
@@ -183,7 +183,7 @@ public sealed interface Animation permits AnimationImpl {
          *
          * @param key  The key to filter for
          * @param keys Additional keys to filter for
-         * @return This {@link Builder Animation builder}
+         * @return This {@link Builder}
          * @see Gui#applyStructure(Structure)
          */
         default Builder filterTaggedSlots(char key, char... keys) {
@@ -197,7 +197,7 @@ public sealed interface Animation permits AnimationImpl {
          * @param sound  The sound effect type
          * @param volume The volume of the sound
          * @param pitch  The pitch of the sound
-         * @return This {@link Builder Animation builder}
+         * @return This {@link Builder}
          */
         default Builder addSoundEffect(Sound sound, float volume, float pitch) {
             return addShowHandler((animation, slot) ->
@@ -213,7 +213,7 @@ public sealed interface Animation permits AnimationImpl {
          * Slot selectors need to show all slots of {@link State#getRemainingSlots()} in order to complete the animation.
          *
          * @param selector The slot selector for the animation.
-         * @return This {@link Builder Animation builder}
+         * @return This {@link Builder}
          */
         Builder setSlotSelector(Function<? super State, ? extends Set<? extends Slot>> selector);
         
@@ -221,7 +221,7 @@ public sealed interface Animation permits AnimationImpl {
          * Sets the intermediary {@link ItemProvider} that is displayed before the slots pop in.
          *
          * @param provider The intermediary {@link ItemProvider}.
-         * @return This {@link Builder Animation builder}
+         * @return This {@link Builder}
          */
         default Builder setIntermediary(ItemProvider provider) {
             return setIntermediary(Item.simple(provider));
@@ -231,7 +231,7 @@ public sealed interface Animation permits AnimationImpl {
          * Sets the intermediary {@link Item} that is displayed before the slots pop in.
          *
          * @param item The intermediary {@link Item}.
-         * @return This {@link Builder Animation builder}
+         * @return This {@link Builder}
          */
         default Builder setIntermediary(Item item) {
             var element = new SlotElement.Item(item);
@@ -243,7 +243,7 @@ public sealed interface Animation permits AnimationImpl {
          * before the {@link Gui Gui's} slots pop in.
          *
          * @param intermediaryGenerator The generator function that creates intermediary {@link ItemProvider ItemProviders}.
-         * @return This {@link Builder Animation builder}
+         * @return This {@link Builder}
          */
         default Builder setIntermediaryGenerator(Function<? super Slot, ? extends @Nullable ItemProvider> intermediaryGenerator) {
             return setIntermediaryElementGenerator(slot -> {
@@ -257,7 +257,7 @@ public sealed interface Animation permits AnimationImpl {
          * before the {@link Gui Gui's} slots pop in.
          *
          * @param intermediaryGenerator The generator function that creates intermediary {@link SlotElement SlotElements}.
-         * @return This {@link Builder Animation builder}
+         * @return This {@link Builder}
          */
         Builder setIntermediaryElementGenerator(Function<? super Slot, ? extends @Nullable SlotElement> intermediaryGenerator);
         
@@ -265,7 +265,7 @@ public sealed interface Animation permits AnimationImpl {
          * Adds a handler that is called when slot(s) are shown.
          *
          * @param showHandler The handler that is called when slot(s) are shown.
-         * @return This {@link Builder Animation builder}
+         * @return This {@link Builder}
          */
         Builder addShowHandler(BiConsumer<? super State, ? super Set<? extends Slot>> showHandler);
         
@@ -273,9 +273,18 @@ public sealed interface Animation permits AnimationImpl {
          * Adds a handler that is called when the animation is finished.
          *
          * @param finishHandler The handler that is called when the animation is finished.
-         * @return This {@link Builder Animation builder}
+         * @return This {@link Builder}
          */
         Builder addFinishHandler(Consumer<? super State> finishHandler);
+        
+        /**
+         * Sets whether the {@link Gui} that plays the animation should be frozen (i.e. not allow any interactions)
+         * during it. Defaults to true.
+         *
+         * @param freezing Whether the {@link Gui} should be frozen during the animation.
+         * @return This {@link Builder}
+         */
+        Builder setFreezing(boolean freezing);
         
         /**
          * Builds the animation.

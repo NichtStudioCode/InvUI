@@ -1,7 +1,6 @@
 package xyz.xenondevs.invui.gui;
 
 import org.bukkit.Bukkit;
-import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
@@ -23,6 +22,7 @@ final class AnimationImpl implements Animation {
     private final Function<? super Slot, ? extends @Nullable SlotElement> intermediaryGenerator;
     private final BiConsumer<? super State, ? super Set<? extends Slot>> showHandler;
     private final Consumer<? super State> finishHandler;
+    private final boolean freezing;
     
     public AnimationImpl(
         int tickDelay,
@@ -30,7 +30,8 @@ final class AnimationImpl implements Animation {
         Function<? super State, ? extends Set<? extends Slot>> slotSelector,
         Function<? super Slot, ? extends @Nullable SlotElement> intermediaryGenerator,
         BiConsumer<? super State, ? super Set<? extends Slot>> showHandler,
-        Consumer<? super State> finishHandler
+        Consumer<? super State> finishHandler,
+        boolean freezing
     ) {
         this.tickDelay = tickDelay;
         this.slotFilter = slotFilter;
@@ -38,6 +39,7 @@ final class AnimationImpl implements Animation {
         this.intermediaryGenerator = intermediaryGenerator;
         this.showHandler = showHandler;
         this.finishHandler = finishHandler;
+        this.freezing = freezing;
     }
     
     final class StateImpl implements State {
@@ -70,7 +72,7 @@ final class AnimationImpl implements Animation {
         }
         
         /**
-         * Starts the animation task timer.
+         * Starts the animation task timer;
          */
         public void start() {
             if (isFinished())
@@ -105,6 +107,10 @@ final class AnimationImpl implements Animation {
             return intermediaryGenerator.apply(slot);
         }
         
+        public boolean isFreezing() {
+            return freezing;
+        }
+        
         @Override
         public Gui getGui() {
             return gui;
@@ -135,6 +141,7 @@ final class AnimationImpl implements Animation {
         private Function<? super Slot, ? extends @Nullable SlotElement> intermediaryGenerator = slot -> null;
         private BiConsumer<State, Set<? extends Slot>> showHandler = (state, slot) -> {};
         private Consumer<State> finishHandler = gui -> {};
+        private boolean freezing = true;
         
         @Override
         public Builder setTickDelay(int tickDelay) {
@@ -173,11 +180,17 @@ final class AnimationImpl implements Animation {
         }
         
         @Override
+        public Builder setFreezing(boolean freezing) {
+            this.freezing = freezing;
+            return this;
+        }
+        
+        @Override
         public Animation build() {
             if (slotSelector == null)
                 throw new IllegalStateException("SlotSelector needs to be set");
             
-            return new AnimationImpl(tickDelay, slotFilter, slotSelector, intermediaryGenerator, showHandler, finishHandler);
+            return new AnimationImpl(tickDelay, slotFilter, slotSelector, intermediaryGenerator, showHandler, finishHandler, freezing);
         }
         
     }

@@ -64,8 +64,8 @@ public sealed abstract class AbstractGui
     }
     
     public void handleClick(int slot, Click click) {
-        // ignore all clicks if the gui is frozen or an animation is running
-        if (frozen || animation != null)
+        // ignore all clicks if the gui is frozen
+        if (isFrozen())
             return;
         
         SlotElement slotElement = slotElements[slot];
@@ -78,8 +78,8 @@ public sealed abstract class AbstractGui
     }
     
     public void handleBundleSelect(Player player, int slot, int bundleSlot) {
-        // ignore all clicks if the gui is frozen or an animation is running
-        if (frozen || animation != null)
+        // ignore all clicks if the gui is frozen
+        if (isFrozen())
             return;
         
         SlotElement slotElement = slotElements[slot];
@@ -691,7 +691,7 @@ public sealed abstract class AbstractGui
     
     @Override
     public boolean isFrozen() {
-        return frozen;
+        return frozen || (animation != null && animation.isFreezing());
     }
     
     @Override

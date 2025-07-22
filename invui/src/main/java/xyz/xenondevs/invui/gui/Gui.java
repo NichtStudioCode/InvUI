@@ -586,14 +586,16 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
     
     /**
      * Freezes or unfreezes the {@link Gui}.
-     * A frozen {@link Gui} will not allow any clicks.
+     * A frozen {@link Gui} will not allow any interactions.
      *
      * @param frozen If the {@link Gui} should be frozen or not.
      */
     void setFrozen(boolean frozen);
     
     /**
-     * Gets if the {@link Gui} is frozen.
+     * Gets if the {@link Gui} is frozen, i.e. does not allow any interactions.
+     * A {@link Gui} can become frozen either due to a call to {@link #setFrozen(boolean)} or
+     * because a freezing {@link Animation} is currently running.
      *
      * @return If the {@link Gui} is frozen.
      */

@@ -295,7 +295,7 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
             // skip frozen and animating slots
             for (SlotElement element : path) {
                 if (element instanceof SlotElement.GuiLink guiLink) {
-                    if (guiLink.gui().isFrozen() || guiLink.gui().isAnimationRunning())
+                    if (guiLink.gui().isFrozen())
                         continue slotLoop;
                 }
             }
