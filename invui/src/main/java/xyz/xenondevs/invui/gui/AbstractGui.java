@@ -395,15 +395,26 @@ public sealed abstract class AbstractGui
      * @param ignored the inventories to ignore
      * @return a map of all inventories and their visible slots
      */
-    private SequencedMap<Inventory, Set<Integer>> getAllInventorySlots(Inventory... ignored) {
+    private SequencedMap<Inventory, Set<Integer>> getAllActiveInventorySlots(Inventory... ignored) {
+        if (isFrozen())
+            return Collections.emptySortedMap();
+        
         HashMap<Inventory, Set<Integer>> slots = new HashMap<>();
         Set<Inventory> ignoredSet = Arrays.stream(ignored).collect(Collectors.toSet());
         
+        slotLoop:
         for (SlotElement element : slotElements) {
             if (element == null)
                 continue;
             
-            element = element.getHoldingElement();
+            // follow gui links to holding element, break out if any intermediate gui is frozen
+            while (element instanceof SlotElement.GuiLink(Gui gui, int slot)) {
+                if (gui.isFrozen())
+                    continue slotLoop;
+                
+                element = gui.getSlotElement(slot);
+            }
+            
             if (element instanceof SlotElement.InventoryLink invElement) {
                 Inventory inventory = invElement.inventory();
                 if (ignoredSet.contains(inventory))
@@ -421,10 +432,10 @@ public sealed abstract class AbstractGui
     @Override
     public SequencedCollection<? extends Inventory> getInventories(Inventory... ignored) {
         if (!ignoreObscuredInventorySlots)
-            return Collections.unmodifiableSequencedCollection(getAllInventorySlots(ignored).sequencedKeySet());
+            return Collections.unmodifiableSequencedCollection(getAllActiveInventorySlots(ignored).sequencedKeySet());
         
         ArrayList<Inventory> inventories = new ArrayList<>();
-        for (Map.Entry<Inventory, Set<Integer>> entry : getAllInventorySlots(ignored).entrySet()) {
+        for (Map.Entry<Inventory, Set<Integer>> entry : getAllActiveInventorySlots(ignored).entrySet()) {
             Inventory inventory = entry.getKey();
             Set<Integer> slots = entry.getValue();
             inventories.add(new ObscuredInventory(inventory, slot -> !slots.contains(slot)));

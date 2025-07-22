@@ -626,6 +626,7 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
      * sorted by their {@link Inventory#getGuiPriority()}, with the highest priorities coming first.
      * If {@link #isIgnoreObscuredInventorySlots()} is true, the obscured slots will not be visible
      * in the returned inventories.
+     * If the gui or any nested gui containing an inventory is frozen, those slots will also not be visible.
      *
      * @param ignored the inventories to ignore
      * @return a sequenced collection of all inventories visible in this gui

@@ -277,7 +277,7 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
     }
     
     /**
-     * Gets a list of all active (non-frozen, non-animating) inventory slots that are linked to by
+     * Gets a list of all non-frozen inventory slots that are linked to by
      * the specified window slots.
      *
      * @param slots The window slots
@@ -292,7 +292,7 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
             if (path.isEmpty())
                 continue;
             
-            // skip frozen and animating slots
+            // skip frozen slots
             for (SlotElement element : path) {
                 if (element instanceof SlotElement.GuiLink guiLink) {
                     if (guiLink.gui().isFrozen())
@@ -333,8 +333,6 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
         return changed;
     }
     
-    // TODO: respect frozen / animating state
-    // TODO: prioritize the content inventory where the cursor is
     public void handleCursorCollect(Click click) {
         Player player = click.player();
         
