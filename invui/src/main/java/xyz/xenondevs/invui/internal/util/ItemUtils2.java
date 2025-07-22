@@ -2,7 +2,6 @@ package xyz.xenondevs.invui.internal.util;
 
 import io.papermc.paper.datacomponent.DataComponentType;
 import io.papermc.paper.datacomponent.DataComponentTypes;
-import net.kyori.adventure.key.Key;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.component.BundleContents;
 import org.bukkit.Material;
@@ -10,7 +9,6 @@ import org.bukkit.Registry;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.invui.item.ItemBuilder;
 import xyz.xenondevs.invui.util.ItemUtils;
 
 import java.util.ArrayList;
@@ -22,30 +20,6 @@ import static io.papermc.paper.datacomponent.item.BundleContents.bundleContents;
 
 @SuppressWarnings("UnstableApiUsage")
 public class ItemUtils2 {
-    
-    private static final ItemStack NON_EMPTY_PLACEHOLDER = new ItemBuilder(Material.BARRIER)
-        .hideTooltip(true)
-        .set(DataComponentTypes.ITEM_MODEL, Key.key("air"))
-        .build();
-    
-    /**
-     * Returns the copy of the non-empty placeholder item, which should be used to replace empty slots.
-     *
-     * @return the non-empty placeholder item
-     */
-    public static ItemStack getNonEmptyPlaceholder() {
-        return NON_EMPTY_PLACEHOLDER.clone();
-    }
-    
-    /**
-     * Returns the given item stack if it is not empty, otherwise the non-empty placeholder item.
-     *
-     * @param itemStack the item stack
-     * @return the non-empty item stack
-     */
-    public static ItemStack nonEmpty(@Nullable ItemStack itemStack) {
-        return ItemUtils.isEmpty(itemStack) ? getNonEmptyPlaceholder() : itemStack;
-    }
     
     /**
      * Creates a new list where all intermediary empty item stacks are replaced with the non-empty placeholder item
@@ -68,7 +42,7 @@ public class ItemUtils2 {
         for (int i = 0; i <= lastNonNull; i++) {
             var itemStack = items.get(i);
             if (ItemUtils.isEmpty(itemStack)) {
-                sanitized.add(getNonEmptyPlaceholder());
+                sanitized.add(ItemUtils.getPlaceholder());
             } else {
                 sanitized.add(itemStack);
             }

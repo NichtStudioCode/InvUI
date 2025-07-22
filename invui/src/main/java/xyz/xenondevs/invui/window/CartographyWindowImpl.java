@@ -8,9 +8,9 @@ import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomCartographyMenu;
-import xyz.xenondevs.invui.internal.util.ItemUtils2;
 import xyz.xenondevs.invui.state.Property;
 import xyz.xenondevs.invui.util.ColorPalette;
+import xyz.xenondevs.invui.util.ItemUtils;
 
 import java.awt.image.BufferedImage;
 import java.util.HashSet;
@@ -59,7 +59,7 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
     @Override
     protected void setMenuItem(int slot, @Nullable ItemStack itemStack) {
         if (slot == 0 || slot == 1) {
-            super.setMenuItem(slot, ItemUtils2.nonEmpty(itemStack));
+            super.setMenuItem(slot, ItemUtils.takeOrPlaceholder(itemStack));
         } else {
             super.setMenuItem(slot, itemStack);
         }

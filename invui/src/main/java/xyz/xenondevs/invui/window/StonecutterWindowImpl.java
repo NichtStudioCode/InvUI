@@ -13,6 +13,7 @@ import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomStonecutterMenu;
 import xyz.xenondevs.invui.internal.util.ItemUtils2;
 import xyz.xenondevs.invui.state.MutableProperty;
+import xyz.xenondevs.invui.util.ItemUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -106,7 +107,7 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
     @Override
     protected void setMenuItem(int slot, @Nullable ItemStack itemStack) {
         if (slot == 0) {
-            super.setMenuItem(0, ItemUtils2.nonEmpty(itemStack));
+            super.setMenuItem(0, ItemUtils.takeOrPlaceholder(itemStack));
         } else if (slot >= 38 && slot < buttonsGui.getSize() + 38) {
             buttons[slot - 38] = itemStack;
             buttonsDirty = true;

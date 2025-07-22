@@ -16,9 +16,9 @@ import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.internal.network.PacketListener;
-import xyz.xenondevs.invui.internal.util.ItemUtils2;
 import xyz.xenondevs.invui.internal.util.MathUtils;
 import xyz.xenondevs.invui.item.Item;
+import xyz.xenondevs.invui.util.ItemUtils;
 import xyz.xenondevs.invui.window.MerchantWindow;
 
 import java.lang.invoke.MethodHandle;
@@ -141,9 +141,9 @@ public class CustomMerchantMenu extends CustomContainerMenu {
     
     private ItemStack toItemStack(@Nullable Item item) {
         if (item == null)
-            return CraftItemStack.unwrap(ItemUtils2.getNonEmptyPlaceholder());
+            return CraftItemStack.unwrap(ItemUtils.getPlaceholder());
         
-        var itemStack = CraftItemStack.unwrap(ItemUtils2.nonEmpty(item.getItemProvider(player).get(player.locale())));
+        var itemStack = CraftItemStack.unwrap(ItemUtils.takeOrPlaceholder(item.getItemProvider(player).get(player.locale())));
         // add random tag value to prevent client-side insertion of matching items
         itemStack.update(
             DataComponents.CUSTOM_DATA,

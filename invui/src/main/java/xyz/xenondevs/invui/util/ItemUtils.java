@@ -1,13 +1,25 @@
 package xyz.xenondevs.invui.util;
 
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import net.kyori.adventure.key.Key;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
+import xyz.xenondevs.invui.item.ItemBuilder;
+import xyz.xenondevs.invui.item.ItemProvider;
+import xyz.xenondevs.invui.item.ItemWrapper;
 
 /**
  * Generic item-related utilities.
  */
+@SuppressWarnings("UnstableApiUsage")
 public class ItemUtils {
+    
+    private static final ItemStack PLACEHOLDER = new ItemBuilder(Material.BARRIER)
+        .hideTooltip(true)
+        .set(DataComponentTypes.ITEM_MODEL, Key.key("air"))
+        .build();
+    private static final ItemWrapper PLACEHOLDER_PROVIDER = new ItemWrapper(PLACEHOLDER);
     
     /**
      * Checks whether the given {@link ItemStack} is empty.
@@ -66,6 +78,35 @@ public class ItemUtils {
             return null;
         
         return itemStack.clone();
+    }
+    
+    /**
+     * Returns a copy of the non-empty placeholder item, which is an invisible non-air item stack.
+     *
+     * @return the non-empty placeholder item
+     */
+    public static ItemStack getPlaceholder() {
+        return PLACEHOLDER.clone();
+    }
+    
+    /**
+     * Gets an {@link ItemProvider} for the {@link #getPlaceholder() placeholder} item.
+     *
+     * @return the placeholder item provider
+     */
+    public static ItemProvider getPlaceholderProvider() {
+        return PLACEHOLDER_PROVIDER;
+    }
+    
+    /**
+     * Returns the given item stack if it is not {@link #isEmpty(ItemStack) empty},
+     * otherwise the {@link #getPlaceholder() placeholder} item.
+     *
+     * @param itemStack the item stack
+     * @return the non-empty item stack
+     */
+    public static ItemStack takeOrPlaceholder(@Nullable ItemStack itemStack) {
+        return isEmpty(itemStack) ? getPlaceholder() : itemStack;
     }
     
 }
