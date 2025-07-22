@@ -21,6 +21,7 @@ import xyz.xenondevs.invui.internal.util.InventoryUtils;
 import xyz.xenondevs.invui.inventory.CompositeInventory;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.inventory.InventorySlot;
+import xyz.xenondevs.invui.inventory.OperationCategory;
 import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
 import xyz.xenondevs.invui.item.AbstractItem;
@@ -342,6 +343,7 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
         // create a composite inventory consisting of all the gui's inventories and the player's inventory
         List<? extends Inventory> inventories = getGuis().stream()
             .flatMap(g -> g.getInventories().stream())
+            .sorted(Comparator.<Inventory>comparingInt(inv -> inv.getGuiPriority(OperationCategory.COLLECT)).reversed())
             .toList();
         Inventory inventory = new CompositeInventory(inventories);
         

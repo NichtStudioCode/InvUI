@@ -62,7 +62,7 @@ public final class CompositeInventory extends Inventory {
     }
     
     @Override
-    public int[] getIterationOrder(IterationOrderCategory category) {
+    public int[] getIterationOrder(OperationCategory category) {
         int[] iterationOrder = new int[getSize()];
         int i = 0;
         int offset = 0;
@@ -212,7 +212,7 @@ public final class CompositeInventory extends Inventory {
     }
     
     @Override
-    public void setIterationOrder(IterationOrderCategory category, int[] iterationOrder) {
+    public void setIterationOrder(OperationCategory category, int[] iterationOrder) {
         throw new UnsupportedOperationException("Iteration order needs to be set in the backing inventories");
     }
     

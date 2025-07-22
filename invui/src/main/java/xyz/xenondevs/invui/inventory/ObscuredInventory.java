@@ -52,7 +52,7 @@ public final class ObscuredInventory extends Inventory {
     }
     
     @Override
-    public int[] getIterationOrder(IterationOrderCategory category) {
+    public int[] getIterationOrder(OperationCategory category) {
         int[] iterationOrder = new int[slots.length];
         int i = 0;
         for (int slot : inventory.getIterationOrder(category)) {
@@ -156,17 +156,17 @@ public final class ObscuredInventory extends Inventory {
     }
     
     @Override
-    public int getGuiPriority() {
-        return inventory.getGuiPriority();
+    public int getGuiPriority(OperationCategory category) {
+        return inventory.getGuiPriority(category);
     }
     
     @Override
-    public void setIterationOrder(IterationOrderCategory category, int[] iterationOrder) {
+    public void setIterationOrder(OperationCategory category, int[] iterationOrder) {
         throw new UnsupportedOperationException("Iteration order needs to be set in the backing inventory");
     }
     
     @Override
-    public void setGuiPriority(int guiPriority) {
+    public void setGuiPriority(int priority) {
         throw new UnsupportedOperationException("Gui priority needs to be set in the backing inventory");
     }
     

@@ -15,6 +15,7 @@ import xyz.xenondevs.invui.internal.util.ItemUtils2;
 import xyz.xenondevs.invui.internal.util.SlotUtils;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.inventory.ObscuredInventory;
+import xyz.xenondevs.invui.inventory.OperationCategory;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
@@ -242,7 +243,7 @@ public sealed abstract class AbstractGui
         // move into the first inventory that accepts the item, sorted by priority
         var inventories = window.getGuis().stream()
             .flatMap(gui -> gui.getInventories(inventory).stream())
-            .sorted(Comparator.comparingInt(Inventory::getGuiPriority).reversed())
+            .sorted(Comparator.<Inventory>comparingInt(inv -> inv.getGuiPriority(OperationCategory.ADD)).reversed())
             .toList();
         
         int leftOverAmount = putIntoFirstInventory(updateReason, clicked, inventories);
@@ -354,8 +355,8 @@ public sealed abstract class AbstractGui
     
     /**
      * Puts the given {@link ItemStack} into the first inventory that accepts it, starting with the
-     * {@link Inventory#getGuiPriority() highest priority} inventory. If one inventory accepts any amount
-     * of items, further inventories will not be queried, meaning that an item stack will not be split
+     * {@link Inventory#getGuiPriority(OperationCategory)} for {@link OperationCategory#ADD} highest priority inventory.
+     * If one inventory accepts any amount of items, further inventories will not be queried, meaning that an item stack will not be split
      * across multiple inventories.
      *
      * @param updateReason the update reason to use
@@ -364,7 +365,13 @@ public sealed abstract class AbstractGui
      * @return the amount of items that are left over
      */
     protected int putIntoFirstInventory(UpdateReason updateReason, ItemStack itemStack, Inventory... ignored) {
-        return putIntoFirstInventory(updateReason, itemStack, getInventories(ignored));
+        return putIntoFirstInventory(
+            updateReason,
+            itemStack, 
+            getInventories(ignored).stream()
+                .sorted(Comparator.<Inventory>comparingInt(inv -> inv.getGuiPriority(OperationCategory.ADD)).reversed())
+                .toList()
+        );
     }
     
     /**
@@ -389,13 +396,12 @@ public sealed abstract class AbstractGui
     }
     
     /**
-     * Gets a map of all inventories and their visible slots in this gui, ignoring the specified inventories,
-     * sorted by their {@link Inventory#getGuiPriority()}, with the highest priorities coming first.
+     * Gets a map of all inventories and their visible slots in this gui, ignoring the specified inventories.
      *
      * @param ignored the inventories to ignore
      * @return a map of all inventories and their visible slots
      */
-    private SequencedMap<Inventory, Set<Integer>> getAllActiveInventorySlots(Inventory... ignored) {
+    private Map<? extends Inventory, Set<Integer>> getAllActiveInventorySlots(Inventory... ignored) {
         if (isFrozen())
             return Collections.emptySortedMap();
         
@@ -424,18 +430,16 @@ public sealed abstract class AbstractGui
             }
         }
         
-        return slots.entrySet().stream()
-            .sorted(Comparator.<Map.Entry<Inventory, Set<Integer>>>comparingInt(entry -> entry.getKey().getGuiPriority()).reversed())
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
+        return slots;
     }
     
     @Override
-    public SequencedCollection<? extends Inventory> getInventories(Inventory... ignored) {
+    public Collection<? extends Inventory> getInventories(Inventory... ignored) {
         if (!ignoreObscuredInventorySlots)
-            return Collections.unmodifiableSequencedCollection(getAllActiveInventorySlots(ignored).sequencedKeySet());
+            return Collections.unmodifiableCollection(getAllActiveInventorySlots(ignored).keySet());
         
         ArrayList<Inventory> inventories = new ArrayList<>();
-        for (Map.Entry<Inventory, Set<Integer>> entry : getAllActiveInventorySlots(ignored).entrySet()) {
+        for (Map.Entry<? extends Inventory, Set<Integer>> entry : getAllActiveInventorySlots(ignored).entrySet()) {
             Inventory inventory = entry.getKey();
             Set<Integer> slots = entry.getValue();
             inventories.add(new ObscuredInventory(inventory, slot -> !slots.contains(slot)));

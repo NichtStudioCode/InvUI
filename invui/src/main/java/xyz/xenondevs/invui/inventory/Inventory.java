@@ -57,14 +57,15 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
     private @Nullable List<Consumer<InventoryClickEvent>> clickHandlers;
     private @Nullable List<Consumer<ItemPreUpdateEvent>> preUpdateHandlers;
     private @Nullable List<Consumer<ItemPostUpdateEvent>> postUpdateHandlers;
-    private int guiPriority = 0;
-    private final Map<IterationOrderCategory, int[]> iterationOrders;
+    private final Map<OperationCategory, int[]> iterationOrders;
+    private final Map<OperationCategory, Integer> guiPriorities;
     
     @SuppressWarnings("unchecked")
     public Inventory(int size) {
         this.size = size;
         viewers = new Set[size];
-        iterationOrders = CollectionUtils.newEnumMap(IterationOrderCategory.class, k -> IntStream.range(0, size).toArray());
+        iterationOrders = CollectionUtils.newEnumMap(OperationCategory.class, k -> IntStream.range(0, size).toArray());
+        guiPriorities = CollectionUtils.newEnumMap(OperationCategory.class, k -> 0);
     }
     
     /**
@@ -81,7 +82,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      *
      * @param iterationOrder The new iteration order. Must include all slots and no duplicates.
      */
-    public void setIterationOrder(IterationOrderCategory category, int[] iterationOrder) {
+    public void setIterationOrder(OperationCategory category, int[] iterationOrder) {
         if (iterationOrder.length != size)
             throw new IllegalArgumentException("Iteration order size must match inventory size");
         
@@ -102,7 +103,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      * @param category The category of iteration operations
      * @return The current iteration order.
      */
-    public int[] getIterationOrder(IterationOrderCategory category) {
+    public int[] getIterationOrder(OperationCategory category) {
         return iterationOrders.get(category).clone();
     }
     
@@ -111,7 +112,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      * such as {@link #addItem(UpdateReason, ItemStack)} or {@link #collectSimilar(UpdateReason, ItemStack, int)}.
      */
     public void reverseIterationOrder() {
-        for (var category : IterationOrderCategory.values()) {
+        for (var category : OperationCategory.values()) {
             reverseIterationOrder(category);
         }
     }
@@ -121,7 +122,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      *
      * @param category The category of operations where the iteration order should be reversed
      */
-    public void reverseIterationOrder(IterationOrderCategory category) {
+    public void reverseIterationOrder(OperationCategory category) {
         setIterationOrder(category, ArrayUtils.reversed(getIterationOrder(category)));
     }
     
@@ -511,25 +512,37 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
     }
     
     /**
-     * Gets the priority for click actions in a {@link Gui}, such as shift clicking or cursor collection
-     * with multiple {@link Inventory VirtualInventories}.
+     * Gets the gui priority for operations of the given category.
+     * This priority is used to determine the order in which operations are applied to gui-embedded inventories.
      *
      * @return The priority for click actions, {@link Inventory VirtualInventories} with
      * a higher priority get prioritized.
      */
-    public int getGuiPriority() {
-        return guiPriority;
+    public int getGuiPriority(OperationCategory category) {
+        return guiPriorities.get(category);
     }
     
     /**
-     * Sets the priority for click actions in a {@link Gui}, such as shift-clicking or cursor collection
-     * with multiple {@link Inventory VirtualInventories}.
+     * Sets the gui priority for all operation types.
+     * This priority is used to determine the order in which operations are applied to gui-embedded inventories.
      *
-     * @param guiPriority The priority for click actions, {@link Inventory VirtualInventories} with
-     *                    a higher priority get prioritized.
+     * @param priority The priority
      */
-    public void setGuiPriority(int guiPriority) {
-        this.guiPriority = guiPriority;
+    public void setGuiPriority(int priority) {
+        for (var category : OperationCategory.values()) {
+            setGuiPriority(category, priority);
+        }
+    }
+    
+    /**
+     * Sets the gui priority for operations of the given category.
+     * This priority is used to determine the order in which operations are applied to gui-embedded inventories.
+     *
+     * @param category The category of operations to set the priority for.
+     * @param priority The priority
+     */
+    public void setGuiPriority(OperationCategory category, int priority) {
+        guiPriorities.put(category, priority);
     }
     
     /**
@@ -1016,7 +1029,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
         int amountLeft,
         @Nullable ItemStack[] items
     ) {
-        for (int slot : getIterationOrder(IterationOrderCategory.ADD)) {
+        for (int slot : getIterationOrder(OperationCategory.ADD)) {
             if (amountLeft <= 0)
                 break;
             
@@ -1059,7 +1072,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
         int amountLeft,
         @Nullable ItemStack[] items
     ) {
-        for (int slot : getIterationOrder(IterationOrderCategory.ADD)) {
+        for (int slot : getIterationOrder(OperationCategory.ADD)) {
             if (amountLeft <= 0)
                 break;
             
@@ -1177,7 +1190,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
         int amountLeft = itemStack.getAmount();
         
         // find all slots where the item partially fits
-        for (int slot : getIterationOrder(IterationOrderCategory.ADD)) {
+        for (int slot : getIterationOrder(OperationCategory.ADD)) {
             if (amountLeft == 0)
                 break;
             
@@ -1194,7 +1207,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
         }
         
         // remaining items would be added to empty slots
-        for (int slot : getIterationOrder(IterationOrderCategory.ADD)) {
+        for (int slot : getIterationOrder(OperationCategory.ADD)) {
             if (amountLeft == 0)
                 break;
             
@@ -1256,7 +1269,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
             @Nullable ItemStack[] items = getUnsafeItems();
             
             // find partial slots and take items from there
-            for (int slot : getIterationOrder(IterationOrderCategory.COLLECT)) {
+            for (int slot : getIterationOrder(OperationCategory.COLLECT)) {
                 ItemStack currentStack = items[slot];
                 if (currentStack == null || currentStack.getAmount() >= maxStackSize || !template.isSimilar(currentStack))
                     continue;
@@ -1267,7 +1280,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
             }
             
             // only taking from partial stacks wasn't enough, take from a full slot
-            for (int slot : getIterationOrder(IterationOrderCategory.COLLECT)) {
+            for (int slot : getIterationOrder(OperationCategory.COLLECT)) {
                 ItemStack currentStack = items[slot];
                 if (currentStack == null || currentStack.getAmount() < maxStackSize || !template.isSimilar(currentStack))
                     continue;
@@ -1292,7 +1305,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
         @Nullable ItemStack[] items = getUnsafeItems();
         
         int removed = 0;
-        for (int slot : getIterationOrder(IterationOrderCategory.OTHER)) {
+        for (int slot : getIterationOrder(OperationCategory.OTHER)) {
             ItemStack item = items[slot];
             if (item != null && predicate.test(item.clone()) && setItem(updateReason, slot, null)) {
                 removed += item.getAmount();
@@ -1314,7 +1327,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
         @Nullable ItemStack[] items = getUnsafeItems();
         
         int leftOver = amount;
-        for (int slot : getIterationOrder(IterationOrderCategory.OTHER)) {
+        for (int slot : getIterationOrder(OperationCategory.OTHER)) {
             ItemStack item = items[slot];
             if (item != null && predicate.test(item.clone())) {
                 leftOver -= takeFrom(updateReason, slot, leftOver);
@@ -1336,7 +1349,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
         @Nullable ItemStack[] items = getUnsafeItems();
         
         int removed = 0;
-        for (int slot : getIterationOrder(IterationOrderCategory.OTHER)) {
+        for (int slot : getIterationOrder(OperationCategory.OTHER)) {
             ItemStack item = items[slot];
             if (item != null && item.isSimilar(itemStack) && setItem(updateReason, slot, null)) {
                 removed += item.getAmount();
@@ -1358,7 +1371,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
         @Nullable ItemStack[] items = getUnsafeItems();
         
         int leftOver = amount;
-        for (int slot : getIterationOrder(IterationOrderCategory.OTHER)) {
+        for (int slot : getIterationOrder(OperationCategory.OTHER)) {
             ItemStack item = items[slot];
             if (item != null && item.isSimilar(itemStack)) {
                 leftOver -= takeFrom(updateReason, slot, leftOver);

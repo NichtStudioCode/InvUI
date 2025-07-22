@@ -622,8 +622,8 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
     
     /**
      * Gets an unmodifiable sequenced collection of all inventories visible in this gui,
-     * including those that are part of nested guis, ignoring the specified inventories,
-     * sorted by their {@link Inventory#getGuiPriority()}, with the highest priorities coming first.
+     * including those that are part of nested guis, ignoring the specified inventories.
+     * Slots that are embedded multiple times are only returned once.
      * If {@link #isIgnoreObscuredInventorySlots()} is true, the obscured slots will not be visible
      * in the returned inventories.
      * If the gui or any nested gui containing an inventory is frozen, those slots will also not be visible.
@@ -631,7 +631,7 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
      * @param ignored the inventories to ignore
      * @return a sequenced collection of all inventories visible in this gui
      */
-    SequencedCollection<? extends Inventory> getInventories(Inventory... ignored);
+    Collection<? extends Inventory> getInventories(Inventory... ignored);
     
     //<editor-fold desc="fill methods">
     

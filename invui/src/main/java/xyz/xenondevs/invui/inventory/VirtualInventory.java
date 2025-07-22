@@ -160,7 +160,10 @@ public final class VirtualInventory extends Inventory {
      */
     public VirtualInventory(VirtualInventory inventory) {
         this(inventory.uuid, inventory.size, ItemUtils.clone(inventory.items), inventory.maxStackSizes.clone());
-        setGuiPriority(inventory.getGuiPriority());
+        for (var category : OperationCategory.values()) {
+            setIterationOrder(category, inventory.getIterationOrder(category));
+            setGuiPriority(category, inventory.getGuiPriority(category));
+        }
         setPreUpdateHandlers(inventory.getPreUpdateHandlers());
         setPostUpdateHandlers(inventory.getPostUpdateHandlers());
         setResizeHandlers(inventory.getResizeHandlers());

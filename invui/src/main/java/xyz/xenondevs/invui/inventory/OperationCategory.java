@@ -6,9 +6,9 @@ import xyz.xenondevs.invui.inventory.event.UpdateReason;
 import java.util.function.Predicate;
 
 /**
- * Category of functions that iterate over slots in the inventory.
+ * Category of inventory-related operations.
  */
-public enum IterationOrderCategory {
+public enum OperationCategory {
     
     /**
      * Operations that add items to the inventory, such as {@link Inventory#addItem(UpdateReason, ItemStack)}. 
