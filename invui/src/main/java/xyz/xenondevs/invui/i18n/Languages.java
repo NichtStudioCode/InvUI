@@ -1,21 +1,28 @@
 package xyz.xenondevs.invui.i18n;
 
 import com.google.gson.stream.JsonReader;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.text.TranslationArgument;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.kyori.adventure.text.minimessage.translation.Argument;
+import net.kyori.adventure.text.minimessage.translation.MiniMessageTranslator;
+import net.kyori.adventure.text.renderer.ComponentRenderer;
+import net.kyori.adventure.text.renderer.TranslatableComponentRenderer;
+import net.kyori.adventure.translation.Translator;
+import net.kyori.adventure.util.TriState;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.invui.internal.util.ComponentLocalizer;
+import xyz.xenondevs.invui.InvUI;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.function.BiFunction;
+import java.text.MessageFormat;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -25,14 +32,34 @@ public class Languages {
     
     private static final Languages INSTANCE = new Languages();
     private final Map<Locale, Map<String, String>> translations = new HashMap<>();
-    private Function<Player, Locale> localeProvider = Player::locale;
+    private Function<? super Player, Locale> localeProvider = Player::locale;
     private boolean serverSideTranslations = true;
+    
+    private final Translator translator = new MiniMessageTranslator() {
+        
+        @Override
+        public Key name() {
+            return Key.key(InvUI.getInstance().getPlugin(), "invui_translator");
+        }
+        
+        @Override
+        public boolean canTranslate(String key, Locale locale) {
+            return getFormatString(locale, key) != null;
+        }
+        
+        @Override
+        protected String getMiniMessageString(String key, Locale locale) {
+            return Objects.requireNonNull(getFormatString(locale, key));
+        }
+        
+    };
     
     private Languages() {
     }
     
     /**
      * Gets the singleton instance of Languages.
+     *
      * @return The singleton instance of Languages.
      */
     public static Languages getInstance() {
@@ -111,7 +138,7 @@ public class Languages {
      *
      * @param localeProvider The language provider.
      */
-    public void setLocaleProvider(Function<Player, Locale> localeProvider) {
+    public void setLocaleProvider(Function<? super Player, Locale> localeProvider) {
         this.localeProvider = localeProvider;
     }
     
@@ -148,8 +175,7 @@ public class Languages {
      *
      * @param player    The player to translate the component for.
      * @param component The component to translate.
-     * @param resolvers Additional mini message tag resolvers that may or may not be used, depending on the
-     *                  configured {@link #setComponentCreator(BiFunction) component creator}
+     * @param resolvers Additional mini message tag resolvers
      * @return The translated component or the original component if server-side translations are disabled.
      */
     public Component localized(Player player, Component component, TagResolver... resolvers) {
@@ -161,25 +187,50 @@ public class Languages {
      *
      * @param locale    The language to translate the component to.
      * @param component The component to translate.
-     * @param resolvers Additional mini message tag resolvers that may or may not be used, depending on the
-     *                  configured {@link #setComponentCreator(BiFunction) component creator}
+     * @param resolvers Additional mini message tag resolvers
      * @return The translated component or the original component if server-side translations are disabled.
      */
     public Component localized(Locale locale, Component component, TagResolver... resolvers) {
         if (serverSideTranslations) {
-            return ComponentLocalizer.getInstance().localize(locale, component, resolvers);
+            return getRenderer(resolvers).render(component, locale);
         }
         
         return component;
     }
     
-    /**
-     * Configures how components are created from translation strings.
-     *
-     * @param componentCreator The function that creates components from translation strings.
-     */
-    public void setComponentCreator(BiFunction<String, TagResolver[], Component> componentCreator) {
-        ComponentLocalizer.getInstance().setComponentCreator(componentCreator);
+    private ComponentRenderer<Locale> getRenderer(TagResolver[] resolvers) {
+        if (resolvers.length == 0)
+            return TranslatableComponentRenderer.usingTranslationSource(translator);
+        
+        // specialized TranslatableComponentRenderer that injects resolvers to each TranslatableComponent's arguments
+        return new TranslatableComponentRenderer<>() {
+            
+            @Override
+            protected @Nullable MessageFormat translate(String key, Locale context) {
+                return translator.translate(key, context);
+            }
+            
+            @Override
+            protected Component renderTranslatableInner(TranslatableComponent component, Locale context) {
+                TriState anyTranslations = translator.hasAnyTranslations();
+                if (anyTranslations == TriState.FALSE)
+                    return component;
+                
+                Component translated;
+                if (translator.canTranslate(component.key(), context)) {
+                    var args = new ArrayList<>(component.arguments());
+                    args.add(TranslationArgument.component(Argument.tagResolver(resolvers)));
+                    translated = translator.translate(component.arguments(args), context);
+                } else {
+                    translated = null;
+                }
+                
+                return translated != null
+                    ? this.render(translated, context)
+                    : super.renderTranslatableInner(component, context);
+            }
+            
+        };
     }
     
 }

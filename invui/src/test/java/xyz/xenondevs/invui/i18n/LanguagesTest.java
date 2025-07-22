@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Locale;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class LanguagesTest {
     
@@ -26,7 +26,7 @@ class LanguagesTest {
     @Test
     public void testLocalizeWithParams() {
         var l = Languages.getInstance();
-        l.addLanguage(Locale.US, Map.of("a.b.c", "Sale: %s%% off"));
+        l.addLanguage(Locale.US, Map.of("a.b.c", "Sale: <arg:0>% off"));
         
         var translatable = Component.translatable("a.b.c", Component.text("50"));
         var translated = l.localized(Locale.US, translatable);
@@ -35,24 +35,13 @@ class LanguagesTest {
     }
     
     @Test
-    public void testLocalizeWithPercentageSymbol() {
-        var l = Languages.getInstance();
-        l.addLanguage(Locale.US, Map.of("a.b.c", "%% A %% B %% C"));
-        
-        var translatable = Component.translatable("a.b.c");
-        var translated = l.localized(Locale.US, translatable);
-        
-        assertTextEquals("% A % B % C", translated);
-    }
-    
-    @Test
     public void testLocalizeWithNestedParams() {
         var l = Languages.getInstance();
         l.addLanguage(
             Locale.US,
             Map.of(
-                "a", "Sale: %s%s%% off",
-                "b", "%s%s",
+                "a", "Sale: <arg:0>% off",
+                "b", "<arg:0><arg:1>",
                 "c", "5",
                 "d", "0"
             ));
@@ -66,7 +55,7 @@ class LanguagesTest {
     @Test
     public void testLocalizedWithPlaceholders() {
         var l = Languages.getInstance();
-        l.addLanguage(Locale.US, Map.of("a.b.c", "Sale: <percentage>%% off"));
+        l.addLanguage(Locale.US, Map.of("a.b.c", "Sale: <percentage>% off"));
         
         var translatable = Component.translatable("a.b.c");
         var translated = l.localized(Locale.US, translatable, Placeholder.unparsed("percentage", "50"));
