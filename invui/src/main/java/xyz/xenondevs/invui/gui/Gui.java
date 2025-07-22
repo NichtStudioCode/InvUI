@@ -341,7 +341,21 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
      * @param inventory The {@link Inventory} that should be placed on these slots
      * @see #applyStructure(Structure)
      */
-    void setInventory(char key, Inventory inventory);
+    default void setInventory(char key, Inventory inventory) {
+        setSlotElement(key, new InventorySlotElementSupplier(inventory, null, 0));
+    }
+    
+    /**
+     * Fills the slots associated with the given key through a {@link Structure} with the given {@link Inventory},
+     * starting at the given offset slot.
+     *
+     * @param key       The key
+     * @param inventory The {@link Inventory} that should be placed on these slots
+     * @param offset    The slot offset inside the {@link Inventory} to start from
+     */
+    default void setInventory(char key, Inventory inventory, int offset) {
+        setSlotElement(key, new InventorySlotElementSupplier(inventory, null, offset));
+    }
     
     /**
      * Fills the slots associated with the given key through a {@link Structure} with the given {@link Inventory},
@@ -352,7 +366,22 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
      * @param background The {@link ItemProvider} for empty slots of the {@link Inventory}
      * @see #applyStructure(Structure)
      */
-    void setInventory(char key, Inventory inventory, ItemProvider background);
+    default void setInventory(char key, Inventory inventory, @Nullable ItemProvider background) {
+        setSlotElement(key, new InventorySlotElementSupplier(inventory, background, 0));
+    }
+    
+    /**
+     * Fills the slots associated with the given key through a {@link Structure} with the given {@link Inventory},
+     * using the given {@link ItemProvider} as background for empty slots, starting at the given offset slot.
+     *
+     * @param key        The key
+     * @param inventory  The {@link Inventory} that should be placed on these slots
+     * @param background The {@link ItemProvider} for empty slots of the {@link Inventory}
+     * @param offset     The slot offset inside the {@link Inventory} to start from
+     */
+    default void setInventory(char key, Inventory inventory, @Nullable ItemProvider background, int offset) {
+        setSlotElement(key, new InventorySlotElementSupplier(inventory, background, offset));
+    }
     
     /**
      * Fills the slots associated with the given key through a {@link Structure} with the given {@link Gui},
@@ -361,7 +390,9 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
      * @param key The key
      * @param gui The {@link Gui} that should be placed on these slots
      */
-    void setGui(char key, Gui gui);
+    default void setGui(char key, Gui gui) {
+        setSlotElement(key, new GuiSlotElementSupplier(gui));
+    }
     
     /**
      * Gets the {@link ItemProvider} that will be used if nothing else

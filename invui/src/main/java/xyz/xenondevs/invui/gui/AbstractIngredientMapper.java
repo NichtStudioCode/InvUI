@@ -25,46 +25,6 @@ abstract class AbstractIngredientMapper<S extends AbstractIngredientMapper<S>> i
     }
     
     @Override
-    public S addIngredient(char key, ItemStack itemStack) {
-        return addIngredient(key, new ItemWrapper(itemStack));
-    }
-    
-    @Override
-    public S addIngredient(char key, ItemProvider itemProvider) {
-        return addIngredient(key, Item.simple(itemProvider));
-    }
-    
-    @Override
-    public S addIngredient(char key, Item item) {
-        return addIngredient(key, new SlotElement.Item(item));
-    }
-    
-    @Override
-    public S addIngredient(char key, Item.Builder<?> builder) {
-        return addIngredient(key, builder::build);
-    }
-    
-    @Override
-    public S addIngredient(char key, Supplier<? extends Item> itemSupplier) {
-        return addIngredientElementSupplier(key, () -> new SlotElement.Item(itemSupplier.get()));
-    }
-    
-    @Override
-    public S addIngredient(char key, Inventory inventory) {
-        return addIngredientElementSupplier(key, new InventorySlotElementSupplier(inventory));
-    }
-    
-    @Override
-    public S addIngredient(char key, Inventory inventory, @Nullable ItemProvider background) {
-        return addIngredientElementSupplier(key, new InventorySlotElementSupplier(inventory, background));
-    }
-    
-    @Override
-    public S addIngredient(char key, Gui gui) {
-        return addIngredientElementSupplier(key, new GuiSlotElementSupplier(gui));
-    }
-    
-    @Override
     public S addIngredient(char key, SlotElement element) {
         handleUpdate();
         ingredientMap.put(key, new Ingredient(element));

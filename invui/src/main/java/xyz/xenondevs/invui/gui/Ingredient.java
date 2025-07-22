@@ -82,4 +82,14 @@ class Ingredient {
         return marker != null;
     }
     
+    /**
+     * Calls {@link ResettableSlotElementSupplier#reset()} if this {@link #isSlotElement()} and
+     * a {@link ResettableSlotElementSupplier} is used as the supplier.
+     */
+    void reset() {
+        if (elementSupplier instanceof ResettableSlotElementSupplier<?> e) {
+            e.reset();
+        }
+    }
+    
 }

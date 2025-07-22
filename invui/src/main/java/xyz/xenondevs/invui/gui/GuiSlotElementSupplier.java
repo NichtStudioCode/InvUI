@@ -1,8 +1,6 @@
 package xyz.xenondevs.invui.gui;
 
-import java.util.function.Supplier;
-
-class GuiSlotElementSupplier implements Supplier<SlotElement.GuiLink> {
+class GuiSlotElementSupplier implements ResettableSlotElementSupplier<SlotElement.GuiLink> {
     
     private final Gui gui;
     private int slot;
@@ -16,9 +14,15 @@ class GuiSlotElementSupplier implements Supplier<SlotElement.GuiLink> {
     
     @Override
     public SlotElement.GuiLink get() {
-        var element = new SlotElement.GuiLink(gui, slot);
-        slot = (slot + 1) % gui.getSize();
-        return element;
+        if (slot >= gui.getSize())
+            throw new IllegalStateException("No more slots available");
+        
+        return new SlotElement.GuiLink(gui, slot++);
+    }
+    
+    @Override
+    public void reset() {
+        slot = 0;
     }
     
 }

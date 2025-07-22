@@ -179,6 +179,7 @@ public class Structure extends AbstractIngredientMapper<Structure> {
         HashMap<Character, Ingredient> ingredients = new HashMap<>(ingredientMap.size() + globalIngredientMap.size());
         ingredients.putAll(globalIngredientMap);
         ingredients.putAll(ingredientMap);
+        ingredients.values().forEach(Ingredient::reset);
         return cachedIngredientMatrix = new IngredientMatrix(width, height, structureData, ingredients);
     }
     

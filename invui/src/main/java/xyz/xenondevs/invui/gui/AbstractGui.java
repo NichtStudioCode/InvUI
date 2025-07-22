@@ -756,21 +756,6 @@ public sealed abstract class AbstractGui
     }
     
     @Override
-    public void setInventory(char key, Inventory inventory) {
-        setSlotElement(key, new InventorySlotElementSupplier(inventory));
-    }
-    
-    @Override
-    public void setInventory(char key, Inventory inventory, ItemProvider background) {
-        setSlotElement(key, new InventorySlotElementSupplier(inventory, background));
-    }
-    
-    @Override
-    public void setGui(char key, Gui gui) {
-        setSlotElement(key, new GuiSlotElementSupplier(gui));
-    }
-    
-    @Override
     public SequencedCollection<? extends Slot> getSlots(char key) {
         var matrix = ingredientMatrix;
         if (matrix == null)
@@ -1011,70 +996,6 @@ public sealed abstract class AbstractGui
             if (structure == null)
                 throw new IllegalStateException("Structure is not set");
             structure.applyPreset(preset);
-            return (S) this;
-        }
-        
-        @Override
-        public S addIngredient(char key, ItemStack itemStack) {
-            if (structure == null)
-                throw new IllegalStateException("Structure is not set");
-            structure.addIngredient(key, itemStack);
-            return (S) this;
-        }
-        
-        @Override
-        public S addIngredient(char key, ItemProvider itemProvider) {
-            if (structure == null)
-                throw new IllegalStateException("Structure is not set");
-            structure.addIngredient(key, itemProvider);
-            return (S) this;
-        }
-        
-        @Override
-        public S addIngredient(char key, Item item) {
-            if (structure == null)
-                throw new IllegalStateException("Structure is not set");
-            structure.addIngredient(key, item);
-            return (S) this;
-        }
-        
-        @Override
-        public S addIngredient(char key, Item.Builder<?> builder) {
-            if (structure == null)
-                throw new IllegalStateException("Structure is not set");
-            structure.addIngredient(key, builder);
-            return (S) this;
-        }
-        
-        @Override
-        public S addIngredient(char key, Supplier<? extends Item> itemSupplier) {
-            if (structure == null)
-                throw new IllegalStateException("Structure is not set");
-            structure.addIngredient(key, itemSupplier);
-            return (S) this;
-        }
-        
-        @Override
-        public S addIngredient(char key, Inventory inventory) {
-            if (structure == null)
-                throw new IllegalStateException("Structure is not set");
-            structure.addIngredient(key, inventory);
-            return (S) this;
-        }
-        
-        @Override
-        public S addIngredient(char key, Inventory inventory, @Nullable ItemProvider background) {
-            if (structure == null)
-                throw new IllegalStateException("Structure is not set");
-            structure.addIngredient(key, inventory, background);
-            return (S) this;
-        }
-        
-        @Override
-        public S addIngredient(char key, Gui gui) {
-            if (structure == null)
-                throw new IllegalStateException("Structure is not set");
-            structure.addIngredient(key, gui);
             return (S) this;
         }
         
