@@ -1,6 +1,7 @@
 package xyz.xenondevs.invui.window;
 
 import xyz.xenondevs.invui.gui.Gui;
+import xyz.xenondevs.invui.state.Property;
 
 import java.util.function.Supplier;
 
@@ -17,6 +18,36 @@ public sealed interface FurnaceWindow extends Window, RecipeBookPowered permits 
     static Builder builder() {
         return new FurnaceWindowImpl.BuilderImpl();
     }
+    
+    /**
+     * Sets the cook progress, i.e. how much of the arrow is white.
+     *
+     * @param progress The cook progress, between 0.0 and 1.0.
+     * @throws IllegalArgumentException If the progress is not between 0.0 and 1.0.
+     */
+    void setCookProgress(double progress);
+    
+    /**
+     * Gets the cook progress, i.e. how much of the arrow is white.
+     *
+     * @return The cook progress, between 0.0 and 1.0.
+     */
+    double getCookProgress();
+    
+    /**
+     * Sets the burn progress, i.e. how much of the fire is white.
+     *
+     * @param progress The burn progress, between 0.0 and 1.0.
+     * @throws IllegalArgumentException If the progress is not between 0.0 and 1.0.
+     */
+    void setBurnProgress(double progress);
+    
+    /**
+     * Gets the burn progress, i.e. how much of the fire is white.
+     *
+     * @return The burn progress, between 0.0 and 1.0.
+     */
+    double getBurnProgress();
     
     /**
      * A {@link FurnaceWindow} builder.
@@ -82,6 +113,42 @@ public sealed interface FurnaceWindow extends Window, RecipeBookPowered permits 
          * @return This {@link Builder}
          */
         Builder setResultGui(Supplier<? extends Gui> guiSupplier);
+        
+        /**
+         * Sets the cook progress, i.e. how much of the arrow is white.
+         *
+         * @param progress The cook progress, between 0.0 and 1.0.
+         * @return This {@link Builder}
+         */
+        default Builder setCookProgress(double progress) {
+            return setCookProgress(Property.of(progress));
+        }
+        
+        /**
+         * Sets the property containing the cook progress, i.e. how much of the arrow is white.
+         *
+         * @param progress The cook progress property, between 0.0 and 1.0.
+         * @return This {@link Builder}
+         */
+        Builder setCookProgress(Property<Double> progress);
+        
+        /**
+         * Sets the burn progress, i.e. how much of the fire is white.
+         *
+         * @param progress The burn progress, between 0.0 and 1.0.
+         * @return This {@link Builder}
+         */
+        default Builder setBurnProgress(double progress) {
+            return setBurnProgress(Property.of(progress));
+        }
+        
+        /**
+         * Sets the property containing the burn progress, i.e. how much of the fire is white.
+         *
+         * @param progress The burn progress property, between 0.0 and 1.0.
+         * @return This {@link Builder}
+         */
+        Builder setBurnProgress(Property<Double> progress);
         
     }
     

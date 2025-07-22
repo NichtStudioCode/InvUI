@@ -8,6 +8,7 @@ import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomCraftingTableMenu;
 import xyz.xenondevs.invui.internal.menu.CustomFurnaceMenu;
+import xyz.xenondevs.invui.state.Property;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,8 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
     private final AbstractGui resultGui;
     private final AbstractGui lowerGui;
     private final List<Consumer<? super Key>> recipeClickHandlers = new ArrayList<>();
+    private Property<Double> cookProgress;
+    private Property<Double> burnProgress;
     
     public FurnaceWindowImpl(
         Player player,
@@ -27,6 +30,8 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
         AbstractGui inputGui,
         AbstractGui resultGui,
         AbstractGui lowerGui,
+        Property<Double> cookProgress,
+        Property<Double> burnProgress,
         boolean closeable
     ) {
         super(player, title, lowerGui, 39, new CustomFurnaceMenu(player), closeable);
@@ -38,6 +43,13 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
         this.inputGui = inputGui;
         this.resultGui = resultGui;
         this.lowerGui = lowerGui;
+        this.cookProgress = cookProgress;
+        this.burnProgress = burnProgress;
+        
+        cookProgress.observeWeak(this, thisRef -> thisRef.menu.setCookProgress(cookProgress.get()));
+        burnProgress.observeWeak(this, thisRef -> thisRef.menu.setBurnProgress(burnProgress.get()));
+        menu.setCookProgress(cookProgress.get());
+        menu.setBurnProgress(burnProgress.get());
         menu.setRecipeClickHandler(this::handleRecipeClick);
     }
     
@@ -45,6 +57,34 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
         for (var handler : recipeClickHandlers) {
             handler.accept(recipeId);
         }
+    }
+    
+    @Override
+    public void setCookProgress(double progress) {
+        if (progress < 0 || progress > 1)
+            throw new IllegalArgumentException("Progress must be between 0 and 1, but was " + progress);
+        cookProgress.unobserveWeak(this);
+        cookProgress = Property.of(progress);
+        menu.setCookProgress(progress);
+    }
+    
+    @Override
+    public double getCookProgress() {
+        return cookProgress.get();
+    }
+    
+    @Override
+    public void setBurnProgress(double progress) {
+        if (progress < 0 || progress > 1)
+            throw new IllegalArgumentException("Progress must be between 0 and 1, but was " + progress);
+        burnProgress.unobserveWeak(this);
+        burnProgress = Property.of(progress);
+        menu.setBurnProgress(progress);
+    }
+    
+    @Override
+    public double getBurnProgress() {
+        return burnProgress.get();
     }
     
     @Override
@@ -83,6 +123,8 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
         private final List<Consumer<? super Key>> recipeClickHandlers = new ArrayList<>();
         private Supplier<? extends Gui> inputGuiSupplier = () -> Gui.empty(1, 2);
         private Supplier<? extends Gui> resultGuiSupplier = () -> Gui.empty(1, 1);
+        private Property<Double> cookProgress = Property.of(0.0);
+        private Property<Double> burnProgress = Property.of(0.0);
         
         @Override
         public FurnaceWindow.Builder setInputGui(Supplier<? extends Gui> guiSupplier) {
@@ -110,6 +152,18 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
         }
         
         @Override
+        public FurnaceWindow.Builder setCookProgress(Property<Double> progress) {
+            this.cookProgress = progress;
+            return this;
+        }
+        
+        @Override
+        public FurnaceWindow.Builder setBurnProgress(Property<Double> progress) {
+            this.burnProgress = progress;
+            return this;
+        }
+        
+        @Override
         public FurnaceWindow build(Player viewer) {
             var window = new FurnaceWindowImpl(
                 viewer,
@@ -117,6 +171,8 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
                 (AbstractGui) inputGuiSupplier.get(),
                 (AbstractGui) resultGuiSupplier.get(),
                 supplyLowerGui(viewer),
+                cookProgress,
+                burnProgress,
                 closeable
             );
             

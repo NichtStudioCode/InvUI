@@ -76,15 +76,24 @@ public class InventoryUtils {
      * @return The amount of data slots
      */
     public static int getDataSlotCountOf(MenuType<?> type) {
+        if (type == MenuType.CRAFTER_3x3)
+            return 9;
         if (type == MenuType.ANVIL)
+            return 1;
+        if (type == MenuType.BEACON)
+            return 3;
+        if (type == MenuType.FURNACE || type == MenuType.BLAST_FURNACE || type == MenuType.SMOKER)
+            return 4;
+        if (type == MenuType.BREWING_STAND)
+            return 2;
+        if (type == MenuType.ENCHANTMENT)
+            return 10;
+        if (type == MenuType.LECTERN)
+            return 1;
+        if (type == MenuType.LOOM)
             return 1;
         if (type == MenuType.STONECUTTER)
             return 1;
-        if (type == MenuType.CRAFTER_3x3)
-            return 9;
-        
-        // TODO: all types
-        
         return 0;
     }
     

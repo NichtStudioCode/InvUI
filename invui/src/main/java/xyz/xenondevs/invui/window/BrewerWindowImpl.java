@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomBrewingStandMenu;
+import xyz.xenondevs.invui.state.Property;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -16,6 +17,8 @@ final class BrewerWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu>
     private final AbstractGui fuelGui;
     private final AbstractGui resultGui;
     private final AbstractGui lowerGui;
+    private Property<Double> brewProgress;
+    private Property<Double> fuelProgress;
     
     public BrewerWindowImpl(
         Player player,
@@ -24,6 +27,8 @@ final class BrewerWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu>
         AbstractGui fuelGui,
         AbstractGui resultGui,
         AbstractGui lowerGui,
+        Property<Double> brewProgress,
+        Property<Double> fuelProgress,
         boolean closeable
     ) {
         super(player, title, lowerGui, 41, new CustomBrewingStandMenu(player), closeable);
@@ -38,6 +43,43 @@ final class BrewerWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu>
         this.fuelGui = fuelGui;
         this.resultGui = resultGui;
         this.lowerGui = lowerGui;
+        this.brewProgress = brewProgress;
+        this.fuelProgress = fuelProgress;
+        
+        brewProgress.observeWeak(this, thisRef -> thisRef.menu.setBrewProgress(brewProgress.get()));
+        fuelProgress.observeWeak(this, thisRef -> thisRef.menu.setFuelProgress(fuelProgress.get()));
+        menu.setBrewProgress(brewProgress.get());
+        menu.setFuelProgress(fuelProgress.get());
+    }
+    
+    @Override
+    public void setBrewProgress(double progress) {
+        if (progress < 0 || progress > 1)
+            throw new IllegalArgumentException("Brew progress must be between 0 and 1, but was " + progress);
+        
+        brewProgress.unobserveWeak(this);
+        brewProgress = Property.of(progress);
+        menu.setBrewProgress(progress);
+    }
+    
+    @Override
+    public double getBrewProgress() {
+        return brewProgress.get();
+    }
+    
+    @Override
+    public void setFuelProgress(double progress) {
+        if (progress < 0 || progress > 1)
+            throw new IllegalArgumentException("Fuel progress must be between 0 and 1, but was " + progress);
+        
+        fuelProgress.unobserveWeak(this);
+        fuelProgress = Property.of(progress);
+        menu.setFuelProgress(progress);
+    }
+    
+    @Override
+    public double getFuelProgress() {
+        return fuelProgress.get();
     }
     
     @Override
@@ -53,6 +95,8 @@ final class BrewerWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu>
         private Supplier<? extends Gui> inputGuiSupplier = () -> Gui.empty(1, 1);
         private Supplier<? extends Gui> fuelGuiSupplier = () -> Gui.empty(1, 1);
         private Supplier<? extends Gui> resultGuiSupplier = () -> Gui.empty(3, 1);
+        private Property<Double> brewProgress = Property.of(0.0);
+        private Property<Double> fuelProgress = Property.of(0.0);
         
         @Override
         public BrewerWindow.Builder setInputGui(Supplier<? extends Gui> guiSupplier) {
@@ -73,6 +117,18 @@ final class BrewerWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu>
         }
         
         @Override
+        public BrewerWindow.Builder setBrewProgress(Property<Double> progress) {
+            this.brewProgress = progress;
+            return this;
+        }
+        
+        @Override
+        public BrewerWindow.Builder setFuelProgress(Property<Double> progress) {
+            this.fuelProgress = progress;
+            return this;
+        }
+        
+        @Override
         public BrewerWindow build(Player viewer) {
             var window = new BrewerWindowImpl(
                 viewer,
@@ -81,6 +137,8 @@ final class BrewerWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu>
                 (AbstractGui) fuelGuiSupplier.get(),
                 (AbstractGui) resultGuiSupplier.get(),
                 supplyLowerGui(viewer),
+                brewProgress,
+                fuelProgress,
                 closeable
             );
             

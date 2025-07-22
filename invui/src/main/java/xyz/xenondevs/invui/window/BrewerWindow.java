@@ -1,6 +1,7 @@
 package xyz.xenondevs.invui.window;
 
 import xyz.xenondevs.invui.gui.Gui;
+import xyz.xenondevs.invui.state.Property;
 
 import java.util.function.Supplier;
 
@@ -17,6 +18,35 @@ public sealed interface BrewerWindow extends Window permits BrewerWindowImpl {
     static Builder builder() {
         return new BrewerWindowImpl.BuilderImpl();
     }
+    
+    /**
+     * Sets the brew progress, i.e. how much of the arrow is white.
+     *
+     * @param progress The brew progress, between 0.0 and 1.0.
+     * @throws IllegalArgumentException If the progress is not between 0.0 and 1.0.
+     */
+    void setBrewProgress(double progress);
+    
+    /**
+     * Gets the brew progress, i.e. how much of the arrow is white.
+     *
+     * @return The brew progress, between 0.0 and 1.0.
+     */
+    double getBrewProgress();
+    
+    /**
+     * Sets the fuel progress, i.e. how much of the blaze bar is filled in.
+     *
+     * @param progress The fuel progress, between 0.0 and 1.0.
+     */
+    void setFuelProgress(double progress);
+    
+    /**
+     * Gets the fuel progress, i.e. how much of the blaze bar is filled in.
+     *
+     * @return The fuel progress, between 0.0 and 1.0.
+     */
+    double getFuelProgress();
     
     /**
      * A {@link BrewerWindow} builder.
@@ -112,6 +142,38 @@ public sealed interface BrewerWindow extends Window permits BrewerWindowImpl {
          * @return This {@link Builder}
          */
         Builder setResultGui(Supplier<? extends Gui> guiSupplier);
+        
+        /**
+         * Sets the brew progress, i.e. how much of the arrow is white.
+         * @param progress The brew progress, between 0.0 and 1.0.
+         * @return This {@link Builder}
+         */
+        default Builder setBrewProgress(double progress) {
+            return setBrewProgress(Property.of(progress));
+        }
+        
+        /**
+         * Sets the property containing the brew progress, i.e. how much of the arrow is white.
+         * @param progress The brew progress property, between 0.0 and 1.0.
+         * @return This {@link Builder}
+         */
+        Builder setBrewProgress(Property<Double> progress);
+        
+        /**
+         * Sets the fuel progress, i.e. how much of the blaze bar is filled in.
+         * @param progress The fuel progress, between 0.0 and 1.0.
+         * @return This {@link Builder}
+         */
+        default Builder setFuelProgress(double progress) {
+            return setFuelProgress(Property.of(progress));
+        }
+        
+        /**
+         * Sets the property containing the fuel progress, i.e. how much of the blaze bar is filled in.
+         * @param progress The fuel progress property, between 0.0 and 1.0.
+         * @return This {@link Builder}
+         */
+        Builder setFuelProgress(Property<Double> progress);
         
     }
     
