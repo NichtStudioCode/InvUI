@@ -193,6 +193,18 @@ public sealed interface CrafterWindow extends Window permits CrafterWindowImpl {
         Builder addSlotToggleHandler(BiConsumer<? super Integer, ? super Boolean> handler);
         
         /**
+         * Sets the slot disabled state of the given slot.
+         *
+         * @param slot  The slot index
+         * @param state The disabled state of the slot
+         * @return This {@link Builder}
+         * @throws IllegalArgumentException If the slot index is out of bounds (0-8)
+         */
+        default Builder setSlot(int slot, boolean state) {
+            return setSlot(slot, MutableProperty.of(state));
+        }
+        
+        /**
          * Sets the property that contains the disabled state of the slot at the given index.
          *
          * @param slot  The slot index
@@ -201,6 +213,19 @@ public sealed interface CrafterWindow extends Window permits CrafterWindowImpl {
          * @throws IllegalArgumentException If the slot index is out of bounds (0-8)
          */
         Builder setSlot(int slot, MutableProperty<Boolean> state);
+        
+        /**
+         * Sets the disabled state of the slot at the given coordinates.
+         *
+         * @param x     The x coordinate of the slot
+         * @param y     The y coordinate of the slot
+         * @param state The disabled state of the slot
+         * @return This {@link Builder}
+         * @throws IllegalArgumentException If the slot coordinates are out of bounds (0-2, 0-2)
+         */
+        default Builder setSlot(int x, int y, boolean state) {
+            return setSlot(x, y, MutableProperty.of(state));
+        }
         
         /**
          * Sets the property that contains the disabled state of the slot at the given coordinates.
@@ -213,6 +238,18 @@ public sealed interface CrafterWindow extends Window permits CrafterWindowImpl {
          */
         default Builder setSlot(int x, int y, MutableProperty<Boolean> state) {
             return setSlot(x + y * 3, state);
+        }
+        
+        /**
+         * Sets the disabled state of the slot at the given coordinates.
+         *
+         * @param slot  The slot
+         * @param state The disabled state of the slot
+         * @return This {@link Builder}
+         * @throws IllegalArgumentException If the slot coordinates are out of bounds (0-2, 0-2)
+         */
+        default Builder setSlot(Slot slot, boolean state) {
+            return setSlot(slot, MutableProperty.of(state));
         }
         
         /**
