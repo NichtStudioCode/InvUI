@@ -9,12 +9,13 @@ import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomCartographyMenu;
 import xyz.xenondevs.invui.internal.util.ItemUtils2;
+import xyz.xenondevs.invui.state.Property;
 import xyz.xenondevs.invui.util.ColorPalette;
-import xyz.xenondevs.invui.util.MapIcon;
-import xyz.xenondevs.invui.util.MapPatch;
 
 import java.awt.image.BufferedImage;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
 final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyMenu> implements CartographyWindow {
@@ -23,6 +24,8 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
     private final AbstractGui inputGui;
     private final AbstractGui resultGui;
     private final AbstractGui lowerGui;
+    private Property<Set<? extends MapIcon>> icons;
+    private Property<View> view;
     
     public CartographyWindowImpl(
         Player player,
@@ -30,6 +33,8 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
         AbstractGui inputGui,
         AbstractGui resultGui,
         AbstractGui lowerGui,
+        Property<View> view,
+        Property<Set<? extends MapIcon>> icons,
         boolean closeable
     ) {
         super(player, title, lowerGui, 3 + 36, new CustomCartographyMenu(player), closeable);
@@ -41,6 +46,14 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
         this.inputGui = inputGui;
         this.resultGui = resultGui;
         this.lowerGui = lowerGui;
+        this.view = view;
+        this.icons = icons;
+        
+        view.observeWeak(this, weakThis -> weakThis.menu.setView(view.get()));
+        icons.observeWeak(this, weakThis -> weakThis.menu.setIcons(icons.get(), isOpen()));
+        
+        menu.setView(view.get());
+        menu.setIcons(icons.get(), false);
     }
     
     @Override
@@ -58,22 +71,26 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
     }
     
     @Override
+    public void setView(View view) {
+        this.view.unobserveWeak(this);
+        this.view = Property.of(view);
+        menu.setView(view);
+    }
+    
+    @Override
+    public View getView() {
+        return view.get();
+    }
+    
+    @Override
     public void applyPatch(MapPatch patch) {
         menu.applyPatch(patch, isOpen());
     }
     
     @Override
-    public void addIcon(MapIcon icon) {
-        menu.addIcon(icon, isOpen());
-    }
-    
-    @Override
-    public void removeIcon(MapIcon icon) {
-        menu.removeIcon(icon, isOpen());
-    }
-    
-    @Override
-    public void setIcons(Collection<? extends MapIcon> icons) {
+    public void setIcons(Set<? extends MapIcon> icons) {
+        this.icons.unobserveWeak(this);
+        this.icons = Property.of(new HashSet<>(icons));
         menu.setIcons(icons, isOpen());
     }
     
@@ -89,7 +106,8 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
         
         private Supplier<? extends Gui> inputGuiSupplier = () -> Gui.empty(1, 2);
         private Supplier<? extends Gui> resultGuiSupplier = () -> Gui.empty(1, 1);
-        private final Set<MapIcon> icons = new HashSet<>();
+        private Property<Set<? extends MapIcon>> icons = Property.of(Set.of());
+        private Property<View> view = Property.of(View.NORMAL);
         private byte @Nullable [] canvas;
         
         @Override
@@ -105,14 +123,8 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
         }
         
         @Override
-        public CartographyWindow.Builder addIcon(MapIcon icon) {
-            icons.add(icon);
-            return this;
-        }
-        
-        @Override
-        public CartographyWindow.Builder setIcons(Collection<? extends MapIcon> icons) {
-            this.icons.addAll(icons);
+        public CartographyWindow.Builder setIcons(Property<Set<? extends MapIcon>> icons) {
+            this.icons = icons;
             return this;
         }
         
@@ -133,6 +145,12 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
         }
         
         @Override
+        public CartographyWindow.Builder setView(Property<View> view) {
+            this.view = view;
+            return this;
+        }
+        
+        @Override
         public CartographyWindow build(Player viewer) {
             var window = new CartographyWindowImpl(
                 viewer,
@@ -140,10 +158,11 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
                 (AbstractGui) inputGuiSupplier.get(),
                 (AbstractGui) resultGuiSupplier.get(),
                 supplyLowerGui(viewer),
+                view,
+                icons,
                 closeable
             );
             
-            window.setIcons(icons);
             if (canvas != null)
                 window.applyPatch(new MapPatch(0, 0, 128, 128, canvas));
             

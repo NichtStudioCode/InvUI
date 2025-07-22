@@ -7,14 +7,17 @@ import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.saveddata.maps.*;
+import org.bukkit.Material;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.internal.network.PacketListener;
+import xyz.xenondevs.invui.internal.util.ItemUtils2;
 import xyz.xenondevs.invui.internal.util.MathUtils;
-import xyz.xenondevs.invui.util.MapIcon;
-import xyz.xenondevs.invui.util.MapPatch;
+import xyz.xenondevs.invui.window.CartographyWindow;
+import xyz.xenondevs.invui.window.CartographyWindow.MapIcon;
+import xyz.xenondevs.invui.window.CartographyWindow.MapPatch;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -32,6 +35,7 @@ public class CustomCartographyMenu extends CustomContainerMenu {
     private int mapId = -MathUtils.RANDOM.nextInt(Integer.MAX_VALUE);
     private byte[] canvas = new byte[MAP_SIZE * MAP_SIZE];
     private final Set<MapDecoration> decorations = new HashSet<>();
+    private CartographyWindow.View view = CartographyWindow.View.NORMAL;
     
     /**
      * Creates a new {@link CustomCartographyMenu} for the specified viewer.
@@ -49,6 +53,14 @@ public class CustomCartographyMenu extends CustomContainerMenu {
             var clone = item.clone();
             clone.setData(DataComponentTypes.MAP_ID, mapId(mapId));
             super.setItem(slot, clone);
+        } else if (slot == 1 && item != null) {
+            var targetType = switch (view) {
+                case NORMAL -> Material.STONE;
+                case SMALL -> Material.PAPER;
+                case DUPLICATE -> Material.MAP;
+                case LOCK -> Material.GLASS_PANE;
+            };
+            super.setItem(slot, ItemUtils2.asType(item, targetType));
         } else {
             super.setItem(slot, item);
         }
@@ -60,20 +72,9 @@ public class CustomCartographyMenu extends CustomContainerMenu {
         sendMapUpdate(new MapItemSavedData.MapPatch(0, 0, MAP_SIZE, MAP_SIZE, canvas), decorations);
     }
     
-    public void addIcon(MapIcon icon, boolean sendUpdate) {
-        var decoration = toNmsDecoration(icon);
-        decorations.add(decoration);
-        
-        if (sendUpdate)
-            sendMapUpdate(null, decorations);
-    }
-    
-    public void removeIcon(MapIcon icon, boolean sendUpdate) {
-        var decoration = toNmsDecoration(icon);
-        decorations.remove(decoration);
-        
-        if (sendUpdate)
-            sendMapUpdate(null, decorations);
+    public void setView(CartographyWindow.View view) {
+        this.view = view;
+        setItem(1, CraftItemStack.asCraftMirror(items.get(1)));
     }
     
     public void setIcons(Collection<? extends MapIcon> icons, boolean sendUpdate) {

@@ -1,10 +1,12 @@
 package xyz.xenondevs.invui.internal.util;
 
+import io.papermc.paper.datacomponent.DataComponentType;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import net.kyori.adventure.key.Key;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.component.BundleContents;
 import org.bukkit.Material;
+import org.bukkit.Registry;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
@@ -13,6 +15,7 @@ import xyz.xenondevs.invui.util.ItemUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static io.papermc.paper.datacomponent.item.BundleContents.bundleContents;
@@ -246,6 +249,38 @@ public class ItemUtils2 {
             mutableBundleContents.toggleSelectedItem(bundleSlot);
             nmsBundle.set(DataComponents.BUNDLE_CONTENTS, mutableBundleContents.toImmutable());
         }
+    }
+    
+    /**
+     * Creates a new {@link ItemStack} of the given target type, copying all data components (prototype + patch) to
+     * the new item stack. This will make the new item stack look exactly like the original item stack, except
+     * that it is a different type.
+     *
+     * @param original   the original item stack to copy data components from
+     * @param targetType the target type of the new item stack
+     * @return a new item stack of the target type with all data components copied from the original item stack
+     */
+    public static ItemStack asType(ItemStack original, Material targetType) {
+        if (original.isEmpty())
+            return ItemStack.empty();
+        
+        ItemStack result = new ItemStack(targetType, original.getAmount());
+        for (var type : Registry.DATA_COMPONENT_TYPE) {
+            if (original.hasData(type)) {
+                if (type instanceof DataComponentType.Valued<?> valuedType) {
+                    copyDataComponent(valuedType, original, result);
+                } else if (type instanceof DataComponentType.NonValued nonValuedType) {
+                    result.setData(nonValuedType);
+                }
+            } else {
+                result.unsetData(type);
+            }
+        }
+        return result;
+    }
+    
+    private static <T> void copyDataComponent(DataComponentType.Valued<T> type, ItemStack from, ItemStack to) {
+        to.setData(type, Objects.requireNonNull(from.getData(type)));
     }
     
 }
