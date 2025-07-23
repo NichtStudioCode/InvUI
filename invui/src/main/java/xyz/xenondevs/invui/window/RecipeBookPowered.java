@@ -1,6 +1,7 @@
 package xyz.xenondevs.invui.window;
 
 import net.kyori.adventure.key.Key;
+import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -39,7 +40,15 @@ public sealed interface RecipeBookPowered permits CraftingWindow, FurnaceWindow 
      *
      * @param handlers The new recipe click handlers.
      */
-    void setRecipeClickHandlers(List<? extends Consumer<? super Key>> handlers);
+    void setRecipeClickHandlers(List<? extends Consumer<Key>> handlers);
+    
+    /**
+     * Gets the registered recipe click handlers.
+     *
+     * @return An unmodifiable view of the list of recipe click handlers.
+     */
+    @UnmodifiableView
+    List<Consumer<Key>> getRecipeClickHandlers();
     
     /**
      * A builder for all windows that have a recipe book.

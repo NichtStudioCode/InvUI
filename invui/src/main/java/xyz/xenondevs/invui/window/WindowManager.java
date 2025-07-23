@@ -6,6 +6,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
 
@@ -74,7 +75,7 @@ public class WindowManager implements Listener {
      *
      * @return A set of all {@link Window Windows}
      */
-    public Set<Window> getWindows() {
+    public @Unmodifiable Set<Window> getWindows() {
         return Set.copyOf(windowsByPlayer.values());
     }
     

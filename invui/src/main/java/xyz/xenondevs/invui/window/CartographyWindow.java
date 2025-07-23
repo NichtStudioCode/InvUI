@@ -1,6 +1,7 @@
 package xyz.xenondevs.invui.window;
 
 import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.state.Property;
@@ -48,6 +49,14 @@ public sealed interface CartographyWindow extends Window permits CartographyWind
      * @param icons The {@link MapIcon MapIcons} to set.
      */
     void setIcons(Set<? extends MapIcon> icons);
+    
+    /**
+     * Gets the {@link MapIcon MapIcons} of the map in the cartography table.
+     *
+     * @return A set of {@link MapIcon MapIcons} currently on the map.
+     */
+    @UnmodifiableView
+    Set<MapIcon> getIcons();
     
     /**
      * Resets the map in the cartography table, removing all {@link MapIcon MapIcons} and patches.
@@ -342,7 +351,7 @@ public sealed interface CartographyWindow extends Window permits CartographyWind
          * @param icons The property containing the {@link MapIcon MapIcons} to set.
          * @return This {@link Builder}
          */
-        Builder setIcons(Property<Set<? extends MapIcon>> icons);
+        Builder setIcons(Property<? extends Set<? extends MapIcon>> icons);
         
         /**
          * Sets the map colors of the map.
@@ -378,7 +387,7 @@ public sealed interface CartographyWindow extends Window permits CartographyWind
          * @param view The view property.
          * @return This {@link Builder}
          */
-        Builder setView(Property<View> view);
+        Builder setView(Property<? extends View> view);
         
     }
     

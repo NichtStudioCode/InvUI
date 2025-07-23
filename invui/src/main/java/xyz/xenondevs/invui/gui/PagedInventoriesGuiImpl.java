@@ -16,7 +16,7 @@ final class PagedInventoriesGuiImpl<C extends Inventory> extends AbstractPagedGu
     public PagedInventoriesGuiImpl(
         int width, int height,
         List<? extends C> inventories,
-        SequencedSet<Slot> contentListSlots
+        SequencedSet<? extends Slot> contentListSlots
     ) {
         super(width, height, contentListSlots, Property.of(inventories));
         bake();

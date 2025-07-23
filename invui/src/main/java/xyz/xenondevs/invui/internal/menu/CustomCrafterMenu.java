@@ -4,7 +4,6 @@ import net.kyori.adventure.text.Component;
 import net.minecraft.network.HashedStack;
 import net.minecraft.network.protocol.game.ServerboundContainerSlotStateChangedPacket;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.ItemStack;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.internal.network.PacketListener;
@@ -16,7 +15,7 @@ import java.util.function.BiConsumer;
  */
 public class CustomCrafterMenu extends CustomContainerMenu {
     
-    private @Nullable BiConsumer<Integer, Boolean> slotStateChangeHandler;
+    private @Nullable BiConsumer<? super Integer, ? super Boolean> slotStateChangeHandler;
     
     /**
      * Creates a new custom crafter menu.
@@ -69,7 +68,7 @@ public class CustomCrafterMenu extends CustomContainerMenu {
      *
      * @param slotStateChangeHandler The slot state change handler.
      */
-    public void setSlotStateChangeHandler(BiConsumer<Integer, Boolean> slotStateChangeHandler) {
+    public void setSlotStateChangeHandler(BiConsumer<? super Integer, ? super Boolean> slotStateChangeHandler) {
         this.slotStateChangeHandler = slotStateChangeHandler;
     }
     

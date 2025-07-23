@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent.Reason;
 import org.jetbrains.annotations.Unmodifiable;
+import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.ClickEvent;
 import xyz.xenondevs.invui.gui.Gui;
@@ -49,7 +50,8 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, BrewerWindow
      *
      * @return An unmodifiable collection of all {@link Gui Guis} in this {@link Window}.
      */
-    @Unmodifiable List<Gui> getGuis();
+    @Unmodifiable
+    List<Gui> getGuis();
     
     /**
      * Shows the window to the player.
@@ -125,7 +127,15 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, BrewerWindow
      *
      * @param openHandlers The new open handlers
      */
-    void setOpenHandlers(@Nullable List<? extends Runnable> openHandlers);
+    void setOpenHandlers(List<? extends Runnable> openHandlers);
+    
+    /**
+     * Gets the currently registered open handlers.
+     *
+     * @return An unmodifiable view of the currently registered open handlers.
+     */
+    @UnmodifiableView
+    List<Runnable> getOpenHandlers();
     
     /**
      * Adds an open handler that will be called when this window gets opened.
@@ -135,11 +145,26 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, BrewerWindow
     void addOpenHandler(Runnable openHandler);
     
     /**
+     * Removes an open handler that has been added previously.
+     *
+     * @param openHandler The open handler to remove
+     */
+    void removeOpenHandler(Runnable openHandler);
+    
+    /**
      * Replaces the currently registered close handlers with the given list.
      *
      * @param closeHandlers The new close handlers, receiving the {@link Reason} why the {@link Window} was closed
      */
-    void setCloseHandlers(@Nullable List<? extends Consumer<? super Reason>> closeHandlers);
+    void setCloseHandlers(List<? extends Consumer<Reason>> closeHandlers);
+    
+    /**
+     * Gets the currently registered close handlers.
+     *
+     * @return An unmodifiable view of the currently registered close handlers,
+     */
+    @UnmodifiableView
+    List<Consumer<Reason>> getCloseHandlers();
     
     /**
      * Adds a close handler that will be called when this window gets closed.
@@ -160,7 +185,15 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, BrewerWindow
      *
      * @param outsideClickHandlers The new outside click handlers
      */
-    void setOutsideClickHandlers(@Nullable List<? extends Consumer<? super ClickEvent>> outsideClickHandlers);
+    void setOutsideClickHandlers(List<? extends Consumer<ClickEvent>> outsideClickHandlers);
+    
+    /**
+     * Gets the currently registered outside click handlers.
+     *
+     * @return An unmodifiable view of the currently registered outside click handlers,
+     */
+    @UnmodifiableView
+    List<Consumer<ClickEvent>> getOutsideClickHandlers();
     
     /**
      * Adds an outside click handler that will be called when a player clicks outside the inventory.
@@ -253,7 +286,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, BrewerWindow
          * @param openHandlers The open handlers of the {@link Window}
          * @return This {@link Builder Window Builder}
          */
-        S setOpenHandlers(@Nullable List<? extends Runnable> openHandlers);
+        S setOpenHandlers(List<? extends Runnable> openHandlers);
         
         /**
          * Adds an open handler to the {@link Window}.
@@ -269,7 +302,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, BrewerWindow
          * @param closeHandlers The close handlers, receiving the {@link Reason} why the {@link Window} was closed
          * @return This {@link Builder Window Builder}
          */
-        S setCloseHandlers(@Nullable List<? extends Consumer<? super Reason>> closeHandlers);
+        S setCloseHandlers(List<? extends Consumer<? super Reason>> closeHandlers);
         
         /**
          * Adds a close handler to the {@link Window}.
@@ -285,7 +318,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, BrewerWindow
          * @param outsideClickHandlers The outside click handlers of the {@link Window}
          * @return This {@link Builder Window Builder}
          */
-        S setOutsideClickHandlers(@Nullable List<? extends Consumer<? super ClickEvent>> outsideClickHandlers);
+        S setOutsideClickHandlers(List<? extends Consumer<? super ClickEvent>> outsideClickHandlers);
         
         /**
          * Adds an outside click handler to the {@link Window}.
@@ -321,7 +354,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, BrewerWindow
          * @param modifiers The modifiers of the {@link Window}
          * @return This {@link Builder Window Builder}
          */
-        S setModifiers(@Nullable List<? extends Consumer<? super W>> modifiers);
+        S setModifiers(List<? extends Consumer<? super W>> modifiers);
         
         /**
          * Adds a modifier to the {@link Window}.

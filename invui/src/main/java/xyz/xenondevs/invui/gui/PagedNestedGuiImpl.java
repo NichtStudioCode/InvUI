@@ -12,7 +12,7 @@ final class PagedNestedGuiImpl<C extends Gui> extends AbstractPagedGui<C> {
     public PagedNestedGuiImpl(
         int width, int height,
         List<? extends C> guis,
-        SequencedSet<Slot> contentListSlots
+        SequencedSet<? extends Slot> contentListSlots
     ) {
         super(width, height, contentListSlots, Property.of(guis));
         bake();

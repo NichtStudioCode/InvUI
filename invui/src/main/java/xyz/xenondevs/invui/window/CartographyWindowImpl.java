@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Unmodifiable;
+import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
@@ -13,6 +14,7 @@ import xyz.xenondevs.invui.util.ColorPalette;
 import xyz.xenondevs.invui.util.ItemUtils;
 
 import java.awt.image.BufferedImage;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,8 +26,8 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
     private final AbstractGui inputGui;
     private final AbstractGui resultGui;
     private final AbstractGui lowerGui;
-    private Property<Set<? extends MapIcon>> icons;
-    private Property<View> view;
+    private Property<? extends Set<? extends MapIcon>> icons;
+    private Property<? extends View> view;
     
     public CartographyWindowImpl(
         Player player,
@@ -33,8 +35,8 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
         AbstractGui inputGui,
         AbstractGui resultGui,
         AbstractGui lowerGui,
-        Property<View> view,
-        Property<Set<? extends MapIcon>> icons,
+        Property<? extends View> view,
+        Property<? extends Set<? extends MapIcon>> icons,
         boolean closeable
     ) {
         super(player, title, lowerGui, 3 + 36, new CustomCartographyMenu(player), closeable);
@@ -95,6 +97,11 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
     }
     
     @Override
+    public @UnmodifiableView Set<MapIcon> getIcons() {
+        return Collections.unmodifiableSet(icons.get());
+    }
+    
+    @Override
     public @Unmodifiable List<Gui> getGuis() {
         return List.of(inputGui, resultGui, lowerGui);
     }
@@ -106,8 +113,8 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
         
         private Supplier<? extends Gui> inputGuiSupplier = () -> Gui.empty(1, 2);
         private Supplier<? extends Gui> resultGuiSupplier = () -> Gui.empty(1, 1);
-        private Property<Set<? extends MapIcon>> icons = Property.of(Set.of());
-        private Property<View> view = Property.of(View.NORMAL);
+        private Property<? extends Set<? extends MapIcon>> icons = Property.of(Set.of());
+        private Property<? extends View> view = Property.of(View.NORMAL);
         private byte @Nullable [] canvas;
         
         @Override
@@ -123,7 +130,7 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
         }
         
         @Override
-        public CartographyWindow.Builder setIcons(Property<Set<? extends MapIcon>> icons) {
+        public CartographyWindow.Builder setIcons(Property<? extends Set<? extends MapIcon>> icons) {
             this.icons = icons;
             return this;
         }
@@ -145,7 +152,7 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
         }
         
         @Override
-        public CartographyWindow.Builder setView(Property<View> view) {
+        public CartographyWindow.Builder setView(Property<? extends View> view) {
             this.view = view;
             return this;
         }

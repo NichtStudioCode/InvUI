@@ -2,7 +2,6 @@ package xyz.xenondevs.invui.gui;
 
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
-import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.state.MutableProperty;
@@ -37,7 +36,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link PagedGui}.
      */
-    static PagedGui<Item> ofItems(int width, int height, List<? extends Item> items, SequencedSet<Slot> contentListSlots) {
+    static PagedGui<Item> ofItems(int width, int height, List<? extends Item> items, SequencedSet<? extends Slot> contentListSlots) {
         return new PagedItemsGuiImpl<>(width, height, items, contentListSlots);
     }
     
@@ -70,7 +69,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link PagedGui}.
      */
-    static PagedGui<Gui> ofGuis(int width, int height, List<? extends Gui> guis, SequencedSet<Slot> contentListSlots) {
+    static PagedGui<Gui> ofGuis(int width, int height, List<? extends Gui> guis, SequencedSet<? extends Slot> contentListSlots) {
         return new PagedNestedGuiImpl<>(width, height, guis, contentListSlots);
     }
     
@@ -103,7 +102,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link PagedGui}.
      */
-    static PagedGui<Inventory> ofInventories(int width, int height, List<? extends Inventory> inventories, SequencedSet<Slot> contentListSlots) {
+    static PagedGui<Inventory> ofInventories(int width, int height, List<? extends Inventory> inventories, SequencedSet<? extends Slot> contentListSlots) {
         return new PagedInventoriesGuiImpl<>(width, height, inventories, contentListSlots);
     }
     
@@ -130,7 +129,8 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      *
      * @return The slots that are used to display content in this {@link PagedGui}.
      */
-    @Unmodifiable SequencedSet<Slot> getContentListSlots();
+    @Unmodifiable
+    SequencedSet<Slot> getContentListSlots();
     
     /**
      * Gets the current page of this {@link PagedGui} as an index.
@@ -165,7 +165,8 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      *
      * @return The content of this {@link PagedGui}.
      */
-    List<? extends C> getContent();
+    @UnmodifiableView
+    List<C> getContent();
     
     /**
      * Bakes and updates the pages of this {@link PagedGui} based on the current content.
@@ -181,14 +182,14 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @return The registered page change handlers.
      */
     @UnmodifiableView
-    List<BiConsumer<? super Integer, ? super Integer>> getPageChangeHandlers();
+    List<BiConsumer<Integer, Integer>> getPageChangeHandlers();
     
     /**
      * Replaces the currently registered page change handlers with the given list.
      *
      * @param handlers The new page change handlers.
      */
-    void setPageChangeHandlers(@Nullable List<? extends BiConsumer<? super Integer, ? super Integer>> handlers);
+    void setPageChangeHandlers(List<? extends BiConsumer<Integer, Integer>> handlers);
     
     /**
      * Registers a page change handler.
@@ -210,14 +211,14 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @return The registered page count change handlers.
      */
     @UnmodifiableView
-    List<BiConsumer<? super Integer, ? super Integer>> getPageCountChangeHandlers();
+    List<BiConsumer<Integer, Integer>> getPageCountChangeHandlers();
     
     /**
      * Replaces the currently registered page count change handlers with the given list.
      *
      * @param handlers The new page count change handlers.
      */
-    void setPageCountChangeHandlers(@Nullable List<? extends BiConsumer<? super Integer, ? super Integer>> handlers);
+    void setPageCountChangeHandlers(List<? extends BiConsumer<Integer, Integer>> handlers);
     
     /**
      * Registers a page count change handler.

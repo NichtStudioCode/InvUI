@@ -58,14 +58,15 @@ public sealed interface AnvilWindow extends Window permits AnvilWindowImpl {
      * Replaces all rename handlers with the given list.
      * @param handlers The new rename handlers.
      */
-    void setRenameHandlers(List<? extends Consumer<? super String>> handlers);
+    void setRenameHandlers(List<? extends Consumer<String>> handlers);
     
     /**
      * Gets the registered rename handlers.
+     *
      * @return The registered rename handlers.
      */
     @UnmodifiableView
-    List<Consumer<? super String>> getRenameHandlers();
+    List<Consumer<String>> getRenameHandlers();
     
     /**
      * An {@link AnvilWindow} builder.

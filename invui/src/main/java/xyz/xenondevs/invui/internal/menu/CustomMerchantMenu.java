@@ -66,7 +66,7 @@ public class CustomMerchantMenu extends CustomContainerMenu {
         }
     }
     
-    private @Nullable Consumer<Integer> tradeSelectHandler;
+    private @Nullable Consumer<? super Integer> tradeSelectHandler;
     
     /**
      * Creates a new custom crafter menu.
@@ -162,7 +162,7 @@ public class CustomMerchantMenu extends CustomContainerMenu {
         );
     }
     
-    public void setTradeSelectHandler(Consumer<Integer> tradeSelectHandler) {
+    public void setTradeSelectHandler(Consumer<? super Integer> tradeSelectHandler) {
         this.tradeSelectHandler = tradeSelectHandler;
     }
     

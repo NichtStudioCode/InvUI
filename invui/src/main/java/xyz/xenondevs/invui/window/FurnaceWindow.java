@@ -130,7 +130,7 @@ public sealed interface FurnaceWindow extends Window, RecipeBookPowered permits 
          * @param progress The cook progress property, between 0.0 and 1.0.
          * @return This {@link Builder}
          */
-        Builder setCookProgress(Property<Double> progress);
+        Builder setCookProgress(Property<? extends Double> progress);
         
         /**
          * Sets the burn progress, i.e. how much of the fire is white.
@@ -148,7 +148,7 @@ public sealed interface FurnaceWindow extends Window, RecipeBookPowered permits 
          * @param progress The burn progress property, between 0.0 and 1.0.
          * @return This {@link Builder}
          */
-        Builder setBurnProgress(Property<Double> progress);
+        Builder setBurnProgress(Property<? extends Double> progress);
         
     }
     

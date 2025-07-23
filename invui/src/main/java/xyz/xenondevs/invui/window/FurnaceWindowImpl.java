@@ -4,10 +4,11 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Unmodifiable;
+import org.jetbrains.annotations.UnmodifiableView;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
-import xyz.xenondevs.invui.internal.menu.CustomCraftingTableMenu;
 import xyz.xenondevs.invui.internal.menu.CustomFurnaceMenu;
+import xyz.xenondevs.invui.internal.util.CollectionUtils;
 import xyz.xenondevs.invui.state.Property;
 
 import java.util.ArrayList;
@@ -21,8 +22,8 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
     private final AbstractGui resultGui;
     private final AbstractGui lowerGui;
     private final List<Consumer<? super Key>> recipeClickHandlers = new ArrayList<>();
-    private Property<Double> cookProgress;
-    private Property<Double> burnProgress;
+    private Property<? extends Double> cookProgress;
+    private Property<? extends Double> burnProgress;
     
     public FurnaceWindowImpl(
         Player player,
@@ -30,8 +31,8 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
         AbstractGui inputGui,
         AbstractGui resultGui,
         AbstractGui lowerGui,
-        Property<Double> cookProgress,
-        Property<Double> burnProgress,
+        Property<? extends Double> cookProgress,
+        Property<? extends Double> burnProgress,
         boolean closeable
     ) {
         super(player, title, lowerGui, 39, new CustomFurnaceMenu(player), closeable);
@@ -110,9 +111,14 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
     }
     
     @Override
-    public void setRecipeClickHandlers(List<? extends Consumer<? super Key>> handlers) {
+    public void setRecipeClickHandlers(List<? extends Consumer<Key>> handlers) {
         recipeClickHandlers.clear();
         recipeClickHandlers.addAll(handlers);
+    }
+    
+    @Override
+    public @UnmodifiableView List<Consumer<Key>> getRecipeClickHandlers() {
+        return CollectionUtils.unmodifiableListUnchecked(recipeClickHandlers);
     }
     
     public static final class BuilderImpl
@@ -123,8 +129,8 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
         private final List<Consumer<? super Key>> recipeClickHandlers = new ArrayList<>();
         private Supplier<? extends Gui> inputGuiSupplier = () -> Gui.empty(1, 2);
         private Supplier<? extends Gui> resultGuiSupplier = () -> Gui.empty(1, 1);
-        private Property<Double> cookProgress = Property.of(0.0);
-        private Property<Double> burnProgress = Property.of(0.0);
+        private Property<? extends Double> cookProgress = Property.of(0.0);
+        private Property<? extends Double> burnProgress = Property.of(0.0);
         
         @Override
         public FurnaceWindow.Builder setInputGui(Supplier<? extends Gui> guiSupplier) {
@@ -152,17 +158,18 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
         }
         
         @Override
-        public FurnaceWindow.Builder setCookProgress(Property<Double> progress) {
+        public FurnaceWindow.Builder setCookProgress(Property<? extends Double> progress) {
             this.cookProgress = progress;
             return this;
         }
         
         @Override
-        public FurnaceWindow.Builder setBurnProgress(Property<Double> progress) {
+        public FurnaceWindow.Builder setBurnProgress(Property<? extends Double> progress) {
             this.burnProgress = progress;
             return this;
         }
         
+        @SuppressWarnings({"rawtypes", "unchecked"})
         @Override
         public FurnaceWindow build(Player viewer) {
             var window = new FurnaceWindowImpl(
@@ -176,7 +183,7 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
                 closeable
             );
             
-            window.setRecipeClickHandlers(recipeClickHandlers);
+            window.setRecipeClickHandlers((List) recipeClickHandlers);
             applyModifiers(window);
             
             return window;

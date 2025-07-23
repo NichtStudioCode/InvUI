@@ -28,7 +28,7 @@ public class ItemUtils2 {
      * @param items the list of item stacks
      * @return the sanitized list of item stacks
      */
-    public static List<ItemStack> withoutIntermediaryEmpties(List<@Nullable ItemStack> items) {
+    public static List<ItemStack> withoutIntermediaryEmpties(List<? extends @Nullable ItemStack> items) {
         var sanitized = new ArrayList<ItemStack>();
         
         int lastNonNull = -1;

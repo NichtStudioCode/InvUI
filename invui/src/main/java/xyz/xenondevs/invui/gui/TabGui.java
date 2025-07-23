@@ -33,7 +33,7 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link TabGui}.
      */
-    static TabGui of(int width, int height, List<? extends @Nullable Gui> tabs, SequencedSet<Slot> contentListSlots) {
+    static TabGui of(int width, int height, List<? extends @Nullable Gui> tabs, SequencedSet<? extends Slot> contentListSlots) {
         return new TabGuiImpl(width, height, contentListSlots, Property.of(tabs));
     }
     
@@ -57,6 +57,7 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
     
     /**
      * Gets the slots that are used to display the tabs.
+     *
      * @return The slots that are used to display the tabs.
      */
     @Unmodifiable
@@ -96,7 +97,8 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
      *
      * @return The configured tabs.
      */
-    List<? extends @Nullable Gui> getTabs();
+    @UnmodifiableView
+    List<@Nullable Gui> getTabs();
     
     /**
      * Bakes and updates the tabs of this {@link TabGui} based on the current tabs.
@@ -112,14 +114,14 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
      * @return The registered tab change handlers.
      */
     @UnmodifiableView
-    List<BiConsumer<? super Integer, ? super Integer>> getTabChangeHandlers();
+    List<BiConsumer<Integer, Integer>> getTabChangeHandlers();
     
     /**
      * Replaces the currently registered tab change handlers with the given list.
      *
      * @param handlers The new page change handlers.
      */
-    void setTabChangeHandlers(@Nullable List<? extends BiConsumer<? super Integer, ? super Integer>> handlers);
+    void setTabChangeHandlers(List<? extends BiConsumer<Integer, Integer>> handlers);
     
     /**
      * Registers a page change handler.

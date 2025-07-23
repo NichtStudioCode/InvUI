@@ -12,6 +12,6 @@ public abstract class Marker {
     Marker() {
     }
     
-    abstract void iterate(int width, int height, BiConsumer<Integer, Integer> consumer);
+    abstract void iterate(int width, int height, BiConsumer<? super Integer, ? super Integer> consumer);
     
 }

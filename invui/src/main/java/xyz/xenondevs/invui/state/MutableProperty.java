@@ -2,7 +2,10 @@ package xyz.xenondevs.invui.state;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.function.Consumer;
 
 @ApiStatus.Experimental

@@ -12,7 +12,7 @@ final class ScrollNestedGuiImpl<C extends Gui> extends AbstractScrollGui<C> {
     public ScrollNestedGuiImpl(
         int width, int height,
         List<? extends C> guis,
-        SequencedSet<Slot> contentListSlots,
+        SequencedSet<? extends Slot> contentListSlots,
         boolean horizontalLines
     ) {
         super(width, height, contentListSlots, horizontalLines, Property.of(guis));

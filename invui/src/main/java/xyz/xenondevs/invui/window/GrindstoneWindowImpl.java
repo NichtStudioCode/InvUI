@@ -5,7 +5,6 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Unmodifiable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
-import xyz.xenondevs.invui.internal.menu.CustomBrewingStandMenu;
 import xyz.xenondevs.invui.internal.menu.CustomGrindstoneMenu;
 
 import java.util.List;

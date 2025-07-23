@@ -6,9 +6,10 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent.Reason;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.ClickEvent;
@@ -17,6 +18,7 @@ import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.i18n.Languages;
 import xyz.xenondevs.invui.internal.menu.CustomContainerMenu;
+import xyz.xenondevs.invui.internal.util.CollectionUtils;
 import xyz.xenondevs.invui.internal.util.InventoryUtils;
 import xyz.xenondevs.invui.inventory.CompositeInventory;
 import xyz.xenondevs.invui.inventory.Inventory;
@@ -50,7 +52,7 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
     protected final M menu;
     private final Player viewer;
     private final List<Runnable> openHandlers = new ArrayList<>(0);
-    private final List<Consumer<? super InventoryCloseEvent.Reason>> closeHandlers = new ArrayList<>(0);
+    private final List<Consumer<? super Reason>> closeHandlers = new ArrayList<>(0);
     private final List<Consumer<? super ClickEvent>> outsideClickHandlers = new ArrayList<>(0);
     private Supplier<? extends @Nullable Window> fallbackWindow = () -> null;
     private Supplier<? extends Component> titleSupplier;
@@ -381,7 +383,7 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
                 oldWindow.menu.setCursor(null);
                 menu.setCursor(cursor);
                 
-                oldWindow.handleClose(InventoryCloseEvent.Reason.OPEN_NEW);
+                oldWindow.handleClose(Reason.OPEN_NEW);
             }
             
             // track window and elements
@@ -412,7 +414,7 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
         }
     }
     
-    public void handleClose(InventoryCloseEvent.Reason cause) {
+    public void handleClose(Reason cause) {
         // might have already been called by close() or open() if the window was replaced by another one
         if (!isOpen)
             return;
@@ -424,7 +426,7 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
         
         ItemStack cursor = menu.getCursor();
         menu.setCursor(null);
-        if (cause == InventoryCloseEvent.Reason.PLAYER && fallbackWindow.get() instanceof AbstractWindow<?> fallback) {
+        if (cause == Reason.PLAYER && fallbackWindow.get() instanceof AbstractWindow<?> fallback) {
             fallback.menu.setCursor(cursor);
             fallback.open();
         } else {
@@ -491,10 +493,14 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
     public abstract SlotElement.@Nullable GuiLink getGuiAtHotbar(int i);
     
     @Override
-    public void setOpenHandlers(@Nullable List<? extends Runnable> openHandlers) {
+    public void setOpenHandlers(List<? extends Runnable> openHandlers) {
         this.openHandlers.clear();
-        if (openHandlers != null)
-            this.openHandlers.addAll(openHandlers);
+        this.openHandlers.addAll(openHandlers);
+    }
+    
+    @Override
+    public @UnmodifiableView List<Runnable> getOpenHandlers() {
+        return Collections.unmodifiableList(openHandlers);
     }
     
     @Override
@@ -503,19 +509,28 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
     }
     
     @Override
-    public void setCloseHandlers(@Nullable List<? extends Consumer<? super InventoryCloseEvent.Reason>> closeHandlers) {
-        this.closeHandlers.clear();
-        if (closeHandlers != null)
-            this.closeHandlers.addAll(closeHandlers);
+    public void removeOpenHandler(Runnable openHandler) {
+        openHandlers.remove(openHandler);
     }
     
     @Override
-    public void addCloseHandler(Consumer<? super InventoryCloseEvent.Reason> closeHandler) {
+    public void setCloseHandlers(List<? extends Consumer<Reason>> closeHandlers) {
+        this.closeHandlers.clear();
+        this.closeHandlers.addAll(closeHandlers);
+    }
+    
+    @Override
+    public @UnmodifiableView List<Consumer<Reason>> getCloseHandlers() {
+        return CollectionUtils.unmodifiableListUnchecked(closeHandlers);
+    }
+    
+    @Override
+    public void addCloseHandler(Consumer<? super Reason> closeHandler) {
         closeHandlers.add(closeHandler);
     }
     
     @Override
-    public void removeCloseHandler(Consumer<? super InventoryCloseEvent.Reason> closeHandler) {
+    public void removeCloseHandler(Consumer<? super Reason> closeHandler) {
         closeHandlers.remove(closeHandler);
     }
     
@@ -525,10 +540,14 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
     }
     
     @Override
-    public void setOutsideClickHandlers(@Nullable List<? extends Consumer<? super ClickEvent>> outsideClickHandlers) {
+    public void setOutsideClickHandlers(List<? extends Consumer<ClickEvent>> outsideClickHandlers) {
         this.outsideClickHandlers.clear();
-        if (outsideClickHandlers != null)
-            this.outsideClickHandlers.addAll(outsideClickHandlers);
+        this.outsideClickHandlers.addAll(outsideClickHandlers);
+    }
+    
+    @Override
+    public @UnmodifiableView List<Consumer<ClickEvent>> getOutsideClickHandlers() {
+        return CollectionUtils.unmodifiableListUnchecked(outsideClickHandlers);
     }
     
     @Override
@@ -575,7 +594,7 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
         protected Supplier<? extends Component> titleSupplier = Component::empty;
         protected boolean closeable = true;
         private List<Runnable> openHandlers = new ArrayList<>(0);
-        private List<Consumer<? super InventoryCloseEvent.Reason>> closeHandlers = new ArrayList<>(0);
+        private List<Consumer<? super Reason>> closeHandlers = new ArrayList<>(0);
         private List<Consumer<? super ClickEvent>> outsideClickHandlers = new ArrayList<>(0);
         private List<Consumer<? super W>> modifiers = new ArrayList<>(0);
         private Supplier<? extends @Nullable Window> fallbackWindow = () -> null;
@@ -611,10 +630,9 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
         }
         
         @Override
-        public S setOpenHandlers(@Nullable List<? extends Runnable> openHandlers) {
+        public S setOpenHandlers(List<? extends Runnable> openHandlers) {
             this.openHandlers.clear();
-            if (openHandlers != null)
-                this.openHandlers.addAll(openHandlers);
+            this.openHandlers.addAll(openHandlers);
             return (S) this;
         }
         
@@ -631,24 +649,22 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
         }
         
         @Override
-        public S setCloseHandlers(@Nullable List<? extends Consumer<? super InventoryCloseEvent.Reason>> closeHandlers) {
+        public S setCloseHandlers(List<? extends Consumer<? super Reason>> closeHandlers) {
             this.closeHandlers.clear();
-            if (closeHandlers != null)
-                this.closeHandlers.addAll(closeHandlers);
+            this.closeHandlers.addAll(closeHandlers);
             return (S) this;
         }
         
         @Override
-        public S addCloseHandler(Consumer<? super InventoryCloseEvent.Reason> closeHandler) {
+        public S addCloseHandler(Consumer<? super Reason> closeHandler) {
             closeHandlers.add(closeHandler);
             return (S) this;
         }
         
         @Override
-        public S setOutsideClickHandlers(@Nullable List<? extends Consumer<? super ClickEvent>> outsideClickHandlers) {
+        public S setOutsideClickHandlers(List<? extends Consumer<? super ClickEvent>> outsideClickHandlers) {
             this.outsideClickHandlers.clear();
-            if (outsideClickHandlers != null)
-                this.outsideClickHandlers.addAll(outsideClickHandlers);
+            this.outsideClickHandlers.addAll(outsideClickHandlers);
             return (S) this;
         }
         
@@ -659,10 +675,9 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
         }
         
         @Override
-        public S setModifiers(@Nullable List<? extends Consumer<? super W>> modifiers) {
+        public S setModifiers(List<? extends Consumer<? super W>> modifiers) {
             this.modifiers.clear();
-            if (modifiers != null)
-                this.modifiers.addAll(modifiers);
+            this.modifiers.addAll(modifiers);
             return (S) this;
         }
         
@@ -672,10 +687,11 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
             return (S) this;
         }
         
+        @SuppressWarnings("rawtypes")
         protected void applyModifiers(W window) {
             window.setOpenHandlers(openHandlers);
-            window.setCloseHandlers(closeHandlers);
-            window.setOutsideClickHandlers(outsideClickHandlers);
+            window.setCloseHandlers((List) closeHandlers);
+            window.setOutsideClickHandlers((List) outsideClickHandlers);
             window.setFallbackWindow(fallbackWindow);
             modifiers.forEach(modifier -> modifier.accept(window));
         }

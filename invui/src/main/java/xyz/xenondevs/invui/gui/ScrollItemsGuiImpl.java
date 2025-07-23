@@ -7,14 +7,13 @@ import xyz.xenondevs.invui.state.Property;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SequencedSet;
-import java.util.function.Supplier;
 
 final class ScrollItemsGuiImpl<C extends Item> extends AbstractScrollGui<C> {
     
     public ScrollItemsGuiImpl(
         int width, int height,
         List<? extends C> items,
-        SequencedSet<Slot> contentListSlots,
+        SequencedSet<? extends Slot> contentListSlots,
         boolean horizontalLines
     ) {
         super(width, height, contentListSlots, horizontalLines, Property.of(items));

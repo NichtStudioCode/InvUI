@@ -3,6 +3,7 @@ package xyz.xenondevs.invui.inventory;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.InvUI;
@@ -54,9 +55,9 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
     
     protected int size;
     protected @Nullable Set<ViewerAtSlot>[] viewers;
-    private @Nullable List<Consumer<InventoryClickEvent>> clickHandlers;
-    private @Nullable List<Consumer<ItemPreUpdateEvent>> preUpdateHandlers;
-    private @Nullable List<Consumer<ItemPostUpdateEvent>> postUpdateHandlers;
+    private @Nullable List<Consumer<? super InventoryClickEvent>> clickHandlers;
+    private @Nullable List<Consumer<? super ItemPreUpdateEvent>> preUpdateHandlers;
+    private @Nullable List<Consumer<? super ItemPostUpdateEvent>> postUpdateHandlers;
     private final Map<OperationCategory, int[]> iterationOrders;
     private final Map<OperationCategory, Integer> guiPriorities;
     
@@ -295,11 +296,11 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      *
      * @return The click handlers
      */
-    public List<Consumer<InventoryClickEvent>> getClickHandlers() {
+    public @UnmodifiableView List<Consumer<InventoryClickEvent>> getClickHandlers() {
         if (clickHandlers == null)
             return List.of();
         
-        return Collections.unmodifiableList(clickHandlers);
+        return CollectionUtils.unmodifiableListUnchecked(clickHandlers);
     }
     
     /**
@@ -308,7 +309,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      *
      * @param clickHandlers The click handlers
      */
-    public void setClickHandlers(List<Consumer<InventoryClickEvent>> clickHandlers) {
+    public void setClickHandlers(List<? extends Consumer<InventoryClickEvent>> clickHandlers) {
         this.clickHandlers = new ArrayList<>(clickHandlers);
     }
     
@@ -318,7 +319,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      *
      * @param clickHandler The click handler
      */
-    public void addClickHandler(Consumer<InventoryClickEvent> clickHandler) {
+    public void addClickHandler(Consumer<? super InventoryClickEvent> clickHandler) {
         if (clickHandlers == null)
             clickHandlers = new ArrayList<>();
         
@@ -330,7 +331,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      *
      * @param clickHandler The click handler to remove
      */
-    public void removeClickHandler(Consumer<InventoryClickEvent> clickHandler) {
+    public void removeClickHandler(Consumer<? super InventoryClickEvent> clickHandler) {
         if (clickHandlers != null)
             clickHandlers.remove(clickHandler);
     }
@@ -340,11 +341,11 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      *
      * @return The pre update handlers
      */
-    public List<Consumer<ItemPreUpdateEvent>> getPreUpdateHandlers() {
+    public @UnmodifiableView List<Consumer<ItemPreUpdateEvent>> getPreUpdateHandlers() {
         if (preUpdateHandlers == null)
             return List.of();
         
-        return Collections.unmodifiableList(preUpdateHandlers);
+        return CollectionUtils.unmodifiableListUnchecked(preUpdateHandlers);
     }
     
     /**
@@ -352,8 +353,8 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      *
      * @param preUpdateHandlers The pre update handlers
      */
-    public void setPreUpdateHandlers(List<Consumer<ItemPreUpdateEvent>> preUpdateHandlers) {
-        this.preUpdateHandlers = preUpdateHandlers;
+    public void setPreUpdateHandlers(List<? extends Consumer<ItemPreUpdateEvent>> preUpdateHandlers) {
+        this.preUpdateHandlers = new ArrayList<>(preUpdateHandlers);
     }
     
     /**
@@ -361,7 +362,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      *
      * @param preUpdateHandler The pre update handler
      */
-    public void addPreUpdateHandler(Consumer<ItemPreUpdateEvent> preUpdateHandler) {
+    public void addPreUpdateHandler(Consumer<? super ItemPreUpdateEvent> preUpdateHandler) {
         if (preUpdateHandlers == null)
             preUpdateHandlers = new ArrayList<>();
         
@@ -373,7 +374,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      *
      * @param preUpdateHandler The pre update handler to remove
      */
-    public void removePreUpdateHandler(Consumer<ItemPreUpdateEvent> preUpdateHandler) {
+    public void removePreUpdateHandler(Consumer<? super ItemPreUpdateEvent> preUpdateHandler) {
         if (preUpdateHandlers != null)
             preUpdateHandlers.remove(preUpdateHandler);
     }
@@ -383,11 +384,11 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      *
      * @return The post update handlers
      */
-    public List<Consumer<ItemPostUpdateEvent>> getPostUpdateHandlers() {
+    public @UnmodifiableView List<Consumer<ItemPostUpdateEvent>> getPostUpdateHandlers() {
         if (postUpdateHandlers == null)
             return List.of();
         
-        return Collections.unmodifiableList(postUpdateHandlers);
+        return CollectionUtils.unmodifiableListUnchecked(postUpdateHandlers);
     }
     
     /**
@@ -395,8 +396,8 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      *
      * @param postUpdateHandlers The post update handlers
      */
-    public void setPostUpdateHandlers(List<Consumer<ItemPostUpdateEvent>> postUpdateHandlers) {
-        this.postUpdateHandlers = postUpdateHandlers;
+    public void setPostUpdateHandlers(List<? extends Consumer<ItemPostUpdateEvent>> postUpdateHandlers) {
+        this.postUpdateHandlers = new ArrayList<>(postUpdateHandlers);
     }
     
     /**
@@ -404,7 +405,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      *
      * @param postUpdateHandler The post update handler
      */
-    public void addPostUpdateHandler(Consumer<ItemPostUpdateEvent> postUpdateHandler) {
+    public void addPostUpdateHandler(Consumer<? super ItemPostUpdateEvent> postUpdateHandler) {
         if (postUpdateHandlers == null)
             postUpdateHandlers = new ArrayList<>();
         
@@ -416,7 +417,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      *
      * @param postUpdateHandler The post update handler to remove
      */
-    public void removePostUpdateHandler(Consumer<ItemPostUpdateEvent> postUpdateHandler) {
+    public void removePostUpdateHandler(Consumer<? super ItemPostUpdateEvent> postUpdateHandler) {
         if (postUpdateHandlers != null)
             postUpdateHandlers.remove(postUpdateHandler);
     }
@@ -669,7 +670,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      * @param predicate The {@link Predicate} to check.
      * @return Whether there is any {@link ItemStack} in this {@link Inventory} matching the given {@link Predicate}.
      */
-    public boolean contains(Predicate<ItemStack> predicate) {
+    public boolean contains(Predicate<? super ItemStack> predicate) {
         for (ItemStack item : getUnsafeItems()) {
             if (item != null && predicate.test(item.clone()))
                 return true;
@@ -699,7 +700,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      * @param predicate The {@link Predicate} to check.
      * @return The amount of {@link ItemStack ItemStacks} in this {@link Inventory} matching the given {@link Predicate}.
      */
-    public int count(Predicate<ItemStack> predicate) {
+    public int count(Predicate<? super ItemStack> predicate) {
         int count = 0;
         for (ItemStack item : getUnsafeItems()) {
             if (item != null && predicate.test(item.clone()))
@@ -859,7 +860,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      * @param modifier     The modifier consumer. Accepts the current {@link ItemStack} and modifies it.
      * @return If the action was successful.
      */
-    public boolean modifyItem(@Nullable UpdateReason updateReason, int slot, Consumer<@Nullable ItemStack> modifier) {
+    public boolean modifyItem(@Nullable UpdateReason updateReason, int slot, Consumer<? super @Nullable ItemStack> modifier) {
         ItemStack itemStack = getItem(slot);
         modifier.accept(itemStack);
         return setItem(updateReason, slot, itemStack);
@@ -875,7 +876,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      *                     the return value is the new {@link ItemStack}.
      * @return If the action was successful.
      */
-    public boolean changeItem(@Nullable UpdateReason updateReason, int slot, Function<@Nullable ItemStack, @Nullable ItemStack> function) {
+    public boolean changeItem(@Nullable UpdateReason updateReason, int slot, Function<? super @Nullable ItemStack, ? extends @Nullable ItemStack> function) {
         ItemStack currentStack = getItem(slot);
         ItemStack newStack = function.apply(currentStack);
         return setItem(updateReason, slot, newStack);
@@ -1129,7 +1130,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      * @return An array of integers representing the leftover amount for each {@link ItemStack} provided.
      * The size of this array is always equal to the amount of {@link ItemStack}s provided as method parameters.
      */
-    public int[] simulateAdd(List<ItemStack> itemStacks) {
+    public int[] simulateAdd(List<? extends ItemStack> itemStacks) {
         if (itemStacks.isEmpty())
             return new int[0];
         
@@ -1164,7 +1165,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      * @param itemStacks The {@link ItemStack} to use.
      * @return If all provided {@link ItemStack}s would fit if added.
      */
-    public boolean canHold(List<ItemStack> itemStacks) {
+    public boolean canHold(List<? extends ItemStack> itemStacks) {
         if (itemStacks.isEmpty()) return true;
         
         if (itemStacks.size() == 1) {
@@ -1229,7 +1230,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      * @return An array of integers representing the leftover amount for each {@link ItemStack} provided.
      * The size of this array is always equal to the amount of {@link ItemStack ItemStacks} provided as method parameters.
      */
-    public int[] simulateMultiAdd(List<ItemStack> itemStacks) {
+    public int[] simulateMultiAdd(List<? extends ItemStack> itemStacks) {
         Inventory copy = new VirtualInventory(null, getSize(), getItems(), getMaxStackSizes().clone());
         int[] result = new int[itemStacks.size()];
         for (int i = 0; i < itemStacks.size(); i++) {
@@ -1301,7 +1302,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      * @param predicate    The {@link Predicate} to use.
      * @return The amount of items that were removed.
      */
-    public int removeIf(@Nullable UpdateReason updateReason, Predicate<ItemStack> predicate) {
+    public int removeIf(@Nullable UpdateReason updateReason, Predicate<? super ItemStack> predicate) {
         @Nullable ItemStack[] items = getUnsafeItems();
         
         int removed = 0;
@@ -1323,7 +1324,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      * @param predicate    The {@link Predicate} to use.
      * @return The amount of items that were removed.
      */
-    public int removeFirst(@Nullable UpdateReason updateReason, int amount, Predicate<ItemStack> predicate) {
+    public int removeFirst(@Nullable UpdateReason updateReason, int amount, Predicate<? super ItemStack> predicate) {
         @Nullable ItemStack[] items = getUnsafeItems();
         
         int leftOver = amount;

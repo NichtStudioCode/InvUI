@@ -2,6 +2,7 @@ package xyz.xenondevs.invui.gui;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.Item;
@@ -425,7 +426,8 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
      * @return An unmodifiable collection of the slots associated with the given key.
      * @see #applyStructure(Structure)
      */
-    SequencedCollection<? extends Slot> getSlots(char key);
+    @Unmodifiable
+    SequencedCollection<Slot> getSlots(char key);
     
     /**
      * Gets the {@link Structure} key that is associated with the slot at the given index.
@@ -494,6 +496,7 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
      *
      * @return The collection of {@link Window} that show this {@link Gui}
      */
+    @Unmodifiable
     Collection<Window> getWindows();
     
     /**
@@ -501,6 +504,7 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
      *
      * @return The collection of {@link Player Players} that are currently seeing this {@link Window}
      */
+    @Unmodifiable
     Collection<Player> getCurrentViewers();
     
     /**
@@ -631,7 +635,8 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
      * @param ignored the inventories to ignore
      * @return a sequenced collection of all inventories visible in this gui
      */
-    Collection<? extends Inventory> getInventories(Inventory... ignored);
+    @Unmodifiable
+    Collection<Inventory> getInventories(Inventory... ignored);
     
     //<editor-fold desc="fill methods">
     
@@ -804,7 +809,7 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
          * @param modifier The {@link Consumer} that modifies the {@link Gui}
          * @return This {@link Builder}
          */
-        S addModifier(Consumer<G> modifier);
+        S addModifier(Consumer<? super G> modifier);
         
         /**
          * Sets the {@link Consumer}s that are run when the {@link Gui} is built.
@@ -812,7 +817,7 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
          * @param modifiers The {@link Consumer}s that modify the {@link Gui}
          * @return This {@link Builder}
          */
-        S setModifiers(List<Consumer<G>> modifiers);
+        S setModifiers(List<? extends Consumer<? super G>> modifiers);
         
         /**
          * Builds the {@link Gui}.

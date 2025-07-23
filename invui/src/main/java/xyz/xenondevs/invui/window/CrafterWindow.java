@@ -1,7 +1,6 @@
 package xyz.xenondevs.invui.window;
 
 import org.jetbrains.annotations.UnmodifiableView;
-import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.Slot;
 import xyz.xenondevs.invui.state.MutableProperty;
@@ -88,14 +87,14 @@ public sealed interface CrafterWindow extends Window permits CrafterWindowImpl {
      * @return The slot toggle handlers, each receiving the slot and the new state
      */
     @UnmodifiableView
-    List<BiConsumer<? super Integer, ? super Boolean>> getSlotToggleHandlers();
+    List<BiConsumer<Integer, Boolean>> getSlotToggleHandlers();
     
     /**
      * Sets the handlers that are called when the viewer enables/disables a slot.
      *
      * @param handlers The slot toggle handlers, each receiving the slot and the new state
      */
-    void setSlotToggleHandlers(@Nullable List<? extends BiConsumer<? super Integer, ? super Boolean>> handlers);
+    void setSlotToggleHandlers(List<? extends BiConsumer<Integer, Boolean>> handlers);
     
     /**
      * Adds a handler that is called when the viewer enables/disables a slot.

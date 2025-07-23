@@ -16,7 +16,7 @@ final class ScrollInventoryGuiImpl<C extends Inventory> extends AbstractScrollGu
     public ScrollInventoryGuiImpl(
         int width, int height,
         List<? extends C> inventories,
-        SequencedSet<Slot> contentListSlots,
+        SequencedSet<? extends Slot> contentListSlots,
         boolean horizontalLines
     ) {
         super(width, height, contentListSlots, horizontalLines, Property.of(inventories));

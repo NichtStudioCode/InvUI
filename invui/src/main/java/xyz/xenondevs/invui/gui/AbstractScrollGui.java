@@ -4,6 +4,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.internal.util.ArrayUtils;
+import xyz.xenondevs.invui.internal.util.CollectionUtils;
 import xyz.xenondevs.invui.internal.util.SlotUtils;
 import xyz.xenondevs.invui.state.MutableProperty;
 import xyz.xenondevs.invui.state.Property;
@@ -31,7 +32,7 @@ sealed abstract class AbstractScrollGui<C>
     
     public AbstractScrollGui(
         int width, int height,
-        SequencedSet<Slot> contentListSlots,
+        SequencedSet<? extends Slot> contentListSlots,
         boolean horizontalLines,
         Property<? extends List<? extends C>> content
     ) {
@@ -80,13 +81,13 @@ sealed abstract class AbstractScrollGui<C>
     }
     
     @Override
-    public void setContentListSlotsHorizontal(SequencedSet<Slot> slots) {
+    public void setContentListSlotsHorizontal(SequencedSet<? extends Slot> slots) {
         setContentListSlots(SlotUtils.toSlotIndicesSet(slots, getWidth()), true);
         bake();
     }
     
     @Override
-    public void setContentListSlotsVertical(SequencedSet<Slot> slots) {
+    public void setContentListSlotsVertical(SequencedSet<? extends Slot> slots) {
         setContentListSlots(SlotUtils.toSlotIndicesSet(slots, getWidth()), false);
         bake();
     }
@@ -187,15 +188,14 @@ sealed abstract class AbstractScrollGui<C>
     }
     
     @Override
-    public List<? extends C> getContent() {
-        return content.get();
+    public @UnmodifiableView List<C> getContent() {
+        return Collections.unmodifiableList(content.get());
     }
     
     @Override
-    public void setScrollHandlers(@Nullable List<? extends BiConsumer<? super Integer, ? super Integer>> handlers) {
+    public void setScrollHandlers(List<? extends BiConsumer<Integer, Integer>> handlers) {
         this.scrollHandlers.clear();
-        if (handlers != null)
-            this.scrollHandlers.addAll(handlers);
+        this.scrollHandlers.addAll(handlers);
     }
     
     @Override
@@ -209,15 +209,14 @@ sealed abstract class AbstractScrollGui<C>
     }
     
     @Override
-    public @UnmodifiableView List<BiConsumer<? super Integer, ? super Integer>> getScrollHandlers() {
-        return Collections.unmodifiableList(scrollHandlers);
+    public @UnmodifiableView List<BiConsumer<Integer, Integer>> getScrollHandlers() {
+        return CollectionUtils.unmodifiableListUnchecked(scrollHandlers);
     }
     
     @Override
-    public void setLineCountChangeHandlers(@Nullable List<? extends BiConsumer<? super Integer, ? super Integer>> handlers) {
+    public void setLineCountChangeHandlers(List<? extends BiConsumer<Integer, Integer>> handlers) {
         lineCountChangeHandlers.clear();
-        if (handlers != null)
-            lineCountChangeHandlers.addAll(handlers);
+        lineCountChangeHandlers.addAll(handlers);
     }
     
     @Override
@@ -231,8 +230,8 @@ sealed abstract class AbstractScrollGui<C>
     }
     
     @Override
-    public @UnmodifiableView List<BiConsumer<? super Integer, ? super Integer>> getLineCountChangeHandlers() {
-        return Collections.unmodifiableList(lineCountChangeHandlers);
+    public @UnmodifiableView List<BiConsumer<Integer, Integer>> getLineCountChangeHandlers() {
+        return CollectionUtils.unmodifiableListUnchecked(lineCountChangeHandlers);
     }
     
     @FunctionalInterface

@@ -83,7 +83,7 @@ public class SlotUtils {
      * @param width the width of the flattened 2D array
      * @return the slot indices
      */
-    public static int[] toSlotIndices(SequencedSet<Slot> slots, int width) {
+    public static int[] toSlotIndices(SequencedSet<? extends Slot> slots, int width) {
         int[] indices = new int[slots.size()];
         int i = 0;
         for (Slot slot : slots) {
@@ -114,7 +114,7 @@ public class SlotUtils {
      * @param width the width of the flattened 2D array
      * @return the slot indices set
      */
-    public static SequencedSet<Integer> toSlotIndicesSet(SequencedSet<Slot> slots, int width) {
+    public static SequencedSet<Integer> toSlotIndicesSet(SequencedSet<? extends Slot> slots, int width) {
         var set = new LinkedHashSet<Integer>();
         for (Slot slot : slots) {
             set.add(convertToIndex(slot.x(), slot.y(), width));
@@ -131,7 +131,7 @@ public class SlotUtils {
      * @return the length of the longest horizontal line
      * @throws IllegalArgumentException if there are multiple horizontal lines with differing lengths
      */
-    public static int determineHorizontalLinesLength(SequencedSet<Integer> slots, int width) {
+    public static int determineHorizontalLinesLength(SequencedSet<? extends Integer> slots, int width) {
         int longestLineLength = -1;
         int currentLineLength = 0;
         int previous = -1;
@@ -168,7 +168,7 @@ public class SlotUtils {
      * @return the length of the longest vertical line
      * @throws IllegalArgumentException if there are multiple vertical lines with differing lengths
      */
-    public static int determineVerticalLinesLength(SequencedSet<Integer> slots, int width) {
+    public static int determineVerticalLinesLength(SequencedSet<? extends Integer> slots, int width) {
         int longestLineLength = -1;
         int currentLineLength = 0;
         int previous = -1;

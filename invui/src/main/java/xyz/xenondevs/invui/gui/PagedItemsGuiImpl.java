@@ -7,11 +7,10 @@ import xyz.xenondevs.invui.state.Property;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SequencedSet;
-import java.util.function.Supplier;
 
 final class PagedItemsGuiImpl<C extends Item> extends AbstractPagedGui<C> {
     
-    public PagedItemsGuiImpl(int width, int height, List<? extends C> items, SequencedSet<Slot> contentListSlots) {
+    public PagedItemsGuiImpl(int width, int height, List<? extends C> items, SequencedSet<? extends Slot> contentListSlots) {
         super(width, height, contentListSlots, Property.of(items));
         bake();
     }

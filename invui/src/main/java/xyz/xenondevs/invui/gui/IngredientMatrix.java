@@ -3,6 +3,7 @@ package xyz.xenondevs.invui.gui;
 import it.unimi.dsi.fastutil.chars.Char2ObjectMap;
 import it.unimi.dsi.fastutil.chars.Char2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
@@ -170,7 +171,8 @@ class IngredientMatrix {
      * @param key the key
      * @return a collection of slots for the given key
      */
-    SequencedCollection<? extends Slot> getSlots(char key) {
+    @Unmodifiable
+    SequencedCollection<Slot> getSlots(char key) {
         return Collections.unmodifiableList(slots.getOrDefault(key, Collections.emptyList()));
     }
     

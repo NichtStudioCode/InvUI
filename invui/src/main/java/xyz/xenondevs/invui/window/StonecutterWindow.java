@@ -1,7 +1,6 @@
 package xyz.xenondevs.invui.window;
 
 import org.jetbrains.annotations.UnmodifiableView;
-import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.state.MutableProperty;
 
@@ -43,14 +42,14 @@ public sealed interface StonecutterWindow extends Window permits StonecutterWind
      * @return The selected slot change handlers, each receiving the old and new selected slot.
      */
     @UnmodifiableView
-    List<BiConsumer<? super Integer, ? super Integer>> getSelectedSlotChangeHandlers();
+    List<BiConsumer<Integer, Integer>> getSelectedSlotChangeHandlers();
     
     /**
      * Sets the handlers that are called when the selected slot is changed by the player.
      *
      * @param handlers The selected slot change handlers, each receiving the old and new selected slot.
      */
-    void setSelectedSlotChangeHandlers(@Nullable List<? extends BiConsumer<? super Integer, ? super Integer>> handlers);
+    void setSelectedSlotChangeHandlers(List<? extends BiConsumer<Integer, Integer>> handlers);
     
     /**
      * Adds a handler that is called when the selected slot is changed by the player.

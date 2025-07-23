@@ -1,8 +1,10 @@
 package xyz.xenondevs.invui.internal.util;
 
+import org.jetbrains.annotations.UnmodifiableView;
 import xyz.xenondevs.invui.InvUI;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.function.Consumer;
@@ -10,6 +12,20 @@ import java.util.function.Function;
 import java.util.logging.Level;
 
 public class CollectionUtils {
+    
+    /**
+     * Creates an unmodifiable view of the specified list, while performing an unchecked cast
+     * from a list of type {@code T} to a list of type {@code R}.
+     *
+     * @param list The list to create an unmodifiable view of.
+     * @param <T>  The type of the elements in the original list.
+     * @param <R>  The type of the elements in the unmodifiable list.
+     * @return An unmodifiable view of the specified list, with an unchecked cast.
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public static <T, R> @UnmodifiableView List<R> unmodifiableListUnchecked(List<T> list) {
+        return Collections.unmodifiableList((List) list);
+    }
     
     /**
      * Runs the specified {@link Consumer action} for each element in the {@link Iterable}, catching all

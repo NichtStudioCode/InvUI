@@ -3,6 +3,7 @@ package xyz.xenondevs.invui.gui;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
+import xyz.xenondevs.invui.internal.util.CollectionUtils;
 import xyz.xenondevs.invui.internal.util.SlotUtils;
 import xyz.xenondevs.invui.state.MutableProperty;
 import xyz.xenondevs.invui.state.Property;
@@ -29,7 +30,7 @@ sealed abstract class AbstractPagedGui<C>
     
     public AbstractPagedGui(
         int width, int height,
-        SequencedSet<Slot> contentListSlots,
+        SequencedSet<? extends Slot> contentListSlots,
         Property<? extends List<? extends C>> content
     ) {
         super(width, height);
@@ -128,8 +129,8 @@ sealed abstract class AbstractPagedGui<C>
     }
     
     @Override
-    public List<? extends C> getContent() {
-        return content.get();
+    public @UnmodifiableView List<C> getContent() {
+        return Collections.unmodifiableList(content.get());
     }
     
     @Override
@@ -153,14 +154,13 @@ sealed abstract class AbstractPagedGui<C>
     }
     
     @Override
-    public void setPageChangeHandlers(@Nullable List<? extends BiConsumer<? super Integer, ? super Integer>> handlers) {
+    public void setPageChangeHandlers(List<? extends BiConsumer<Integer, Integer>> handlers) {
         pageChangeHandlers.clear();
-        if (handlers != null)
-            pageChangeHandlers.addAll(handlers);
+        pageChangeHandlers.addAll(handlers);
     }
     
-    public @UnmodifiableView List<BiConsumer<? super Integer, ? super Integer>> getPageChangeHandlers() {
-        return Collections.unmodifiableList(pageChangeHandlers);
+    public @UnmodifiableView List<BiConsumer<Integer, Integer>> getPageChangeHandlers() {
+        return CollectionUtils.unmodifiableListUnchecked(pageChangeHandlers);
     }
     
     @Override
@@ -174,14 +174,13 @@ sealed abstract class AbstractPagedGui<C>
     }
     
     @Override
-    public void setPageCountChangeHandlers(@Nullable List<? extends BiConsumer<? super Integer, ? super Integer>> handlers) {
+    public void setPageCountChangeHandlers(List<? extends BiConsumer<Integer, Integer>> handlers) {
         pageCountChangeHandlers.clear();
-        if (handlers != null)
-            pageCountChangeHandlers.addAll(handlers);
+        pageCountChangeHandlers.addAll(handlers);
     }
     
-    public @UnmodifiableView List<BiConsumer<? super Integer, ? super Integer>> getPageCountChangeHandlers() {
-        return Collections.unmodifiableList(pageCountChangeHandlers);
+    public @UnmodifiableView List<BiConsumer<Integer, Integer>> getPageCountChangeHandlers() {
+        return CollectionUtils.unmodifiableListUnchecked(pageCountChangeHandlers);
     }
     
     @FunctionalInterface

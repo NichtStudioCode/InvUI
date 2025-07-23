@@ -4,9 +4,11 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Unmodifiable;
+import org.jetbrains.annotations.UnmodifiableView;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomCraftingTableMenu;
+import xyz.xenondevs.invui.internal.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,9 +71,14 @@ final class CraftingWindowImpl extends AbstractSplitWindow<CustomCraftingTableMe
     }
     
     @Override
-    public void setRecipeClickHandlers(List<? extends Consumer<? super Key>> handlers) {
+    public void setRecipeClickHandlers(List<? extends Consumer<Key>> handlers) {
         recipeClickHandlers.clear();
         recipeClickHandlers.addAll(handlers);
+    }
+    
+    @Override
+    public @UnmodifiableView List<Consumer<Key>> getRecipeClickHandlers() {
+        return CollectionUtils.unmodifiableListUnchecked(recipeClickHandlers);
     }
     
     public static final class BuilderImpl
@@ -108,6 +115,7 @@ final class CraftingWindowImpl extends AbstractSplitWindow<CustomCraftingTableMe
             return this;
         }
         
+        @SuppressWarnings({"unchecked", "rawtypes"})
         @Override
         public CraftingWindow build(Player viewer) {
             var window = new CraftingWindowImpl(
@@ -119,7 +127,7 @@ final class CraftingWindowImpl extends AbstractSplitWindow<CustomCraftingTableMe
                 closeable
             );
             
-            window.setRecipeClickHandlers(recipeClickHandlers);
+            window.setRecipeClickHandlers((List) recipeClickHandlers);
             applyModifiers(window);
             
             return window;

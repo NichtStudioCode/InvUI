@@ -2,7 +2,6 @@ package xyz.xenondevs.invui.gui;
 
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
-import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.state.MutableProperty;
@@ -38,7 +37,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @param direction        The direction in which the {@link ScrollGui} will scroll.
      * @return The created {@link ScrollGui}.
      */
-    static ScrollGui<Item> ofItems(int width, int height, List<? extends Item> items, SequencedSet<Slot> contentListSlots, ScrollDirection direction) {
+    static ScrollGui<Item> ofItems(int width, int height, List<? extends Item> items, SequencedSet<? extends Slot> contentListSlots, ScrollDirection direction) {
         return new ScrollItemsGuiImpl<>(width, height, items, contentListSlots, direction == ScrollDirection.VERTICAL);
     }
     
@@ -72,7 +71,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @param direction        The direction in which the {@link ScrollGui} will scroll.
      * @return The created {@link ScrollGui}.
      */
-    static ScrollGui<Gui> ofGuis(int width, int height, List<? extends Gui> guis, SequencedSet<Slot> contentListSlots, ScrollDirection direction) {
+    static ScrollGui<Gui> ofGuis(int width, int height, List<? extends Gui> guis, SequencedSet<? extends Slot> contentListSlots, ScrollDirection direction) {
         return new ScrollNestedGuiImpl<>(width, height, guis, contentListSlots, direction == ScrollDirection.VERTICAL);
     }
     
@@ -106,7 +105,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @param direction        The direction in which the {@link ScrollGui} will scroll.
      * @return The created {@link ScrollGui}.
      */
-    static ScrollGui<Inventory> ofInventories(int width, int height, List<? extends Inventory> inventories, SequencedSet<Slot> contentListSlots, ScrollDirection direction) {
+    static ScrollGui<Inventory> ofInventories(int width, int height, List<? extends Inventory> inventories, SequencedSet<? extends Slot> contentListSlots, ScrollDirection direction) {
         return new ScrollInventoryGuiImpl<>(width, height, inventories, contentListSlots, direction == ScrollDirection.VERTICAL);
     }
     
@@ -128,7 +127,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @param slots The slots to set.
      * @throws IllegalArgumentException If there are differing line lengths
      */
-    void setContentListSlotsHorizontal(SequencedSet<Slot> slots);
+    void setContentListSlotsHorizontal(SequencedSet<? extends Slot> slots);
     
     /**
      * Sets the slots at which scroll content should be displayed, in order of appearance,
@@ -137,7 +136,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @param slots The slots to set
      * @throws IllegalArgumentException If there are differing line lengths
      */
-    void setContentListSlotsVertical(SequencedSet<Slot> slots);
+    void setContentListSlotsVertical(SequencedSet<? extends Slot> slots);
     
     /**
      * Gets the slots that are used to display the content.
@@ -188,7 +187,8 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      *
      * @return The scrollable content.
      */
-    List<? extends C> getContent();
+    @UnmodifiableView
+    List<C> getContent();
     
     /**
      * Bakes the elements of this {@link PagedGui} based on the current content.
@@ -204,14 +204,14 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @return The scroll handlers of this {@link ScrollGui}.
      */
     @UnmodifiableView
-    List<BiConsumer<? super Integer, ? super Integer>> getScrollHandlers();
+    List<BiConsumer<Integer, Integer>> getScrollHandlers();
     
     /**
      * Replaces the currently registered scroll handlers with the specified ones.
      *
      * @param handlers The new scroll handlers.
      */
-    void setScrollHandlers(@Nullable List<? extends BiConsumer<? super Integer, ? super Integer>> handlers);
+    void setScrollHandlers(List<? extends BiConsumer<Integer, Integer>> handlers);
     
     /**
      * Adds a scroll handler to this {@link ScrollGui}.
@@ -233,14 +233,14 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @return The line count change handlers of this {@link ScrollGui}.
      */
     @UnmodifiableView
-    List<BiConsumer<? super Integer, ? super Integer>> getLineCountChangeHandlers();
+    List<BiConsumer<Integer, Integer>> getLineCountChangeHandlers();
     
     /**
      * Replaces the currently registered line count change handlers with the specified ones.
      *
      * @param handlers The new line count change handlers.
      */
-    void setLineCountChangeHandlers(@Nullable List<? extends BiConsumer<? super Integer, ? super Integer>> handlers);
+    void setLineCountChangeHandlers(List<? extends BiConsumer<Integer, Integer>> handlers);
     
     /**
      * Adds a line count change handlers to this {@link ScrollGui}.

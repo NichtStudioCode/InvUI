@@ -14,7 +14,7 @@ public class Markers {
     public static final Marker CONTENT_LIST_SLOT_HORIZONTAL = new Marker() {
         
         @Override
-        void iterate(int width, int height, BiConsumer<Integer, Integer> consumer) {
+        void iterate(int width, int height, BiConsumer<? super Integer, ? super Integer> consumer) {
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
                     consumer.accept(x, y);
@@ -31,7 +31,7 @@ public class Markers {
     public static final Marker CONTENT_LIST_SLOT_VERTICAL = new Marker() {
         
         @Override
-        void iterate(int width, int height, BiConsumer<Integer, Integer> consumer) {
+        void iterate(int width, int height, BiConsumer<? super Integer, ? super Integer> consumer) {
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < height; y++) {
                     consumer.accept(x, y);

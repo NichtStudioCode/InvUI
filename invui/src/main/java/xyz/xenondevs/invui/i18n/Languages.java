@@ -31,8 +31,8 @@ import java.util.function.Function;
 public class Languages {
     
     private static final Languages INSTANCE = new Languages();
-    private final Map<Locale, Map<String, String>> translations = new HashMap<>();
-    private Function<? super Player, Locale> localeProvider = Player::locale;
+    private final Map<Locale, Map<? extends String, ? extends String>> translations = new HashMap<>();
+    private Function<? super Player, ? extends Locale> localeProvider = Player::locale;
     private boolean serverSideTranslations = true;
     
     private final Translator translator = new MiniMessageTranslator() {
@@ -74,7 +74,7 @@ public class Languages {
      * @param locale       The lang code of the language.
      * @param translations The translations of the language.
      */
-    public void addLanguage(Locale locale, Map<String, String> translations) {
+    public void addLanguage(Locale locale, Map<? extends String, ? extends String> translations) {
         this.translations.put(locale, translations);
     }
     
@@ -138,7 +138,7 @@ public class Languages {
      *
      * @param localeProvider The language provider.
      */
-    public void setLocaleProvider(Function<? super Player, Locale> localeProvider) {
+    public void setLocaleProvider(Function<? super Player, ? extends Locale> localeProvider) {
         this.localeProvider = localeProvider;
     }
     

@@ -17,8 +17,8 @@ final class BrewerWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu>
     private final AbstractGui fuelGui;
     private final AbstractGui resultGui;
     private final AbstractGui lowerGui;
-    private Property<Double> brewProgress;
-    private Property<Double> fuelProgress;
+    private Property<? extends Double> brewProgress;
+    private Property<? extends Double> fuelProgress;
     
     public BrewerWindowImpl(
         Player player,
@@ -27,8 +27,8 @@ final class BrewerWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu>
         AbstractGui fuelGui,
         AbstractGui resultGui,
         AbstractGui lowerGui,
-        Property<Double> brewProgress,
-        Property<Double> fuelProgress,
+        Property<? extends Double> brewProgress,
+        Property<? extends Double> fuelProgress,
         boolean closeable
     ) {
         super(player, title, lowerGui, 41, new CustomBrewingStandMenu(player), closeable);
@@ -95,8 +95,8 @@ final class BrewerWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu>
         private Supplier<? extends Gui> inputGuiSupplier = () -> Gui.empty(1, 1);
         private Supplier<? extends Gui> fuelGuiSupplier = () -> Gui.empty(1, 1);
         private Supplier<? extends Gui> resultGuiSupplier = () -> Gui.empty(3, 1);
-        private Property<Double> brewProgress = Property.of(0.0);
-        private Property<Double> fuelProgress = Property.of(0.0);
+        private Property<? extends Double> brewProgress = Property.of(0.0);
+        private Property<? extends Double> fuelProgress = Property.of(0.0);
         
         @Override
         public BrewerWindow.Builder setInputGui(Supplier<? extends Gui> guiSupplier) {
@@ -117,13 +117,13 @@ final class BrewerWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu>
         }
         
         @Override
-        public BrewerWindow.Builder setBrewProgress(Property<Double> progress) {
+        public BrewerWindow.Builder setBrewProgress(Property<? extends Double> progress) {
             this.brewProgress = progress;
             return this;
         }
         
         @Override
-        public BrewerWindow.Builder setFuelProgress(Property<Double> progress) {
+        public BrewerWindow.Builder setFuelProgress(Property<? extends Double> progress) {
             this.fuelProgress = progress;
             return this;
         }

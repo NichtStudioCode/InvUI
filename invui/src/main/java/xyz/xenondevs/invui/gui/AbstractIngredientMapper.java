@@ -1,12 +1,5 @@
 package xyz.xenondevs.invui.gui;
 
-import org.bukkit.inventory.ItemStack;
-import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.invui.inventory.Inventory;
-import xyz.xenondevs.invui.item.Item;
-import xyz.xenondevs.invui.item.ItemProvider;
-import xyz.xenondevs.invui.item.ItemWrapper;
-
 import java.util.HashMap;
 import java.util.function.Supplier;
 

@@ -55,7 +55,7 @@ public interface AnimatedTitle extends Supplier<Component> {
      * @throws IllegalArgumentException If frameTime is less than 1
      * @throws IllegalArgumentException If frames is empty
      */
-    static AnimatedTitle of(int frameTime, List<Component> frames) {
+    static AnimatedTitle of(int frameTime, List<? extends Component> frames) {
         return of(frameTime, frames.toArray(Component[]::new));
     }
     

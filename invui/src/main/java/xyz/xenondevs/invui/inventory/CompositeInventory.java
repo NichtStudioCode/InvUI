@@ -1,6 +1,7 @@
 package xyz.xenondevs.invui.inventory;
 
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.internal.util.ArrayUtils;
@@ -217,62 +218,62 @@ public final class CompositeInventory extends Inventory {
     }
     
     @Override
-    public List<Consumer<InventoryClickEvent>> getClickHandlers() {
+    public @UnmodifiableView List<Consumer<InventoryClickEvent>> getClickHandlers() {
         throw new UnsupportedOperationException("Click handlers need to be set in the backing inventory");
     }
     
     @Override
-    public void setClickHandlers(List<Consumer<InventoryClickEvent>> clickHandlers) {
+    public void setClickHandlers(List<? extends Consumer<InventoryClickEvent>> clickHandlers) {
         throw new UnsupportedOperationException("Click handlers need to be set in the backing inventory");
     }
     
     @Override
-    public void addClickHandler(Consumer<InventoryClickEvent> clickHandler) {
+    public void addClickHandler(Consumer<? super InventoryClickEvent> clickHandler) {
         throw new UnsupportedOperationException("Click handlers need to be set in the backing inventory");
     }
     
     @Override
-    public void removeClickHandler(Consumer<InventoryClickEvent> clickHandler) {
+    public void removeClickHandler(Consumer<? super InventoryClickEvent> clickHandler) {
         throw new UnsupportedOperationException("Click handlers need to be set in the backing inventory");
     }
     
     @Override
-    public List<Consumer<ItemPreUpdateEvent>> getPreUpdateHandlers() {
+    public @UnmodifiableView List<Consumer<ItemPreUpdateEvent>> getPreUpdateHandlers() {
         throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
     }
     
     @Override
-    public void setPreUpdateHandlers(List<Consumer<ItemPreUpdateEvent>> preUpdateHandlers) {
+    public void setPreUpdateHandlers(List<? extends Consumer<ItemPreUpdateEvent>> preUpdateHandlers) {
         throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
     }
     
     @Override
-    public void addPreUpdateHandler(Consumer<ItemPreUpdateEvent> preUpdateHandler) {
+    public void addPreUpdateHandler(Consumer<? super ItemPreUpdateEvent> preUpdateHandler) {
         throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
     }
     
     @Override
-    public void removePreUpdateHandler(Consumer<ItemPreUpdateEvent> preUpdateHandler) {
+    public void removePreUpdateHandler(Consumer<? super ItemPreUpdateEvent> preUpdateHandler) {
         throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
     }
     
     @Override
-    public List<Consumer<ItemPostUpdateEvent>> getPostUpdateHandlers() {
+    public @UnmodifiableView List<Consumer<ItemPostUpdateEvent>> getPostUpdateHandlers() {
         throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
     }
     
     @Override
-    public void setPostUpdateHandlers(List<Consumer<ItemPostUpdateEvent>> postUpdateHandlers) {
+    public void setPostUpdateHandlers(List<? extends Consumer<ItemPostUpdateEvent>> postUpdateHandlers) {
         throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
     }
     
     @Override
-    public void addPostUpdateHandler(Consumer<ItemPostUpdateEvent> postUpdateHandler) {
+    public void addPostUpdateHandler(Consumer<? super ItemPostUpdateEvent> postUpdateHandler) {
         throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
     }
     
     @Override
-    public void removePostUpdateHandler(Consumer<ItemPostUpdateEvent> postUpdateHandler) {
+    public void removePostUpdateHandler(Consumer<? super ItemPostUpdateEvent> postUpdateHandler) {
         throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
     }
     

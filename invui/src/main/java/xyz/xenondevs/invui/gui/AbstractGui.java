@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.internal.ViewerAtSlot;
@@ -434,7 +435,7 @@ public sealed abstract class AbstractGui
     }
     
     @Override
-    public Collection<? extends Inventory> getInventories(Inventory... ignored) {
+    public @Unmodifiable Collection<Inventory> getInventories(Inventory... ignored) {
         if (!ignoreObscuredInventorySlots)
             return Collections.unmodifiableCollection(getAllActiveInventorySlots(ignored).keySet());
         
@@ -502,7 +503,7 @@ public sealed abstract class AbstractGui
     }
     
     @Override
-    public Collection<Window> getWindows() {
+    public @Unmodifiable Collection<Window> getWindows() {
         synchronized (viewers) {
             var windows = new HashSet<Window>();
             for (var viewerSet : viewers) {
@@ -518,7 +519,7 @@ public sealed abstract class AbstractGui
     }
     
     @Override
-    public Collection<Player> getCurrentViewers() {
+    public @Unmodifiable Collection<Player> getCurrentViewers() {
         return getWindows().stream()
             .filter(Window::isOpen)
             .map(Window::getViewer)
@@ -771,7 +772,7 @@ public sealed abstract class AbstractGui
     }
     
     @Override
-    public SequencedCollection<? extends Slot> getSlots(char key) {
+    public @Unmodifiable SequencedCollection<Slot> getSlots(char key) {
         var matrix = ingredientMatrix;
         if (matrix == null)
             return List.of();
@@ -984,7 +985,7 @@ public sealed abstract class AbstractGui
         
         protected @Nullable Structure structure;
         protected @Nullable ItemProvider background;
-        protected @Nullable List<Consumer<G>> modifiers;
+        protected @Nullable List<Consumer<? super G>> modifiers;
         protected boolean frozen;
         protected boolean ignoreObscuredInventorySlots = true;
         
@@ -1063,7 +1064,7 @@ public sealed abstract class AbstractGui
         }
         
         @Override
-        public S addModifier(Consumer<G> modifier) {
+        public S addModifier(Consumer<? super G> modifier) {
             if (modifiers == null)
                 modifiers = new ArrayList<>();
             
@@ -1072,8 +1073,8 @@ public sealed abstract class AbstractGui
         }
         
         @Override
-        public S setModifiers(List<Consumer<G>> modifiers) {
-            this.modifiers = modifiers;
+        public S setModifiers(List<? extends Consumer<? super G>> modifiers) {
+            this.modifiers = new ArrayList<>(modifiers);
             return (S) this;
         }
         

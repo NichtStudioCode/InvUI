@@ -3,6 +3,7 @@ package xyz.xenondevs.invui.gui;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
+import xyz.xenondevs.invui.internal.util.CollectionUtils;
 import xyz.xenondevs.invui.internal.util.SlotUtils;
 import xyz.xenondevs.invui.state.MutableProperty;
 import xyz.xenondevs.invui.state.Property;
@@ -24,7 +25,7 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     
     public TabGuiImpl(
         int width, int height,
-        SequencedSet<Slot> contentListSlots,
+        SequencedSet<? extends Slot> contentListSlots,
         Property<? extends List<? extends @Nullable Gui>> tabs
     ) {
         super(width, height);
@@ -118,8 +119,8 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     }
     
     @Override
-    public List<? extends @Nullable Gui> getTabs() {
-        return tabs.get();
+    public @UnmodifiableView List<@Nullable Gui> getTabs() {
+        return Collections.unmodifiableList(tabs.get());
     }
     
     @Override
@@ -176,15 +177,14 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     }
     
     @Override
-    public @UnmodifiableView List<BiConsumer<? super Integer, ? super Integer>> getTabChangeHandlers() {
-        return Collections.unmodifiableList(tabChangeHandlers);
+    public @UnmodifiableView List<BiConsumer<Integer, Integer>> getTabChangeHandlers() {
+        return CollectionUtils.unmodifiableListUnchecked(tabChangeHandlers);
     }
     
     @Override
-    public void setTabChangeHandlers(@Nullable List<? extends BiConsumer<? super Integer, ? super Integer>> handlers) {
+    public void setTabChangeHandlers(List<? extends BiConsumer<Integer, Integer>> handlers) {
         tabChangeHandlers.clear();
-        if (handlers != null)
-            tabChangeHandlers.addAll(handlers);
+        tabChangeHandlers.addAll(handlers);
     }
     
     @Override

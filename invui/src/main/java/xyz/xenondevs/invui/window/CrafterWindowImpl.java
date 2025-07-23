@@ -4,7 +4,6 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
-import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomCrafterMenu;
@@ -12,7 +11,6 @@ import xyz.xenondevs.invui.internal.util.CollectionUtils;
 import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
@@ -48,7 +46,7 @@ final class CrafterWindowImpl extends AbstractSplitWindow<CustomCrafterMenu> imp
         this.lowerGui = lowerGui;
         this.slots = slots;
         this.slotToggleHandlers = slotToggleHandlers;
-       
+        
         for (int i = 0; i < CRAFTING_SLOTS; i++) {
             int slot = i;
             MutableProperty<Boolean> property = slots.get(i);
@@ -77,15 +75,14 @@ final class CrafterWindowImpl extends AbstractSplitWindow<CustomCrafterMenu> imp
     }
     
     @Override
-    public @UnmodifiableView List<BiConsumer<? super Integer, ? super Boolean>> getSlotToggleHandlers() {
-        return Collections.unmodifiableList(slotToggleHandlers);
+    public @UnmodifiableView List<BiConsumer<Integer, Boolean>> getSlotToggleHandlers() {
+        return CollectionUtils.unmodifiableListUnchecked(slotToggleHandlers);
     }
     
     @Override
-    public void setSlotToggleHandlers(@Nullable List<? extends BiConsumer<? super Integer, ? super Boolean>> handlers) {
+    public void setSlotToggleHandlers(List<? extends BiConsumer<Integer, Boolean>> handlers) {
         slotToggleHandlers.clear();
-        if (handlers != null)
-            slotToggleHandlers.addAll(handlers);
+        slotToggleHandlers.addAll(handlers);
     }
     
     @Override

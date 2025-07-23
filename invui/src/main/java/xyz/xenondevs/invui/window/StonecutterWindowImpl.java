@@ -11,13 +11,13 @@ import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomStonecutterMenu;
+import xyz.xenondevs.invui.internal.util.CollectionUtils;
 import xyz.xenondevs.invui.internal.util.ItemUtils2;
 import xyz.xenondevs.invui.state.MutableProperty;
 import xyz.xenondevs.invui.util.ItemUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
@@ -122,15 +122,14 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
     }
     
     @Override
-    public @UnmodifiableView List<BiConsumer<? super Integer, ? super Integer>> getSelectedSlotChangeHandlers() {
-        return Collections.unmodifiableList(selectedSlotChangeHandlers);
+    public @UnmodifiableView List<BiConsumer<Integer, Integer>> getSelectedSlotChangeHandlers() {
+        return CollectionUtils.unmodifiableListUnchecked(selectedSlotChangeHandlers);
     }
     
     @Override
-    public void setSelectedSlotChangeHandlers(@Nullable List<? extends BiConsumer<? super Integer, ? super Integer>> handlers) {
+    public void setSelectedSlotChangeHandlers(List<? extends BiConsumer<Integer, Integer>> handlers) {
         selectedSlotChangeHandlers.clear();
-        if (handlers != null)
-            selectedSlotChangeHandlers.addAll(handlers);
+        selectedSlotChangeHandlers.addAll(handlers);
     }
     
     @Override

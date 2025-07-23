@@ -5,13 +5,15 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.HashedStack;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket;
-import net.minecraft.network.protocol.game.ServerboundContainerSlotStateChangedPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.SelectableRecipe;
+import net.minecraft.world.item.crafting.StonecutterRecipe;
 import net.minecraft.world.item.crafting.display.SlotDisplay;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.jspecify.annotations.Nullable;
@@ -28,13 +30,13 @@ import java.util.stream.Stream;
  */
 public class CustomStonecutterMenu extends CustomContainerMenu {
     
-    private @Nullable BiConsumer<Integer, Integer> clickHandler;
+    private @Nullable BiConsumer<? super Integer, ? super Integer> clickHandler;
     private List<ItemStack> buttons = List.of();
     
     /**
      * Creates a new custom stonecutter menu.
      *
-     * @param player       The player that will view this menu.
+     * @param player The player that will view this menu.
      */
     public CustomStonecutterMenu(org.bukkit.entity.Player player) {
         super(MenuType.STONECUTTER, player);
@@ -75,7 +77,7 @@ public class CustomStonecutterMenu extends CustomContainerMenu {
      *
      * @param buttons The buttons.
      */
-    public void setButtons(List<org.bukkit.inventory.ItemStack> buttons) {
+    public void setButtons(List<? extends org.bukkit.inventory.ItemStack> buttons) {
         var nmsButtons = buttons.stream().map(CraftItemStack::unwrap).toList();
         this.buttons = nmsButtons;
         updateButtons(nmsButtons);
@@ -168,9 +170,10 @@ public class CustomStonecutterMenu extends CustomContainerMenu {
     
     /**
      * Sets the click handler that is called when a recipe button is clicked.
+     *
      * @param clickHandler The click handler.
      */
-    public void setClickHandler( BiConsumer<Integer, Integer> clickHandler) {
+    public void setClickHandler(BiConsumer<? super Integer, ? super Integer> clickHandler) {
         this.clickHandler = clickHandler;
     }
     

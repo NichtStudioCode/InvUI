@@ -7,9 +7,9 @@ import org.jetbrains.annotations.UnmodifiableView;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomAnvilMenu;
+import xyz.xenondevs.invui.internal.util.CollectionUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -68,14 +68,14 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
     }
     
     @Override
-    public void setRenameHandlers(List<? extends Consumer<? super String>> handlers) {
+    public void setRenameHandlers(List<? extends Consumer<String>> handlers) {
         this.renameHandlers.clear();
         this.renameHandlers.addAll(handlers);
     }
     
     @Override
-    public @UnmodifiableView List<Consumer<? super String>> getRenameHandlers() {
-        return Collections.unmodifiableList(renameHandlers);
+    public @UnmodifiableView List<Consumer<String>> getRenameHandlers() {
+        return CollectionUtils.unmodifiableListUnchecked(renameHandlers);
     }
     
     @Override
@@ -110,6 +110,7 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
             return this;
         }
         
+        @SuppressWarnings({"unchecked", "rawtypes"})
         @Override
         public AnvilWindow build(Player viewer) {
             var window = new AnvilWindowImpl(
@@ -120,7 +121,7 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
                 closeable
             );
             
-            window.setRenameHandlers(renameHandlers);
+            window.setRenameHandlers((List) renameHandlers);
             applyModifiers(window);
             
             return window;

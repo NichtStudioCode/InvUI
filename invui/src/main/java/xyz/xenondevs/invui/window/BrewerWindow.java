@@ -157,7 +157,7 @@ public sealed interface BrewerWindow extends Window permits BrewerWindowImpl {
          * @param progress The brew progress property, between 0.0 and 1.0.
          * @return This {@link Builder}
          */
-        Builder setBrewProgress(Property<Double> progress);
+        Builder setBrewProgress(Property<? extends Double> progress);
         
         /**
          * Sets the fuel progress, i.e. how much of the blaze bar is filled in.
@@ -173,7 +173,7 @@ public sealed interface BrewerWindow extends Window permits BrewerWindowImpl {
          * @param progress The fuel progress property, between 0.0 and 1.0.
          * @return This {@link Builder}
          */
-        Builder setFuelProgress(Property<Double> progress);
+        Builder setFuelProgress(Property<? extends Double> progress);
         
     }
     

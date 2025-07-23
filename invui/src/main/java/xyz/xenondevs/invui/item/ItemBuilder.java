@@ -52,7 +52,7 @@ public final class ItemBuilder implements ItemProvider {
     private @Nullable List<String> customModelDataStrings;
     private @Nullable IntList customModelDataColors;
     private @Nullable Map<String, TagResolver> placeholders;
-    private @Nullable List<Function<ItemStack, ItemStack>> modifiers;
+    private @Nullable List<Function<? super ItemStack, ? extends ItemStack>> modifiers;
     
     private final Map<Locale, ItemStack> buildCache = new HashMap<>();
     
@@ -312,7 +312,7 @@ public final class ItemBuilder implements ItemProvider {
      * @see Placeholder#parsed(String, String)
      */
     @SuppressWarnings("PatternValidation")
-    public ItemBuilder setPlaceholdersParsed(Map<String, String> placeholders) {
+    public ItemBuilder setPlaceholdersParsed(Map<? extends String, ? extends String> placeholders) {
         var map = new HashMap<String, TagResolver>();
         placeholders.forEach((key, value) -> map.put(key, Placeholder.parsed(key, value)));
         return setPlaceholders(map);
@@ -330,7 +330,7 @@ public final class ItemBuilder implements ItemProvider {
      * @see Placeholder#unparsed(String, String)
      */
     @SuppressWarnings("PatternValidation")
-    public ItemBuilder setPlaceholdersUnparsed(Map<String, String> placeholders) {
+    public ItemBuilder setPlaceholdersUnparsed(Map<? extends String, ? extends String> placeholders) {
         var map = new HashMap<String, TagResolver>();
         placeholders.forEach((key, value) -> map.put(key, Placeholder.unparsed(key, value)));
         return setPlaceholders(map);
@@ -347,7 +347,7 @@ public final class ItemBuilder implements ItemProvider {
      * @see Placeholder#component(String, ComponentLike)
      */
     @SuppressWarnings("PatternValidation")
-    public ItemBuilder setPlaceholdersComponent(Map<String, ComponentLike> placeholders) {
+    public ItemBuilder setPlaceholdersComponent(Map<String, ? extends ComponentLike> placeholders) {
         var map = new HashMap<String, TagResolver>();
         placeholders.forEach((key, value) -> map.put(key, Placeholder.component(key, value)));
         return setPlaceholders(map);
@@ -364,7 +364,7 @@ public final class ItemBuilder implements ItemProvider {
      * @see Placeholder#styling(String, StyleBuilderApplicable...)
      */
     @SuppressWarnings("PatternValidation")
-    public ItemBuilder setPlaceholdersStyling(Map<String, StyleBuilderApplicable[]> placeholders) {
+    public ItemBuilder setPlaceholdersStyling(Map<? extends String, ? extends StyleBuilderApplicable[]> placeholders) {
         var map = new HashMap<String, TagResolver>();
         placeholders.forEach((key, value) -> map.put(key, Placeholder.styling(key, value)));
         return setPlaceholders(map);
@@ -508,7 +508,7 @@ public final class ItemBuilder implements ItemProvider {
      * @param lore The lore
      * @return The builder instance
      */
-    public ItemBuilder setLore(List<Component> lore) {
+    public ItemBuilder setLore(List<? extends Component> lore) {
         buildCache.clear();
         
         this.lore = lore.stream()
@@ -525,7 +525,7 @@ public final class ItemBuilder implements ItemProvider {
      * @param lore The lore
      * @return The builder instance
      */
-    public ItemBuilder setLegacyLore(List<String> lore) {
+    public ItemBuilder setLegacyLore(List<? extends String> lore) {
         buildCache.clear();
         
         this.lore = lore.stream()
@@ -587,7 +587,7 @@ public final class ItemBuilder implements ItemProvider {
      * @param lines The lore lines
      * @return The builder instance
      */
-    public ItemBuilder addLoreLines(List<Component> lines) {
+    public ItemBuilder addLoreLines(List<? extends Component> lines) {
         buildCache.clear();
         
         if (lore == null)
@@ -609,7 +609,7 @@ public final class ItemBuilder implements ItemProvider {
      * @param lines The lore lines
      * @return The builder instance
      */
-    public ItemBuilder addMiniMessageLoreLines(List<String> lines) {
+    public ItemBuilder addMiniMessageLoreLines(List<? extends String> lines) {
         buildCache.clear();
         
         if (lore == null)
@@ -631,7 +631,7 @@ public final class ItemBuilder implements ItemProvider {
      * @param lines The lore lines
      * @return The builder instance
      */
-    public ItemBuilder addLegacyLoreLines(List<String> lines) {
+    public ItemBuilder addLegacyLoreLines(List<? extends String> lines) {
         buildCache.clear();
         
         if (lore == null)
@@ -964,7 +964,7 @@ public final class ItemBuilder implements ItemProvider {
      * @param colors  The `colors` section
      * @return The builder instance
      */
-    public ItemBuilder setCustomModelData(List<Float> floats, List<Boolean> flags, List<String> strings, List<Color> colors) {
+    public ItemBuilder setCustomModelData(List<? extends Float> floats, List<? extends Boolean> flags, List<? extends String> strings, List<? extends Color> colors) {
         buildCache.clear();
         
         customModelDataFloats = new FloatArrayList(floats);
@@ -982,7 +982,7 @@ public final class ItemBuilder implements ItemProvider {
      * @param floats The `floats` section
      * @return The builder instance
      */
-    public ItemBuilder setCustomModelDataFloats(List<Float> floats) {
+    public ItemBuilder setCustomModelDataFloats(List<? extends Float> floats) {
         buildCache.clear();
         
         customModelDataFloats = new FloatArrayList(floats);
@@ -995,7 +995,7 @@ public final class ItemBuilder implements ItemProvider {
      * @param flags The `flags` section
      * @return The builder instance
      */
-    public ItemBuilder setCustomModelDataFlags(List<Boolean> flags) {
+    public ItemBuilder setCustomModelDataFlags(List<? extends Boolean> flags) {
         buildCache.clear();
         
         customModelDataBooleans = new BooleanArrayList(flags);
@@ -1008,7 +1008,7 @@ public final class ItemBuilder implements ItemProvider {
      * @param strings The `strings` section
      * @return The builder instance
      */
-    public ItemBuilder setCustomModelDataStrings(List<String> strings) {
+    public ItemBuilder setCustomModelDataStrings(List<? extends String> strings) {
         buildCache.clear();
         
         customModelDataStrings = new ArrayList<>(strings);
@@ -1021,7 +1021,7 @@ public final class ItemBuilder implements ItemProvider {
      * @param colors The `colors` section
      * @return The builder instance
      */
-    public ItemBuilder setCustomModelDataColors(List<Color> colors) {
+    public ItemBuilder setCustomModelDataColors(List<? extends Color> colors) {
         buildCache.clear();
         
         customModelDataColors = colors.stream()
@@ -1138,7 +1138,7 @@ public final class ItemBuilder implements ItemProvider {
      * @param modifier The modifier function
      * @return The builder instance
      */
-    public ItemBuilder addModifier(Function<ItemStack, ItemStack> modifier) {
+    public ItemBuilder addModifier(Function<? super ItemStack, ? extends ItemStack> modifier) {
         buildCache.clear();
         
         if (modifiers == null)

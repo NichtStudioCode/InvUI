@@ -61,7 +61,7 @@ public class PacketListener implements Listener {
     }
     
     @SuppressWarnings("unchecked")
-    public <T extends Packet<ServerGamePacketListener>> void redirectIncoming(Player player, Class<T> clazz, Consumer<T> handler) {
+    public <T extends Packet<ServerGamePacketListener>> void redirectIncoming(Player player, Class<? extends T> clazz, Consumer<? super T> handler) {
         getPacketHandler(player.getUniqueId()).redirections.put(clazz, (Consumer<Packet<ServerGamePacketListener>>) handler);
     }
     
