@@ -774,6 +774,36 @@ public class AnimationTest {
         assertFalse(gui.isAnimationRunning());
     }
     
+    @Test
+    void testAnimationInterrupted() {
+        Gui gui = createTestGui();
+        Animation rowAnimation = Animation.builder()
+            .setSlotSelector(Animation::rowSlotSelector)
+            .build();
+        
+        gui.playAnimation(rowAnimation);
+        server.getScheduler().performOneTick();
+        gui.playAnimation(rowAnimation);
+        
+        server.getScheduler().performTicks(3);
+        boolean[][] visMatrix1 = createVisibilityMatrix(
+            "xxxxxxxxx",
+            "xxxxxxxxx",
+            "xxxxxxxxx",
+            "........."
+        );
+        assertVisibility(gui, visMatrix1);
+        
+        server.getScheduler().performOneTick();
+        boolean[][] visMatrix2 = createVisibilityMatrix(
+            "xxxxxxxxx",
+            "xxxxxxxxx",
+            "xxxxxxxxx",
+            "xxxxxxxxx"
+        );
+        assertVisibility(gui, visMatrix2);
+    }
+    
     private Gui createOddTestGui() {
         Gui gui = Gui.empty(3, 1);
         gui.fill(Item.simple(ItemStack.of(Material.DIAMOND)), true);

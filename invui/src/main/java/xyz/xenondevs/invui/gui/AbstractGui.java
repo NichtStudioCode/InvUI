@@ -573,15 +573,16 @@ public sealed abstract class AbstractGui
     @Override
     public void cancelAnimation() {
         if (this.animation != null) {
-            // cancel the scheduler task and set animation to null
-            animation.cancel();
-            animation = null;
-            
             // show all SlotElements again
             assert animationElements != null;
             for (int i = 0; i < size; i++) {
                 setSlotElement(i, animationElements[i]);
             }
+            
+            // cancel the scheduler task 
+            animation.cancel();
+            
+            animation = null;
             animationElements = null;
         }
     }
@@ -591,10 +592,8 @@ public sealed abstract class AbstractGui
         slotElements[index] = slotElement;
         
         // set the gui if it is a bound item
-        if (slotElement instanceof SlotElement.Item(Item item)) {
-            if (item instanceof BoundItem boundItem && !boundItem.isBound()) {
-                boundItem.bind(this);
-            }
+        if (slotElement instanceof SlotElement.Item(BoundItem item) && !item.isBound()) {
+            item.bind(this);
         }
         
         // notify parents that a slot element has been changed
