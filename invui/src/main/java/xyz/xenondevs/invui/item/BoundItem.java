@@ -122,6 +122,13 @@ public sealed interface BoundItem extends Item permits AbstractBoundItem {
          */
         Builder<G> setItemProvider(BiFunction<? super Player, ? super G, ? extends ItemProvider> itemProvider);
         
+        /**
+         * Builds the {@link BoundItem}.
+         *
+         * @return The {@link BoundItem}.
+         */
+        @Override
+        BoundItem build();
     }
     
 }

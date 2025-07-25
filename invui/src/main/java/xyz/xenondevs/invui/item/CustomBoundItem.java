@@ -204,7 +204,7 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         }
         
         @Override
-        public Item build() {
+        public BoundItem build() {
             if (updateOnClick) {
                 clickHandler = clickHandler.andThen((item, gui, click) -> item.notifyWindows());
             }
