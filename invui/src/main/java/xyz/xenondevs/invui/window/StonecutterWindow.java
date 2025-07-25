@@ -94,7 +94,7 @@ public sealed interface StonecutterWindow extends Window permits StonecutterWind
         Builder setUpperGui(Supplier<? extends Gui> guiSupplier);
         
         /**
-         * Sets the buttons {@link Gui} of the {@link StonecutterWindow}, which will
+         * Sets the 4xN buttons {@link Gui} of the {@link StonecutterWindow}, which will
          * be displayed via the recipe buttons.
          *
          * @param gui The buttons {@link Gui}
@@ -105,7 +105,7 @@ public sealed interface StonecutterWindow extends Window permits StonecutterWind
         }
         
         /**
-         * Sets the buttons {@link Gui} {@link Supplier} of the {@link StonecutterWindow}, which will
+         * Sets the 4xN buttons {@link Gui} {@link Supplier} of the {@link StonecutterWindow}, which will
          * be displayed via the recipe buttons.
          * The {@link Gui.Builder} will be called every time a new {@link StonecutterWindow} is created using this builder.
          *
@@ -117,7 +117,7 @@ public sealed interface StonecutterWindow extends Window permits StonecutterWind
         }
         
         /**
-         * Sets the buttons {@link Gui} {@link Supplier} of the {@link StonecutterWindow}, which will
+         * Sets the 4xN buttons {@link Gui} {@link Supplier} of the {@link StonecutterWindow}, which will
          * be displayed via the recipe buttons.
          * The {@link Supplier} will be called every time a new {@link StonecutterWindow} is created using this builder.
          *
