@@ -55,13 +55,11 @@ sealed abstract class AbstractSplitWindow<M extends CustomContainerMenu>
         
         protected AbstractGui supplyLowerGui(Player viewer) {
             if (lowerGuiSupplier == null) {
-                AbstractGui gui = (AbstractGui) Gui.empty(9, 4);
                 Inventory inv = ReferencingInventory.fromPlayerStorageContents(viewer.getInventory());
                 inv.reverseIterationOrder(OperationCategory.ADD); // shift-clicking moves to bottom right
                 inv.setGuiPriority(OperationCategory.ADD, Integer.MAX_VALUE); // shift-click always moves between upper and lower inv
                 inv.setGuiPriority(OperationCategory.COLLECT, Integer.MIN_VALUE); // double-click collects from lower inv last
-                gui.fillRectangle(0, 0, 9, inv, true);
-                return gui;
+                return (AbstractGui) Gui.of(9, 4, inv);
             }
             
             return (AbstractGui) lowerGuiSupplier.get();

@@ -62,6 +62,34 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
     }
     
     /**
+     * Creates a new {@link Gui} filled entirely with the given {@link Item}.
+     *
+     * @param width  The width of the {@link Gui}.
+     * @param height The height of the {@link Gui}.
+     * @param item   The {@link Item} to fill the {@link Gui} with.
+     * @return The created {@link Gui} filled with the given {@link Item}.
+     */
+    static Gui of(int width, int height, Item item) {
+        Gui gui = empty(width, height);
+        gui.fill(item);
+        return gui;
+    }
+    
+    /**
+     * Creates a new {@link Gui} with the given {@link Inventory} as its content.
+     *
+     * @param width     The width of the {@link Gui}.
+     * @param height    The height of the {@link Gui}.
+     * @param inventory The {@link Inventory} to be placed in the {@link Gui}.
+     * @return The created {@link Gui} with the given {@link Inventory} as its content.
+     */
+    static Gui of(int width, int height, Inventory inventory) {
+        Gui gui = empty(width, height);
+        gui.fillRectangle(0, 0, width, inventory);
+        return gui;
+    }
+    
+    /**
      * Creates a new 1x1 {@link Gui} with the given item on the only slot.
      *
      * @param item The {@link Item} to be placed on the only slot.
@@ -641,81 +669,179 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
     //<editor-fold desc="fill methods">
     
     /**
-     * Fills the {@link Gui} with {@link Item Items}.
+     * Fills the gui with the given item, regardless of what was previously there.
+     *
+     * @param start The start index of the fill (inclusive)
+     * @param end   The end index of the fill (exclusive)
+     * @param item  The item that should be used or null to remove existing items.
+     */
+    default void fill(int start, int end, @Nullable Item item) {
+        fill(start, end, item, true);
+    }
+    
+    /**
+     * Fills the gui with the given item.
      *
      * @param start           The start index of the fill (inclusive)
      * @param end             The end index of the fill (exclusive)
-     * @param item            The {@link Item} that should be used or null to remove an existing item.
-     * @param replaceExisting If existing {@link Item Items} should be replaced.
+     * @param item            The item that should be used or null to remove existing items.
+     * @param replaceExisting If existing slots should be replaced.
      */
     void fill(int start, int end, @Nullable Item item, boolean replaceExisting);
     
     /**
-     * Fills the entire {@link Gui} with {@link Item Items}.
+     * Fills the entire gui with the given item, regardless of what was previously there.
      *
-     * @param item            The {@link Item} that should be used or null to remove an existing item.
-     * @param replaceExisting If existing {@link Item Items} should be replaced.
+     * @param item The item to put into every slot, or null to remove existing items.
+     */
+    default void fill(@Nullable Item item) {
+        fill(item, true);
+    }
+    
+    /**
+     * Fills the entire gui with the given item.
+     *
+     * @param item            The item that should be used, or null to remove existing items.
+     * @param replaceExisting If existing slots should be replaced.
      */
     void fill(@Nullable Item item, boolean replaceExisting);
     
     /**
-     * Fills one row with a specific {@link Item}
+     * Fills one row with the given item, regardless of what was previously there.
+     *
+     * @param row  The row
+     * @param item The item that should be used, or null to remove existing items.
+     */
+    default void fillRow(int row, @Nullable Item item) {
+        fillRow(row, item, true);
+    }
+    
+    /**
+     * Fills one row with the given item.
      *
      * @param row             The row
-     * @param item            The {@link Item} that should be used or null to remove an existing item.
-     * @param replaceExisting If existing {@link Item Items} should be replaced.
+     * @param item            The item that should be used, or null to remove existing items.
+     * @param replaceExisting If existing slots should be replaced.
      */
     void fillRow(int row, @Nullable Item item, boolean replaceExisting);
     
     /**
-     * Fills one column with a specific {@link Item}
+     * Fills one column with the given item, regardless of what was previously there.
+     *
+     * @param column The column
+     * @param item   The item that should be used, or null to remove existing items.
+     */
+    default void fillColumn(int column, @Nullable Item item) {
+        fillColumn(column, item, true);
+    }
+    
+    /**
+     * Fills one column with the given item.
      *
      * @param column          The column
-     * @param item            The {@link Item} that should be used or null to remove an existing item.
-     * @param replaceExisting If existing {@link Item Items} should be replaced.
+     * @param item            The item that should be used, or null to remove existing items.
+     * @param replaceExisting If existing slots should be replaced.
      */
     void fillColumn(int column, @Nullable Item item, boolean replaceExisting);
     
     /**
-     * Fills the borders of this {@link Gui} with a specific {@link Item}
+     * Fills the borders of this gui with the given item, regardless of what was previously there.
      *
-     * @param item            The {@link Item} that should be used or null to remove an existing item.
-     * @param replaceExisting If existing {@link Item Items} should be replaced.
+     * @param item The item that should be used, or null to remove existing items.
+     */
+    default void fillBorders(@Nullable Item item) {
+        fillBorders(item, true);
+    }
+    
+    /**
+     * Fills the borders of this gui with the given item.
+     *
+     * @param item            The item that should be used, or null to remove existing items.
+     * @param replaceExisting If existing slots should be replaced.
      */
     void fillBorders(@Nullable Item item, boolean replaceExisting);
     
     /**
-     * Fills a rectangle in this {@link Gui} with a specific {@link Item}
+     * Fills a rectangle in this gui with the given item, regardless of what was previously there.
+     *
+     * @param x      The x coordinate where the rectangle should start.
+     * @param y      The y coordinate where the rectangle should start.
+     * @param width  The width of the rectangle.
+     * @param height The height of the rectangle
+     * @param item   The item that should be used, or null to remove existing items.
+     */
+    default void fillRectangle(int x, int y, int width, int height, @Nullable Item item) {
+        fillRectangle(x, y, width, height, item, true);
+    }
+    
+    /**
+     * Fills a rectangle in this gui with the given item.
      *
      * @param x               The x coordinate where the rectangle should start.
      * @param y               The y coordinate where the rectangle should start.
      * @param width           The width of the rectangle.
      * @param height          The height of the rectangle
-     * @param item            The {@link Item} that should be used or null to remove an existing item.
-     * @param replaceExisting If existing {@link Item Items} should be replaced.
+     * @param item            The item that should be used, or null to remove existing items.
+     * @param replaceExisting If existing slots should be replaced.
      */
     void fillRectangle(int x, int y, int width, int height, @Nullable Item item, boolean replaceExisting);
     
     /**
-     * Fills a rectangle with another {@link Gui} in this {@link Gui}.
+     * Fills a rectangular area in this gui with the given gui, regardless of what was previously there.
+     *
+     * @param x   The x coordinate where the rectangle should start
+     * @param y   The y coordinate where the rectangle should start
+     * @param gui The gui to put into this gui
+     */
+    default void fillRectangle(int x, int y, Gui gui) {
+        fillRectangle(x, y, gui, true);
+    }
+    
+    /**
+     * Fills a rectangular area in this gui with the given gui.
      *
      * @param x               The x coordinate where the rectangle should start
      * @param y               The y coordinate where the rectangle should start
-     * @param gui             The {@link Gui} to be put into this {@link Gui}
-     * @param replaceExisting If existing {@link SlotElement SlotElements} should be replaced.
+     * @param gui             The gui to put into this gui
+     * @param replaceExisting If existing slots should be replaced.
      */
     void fillRectangle(int x, int y, Gui gui, boolean replaceExisting);
     
     /**
-     * Fills a rectangle with a {@link Inventory} in this {@link Gui}.
+     * Fills a rectangular area in this gui with the given inventory, regardless of what was previously there.
+     *
+     * @param x         The x coordinate where the rectangle should start
+     * @param y         The y coordinate where the rectangle should start
+     * @param width     The line length of the rectangle.
+     * @param inventory The inventory to put into this gui.
+     */
+    default void fillRectangle(int x, int y, int width, Inventory inventory) {
+        fillRectangle(x, y, width, inventory, true);
+    }
+    
+    /**
+     * Fills a rectangular area in this gui with the given inventory.
      *
      * @param x               The x coordinate where the rectangle should start
      * @param y               The y coordinate where the rectangle should start
      * @param width           The line length of the rectangle.
-     * @param inventory       The {@link Inventory} to be put into this {@link Gui}.
-     * @param replaceExisting If existing {@link SlotElement SlotElements} should be replaced.
+     * @param inventory       The inventory to put into this gui.
+     * @param replaceExisting If existing slots should be replaced.
      */
     void fillRectangle(int x, int y, int width, Inventory inventory, boolean replaceExisting);
+    
+    /**
+     * Fills a rectangle with a {@link Inventory} in this {@link Gui}, using the given background for empty slots.
+     *
+     * @param x          The x coordinate where the rectangle should start
+     * @param y          The y coordinate where the rectangle should start
+     * @param width      The line length of the rectangle.
+     * @param inventory  The inventory to put into this gui.
+     * @param background The item provider for empty slots of the inventory
+     */
+    default void fillRectangle(int x, int y, int width, Inventory inventory, @Nullable ItemProvider background) {
+        fillRectangle(x, y, width, inventory, background, true);
+    }
     
     /**
      * Fills a rectangle with a {@link Inventory} in this {@link Gui}.
@@ -723,9 +849,9 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
      * @param x               The x coordinate where the rectangle should start
      * @param y               The y coordinate where the rectangle should start
      * @param width           The line length of the rectangle.
-     * @param inventory       The {@link Inventory} to be put into this {@link Gui}.
-     * @param background      The {@link ItemProvider} for empty slots of the {@link Inventory}
-     * @param replaceExisting If existing {@link SlotElement SlotElements} should be replaced.
+     * @param inventory       The inventory to put into this gui.
+     * @param background      The item provider for empty slots of the inventory
+     * @param replaceExisting If existing slots should be replaced.
      */
     void fillRectangle(int x, int y, int width, Inventory inventory, @Nullable ItemProvider background, boolean replaceExisting);
     
