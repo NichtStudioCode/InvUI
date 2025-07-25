@@ -9,16 +9,13 @@ import xyz.xenondevs.invui.internal.util.MathUtils;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.BiPredicate;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.function.*;
 
 final class AnimationImpl implements Animation {
     
     private final int tickDelay;
     private final BiPredicate<? super Gui, ? super Slot> slotFilter;
-    private final Function<? super State, ? extends Set<? extends Slot>> slotSelector;
+    private final Supplier<? extends Function<? super State, ? extends Set<? extends Slot>>> slotSelectorFactory;
     private final Function<? super Slot, ? extends @Nullable SlotElement> intermediaryGenerator;
     private final BiConsumer<? super State, ? super Set<? extends Slot>> showHandler;
     private final Consumer<? super State> finishHandler;
@@ -27,7 +24,7 @@ final class AnimationImpl implements Animation {
     public AnimationImpl(
         int tickDelay,
         BiPredicate<? super Gui, ? super Slot> slotFilter,
-        Function<? super State, ? extends Set<? extends Slot>> slotSelector,
+        Supplier<? extends Function<? super State, ? extends Set<? extends Slot>>> slotSelectorFactory,
         Function<? super Slot, ? extends @Nullable SlotElement> intermediaryGenerator,
         BiConsumer<? super State, ? super Set<? extends Slot>> showHandler,
         Consumer<? super State> finishHandler,
@@ -35,7 +32,7 @@ final class AnimationImpl implements Animation {
     ) {
         this.tickDelay = tickDelay;
         this.slotFilter = slotFilter;
-        this.slotSelector = slotSelector;
+        this.slotSelectorFactory = slotSelectorFactory;
         this.intermediaryGenerator = intermediaryGenerator;
         this.showHandler = showHandler;
         this.finishHandler = finishHandler;
@@ -44,6 +41,7 @@ final class AnimationImpl implements Animation {
     
     final class StateImpl implements State {
         
+        private final Function<? super State, ? extends Set<? extends Slot>> slotSelector;
         private final Consumer<? super Set<? extends Slot>> extraShowHandler;
         private final Runnable extraFinishHandler;
         private final Set<Slot> remainingSlots = new HashSet<>();
@@ -60,6 +58,7 @@ final class AnimationImpl implements Animation {
             this.gui = gui;
             this.extraShowHandler = extraShowHandler;
             this.extraFinishHandler = extraFinishHandler;
+            this.slotSelector = slotSelectorFactory.get();
             
             // populate remaining slots
             for (int x = 0; x < gui.getWidth(); x++) {
@@ -137,7 +136,7 @@ final class AnimationImpl implements Animation {
         
         private int tickDelay = 1;
         private BiPredicate<Gui, Slot> slotFilter = (gui, slot) -> true;
-        private @Nullable Function<? super State, ? extends Set<? extends Slot>> slotSelector;
+        private @Nullable Supplier<? extends Function<? super State, ? extends Set<? extends Slot>>> slotSelectorFactory;
         private Function<? super Slot, ? extends @Nullable SlotElement> intermediaryGenerator = slot -> null;
         private BiConsumer<State, Set<? extends Slot>> showHandler = (state, slot) -> {};
         private Consumer<State> finishHandler = gui -> {};
@@ -150,8 +149,8 @@ final class AnimationImpl implements Animation {
         }
         
         @Override
-        public Builder setSlotSelector(Function<? super State, ? extends Set<? extends Slot>> selector) {
-            this.slotSelector = selector;
+        public Builder setSlotSelector(Supplier<? extends Function<? super State, ? extends Set<? extends Slot>>> selector) {
+            this.slotSelectorFactory = selector;
             return this;
         }
         
@@ -187,10 +186,10 @@ final class AnimationImpl implements Animation {
         
         @Override
         public Animation build() {
-            if (slotSelector == null)
+            if (slotSelectorFactory == null)
                 throw new IllegalStateException("SlotSelector needs to be set");
             
-            return new AnimationImpl(tickDelay, slotFilter, slotSelector, intermediaryGenerator, showHandler, finishHandler, freezing);
+            return new AnimationImpl(tickDelay, slotFilter, slotSelectorFactory, intermediaryGenerator, showHandler, finishHandler, freezing);
         }
         
     }

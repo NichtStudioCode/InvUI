@@ -7,10 +7,7 @@ import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
 
 import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.BiPredicate;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.function.*;
 
 /**
  * An animation lets slots of a {@link Gui} pop in, in a specific order with a specific delay.
@@ -208,14 +205,14 @@ public sealed interface Animation permits AnimationImpl {
         }
         
         /**
-         * Sets the slot selector for the animation.
+         * Sets supplier for the slot selector of the animation.
          * The slot selector determines which slots are shown in which order.
          * Slot selectors need to show all slots of {@link State#getRemainingSlots()} in order to complete the animation.
          *
          * @param selector The slot selector for the animation.
          * @return This {@link Builder}
          */
-        Builder setSlotSelector(Function<? super State, ? extends Set<? extends Slot>> selector);
+        Builder setSlotSelector(Supplier<? extends Function<? super State, ? extends Set<? extends Slot>>> selector);
         
         /**
          * Sets the intermediary {@link ItemProvider} that is displayed before the slots pop in.

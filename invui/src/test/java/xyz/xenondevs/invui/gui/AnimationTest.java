@@ -39,7 +39,7 @@ public class AnimationTest {
     public void testColumn() {
         Gui gui = createTestGui();
         Animation columnAnimation = Animation.builder()
-            .setSlotSelector(Animation.columnSlotSelector())
+            .setSlotSelector(Animation::columnSlotSelector)
             .build();
         gui.playAnimation(columnAnimation);
         
@@ -139,7 +139,7 @@ public class AnimationTest {
     public void testColumnOddGuiSize() {
         Gui gui = createOddTestGui();
         Animation columnAnimation = Animation.builder()
-            .setSlotSelector(Animation.columnSlotSelector())
+            .setSlotSelector(Animation::columnSlotSelector)
             .build();
         gui.playAnimation(columnAnimation);
         
@@ -151,7 +151,7 @@ public class AnimationTest {
     public void testColumnNoSlots() {
         Gui gui = createTestGui();
         Animation columnAnimation = Animation.builder()
-            .setSlotSelector(Animation.columnSlotSelector())
+            .setSlotSelector(Animation::columnSlotSelector)
             .addSlotFilter((g, s) -> false)
             .build();
         gui.playAnimation(columnAnimation);
@@ -165,7 +165,7 @@ public class AnimationTest {
     public void testRow() {
         Gui gui = createTestGui();
         Animation rowAnimation = Animation.builder()
-            .setSlotSelector(Animation.rowSlotSelector())
+            .setSlotSelector(Animation::rowSlotSelector)
             .build();
         gui.playAnimation(rowAnimation);
         
@@ -220,7 +220,7 @@ public class AnimationTest {
     public void testRowOddGuiSize() {
         Gui gui = createOddTestGui();
         Animation rowAnimation = Animation.builder()
-            .setSlotSelector(Animation.rowSlotSelector())
+            .setSlotSelector(Animation::rowSlotSelector)
             .build();
         gui.playAnimation(rowAnimation);
         
@@ -232,7 +232,7 @@ public class AnimationTest {
     public void testRowNoSlots() {
         Gui gui = createTestGui();
         Animation rowAnimiation = Animation.builder()
-            .setSlotSelector(Animation.rowSlotSelector())
+            .setSlotSelector(Animation::rowSlotSelector)
             .addSlotFilter((g, s) -> false)
             .build();
         gui.playAnimation(rowAnimiation);
@@ -246,7 +246,7 @@ public class AnimationTest {
     public void testHorizontalSnake() {
         Gui gui = createTestGui();
         Animation snakeAnimation = Animation.builder()
-            .setSlotSelector(Animation.horizontalSnakeSlotSelector())
+            .setSlotSelector(Animation::horizontalSnakeSlotSelector)
             .build();
         gui.playAnimation(snakeAnimation);
         
@@ -293,7 +293,7 @@ public class AnimationTest {
     public void testHorizontalSnakeOddGuiSize() {
         Gui gui = createOddTestGui();
         Animation snakeAnimation = Animation.builder()
-            .setSlotSelector(Animation.horizontalSnakeSlotSelector())
+            .setSlotSelector(Animation::horizontalSnakeSlotSelector)
             .build();
         gui.playAnimation(snakeAnimation);
         
@@ -305,7 +305,7 @@ public class AnimationTest {
     public void testHorizontalSnakeNoSlots() {
         Gui gui = createTestGui();
         Animation snakeAnimation = Animation.builder()
-            .setSlotSelector(Animation.horizontalSnakeSlotSelector())
+            .setSlotSelector(Animation::horizontalSnakeSlotSelector)
             .addSlotFilter((g, s) -> false)
             .build();
         gui.playAnimation(snakeAnimation);
@@ -319,7 +319,7 @@ public class AnimationTest {
     public void testVerticalSnake() {
         Gui gui = createTestGui();
         Animation snakeAnimation = Animation.builder()
-            .setSlotSelector(Animation.verticalSnakeSlotSelector())
+            .setSlotSelector(Animation::verticalSnakeSlotSelector)
             .build();
         gui.playAnimation(snakeAnimation);
         
@@ -366,7 +366,7 @@ public class AnimationTest {
     public void testVerticalSnakeOddGuiSize() {
         Gui gui = createOddTestGui();
         Animation snakeAnimation = Animation.builder()
-            .setSlotSelector(Animation.verticalSnakeSlotSelector())
+            .setSlotSelector(Animation::verticalSnakeSlotSelector)
             .build();
         gui.playAnimation(snakeAnimation);
         
@@ -378,7 +378,7 @@ public class AnimationTest {
     public void testVerticalSnakeNoSlots() {
         Gui gui = createTestGui();
         Animation snakeAnimation = Animation.builder()
-            .setSlotSelector(Animation.verticalSnakeSlotSelector())
+            .setSlotSelector(Animation::verticalSnakeSlotSelector)
             .addSlotFilter((g, s) -> false)
             .build();
         gui.playAnimation(snakeAnimation);
@@ -392,7 +392,7 @@ public class AnimationTest {
     public void testSequential() {
         Gui gui = createTestGui();
         Animation sequentialAnimation = Animation.builder()
-            .setSlotSelector(Animation.sequentialSlotSelector())
+            .setSlotSelector(Animation::sequentialSlotSelector)
             .build();
         gui.playAnimation(sequentialAnimation);
         
@@ -439,7 +439,7 @@ public class AnimationTest {
     public void testSequentialOddGuiSize() {
         Gui gui = createOddTestGui();
         Animation sequentialAnimation = Animation.builder()
-            .setSlotSelector(Animation.sequentialSlotSelector())
+            .setSlotSelector(Animation::sequentialSlotSelector)
             .build();
         gui.playAnimation(sequentialAnimation);
         
@@ -451,7 +451,7 @@ public class AnimationTest {
     public void testSequentialNoSlots() {
         Gui gui = createTestGui();
         Animation sequentialAnimation = Animation.builder()
-            .setSlotSelector(Animation.sequentialSlotSelector())
+            .setSlotSelector(Animation::sequentialSlotSelector)
             .addSlotFilter((g, s) -> false)
             .build();
         gui.playAnimation(sequentialAnimation);
@@ -465,7 +465,7 @@ public class AnimationTest {
     public void testSplitSequential() {
         Gui gui = createTestGui();
         Animation sequentialAnimation = Animation.builder()
-            .setSlotSelector(Animation.splitSequentialSlotSelector())
+            .setSlotSelector(Animation::splitSequentialSlotSelector)
             .build();
         gui.playAnimation(sequentialAnimation);
         
@@ -503,7 +503,7 @@ public class AnimationTest {
     public void testSplitSequentialOddGuiSize() {
         Gui gui = createOddTestGui();
         Animation sequentialAnimation = Animation.builder()
-            .setSlotSelector(Animation.splitSequentialSlotSelector())
+            .setSlotSelector(Animation::splitSequentialSlotSelector)
             .build();
         gui.playAnimation(sequentialAnimation);
         
@@ -515,7 +515,7 @@ public class AnimationTest {
     public void testSplitSequentialNoSlots() {
         Gui gui = createTestGui();
         Animation sequentialAnimation = Animation.builder()
-            .setSlotSelector(Animation.splitSequentialSlotSelector())
+            .setSlotSelector(Animation::splitSequentialSlotSelector)
             .addSlotFilter((g, s) -> false)
             .build();
         gui.playAnimation(sequentialAnimation);
@@ -529,7 +529,7 @@ public class AnimationTest {
     public void testRandom() {
         Gui gui = createTestGui();
         Animation randomAnimation = Animation.builder()
-            .setSlotSelector(Animation.randomSlotSelector())
+            .setSlotSelector(Animation::randomSlotSelector)
             .build();
         gui.playAnimation(randomAnimation);
         
@@ -543,7 +543,7 @@ public class AnimationTest {
     public void testRandomOddGuiSize() {
         Gui gui = createOddTestGui();
         Animation randomAnimation = Animation.builder()
-            .setSlotSelector(Animation.randomSlotSelector())
+            .setSlotSelector(Animation::randomSlotSelector)
             .build();
         gui.playAnimation(randomAnimation);
         
@@ -555,7 +555,7 @@ public class AnimationTest {
     public void testRandomNoSlots() {
         Gui gui = createTestGui();
         Animation randomAnimation = Animation.builder()
-            .setSlotSelector(Animation.randomSlotSelector())
+            .setSlotSelector(Animation::randomSlotSelector)
             .addSlotFilter((g, s) -> false)
             .build();
         gui.playAnimation(randomAnimation);
@@ -569,7 +569,7 @@ public class AnimationTest {
     public void testTickDelay() {
         Gui gui = createTestGui();
         Animation rowAnimation = Animation.builder()
-            .setSlotSelector(Animation.rowSlotSelector())
+            .setSlotSelector(Animation::rowSlotSelector)
             .setTickDelay(2)
             .build();
         gui.playAnimation(rowAnimation);
@@ -591,7 +591,7 @@ public class AnimationTest {
     public void testSlotFilter() {
         Gui gui = createTestGui();
         Animation rowAnimation = Animation.builder()
-            .setSlotSelector(Animation.rowSlotSelector())
+            .setSlotSelector(Animation::rowSlotSelector)
             .addSlotFilter((g, slot) -> slot.y() % 2 == 0)
             .build();
         gui.playAnimation(rowAnimation);
@@ -618,7 +618,7 @@ public class AnimationTest {
             .addIngredient('#', ItemStack.of(Material.DIAMOND))
             .build();
         Animation sequentialAnimation = Animation.builder()
-            .setSlotSelector(Animation.sequentialSlotSelector())
+            .setSlotSelector(Animation::sequentialSlotSelector)
             .filterNonEmptySlots()
             .build();
         gui.playAnimation(sequentialAnimation);
@@ -637,7 +637,7 @@ public class AnimationTest {
             .addIngredient('c', ItemStack.of(Material.DIAMOND_ORE))
             .build();
         Animation sequentialAnimation = Animation.builder()
-            .setSlotSelector(Animation.sequentialSlotSelector())
+            .setSlotSelector(Animation::sequentialSlotSelector)
             .filterTaggedSlots('a', 'c')
             .build();
         gui.playAnimation(sequentialAnimation);
@@ -661,7 +661,7 @@ public class AnimationTest {
         
         Gui gui = createTestGui();
         Animation rowAnimation = Animation.builder()
-            .setSlotSelector(Animation.rowSlotSelector())
+            .setSlotSelector(Animation::rowSlotSelector)
             .addShowHandler((animation, slots) -> slotsShown.addAll(slots))
             .build();
         gui.playAnimation(rowAnimation);
@@ -693,7 +693,7 @@ public class AnimationTest {
         
         Gui gui = createTestGui();
         Animation rowAnimation = Animation.builder()
-            .setSlotSelector(Animation.rowSlotSelector())
+            .setSlotSelector(Animation::rowSlotSelector)
             .addFinishHandler(animation -> finished.set(true))
             .build();
         gui.playAnimation(rowAnimation);
@@ -713,7 +713,7 @@ public class AnimationTest {
         
         Gui gui = createTestGui();
         Animation rowAnimation = Animation.builder()
-            .setSlotSelector(Animation.rowSlotSelector())
+            .setSlotSelector(Animation::rowSlotSelector)
             .setIntermediaryElementGenerator(s -> new SlotElement.Item(Item.simple(ItemStack.of(Material.STONE, s.y() * 9 + s.x() + 1))))
             .build();
         
@@ -754,6 +754,24 @@ public class AnimationTest {
             assertNotNull(itemStack, "i: " + i);
             assertEquals(Material.DIAMOND, itemStack.getType(), "i: " + i);
         }
+    }
+    
+    @Test
+    void testRunAnimationTwice() {
+        Gui gui = createTestGui();
+        Animation rowAnimation = Animation.builder()
+            .setSlotSelector(Animation::rowSlotSelector)
+            .build();
+        
+        gui.playAnimation(rowAnimation);
+        assertTrue(gui.isAnimationRunning());
+        server.getScheduler().performTicks(4);
+        assertFalse(gui.isAnimationRunning());
+        
+        gui.playAnimation(rowAnimation);
+        assertTrue(gui.isAnimationRunning());
+        server.getScheduler().performTicks(4);
+        assertFalse(gui.isAnimationRunning());
     }
     
     private Gui createOddTestGui() {
