@@ -7,13 +7,13 @@ import xyz.xenondevs.invui.MutablePropertyAdapter
 import xyz.xenondevs.invui.PropertyAdapter
 
 @ExperimentalReactiveApi
-fun <C : Any> PagedGui.Builder<C>.setPage(provider: MutableProvider<Int>): PagedGui.Builder<C> {
+fun <C : Any> PagedGui.Builder<C>.setPage(provider: MutableProvider<Int>): PagedGui.Builder<C> =
     setPage(MutablePropertyAdapter(provider))
-    return this
-}
 
 @ExperimentalReactiveApi
-fun <C : Any> PagedGui.Builder<C>.setContent(provider: Provider<List<C>>): PagedGui.Builder<C> {
+fun <C : Any, T> PagedGui.Builder<C>.setContent(provider: Provider<T>, transform: (T) -> List<C>): PagedGui.Builder<C> =
+    setContent(provider.map(transform))
+
+@ExperimentalReactiveApi
+fun <C : Any> PagedGui.Builder<C>.setContent(provider: Provider<List<C>>): PagedGui.Builder<C> =
     setContent(PropertyAdapter(provider))
-    return this
-}

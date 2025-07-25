@@ -7,13 +7,13 @@ import xyz.xenondevs.invui.MutablePropertyAdapter
 import xyz.xenondevs.invui.PropertyAdapter
 
 @ExperimentalReactiveApi
-fun <C : Any> ScrollGui.Builder<C>.setLine(provider: MutableProvider<Int>): ScrollGui.Builder<C> {
+fun <C : Any> ScrollGui.Builder<C>.setLine(provider: MutableProvider<Int>): ScrollGui.Builder<C> =
     setLine(MutablePropertyAdapter(provider))
-    return this
-}
 
 @ExperimentalReactiveApi
-fun <C : Any> ScrollGui.Builder<C>.setContent(provider: Provider<List<C>>): ScrollGui.Builder<C> {
+fun <C : Any, T> ScrollGui.Builder<C>.setContent(provider: Provider<T>, transform: (T) -> List<C>): ScrollGui.Builder<C> =
+    setContent(provider.map(transform))
+
+@ExperimentalReactiveApi
+fun <C : Any> ScrollGui.Builder<C>.setContent(provider: Provider<List<C>>): ScrollGui.Builder<C> =
     setContent(PropertyAdapter(provider))
-    return this
-}
