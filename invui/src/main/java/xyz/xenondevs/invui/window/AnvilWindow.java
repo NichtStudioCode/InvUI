@@ -2,6 +2,7 @@ package xyz.xenondevs.invui.window;
 
 import org.jetbrains.annotations.UnmodifiableView;
 import xyz.xenondevs.invui.gui.Gui;
+import xyz.xenondevs.invui.state.Property;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -41,6 +42,20 @@ public sealed interface AnvilWindow extends Window permits AnvilWindowImpl {
      * @param enchantmentCost The new enchantment cost.
      */
     void setEnchantmentCost(int enchantmentCost);
+    
+    /**
+     * Gets whether the text field is always enabled, even if the input slot is empty.
+     *
+     * @return True if the text field is always enabled, false otherwise.Add AnvilWindow#setTextFieldAlwaysEnabled
+     */
+    boolean getTextFieldAlwaysEnabled();
+    
+    /**
+     * Sets whether the text field is always enabled, even if the input slot is empty.
+     *
+     * @param textFieldAlwaysEnabled Whether the text field should always be enabled.
+     */
+    void setTextFieldAlwaysEnabled(boolean textFieldAlwaysEnabled);
     
     /**
      * Registers a rename handler that is called when the input text changes.
@@ -118,6 +133,24 @@ public sealed interface AnvilWindow extends Window permits AnvilWindowImpl {
          * @return This {@link Builder}
          */
         Builder addRenameHandler(Consumer<? super String> handlers);
+        
+        /**
+         * Sets whether the text field is always enabled, even if the input slot is empty.
+         *
+         * @param textFieldAlwaysEnabled Whether the text field should always be enabled.
+         * @return This {@link Builder}
+         */
+        default Builder setTextFieldAlwaysEnabled(boolean textFieldAlwaysEnabled) {
+            return setTextFieldAlwaysEnabled(Property.of(textFieldAlwaysEnabled));
+        }
+        
+        /**
+         * Sets the property containing whether the text field is always enabled, even if the input slot is empty.
+         *
+         * @param textFieldAlwaysEnabled The property containing whether the text field should always be enabled.
+         * @return This {@link Builder}
+         */
+        Builder setTextFieldAlwaysEnabled(Property<? extends Boolean> textFieldAlwaysEnabled);
         
     }
     

@@ -2,12 +2,16 @@ package xyz.xenondevs.invui.window;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomAnvilMenu;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
+import xyz.xenondevs.invui.state.Property;
+import xyz.xenondevs.invui.util.ItemUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,12 +23,14 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
     private final List<Consumer<? super String>> renameHandlers = new ArrayList<>();
     private final AbstractGui upperGui;
     private final AbstractGui lowerGui;
+    private Property<? extends Boolean> textFieldAlwaysEnabled;
     
     public AnvilWindowImpl(
         Player player,
         Supplier<? extends Component> title,
         AbstractGui upperGui,
         AbstractGui lowerGui,
+        Property<? extends Boolean> textFieldAlwaysEnabled,
         boolean closeable
     ) {
         super(player, title, lowerGui, upperGui.getSize() + lowerGui.getSize(), new CustomAnvilMenu(player), closeable);
@@ -33,12 +39,24 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
         
         this.upperGui = upperGui;
         this.lowerGui = lowerGui;
+        this.textFieldAlwaysEnabled = textFieldAlwaysEnabled;
+        
+        textFieldAlwaysEnabled.observeWeak(this, thisRef -> thisRef.notifyUpdate(0));
         menu.setRenameHandler(this::handleRename);
     }
     
     private void handleRename(String text) {
         for (var handler : renameHandlers) {
             handler.accept(text);
+        }
+    }
+    
+    @Override
+    protected void setMenuItem(int slot, @Nullable ItemStack itemStack) {
+        if (slot == 0 && textFieldAlwaysEnabled.get()) {
+            menu.setItem(0, ItemUtils.takeOrPlaceholder(itemStack));
+        } else {
+            super.setMenuItem(slot, itemStack);
         }
     }
     
@@ -55,6 +73,18 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
     @Override
     public void setEnchantmentCost(int enchantmentCost) {
         menu.setEnchantmentCost(enchantmentCost);
+    }
+    
+    @Override
+    public boolean getTextFieldAlwaysEnabled() {
+        return textFieldAlwaysEnabled.get();
+    }
+    
+    @Override
+    public void setTextFieldAlwaysEnabled(boolean textFieldAlwaysEnabled) {
+        this.textFieldAlwaysEnabled.unobserveWeak(this);
+        this.textFieldAlwaysEnabled = Property.of(textFieldAlwaysEnabled);
+        notifyUpdate(0);
     }
     
     @Override
@@ -90,6 +120,7 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
         
         private final List<Consumer<? super String>> renameHandlers = new ArrayList<>();
         private Supplier<? extends Gui> upperGuiSupplier = () -> Gui.empty(3, 1);
+        private Property<? extends Boolean> textFieldAlwaysEnabled = Property.of(true);
         
         @Override
         public BuilderImpl setUpperGui(Supplier<? extends Gui> guiSupplier) {
@@ -110,6 +141,12 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
             return this;
         }
         
+        @Override
+        public AnvilWindow.Builder setTextFieldAlwaysEnabled(Property<? extends Boolean> textFieldAlwaysEnabled) {
+            this.textFieldAlwaysEnabled = textFieldAlwaysEnabled;
+            return this;
+        }
+        
         @SuppressWarnings({"unchecked", "rawtypes"})
         @Override
         public AnvilWindow build(Player viewer) {
@@ -118,6 +155,7 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
                 titleSupplier,
                 (AbstractGui) upperGuiSupplier.get(),
                 supplyLowerGui(viewer),
+                textFieldAlwaysEnabled,
                 closeable
             );
             

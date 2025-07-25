@@ -86,6 +86,7 @@ public class ItemUtils {
         if (placeholder == null) {
             placeholder = new ItemBuilder(Material.BARRIER)
                 .hideTooltip(true)
+                .setName("") // for anvil window default rename text
                 .set(DataComponentTypes.ITEM_MODEL, Key.key("air"))
                 .build();
         }
