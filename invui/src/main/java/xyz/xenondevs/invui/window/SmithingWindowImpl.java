@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomSmithingTableMenu;
+import xyz.xenondevs.invui.state.Property;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -20,7 +21,7 @@ final class SmithingWindowImpl extends AbstractSplitWindow<CustomSmithingTableMe
         Supplier<? extends Component> title,
         AbstractGui upperGui,
         AbstractGui lowerGui,
-        boolean closeable
+        Property<? extends Boolean> closeable
     ) {
         super(player, title, lowerGui, 41, new CustomSmithingTableMenu(player), closeable);
         if (upperGui.getWidth() != 4 || upperGui.getHeight() != 1)

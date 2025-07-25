@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomGrindstoneMenu;
+import xyz.xenondevs.invui.state.Property;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -22,7 +23,7 @@ final class GrindstoneWindowImpl extends AbstractSplitWindow<CustomGrindstoneMen
         AbstractGui inputGui,
         AbstractGui resultGui,
         AbstractGui lowerGui,
-        boolean closeable
+        Property<? extends Boolean> closeable
     ) {
         super(player, title, lowerGui, 41, new CustomGrindstoneMenu(player), closeable);
         if (inputGui.getWidth() != 1 || inputGui.getHeight() != 2)

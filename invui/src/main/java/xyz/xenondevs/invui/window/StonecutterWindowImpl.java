@@ -14,6 +14,7 @@ import xyz.xenondevs.invui.internal.menu.CustomStonecutterMenu;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
 import xyz.xenondevs.invui.internal.util.ItemUtils2;
 import xyz.xenondevs.invui.state.MutableProperty;
+import xyz.xenondevs.invui.state.Property;
 import xyz.xenondevs.invui.util.ItemUtils;
 
 import java.util.ArrayList;
@@ -50,9 +51,9 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
         AbstractGui buttonsGui,
         MutableProperty<Integer> selectedSlot,
         List<BiConsumer<? super Integer, ? super Integer>> selectedSlotChangeHandlers,
-        boolean closable
+        Property<? extends Boolean> closeable
     ) {
-        super(player, title, lowerGui, upperGui.getSize() + lowerGui.getSize() + buttonsGui.getSize(), new CustomStonecutterMenu(player), closable);
+        super(player, title, lowerGui, upperGui.getSize() + lowerGui.getSize() + buttonsGui.getSize(), new CustomStonecutterMenu(player), closeable);
         if (upperGui.getWidth() != 2 || upperGui.getHeight() != 1)
             throw new IllegalArgumentException("Gui must of of dimensions 2x1.");
         if (lowerGui.getWidth() != 9 || lowerGui.getHeight() != 4)

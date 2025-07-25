@@ -42,7 +42,7 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
         Property<? extends Integer> level,
         Property<? extends Double> progress,
         Property<? extends Boolean> restockMessage,
-        boolean closeable
+        Property<? extends Boolean> closeable
     ) {
         super(player, title, lowerGui, 3 + 36, new CustomMerchantMenu(player), closeable);
         if (upperGui.getWidth() != 3 || upperGui.getHeight() != 1)

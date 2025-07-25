@@ -33,7 +33,7 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
         AbstractGui lowerGui,
         Property<? extends Double> cookProgress,
         Property<? extends Double> burnProgress,
-        boolean closeable
+        Property<? extends Boolean> closeable
     ) {
         super(player, title, lowerGui, 39, new CustomFurnaceMenu(player), closeable);
         if (inputGui.getWidth() != 1 || inputGui.getHeight() != 2)

@@ -1,5 +1,6 @@
 package xyz.xenondevs.invui.window;
 
+import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent.Reason;
@@ -8,6 +9,7 @@ import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.ClickEvent;
 import xyz.xenondevs.invui.gui.Gui;
+import xyz.xenondevs.invui.state.Property;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -278,7 +280,11 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, BrewerWindow
          * @param closeable If the {@link Window} is closeable
          * @return This {@link Builder Window Builder}
          */
-        S setCloseable(boolean closeable);
+        default S setCloseable(boolean closeable) {
+            return setCloseable(Property.of(closeable));
+        }
+        
+        S setCloseable(Property<Boolean> closeable);
         
         /**
          * Sets the open handlers of the {@link Window}.

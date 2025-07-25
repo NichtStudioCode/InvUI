@@ -31,7 +31,7 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
         AbstractGui upperGui,
         AbstractGui lowerGui,
         Property<? extends Boolean> textFieldAlwaysEnabled,
-        boolean closeable
+        Property<? extends Boolean> closeable
     ) {
         super(player, title, lowerGui, upperGui.getSize() + lowerGui.getSize(), new CustomAnvilMenu(player), closeable);
         if (upperGui.getWidth() != 3 && upperGui.getHeight() != 1)

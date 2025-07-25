@@ -27,6 +27,7 @@ import xyz.xenondevs.invui.inventory.OperationCategory;
 import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
 import xyz.xenondevs.invui.item.AbstractItem;
+import xyz.xenondevs.invui.state.Property;
 import xyz.xenondevs.invui.util.ItemUtils;
 
 import java.util.*;
@@ -56,7 +57,7 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
     private final List<Consumer<? super ClickEvent>> outsideClickHandlers = new ArrayList<>(0);
     private Supplier<? extends @Nullable Window> fallbackWindow = () -> null;
     private Supplier<? extends Component> titleSupplier;
-    private boolean closeable;
+    private Property<? extends Boolean> closeable;
     private boolean isOpen;
     
     private final int size;
@@ -65,7 +66,7 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
     
     private @Nullable Component activeTitle;
     
-    AbstractWindow(Player viewer, Supplier<? extends Component> titleSupplier, int size, M menu, boolean closeable) {
+    AbstractWindow(Player viewer, Supplier<? extends Component> titleSupplier, int size, M menu, Property<? extends Boolean> closeable) {
         this.menu = menu;
         this.viewer = viewer;
         this.titleSupplier = titleSupplier;
@@ -571,12 +572,12 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
     
     @Override
     public boolean isCloseable() {
-        return closeable;
+        return closeable.get();
     }
     
     @Override
     public void setCloseable(boolean closeable) {
-        this.closeable = closeable;
+        this.closeable = Property.of(closeable);
     }
     
     @Override
@@ -592,7 +593,7 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
         
         private @Nullable Player viewer;
         protected Supplier<? extends Component> titleSupplier = Component::empty;
-        protected boolean closeable = true;
+        protected Property<? extends Boolean> closeable = Property.of(true);
         private List<Runnable> openHandlers = new ArrayList<>(0);
         private List<Consumer<? super Reason>> closeHandlers = new ArrayList<>(0);
         private List<Consumer<? super ClickEvent>> outsideClickHandlers = new ArrayList<>(0);
@@ -624,7 +625,7 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
         }
         
         @Override
-        public S setCloseable(boolean closeable) {
+        public S setCloseable(Property<Boolean> closeable) {
             this.closeable = closeable;
             return (S) this;
         }

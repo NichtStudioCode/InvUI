@@ -29,7 +29,7 @@ final class BrewerWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu>
         AbstractGui lowerGui,
         Property<? extends Double> brewProgress,
         Property<? extends Double> fuelProgress,
-        boolean closeable
+        Property<? extends Boolean> closeable
     ) {
         super(player, title, lowerGui, 41, new CustomBrewingStandMenu(player), closeable);
         if (inputGui.getWidth() != 1 || inputGui.getHeight() != 1)

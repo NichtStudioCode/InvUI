@@ -37,7 +37,7 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
         AbstractGui lowerGui,
         Property<? extends View> view,
         Property<? extends Set<? extends MapIcon>> icons,
-        boolean closeable
+        Property<? extends Boolean> closeable
     ) {
         super(player, title, lowerGui, 3 + 36, new CustomCartographyMenu(player), closeable);
         if (inputGui.getWidth() != 1 || inputGui.getHeight() != 2)
