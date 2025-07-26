@@ -126,7 +126,6 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
         itemSetter.accept(inventory, slot, itemStack);
     }
     
-    // TODO: make this work with delegating inventories
     @Override
     public void addViewer(AbstractWindow<?> viewer, int what, int how) {
         super.addViewer(viewer, what, how);
@@ -139,7 +138,6 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
         }
     }
     
-    // TODO: make this work with delegating inventories
     @Override
     public void removeViewer(AbstractWindow<?> viewer, int what, int how) {
         super.removeViewer(viewer, what, how);
