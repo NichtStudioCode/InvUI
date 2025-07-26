@@ -804,6 +804,22 @@ public class AnimationTest {
         assertVisibility(gui, visMatrix2);
     }
     
+    @Test
+    void testCannotSetSlotElementDuringAnimation() {
+        Gui gui = createTestGui();
+        Animation rowAnimation = Animation.builder()
+            .setSlotSelector(Animation::rowSlotSelector)
+            .build();
+        
+        gui.playAnimation(rowAnimation);
+        assertThrows(
+            IllegalStateException.class, 
+            () -> gui.setItem(0, Item.simple(ItemStack.of(Material.GOLD_INGOT)))
+        );
+        server.getScheduler().performTicks(4);
+        assertDoesNotThrow(() -> gui.setItem(0, Item.simple(ItemStack.of(Material.GOLD_INGOT))));
+    }
+    
     private Gui createOddTestGui() {
         Gui gui = Gui.empty(3, 1);
         gui.fill(Item.simple(ItemStack.of(Material.DIAMOND)), true);

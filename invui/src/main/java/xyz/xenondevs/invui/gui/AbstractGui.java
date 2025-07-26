@@ -54,6 +54,7 @@ public sealed abstract class AbstractGui
     private @Nullable ItemProvider background;
     private AnimationImpl.@Nullable StateImpl animation;
     private @Nullable SlotElement @Nullable [] animationElements;
+    private boolean isInAnimationContext;
     private @Nullable IngredientMatrix ingredientMatrix;
     
     @SuppressWarnings("unchecked")
@@ -542,7 +543,7 @@ public sealed abstract class AbstractGui
                 for (Slot slot : slots) {
                     int i = convToIndex(slot.x(), slot.y());
                     assert animationElements != null;
-                    setSlotElement(i, animationElements[i]);
+                    runInAnimationContext(() -> setSlotElement(i, animationElements[i]));
                 }
             },
             () -> {
@@ -558,9 +559,11 @@ public sealed abstract class AbstractGui
         this.animation = animState;
         this.animationElements = slotElements.clone();
         
-        for (Slot slot : animState.getRemainingSlots()) {
-            setSlotElement(slot.x(), slot.y(), animState.getIntermediarySlotElement(slot));
-        }
+        runInAnimationContext(() -> {
+            for (Slot slot : animState.getRemainingSlots()) {
+                setSlotElement(slot.x(), slot.y(), animState.getIntermediarySlotElement(slot));
+            }
+        });
         
         animState.start();
     }
@@ -575,9 +578,11 @@ public sealed abstract class AbstractGui
         if (this.animation != null) {
             // show all SlotElements again
             assert animationElements != null;
-            for (int i = 0; i < size; i++) {
-                setSlotElement(i, animationElements[i]);
-            }
+            runInAnimationContext(() -> {
+                for (int i = 0; i < size; i++) {
+                    setSlotElement(i, animationElements[i]);
+                }
+            });
             
             // cancel the scheduler task 
             animation.cancel();
@@ -587,8 +592,20 @@ public sealed abstract class AbstractGui
         }
     }
     
+    private void runInAnimationContext(Runnable runnable) {
+        try {
+            isInAnimationContext = true;
+            runnable.run();
+        } finally {
+            isInAnimationContext = false;
+        }
+    }
+    
     @Override
     public void setSlotElement(int index, @Nullable SlotElement slotElement) {
+        if (isAnimationRunning() && !isInAnimationContext)
+            throw new IllegalStateException("Cannot set slot element while an animation is running");
+        
         slotElements[index] = slotElement;
         
         // set the gui if it is a bound item
