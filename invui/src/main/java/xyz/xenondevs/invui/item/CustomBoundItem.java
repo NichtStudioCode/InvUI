@@ -18,6 +18,7 @@ import xyz.xenondevs.invui.window.AbstractWindow;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.*;
 
 class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
@@ -26,17 +27,20 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
     private final QuadConsumer<? super Item, ? super G, ? super Player, ? super Integer> selectHandler;
     private volatile BiFunction<? super Player, ? super G, ? extends ItemProvider> itemProvider;
     private final BiConsumer<? super Item, ? super G> bindHandler;
+    private final BiConsumer<? super Item, ? super G> unbindHandler;
     private final int updatePeriod;
     private @Nullable BukkitTask updateTask;
     
     public CustomBoundItem(
         BiConsumer<? super Item, ? super G> bindHandler,
+        BiConsumer<? super Item, ? super G> unbindHandler,
         TriConsumer<? super Item, ? super G, ? super Click> clickHandler,
         QuadConsumer<? super Item, ? super G, ? super Player, ? super Integer> selectHandler,
         BiFunction<? super Player, ? super G, ? extends ItemProvider> itemProvider,
         int updatePeriod
     ) {
         this.bindHandler = bindHandler;
+        this.unbindHandler = unbindHandler;
         this.clickHandler = clickHandler;
         this.selectHandler = selectHandler;
         this.itemProvider = itemProvider;
@@ -59,6 +63,12 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
     public void bind(Gui gui) {
         bindHandler.accept(this, (G) gui);
         super.bind(gui);
+    }
+    
+    @Override
+    public void unbind() {
+        unbindHandler.accept(this, getGui());
+        super.unbind();
     }
     
     @Override
@@ -96,6 +106,7 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
     non-sealed static class Builder<G extends Gui> implements BoundItem.Builder<G> {
         
         protected BiConsumer<Item, G> bindHandler = (item, gui) -> {};
+        protected BiConsumer<Item, G> unbindHandler = (item, gui) -> {};
         private TriConsumer<Item, G, Click> clickHandler = (item, gui, click) -> {};
         private QuadConsumer<Item, G, Player, Integer> selectHandler = (item, gui, player, slot) -> {};
         private @Nullable BiFunction<? super Player, ? super G, ? extends ItemProvider> itemProviderFn;
@@ -198,6 +209,12 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         }
         
         @Override
+        public BoundItem.Builder<G> addUnbindHandler(BiConsumer<? super Item, ? super G> handler) {
+            unbindHandler = unbindHandler.andThen(handler);
+            return this;
+        }
+        
+        @Override
         public Builder<G> addModifier(Consumer<? super Item> modifier) {
             this.modifier = this.modifier.andThen(modifier);
             return this;
@@ -213,6 +230,7 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
             if (asyncPlaceholder != null && itemProviderFn != null) {
                 customItem = new CustomBoundItem<>(
                     bindHandler,
+                    unbindHandler,
                     clickHandler,
                     selectHandler,
                     (viewer, gui) -> asyncPlaceholder,
@@ -237,6 +255,7 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
             } else {
                 customItem = new CustomBoundItem<>(
                     bindHandler,
+                    unbindHandler,
                     clickHandler,
                     selectHandler,
                     itemProviderFn != null ? itemProviderFn : (viewer, gui) -> ItemProvider.EMPTY,
@@ -252,9 +271,19 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         static class Paged extends Builder<PagedGui<?>> {
             
             Paged() {
+                var pageChangeHandler = new AtomicReference<BiConsumer<Integer, Integer>>();
+                var pageCountChangeHandler = new AtomicReference<BiConsumer<Integer, Integer>>();
+                
                 bindHandler = bindHandler.andThen((item, gui) -> {
-                    gui.addPageChangeHandler((oldPage, newPage) -> item.notifyWindows());
-                    gui.addPageCountChangeHandler((oldCount, newCount) -> item.notifyWindows());
+                    pageChangeHandler.set((oldPage, newPage) -> item.notifyWindows());
+                    pageCountChangeHandler.set((oldCount, newCount) -> item.notifyWindows());
+                    gui.addPageChangeHandler(pageChangeHandler.get());
+                    gui.addPageCountChangeHandler(pageCountChangeHandler.get());
+                });
+                
+                unbindHandler = unbindHandler.andThen((item, gui) -> {
+                    gui.removePageChangeHandler(pageChangeHandler.get());
+                    gui.removePageCountChangeHandler(pageCountChangeHandler.get());
                 });
             }
             
@@ -263,9 +292,20 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         static class Scroll extends Builder<ScrollGui<?>> {
             
             Scroll() {
+                var scrollHandler = new AtomicReference<BiConsumer<Integer, Integer>>();
+                var lineCountChangeHandler = new AtomicReference<BiConsumer<Integer, Integer>>();
+                
                 bindHandler = bindHandler.andThen((item, gui) -> {
-                    gui.addScrollHandler((oldScroll, newScroll) -> item.notifyWindows());
-                    gui.addLineCountChangeHandler((oldCount, newCount) -> item.notifyWindows());
+                    scrollHandler.set((oldScroll, newScroll) -> item.notifyWindows());
+                    lineCountChangeHandler.set((oldCount, newCount) -> item.notifyWindows());
+                    
+                    gui.addScrollHandler(scrollHandler.get());
+                    gui.addLineCountChangeHandler(lineCountChangeHandler.get());
+                });
+                
+                unbindHandler = unbindHandler.andThen((item, gui) -> {
+                    gui.removeScrollHandler(scrollHandler.get());
+                    gui.removeLineCountChangeHandler(lineCountChangeHandler.get());
                 });
             }
             
@@ -274,9 +314,16 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         static class Tab extends Builder<TabGui> {
             
             Tab() {
-                bindHandler = bindHandler.andThen((item, gui) -> 
-                    gui.addTabChangeHandler((oldTab, newTab) -> item.notifyWindows())
-                );
+                var tabChangeHandler = new AtomicReference<BiConsumer<Integer, Integer>>();
+                
+                bindHandler = bindHandler.andThen((item, gui) -> {
+                    tabChangeHandler.set((oldTab, newTab) -> item.notifyWindows());
+                    gui.addTabChangeHandler(tabChangeHandler.get());
+                });
+                
+                unbindHandler = unbindHandler.andThen((item, gui) -> {
+                    gui.removeTabChangeHandler(tabChangeHandler.get());
+                });
             }
             
         }

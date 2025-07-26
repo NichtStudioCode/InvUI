@@ -27,6 +27,13 @@ public non-sealed abstract class AbstractBoundItem extends AbstractItem implemen
     }
     
     @Override
+    public void unbind() {
+        if (gui == null)
+            throw new IllegalStateException("Item is not bound to a gui");
+        this.gui = null;
+    }
+    
+    @Override
     public boolean isBound() {
         return gui != null;
     }

@@ -35,6 +35,14 @@ public sealed interface BoundItem extends Item permits AbstractBoundItem {
     void bind(Gui gui);
     
     /**
+     * Unbinds this item from the currently bound {@link Gui}.
+     * Called when the item is fully removed from a {@link Gui}.
+     * 
+     * @throws IllegalStateException If this item is not bound to a {@link Gui}.
+     */
+    void unbind();
+    
+    /**
      * Checks if this item is already bound to a {@link Gui}.
      *
      * @return Whether this item is already bound to a {@link Gui}.
@@ -90,10 +98,18 @@ public sealed interface BoundItem extends Item permits AbstractBoundItem {
         /**
          * Adds a bind handler that is called when the item is bound to a {@link Gui}.
          *
-         * @param handler The bind handler.
+         * @param handler The bind handler, receiving the {@link Item} itself and the bound {@link Gui}.
          * @return This builder.
          */
         Builder<G> addBindHandler(BiConsumer<? super Item, ? super G> handler);
+        
+        /**
+         * Adds an unbind handler that is called when the item is unbound from a {@link Gui}.
+         *
+         * @param handler The unbind handler, receiving the {@link Item} itself and the bound {@link Gui}.
+         * @return This builder.
+         */
+        Builder<G> addUnbindHandler(BiConsumer<? super Item, ? super G> handler);
         
         /**
          * Adds a click handler that is called when the item is clicked.

@@ -606,9 +606,25 @@ public sealed abstract class AbstractGui
         if (isAnimationRunning() && !isInAnimationContext)
             throw new IllegalStateException("Cannot set slot element while an animation is running");
         
+        var previousElement = slotElements[index];
         slotElements[index] = slotElement;
         
-        // set the gui if it is a bound item
+        // replacing a bound item may require unbinding
+        if (previousElement instanceof SlotElement.Item(BoundItem item)) {
+            boolean found = false;
+            for (var otherElement : slotElements) {
+                if (otherElement instanceof SlotElement.Item(BoundItem otherItem) && otherItem == item) {
+                    found = true;
+                    break;
+                }
+            }
+            
+            if (!found) {
+                item.unbind();
+            }
+        }
+        
+        // set the gui if it is an unbound bound item
         if (slotElement instanceof SlotElement.Item(BoundItem item) && !item.isBound()) {
             item.bind(this);
         }
