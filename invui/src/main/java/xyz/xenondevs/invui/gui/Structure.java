@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 /**
  * Provides an easy way to design {@link Gui Guis} via a pattern string and ingredients.
  */
-public class Structure extends AbstractIngredientMapper<Structure> {
+public final class Structure extends AbstractIngredientMapper<Structure> {
     
     private static final HashMap<Character, Ingredient> globalIngredientMap = new HashMap<>();
     private static boolean globalIngredientsFrozen = false;

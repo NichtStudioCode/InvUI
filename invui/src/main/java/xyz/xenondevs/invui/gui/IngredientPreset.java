@@ -5,7 +5,7 @@ import java.util.Map;
 /**
  * A predefined set of ingredients that can be used in {@link Structure Structures}.
  */
-public class IngredientPreset {
+public final class IngredientPreset {
     
     private final Map<Character, Ingredient> ingredientMap;
     
@@ -29,7 +29,7 @@ public class IngredientPreset {
     /**
      * A builder for creating {@link IngredientPreset IngredientPresets}.
      */
-    public static class Builder extends AbstractIngredientMapper<Builder> {
+    public static final class Builder extends AbstractIngredientMapper<Builder> {
         
         private Builder() {}
         

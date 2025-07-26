@@ -16,7 +16,7 @@ import java.util.logging.Level;
 /**
  * Automatically reads and writes {@link VirtualInventory VirtualInventories} to files when the server starts and stops.
  */
-public class VirtualInventoryManager {
+public final class VirtualInventoryManager {
     
     private static final File SAVE_DIR = new File("plugins/InvUI/VirtualInventory/" + InvUI.getInstance().getPlugin().getName() + "/");
     private static final VirtualInventoryManager INSTANCE = new VirtualInventoryManager();

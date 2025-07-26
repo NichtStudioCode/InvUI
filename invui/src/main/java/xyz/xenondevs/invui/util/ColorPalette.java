@@ -9,7 +9,7 @@ import java.io.InputStream;
 /**
  * Utility for converting images into the color space used by maps in Minecraft.
  */
-public class ColorPalette {
+public final class ColorPalette {
     
     private static final byte[] colorCache;
     
@@ -23,6 +23,8 @@ public class ColorPalette {
         }
         colorCache = out.toByteArray();
     }
+    
+    private ColorPalette() {}
     
     /**
      * Gets the closest map color to the given RGB values.

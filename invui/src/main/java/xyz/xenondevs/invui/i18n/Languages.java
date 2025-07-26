@@ -28,7 +28,7 @@ import java.util.function.Function;
 /**
  * Handles localization of items and window titles.
  */
-public class Languages {
+public final class Languages {
     
     private static final Languages INSTANCE = new Languages();
     private final Map<Locale, Map<? extends String, ? extends String>> translations = new HashMap<>();
@@ -54,8 +54,7 @@ public class Languages {
         
     };
     
-    private Languages() {
-    }
+    private Languages() {}
     
     /**
      * Gets the singleton instance of Languages.

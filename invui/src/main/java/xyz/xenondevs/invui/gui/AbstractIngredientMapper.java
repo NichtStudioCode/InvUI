@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.function.Supplier;
 
 @SuppressWarnings("unchecked")
-abstract class AbstractIngredientMapper<S extends AbstractIngredientMapper<S>> implements IngredientMapper<S> {
+abstract sealed class AbstractIngredientMapper<S extends AbstractIngredientMapper<S>> implements IngredientMapper<S> permits IngredientPreset.Builder, Structure {
     
     /**
      * Maps ingredient keys ({@link Character characters}) to their corresponding {@link Ingredient} instances.

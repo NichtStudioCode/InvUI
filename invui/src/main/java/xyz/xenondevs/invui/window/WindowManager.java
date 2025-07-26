@@ -18,7 +18,7 @@ import java.util.Set;
 /**
  * Manages all {@link Window Windows} and provides methods for searching them.
  */
-public class WindowManager implements Listener {
+public final class WindowManager implements Listener {
     
     private static final WindowManager INSTANCE = new WindowManager();
     

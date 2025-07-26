@@ -13,10 +13,12 @@ import xyz.xenondevs.invui.item.ItemWrapper;
  * Generic item-related utilities.
  */
 @SuppressWarnings("UnstableApiUsage")
-public class ItemUtils {
+public final class ItemUtils {
     
     private static @Nullable ItemStack placeholder;
     private static @Nullable ItemWrapper placeholderProvider;
+    
+    private ItemUtils() {}
     
     /**
      * Checks whether the given {@link ItemStack} is empty.

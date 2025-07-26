@@ -14,7 +14,7 @@ import java.util.function.Supplier;
  *
  * @param <S> The type of the {@link IngredientMapper}
  */
-public interface IngredientMapper<S extends IngredientMapper<S>> extends Cloneable {
+public sealed interface IngredientMapper<S extends IngredientMapper<S>> extends Cloneable permits AbstractIngredientMapper, Gui.Builder {
     
     /**
      * Applies the given {@link IngredientPreset} to this {@link IngredientMapper}.

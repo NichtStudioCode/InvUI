@@ -15,15 +15,14 @@ import java.util.logging.Logger;
 /**
  * Main class of InvUI, managing the plugin instance.
  */
-public class InvUI implements Listener {
+public final class InvUI implements Listener {
     
     private static final InvUI INSTANCE = new InvUI();
     
     private final List<Runnable> disableHandlers = new ArrayList<>();
     private @Nullable Plugin plugin;
     
-    private InvUI() {
-    }
+    private InvUI() {}
     
     /**
      * Returns the singleton instance of InvUI.

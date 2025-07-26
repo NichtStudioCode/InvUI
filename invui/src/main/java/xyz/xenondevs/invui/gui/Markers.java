@@ -5,7 +5,7 @@ import java.util.function.BiConsumer;
 /**
  * Contains markers
  */
-public class Markers {
+public final class Markers {
     
     /**
      * The marker for horizontal content list slots in {@link PagedGui PagedGuis},
@@ -40,5 +40,7 @@ public class Markers {
         }
         
     };
+    
+    private Markers() {}
     
 }
