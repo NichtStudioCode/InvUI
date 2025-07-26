@@ -283,6 +283,13 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, BrewingWindo
             return setCloseable(Property.of(closeable));
         }
         
+        /**
+         * Sets the property that determines whether the {@link Window} is closable by the viewer.
+         * Plugins can always close inventories.
+         *
+         * @param closeable The property that determines whether the {@link Window} is closable
+         * @return This {@link Builder Window Builder}
+         */
         S setCloseable(Property<Boolean> closeable);
         
         /**

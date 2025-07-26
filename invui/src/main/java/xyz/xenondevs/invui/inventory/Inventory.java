@@ -81,6 +81,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
     /**
      * Sets the order in which slots are iterated over for the given category.
      *
+     * @param category The category of iteration operations
      * @param iterationOrder The new iteration order. Must include all slots and no duplicates.
      */
     public void setIterationOrder(OperationCategory category, int[] iterationOrder) {
@@ -516,6 +517,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      * Gets the gui priority for operations of the given category.
      * This priority is used to determine the order in which operations are applied to gui-embedded inventories.
      *
+     * @param category The category of operations to get the priority for.
      * @return The priority for click actions, {@link Inventory VirtualInventories} with
      * a higher priority get prioritized.
      */
