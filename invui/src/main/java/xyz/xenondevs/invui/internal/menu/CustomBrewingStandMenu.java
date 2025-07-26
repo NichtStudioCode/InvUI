@@ -27,7 +27,7 @@ public class CustomBrewingStandMenu extends CustomContainerMenu {
         if (progress < 0 || progress > 1)
             throw new IllegalArgumentException("Brew progress must be between 0 and 1, but was " + progress);
         
-        int brewTicks = (int) Math.round((1 - progress) * 400);
+        int brewTicks = progress == 0.0 ? 0 : (int) Math.round((1 - progress) * 400);
         dataSlots[0] = brewTicks;
     }
     
