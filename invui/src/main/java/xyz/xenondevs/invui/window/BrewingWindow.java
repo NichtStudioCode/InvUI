@@ -8,15 +8,15 @@ import java.util.function.Supplier;
 /**
  * A {@link Window} that uses a brewing stand inventory.
  */
-public sealed interface BrewerWindow extends Window permits BrewerWindowImpl {
+public sealed interface BrewingWindow extends Window permits BrewingWindowImpl {
     
     /**
-     * Creates a new {@link Builder} for a split {@link BrewerWindow}.
+     * Creates a new {@link Builder} for a split {@link BrewingWindow}.
      *
      * @return The new {@link Builder}
      */
     static Builder builder() {
-        return new BrewerWindowImpl.BuilderImpl();
+        return new BrewingWindowImpl.BuilderImpl();
     }
     
     /**
@@ -49,12 +49,12 @@ public sealed interface BrewerWindow extends Window permits BrewerWindowImpl {
     double getFuelProgress();
     
     /**
-     * A {@link BrewerWindow} builder.
+     * A {@link BrewingWindow} builder.
      */
-    sealed interface Builder extends Window.Builder.Split<BrewerWindow, BrewerWindow.Builder> permits BrewerWindowImpl.BuilderImpl {
+    sealed interface Builder extends Window.Builder.Split<BrewingWindow, BrewingWindow.Builder> permits BrewingWindowImpl.BuilderImpl {
         
         /**
-         * Sets the 1x1 input {@link Gui} of the {@link BrewerWindow}.
+         * Sets the 1x1 input {@link Gui} of the {@link BrewingWindow}.
          *
          * @param gui The 1x1 input {@link Gui}
          * @return This {@link Builder}
@@ -65,7 +65,7 @@ public sealed interface BrewerWindow extends Window permits BrewerWindowImpl {
         
         /**
          * Sets the {@link Gui.Builder} for the 1x1 input {@link Gui} of this {@link Builder}.
-         * The {@link Gui.Builder} will be called every time a new {@link BrewerWindow} is created using this builder.
+         * The {@link Gui.Builder} will be called every time a new {@link BrewingWindow} is created using this builder.
          *
          * @param builder The {@link Gui.Builder} for the 1x1 input {@link Gui}
          * @return This {@link Builder}
@@ -76,7 +76,7 @@ public sealed interface BrewerWindow extends Window permits BrewerWindowImpl {
         
         /**
          * Sets the {@link Gui} {@link Supplier} for the 1x1 input {@link Gui} of this {@link Builder}.
-         * The {@link Supplier} will be called every time a new {@link BrewerWindow} is created using this builder.
+         * The {@link Supplier} will be called every time a new {@link BrewingWindow} is created using this builder.
          *
          * @param guiSupplier The {@link Gui} {@link Supplier} for the 1x1 input {@link Gui}
          * @return This {@link Builder}
@@ -84,7 +84,7 @@ public sealed interface BrewerWindow extends Window permits BrewerWindowImpl {
         Builder setInputGui(Supplier<? extends Gui> guiSupplier);
         
         /**
-         * Sets the 1x1 fuel {@link Gui} of the {@link BrewerWindow}.
+         * Sets the 1x1 fuel {@link Gui} of the {@link BrewingWindow}.
          *
          * @param gui The 1x1 fuel {@link Gui}
          * @return This {@link Builder}
@@ -95,7 +95,7 @@ public sealed interface BrewerWindow extends Window permits BrewerWindowImpl {
         
         /**
          * Sets the {@link Gui.Builder} for the 1x1 fuel {@link Gui} of this {@link Builder}.
-         * The {@link Gui.Builder} will be called every time a new {@link BrewerWindow} is created using this builder.
+         * The {@link Gui.Builder} will be called every time a new {@link BrewingWindow} is created using this builder.
          *
          * @param builder The {@link Gui.Builder} for the 1x1 fuel {@link Gui}
          * @return This {@link Builder}
@@ -106,7 +106,7 @@ public sealed interface BrewerWindow extends Window permits BrewerWindowImpl {
         
         /**
          * Sets the {@link Gui} {@link Supplier} for the 1x1 fuel {@link Gui} of this {@link Builder}.
-         * The {@link Supplier} will be called every time a new {@link BrewerWindow} is created using this builder.
+         * The {@link Supplier} will be called every time a new {@link BrewingWindow} is created using this builder.
          *
          * @param guiSupplier The {@link Gui} {@link Supplier} for the 1x1 fuel {@link Gui}
          * @return This {@link Builder}
@@ -114,7 +114,7 @@ public sealed interface BrewerWindow extends Window permits BrewerWindowImpl {
         Builder setFuelGui(Supplier<? extends Gui> guiSupplier);
         
         /**
-         * Sets the 3x1 result {@link Gui} of the {@link BrewerWindow}.
+         * Sets the 3x1 result {@link Gui} of the {@link BrewingWindow}.
          *
          * @param gui The 3x1 result {@link Gui}
          * @return This {@link Builder}
@@ -125,7 +125,7 @@ public sealed interface BrewerWindow extends Window permits BrewerWindowImpl {
         
         /**
          * Sets the {@link Gui.Builder} for the 3x1 result {@link Gui} of this {@link Builder}.
-         * The {@link Gui.Builder} will be called every time a new {@link BrewerWindow} is created using this builder.
+         * The {@link Gui.Builder} will be called every time a new {@link BrewingWindow} is created using this builder.
          *
          * @param builder The {@link Gui.Builder} for the 3x1 result {@link Gui}
          * @return This {@link Builder}
@@ -136,7 +136,7 @@ public sealed interface BrewerWindow extends Window permits BrewerWindowImpl {
         
         /**
          * Sets the {@link Gui} {@link Supplier} for the 3x1 result {@link Gui} of this {@link Builder}.
-         * The {@link Supplier} will be called every time a new {@link BrewerWindow} is created using this builder.
+         * The {@link Supplier} will be called every time a new {@link BrewingWindow} is created using this builder.
          *
          * @param guiSupplier The {@link Gui} {@link Supplier} for the 3x1 result {@link Gui}
          * @return This {@link Builder}

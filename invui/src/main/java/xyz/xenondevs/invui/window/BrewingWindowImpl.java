@@ -11,7 +11,7 @@ import xyz.xenondevs.invui.state.Property;
 import java.util.List;
 import java.util.function.Supplier;
 
-final class BrewerWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu> implements BrewerWindow {
+final class BrewingWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu> implements BrewingWindow {
     
     private final AbstractGui inputGui;
     private final AbstractGui fuelGui;
@@ -20,7 +20,7 @@ final class BrewerWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu>
     private Property<? extends Double> brewProgress;
     private Property<? extends Double> fuelProgress;
     
-    public BrewerWindowImpl(
+    public BrewingWindowImpl(
         Player player,
         Supplier<? extends Component> title,
         AbstractGui inputGui,
@@ -88,8 +88,8 @@ final class BrewerWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu>
     }
     
     public static final class BuilderImpl
-        extends AbstractSplitWindow.AbstractBuilder<BrewerWindow, BrewerWindow.Builder>
-        implements BrewerWindow.Builder
+        extends AbstractSplitWindow.AbstractBuilder<BrewingWindow, BrewingWindow.Builder>
+        implements BrewingWindow.Builder
     {
         
         private Supplier<? extends Gui> inputGuiSupplier = () -> Gui.empty(1, 1);
@@ -99,38 +99,38 @@ final class BrewerWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu>
         private Property<? extends Double> fuelProgress = Property.of(0.0);
         
         @Override
-        public BrewerWindow.Builder setInputGui(Supplier<? extends Gui> guiSupplier) {
+        public BrewingWindow.Builder setInputGui(Supplier<? extends Gui> guiSupplier) {
             this.inputGuiSupplier = guiSupplier;
             return this;
         }
         
         @Override
-        public BrewerWindow.Builder setFuelGui(Supplier<? extends Gui> guiSupplier) {
+        public BrewingWindow.Builder setFuelGui(Supplier<? extends Gui> guiSupplier) {
             this.fuelGuiSupplier = guiSupplier;
             return this;
         }
         
         @Override
-        public BrewerWindow.Builder setResultGui(Supplier<? extends Gui> guiSupplier) {
+        public BrewingWindow.Builder setResultGui(Supplier<? extends Gui> guiSupplier) {
             this.resultGuiSupplier = guiSupplier;
             return this;
         }
         
         @Override
-        public BrewerWindow.Builder setBrewProgress(Property<? extends Double> progress) {
+        public BrewingWindow.Builder setBrewProgress(Property<? extends Double> progress) {
             this.brewProgress = progress;
             return this;
         }
         
         @Override
-        public BrewerWindow.Builder setFuelProgress(Property<? extends Double> progress) {
+        public BrewingWindow.Builder setFuelProgress(Property<? extends Double> progress) {
             this.fuelProgress = progress;
             return this;
         }
         
         @Override
-        public BrewerWindow build(Player viewer) {
-            var window = new BrewerWindowImpl(
+        public BrewingWindow build(Player viewer) {
+            var window = new BrewingWindowImpl(
                 viewer,
                 titleSupplier,
                 (AbstractGui) inputGuiSupplier.get(),
