@@ -17,3 +17,11 @@ fun <T> AnvilWindow.Builder.setTextFieldAlwaysEnabled(provider: Provider<T>, tra
 @ExperimentalReactiveApi
 fun AnvilWindow.Builder.setTextFieldAlwaysEnabled(enabled: Provider<Boolean>): AnvilWindow.Builder =
     setTextFieldAlwaysEnabled(PropertyAdapter(enabled))
+
+@ExperimentalReactiveApi
+fun <T> AnvilWindow.Builder.setResultAlwaysValid(provider: Provider<T>, transform: (T) -> Boolean): AnvilWindow.Builder =
+    setResultAlwaysValid(provider.map(transform))
+
+@ExperimentalReactiveApi
+fun AnvilWindow.Builder.setResultAlwaysValid(enabled: Provider<Boolean>): AnvilWindow.Builder =
+    setResultAlwaysValid(PropertyAdapter(enabled))

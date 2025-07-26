@@ -24,6 +24,7 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
     private final AbstractGui upperGui;
     private final AbstractGui lowerGui;
     private Property<? extends Boolean> textFieldAlwaysEnabled;
+    private Property<? extends Boolean> resultAlwaysValid;
     
     public AnvilWindowImpl(
         Player player,
@@ -31,6 +32,7 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
         AbstractGui upperGui,
         AbstractGui lowerGui,
         Property<? extends Boolean> textFieldAlwaysEnabled,
+        Property<? extends Boolean> resultAlwaysValid,
         Property<? extends Boolean> closeable
     ) {
         super(player, title, lowerGui, upperGui.getSize() + lowerGui.getSize(), new CustomAnvilMenu(player), closeable);
@@ -40,6 +42,7 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
         this.upperGui = upperGui;
         this.lowerGui = lowerGui;
         this.textFieldAlwaysEnabled = textFieldAlwaysEnabled;
+        this.resultAlwaysValid = resultAlwaysValid;
         
         textFieldAlwaysEnabled.observeWeak(this, thisRef -> thisRef.notifyUpdate(0));
         menu.setRenameHandler(this::handleRename);
@@ -53,8 +56,8 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
     
     @Override
     protected void setMenuItem(int slot, @Nullable ItemStack itemStack) {
-        if (slot == 0 && textFieldAlwaysEnabled.get()) {
-            menu.setItem(0, ItemUtils.takeOrPlaceholder(itemStack));
+        if ((slot == 0 && textFieldAlwaysEnabled.get()) || (slot == 2 && resultAlwaysValid.get())) {
+            menu.setItem(slot, ItemUtils.takeOrPlaceholder(itemStack));
         } else {
             super.setMenuItem(slot, itemStack);
         }
@@ -85,6 +88,18 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
         this.textFieldAlwaysEnabled.unobserveWeak(this);
         this.textFieldAlwaysEnabled = Property.of(textFieldAlwaysEnabled);
         notifyUpdate(0);
+    }
+    
+    @Override
+    public boolean getResultAlwaysValid() {
+        return resultAlwaysValid.get();
+    }
+    
+    @Override
+    public void setResultAlwaysValid(boolean resultAlwaysValid) {
+        this.resultAlwaysValid.unobserveWeak(this);
+        this.resultAlwaysValid = Property.of(resultAlwaysValid);
+        notifyUpdate(2);
     }
     
     @Override
@@ -121,6 +136,7 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
         private final List<Consumer<? super String>> renameHandlers = new ArrayList<>();
         private Supplier<? extends Gui> upperGuiSupplier = () -> Gui.empty(3, 1);
         private Property<? extends Boolean> textFieldAlwaysEnabled = Property.of(true);
+        private Property<? extends Boolean> resultAlwaysValid = Property.of(false);
         
         @Override
         public BuilderImpl setUpperGui(Supplier<? extends Gui> guiSupplier) {
@@ -147,6 +163,12 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
             return this;
         }
         
+        @Override
+        public AnvilWindow.Builder setResultAlwaysValid(Property<? extends Boolean> resultAlwaysValid) {
+            this.resultAlwaysValid = resultAlwaysValid;
+            return this;
+        }
+        
         @SuppressWarnings({"unchecked", "rawtypes"})
         @Override
         public AnvilWindow build(Player viewer) {
@@ -156,6 +178,7 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
                 (AbstractGui) upperGuiSupplier.get(),
                 supplyLowerGui(viewer),
                 textFieldAlwaysEnabled,
+                resultAlwaysValid,
                 closeable
             );
             

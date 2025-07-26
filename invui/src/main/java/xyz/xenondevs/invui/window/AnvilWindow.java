@@ -58,6 +58,20 @@ public sealed interface AnvilWindow extends Window permits AnvilWindowImpl {
     void setTextFieldAlwaysEnabled(boolean textFieldAlwaysEnabled);
     
     /**
+     * Gets whether the result of the anvil is always valid, i.e. the arrow is never crossed out.
+     *
+     * @return True if the result is always valid, false otherwise.
+     */
+    boolean getResultAlwaysValid();
+    
+    /**
+     * Sets whether the result of the anvil is always valid, i.e. the arrow is never crossed out.
+     *
+     * @param resultAlwaysValid Whether the result should always be valid.
+     */
+    void setResultAlwaysValid(boolean resultAlwaysValid);
+    
+    /**
      * Registers a rename handler that is called when the input text changes.
      * @param handler The rename handler to add.
      */
@@ -151,6 +165,26 @@ public sealed interface AnvilWindow extends Window permits AnvilWindowImpl {
          * @return This {@link Builder}
          */
         Builder setTextFieldAlwaysEnabled(Property<? extends Boolean> textFieldAlwaysEnabled);
+        
+        /**
+         * Sets whether the result of the anvil is always valid, i.e. the arrow is never crossed out.
+         * Defaults to false.
+         *
+         * @param resultAlwaysValid Whether the result should always be valid.
+         * @return This {@link Builder}
+         */
+        default Builder setResultAlwaysValid(boolean resultAlwaysValid) {
+            return setResultAlwaysValid(Property.of(resultAlwaysValid));
+        }
+        
+        /**
+         * Sets the property containing whether the result of the anvil is always valid, i.e. the arrow is never crossed out.
+         * Defaults to false.
+         *
+         * @param resultAlwaysValid The property containing whether the result should always be valid.
+         * @return This {@link Builder}
+         */
+        Builder setResultAlwaysValid(Property<? extends Boolean> resultAlwaysValid);
         
     }
     
