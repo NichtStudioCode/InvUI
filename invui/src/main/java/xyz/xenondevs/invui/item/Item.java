@@ -106,6 +106,16 @@ public sealed interface Item permits AbstractItem, BoundItem {
     interface Builder<S extends Builder<S>> {
         
         /**
+         * Sets the {@link ItemProvider} of the {@link Item} to a static {@link ItemStack}.
+         *
+         * @param itemStack The {@link ItemStack} to display.
+         * @return This builder.
+         */
+        default S setItemProvider(ItemStack itemStack) {
+            return setItemProvider(new ItemWrapper(itemStack));
+        }
+        
+        /**
          * Sets the {@link ItemProvider} of the {@link Item}.
          *
          * @param itemProvider The {@link ItemProvider}.
