@@ -86,18 +86,6 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
         return new PlayerStorageContents(inventory);
     }
     
-    /**
-     * Creates a new {@link ReferencingInventory} with a reversed view of the {@link PlayerInventory PlayerInventory's}
-     * {@link Inventory#getStorageContents() storage contents}, where the last hotbar slot is the first slot and
-     * the top left slot is the last slot.
-     *
-     * @param inventory The {@link PlayerInventory} to reference.
-     * @return The new {@link ReferencingInventory}.
-     */
-    public static ReferencingInventory fromReversedPlayerStorageContents(PlayerInventory inventory) {
-        return new ReversedPlayerContents(inventory);
-    }
-    
     @Override
     public int[] getMaxStackSizes() {
         return maxStackSizes.clone();
@@ -161,60 +149,6 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
             updateTask.cancel();
             updateTask = null;
         }
-    }
-    
-    private static final class ReversedPlayerContents extends ReferencingInventory {
-        
-        public ReversedPlayerContents(PlayerInventory inventory) {
-            super(inventory, Inventory::getStorageContents, Inventory::getItem, Inventory::setItem);
-        }
-        
-        private int convertSlot(int invUiSlot) {
-            if (invUiSlot < 9) return 8 - invUiSlot;
-            else return 44 - invUiSlot;
-        }
-        
-        @Override
-        public @Nullable ItemStack getItem(int slot) {
-            return super.getItem(convertSlot(slot));
-        }
-        
-        @Override
-        public @Nullable ItemStack getUnsafeItem(int slot) {
-            return super.getUnsafeItem(convertSlot(slot));
-        }
-        
-        @Override
-        public @Nullable ItemStack[] getUnsafeItems() {
-            return getItems();
-        }
-        
-        @Override
-        public @Nullable ItemStack[] getItems() {
-            @Nullable ItemStack[] items = itemsGetter.apply(inventory);
-            @Nullable ItemStack[] reorderedItems = new ItemStack[items.length];
-            
-            for (int i = 0; i < 9; i++) {
-                reorderedItems[8 - i] = items[i];
-            }
-            
-            for (int i = 9; i < 36; i++) {
-                reorderedItems[44 - i] = items[i];
-            }
-            
-            return reorderedItems;
-        }
-        
-        @Override
-        protected void setCloneBackingItem(int slot, @Nullable ItemStack itemStack) {
-            super.setCloneBackingItem(convertSlot(slot), itemStack);
-        }
-        
-        @Override
-        protected void setDirectBackingItem(int slot, @Nullable ItemStack itemStack) {
-            super.setDirectBackingItem(convertSlot(slot), itemStack);
-        }
-        
     }
     
     private static final class PlayerStorageContents extends ReferencingInventory {
