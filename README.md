@@ -15,7 +15,7 @@ Highlighted features:
 * First-class [MiniMessage](https://docs.advntr.dev/minimessage/index.html) support
 * Easy localization of UI items using the built-in ItemBuilder
 
-Check out the [InvUI Documentation](https://xenondevs.xyz/docs/invui/) to learn more.
+Check out the [InvUI Documentation](https://xenondevs.xyz/docs/invui2/) to learn more.
 
 ## Version Compatibility
 
