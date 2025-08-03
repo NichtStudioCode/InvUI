@@ -26,9 +26,6 @@ final class NormalMergedWindowImpl extends AbstractMergedWindow<CustomPlainMenu>
         
         @Override
         public Window build(Player viewer) {
-            if (guiSupplier == null)
-                throw new IllegalStateException("Gui is not defined.");
-            
             var window = new NormalMergedWindowImpl(
                 viewer,
                 titleSupplier,

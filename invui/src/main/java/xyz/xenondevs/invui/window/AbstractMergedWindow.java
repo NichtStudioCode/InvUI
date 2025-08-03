@@ -43,7 +43,7 @@ sealed abstract class AbstractMergedWindow<M extends CustomContainerMenu> extend
         implements Builder.Merged<W, S> permits NormalMergedWindowImpl.BuilderImpl
     {
         
-        protected @Nullable Supplier<? extends Gui> guiSupplier;
+        protected Supplier<? extends Gui> guiSupplier = () -> Gui.empty(9, 10);
         
         @Override
         public S setGui(Supplier<? extends Gui> guiSupplier) {
