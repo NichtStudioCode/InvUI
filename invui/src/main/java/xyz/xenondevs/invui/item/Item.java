@@ -197,10 +197,44 @@ public sealed interface Item permits AbstractItem, BoundItem {
         /**
          * Adds a click handler that is called when the {@link Item} is clicked.
          *
+         * @param clickHandler The click handler, receiving the {@link Click}.
+         * @return This builder.
+         */
+        default S addClickHandler(Consumer<? super Click> clickHandler) {
+            return addClickHandler((item, click) -> clickHandler.accept(click));
+        }
+        
+        /**
+         * Adds a click handler that is called when the {@link Item} is clicked.
+         *
          * @param clickHandler The click handler, receiving the {@link Item} itself and the {@link Click}.
          * @return This builder.
          */
         S addClickHandler(BiConsumer<? super Item, ? super Click> clickHandler);
+        
+        /**
+         * Adds a handler that is called when the {@link ItemProvider} has bundle contents and the {@link Player}
+         * selects a bundle slot.
+         *
+         * @param selectHandler The select handler, receiving the selected bundle slot or -1 if the player's
+         *                     cursor left the {@link ItemProvider}.
+         * @return This builder.
+         */
+        default S addBundleSelectHandler(Consumer<? super Integer> selectHandler) {
+            return addBundleSelectHandler((item, player, slot) -> selectHandler.accept(slot));
+        }
+        
+        /**
+         * Adds a handler that is called when the {@link ItemProvider} has bundle contents and the {@link Player}
+         * selects a bundle slot.
+         *
+         * @param selectHandler The select handler, receiving the {@link Player} that interacted and the selected
+         *                      bundle slot or -1 if the player's cursor left the {@link ItemProvider}.
+         * @return This builder.
+         */
+        default S addBundleSelectHandler(BiConsumer<? super Player, ? super Integer> selectHandler) {
+            return addBundleSelectHandler((item, player, slot) -> selectHandler.accept(player, slot));
+        }
         
         /**
          * Adds a handler that is called when the {@link ItemProvider} has bundle contents and the {@link Player}
