@@ -23,6 +23,11 @@ import java.util.function.Supplier;
 public sealed interface Item permits AbstractItem, BoundItem {
     
     /**
+     * An empty {@link Item} that displays {@link ItemProvider#EMPTY} and has no click actions.
+     */
+    Item EMPTY = new EmptyItem();
+    
+    /**
      * Gets the {@link ItemProvider}.
      * This method gets called every time a {@link Window} is updated, triggered by ({@link #notifyWindows()}).
      *
