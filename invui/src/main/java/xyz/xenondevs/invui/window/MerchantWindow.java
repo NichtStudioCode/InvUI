@@ -243,9 +243,9 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
     sealed interface Builder extends Window.Builder.Split<MerchantWindow, Builder> permits MerchantWindowImpl.BuilderImpl {
         
         /**
-         * Sets the result {@link Gui} of the {@link MerchantWindow}.
+         * Sets the 3x1 upper {@link Gui} of the {@link MerchantWindow}.
          *
-         * @param gui The result input {@link Gui} of the {@link MerchantWindow}
+         * @param gui The 3x1 upper {@link Gui} of the {@link MerchantWindow}
          * @return This {@link Builder}
          */
         default Builder setUpperGui(Gui gui) {
@@ -253,10 +253,10 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
         }
         
         /**
-         * Sets the {@link Gui.Builder} for the result input {@link Gui} of this {@link Builder}.
+         * Sets the {@link Gui.Builder} for the 3x1 upper {@link Gui} of this {@link Builder}.
          * The {@link Gui.Builder} will be called every time a new {@link MerchantWindow} is created using this builder.
          *
-         * @param builder The {@link Gui.Builder} for the result input {@link Gui}
+         * @param builder The {@link Gui.Builder} for the 3x1 upper {@link Gui}
          * @return This {@link Builder}
          */
         default Builder setUpperGui(Gui.Builder<?, ?> builder) {
@@ -264,10 +264,10 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
         }
         
         /**
-         * Sets the {@link Gui} {@link Supplier} for the result input {@link Gui} of this {@link Builder}.
+         * Sets the {@link Gui} {@link Supplier} for the 3x1 upper {@link Gui} of this {@link Builder}.
          * The {@link Supplier} will be called every time a new {@link MerchantWindow} is created using this builder.
          *
-         * @param guiSupplier The {@link Gui} {@link Supplier} for the result input {@link Gui}
+         * @param guiSupplier The {@link Gui} {@link Supplier} for the 3x1 upper {@link Gui}
          * @return This {@link Builder}
          */
         Builder setUpperGui(Supplier<? extends Gui> guiSupplier);
