@@ -8,7 +8,7 @@ import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.ClickEvent;
 import xyz.xenondevs.invui.gui.Gui;
-import xyz.xenondevs.invui.state.Property;
+import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -280,7 +280,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, BrewingWindo
          * @return This {@link Builder Window Builder}
          */
         default S setCloseable(boolean closeable) {
-            return setCloseable(Property.of(closeable));
+            return setCloseable(MutableProperty.of(closeable));
         }
         
         /**
@@ -290,7 +290,7 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, BrewingWindo
          * @param closeable The property that determines whether the {@link Window} is closable
          * @return This {@link Builder Window Builder}
          */
-        S setCloseable(Property<Boolean> closeable);
+        S setCloseable(MutableProperty<Boolean> closeable);
         
         /**
          * Sets the open handlers of the {@link Window}.

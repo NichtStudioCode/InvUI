@@ -4,9 +4,11 @@ import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.item.Item;
+import xyz.xenondevs.invui.state.MutableProperty;
 import xyz.xenondevs.invui.state.Property;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -88,6 +90,15 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
      */
     @UnmodifiableView
     List<Trade> getTrades();
+    
+    void addTradeSelectHandler(BiConsumer<? super Integer, ? super Integer> handler);
+    
+    void removeTradeSelectHandler(BiConsumer<? super Integer, ? super Integer> handler);
+    
+    void setTradeSelectHandlers(List<? extends BiConsumer<Integer, Integer>> handlers);
+    
+    @UnmodifiableView
+    List<BiConsumer<Integer, Integer>> getTradeSelectHandlers();
     
     /**
      * A trade in a {@link MerchantWindow}.
@@ -287,7 +298,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
          * @return This {@link Builder}
          */
         default Builder setLevel(int level) {
-            return setLevel(Property.of(level));
+            return setLevel(MutableProperty.of(level));
         }
         
         /**
@@ -304,7 +315,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
          * @param level The property containing the level of the merchant
          * @return This {@link Builder}
          */
-        Builder setLevel(Property<? extends Integer> level);
+        Builder setLevel(MutableProperty<Integer> level);
         
         /**
          * Sets the progress of the experience bar (from 0 to 1).
@@ -316,7 +327,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
          * @return This {@link Builder}
          */
         default Builder setProgress(double progress) {
-            return setProgress(Property.of(progress));
+            return setProgress(MutableProperty.of(progress));
         }
         
         /**
@@ -328,7 +339,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
          * @param progress The property containing the progress of the experience bar
          * @return This {@link Builder}
          */
-        Builder setProgress(Property<? extends Double> progress);
+        Builder setProgress(MutableProperty<Double> progress);
         
         /**
          * Sets whether the message "Villagers restock up to two times per day" should be displayed when hovering over
@@ -340,7 +351,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
          * @return This {@link Builder}
          */
         default Builder setRestockMessageEnabled(boolean enabled) {
-            return setRestockMessageEnabled(Property.of(enabled));
+            return setRestockMessageEnabled(MutableProperty.of(enabled));
         }
         
         /**
@@ -350,7 +361,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
          * @param enabled The property containing whether the restocking message should be displayed
          * @return This {@link Builder}
          */
-        Builder setRestockMessageEnabled(Property<? extends Boolean> enabled);
+        Builder setRestockMessageEnabled(MutableProperty<Boolean> enabled);
         
         /**
          * Sets the trades of the window, which are visualized as buttons on the left-hand side.
@@ -359,7 +370,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
          * @return This {@link Builder}
          */
         default Builder setTrades(List<? extends Trade> trades) {
-            return setTrades(Property.of(trades));
+            return setTrades(MutableProperty.of(trades));
         }
         
         /**
@@ -368,7 +379,11 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
          * @param trades The property containing the trades of the window
          * @return This {@link Builder}
          */
-        Builder setTrades(Property<? extends List<? extends Trade>> trades);
+        Builder setTrades(MutableProperty<List<? extends Trade>> trades);
+        
+        Builder addTradeSelectHandler(BiConsumer<? super Integer, ? super Integer> handler);
+        
+        Builder setTradeSelectHandlers(List<? extends BiConsumer<Integer, Integer>> handlers);
         
     }
     

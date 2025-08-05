@@ -9,13 +9,12 @@ import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomCartographyMenu;
-import xyz.xenondevs.invui.state.Property;
+import xyz.xenondevs.invui.state.MutableProperty;
 import xyz.xenondevs.invui.util.ColorPalette;
 import xyz.xenondevs.invui.util.ItemUtils;
 
 import java.awt.image.BufferedImage;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -26,8 +25,8 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
     private final AbstractGui inputGui;
     private final AbstractGui resultGui;
     private final AbstractGui lowerGui;
-    private Property<? extends Set<? extends MapIcon>> icons;
-    private Property<? extends View> view;
+    private final MutableProperty<Set<? extends MapIcon>> icons;
+    private final MutableProperty<View> view;
     
     public CartographyWindowImpl(
         Player player,
@@ -35,9 +34,9 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
         AbstractGui inputGui,
         AbstractGui resultGui,
         AbstractGui lowerGui,
-        Property<? extends View> view,
-        Property<? extends Set<? extends MapIcon>> icons,
-        Property<? extends Boolean> closeable
+        MutableProperty<View> view,
+        MutableProperty<Set<? extends MapIcon>> icons,
+        MutableProperty<Boolean> closeable
     ) {
         super(player, title, lowerGui, 3 + 36, new CustomCartographyMenu(player), closeable);
         if (inputGui.getWidth() != 1 || inputGui.getHeight() != 2)
@@ -74,9 +73,7 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
     
     @Override
     public void setView(View view) {
-        this.view.unobserveWeak(this);
-        this.view = Property.of(view);
-        menu.setView(view);
+        this.view.set(view);
     }
     
     @Override
@@ -91,9 +88,7 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
     
     @Override
     public void setIcons(Set<? extends MapIcon> icons) {
-        this.icons.unobserveWeak(this);
-        this.icons = Property.of(new HashSet<>(icons));
-        menu.setIcons(icons, isOpen());
+        this.icons.set(icons);
     }
     
     @Override
@@ -113,8 +108,8 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
         
         private Supplier<? extends Gui> inputGuiSupplier = () -> Gui.empty(1, 2);
         private Supplier<? extends Gui> resultGuiSupplier = () -> Gui.empty(1, 1);
-        private Property<? extends Set<? extends MapIcon>> icons = Property.of(Set.of());
-        private Property<? extends View> view = Property.of(View.NORMAL);
+        private MutableProperty<Set<? extends MapIcon>> icons = MutableProperty.of(Set.of());
+        private MutableProperty<View> view = MutableProperty.of(View.NORMAL);
         private byte @Nullable [] canvas;
         
         @Override
@@ -130,7 +125,7 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
         }
         
         @Override
-        public CartographyWindow.Builder setIcons(Property<? extends Set<? extends MapIcon>> icons) {
+        public CartographyWindow.Builder setIcons(MutableProperty<Set<? extends MapIcon>> icons) {
             this.icons = icons;
             return this;
         }
@@ -152,7 +147,7 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
         }
         
         @Override
-        public CartographyWindow.Builder setView(Property<? extends View> view) {
+        public CartographyWindow.Builder setView(MutableProperty<View> view) {
             this.view = view;
             return this;
         }

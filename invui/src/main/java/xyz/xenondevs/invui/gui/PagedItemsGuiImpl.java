@@ -1,8 +1,9 @@
 package xyz.xenondevs.invui.gui;
 
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.item.Item;
+import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
-import xyz.xenondevs.invui.state.Property;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,17 +11,24 @@ import java.util.SequencedSet;
 
 final class PagedItemsGuiImpl<C extends Item> extends AbstractPagedGui<C> {
     
-    public PagedItemsGuiImpl(int width, int height, List<? extends C> items, SequencedSet<? extends Slot> contentListSlots) {
-        super(width, height, contentListSlots, Property.of(items));
+    public PagedItemsGuiImpl(
+        int width, int height,
+        List<? extends C> items,
+        SequencedSet<? extends Slot> contentListSlots
+    ) {
+        super(width, height, contentListSlots, MutableProperty.of(items));
         bake();
     }
     
     public PagedItemsGuiImpl(
         Structure structure,
         MutableProperty<Integer> page,
-        Property<? extends List<? extends C>> items
+        MutableProperty<List<? extends C>> items,
+        MutableProperty<Boolean> frozen,
+        MutableProperty<Boolean> ignoreObscuredInventorySlots,
+        MutableProperty<@Nullable ItemProvider> background
     ) {
-        super(structure, page, items);
+        super(structure, page, items, frozen, ignoreObscuredInventorySlots, background);
         bake();
     }
     
@@ -44,8 +52,8 @@ final class PagedItemsGuiImpl<C extends Item> extends AbstractPagedGui<C> {
             pages.add(page);
         }
         
-        setPages(pages);
-        update();
+        setBakedPages(pages);
+        setPage(getPage()); // corrects page and refreshes content
     }
     
     public static final class Builder<C extends Item> extends AbstractBuilder<C> {

@@ -1,6 +1,11 @@
 package xyz.xenondevs.invui.gui
 
+import xyz.xenondevs.commons.provider.MutableProvider
+import xyz.xenondevs.commons.provider.Provider
+import xyz.xenondevs.invui.ExperimentalReactiveApi
+import xyz.xenondevs.invui.PropertyAdapter
 import xyz.xenondevs.invui.item.Item
+import xyz.xenondevs.invui.item.ItemProvider
 
 /**
  * Gets the [SlotElement] on [slot].
@@ -43,3 +48,15 @@ operator fun Gui.plusAssign(elements: Iterable<SlotElement>) = elements.forEach 
  */
 @JvmName("plusAssignItems")
 operator fun Gui.plusAssign(items: Iterable<Item>) = items.forEach { addItems(it) }
+
+@ExperimentalReactiveApi
+fun <G : Gui, B : Gui.Builder<G, B>> B.setBackground(provider: Provider<ItemProvider?>): B =
+    setBackground(PropertyAdapter(provider))
+
+@ExperimentalReactiveApi
+fun <G : Gui, B : Gui.Builder<G, B>> B.setFrozen(provider: Provider<Boolean>): B =
+    setFrozen(PropertyAdapter(provider))
+
+@ExperimentalReactiveApi
+fun <G : Gui, B : Gui.Builder<G, B>> B.setIgnoreObscuredInventorySlots(provider: Provider<Boolean>): B =
+    setIgnoreObscuredInventorySlots(PropertyAdapter(provider))

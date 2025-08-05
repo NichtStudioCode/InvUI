@@ -4,7 +4,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.internal.menu.CustomPlainMenu;
-import xyz.xenondevs.invui.state.Property;
+import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.function.Supplier;
 
@@ -14,7 +14,7 @@ final class NormalMergedWindowImpl extends AbstractMergedWindow<CustomPlainMenu>
         Player player,
         Supplier<? extends Component> title,
         AbstractGui gui,
-        Property<? extends Boolean> closeable
+        MutableProperty<Boolean> closeable
     ) {
         super(player, title, gui, new CustomPlainMenu(gui.getWidth(), gui.getHeight() - 4, player), closeable);
     }

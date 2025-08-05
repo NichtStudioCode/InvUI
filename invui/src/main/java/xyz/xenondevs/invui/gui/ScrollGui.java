@@ -5,8 +5,8 @@ import org.jetbrains.annotations.UnmodifiableView;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.state.MutableProperty;
-import xyz.xenondevs.invui.state.Property;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.SequencedSet;
 import java.util.function.BiConsumer;
@@ -49,7 +49,9 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @return The created {@link ScrollGui}.
      */
     static ScrollGui<Item> ofItems(Structure structure, List<? extends Item> items) {
-        return new ScrollItemsGuiImpl<>(structure, MutableProperty.of(0), Property.of(items));
+        var gui = ofItems(structure.getWidth(), structure.getHeight(), items, Collections.emptySortedSet(), ScrollDirection.HORIZONTAL);
+        gui.applyStructure(structure);
+        return gui;
     }
     
     /**
@@ -83,7 +85,9 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @return The created {@link ScrollGui}.
      */
     static ScrollGui<Gui> ofGuis(Structure structure, List<? extends Gui> guis) {
-        return new ScrollNestedGuiImpl<>(structure, MutableProperty.of(0), Property.of(guis));
+        var gui = ofGuis(structure.getWidth(), structure.getHeight(), guis, Collections.emptySortedSet(), ScrollDirection.HORIZONTAL);
+        gui.applyStructure(structure);
+        return gui;
     }
     
     /**
@@ -117,7 +121,9 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @return The created {@link ScrollGui}.
      */
     static ScrollGui<Inventory> ofInventories(Structure structure, List<? extends Inventory> inventories) {
-        return new ScrollInventoryGuiImpl<>(structure, MutableProperty.of(0), Property.of(inventories));
+        var gui = ofInventories(structure.getWidth(), structure.getHeight(), inventories, Collections.emptySortedSet(), ScrollDirection.HORIZONTAL);
+        gui.applyStructure(structure);
+        return gui;
     }
     
     /**
@@ -270,7 +276,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
          * @return This {@link Builder Gui Builder}.
          */
         default Builder<C> setContent(List<? extends C> content) {
-            return setContent(Property.of(content));
+            return setContent(MutableProperty.of(content));
         }
         
         /**
@@ -279,7 +285,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
          * @param content The content property to set.
          * @return This {@link Builder Gui Builder}.
          */
-        Builder<C> setContent(Property<? extends List<? extends C>> content);
+        Builder<C> setContent(MutableProperty<List<? extends C>> content);
         
         /**
          * Sets the property that contains the page of the {@link PagedGui}.

@@ -5,8 +5,8 @@ import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
 import xyz.xenondevs.invui.internal.util.SlotUtils;
+import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
-import xyz.xenondevs.invui.state.Property;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,19 +23,20 @@ sealed abstract class AbstractPagedGui<C>
     protected int[] contentListSlots;
     
     private final MutableProperty<Integer> page;
-    private Property<? extends List<? extends C>> content;
+    private final MutableProperty<List<? extends C>> content;
     private final List<BiConsumer<? super Integer, ? super Integer>> pageChangeHandlers = new ArrayList<>(0);
     private final List<BiConsumer<? super Integer, ? super Integer>> pageCountChangeHandlers = new ArrayList<>(0);
     private @Nullable List<? extends List<SlotElement>> pages;
+    private int previousPage;
     
     public AbstractPagedGui(
         int width, int height,
         SequencedSet<? extends Slot> contentListSlots,
-        Property<? extends List<? extends C>> content
+        MutableProperty<List<? extends C>> content
     ) {
         super(width, height);
         this.page = MutableProperty.of(0);
-        page.observeWeak(this, AbstractPagedGui::update);
+        page.observeWeak(this, AbstractPagedGui::handlePageChange);
         this.content = content;
         content.observeWeak(this, AbstractPagedGui::bake);
         this.contentListSlots = SlotUtils.toSlotIndices(contentListSlots, getWidth());
@@ -44,11 +45,14 @@ sealed abstract class AbstractPagedGui<C>
     public AbstractPagedGui(
         Structure structure,
         MutableProperty<Integer> page,
-        Property<? extends List<? extends C>> content
+        MutableProperty<List<? extends C>> content,
+        MutableProperty<Boolean> frozen,
+        MutableProperty<Boolean> ignoreObscuredInventorySlots,
+        MutableProperty<@Nullable ItemProvider> background
     ) {
-        super(structure.getWidth(), structure.getHeight());
+        super(structure.getWidth(), structure.getHeight(), frozen, ignoreObscuredInventorySlots, background);
         this.page = page;
-        page.observeWeak(this, AbstractPagedGui::update);
+        page.observeWeak(this, AbstractPagedGui::handlePageChange);
         this.content = content;
         content.observeWeak(this, AbstractPagedGui::bake);
         this.contentListSlots = structure.getIngredientMatrix().findContentListSlots();
@@ -73,18 +77,25 @@ sealed abstract class AbstractPagedGui<C>
         return Collections.unmodifiableSequencedSet(SlotUtils.toSlotSet(contentListSlots, getWidth()));
     }
     
-    @Override
-    public void setPage(int page) {
-        int previousPage = getPage();
-        int newPage = correctPage(page);
-        
-        if (previousPage == newPage)
+    private void handlePageChange() {
+        int targetPage = page.get();
+        int correctedPage = correctPage(targetPage);
+        if (targetPage != correctedPage) {
+            page.set(correctedPage);
             return;
+        }
         
-        this.page.set(newPage);
-        update();
-        
-        pageChangeHandlers.forEach(handler -> handler.accept(previousPage, newPage));
+        updateContent();
+        if (targetPage != previousPage)
+            pageChangeHandlers.forEach(handler -> handler.accept(previousPage, targetPage));
+        previousPage = targetPage;
+    }
+    
+    private void updateContent() {
+        List<SlotElement> slotElements = (pages != null && !pages.isEmpty()) ? pages.get(getPage()) : List.of();
+        for (int i = 0; i < contentListSlots.length; i++) {
+            setSlotElement(contentListSlots[i], slotElements.size() > i ? slotElements.get(i) : null);
+        }
     }
     
     private int correctPage(int page) {
@@ -92,33 +103,12 @@ sealed abstract class AbstractPagedGui<C>
         return Math.max(0, Math.min(page, getPageCount() - 1));
     }
     
-    private void correctCurrentPage() {
-        int correctedPage = correctPage(getPage());
-        if (correctedPage != getPage())
-            setPage(correctedPage);
-    }
-    
-    protected void update() {
-        correctCurrentPage();
-        updatePageContent();
-    }
-    
-    private void updatePageContent() {
-        List<SlotElement> slotElements = (pages != null && !pages.isEmpty()) ? pages.get(getPage()) : List.of();
-        
-        for (int i = 0; i < contentListSlots.length; i++) {
-            setSlotElement(contentListSlots[i], slotElements.size() > i ? slotElements.get(i) : null);
-        }
-    }
-    
     @Override
     public void setContent(List<? extends C> content) {
-        this.content.unobserveWeak(this);
-        this.content = Property.of(content);
-        bake();
+        this.content.set(content);
     }
     
-    public void setPages(@Nullable List<? extends List<SlotElement>> pages) {
+    public void setBakedPages(@Nullable List<? extends List<SlotElement>> pages) {
         int prevPageCount = getPageCount();
         this.pages = pages;
         int newPageCount = getPageCount();
@@ -136,6 +126,11 @@ sealed abstract class AbstractPagedGui<C>
     @Override
     public int getPageCount() {
         return pages != null ? pages.size() : 0;
+    }
+    
+    @Override
+    public void setPage(int page) {
+        this.page.set(page);
     }
     
     @Override
@@ -185,7 +180,14 @@ sealed abstract class AbstractPagedGui<C>
     
     @FunctionalInterface
     public interface Constructor<C> {
-        PagedGui<C> create(Structure structure, MutableProperty<Integer> page, Property<? extends List<? extends C>> content);
+        PagedGui<C> create(
+            Structure structure,
+            MutableProperty<Integer> page,
+            MutableProperty<List<? extends C>> content,
+            MutableProperty<Boolean> frozen,
+            MutableProperty<Boolean> ignoreObscuredInventorySlots,
+            MutableProperty<@Nullable ItemProvider> background
+        );
     }
     
     public static sealed abstract class AbstractBuilder<C>
@@ -195,7 +197,7 @@ sealed abstract class AbstractPagedGui<C>
     {
         
         private final Constructor<C> ctor;
-        private Property<? extends List<? extends C>> content = Property.of(List.of());
+        private MutableProperty<List<? extends C>> content = MutableProperty.of(List.of());
         private MutableProperty<Integer> page = MutableProperty.of(0);
         private List<BiConsumer<? super Integer, ? super Integer>> pageChangeHandlers = new ArrayList<>(0);
         private List<BiConsumer<? super Integer, ? super Integer>> pageCountChangeHandlers = new ArrayList<>(0);
@@ -205,7 +207,7 @@ sealed abstract class AbstractPagedGui<C>
         }
         
         @Override
-        public PagedGui.Builder<C> setContent(Property<? extends List<? extends C>> content) {
+        public PagedGui.Builder<C> setContent(MutableProperty<List<? extends C>> content) {
             this.content = content;
             return this;
         }
@@ -247,7 +249,7 @@ sealed abstract class AbstractPagedGui<C>
             if (structure == null)
                 throw new IllegalStateException("Structure is not defined.");
             
-            var gui = ctor.create(structure, page, content);
+            var gui = ctor.create(structure, page, content, frozen, ignoreObscuredInventorySlots, background);
             pageChangeHandlers.forEach(gui::addPageChangeHandler);
             pageCountChangeHandlers.forEach(gui::addPageCountChangeHandler);
             applyModifiers(gui);

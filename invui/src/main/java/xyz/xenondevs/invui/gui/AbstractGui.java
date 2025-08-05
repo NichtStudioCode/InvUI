@@ -23,7 +23,7 @@ import xyz.xenondevs.invui.inventory.event.UpdateReason;
 import xyz.xenondevs.invui.item.BoundItem;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
-import xyz.xenondevs.invui.item.ItemWrapper;
+import xyz.xenondevs.invui.state.MutableProperty;
 import xyz.xenondevs.invui.util.ItemUtils;
 import xyz.xenondevs.invui.window.AbstractWindow;
 import xyz.xenondevs.invui.window.Window;
@@ -49,21 +49,43 @@ public sealed abstract class AbstractGui
     private final @Nullable SlotElement[] slotElements;
     private final @Nullable Set<ViewerAtSlot>[] viewers;
     
-    private boolean frozen;
-    private boolean ignoreObscuredInventorySlots = true;
-    private @Nullable ItemProvider background;
+    private final MutableProperty<Boolean> frozen;
+    private final MutableProperty<Boolean> ignoreObscuredInventorySlots;
+    private final MutableProperty<@Nullable ItemProvider> background;
+    
     private AnimationImpl.@Nullable StateImpl animation;
     private @Nullable SlotElement @Nullable [] animationElements;
     private boolean isInAnimationContext;
     private @Nullable IngredientMatrix ingredientMatrix;
     
-    @SuppressWarnings("unchecked")
     AbstractGui(int width, int height) {
+        this(
+            width, height,
+            MutableProperty.of(false),
+            MutableProperty.of(true),
+            MutableProperty.of(null)
+        );
+    }
+    
+    @SuppressWarnings("unchecked")
+    AbstractGui(
+        int width, int height,
+        MutableProperty<Boolean> frozen,
+        MutableProperty<Boolean> ignoreObscuredInventorySlots,
+        MutableProperty<@Nullable ItemProvider> background
+    ) {
         this.width = width;
         this.height = height;
         this.size = width * height;
+        
+        this.frozen = frozen;
+        this.ignoreObscuredInventorySlots = ignoreObscuredInventorySlots;
+        this.background = background;
+        
         slotElements = new SlotElement[size];
         viewers = new Set[size];
+        
+        this.background.observeWeak(this, AbstractGui::notifyWindowsOnBackgroundSlots);
     }
     
     public void handleClick(int slot, Click click) {
@@ -437,7 +459,7 @@ public sealed abstract class AbstractGui
     
     @Override
     public @Unmodifiable Collection<Inventory> getInventories(Inventory... ignored) {
-        if (!ignoreObscuredInventorySlots)
+        if (!ignoreObscuredInventorySlots.get())
             return Collections.unmodifiableCollection(getAllActiveInventorySlots(ignored).keySet());
         
         ArrayList<Inventory> inventories = new ArrayList<>();
@@ -477,6 +499,23 @@ public sealed abstract class AbstractGui
             
             for (var viewerAtSlot : viewerSet) {
                 viewerAtSlot.notifyUpdate();
+            }
+        }
+    }
+    
+    private void notifyWindowsOnBackgroundSlots() {
+        synchronized (viewers) {
+            for (int i = 0; i < getSize(); i++) {
+                if (slotElements[i] != null)
+                    continue;
+                
+                var viewerSet = viewers[i];
+                if (viewerSet == null)
+                    continue;
+                
+                for (var viewerAtSlot : viewerSet) {
+                    viewerAtSlot.notifyUpdate();
+                }
             }
         }
     }
@@ -702,12 +741,12 @@ public sealed abstract class AbstractGui
     
     @Override
     public @Nullable ItemProvider getBackground() {
-        return background;
+        return background.get();
     }
     
     @Override
     public void setBackground(@Nullable ItemProvider itemProvider) {
-        this.background = itemProvider;
+        this.background.set(itemProvider);
     }
     
     @Override
@@ -734,22 +773,22 @@ public sealed abstract class AbstractGui
     
     @Override
     public void setFrozen(boolean frozen) {
-        this.frozen = frozen;
+        this.frozen.set(frozen);
     }
     
     @Override
     public boolean isFrozen() {
-        return frozen || (animation != null && animation.isFreezing());
+        return frozen.get() || (animation != null && animation.isFreezing());
     }
     
     @Override
     public void setIgnoreObscuredInventorySlots(boolean ignoreObscuredInventorySlots) {
-        this.ignoreObscuredInventorySlots = ignoreObscuredInventorySlots;
+        this.ignoreObscuredInventorySlots.set(ignoreObscuredInventorySlots);
     }
     
     @Override
     public boolean isIgnoreObscuredInventorySlots() {
-        return ignoreObscuredInventorySlots;
+        return ignoreObscuredInventorySlots.get();
     }
     
     //<editor-fold desc="ingredient-key-based methods">
@@ -1016,10 +1055,10 @@ public sealed abstract class AbstractGui
     {
         
         protected @Nullable Structure structure;
-        protected @Nullable ItemProvider background;
         protected @Nullable List<Consumer<? super G>> modifiers;
-        protected boolean frozen;
-        protected boolean ignoreObscuredInventorySlots = true;
+        protected MutableProperty<@Nullable ItemProvider> background = MutableProperty.of(null);
+        protected MutableProperty<Boolean> frozen = MutableProperty.of(false);
+        protected MutableProperty<Boolean> ignoreObscuredInventorySlots = MutableProperty.of(true);
         
         @Override
         public S setStructure(int width, int height, String structureData) {
@@ -1072,30 +1111,6 @@ public sealed abstract class AbstractGui
         }
         
         @Override
-        public S setBackground(ItemProvider itemProvider) {
-            background = itemProvider;
-            return (S) this;
-        }
-        
-        @Override
-        public S setBackground(ItemStack itemStack) {
-            background = new ItemWrapper(itemStack);
-            return (S) this;
-        }
-        
-        @Override
-        public S setFrozen(boolean frozen) {
-            this.frozen = frozen;
-            return (S) this;
-        }
-        
-        @Override
-        public S setIgnoreObscuredInventorySlots(boolean ignoreObscuredInventorySlots) {
-            this.ignoreObscuredInventorySlots = ignoreObscuredInventorySlots;
-            return (S) this;
-        }
-        
-        @Override
         public S addModifier(Consumer<? super G> modifier) {
             if (modifiers == null)
                 modifiers = new ArrayList<>();
@@ -1110,15 +1125,30 @@ public sealed abstract class AbstractGui
             return (S) this;
         }
         
+        @Override
+        public S setBackground(MutableProperty<@Nullable ItemProvider> background) {
+            this.background = background;
+            return (S) this;
+        }
+        
+        @Override
+        public S setFrozen(MutableProperty<Boolean> frozen) {
+            this.frozen = frozen;
+            return (S) this;
+        }
+        
+        @Override
+        public S setIgnoreObscuredInventorySlots(MutableProperty<Boolean> ignoreObscuredInventorySlots) {
+            this.ignoreObscuredInventorySlots = ignoreObscuredInventorySlots;
+            return (S) this;
+        }
+        
         /**
          * Applies the {@link AbstractBuilder#modifiers} to the given {@link AbstractGui}.
          *
          * @param gui The {@link AbstractGui} to apply the modifiers to
          */
         protected void applyModifiers(G gui) {
-            gui.setFrozen(frozen);
-            gui.setIgnoreObscuredInventorySlots(ignoreObscuredInventorySlots);
-            if (background != null) gui.setBackground(background);
             if (modifiers != null) modifiers.forEach(modifier -> modifier.accept(gui));
         }
         

@@ -1,7 +1,7 @@
 package xyz.xenondevs.invui.window;
 
 import xyz.xenondevs.invui.gui.Gui;
-import xyz.xenondevs.invui.state.Property;
+import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.function.Supplier;
 
@@ -149,7 +149,7 @@ public sealed interface BrewingWindow extends Window permits BrewingWindowImpl {
          * @return This {@link Builder}
          */
         default Builder setBrewProgress(double progress) {
-            return setBrewProgress(Property.of(progress));
+            return setBrewProgress(MutableProperty.of(progress));
         }
         
         /**
@@ -157,7 +157,7 @@ public sealed interface BrewingWindow extends Window permits BrewingWindowImpl {
          * @param progress The brew progress property, between 0.0 and 1.0.
          * @return This {@link Builder}
          */
-        Builder setBrewProgress(Property<? extends Double> progress);
+        Builder setBrewProgress(MutableProperty<Double> progress);
         
         /**
          * Sets the fuel progress, i.e. how much of the blaze bar is filled in.
@@ -165,7 +165,7 @@ public sealed interface BrewingWindow extends Window permits BrewingWindowImpl {
          * @return This {@link Builder}
          */
         default Builder setFuelProgress(double progress) {
-            return setFuelProgress(Property.of(progress));
+            return setFuelProgress(MutableProperty.of(progress));
         }
         
         /**
@@ -173,7 +173,7 @@ public sealed interface BrewingWindow extends Window permits BrewingWindowImpl {
          * @param progress The fuel progress property, between 0.0 and 1.0.
          * @return This {@link Builder}
          */
-        Builder setFuelProgress(Property<? extends Double> progress);
+        Builder setFuelProgress(MutableProperty<Double> progress);
         
     }
     

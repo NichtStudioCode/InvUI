@@ -9,7 +9,7 @@ import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.internal.menu.CustomContainerMenu;
-import xyz.xenondevs.invui.state.Property;
+import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -22,7 +22,7 @@ sealed abstract class AbstractMergedWindow<M extends CustomContainerMenu> extend
     
     private final AbstractGui gui;
     
-    AbstractMergedWindow(Player viewer, Supplier<? extends Component> title, AbstractGui gui, M menu, Property<? extends Boolean> closeable) {
+    AbstractMergedWindow(Player viewer, Supplier<? extends Component> title, AbstractGui gui, M menu, MutableProperty<Boolean> closeable) {
         super(viewer, title, gui.getSize(), menu, closeable);
         this.gui = gui;
     }

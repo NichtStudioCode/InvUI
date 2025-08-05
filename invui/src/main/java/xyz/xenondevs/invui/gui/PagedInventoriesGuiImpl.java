@@ -1,9 +1,10 @@
 package xyz.xenondevs.invui.gui;
 
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.inventory.VirtualInventory;
+import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
-import xyz.xenondevs.invui.state.Property;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -18,16 +19,19 @@ final class PagedInventoriesGuiImpl<C extends Inventory> extends AbstractPagedGu
         List<? extends C> inventories,
         SequencedSet<? extends Slot> contentListSlots
     ) {
-        super(width, height, contentListSlots, Property.of(inventories));
+        super(width, height, contentListSlots, MutableProperty.of(inventories));
         bake();
     }
     
     public PagedInventoriesGuiImpl(
         Structure structure,
         MutableProperty<Integer> page,
-        Property<? extends List<? extends C>> inventories
+        MutableProperty<List<? extends C>> inventories,
+        MutableProperty<Boolean> frozen,
+        MutableProperty<Boolean> ignoreObscuredInventorySlots,
+        MutableProperty<@Nullable ItemProvider> background
     ) {
-        super(structure, page, inventories);
+        super(structure, page, inventories, frozen, ignoreObscuredInventorySlots, background);
         bake();
     }
     
@@ -55,8 +59,8 @@ final class PagedInventoriesGuiImpl<C extends Inventory> extends AbstractPagedGu
         }
         
         applyResizeHandlers(inventories);
-        setPages(pages);
-        update();
+        setBakedPages(pages);
+        setPage(getPage()); // corrects page and refreshes content
     }
     
     @SuppressWarnings("DuplicatedCode")

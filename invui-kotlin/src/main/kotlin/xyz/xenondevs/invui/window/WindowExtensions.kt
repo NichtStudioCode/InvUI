@@ -1,7 +1,6 @@
 package xyz.xenondevs.invui.window
 
 import net.kyori.adventure.text.Component
-import xyz.xenondevs.commons.provider.MutableProvider
 import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.invui.ExperimentalReactiveApi
 import xyz.xenondevs.invui.PropertyAdapter

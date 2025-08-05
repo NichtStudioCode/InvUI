@@ -10,7 +10,7 @@ import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomAnvilMenu;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
-import xyz.xenondevs.invui.state.Property;
+import xyz.xenondevs.invui.state.MutableProperty;
 import xyz.xenondevs.invui.util.ItemUtils;
 
 import java.util.ArrayList;
@@ -23,17 +23,17 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
     private final List<Consumer<? super String>> renameHandlers = new ArrayList<>();
     private final AbstractGui upperGui;
     private final AbstractGui lowerGui;
-    private Property<? extends Boolean> textFieldAlwaysEnabled;
-    private Property<? extends Boolean> resultAlwaysValid;
+    private final MutableProperty<Boolean> textFieldAlwaysEnabled;
+    private final MutableProperty<Boolean> resultAlwaysValid;
     
     public AnvilWindowImpl(
         Player player,
         Supplier<? extends Component> title,
         AbstractGui upperGui,
         AbstractGui lowerGui,
-        Property<? extends Boolean> textFieldAlwaysEnabled,
-        Property<? extends Boolean> resultAlwaysValid,
-        Property<? extends Boolean> closeable
+        MutableProperty<Boolean> textFieldAlwaysEnabled,
+        MutableProperty<Boolean> resultAlwaysValid,
+        MutableProperty<Boolean> closeable
     ) {
         super(player, title, lowerGui, upperGui.getSize() + lowerGui.getSize(), new CustomAnvilMenu(player), closeable);
         if (upperGui.getWidth() != 3 && upperGui.getHeight() != 1)
@@ -45,6 +45,7 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
         this.resultAlwaysValid = resultAlwaysValid;
         
         textFieldAlwaysEnabled.observeWeak(this, thisRef -> thisRef.notifyUpdate(0));
+        resultAlwaysValid.observeWeak(this, thisRef -> thisRef.notifyUpdate(2));
         menu.setRenameHandler(this::handleRename);
     }
     
@@ -85,9 +86,7 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
     
     @Override
     public void setTextFieldAlwaysEnabled(boolean textFieldAlwaysEnabled) {
-        this.textFieldAlwaysEnabled.unobserveWeak(this);
-        this.textFieldAlwaysEnabled = Property.of(textFieldAlwaysEnabled);
-        notifyUpdate(0);
+        this.textFieldAlwaysEnabled.set(textFieldAlwaysEnabled);
     }
     
     @Override
@@ -97,9 +96,7 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
     
     @Override
     public void setResultAlwaysValid(boolean resultAlwaysValid) {
-        this.resultAlwaysValid.unobserveWeak(this);
-        this.resultAlwaysValid = Property.of(resultAlwaysValid);
-        notifyUpdate(2);
+        this.resultAlwaysValid.set(resultAlwaysValid);
     }
     
     @Override
@@ -135,8 +132,8 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
         
         private final List<Consumer<? super String>> renameHandlers = new ArrayList<>();
         private Supplier<? extends Gui> upperGuiSupplier = () -> Gui.empty(3, 1);
-        private Property<? extends Boolean> textFieldAlwaysEnabled = Property.of(true);
-        private Property<? extends Boolean> resultAlwaysValid = Property.of(false);
+        private MutableProperty<Boolean> textFieldAlwaysEnabled = MutableProperty.of(true);
+        private MutableProperty<Boolean> resultAlwaysValid = MutableProperty.of(false);
         
         @Override
         public BuilderImpl setUpperGui(Supplier<? extends Gui> guiSupplier) {
@@ -158,13 +155,13 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
         }
         
         @Override
-        public AnvilWindow.Builder setTextFieldAlwaysEnabled(Property<? extends Boolean> textFieldAlwaysEnabled) {
+        public AnvilWindow.Builder setTextFieldAlwaysEnabled(MutableProperty<Boolean> textFieldAlwaysEnabled) {
             this.textFieldAlwaysEnabled = textFieldAlwaysEnabled;
             return this;
         }
         
         @Override
-        public AnvilWindow.Builder setResultAlwaysValid(Property<? extends Boolean> resultAlwaysValid) {
+        public AnvilWindow.Builder setResultAlwaysValid(MutableProperty<Boolean> resultAlwaysValid) {
             this.resultAlwaysValid = resultAlwaysValid;
             return this;
         }

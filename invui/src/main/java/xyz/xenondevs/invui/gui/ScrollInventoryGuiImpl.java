@@ -1,9 +1,10 @@
 package xyz.xenondevs.invui.gui;
 
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.inventory.VirtualInventory;
+import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
-import xyz.xenondevs.invui.state.Property;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -19,16 +20,19 @@ final class ScrollInventoryGuiImpl<C extends Inventory> extends AbstractScrollGu
         SequencedSet<? extends Slot> contentListSlots,
         boolean horizontalLines
     ) {
-        super(width, height, contentListSlots, horizontalLines, Property.of(inventories));
+        super(width, height, contentListSlots, horizontalLines, MutableProperty.of(inventories));
         bake();
     }
     
     public ScrollInventoryGuiImpl(
         Structure structure,
         MutableProperty<Integer> line,
-        Property<? extends List<? extends C>> inventories
+        MutableProperty<List<? extends C>> inventories,
+        MutableProperty<Boolean> frozen,
+        MutableProperty<Boolean> ignoreObscuredInventorySlots,
+        MutableProperty<@Nullable ItemProvider> background
     ) {
-        super(structure, line, inventories);
+        super(structure, line, inventories, frozen, ignoreObscuredInventorySlots, background);
         bake();
     }
     
@@ -44,7 +48,7 @@ final class ScrollInventoryGuiImpl<C extends Inventory> extends AbstractScrollGu
         
         applyResizeHandlers(inventories);
         setElements(elements);
-        update();
+        setLine(getLine()); // corrects line and refreshes content
     }
     
     @SuppressWarnings("DuplicatedCode")

@@ -9,7 +9,7 @@ import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomCraftingTableMenu;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
-import xyz.xenondevs.invui.state.Property;
+import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +29,7 @@ final class CraftingWindowImpl extends AbstractSplitWindow<CustomCraftingTableMe
         AbstractGui craftingGui,
         AbstractGui resultGui,
         AbstractGui lowerGui,
-        Property<? extends Boolean> closeable
+        MutableProperty<Boolean> closeable
     ) {
         super(player, title, lowerGui, 46, new CustomCraftingTableMenu(player), closeable);
         if (craftingGui.getWidth() != 3 || craftingGui.getHeight() != 3)

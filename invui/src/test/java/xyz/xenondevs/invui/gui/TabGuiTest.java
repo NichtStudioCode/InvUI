@@ -15,6 +15,7 @@ import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -85,7 +86,7 @@ public class TabGuiTest {
     
     @Test
     public void testTabsProperty() {
-        MutableProperty<List<@Nullable Gui>> tabs = MutableProperty.of(List.of());
+        MutableProperty<List<? extends @Nullable Gui>> tabs = MutableProperty.of(List.of());
         
         var gui = TabGui.builder()
             .setStructure("x")
@@ -252,6 +253,80 @@ public class TabGuiTest {
             assertNotNull(itemStack);
             assertEquals(Material.BLACK_STAINED_GLASS, itemStack.getType());
         }
+    }
+    
+    @Test
+    public void testTabChangeHandler() {
+        var prevTab = new AtomicInteger();
+        var tab = new AtomicInteger();
+        
+        var gui = TabGui.builder()
+            .setStructure(
+                "x x x",
+                "x x x",
+                "x x x"
+            )
+            .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
+            .setTabs(emptyTabs(10, 3, 3))
+            .addTabChangeHandler((old, now) -> {
+                prevTab.set(old);
+                tab.set(now);
+            })
+            .build();
+        
+        gui.setTab(5);
+        assertEquals(0, prevTab.get());
+        assertEquals(5, tab.get());
+        
+        gui.setTab(-999); // out of bounds, coerced to 0
+        assertEquals(5, prevTab.get());
+        assertEquals(0, tab.get());
+        
+        gui.setTab(0); // same line, ignored
+        assertEquals(5, prevTab.get());
+        assertEquals(0, tab.get());
+    }
+    
+    @Test
+    public void testTabChangeHandlerWithTabProperty() {
+        var prevTab = new AtomicInteger();
+        var tab = new AtomicInteger();
+        
+        var tabProperty = MutableProperty.of(0);
+        
+        TabGui.builder()
+            .setStructure(
+                "x x x",
+                "x x x",
+                "x x x"
+            )
+            .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
+            .setTabs(emptyTabs(10, 3, 3))
+            .setTab(tabProperty)
+            .addTabChangeHandler((old, now) -> {
+                prevTab.set(old);
+                tab.set(now);
+            })
+            .build();
+        
+        tabProperty.set(5);
+        assertEquals(0, prevTab.get());
+        assertEquals(5, tab.get());
+        
+        tabProperty.set(-999); // out of bounds, coerced to 0
+        assertEquals(5, prevTab.get());
+        assertEquals(0, tab.get());
+        assertEquals(0, tabProperty.get());
+        
+        tabProperty.set(0); // same tab, ignored
+        assertEquals(5, prevTab.get());
+        assertEquals(0, tab.get());
+    }
+    
+    private List<? extends @Nullable Gui> emptyTabs(int amount, int width, int height) {
+        return IntStream.range(0, amount)
+            .mapToObj(i -> Gui.empty(width, height))
+            .toList();
     }
     
 }

@@ -1,7 +1,7 @@
 package xyz.xenondevs.invui.window;
 
 import xyz.xenondevs.invui.gui.Gui;
-import xyz.xenondevs.invui.state.Property;
+import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.function.Supplier;
 
@@ -121,7 +121,7 @@ public sealed interface FurnaceWindow extends Window, RecipeBookPowered permits 
          * @return This {@link Builder}
          */
         default Builder setCookProgress(double progress) {
-            return setCookProgress(Property.of(progress));
+            return setCookProgress(MutableProperty.of(progress));
         }
         
         /**
@@ -130,7 +130,7 @@ public sealed interface FurnaceWindow extends Window, RecipeBookPowered permits 
          * @param progress The cook progress property, between 0.0 and 1.0.
          * @return This {@link Builder}
          */
-        Builder setCookProgress(Property<? extends Double> progress);
+        Builder setCookProgress(MutableProperty<Double> progress);
         
         /**
          * Sets the burn progress, i.e. how much of the fire is white.
@@ -139,7 +139,7 @@ public sealed interface FurnaceWindow extends Window, RecipeBookPowered permits 
          * @return This {@link Builder}
          */
         default Builder setBurnProgress(double progress) {
-            return setBurnProgress(Property.of(progress));
+            return setBurnProgress(MutableProperty.of(progress));
         }
         
         /**
@@ -148,7 +148,7 @@ public sealed interface FurnaceWindow extends Window, RecipeBookPowered permits 
          * @param progress The burn progress property, between 0.0 and 1.0.
          * @return This {@link Builder}
          */
-        Builder setBurnProgress(Property<? extends Double> progress);
+        Builder setBurnProgress(MutableProperty<Double> progress);
         
     }
     

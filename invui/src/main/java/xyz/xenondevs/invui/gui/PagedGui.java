@@ -5,8 +5,8 @@ import org.jetbrains.annotations.UnmodifiableView;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.state.MutableProperty;
-import xyz.xenondevs.invui.state.Property;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.SequencedSet;
 import java.util.function.BiConsumer;
@@ -48,7 +48,9 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @return The created {@link PagedGui}.
      */
     static PagedGui<Item> ofItems(Structure structure, List<? extends Item> items) {
-        return new PagedItemsGuiImpl<>(structure, MutableProperty.of(0), Property.of(items));
+        var gui = ofItems(structure.getWidth(), structure.getHeight(), items, Collections.emptySortedSet());
+        gui.applyStructure(structure);
+        return gui;
     }
     
     /**
@@ -81,7 +83,9 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @return The created {@link PagedGui}.
      */
     static PagedGui<Gui> ofGuis(Structure structure, List<? extends Gui> guis) {
-        return new PagedNestedGuiImpl<>(structure, MutableProperty.of(0), Property.of(guis));
+        var gui = ofGuis(structure.getWidth(), structure.getHeight(), guis, Collections.emptySortedSet());
+        gui.applyStructure(structure);
+        return gui;
     }
     
     /**
@@ -114,7 +118,9 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @return The created {@link PagedGui}.
      */
     static PagedGui<Inventory> ofInventories(Structure structure, List<? extends Inventory> inventories) {
-        return new PagedInventoriesGuiImpl<>(structure, MutableProperty.of(0), Property.of(inventories));
+        var gui = ofInventories(structure.getWidth(), structure.getHeight(), inventories, Collections.emptySortedSet());
+        gui.applyStructure(structure);
+        return gui;
     }
     
     /**
@@ -247,7 +253,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
          * @param content The content property to set.
          * @return This {@link Builder Gui Builder}.
          */
-        Builder<C> setContent(Property<? extends List<? extends C>> content);
+        Builder<C> setContent(MutableProperty<List<? extends C>> content);
         
         /**
          * Sets the content of the {@link PagedGui} for all pages.
@@ -256,7 +262,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
          * @return This {@link Builder Gui Builder}.
          */
         default Builder<C> setContent(List<? extends C> content) {
-            return setContent(Property.of(content));
+            return setContent(MutableProperty.of(content));
         }
         
         /**

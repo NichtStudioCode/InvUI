@@ -9,7 +9,7 @@ import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomFurnaceMenu;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
-import xyz.xenondevs.invui.state.Property;
+import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +22,8 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
     private final AbstractGui resultGui;
     private final AbstractGui lowerGui;
     private final List<Consumer<? super Key>> recipeClickHandlers = new ArrayList<>();
-    private Property<? extends Double> cookProgress;
-    private Property<? extends Double> burnProgress;
+    private final MutableProperty<Double> cookProgress;
+    private final MutableProperty<Double> burnProgress;
     
     public FurnaceWindowImpl(
         Player player,
@@ -31,9 +31,9 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
         AbstractGui inputGui,
         AbstractGui resultGui,
         AbstractGui lowerGui,
-        Property<? extends Double> cookProgress,
-        Property<? extends Double> burnProgress,
-        Property<? extends Boolean> closeable
+        MutableProperty<Double> cookProgress,
+        MutableProperty<Double> burnProgress,
+        MutableProperty<Boolean> closeable
     ) {
         super(player, title, lowerGui, 39, new CustomFurnaceMenu(player), closeable);
         if (inputGui.getWidth() != 1 || inputGui.getHeight() != 2)
@@ -62,11 +62,7 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
     
     @Override
     public void setCookProgress(double progress) {
-        if (progress < 0 || progress > 1)
-            throw new IllegalArgumentException("Progress must be between 0 and 1, but was " + progress);
-        cookProgress.unobserveWeak(this);
-        cookProgress = Property.of(progress);
-        menu.setCookProgress(progress);
+        this.cookProgress.set(progress);
     }
     
     @Override
@@ -76,11 +72,7 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
     
     @Override
     public void setBurnProgress(double progress) {
-        if (progress < 0 || progress > 1)
-            throw new IllegalArgumentException("Progress must be between 0 and 1, but was " + progress);
-        burnProgress.unobserveWeak(this);
-        burnProgress = Property.of(progress);
-        menu.setBurnProgress(progress);
+        this.burnProgress.set(progress);
     }
     
     @Override
@@ -129,8 +121,8 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
         private final List<Consumer<? super Key>> recipeClickHandlers = new ArrayList<>();
         private Supplier<? extends Gui> inputGuiSupplier = () -> Gui.empty(1, 2);
         private Supplier<? extends Gui> resultGuiSupplier = () -> Gui.empty(1, 1);
-        private Property<? extends Double> cookProgress = Property.of(0.0);
-        private Property<? extends Double> burnProgress = Property.of(0.0);
+        private MutableProperty<Double> cookProgress = MutableProperty.of(0.0);
+        private MutableProperty<Double> burnProgress = MutableProperty.of(0.0);
         
         @Override
         public FurnaceWindow.Builder setInputGui(Supplier<? extends Gui> guiSupplier) {
@@ -158,13 +150,13 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
         }
         
         @Override
-        public FurnaceWindow.Builder setCookProgress(Property<? extends Double> progress) {
+        public FurnaceWindow.Builder setCookProgress(MutableProperty<Double> progress) {
             this.cookProgress = progress;
             return this;
         }
         
         @Override
-        public FurnaceWindow.Builder setBurnProgress(Property<? extends Double> progress) {
+        public FurnaceWindow.Builder setBurnProgress(MutableProperty<Double> progress) {
             this.burnProgress = progress;
             return this;
         }

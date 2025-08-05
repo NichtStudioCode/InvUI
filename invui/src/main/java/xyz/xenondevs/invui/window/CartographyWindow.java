@@ -4,7 +4,7 @@ import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
-import xyz.xenondevs.invui.state.Property;
+import xyz.xenondevs.invui.state.MutableProperty;
 import xyz.xenondevs.invui.util.ColorPalette;
 
 import java.awt.image.BufferedImage;
@@ -342,7 +342,7 @@ public sealed interface CartographyWindow extends Window permits CartographyWind
          * @return This {@link Builder}
          */
         default Builder setIcons(Set<? extends MapIcon> icons) {
-            return setIcons(Property.of(icons));
+            return setIcons(MutableProperty.of(icons));
         }
         
         /**
@@ -351,7 +351,7 @@ public sealed interface CartographyWindow extends Window permits CartographyWind
          * @param icons The property containing the {@link MapIcon MapIcons} to set.
          * @return This {@link Builder}
          */
-        Builder setIcons(Property<? extends Set<? extends MapIcon>> icons);
+        Builder setIcons(MutableProperty<Set<? extends MapIcon>> icons);
         
         /**
          * Sets the map colors of the map.
@@ -378,7 +378,7 @@ public sealed interface CartographyWindow extends Window permits CartographyWind
          * @return This {@link Builder}
          */
         default Builder setView(View view) {
-            return setView(Property.of(view));
+            return setView(MutableProperty.of(view));
         }
         
         /**
@@ -387,7 +387,7 @@ public sealed interface CartographyWindow extends Window permits CartographyWind
          * @param view The view property.
          * @return This {@link Builder}
          */
-        Builder setView(Property<? extends View> view);
+        Builder setView(MutableProperty<View> view);
         
     }
     

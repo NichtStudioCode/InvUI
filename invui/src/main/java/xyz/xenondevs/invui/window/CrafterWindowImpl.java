@@ -9,7 +9,6 @@ import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomCrafterMenu;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
 import xyz.xenondevs.invui.state.MutableProperty;
-import xyz.xenondevs.invui.state.Property;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +33,7 @@ final class CrafterWindowImpl extends AbstractSplitWindow<CustomCrafterMenu> imp
         AbstractGui lowerGui,
         List<? extends MutableProperty<Boolean>> slots,
         List<BiConsumer<? super Integer, ? super Boolean>> slotToggleHandlers,
-        Property<? extends Boolean> closeable
+        MutableProperty<Boolean> closeable
     ) {
         super(player, title, lowerGui, 46, new CustomCrafterMenu(player), closeable);
         if (craftingGui.getWidth() != 3 || craftingGui.getHeight() != 3)

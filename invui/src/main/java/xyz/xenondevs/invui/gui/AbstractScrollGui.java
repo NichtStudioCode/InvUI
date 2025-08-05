@@ -6,8 +6,8 @@ import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.internal.util.ArrayUtils;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
 import xyz.xenondevs.invui.internal.util.SlotUtils;
+import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
-import xyz.xenondevs.invui.state.Property;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,20 +25,21 @@ sealed abstract class AbstractScrollGui<C>
     private int[] contentListSlots = new int[0];
     
     private final MutableProperty<Integer> line;
-    private Property<? extends List<? extends C>> content;
+    private final MutableProperty<List<? extends C>> content;
     private final List<BiConsumer<? super Integer, ? super Integer>> scrollHandlers = new ArrayList<>(0);
     private final List<BiConsumer<? super Integer, ? super Integer>> lineCountChangeHandlers = new ArrayList<>(0);
     private @Nullable List<SlotElement> elements;
+    private int previousLine;
     
     public AbstractScrollGui(
         int width, int height,
         SequencedSet<? extends Slot> contentListSlots,
         boolean horizontalLines,
-        Property<? extends List<? extends C>> content
+        MutableProperty<List<? extends C>> content
     ) {
         super(width, height);
         this.line = MutableProperty.of(0);
-        line.observeWeak(this, AbstractScrollGui::update);
+        line.observeWeak(this, AbstractScrollGui::handleLineChange);
         this.content = content;
         content.observeWeak(this, AbstractScrollGui::bake);
         setContentListSlots(SlotUtils.toSlotIndicesSet(contentListSlots, getWidth()), horizontalLines);
@@ -47,11 +48,14 @@ sealed abstract class AbstractScrollGui<C>
     public AbstractScrollGui(
         Structure structure,
         MutableProperty<Integer> line,
-        Property<? extends List<? extends C>> content
+        MutableProperty<List<? extends C>> content,
+        MutableProperty<Boolean> frozen,
+        MutableProperty<Boolean> ignoreObscuredInventorySlots,
+        MutableProperty<@Nullable ItemProvider> background
     ) {
-        super(structure.getWidth(), structure.getHeight());
+        super(structure.getWidth(), structure.getHeight(), frozen, ignoreObscuredInventorySlots, background);
         this.line = line;
-        line.observeWeak(this, AbstractScrollGui::update);
+        line.observeWeak(this, AbstractScrollGui::handleLineChange);
         this.content = content;
         content.observeWeak(this, AbstractScrollGui::bake);
         super.applyStructure(structure); // super call to avoid bake() through applyStructure override
@@ -106,35 +110,33 @@ sealed abstract class AbstractScrollGui<C>
         this.lineLength = lineLength;
     }
     
-    @Override
-    public int getLine() {
-        return line.get();
+    private void handleLineChange() {
+        int targetLine = line.get();
+        int correctedLine = correctLine(targetLine);
+        if (correctedLine != targetLine) {
+            line.set(correctedLine);
+            return;
+        }
+        
+        updateContent();
+        if (targetLine != previousLine)
+            scrollHandlers.forEach(handler -> handler.accept(previousLine, targetLine));
+        previousLine = targetLine;
     }
     
-    @Override
-    public void setLine(int line) {
-        int previousLine = getLine();
-        int newLine = correctLine(line);
+    private void updateContent() {
+        assert elements != null;
+        int offset = getLine() * lineLength;
+        List<SlotElement> slotElements = elements.subList(offset, Math.min(elements.size(), contentListSlots.length + offset));
         
-        if (previousLine == newLine)
-            return;
-        
-        this.line.set(newLine);
-        update();
-        
-        scrollHandlers.forEach(handler -> handler.accept(previousLine, newLine));
+        for (int i = 0; i < contentListSlots.length; i++) {
+            setSlotElement(contentListSlots[i], slotElements.size() > i ? slotElements.get(i) : null);
+        }
     }
     
     private int correctLine(int line) {
         // 0 <= line <= maxLine
         return Math.max(0, Math.min(line, getMaxLine()));
-    }
-    
-    private void correctCurrentLine() {
-        int currentLine = getLine();
-        int correctedLine = correctLine(currentLine);
-        if (correctedLine != currentLine)
-            setLine(correctedLine);
     }
     
     @Override
@@ -157,9 +159,7 @@ sealed abstract class AbstractScrollGui<C>
     
     @Override
     public void setContent(List<? extends C> content) {
-        this.content.unobserveWeak(this);
-        this.content = Property.of(content);
-        bake();
+        this.content.set(content);
     }
     
     public void setElements(@Nullable List<SlotElement> elements) {
@@ -172,24 +172,19 @@ sealed abstract class AbstractScrollGui<C>
         }
     }
     
-    protected void update() {
-        correctCurrentLine();
-        updateContent();
-    }
-    
-    private void updateContent() {
-        assert elements != null;
-        int offset = getLine() * lineLength;
-        List<SlotElement> slotElements = elements.subList(offset, Math.min(elements.size(), contentListSlots.length + offset));
-        
-        for (int i = 0; i < contentListSlots.length; i++) {
-            setSlotElement(contentListSlots[i], slotElements.size() > i ? slotElements.get(i) : null);
-        }
-    }
-    
     @Override
     public @UnmodifiableView List<C> getContent() {
         return Collections.unmodifiableList(content.get());
+    }
+    
+    @Override
+    public int getLine() {
+        return line.get();
+    }
+    
+    @Override
+    public void setLine(int line) {
+        this.line.set(line);
     }
     
     @Override
@@ -236,7 +231,14 @@ sealed abstract class AbstractScrollGui<C>
     
     @FunctionalInterface
     public interface Constructor<C> {
-        ScrollGui<C> create(Structure structure, MutableProperty<Integer> line, Property<? extends List<? extends C>> content);
+        ScrollGui<C> create(
+            Structure structure,
+            MutableProperty<Integer> line,
+            MutableProperty<List<? extends C>> content,
+            MutableProperty<Boolean> frozen,
+            MutableProperty<Boolean> ignoreObscuredInventorySlots,
+            MutableProperty<@Nullable ItemProvider> background
+        );
     }
     
     public static sealed abstract class AbstractBuilder<C>
@@ -246,7 +248,7 @@ sealed abstract class AbstractScrollGui<C>
     {
         
         private final Constructor<C> ctor;
-        private Property<? extends List<? extends C>> content = Property.of(List.of());
+        private MutableProperty<List<? extends C>> content = MutableProperty.of(List.of());
         private MutableProperty<Integer> line = MutableProperty.of(0);
         private List<BiConsumer<? super Integer, ? super Integer>> scrollHandlers = new ArrayList<>(0);
         private List<BiConsumer<? super Integer, ? super Integer>> lineCountChangeHandlers = new ArrayList<>(0);
@@ -256,7 +258,7 @@ sealed abstract class AbstractScrollGui<C>
         }
         
         @Override
-        public ScrollGui.Builder<C> setContent(Property<? extends List<? extends C>> content) {
+        public ScrollGui.Builder<C> setContent(MutableProperty<List<? extends C>> content) {
             this.content = content;
             return this;
         }
@@ -298,7 +300,7 @@ sealed abstract class AbstractScrollGui<C>
             if (structure == null)
                 throw new IllegalStateException("Structure is not defined.");
             
-            var gui = ctor.create(structure, line, content);
+            var gui = ctor.create(structure, line, content, frozen, ignoreObscuredInventorySlots, background);
             scrollHandlers.forEach(gui::addScrollHandler);
             lineCountChangeHandlers.forEach(gui::addLineCountChangeHandler);
             applyModifiers(gui);

@@ -2,7 +2,7 @@ package xyz.xenondevs.invui.window;
 
 import org.jetbrains.annotations.UnmodifiableView;
 import xyz.xenondevs.invui.gui.Gui;
-import xyz.xenondevs.invui.state.Property;
+import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -155,7 +155,7 @@ public sealed interface AnvilWindow extends Window permits AnvilWindowImpl {
          * @return This {@link Builder}
          */
         default Builder setTextFieldAlwaysEnabled(boolean textFieldAlwaysEnabled) {
-            return setTextFieldAlwaysEnabled(Property.of(textFieldAlwaysEnabled));
+            return setTextFieldAlwaysEnabled(MutableProperty.of(textFieldAlwaysEnabled));
         }
         
         /**
@@ -164,7 +164,7 @@ public sealed interface AnvilWindow extends Window permits AnvilWindowImpl {
          * @param textFieldAlwaysEnabled The property containing whether the text field should always be enabled.
          * @return This {@link Builder}
          */
-        Builder setTextFieldAlwaysEnabled(Property<? extends Boolean> textFieldAlwaysEnabled);
+        Builder setTextFieldAlwaysEnabled(MutableProperty<Boolean> textFieldAlwaysEnabled);
         
         /**
          * Sets whether the result of the anvil is always valid, i.e. the arrow is never crossed out.
@@ -174,7 +174,7 @@ public sealed interface AnvilWindow extends Window permits AnvilWindowImpl {
          * @return This {@link Builder}
          */
         default Builder setResultAlwaysValid(boolean resultAlwaysValid) {
-            return setResultAlwaysValid(Property.of(resultAlwaysValid));
+            return setResultAlwaysValid(MutableProperty.of(resultAlwaysValid));
         }
         
         /**
@@ -184,7 +184,7 @@ public sealed interface AnvilWindow extends Window permits AnvilWindowImpl {
          * @param resultAlwaysValid The property containing whether the result should always be valid.
          * @return This {@link Builder}
          */
-        Builder setResultAlwaysValid(Property<? extends Boolean> resultAlwaysValid);
+        Builder setResultAlwaysValid(MutableProperty<Boolean> resultAlwaysValid);
         
     }
     

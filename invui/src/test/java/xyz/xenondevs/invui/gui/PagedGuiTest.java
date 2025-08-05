@@ -12,7 +12,9 @@ import org.mockbukkit.mockbukkit.ServerMock;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.state.MutableProperty;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -141,7 +143,7 @@ public class PagedGuiTest {
     
     @Test
     public void testContentProperty() {
-        MutableProperty<List<Item>> content = MutableProperty.of(List.of());
+        MutableProperty<List<? extends Item>> content = MutableProperty.of(List.of());
         
         var gui = PagedGui.itemsBuilder()
             .setStructure("x")
@@ -166,6 +168,81 @@ public class PagedGuiTest {
         
         content.set(List.of());
         assertNull(gui.getItem(0));
+    }
+    
+    @Test
+    public void testPageChangeHandler() {
+        var prevPage = new AtomicInteger();
+        var page = new AtomicInteger();
+        
+        var gui = PagedGui.itemsBuilder()
+            .setStructure(
+                "x x x",
+                "x x x", 
+                "x x x"
+            )
+            .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
+            .setContent(exampleItems())
+            .addPageChangeHandler((old, now) -> {
+                prevPage.set(old);
+                page.set(now);
+            })
+            .build();
+        
+        gui.setPage(10);
+        assertEquals(0, prevPage.get());
+        assertEquals(10, page.get());
+        
+        gui.setPage(-999); // out of bounds, coerced to 0
+        assertEquals(10, prevPage.get());
+        assertEquals(0, page.get());
+        
+        gui.setPage(0); // same page, ignored
+        assertEquals(10, prevPage.get());
+        assertEquals(0, page.get());
+    }
+    
+    @Test
+    public void testPageChangeHandlerWithPageProperty() {
+        var prevPage = new AtomicInteger();
+        var page = new AtomicInteger();
+        
+        var pageProperty = MutableProperty.of(0);
+        
+        PagedGui.itemsBuilder()
+            .setStructure(
+                "x x x",
+                "x x x",
+                "x x x"
+            )
+            .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
+            .setContent(exampleItems())
+            .setPage(pageProperty)
+            .addPageChangeHandler((old, now) -> {
+                prevPage.set(old);
+                page.set(now);
+            })
+            .build();
+        
+        pageProperty.set(10);
+        assertEquals(0, prevPage.get());
+        assertEquals(10, page.get());
+        
+        pageProperty.set(-999); // out of bounds, coerced to 0
+        assertEquals(10, prevPage.get());
+        assertEquals(0, page.get());
+        assertEquals(0, pageProperty.get());
+        
+        pageProperty.set(0); // same page, ignored
+        assertEquals(10, prevPage.get());
+        assertEquals(0, page.get());
+    }
+    
+    private List<? extends Item> exampleItems() {
+        return Arrays.stream(Material.values())
+            .filter(m -> !m.isLegacy() && m.isItem())
+            .map(m -> Item.simple(ItemStack.of(m)))
+            .toList();
     }
     
 }

@@ -4,8 +4,8 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.state.MutableProperty;
-import xyz.xenondevs.invui.state.Property;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.SequencedSet;
 import java.util.function.BiConsumer;
@@ -34,7 +34,7 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
      * @return The created {@link TabGui}.
      */
     static TabGui of(int width, int height, List<? extends @Nullable Gui> tabs, SequencedSet<? extends Slot> contentListSlots) {
-        return new TabGuiImpl(width, height, contentListSlots, Property.of(tabs));
+        return new TabGuiImpl(width, height, contentListSlots, MutableProperty.of(tabs));
     }
     
     /**
@@ -45,7 +45,9 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
      * @return The created {@link TabGui}.
      */
     static TabGui of(Structure structure, List<? extends @Nullable Gui> tabs) {
-        return new TabGuiImpl(structure, MutableProperty.of(0), Property.of(tabs));
+        var gui = of(structure.getWidth(), structure.getHeight(), tabs, Collections.emptySortedSet());
+        gui.applyStructure(structure);
+        return gui;
     }
     
     /**
@@ -148,7 +150,7 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
          * @param tabs The tabs property to set.
          * @return This {@link Builder Gui Builder}.
          */
-        Builder setTabs(Property<? extends List<? extends @Nullable Gui>> tabs);
+        Builder setTabs(MutableProperty<List<? extends @Nullable Gui>> tabs);
         
         /**
          * Sets the tabs of the {@link TabGui}.
@@ -158,7 +160,7 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
          * @return This {@link Builder Gui Builder}.
          */
         default Builder setTabs(List<? extends @Nullable Gui> tabs) {
-            return setTabs(Property.of(tabs));
+            return setTabs(MutableProperty.of(tabs));
         }
         
         /**

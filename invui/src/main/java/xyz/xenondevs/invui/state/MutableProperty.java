@@ -1,6 +1,8 @@
 package xyz.xenondevs.invui.state;
 
 import org.jetbrains.annotations.ApiStatus;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullUnmarked;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +10,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.function.Consumer;
 
+@NullUnmarked
 @ApiStatus.Experimental
 public interface MutableProperty<T> extends Property<T>, Consumer<T> {
     
@@ -46,13 +49,13 @@ class MutablePropertyImpl<T> implements MutableProperty<T> {
     
     @SuppressWarnings("unchecked")
     @Override
-    public <O> void observeWeak(O owner, Consumer<? super O> observer) {
+    public <O> void observeWeak(O owner, @NonNull Consumer<? super O> observer) {
         weakObservers.computeIfAbsent(owner, k -> new ArrayList<>())
             .add((Consumer<Object>)observer);
     }
     
     @Override
-    public <O> void unobserveWeak(O owner, Consumer<? super O> observer) {
+    public <O> void unobserveWeak(O owner, @NonNull Consumer<? super O> observer) {
         List<Consumer<Object>> observers = weakObservers.get(owner);
         if (observers != null) {
             observers.remove(observer);
@@ -63,7 +66,7 @@ class MutablePropertyImpl<T> implements MutableProperty<T> {
     }
     
     @Override
-    public void unobserveWeak(Object owner) {
+    public void unobserveWeak(@NonNull Object owner) {
         weakObservers.remove(owner);
     }
     

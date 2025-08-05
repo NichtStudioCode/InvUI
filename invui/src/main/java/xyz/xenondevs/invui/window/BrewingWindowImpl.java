@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomBrewingStandMenu;
-import xyz.xenondevs.invui.state.Property;
+import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -17,8 +17,8 @@ final class BrewingWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu
     private final AbstractGui fuelGui;
     private final AbstractGui resultGui;
     private final AbstractGui lowerGui;
-    private Property<? extends Double> brewProgress;
-    private Property<? extends Double> fuelProgress;
+    private final MutableProperty<Double> brewProgress;
+    private final MutableProperty<Double> fuelProgress;
     
     public BrewingWindowImpl(
         Player player,
@@ -27,9 +27,9 @@ final class BrewingWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu
         AbstractGui fuelGui,
         AbstractGui resultGui,
         AbstractGui lowerGui,
-        Property<? extends Double> brewProgress,
-        Property<? extends Double> fuelProgress,
-        Property<? extends Boolean> closeable
+        MutableProperty<Double> brewProgress,
+        MutableProperty<Double> fuelProgress,
+        MutableProperty<Boolean> closeable
     ) {
         super(player, title, lowerGui, 41, new CustomBrewingStandMenu(player), closeable);
         if (inputGui.getWidth() != 1 || inputGui.getHeight() != 1)
@@ -54,12 +54,7 @@ final class BrewingWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu
     
     @Override
     public void setBrewProgress(double progress) {
-        if (progress < 0 || progress > 1)
-            throw new IllegalArgumentException("Brew progress must be between 0 and 1, but was " + progress);
-        
-        brewProgress.unobserveWeak(this);
-        brewProgress = Property.of(progress);
-        menu.setBrewProgress(progress);
+        brewProgress.set(progress);
     }
     
     @Override
@@ -69,12 +64,7 @@ final class BrewingWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu
     
     @Override
     public void setFuelProgress(double progress) {
-        if (progress < 0 || progress > 1)
-            throw new IllegalArgumentException("Fuel progress must be between 0 and 1, but was " + progress);
-        
-        fuelProgress.unobserveWeak(this);
-        fuelProgress = Property.of(progress);
-        menu.setFuelProgress(progress);
+        fuelProgress.set(progress);
     }
     
     @Override
@@ -95,8 +85,8 @@ final class BrewingWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu
         private Supplier<? extends Gui> inputGuiSupplier = () -> Gui.empty(1, 1);
         private Supplier<? extends Gui> fuelGuiSupplier = () -> Gui.empty(1, 1);
         private Supplier<? extends Gui> resultGuiSupplier = () -> Gui.empty(3, 1);
-        private Property<? extends Double> brewProgress = Property.of(0.0);
-        private Property<? extends Double> fuelProgress = Property.of(0.0);
+        private MutableProperty<Double> brewProgress = MutableProperty.of(0.0);
+        private MutableProperty<Double> fuelProgress = MutableProperty.of(0.0);
         
         @Override
         public BrewingWindow.Builder setInputGui(Supplier<? extends Gui> guiSupplier) {
@@ -117,13 +107,13 @@ final class BrewingWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu
         }
         
         @Override
-        public BrewingWindow.Builder setBrewProgress(Property<? extends Double> progress) {
+        public BrewingWindow.Builder setBrewProgress(MutableProperty<Double> progress) {
             this.brewProgress = progress;
             return this;
         }
         
         @Override
-        public BrewingWindow.Builder setFuelProgress(Property<? extends Double> progress) {
+        public BrewingWindow.Builder setFuelProgress(MutableProperty<Double> progress) {
             this.fuelProgress = progress;
             return this;
         }

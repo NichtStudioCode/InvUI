@@ -12,7 +12,9 @@ import org.mockbukkit.mockbukkit.ServerMock;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.state.MutableProperty;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -203,7 +205,7 @@ public class ScrollGuiTest {
     
     @Test
     public void testContentProperty() {
-        MutableProperty<List<Item>> content = MutableProperty.of(List.of());
+        MutableProperty<List<? extends Item>> content = MutableProperty.of(List.of());
         
         var gui = ScrollGui.itemsBuilder()
             .setStructure("x")
@@ -228,6 +230,81 @@ public class ScrollGuiTest {
         
         content.set(List.of());
         assertNull(gui.getItem(0));
+    }
+    
+    @Test
+    public void testScrollHandler() {
+        var prevLine = new AtomicInteger();
+        var line = new AtomicInteger();
+        
+        var gui = ScrollGui.itemsBuilder()
+            .setStructure(
+                "x x x",
+                "x x x",
+                "x x x"
+            )
+            .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
+            .setContent(exampleItems())
+            .addScrollHandler((old, now) -> {
+                prevLine.set(old);
+                line.set(now);
+            })
+            .build();
+        
+        gui.setLine(10);
+        assertEquals(0, prevLine.get());
+        assertEquals(10, line.get());
+        
+        gui.setLine(-999); // out of bounds, coerced to 0
+        assertEquals(10, prevLine.get());
+        assertEquals(0, line.get());
+        
+        gui.setLine(0); // same line, ignored
+        assertEquals(10, prevLine.get());
+        assertEquals(0, line.get());
+    }
+    
+    @Test
+    public void testScrollHandlerWithLineProperty() {
+        var prevLine = new AtomicInteger();
+        var line = new AtomicInteger();
+        
+        var lineProperty = MutableProperty.of(0);
+        
+        ScrollGui.itemsBuilder()
+            .setStructure(
+                "x x x",
+                "x x x",
+                "x x x"
+            )
+            .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
+            .setContent(exampleItems())
+            .setLine(lineProperty)
+            .addScrollHandler((old, now) -> {
+                prevLine.set(old);
+                line.set(now);
+            })
+            .build();
+        
+        lineProperty.set(10);
+        assertEquals(0, prevLine.get());
+        assertEquals(10, line.get());
+        
+        lineProperty.set(-999); // out of bounds, coerced to 0
+        assertEquals(10, prevLine.get());
+        assertEquals(0, line.get());
+        assertEquals(0, lineProperty.get());
+        
+        lineProperty.set(0); // same line, ignored
+        assertEquals(10, prevLine.get());
+        assertEquals(0, line.get());
+    }
+    
+    private List<? extends Item> exampleItems() {
+        return Arrays.stream(Material.values())
+            .filter(m -> !m.isLegacy() && m.isItem())
+            .map(m -> Item.simple(ItemStack.of(m)))
+            .toList();
     }
     
 }

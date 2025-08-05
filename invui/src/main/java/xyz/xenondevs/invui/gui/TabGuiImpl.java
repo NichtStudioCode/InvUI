@@ -5,8 +5,8 @@ import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
 import xyz.xenondevs.invui.internal.util.SlotUtils;
+import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
-import xyz.xenondevs.invui.state.Property;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,20 +19,21 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     private int[] contentListSlots;
     
     private final MutableProperty<Integer> tab;
-    private Property<? extends List<? extends @Nullable Gui>> tabs;
+    private final MutableProperty<List<? extends @Nullable Gui>> tabs;
     private final List<BiConsumer<? super Integer, ? super Integer>> tabChangeHandlers = new ArrayList<>(0);
     private List<@Nullable List<SlotElement.GuiLink>> linkingElements = List.of();
+    private int previousTab = -1;
     
     public TabGuiImpl(
         int width, int height,
         SequencedSet<? extends Slot> contentListSlots,
-        Property<? extends List<? extends @Nullable Gui>> tabs
+        MutableProperty<List<? extends @Nullable Gui>> tabs
     ) {
         super(width, height);
         if (contentListSlots.isEmpty())
             throw new IllegalArgumentException("Content list slots must not be empty");
         this.tab = MutableProperty.of(0);
-        tab.observeWeak(this, TabGuiImpl::update);
+        tab.observeWeak(this, TabGuiImpl::handleTabChange);
         this.tabs = tabs;
         tabs.observeWeak(this, TabGuiImpl::bake);
         this.contentListSlots = SlotUtils.toSlotIndices(contentListSlots, getWidth());
@@ -42,11 +43,14 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     public TabGuiImpl(
         Structure structure,
         MutableProperty<Integer> tab,
-        Property<? extends List<? extends @Nullable Gui>> tabs
+        MutableProperty<List<? extends @Nullable Gui>> tabs,
+        MutableProperty<Boolean> frozen,
+        MutableProperty<Boolean> ignoreObscuredInventorySlots,
+        MutableProperty<@Nullable ItemProvider> background
     ) {
-        super(structure.getWidth(), structure.getHeight());
+        super(structure.getWidth(), structure.getHeight(), frozen, ignoreObscuredInventorySlots, background);
         this.tab = tab;
-        tab.observeWeak(this, TabGuiImpl::update);
+        tab.observeWeak(this, TabGuiImpl::handleTabChange);
         this.tabs = tabs;
         tabs.observeWeak(this, TabGuiImpl::bake);
         super.applyStructure(structure); // super call to avoid bake() through applyStructure override
@@ -89,63 +93,21 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
         }
         
         this.linkingElements = linkingElements;
-        update();
+        setTab(getTab()); // corrects tab and refreshes content
     }
     
-    private void update() {
-        correctCurrentTab();
-        updateContent();
-    }
-    
-    private void updateContent() {
-        int currentTab = getTab();
-        if (currentTab != -1) {
-            List<SlotElement.GuiLink> slotElements = linkingElements.get(currentTab);
-            for (int i = 0; i < contentListSlots.length; i++) {
-                setSlotElement(contentListSlots[i], slotElements != null && slotElements.size() > i ? slotElements.get(i) : null);
-            }
-        } else {
-            for (int slot : contentListSlots) {
-                setSlotElement(slot, null);
-            }
-        }
-    }
-    
-    @Override
-    public void setTabs(List<? extends @Nullable Gui> tabs) {
-        this.tabs.unobserveWeak(this);
-        this.tabs = Property.of(tabs);
-        bake();
-    }
-    
-    @Override
-    public @UnmodifiableView List<@Nullable Gui> getTabs() {
-        return Collections.unmodifiableList(tabs.get());
-    }
-    
-    @Override
-    public boolean isTabAvailable(int tab) {
-        var tabs = getTabs();
-        return tab >= 0 && tab < tabs.size() && tabs.get(tab) != null;
-    }
-    
-    @Override
-    public void setTab(int tab) {
-        int previousTab = getTab();
-        int newTab = correctTab(tab);
-        
-        if (newTab == previousTab)
+    private void handleTabChange() {
+        int targetTab = tab.get();
+        int correctedTab = correctTab(targetTab);
+        if (correctedTab != targetTab) {
+            tab.set(correctedTab);
             return;
+        }
         
-        this.tab.set(newTab); // calls update()
-        tabChangeHandlers.forEach(handler -> handler.accept(previousTab, newTab));
-    }
-    
-    private void correctCurrentTab() {
-        int currentTab = getTab();
-        int correctedTab = correctTab(currentTab);
-        if (correctedTab != currentTab)
-            setTab(correctedTab);
+        updateContent();
+        if (targetTab != previousTab)
+          tabChangeHandlers.forEach(handler -> handler.accept(previousTab, targetTab));
+        previousTab = targetTab;
     }
     
     private int correctTab(int tab) {
@@ -172,8 +134,43 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
         }
     }
     
+    @Override
+    public boolean isTabAvailable(int tab) {
+        var tabs = getTabs();
+        return tab >= 0 && tab < tabs.size() && tabs.get(tab) != null;
+    }
+    
+    private void updateContent() {
+        int currentTab = getTab();
+        if (currentTab >= 0) {
+            List<SlotElement.GuiLink> slotElements = linkingElements.get(currentTab);
+            for (int i = 0; i < contentListSlots.length; i++) {
+                setSlotElement(contentListSlots[i], slotElements != null && slotElements.size() > i ? slotElements.get(i) : null);
+            }
+        } else {
+            for (int slot : contentListSlots) {
+                setSlotElement(slot, null);
+            }
+        }
+    }
+    
+    @Override
+    public void setTab(int tab) {
+        this.tab.set(tab);
+    }
+    
     public int getTab() {
         return tab.get();
+    }
+    
+    @Override
+    public void setTabs(List<? extends @Nullable Gui> tabs) {
+        this.tabs.set(tabs);
+    }
+    
+    @Override
+    public @UnmodifiableView List<@Nullable Gui> getTabs() {
+        return Collections.unmodifiableList(tabs.get());
     }
     
     @Override
@@ -202,12 +199,12 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
         implements TabGui.Builder
     {
         
-        private Property<? extends List<? extends @Nullable Gui>> tabs = Property.of(List.of());
+        private MutableProperty<List<? extends @Nullable Gui>> tabs = MutableProperty.of(List.of());
         private MutableProperty<Integer> tab = MutableProperty.of(0);
         private List<BiConsumer<? super Integer, ? super Integer>> tabChangeHandlers = new ArrayList<>(0);
         
         @Override
-        public TabGui.Builder setTabs(Property<? extends List<? extends @Nullable Gui>> tabs) {
+        public TabGui.Builder setTabs(MutableProperty<List<? extends @Nullable Gui>> tabs) {
             this.tabs = tabs;
             return this;
         }
@@ -236,7 +233,7 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
             if (structure == null)
                 throw new IllegalStateException("Structure is not defined.");
             
-            var gui = new TabGuiImpl(structure, tab, tabs);
+            var gui = new TabGuiImpl(structure, tab, tabs, frozen, ignoreObscuredInventorySlots, background);
             tabChangeHandlers.forEach(gui::addTabChangeHandler);
             applyModifiers(gui);
             

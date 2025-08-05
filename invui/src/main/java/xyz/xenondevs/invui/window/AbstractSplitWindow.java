@@ -11,7 +11,7 @@ import xyz.xenondevs.invui.internal.menu.CustomContainerMenu;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.inventory.OperationCategory;
 import xyz.xenondevs.invui.inventory.ReferencingInventory;
-import xyz.xenondevs.invui.state.Property;
+import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.function.Supplier;
 
@@ -26,7 +26,7 @@ sealed abstract class AbstractSplitWindow<M extends CustomContainerMenu>
     
     private final AbstractGui lowerGui;
     
-    AbstractSplitWindow(Player player, Supplier<? extends Component> title, AbstractGui lowerGui, int size, M menu, Property<? extends Boolean> closeable) {
+    AbstractSplitWindow(Player player, Supplier<? extends Component> title, AbstractGui lowerGui, int size, M menu, MutableProperty<Boolean> closeable) {
         super(player, title, size, menu, closeable);
         this.lowerGui = lowerGui;
         

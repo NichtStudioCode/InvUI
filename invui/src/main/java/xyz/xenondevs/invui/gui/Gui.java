@@ -7,6 +7,8 @@ import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
+import xyz.xenondevs.invui.item.ItemWrapper;
+import xyz.xenondevs.invui.state.MutableProperty;
 import xyz.xenondevs.invui.window.Window;
 
 import java.util.Collection;
@@ -898,18 +900,24 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
         /**
          * Sets the background of the {@link Gui}.
          *
-         * @param itemProvider The {@link ItemProvider} for the background
+         * @param background The {@link ItemProvider} for the background
          * @return This {@link Builder Gui Builder}
          */
-        S setBackground(ItemProvider itemProvider);
+        default S setBackground(@Nullable ItemProvider background) {
+            return setBackground(MutableProperty.of(background));
+        }
         
         /**
          * Sets the background of the {@link Gui}.
          *
-         * @param itemStack The {@link ItemStack} for the background
+         * @param background The {@link ItemStack} for the background
          * @return This {@link Builder Gui Builder}
          */
-        S setBackground(ItemStack itemStack);
+        default S setBackground(ItemStack background) {
+            return setBackground(new ItemWrapper(background));
+        }
+        
+        S setBackground(MutableProperty<@Nullable ItemProvider> background);
         
         /**
          * Sets whether the {@link Gui} should be frozen.
@@ -917,7 +925,11 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
          * @param frozen Whether the {@link Gui} should be frozen
          * @return This {@link Builder Gui Builder}
          */
-        S setFrozen(boolean frozen);
+        default S setFrozen(boolean frozen) {
+            return setFrozen(MutableProperty.of(frozen));
+        }
+        
+        S setFrozen(MutableProperty<Boolean> frozen);
         
         /**
          * Sets whether it is possible to shift-click items into and cursor collect items from all {@link Inventory}
@@ -927,7 +939,11 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
          *                                     and collecting to the cursor.
          * @return This {@link Builder Gui Builder}
          */
-        S setIgnoreObscuredInventorySlots(boolean ignoreObscuredInventorySlots);
+        default S setIgnoreObscuredInventorySlots(boolean ignoreObscuredInventorySlots) {
+            return setIgnoreObscuredInventorySlots(MutableProperty.of(ignoreObscuredInventorySlots));
+        }
+        
+        S setIgnoreObscuredInventorySlots(MutableProperty<Boolean> ignoreObscuredInventorySlots);
         
         /**
          * Adds a {@link Consumer} that is run when the {@link Gui} is built.

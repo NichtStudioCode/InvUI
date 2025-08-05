@@ -10,13 +10,16 @@ import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomMerchantMenu;
+import xyz.xenondevs.invui.internal.util.CollectionUtils;
 import xyz.xenondevs.invui.item.AbstractItem;
 import xyz.xenondevs.invui.item.Item;
+import xyz.xenondevs.invui.state.MutableProperty;
 import xyz.xenondevs.invui.state.Property;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -28,21 +31,24 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
     private final AbstractGui lowerGui;
     private final List<TradeImpl> lastKnownTrades = new ArrayList<>();
     
-    private Property<? extends List<? extends Trade>> trades;
-    private Property<? extends Integer> level;
-    private Property<? extends Double> progress;
-    private Property<? extends Boolean> restockMessage;
+    private final MutableProperty<List<? extends Trade>> trades;
+    private final MutableProperty<Integer> level;
+    private final MutableProperty<Double> progress;
+    private final MutableProperty<Boolean> restockMessage;
+    
+    private final List<BiConsumer<? super Integer, ? super Integer>> tradeSelectHandlers = new ArrayList<>();
+    private int previousSelectedTrade = -1;
     
     MerchantWindowImpl(
         Player player,
         Supplier<? extends Component> title,
         AbstractGui upperGui,
         AbstractGui lowerGui,
-        Property<? extends List<? extends Trade>> trades,
-        Property<? extends Integer> level,
-        Property<? extends Double> progress,
-        Property<? extends Boolean> restockMessage,
-        Property<? extends Boolean> closeable
+        MutableProperty<List<? extends Trade>> trades,
+        MutableProperty<Integer> level,
+        MutableProperty<Double> progress,
+        MutableProperty<Boolean> restockMessage,
+        MutableProperty<Boolean> closeable
     ) {
         super(player, title, lowerGui, 3 + 36, new CustomMerchantMenu(player), closeable);
         if (upperGui.getWidth() != 3 || upperGui.getHeight() != 1)
@@ -68,34 +74,33 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
         if (tradeIndex < 0 || tradeIndex >= lastKnownTrades.size())
             return;
         lastKnownTrades.get(tradeIndex).handleClick(getViewer());
+        
+        if (tradeIndex != previousSelectedTrade) {
+            for (var handler : tradeSelectHandlers) {
+                handler.accept(previousSelectedTrade, tradeIndex);
+            }
+            previousSelectedTrade = tradeIndex;
+        }
     }
     
     @Override
     public void setLevel(int level) {
-        this.level.unobserveWeak(this);
-        this.level = Property.of(level);
-        updateTrades();
+        this.level.set(level);
     }
     
     @Override
     public void setProgress(double progress) {
-        this.progress.unobserveWeak(this);
-        this.progress = Property.of(progress);
-        updateTrades();
+        this.progress.set(progress);
     }
     
     @Override
     public void setRestockMessageEnabled(boolean enabled) {
-        this.restockMessage.unobserveWeak(this);
-        this.restockMessage = Property.of(enabled);
-        updateTrades();
+        this.restockMessage.set(enabled);
     }
     
     @Override
     public void setTrades(List<? extends Trade> trades) {
-        this.trades.unobserveWeak(this);
-        this.trades = Property.of(trades);
-        updateTrades();
+        this.trades.set(trades);
     }
     
     @Override
@@ -171,6 +176,27 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
         } else {
             super.update(slot);
         }
+    }
+    
+    @Override
+    public void addTradeSelectHandler(BiConsumer<? super Integer, ? super Integer> handler) {
+        tradeSelectHandlers.add(handler);
+    }
+    
+    @Override
+    public void removeTradeSelectHandler(BiConsumer<? super Integer, ? super Integer> handler) {
+        tradeSelectHandlers.remove(handler);
+    }
+    
+    @Override
+    public void setTradeSelectHandlers(List<? extends BiConsumer<Integer, Integer>> handlers) {
+        tradeSelectHandlers.clear();
+        tradeSelectHandlers.addAll(handlers);
+    }
+    
+    @Override
+    public @UnmodifiableView List<BiConsumer<Integer, Integer>> getTradeSelectHandlers() {
+        return CollectionUtils.unmodifiableListUnchecked(tradeSelectHandlers);
     }
     
     @Override
@@ -305,32 +331,33 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
         implements MerchantWindow.Builder
     {
         
+        private final List<BiConsumer<? super Integer, ? super Integer>> tradeSelectHandlers = new ArrayList<>();
         private Supplier<? extends Gui> upperGuiSupplier = () -> Gui.empty(3, 1);
-        private Property<? extends List<? extends Trade>> trades = Property.of(List.of());
-        private Property<? extends Integer> level = Property.of(0);
-        private Property<? extends Double> progress = Property.of(-1d);
-        private Property<? extends Boolean> restockMessageEnabled = Property.of(false);
+        private MutableProperty<List<? extends Trade>> trades = MutableProperty.of(List.of());
+        private MutableProperty<Integer> level = MutableProperty.of(0);
+        private MutableProperty<Double> progress = MutableProperty.of(-1d);
+        private MutableProperty<Boolean> restockMessageEnabled = MutableProperty.of(false);
         
         @Override
-        public MerchantWindow.Builder setLevel(Property<? extends Integer> level) {
+        public MerchantWindow.Builder setLevel(MutableProperty<Integer> level) {
             this.level = level;
             return this;
         }
         
         @Override
-        public MerchantWindow.Builder setProgress(Property<? extends Double> progress) {
+        public MerchantWindow.Builder setProgress(MutableProperty<Double> progress) {
             this.progress = progress;
             return this;
         }
         
         @Override
-        public MerchantWindow.Builder setRestockMessageEnabled(Property<? extends Boolean> enabled) {
+        public MerchantWindow.Builder setRestockMessageEnabled(MutableProperty<Boolean> enabled) {
             this.restockMessageEnabled = enabled;
             return this;
         }
         
         @Override
-        public MerchantWindow.Builder setTrades(Property<? extends List<? extends Trade>> trades) {
+        public MerchantWindow.Builder setTrades(MutableProperty<List<? extends Trade>> trades) {
             this.trades = trades;
             return this;
         }
@@ -341,6 +368,20 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
             return this;
         }
         
+        @Override
+        public MerchantWindow.Builder addTradeSelectHandler(BiConsumer<? super Integer, ? super Integer> handler) {
+            this.tradeSelectHandlers.add(handler);
+            return this;
+        }
+        
+        @Override
+        public MerchantWindow.Builder setTradeSelectHandlers(List<? extends BiConsumer<Integer, Integer>> handlers) {
+            this.tradeSelectHandlers.clear();
+            this.tradeSelectHandlers.addAll(handlers);
+            return this;
+        }
+        
+        @SuppressWarnings({"unchecked", "rawtypes"})
         @Override
         public MerchantWindow build(Player viewer) {
             var window = new MerchantWindowImpl(
@@ -354,7 +395,10 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
                 restockMessageEnabled,
                 closeable
             );
+            
+            window.setTradeSelectHandlers((List) tradeSelectHandlers);
             applyModifiers(window);
+            
             return window;
         }
         
