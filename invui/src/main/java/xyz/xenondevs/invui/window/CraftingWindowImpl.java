@@ -44,9 +44,11 @@ final class CraftingWindowImpl extends AbstractSplitWindow<CustomCraftingTableMe
     }
     
     private void handleRecipeClick(Key recipeId) {
-        for (var handler : recipeClickHandlers) {
-            handler.accept(recipeId);
-        }
+        CollectionUtils.forEachCatching(
+            recipeClickHandlers,
+            handler -> handler.accept(recipeId),
+            "Failed to handle recipe click of '" + recipeId + "'"
+        );
     }
     
     @Override

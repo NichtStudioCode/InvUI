@@ -6,12 +6,16 @@ import org.jetbrains.annotations.Unmodifiable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomBrewingStandMenu;
+import xyz.xenondevs.invui.internal.util.FuncUtils;
 import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.List;
 import java.util.function.Supplier;
 
 final class BrewingWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu> implements BrewingWindow {
+    
+    private static final double DEFAULT_BREW_PROGRESS = 0.0;
+    private static final double DEFAULT_FUEL_PROGRESS = 0.0;
     
     private final AbstractGui inputGui;
     private final AbstractGui fuelGui;
@@ -46,10 +50,10 @@ final class BrewingWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu
         this.brewProgress = brewProgress;
         this.fuelProgress = fuelProgress;
         
-        brewProgress.observeWeak(this, thisRef -> thisRef.menu.setBrewProgress(brewProgress.get()));
-        fuelProgress.observeWeak(this, thisRef -> thisRef.menu.setFuelProgress(fuelProgress.get()));
-        menu.setBrewProgress(brewProgress.get());
-        menu.setFuelProgress(fuelProgress.get());
+        brewProgress.observeWeak(this, thisRef -> thisRef.menu.setBrewProgress(thisRef.getBrewProgress()));
+        fuelProgress.observeWeak(this, thisRef -> thisRef.menu.setFuelProgress(thisRef.getFuelProgress()));
+        menu.setBrewProgress(getBrewProgress());
+        menu.setFuelProgress(getFuelProgress());
     }
     
     @Override
@@ -59,7 +63,7 @@ final class BrewingWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu
     
     @Override
     public double getBrewProgress() {
-        return brewProgress.get();
+        return FuncUtils.getSafely(brewProgress, DEFAULT_BREW_PROGRESS);
     }
     
     @Override
@@ -69,7 +73,7 @@ final class BrewingWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu
     
     @Override
     public double getFuelProgress() {
-        return fuelProgress.get();
+        return FuncUtils.getSafely(fuelProgress, DEFAULT_FUEL_PROGRESS);
     }
     
     @Override
@@ -85,8 +89,8 @@ final class BrewingWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu
         private Supplier<? extends Gui> inputGuiSupplier = () -> Gui.empty(1, 1);
         private Supplier<? extends Gui> fuelGuiSupplier = () -> Gui.empty(1, 1);
         private Supplier<? extends Gui> resultGuiSupplier = () -> Gui.empty(3, 1);
-        private MutableProperty<Double> brewProgress = MutableProperty.of(0.0);
-        private MutableProperty<Double> fuelProgress = MutableProperty.of(0.0);
+        private MutableProperty<Double> brewProgress = MutableProperty.of(DEFAULT_BREW_PROGRESS);
+        private MutableProperty<Double> fuelProgress = MutableProperty.of(DEFAULT_FUEL_PROGRESS);
         
         @Override
         public BrewingWindow.Builder setInputGui(Supplier<? extends Gui> guiSupplier) {

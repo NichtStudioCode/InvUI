@@ -10,6 +10,7 @@ import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomAnvilMenu;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
+import xyz.xenondevs.invui.internal.util.FuncUtils;
 import xyz.xenondevs.invui.state.MutableProperty;
 import xyz.xenondevs.invui.util.ItemUtils;
 
@@ -19,6 +20,9 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> implements AnvilWindow {
+    
+    private static final boolean DEFAULT_TEXT_FIELD_ALWAYS_ENABLED = true;
+    private static final boolean DEFAULT_RESULT_ALWAYS_VALID = false;
     
     private final List<Consumer<? super String>> renameHandlers = new ArrayList<>();
     private final AbstractGui upperGui;
@@ -50,14 +54,16 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
     }
     
     private void handleRename(String text) {
-        for (var handler : renameHandlers) {
-            handler.accept(text);
-        }
+        CollectionUtils.forEachCatching(
+            renameHandlers, 
+            handler -> handler.accept(text), 
+            "Failed to handle anvil rename to '" + text + "'"
+        );
     }
     
     @Override
     protected void setMenuItem(int slot, @Nullable ItemStack itemStack) {
-        if ((slot == 0 && textFieldAlwaysEnabled.get()) || (slot == 2 && resultAlwaysValid.get())) {
+        if ((slot == 0 && getTextFieldAlwaysEnabled()) || (slot == 2 && getResultAlwaysValid())) {
             menu.setItem(slot, ItemUtils.takeOrPlaceholder(itemStack));
         } else {
             super.setMenuItem(slot, itemStack);
@@ -81,7 +87,7 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
     
     @Override
     public boolean getTextFieldAlwaysEnabled() {
-        return textFieldAlwaysEnabled.get();
+        return FuncUtils.getSafely(textFieldAlwaysEnabled, DEFAULT_TEXT_FIELD_ALWAYS_ENABLED);
     }
     
     @Override
@@ -91,7 +97,7 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
     
     @Override
     public boolean getResultAlwaysValid() {
-        return resultAlwaysValid.get();
+        return FuncUtils.getSafely(resultAlwaysValid, DEFAULT_RESULT_ALWAYS_VALID);
     }
     
     @Override
@@ -132,8 +138,8 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
         
         private final List<Consumer<? super String>> renameHandlers = new ArrayList<>();
         private Supplier<? extends Gui> upperGuiSupplier = () -> Gui.empty(3, 1);
-        private MutableProperty<Boolean> textFieldAlwaysEnabled = MutableProperty.of(true);
-        private MutableProperty<Boolean> resultAlwaysValid = MutableProperty.of(false);
+        private MutableProperty<Boolean> textFieldAlwaysEnabled = MutableProperty.of(DEFAULT_TEXT_FIELD_ALWAYS_ENABLED);
+        private MutableProperty<Boolean> resultAlwaysValid = MutableProperty.of(DEFAULT_RESULT_ALWAYS_VALID);
         
         @Override
         public BuilderImpl setUpperGui(Supplier<? extends Gui> guiSupplier) {

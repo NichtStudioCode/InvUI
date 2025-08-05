@@ -19,6 +19,7 @@ import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.i18n.Languages;
 import xyz.xenondevs.invui.internal.menu.CustomContainerMenu;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
+import xyz.xenondevs.invui.internal.util.FuncUtils;
 import xyz.xenondevs.invui.internal.util.InventoryUtils;
 import xyz.xenondevs.invui.inventory.CompositeInventory;
 import xyz.xenondevs.invui.inventory.Inventory;
@@ -49,6 +50,10 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
     
     private static final ThreadLocal<Boolean> isInOpeningContext = ThreadLocal.withInitial(() -> false);
     private static final ThreadLocal<Integer> isInCloseHandlerContext = ThreadLocal.withInitial(() -> 0);
+    
+    private static final @Nullable Window DEFAULT_FALLBACK_WINDOW = null;
+    private static final Component DEFAULT_TITLE = Component.empty();
+    private static final boolean DEFAULT_CLOSEABLE = true;
     
     protected final M menu;
     private final Player viewer;
@@ -203,7 +208,11 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
             }
         } else { // outside
             var event = new ClickEvent(click);
-            outsideClickHandlers.forEach(handler -> handler.accept(event));
+            CollectionUtils.forEachCatching(
+                outsideClickHandlers,
+                handler -> handler.accept(event),
+                "Failed to handle outside click: " + click
+            );
             
             var cursor = viewer.getItemOnCursor();
             if (!event.isCancelled() && !ItemUtils.isEmpty(cursor)) {
@@ -427,7 +436,7 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
         
         ItemStack cursor = menu.getCursor();
         menu.setCursor(null);
-        if (cause == Reason.PLAYER && fallbackWindow.get() instanceof AbstractWindow<?> fallback) {
+        if (cause == Reason.PLAYER && FuncUtils.getSafely(fallbackWindow, DEFAULT_FALLBACK_WINDOW) instanceof AbstractWindow<?> fallback) {
             fallback.menu.setCursor(cursor);
             fallback.open();
         } else {
@@ -459,7 +468,7 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
     }
     
     protected Component getTitle() {
-        return titleSupplier.get();
+        return FuncUtils.getSafely(titleSupplier, DEFAULT_TITLE);
     }
     
     @Override
@@ -572,7 +581,7 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
     
     @Override
     public boolean isCloseable() {
-        return closeable.get();
+        return FuncUtils.getSafely(closeable, DEFAULT_CLOSEABLE);
     }
     
     @Override
@@ -592,13 +601,13 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
     {
         
         private @Nullable Player viewer;
-        protected Supplier<? extends Component> titleSupplier = Component::empty;
-        protected MutableProperty<Boolean> closeable = MutableProperty.of(true);
+        protected Supplier<? extends Component> titleSupplier = () -> DEFAULT_TITLE;
+        protected MutableProperty<Boolean> closeable = MutableProperty.of(DEFAULT_CLOSEABLE);
         private List<Runnable> openHandlers = new ArrayList<>(0);
         private List<Consumer<? super Reason>> closeHandlers = new ArrayList<>(0);
         private List<Consumer<? super ClickEvent>> outsideClickHandlers = new ArrayList<>(0);
         private List<Consumer<? super W>> modifiers = new ArrayList<>(0);
-        private Supplier<? extends @Nullable Window> fallbackWindow = () -> null;
+        private Supplier<? extends @Nullable Window> fallbackWindow = () -> DEFAULT_FALLBACK_WINDOW;
         
         @Override
         public S setViewer(Player viewer) {

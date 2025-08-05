@@ -4,6 +4,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
+import xyz.xenondevs.invui.internal.util.FuncUtils;
 import xyz.xenondevs.invui.internal.util.SlotUtils;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
@@ -15,6 +16,8 @@ import java.util.SequencedSet;
 import java.util.function.BiConsumer;
 
 final class TabGuiImpl extends AbstractGui implements TabGui {
+    
+    private static final int DEFAULT_TAB = -1;
     
     private int[] contentListSlots;
     
@@ -32,7 +35,7 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
         super(width, height);
         if (contentListSlots.isEmpty())
             throw new IllegalArgumentException("Content list slots must not be empty");
-        this.tab = MutableProperty.of(0);
+        this.tab = MutableProperty.of(DEFAULT_TAB);
         tab.observeWeak(this, TabGuiImpl::handleTabChange);
         this.tabs = tabs;
         tabs.observeWeak(this, TabGuiImpl::bake);
@@ -79,7 +82,7 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     @Override
     public void bake() {
         List<@Nullable List<SlotElement.GuiLink>> linkingElements = new ArrayList<>();
-        for (var gui : tabs.get()) {
+        for (var gui : getTabs()) {
             if (gui != null) {
                 List<SlotElement.GuiLink> elements = new ArrayList<>();
                 for (int slot = 0; slot < gui.getSize(); slot++) {
@@ -97,7 +100,7 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     }
     
     private void handleTabChange() {
-        int targetTab = tab.get();
+        int targetTab = getTab();
         int correctedTab = correctTab(targetTab);
         if (correctedTab != targetTab) {
             tab.set(correctedTab);
@@ -105,8 +108,13 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
         }
         
         updateContent();
-        if (targetTab != previousTab)
-          tabChangeHandlers.forEach(handler -> handler.accept(previousTab, targetTab));
+        if (targetTab != previousTab) {
+            CollectionUtils.forEachCatching(
+                tabChangeHandlers,
+                handler -> handler.accept(previousTab, targetTab),
+                "Failed to handle tab change from " + previousTab + " to " + targetTab
+            );
+        }
         previousTab = targetTab;
     }
     
@@ -160,7 +168,7 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     }
     
     public int getTab() {
-        return tab.get();
+        return FuncUtils.getSafely(tab, DEFAULT_TAB);
     }
     
     @Override
@@ -170,7 +178,7 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     
     @Override
     public @UnmodifiableView List<@Nullable Gui> getTabs() {
-        return Collections.unmodifiableList(tabs.get());
+        return Collections.unmodifiableList(FuncUtils.getSafely(tabs, List.of()));
     }
     
     @Override
@@ -200,7 +208,7 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     {
         
         private MutableProperty<List<? extends @Nullable Gui>> tabs = MutableProperty.of(List.of());
-        private MutableProperty<Integer> tab = MutableProperty.of(0);
+        private MutableProperty<Integer> tab = MutableProperty.of(DEFAULT_TAB);
         private List<BiConsumer<? super Integer, ? super Integer>> tabChangeHandlers = new ArrayList<>(0);
         
         @Override

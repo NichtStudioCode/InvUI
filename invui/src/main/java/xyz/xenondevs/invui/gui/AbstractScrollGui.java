@@ -6,6 +6,7 @@ import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.internal.util.ArrayUtils;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
 import xyz.xenondevs.invui.internal.util.SlotUtils;
+import xyz.xenondevs.invui.internal.util.FuncUtils;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
 
@@ -20,6 +21,8 @@ sealed abstract class AbstractScrollGui<C>
     implements ScrollGui<C>
     permits ScrollItemsGuiImpl, ScrollNestedGuiImpl, ScrollInventoryGuiImpl
 {
+    
+    private static final int DEFAULT_LINE = 0;
     
     private int lineLength;
     private int[] contentListSlots = new int[0];
@@ -38,7 +41,7 @@ sealed abstract class AbstractScrollGui<C>
         MutableProperty<List<? extends C>> content
     ) {
         super(width, height);
-        this.line = MutableProperty.of(0);
+        this.line = MutableProperty.of(DEFAULT_LINE);
         line.observeWeak(this, AbstractScrollGui::handleLineChange);
         this.content = content;
         content.observeWeak(this, AbstractScrollGui::bake);
@@ -111,7 +114,7 @@ sealed abstract class AbstractScrollGui<C>
     }
     
     private void handleLineChange() {
-        int targetLine = line.get();
+        int targetLine = getLine();
         int correctedLine = correctLine(targetLine);
         if (correctedLine != targetLine) {
             line.set(correctedLine);
@@ -119,8 +122,13 @@ sealed abstract class AbstractScrollGui<C>
         }
         
         updateContent();
-        if (targetLine != previousLine)
-            scrollHandlers.forEach(handler -> handler.accept(previousLine, targetLine));
+        if (targetLine != previousLine) {
+            CollectionUtils.forEachCatching(
+                scrollHandlers,
+                handler -> handler.accept(previousLine, targetLine),
+                "Failed to handle scroll from line " + previousLine + " to line " + targetLine
+            );
+        }
         previousLine = targetLine;
     }
     
@@ -167,19 +175,21 @@ sealed abstract class AbstractScrollGui<C>
         this.elements = elements;
         int newLineCount = getLineCount();
         
-        for (var handler : lineCountChangeHandlers) {
-            handler.accept(previousLineCount, newLineCount);
-        }
+        CollectionUtils.forEachCatching(
+            lineCountChangeHandlers,
+            handler -> handler.accept(previousLineCount, newLineCount),
+            "Failed to handle line count change from " + previousLineCount + " to " + newLineCount
+        );
     }
     
     @Override
     public @UnmodifiableView List<C> getContent() {
-        return Collections.unmodifiableList(content.get());
+        return Collections.unmodifiableList(FuncUtils.getSafely(content, List.of()));
     }
     
     @Override
     public int getLine() {
-        return line.get();
+        return FuncUtils.getSafely(line, DEFAULT_LINE);
     }
     
     @Override
@@ -249,7 +259,7 @@ sealed abstract class AbstractScrollGui<C>
         
         private final Constructor<C> ctor;
         private MutableProperty<List<? extends C>> content = MutableProperty.of(List.of());
-        private MutableProperty<Integer> line = MutableProperty.of(0);
+        private MutableProperty<Integer> line = MutableProperty.of(DEFAULT_LINE);
         private List<BiConsumer<? super Integer, ? super Integer>> scrollHandlers = new ArrayList<>(0);
         private List<BiConsumer<? super Integer, ? super Integer>> lineCountChangeHandlers = new ArrayList<>(0);
         

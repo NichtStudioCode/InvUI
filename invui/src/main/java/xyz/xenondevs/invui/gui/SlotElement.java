@@ -3,6 +3,7 @@ package xyz.xenondevs.invui.gui;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
+import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.i18n.Languages;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.ItemProvider;
@@ -10,6 +11,7 @@ import xyz.xenondevs.invui.item.ItemProvider;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
 
 /**
  * Represents an element in a slot in a {@link Gui}.
@@ -42,8 +44,14 @@ public sealed interface SlotElement {
     record Item(xyz.xenondevs.invui.item.Item item) implements SlotElement {
         
         @Override
-        public ItemStack getItemStack(Player player) {
-            return item.getItemProvider(player).get(Languages.getInstance().getLocale(player));
+        public @Nullable ItemStack getItemStack(Player player) {
+            try {
+                return item.getItemProvider(player).get(Languages.getInstance().getLocale(player));
+            } catch (Throwable t) {
+                InvUI.getInstance().getLogger().log(Level.SEVERE, "Failed to get item stack for item slot element", t);
+            }
+            
+            return null;
         }
         
         @Override

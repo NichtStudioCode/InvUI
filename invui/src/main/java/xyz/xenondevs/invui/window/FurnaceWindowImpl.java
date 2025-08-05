@@ -9,6 +9,7 @@ import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomFurnaceMenu;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
+import xyz.xenondevs.invui.internal.util.FuncUtils;
 import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.ArrayList;
@@ -17,6 +18,9 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> implements FurnaceWindow {
+    
+    private static final double DEFAULT_COOK_PROGRESS = 0.0;
+    private static final double DEFAULT_BURN_PROGRESS = 0.0;
     
     private final AbstractGui inputGui;
     private final AbstractGui resultGui;
@@ -47,17 +51,19 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
         this.cookProgress = cookProgress;
         this.burnProgress = burnProgress;
         
-        cookProgress.observeWeak(this, thisRef -> thisRef.menu.setCookProgress(cookProgress.get()));
-        burnProgress.observeWeak(this, thisRef -> thisRef.menu.setBurnProgress(burnProgress.get()));
-        menu.setCookProgress(cookProgress.get());
-        menu.setBurnProgress(burnProgress.get());
+        cookProgress.observeWeak(this, thisRef -> thisRef.menu.setCookProgress(thisRef.getCookProgress()));
+        burnProgress.observeWeak(this, thisRef -> thisRef.menu.setBurnProgress(thisRef.getBurnProgress()));
+        menu.setCookProgress(getCookProgress());
+        menu.setBurnProgress(getBurnProgress());
         menu.setRecipeClickHandler(this::handleRecipeClick);
     }
     
     private void handleRecipeClick(Key recipeId) {
-        for (var handler : recipeClickHandlers) {
-            handler.accept(recipeId);
-        }
+        CollectionUtils.forEachCatching(
+            recipeClickHandlers,
+            handler -> handler.accept(recipeId),
+            "Failed to handle recipe click of '" + recipeId + "'"
+        );
     }
     
     @Override
@@ -67,7 +73,7 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
     
     @Override
     public double getCookProgress() {
-        return cookProgress.get();
+        return FuncUtils.getSafely(cookProgress, DEFAULT_COOK_PROGRESS);
     }
     
     @Override
@@ -77,7 +83,7 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
     
     @Override
     public double getBurnProgress() {
-        return burnProgress.get();
+        return FuncUtils.getSafely(burnProgress, DEFAULT_BURN_PROGRESS);
     }
     
     @Override
@@ -121,8 +127,8 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
         private final List<Consumer<? super Key>> recipeClickHandlers = new ArrayList<>();
         private Supplier<? extends Gui> inputGuiSupplier = () -> Gui.empty(1, 2);
         private Supplier<? extends Gui> resultGuiSupplier = () -> Gui.empty(1, 1);
-        private MutableProperty<Double> cookProgress = MutableProperty.of(0.0);
-        private MutableProperty<Double> burnProgress = MutableProperty.of(0.0);
+        private MutableProperty<Double> cookProgress = MutableProperty.of(DEFAULT_COOK_PROGRESS);
+        private MutableProperty<Double> burnProgress = MutableProperty.of(DEFAULT_BURN_PROGRESS);
         
         @Override
         public FurnaceWindow.Builder setInputGui(Supplier<? extends Gui> guiSupplier) {

@@ -12,6 +12,7 @@ import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomStonecutterMenu;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
+import xyz.xenondevs.invui.internal.util.FuncUtils;
 import xyz.xenondevs.invui.internal.util.ItemUtils2;
 import xyz.xenondevs.invui.state.MutableProperty;
 import xyz.xenondevs.invui.util.ItemUtils;
@@ -33,6 +34,8 @@ import java.util.function.Supplier;
  * </ul>
  */
 final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterMenu> implements StonecutterWindow {
+    
+    private static final int DEFAULT_SELECTED_SLOT = -1;
     
     private final AbstractGui upperGui;
     private final AbstractGui lowerGui;
@@ -67,16 +70,18 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
         this.selectedSlot = selectedSlot;
         this.selectedSlotChangeHandlers = new ArrayList<>(selectedSlotChangeHandlers);
         
-        selectedSlot.observeWeak(this, thisRef -> thisRef.menu.setSelectedSlot(selectedSlot.get()));
-        menu.setSelectedSlot(selectedSlot.get());
+        selectedSlot.observeWeak(this, thisRef -> thisRef.menu.setSelectedSlot(thisRef.getSelectedSlot()));
+        menu.setSelectedSlot(getSelectedSlot());
         menu.setClickHandler(this::playerSelectSlot);
     }
     
     private void playerSelectSlot(int prev, int slot) {
         selectedSlot.set(slot);
-        for (var handler : selectedSlotChangeHandlers) {
-            handler.accept(prev, slot);
-        }
+        CollectionUtils.forEachCatching(
+            selectedSlotChangeHandlers,
+            handler -> handler.accept(prev, slot),
+            "Failed to handle selected slot change from " + prev + " to " + slot
+        );
         
         if (slot >= 0 && slot < buttonsGui.getSize()) {
             var click = new Click(getViewer(), ClickType.LEFT);
@@ -95,12 +100,11 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
     
     @Override
     public int getSelectedSlot() {
-        return menu.getSelectedSlot();
+        return FuncUtils.getSafely(selectedSlot, DEFAULT_SELECTED_SLOT);
     }
     
     @Override
     public void setSelectedSlot(int i) {
-        menu.setSelectedSlot(i);
         selectedSlot.set(i);
     }
     

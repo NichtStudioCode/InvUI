@@ -9,6 +9,7 @@ import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomCartographyMenu;
+import xyz.xenondevs.invui.internal.util.FuncUtils;
 import xyz.xenondevs.invui.state.MutableProperty;
 import xyz.xenondevs.invui.util.ColorPalette;
 import xyz.xenondevs.invui.util.ItemUtils;
@@ -20,6 +21,9 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyMenu> implements CartographyWindow {
+    
+    private static final Set<? extends MapIcon> DEFAULT_ICONS = Set.of();
+    private static final View DEFAULT_VIEW = View.NORMAL;
     
     private static final int MAP_SIZE = 128;
     private final AbstractGui inputGui;
@@ -50,11 +54,11 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
         this.view = view;
         this.icons = icons;
         
-        view.observeWeak(this, weakThis -> weakThis.menu.setView(view.get()));
-        icons.observeWeak(this, weakThis -> weakThis.menu.setIcons(icons.get(), isOpen()));
+        view.observeWeak(this, thisRef -> thisRef.menu.setView(thisRef.getView()));
+        icons.observeWeak(this, thisRef -> thisRef.menu.setIcons(thisRef.getIcons(), isOpen()));
         
-        menu.setView(view.get());
-        menu.setIcons(icons.get(), false);
+        menu.setView(getView());
+        menu.setIcons(getIcons(), false);
     }
     
     @Override
@@ -78,7 +82,7 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
     
     @Override
     public View getView() {
-        return view.get();
+        return FuncUtils.getSafely(view, DEFAULT_VIEW);
     }
     
     @Override
@@ -93,7 +97,7 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
     
     @Override
     public @UnmodifiableView Set<MapIcon> getIcons() {
-        return Collections.unmodifiableSet(icons.get());
+        return Collections.unmodifiableSet(FuncUtils.getSafely(icons, DEFAULT_ICONS));
     }
     
     @Override
@@ -108,8 +112,8 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
         
         private Supplier<? extends Gui> inputGuiSupplier = () -> Gui.empty(1, 2);
         private Supplier<? extends Gui> resultGuiSupplier = () -> Gui.empty(1, 1);
-        private MutableProperty<Set<? extends MapIcon>> icons = MutableProperty.of(Set.of());
-        private MutableProperty<View> view = MutableProperty.of(View.NORMAL);
+        private MutableProperty<Set<? extends MapIcon>> icons = MutableProperty.of(DEFAULT_ICONS);
+        private MutableProperty<View> view = MutableProperty.of(DEFAULT_VIEW);
         private byte @Nullable [] canvas;
         
         @Override

@@ -11,6 +11,7 @@ import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomMerchantMenu;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
+import xyz.xenondevs.invui.internal.util.FuncUtils;
 import xyz.xenondevs.invui.item.AbstractItem;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.state.MutableProperty;
@@ -26,6 +27,10 @@ import java.util.function.Supplier;
 final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> implements MerchantWindow {
     
     private static final int TRADE_MAGIC_SLOT = 100; // magic slot number that, when notified, updates trades
+    private static final List<? extends Trade> DEFAULT_TRADES = List.of();
+    private static final int DEFAULT_LEVEL = 0;
+    private static final double DEFAULT_PROGRESS = -1.0;
+    private static final boolean DEFAULT_RESTOCK_MESSAGE_ENABLED = false;
     
     private final AbstractGui upperGui;
     private final AbstractGui lowerGui;
@@ -76,9 +81,11 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
         lastKnownTrades.get(tradeIndex).handleClick(getViewer());
         
         if (tradeIndex != previousSelectedTrade) {
-            for (var handler : tradeSelectHandlers) {
-                handler.accept(previousSelectedTrade, tradeIndex);
-            }
+            CollectionUtils.forEachCatching(
+                tradeSelectHandlers,
+                handler -> handler.accept(previousSelectedTrade, tradeIndex),
+                "Failed to handle trade selection change from " + previousSelectedTrade + " to " + tradeIndex
+            );
             previousSelectedTrade = tradeIndex;
         }
     }
@@ -110,24 +117,24 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
     
     @Override
     public int getLevel() {
-        return level.get();
+        return FuncUtils.getSafely(level, DEFAULT_LEVEL);
     }
     
     @Override
     public double getProgress() {
-        return progress.get();
+        return FuncUtils.getSafely(progress, DEFAULT_PROGRESS);
     }
     
     @Override
     public boolean isRestockMessageEnabled() {
-        return restockMessage.get();
+        return FuncUtils.getSafely(restockMessage, DEFAULT_RESTOCK_MESSAGE_ENABLED);
     }
     
     @SuppressWarnings("unchecked")
     private void updateTrades() {
         this.lastKnownTrades.forEach(this::removeTradeViewer);
         this.lastKnownTrades.clear();
-        this.lastKnownTrades.addAll((List<TradeImpl>) trades.get());
+        this.lastKnownTrades.addAll((List<TradeImpl>) FuncUtils.getSafely(trades, DEFAULT_TRADES));
         this.lastKnownTrades.forEach(this::addTradeViewer);
         
         notifyUpdate(TRADE_MAGIC_SLOT);
@@ -172,7 +179,7 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
     @Override
     protected void update(int slot) {
         if (slot == TRADE_MAGIC_SLOT) {
-            menu.sendTrades(lastKnownTrades, level.get(), progress.get(), restockMessage.get());
+            menu.sendTrades(lastKnownTrades, getLevel(), getProgress(), isRestockMessageEnabled());
         } else {
             super.update(slot);
         }
@@ -205,6 +212,9 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
     }
     
     final static class TradeImpl implements MerchantWindow.Trade {
+        
+        private static final int DEFAULT_DISCOUNT = 0;
+        private static final boolean DEFAULT_AVAILABLE = true;
         
         private final @Nullable AbstractItem firstInput;
         private final @Nullable AbstractItem secondInput;
@@ -243,12 +253,12 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
         
         @Override
         public int getDiscount() {
-            return discount.get();
+            return FuncUtils.getSafely(discount, DEFAULT_DISCOUNT);
         }
         
         @Override
         public boolean isAvailable() {
-            return available.get();
+            return FuncUtils.getSafely(available, DEFAULT_AVAILABLE);
         }
         
         public Property<? extends Integer> getDiscountProperty() {
@@ -275,8 +285,8 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
             private @Nullable AbstractItem secondInput;
             private @Nullable AbstractItem output;
             
-            private Property<? extends Integer> discount = Property.of(0);
-            private Property<? extends Boolean> available = Property.of(true);
+            private Property<? extends Integer> discount = Property.of(DEFAULT_DISCOUNT);
+            private Property<? extends Boolean> available = Property.of(DEFAULT_AVAILABLE);
             private Consumer<Trade> modifier = trade -> {};
             
             @Override
@@ -333,10 +343,10 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
         
         private final List<BiConsumer<? super Integer, ? super Integer>> tradeSelectHandlers = new ArrayList<>();
         private Supplier<? extends Gui> upperGuiSupplier = () -> Gui.empty(3, 1);
-        private MutableProperty<List<? extends Trade>> trades = MutableProperty.of(List.of());
-        private MutableProperty<Integer> level = MutableProperty.of(0);
-        private MutableProperty<Double> progress = MutableProperty.of(-1d);
-        private MutableProperty<Boolean> restockMessageEnabled = MutableProperty.of(false);
+        private MutableProperty<List<? extends Trade>> trades = MutableProperty.of(DEFAULT_TRADES);
+        private MutableProperty<Integer> level = MutableProperty.of(DEFAULT_LEVEL);
+        private MutableProperty<Double> progress = MutableProperty.of(DEFAULT_PROGRESS);
+        private MutableProperty<Boolean> restockMessageEnabled = MutableProperty.of(DEFAULT_RESTOCK_MESSAGE_ENABLED);
         
         @Override
         public MerchantWindow.Builder setLevel(MutableProperty<Integer> level) {

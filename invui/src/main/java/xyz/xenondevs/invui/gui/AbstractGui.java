@@ -10,10 +10,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.internal.ViewerAtSlot;
-import xyz.xenondevs.invui.internal.util.ArrayUtils;
-import xyz.xenondevs.invui.internal.util.InventoryUtils;
-import xyz.xenondevs.invui.internal.util.ItemUtils2;
-import xyz.xenondevs.invui.internal.util.SlotUtils;
+import xyz.xenondevs.invui.internal.util.*;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.inventory.ObscuredInventory;
 import xyz.xenondevs.invui.inventory.OperationCategory;
@@ -42,6 +39,10 @@ public sealed abstract class AbstractGui
     implements Gui
     permits NormalGuiImpl, AbstractPagedGui, AbstractScrollGui, TabGuiImpl
 {
+    
+    private static final boolean DEFAULT_FROZEN = false;
+    private static final boolean DEFAULT_IGNORE_OBSCURED_INVENTORY_SLOTS = true;
+    private static final @Nullable ItemProvider DEFAULT_BACKGROUND = null;
     
     private final int width;
     private final int height;
@@ -459,7 +460,7 @@ public sealed abstract class AbstractGui
     
     @Override
     public @Unmodifiable Collection<Inventory> getInventories(Inventory... ignored) {
-        if (!ignoreObscuredInventorySlots.get())
+        if (!isIgnoreObscuredInventorySlots())
             return Collections.unmodifiableCollection(getAllActiveInventorySlots(ignored).keySet());
         
         ArrayList<Inventory> inventories = new ArrayList<>();
@@ -741,7 +742,7 @@ public sealed abstract class AbstractGui
     
     @Override
     public @Nullable ItemProvider getBackground() {
-        return background.get();
+        return FuncUtils.getSafely(background, DEFAULT_BACKGROUND);
     }
     
     @Override
@@ -778,7 +779,7 @@ public sealed abstract class AbstractGui
     
     @Override
     public boolean isFrozen() {
-        return frozen.get() || (animation != null && animation.isFreezing());
+        return FuncUtils.getSafely(frozen, DEFAULT_FROZEN) || (animation != null && animation.isFreezing());
     }
     
     @Override
@@ -788,7 +789,7 @@ public sealed abstract class AbstractGui
     
     @Override
     public boolean isIgnoreObscuredInventorySlots() {
-        return ignoreObscuredInventorySlots.get();
+        return FuncUtils.getSafely(ignoreObscuredInventorySlots, DEFAULT_IGNORE_OBSCURED_INVENTORY_SLOTS);
     }
     
     //<editor-fold desc="ingredient-key-based methods">
@@ -1056,9 +1057,9 @@ public sealed abstract class AbstractGui
         
         protected @Nullable Structure structure;
         protected @Nullable List<Consumer<? super G>> modifiers;
-        protected MutableProperty<@Nullable ItemProvider> background = MutableProperty.of(null);
-        protected MutableProperty<Boolean> frozen = MutableProperty.of(false);
-        protected MutableProperty<Boolean> ignoreObscuredInventorySlots = MutableProperty.of(true);
+        protected MutableProperty<@Nullable ItemProvider> background = MutableProperty.of(DEFAULT_BACKGROUND);
+        protected MutableProperty<Boolean> frozen = MutableProperty.of(DEFAULT_FROZEN);
+        protected MutableProperty<Boolean> ignoreObscuredInventorySlots = MutableProperty.of(DEFAULT_IGNORE_OBSCURED_INVENTORY_SLOTS);
         
         @Override
         public S setStructure(int width, int height, String structureData) {

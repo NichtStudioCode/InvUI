@@ -5,6 +5,7 @@ import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
 import xyz.xenondevs.invui.internal.util.SlotUtils;
+import xyz.xenondevs.invui.internal.util.FuncUtils;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
 
@@ -19,6 +20,8 @@ sealed abstract class AbstractPagedGui<C>
     implements PagedGui<C>
     permits PagedInventoriesGuiImpl, PagedItemsGuiImpl, PagedNestedGuiImpl
 {
+    
+    private static final int DEFAULT_PAGE = 0;
     
     protected int[] contentListSlots;
     
@@ -35,7 +38,7 @@ sealed abstract class AbstractPagedGui<C>
         MutableProperty<List<? extends C>> content
     ) {
         super(width, height);
-        this.page = MutableProperty.of(0);
+        this.page = MutableProperty.of(DEFAULT_PAGE);
         page.observeWeak(this, AbstractPagedGui::handlePageChange);
         this.content = content;
         content.observeWeak(this, AbstractPagedGui::bake);
@@ -78,7 +81,7 @@ sealed abstract class AbstractPagedGui<C>
     }
     
     private void handlePageChange() {
-        int targetPage = page.get();
+        int targetPage = getPage();
         int correctedPage = correctPage(targetPage);
         if (targetPage != correctedPage) {
             page.set(correctedPage);
@@ -86,8 +89,13 @@ sealed abstract class AbstractPagedGui<C>
         }
         
         updateContent();
-        if (targetPage != previousPage)
-            pageChangeHandlers.forEach(handler -> handler.accept(previousPage, targetPage));
+        if (targetPage != previousPage) {
+            CollectionUtils.forEachCatching(
+                pageChangeHandlers,
+                handler -> handler.accept(previousPage, targetPage),
+                "Failed to handle page change from " + previousPage + " to " + targetPage
+            );
+        }
         previousPage = targetPage;
     }
     
@@ -113,14 +121,16 @@ sealed abstract class AbstractPagedGui<C>
         this.pages = pages;
         int newPageCount = getPageCount();
         
-        for (var handler : pageCountChangeHandlers) {
-            handler.accept(prevPageCount, newPageCount);
-        }
+        CollectionUtils.forEachCatching(
+            pageCountChangeHandlers,
+            handler -> handler.accept(prevPageCount, newPageCount),
+            "Failed to handle page count change from " + prevPageCount + " to " + newPageCount
+        );
     }
     
     @Override
     public @UnmodifiableView List<C> getContent() {
-        return Collections.unmodifiableList(content.get());
+        return Collections.unmodifiableList(FuncUtils.getSafely(content, List.of()));
     }
     
     @Override
@@ -135,7 +145,7 @@ sealed abstract class AbstractPagedGui<C>
     
     @Override
     public int getPage() {
-        return page.get();
+        return FuncUtils.getSafely(page, DEFAULT_PAGE);
     }
     
     @Override
@@ -198,7 +208,7 @@ sealed abstract class AbstractPagedGui<C>
         
         private final Constructor<C> ctor;
         private MutableProperty<List<? extends C>> content = MutableProperty.of(List.of());
-        private MutableProperty<Integer> page = MutableProperty.of(0);
+        private MutableProperty<Integer> page = MutableProperty.of(DEFAULT_PAGE);
         private List<BiConsumer<? super Integer, ? super Integer>> pageChangeHandlers = new ArrayList<>(0);
         private List<BiConsumer<? super Integer, ? super Integer>> pageCountChangeHandlers = new ArrayList<>(0);
         

@@ -8,6 +8,7 @@ import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomCrafterMenu;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
+import xyz.xenondevs.invui.internal.util.FuncUtils;
 import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import java.util.function.Supplier;
 final class CrafterWindowImpl extends AbstractSplitWindow<CustomCrafterMenu> implements CrafterWindow {
     
     private static final int CRAFTING_SLOTS = 9;
+    private static final boolean DEFAULT_SLOT_DISABLED_STATE = false;
     
     private final AbstractGui craftingGui;
     private final AbstractGui resultGui;
@@ -49,29 +51,30 @@ final class CrafterWindowImpl extends AbstractSplitWindow<CustomCrafterMenu> imp
         
         for (int i = 0; i < CRAFTING_SLOTS; i++) {
             int slot = i;
-            MutableProperty<Boolean> property = slots.get(i);
-            property.observeWeak(this, thisRef -> thisRef.menu.setSlotDisabled(slot, property.get()));
-            menu.setSlotDisabled(i, property.get());
+            MutableProperty<Boolean> property = slots.get(slot);
+            property.observeWeak(this, thisRef -> thisRef.menu.setSlotDisabled(slot, thisRef.isSlotDisabled(slot)));
+            menu.setSlotDisabled(slot, isSlotDisabled(slot));
         }
         menu.setSlotStateChangeHandler(this::playerToggleSlot);
     }
     
     private void playerToggleSlot(int slot, boolean disabled) {
         slots.get(slot).set(disabled);
-        for (var handler : slotToggleHandlers) {
-            handler.accept(slot, disabled);
-        }
+        CollectionUtils.forEachCatching(
+            slotToggleHandlers,
+            handler -> handler.accept(slot, disabled),
+            "Failed to handle slot toggle for slot " + slot + " to disabled state " + disabled
+        );
     }
     
     @Override
     public void setSlotDisabled(int slot, boolean disabled) {
-        menu.setSlotDisabled(slot, disabled);
         slots.get(slot).set(disabled);
     }
     
     @Override
     public boolean isSlotDisabled(int slot) {
-        return menu.isSlotDisabled(slot);
+        return FuncUtils.getSafely(slots.get(slot), DEFAULT_SLOT_DISABLED_STATE);
     }
     
     @Override
@@ -108,7 +111,7 @@ final class CrafterWindowImpl extends AbstractSplitWindow<CustomCrafterMenu> imp
         private Supplier<? extends Gui> craftingGuiSupplier = () -> Gui.empty(3, 3);
         private Supplier<? extends Gui> resultGuiSupplier = () -> Gui.empty(1, 1);
         private final List<BiConsumer<? super Integer, ? super Boolean>> slotToggleHandlers = new ArrayList<>();
-        private final List<MutableProperty<Boolean>> slots = CollectionUtils.newList(9, i -> MutableProperty.of(false));
+        private final List<MutableProperty<Boolean>> slots = CollectionUtils.newList(9, i -> MutableProperty.of(DEFAULT_SLOT_DISABLED_STATE));
         
         @Override
         public CrafterWindow.Builder setCraftingGui(Supplier<? extends Gui> guiSupplier) {
