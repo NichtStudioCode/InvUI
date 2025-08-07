@@ -3,8 +3,9 @@
 package xyz.xenondevs.invui.dsl
 
 import org.bukkit.entity.Player
+import xyz.xenondevs.commons.provider.Provider
+import xyz.xenondevs.commons.provider.mutableProvider
 import xyz.xenondevs.invui.ExperimentalReactiveApi
-import xyz.xenondevs.invui.gui.Gui
 import xyz.xenondevs.invui.window.AnvilWindow
 import xyz.xenondevs.invui.window.addRenameHandler
 import xyz.xenondevs.invui.window.setResultAlwaysValid
@@ -18,7 +19,7 @@ fun anvilWindow(viewer: Player, anvilWindow: AnvilWindowDsl.() -> Unit): AnvilWi
 sealed interface AnvilWindowDsl : SplitWindowDsl {
     
     val upperGui: GuiDslProperty
-    val text: MutableProviderDslProperty<String>
+    val text: Provider<String>
     val textFieldAlwaysEnabled: ProviderDslProperty<Boolean>
     val resultAlwaysValid: ProviderDslProperty<Boolean>
     
@@ -30,7 +31,7 @@ internal class AnvilWindowDslImpl(
 ) : AbstractSplitWindowDsl<AnvilWindow, AnvilWindow.Builder>(viewer), AnvilWindowDsl {
     
     override val upperGui = GuiDslProperty(3, 1)
-    override val text = MutableProviderDslProperty("")
+    override val text = mutableProvider("")
     override val textFieldAlwaysEnabled = ProviderDslProperty(true)
     override val resultAlwaysValid = ProviderDslProperty(false)
     
@@ -40,7 +41,7 @@ internal class AnvilWindowDslImpl(
         super.applyToBuilder(builder)
         builder.apply { 
             setUpperGui(upperGui.value)
-            addRenameHandler(text.value)
+            addRenameHandler(text)
             setTextFieldAlwaysEnabled(textFieldAlwaysEnabled.value)
             setResultAlwaysValid(resultAlwaysValid.value)
         }
