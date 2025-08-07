@@ -35,6 +35,7 @@ import java.util.function.Supplier;
  */
 final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterMenu> implements StonecutterWindow {
     
+    private static final int SELECTED_SLOT_MAGIC_SLOT = 100;
     private static final int DEFAULT_SELECTED_SLOT = -1;
     
     private final AbstractGui upperGui;
@@ -70,9 +71,18 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
         this.selectedSlot = selectedSlot;
         this.selectedSlotChangeHandlers = new ArrayList<>(selectedSlotChangeHandlers);
         
-        selectedSlot.observeWeak(this, thisRef -> thisRef.menu.setSelectedSlot(thisRef.getSelectedSlot()));
+        selectedSlot.observeWeak(this, thisRef -> thisRef.notifyUpdate(SELECTED_SLOT_MAGIC_SLOT));
         menu.setSelectedSlot(getSelectedSlot());
         menu.setClickHandler(this::playerSelectSlot);
+    }
+    
+    @Override
+    protected void update(int slot) {
+        if (slot == SELECTED_SLOT_MAGIC_SLOT) {
+            playerSelectSlot(getSelectedSlot(), menu.getSelectedSlot());
+        } else {
+            super.update(slot);
+        }
     }
     
     private void playerSelectSlot(int prev, int slot) {

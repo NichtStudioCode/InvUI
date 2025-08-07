@@ -14,6 +14,8 @@ import java.util.function.Supplier;
 
 final class BrewingWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu> implements BrewingWindow {
     
+    private static final int BREW_PROGRESS_MAGIC_SLOT = 100;
+    private static final int FUEL_PROGRESS_MAGIC_SLOT = 101;
     private static final double DEFAULT_BREW_PROGRESS = 0.0;
     private static final double DEFAULT_FUEL_PROGRESS = 0.0;
     
@@ -50,10 +52,19 @@ final class BrewingWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu
         this.brewProgress = brewProgress;
         this.fuelProgress = fuelProgress;
         
-        brewProgress.observeWeak(this, thisRef -> thisRef.menu.setBrewProgress(thisRef.getBrewProgress()));
-        fuelProgress.observeWeak(this, thisRef -> thisRef.menu.setFuelProgress(thisRef.getFuelProgress()));
+        brewProgress.observeWeak(this, thisRef -> thisRef.notifyUpdate(BREW_PROGRESS_MAGIC_SLOT));
+        fuelProgress.observeWeak(this, thisRef -> thisRef.notifyUpdate(FUEL_PROGRESS_MAGIC_SLOT));
         menu.setBrewProgress(getBrewProgress());
         menu.setFuelProgress(getFuelProgress());
+    }
+    
+    @Override
+    protected void update(int slot) {
+        switch (slot) {
+            case BREW_PROGRESS_MAGIC_SLOT -> menu.setBrewProgress(getBrewProgress());
+            case FUEL_PROGRESS_MAGIC_SLOT -> menu.setFuelProgress(getFuelProgress());
+            default -> super.update(slot);
+        }
     }
     
     @Override

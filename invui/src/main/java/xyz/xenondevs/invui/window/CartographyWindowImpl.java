@@ -22,6 +22,8 @@ import java.util.function.Supplier;
 
 final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyMenu> implements CartographyWindow {
     
+    private static final int VIEW_MAGIC_SLOT = 100;
+    private static final int ICONS_MAGIC_SLOT = 101;
     private static final Set<? extends MapIcon> DEFAULT_ICONS = Set.of();
     private static final View DEFAULT_VIEW = View.NORMAL;
     
@@ -54,8 +56,8 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
         this.view = view;
         this.icons = icons;
         
-        view.observeWeak(this, thisRef -> thisRef.menu.setView(thisRef.getView()));
-        icons.observeWeak(this, thisRef -> thisRef.menu.setIcons(thisRef.getIcons(), isOpen()));
+        view.observeWeak(this, thisRef -> thisRef.notifyUpdate(VIEW_MAGIC_SLOT));
+        icons.observeWeak(this, thisRef -> thisRef.notifyUpdate(ICONS_MAGIC_SLOT));
         
         menu.setView(getView());
         menu.setIcons(getIcons(), false);
@@ -67,6 +69,15 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
             super.setMenuItem(slot, ItemUtils.takeOrPlaceholder(itemStack));
         } else {
             super.setMenuItem(slot, itemStack);
+        }
+    }
+    
+    @Override
+    protected void update(int slot) {
+        switch(slot) {
+            case VIEW_MAGIC_SLOT ->  menu.setView(getView());
+            case ICONS_MAGIC_SLOT -> menu.setIcons(getIcons(), isOpen());
+            default -> super.update(slot);
         }
     }
     

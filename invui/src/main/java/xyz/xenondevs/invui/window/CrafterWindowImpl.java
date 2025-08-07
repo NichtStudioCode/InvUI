@@ -18,6 +18,7 @@ import java.util.function.Supplier;
 
 final class CrafterWindowImpl extends AbstractSplitWindow<CustomCrafterMenu> implements CrafterWindow {
     
+    private static final int SLOTS_MAGIC_SLOT_OFFSET = 100;
     private static final int CRAFTING_SLOTS = 9;
     private static final boolean DEFAULT_SLOT_DISABLED_STATE = false;
     
@@ -52,10 +53,19 @@ final class CrafterWindowImpl extends AbstractSplitWindow<CustomCrafterMenu> imp
         for (int i = 0; i < CRAFTING_SLOTS; i++) {
             int slot = i;
             MutableProperty<Boolean> property = slots.get(slot);
-            property.observeWeak(this, thisRef -> thisRef.menu.setSlotDisabled(slot, thisRef.isSlotDisabled(slot)));
+            property.observeWeak(this, thisRef -> thisRef.update(SLOTS_MAGIC_SLOT_OFFSET + slot));
             menu.setSlotDisabled(slot, isSlotDisabled(slot));
         }
         menu.setSlotStateChangeHandler(this::playerToggleSlot);
+    }
+    
+    @Override
+    protected void update(int slot) {
+        if (slot >= SLOTS_MAGIC_SLOT_OFFSET && slot < SLOTS_MAGIC_SLOT_OFFSET + CRAFTING_SLOTS) {
+            menu.setSlotDisabled(slot - SLOTS_MAGIC_SLOT_OFFSET, isSlotDisabled(slot - SLOTS_MAGIC_SLOT_OFFSET));
+        } else {
+            super.update(slot);
+        }
     }
     
     private void playerToggleSlot(int slot, boolean disabled) {

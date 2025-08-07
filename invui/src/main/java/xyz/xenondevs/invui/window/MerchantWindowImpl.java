@@ -26,7 +26,8 @@ import java.util.function.Supplier;
 
 final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> implements MerchantWindow {
     
-    private static final int TRADE_MAGIC_SLOT = 100; // magic slot number that, when notified, updates trades
+    private static final int TRADES_REBUILD_MAGIC_SLOT = 100;
+    private static final int TRADES_RESEND_MAGIC_SLOT = 101;
     private static final List<? extends Trade> DEFAULT_TRADES = List.of();
     private static final int DEFAULT_LEVEL = 0;
     private static final double DEFAULT_PROGRESS = -1.0;
@@ -34,9 +35,9 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
     
     private final AbstractGui upperGui;
     private final AbstractGui lowerGui;
-    private final List<TradeImpl> lastKnownTrades = new ArrayList<>();
+    private final List<TradeImpl> activeTrades = new ArrayList<>();
     
-    private final MutableProperty<List<? extends Trade>> trades;
+    private final MutableProperty<? super List<? extends Trade>> trades;
     private final MutableProperty<Integer> level;
     private final MutableProperty<Double> progress;
     private final MutableProperty<Boolean> restockMessage;
@@ -49,7 +50,7 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
         Supplier<? extends Component> title,
         AbstractGui upperGui,
         AbstractGui lowerGui,
-        MutableProperty<List<? extends Trade>> trades,
+        MutableProperty<? super List<? extends Trade>> trades,
         MutableProperty<Integer> level,
         MutableProperty<Double> progress,
         MutableProperty<Boolean> restockMessage,
@@ -66,19 +67,19 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
         this.progress = progress;
         this.restockMessage = restockMessage;
         
-        trades.observeWeak(this, MerchantWindowImpl::updateTrades);
-        this.level.observeWeak(this, MerchantWindowImpl::updateTrades);
-        progress.observeWeak(this, MerchantWindowImpl::updateTrades);
-        restockMessage.observeWeak(this, MerchantWindowImpl::updateTrades);
+        trades.observeWeak(this, thisRef -> thisRef.notifyUpdate(TRADES_REBUILD_MAGIC_SLOT));
+        level.observeWeak(this, thisRef -> thisRef.notifyUpdate(TRADES_RESEND_MAGIC_SLOT));
+        progress.observeWeak(this, thisRef -> thisRef.notifyUpdate(TRADES_RESEND_MAGIC_SLOT));
+        restockMessage.observeWeak(this, thisRef -> thisRef.notifyUpdate(TRADES_RESEND_MAGIC_SLOT));
         
         menu.setTradeSelectHandler(this::handleTradeSelect);
-        updateTrades();
+        rebuildTrades();
     }
     
     private void handleTradeSelect(int tradeIndex) {
-        if (tradeIndex < 0 || tradeIndex >= lastKnownTrades.size())
+        if (tradeIndex < 0 || tradeIndex >= activeTrades.size())
             return;
-        lastKnownTrades.get(tradeIndex).handleClick(getViewer());
+        activeTrades.get(tradeIndex).handleClick(getViewer());
         
         if (tradeIndex != previousSelectedTrade) {
             CollectionUtils.forEachCatching(
@@ -112,7 +113,7 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
     
     @Override
     public @UnmodifiableView List<Trade> getTrades() {
-        return Collections.unmodifiableList(lastKnownTrades);
+        return Collections.unmodifiableList(activeTrades);
     }
     
     @Override
@@ -130,59 +131,58 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
         return FuncUtils.getSafely(restockMessage, DEFAULT_RESTOCK_MESSAGE_ENABLED);
     }
     
-    @SuppressWarnings("unchecked")
-    private void updateTrades() {
-        this.lastKnownTrades.forEach(this::removeTradeViewer);
-        this.lastKnownTrades.clear();
-        this.lastKnownTrades.addAll((List<TradeImpl>) FuncUtils.getSafely(trades, DEFAULT_TRADES));
-        this.lastKnownTrades.forEach(this::addTradeViewer);
+    @Override
+    protected void registerAsViewer() {
+        super.registerAsViewer();
+        this.activeTrades.forEach(this::addTradeViewer);
         
-        notifyUpdate(TRADE_MAGIC_SLOT);
+        notifyUpdate(TRADES_RESEND_MAGIC_SLOT);
+    }
+    
+    @Override
+    protected void unregisterAsViewer() {
+        super.unregisterAsViewer();
+        this.activeTrades.forEach(this::removeTradeViewer);
+    }
+    
+    @Override
+    protected void update(int slot) {
+        switch (slot) {
+            case TRADES_REBUILD_MAGIC_SLOT -> rebuildTrades();
+            case TRADES_RESEND_MAGIC_SLOT -> 
+                menu.sendTrades(activeTrades, getLevel(), getProgress(), isRestockMessageEnabled());
+            default -> super.update(slot);
+        }
+    }
+    
+    @SuppressWarnings("unchecked")
+    private void rebuildTrades() {
+        this.activeTrades.forEach(this::removeTradeViewer);
+        this.activeTrades.clear();
+        this.activeTrades.addAll((List<? extends TradeImpl>) FuncUtils.getSafely(trades, DEFAULT_TRADES));
+        this.activeTrades.forEach(this::addTradeViewer);
     }
     
     private void removeTradeViewer(TradeImpl trade) {
         if (trade.getFirstInput() != null)
-            trade.getFirstInput().removeViewer(this, TRADE_MAGIC_SLOT);
+            trade.getFirstInput().removeViewer(this, TRADES_RESEND_MAGIC_SLOT);
         if (trade.getSecondInput() != null)
-            trade.getSecondInput().removeViewer(this, TRADE_MAGIC_SLOT);
+            trade.getSecondInput().removeViewer(this, TRADES_RESEND_MAGIC_SLOT);
         if (trade.getOutput() != null)
-            trade.getOutput().removeViewer(this, TRADE_MAGIC_SLOT);
+            trade.getOutput().removeViewer(this, TRADES_RESEND_MAGIC_SLOT);
         trade.getDiscountProperty().unobserveWeak(this);
         trade.getAvailableProperty().unobserveWeak(this);
     }
     
     private void addTradeViewer(TradeImpl trade) {
         if (trade.getFirstInput() != null)
-            trade.getFirstInput().addViewer(this, TRADE_MAGIC_SLOT);
+            trade.getFirstInput().addViewer(this, TRADES_RESEND_MAGIC_SLOT);
         if (trade.getSecondInput() != null)
-            trade.getSecondInput().addViewer(this, TRADE_MAGIC_SLOT);
+            trade.getSecondInput().addViewer(this, TRADES_RESEND_MAGIC_SLOT);
         if (trade.getOutput() != null)
-            trade.getOutput().addViewer(this, TRADE_MAGIC_SLOT);
-        trade.getDiscountProperty().observeWeak(this, MerchantWindowImpl::updateTrades);
-        trade.getAvailableProperty().observeWeak(this, MerchantWindowImpl::updateTrades);
-    }
-    
-    @Override
-    protected void registerAsViewer() {
-        super.registerAsViewer();
-        this.lastKnownTrades.forEach(this::addTradeViewer);
-        
-        notifyUpdate(TRADE_MAGIC_SLOT);
-    }
-    
-    @Override
-    protected void unregisterAsViewer() {
-        super.unregisterAsViewer();
-        this.lastKnownTrades.forEach(this::removeTradeViewer);
-    }
-    
-    @Override
-    protected void update(int slot) {
-        if (slot == TRADE_MAGIC_SLOT) {
-            menu.sendTrades(lastKnownTrades, getLevel(), getProgress(), isRestockMessageEnabled());
-        } else {
-            super.update(slot);
-        }
+            trade.getOutput().addViewer(this, TRADES_RESEND_MAGIC_SLOT);
+        trade.getDiscountProperty().observeWeak(this, thisRef -> thisRef.notifyUpdate(TRADES_RESEND_MAGIC_SLOT));
+        trade.getAvailableProperty().observeWeak(this, thisRef -> thisRef.notifyUpdate(TRADES_RESEND_MAGIC_SLOT));
     }
     
     @Override

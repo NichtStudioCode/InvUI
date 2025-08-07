@@ -19,6 +19,8 @@ import java.util.function.Supplier;
 
 final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> implements FurnaceWindow {
     
+    private static final int COOK_PROGRESS_MAGIC_SLOT = 100;
+    private static final int BURN_PROGRESS_MAGIC_SLOT = 101;
     private static final double DEFAULT_COOK_PROGRESS = 0.0;
     private static final double DEFAULT_BURN_PROGRESS = 0.0;
     
@@ -51,11 +53,20 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
         this.cookProgress = cookProgress;
         this.burnProgress = burnProgress;
         
-        cookProgress.observeWeak(this, thisRef -> thisRef.menu.setCookProgress(thisRef.getCookProgress()));
-        burnProgress.observeWeak(this, thisRef -> thisRef.menu.setBurnProgress(thisRef.getBurnProgress()));
+        cookProgress.observeWeak(this, thisRef -> thisRef.notifyUpdate(COOK_PROGRESS_MAGIC_SLOT));
+        burnProgress.observeWeak(this, thisRef -> thisRef.notifyUpdate(BURN_PROGRESS_MAGIC_SLOT));
         menu.setCookProgress(getCookProgress());
         menu.setBurnProgress(getBurnProgress());
         menu.setRecipeClickHandler(this::handleRecipeClick);
+    }
+    
+    @Override
+    protected void update(int slot) {
+        switch (slot) {
+            case COOK_PROGRESS_MAGIC_SLOT -> menu.setCookProgress(getCookProgress());
+            case BURN_PROGRESS_MAGIC_SLOT -> menu.setBurnProgress(getBurnProgress());
+            default -> super.update(slot);
+        }
     }
     
     private void handleRecipeClick(Key recipeId) {
