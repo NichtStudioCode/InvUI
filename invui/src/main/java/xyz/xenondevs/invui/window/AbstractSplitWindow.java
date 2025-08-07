@@ -8,9 +8,7 @@ import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.internal.menu.CustomContainerMenu;
-import xyz.xenondevs.invui.inventory.Inventory;
-import xyz.xenondevs.invui.inventory.OperationCategory;
-import xyz.xenondevs.invui.inventory.ReferencingInventory;
+import xyz.xenondevs.invui.internal.util.InventoryUtils;
 import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.function.Supplier;
@@ -55,15 +53,9 @@ sealed abstract class AbstractSplitWindow<M extends CustomContainerMenu>
         }
         
         protected AbstractGui supplyLowerGui(Player viewer) {
-            if (lowerGuiSupplier == null) {
-                Inventory inv = ReferencingInventory.fromPlayerStorageContents(viewer.getInventory());
-                inv.reverseIterationOrder(OperationCategory.ADD); // shift-clicking moves to bottom right
-                inv.setGuiPriority(OperationCategory.ADD, Integer.MAX_VALUE); // shift-click always moves between upper and lower inv
-                inv.setGuiPriority(OperationCategory.COLLECT, Integer.MIN_VALUE); // double-click collects from lower inv last
-                return (AbstractGui) Gui.of(9, 4, inv);
-            }
-            
-            return (AbstractGui) lowerGuiSupplier.get();
+            return lowerGuiSupplier != null 
+                ? (AbstractGui) lowerGuiSupplier.get() 
+                : (AbstractGui) InventoryUtils.createPlayerReferencingInventoryGui(viewer); 
         }
         
     }

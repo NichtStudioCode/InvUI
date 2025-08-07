@@ -5,6 +5,10 @@ import org.bukkit.Location;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import xyz.xenondevs.invui.gui.Gui;
+import xyz.xenondevs.invui.inventory.Inventory;
+import xyz.xenondevs.invui.inventory.OperationCategory;
+import xyz.xenondevs.invui.inventory.ReferencingInventory;
 import xyz.xenondevs.invui.util.ItemUtils;
 
 public class InventoryUtils {
@@ -157,6 +161,21 @@ public class InventoryUtils {
             .stream()
             .findFirst()
             .ifPresent(entry -> dropItemLikePlayer(player, entry.getValue()));
+    }
+    
+    /**
+     * Creates a new gui that references the player's inventory and handles interactions in the same way
+     * that the player inventory does.
+     *
+     * @param player The player whose inventory to reference
+     * @return The new gui that references the player's inventory
+     */
+    public static Gui createPlayerReferencingInventoryGui(Player player) {
+        Inventory inv = ReferencingInventory.fromPlayerStorageContents(player.getInventory());
+        inv.reverseIterationOrder(OperationCategory.ADD); // shift-clicking moves to bottom right
+        inv.setGuiPriority(OperationCategory.ADD, Integer.MAX_VALUE); // shift-click always moves between upper and lower inv
+        inv.setGuiPriority(OperationCategory.COLLECT, Integer.MIN_VALUE); // double-click collects from lower inv last
+        return Gui.of(9, 4, inv);
     }
     
 }
