@@ -49,14 +49,27 @@ operator fun Gui.plusAssign(elements: Iterable<SlotElement>) = elements.forEach 
 @JvmName("plusAssignItems")
 operator fun Gui.plusAssign(items: Iterable<Item>) = items.forEach { addItems(it) }
 
+/**
+ * Sets the provider containing the background [ItemProvider] for the [Gui] built by this builder.
+ * If [background] is not a [MutableProvider] attempting to change the background through other means will throw an exception.
+ */
 @ExperimentalReactiveApi
-fun <G : Gui, B : Gui.Builder<G, B>> B.setBackground(provider: Provider<ItemProvider?>): B =
-    setBackground(PropertyAdapter(provider))
+fun <G : Gui, B : Gui.Builder<G, B>> B.setBackground(background: Provider<ItemProvider?>): B =
+    setBackground(PropertyAdapter(background))
 
+/**
+ * Sets the provider containing the frozen state of the [Gui] built by this builder.
+ * If [frozen] is not a [MutableProvider] attempting to change the frozen state through other means will throw an exception.
+ */
 @ExperimentalReactiveApi
-fun <G : Gui, B : Gui.Builder<G, B>> B.setFrozen(provider: Provider<Boolean>): B =
-    setFrozen(PropertyAdapter(provider))
+fun <G : Gui, B : Gui.Builder<G, B>> B.setFrozen(frozen: Provider<Boolean>): B =
+    setFrozen(PropertyAdapter(frozen))
 
+/**
+ * Sets the provider containing the setting whether slots of partially obscured embedded inventories
+ * should be ignored or not of the [Gui] built by this builder.
+ * If the provider is not a [MutableProvider], attempting to change this setting through other means will throw an exception.
+ */
 @ExperimentalReactiveApi
-fun <G : Gui, B : Gui.Builder<G, B>> B.setIgnoreObscuredInventorySlots(provider: Provider<Boolean>): B =
-    setIgnoreObscuredInventorySlots(PropertyAdapter(provider))
+fun <G : Gui, B : Gui.Builder<G, B>> B.setIgnoreObscuredInventorySlots(ignoreObscuredInventorySlots: Provider<Boolean>): B =
+    setIgnoreObscuredInventorySlots(PropertyAdapter(ignoreObscuredInventorySlots))

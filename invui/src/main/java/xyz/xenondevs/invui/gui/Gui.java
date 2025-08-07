@@ -917,6 +917,12 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
             return setBackground(new ItemWrapper(background));
         }
         
+        /**
+         * Sets the property containing the background of the {@link Gui}.
+         *
+         * @param background The property containing the {@link ItemProvider} for the background
+         * @return This {@link Builder Gui Builder}
+         */
         S setBackground(MutableProperty<@Nullable ItemProvider> background);
         
         /**
@@ -929,6 +935,12 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
             return setFrozen(MutableProperty.of(frozen));
         }
         
+        /**
+         * Sets the property containing whether the {@link Gui} should be frozen.
+         *
+         * @param frozen The property containing whether the {@link Gui} should be frozen
+         * @return This {@link Builder Gui Builder}
+         */
         S setFrozen(MutableProperty<Boolean> frozen);
         
         /**
@@ -943,6 +955,13 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
             return setIgnoreObscuredInventorySlots(MutableProperty.of(ignoreObscuredInventorySlots));
         }
         
+        /**
+         * Sets the property containing whether it is possible to shift-click items into and cursor collect items
+         * from all {@link Inventory} slots of partially obscured embedded {@link Inventory Inventories}.
+         *
+         * @param ignoreObscuredInventorySlots Whether obscured {@link Inventory} slots should be ignored when shift-clicking
+         * @return This {@link Builder Gui Builder}
+         */
         S setIgnoreObscuredInventorySlots(MutableProperty<Boolean> ignoreObscuredInventorySlots);
         
         /**
