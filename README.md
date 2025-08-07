@@ -50,11 +50,14 @@ Check out the [InvUI documentation](https://xenondevs.xyz/docs/invui2/) for more
 _These examples are taken from the documentation linked above. To keep the code examples there short, button names are often omitted._
 
 <p>
-    <img src="https://i.imgur.com/FhRGCqW.gif" width="256">
-    <img src="https://i.imgur.com/eA8Qz15.gif" width="256">
-    <img src="https://i.imgur.com/seE3awF.gif" width="256">
-    <img src="https://i.imgur.com/Kf0eB4L.gif" width="256">
-    <img src="https://i.imgur.com/hgIgLHJ.gif" width="256">
-    <img src="https://i.imgur.com/XkvkvBH.gif" width="256">
-    <img src="https://i.imgur.com/3ogItrb.gif" width="256">
+    <a href="https://docs.xenondevs.xyz/invui2/gui/#paged-gui"><img src="https://i.imgur.com/FhRGCqW.gif" width="256"></a>
+    <a href="https://docs.xenondevs.xyz/invui2/gui/#scroll-gui"><img src="https://i.imgur.com/eA8Qz15.gif" width="256"></a>
+    <a href="https://docs.xenondevs.xyz/invui2/gui/#tab-gui"><img src="https://i.imgur.com/seE3awF.gif" width="256"></a>
+    <a href="https://docs.xenondevs.xyz/invui2/gui/#animations"><img src="https://i.imgur.com/Kf0eB4L.gif" width="256"></a>
+    <a href="https://docs.xenondevs.xyz/invui2/inventory/#itempreupdateevent"><img src="https://i.imgur.com/WnbGIPp.gif" width="256"></a>
+    <a href="https://docs.xenondevs.xyz/invui2/inventory/#inventoryclickevent"><img src="https://i.imgur.com/SqnOSI2.gif" width="256"></a>
+    <a href="https://docs.xenondevs.xyz/invui2/window/#anvil-window"><img src="https://i.imgur.com/hgIgLHJ.gif" width="256"></a>
+    <a href="https://docs.xenondevs.xyz/invui2/window/#stonecutter-window"><img src="https://i.imgur.com/XkvkvBH.gif" width="256"></a>
+    <a href="https://docs.xenondevs.xyz/invui2/window/#cartography-window"><img src="https://i.imgur.com/3ogItrb.gif" width="256"></a>
+    <a href="https://docs.xenondevs.xyz/invui2/window/#merchant-window"><img src="https://i.imgur.com/9E3VBVW.gif" width="400"></a>
 </p>
