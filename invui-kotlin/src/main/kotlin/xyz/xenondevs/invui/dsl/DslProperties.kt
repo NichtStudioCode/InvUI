@@ -2,20 +2,19 @@
 
 package xyz.xenondevs.invui.dsl
 
-import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import xyz.xenondevs.commons.provider.MutableProvider
 import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.commons.provider.mapNonNull
 import xyz.xenondevs.commons.provider.mutableProvider
-import xyz.xenondevs.commons.provider.provider
 import xyz.xenondevs.invui.ExperimentalReactiveApi
 import xyz.xenondevs.invui.gui.Gui
+import xyz.xenondevs.invui.inventory.Inventory
 import xyz.xenondevs.invui.item.Item
 import xyz.xenondevs.invui.item.ItemProvider
 import xyz.xenondevs.invui.item.ItemWrapper
 import xyz.xenondevs.invui.item.setItemProvider
-
+import kotlin.math.ceil
 
 class ItemDslProperty internal constructor() {
     
@@ -40,12 +39,43 @@ class ItemDslProperty internal constructor() {
     
 }
 
-class GuiDslProperty internal constructor(width: Int, height: Int) {
+internal data class Dimensions(val width: Int, val height: Int) {
+    val size: Int
+        get() = width * height
+}
+
+class GuiDslProperty internal constructor(
+    private val dimensions: List<Dimensions>,
+    defaultGui: Gui = Gui.empty(dimensions[0].width, dimensions[0].height),
+    private val arbitraryHeight: Boolean = false,
+) {
     
-    internal var value: Gui = Gui.empty(width, height)
+    internal var value: Gui = defaultGui
+    
+    internal constructor(
+        width: Int, height: Int,
+        defaultGui: Gui = Gui.empty(width, height), 
+        arbitraryHeight: Boolean = false
+    ) : this(listOf(Dimensions(width, height)), defaultGui, arbitraryHeight)
     
     infix fun by(gui: Gui) {
         this.value = gui
+    }
+    
+    infix fun by(inventory: Inventory) {
+        if (arbitraryHeight) {
+            value = Gui.of(
+                dimensions[0].width,
+                ceil(inventory.size / dimensions[0].width.toDouble()).toInt(),
+                inventory
+            )
+        } else {
+            val dim = dimensions
+                .filter { it.size >= inventory.size }
+                .minByOrNull { it.size - inventory.size }
+                ?: dimensions.first()
+            value = Gui.of(dim.width, dim.height, inventory)
+        }
     }
     
 }

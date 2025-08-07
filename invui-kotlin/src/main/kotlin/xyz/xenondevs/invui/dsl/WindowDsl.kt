@@ -7,6 +7,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryCloseEvent
 import xyz.xenondevs.invui.ClickEvent
 import xyz.xenondevs.invui.ExperimentalReactiveApi
+import xyz.xenondevs.invui.internal.util.InventoryUtils
 import xyz.xenondevs.invui.window.Window
 import xyz.xenondevs.invui.window.setTitle
 
@@ -100,7 +101,7 @@ internal abstract class AbstractSplitWindowDsl<W : Window, B : Window.Builder.Sp
     viewer: Player
 ) : AbstractWindowDsl<W, B>(viewer), SplitWindowDsl {
     
-    override val lowerGui = GuiDslProperty(9, 4)
+    override val lowerGui = GuiDslProperty(9, 4, InventoryUtils.createPlayerReferencingInventoryGui(viewer))
     
     override fun applyToBuilder(builder: B) {
         super.applyToBuilder(builder)
@@ -112,7 +113,18 @@ internal abstract class AbstractSplitWindowDsl<W : Window, B : Window.Builder.Sp
 @ExperimentalDslApi
 internal class NormalSplitWindowDslImpl(viewer: Player) : AbstractSplitWindowDsl<Window, Window.Builder.Normal.Split>(viewer), NormalSplitWindowDsl {
     
-    override val upperGui = GuiDslProperty(9, 6)
+    override val upperGui = GuiDslProperty(
+        dimensions = listOf(
+            Dimensions(9, 6),
+            Dimensions(9, 5),
+            Dimensions(9, 4),
+            Dimensions(9, 3),
+            Dimensions(9, 2),
+            Dimensions(9, 1),
+            Dimensions(5, 1),
+            Dimensions(3, 3),
+        )
+    )
     
     override fun createBuilder() = Window.builder()
     
@@ -126,7 +138,16 @@ internal class NormalSplitWindowDslImpl(viewer: Player) : AbstractSplitWindowDsl
 @ExperimentalDslApi
 internal class NormalMergedWindowDslImpl(viewer: Player) : AbstractWindowDsl<Window, Window.Builder.Normal.Merged>(viewer), NormalMergedWindowDsl {
     
-    override val gui = GuiDslProperty(9, 10)
+    override val gui = GuiDslProperty(
+        dimensions = listOf(
+            Dimensions(9, 10),
+            Dimensions(9, 9),
+            Dimensions(9, 8),
+            Dimensions(9, 7),
+            Dimensions(9, 6),
+            Dimensions(9, 5),
+        )
+    )
     
     override fun createBuilder() = Window.mergedBuilder()
     

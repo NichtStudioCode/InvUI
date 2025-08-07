@@ -26,7 +26,7 @@ internal class StonecutterWindowDslImpl(
 ) : AbstractSplitWindowDsl<StonecutterWindow, StonecutterWindow.Builder>(viewer), StonecutterWindowDsl {
     
     override val upperGui = GuiDslProperty(2, 1)
-    override val buttonsGui = GuiDslProperty(4, 0)
+    override val buttonsGui = GuiDslProperty(4, 0, arbitraryHeight = true)
     override val selectedSlot = MutableProviderDslProperty(-1)
     
     override fun createBuilder() = StonecutterWindow.builder()
