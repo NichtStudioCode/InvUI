@@ -12,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -76,12 +77,12 @@ public class PacketListener implements Listener {
         return packetHandler;
     }
     
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     private void handleJoin(PlayerJoinEvent event) {
         injectChannelHandler(event.getPlayer());
     }
     
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     private void handleQuit(PlayerQuitEvent event) {
         packetHandlers.remove(event.getPlayer().getUniqueId());
     }
