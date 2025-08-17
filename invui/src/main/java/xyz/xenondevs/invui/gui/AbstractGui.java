@@ -800,7 +800,7 @@ public sealed abstract class AbstractGui
             return;
         
         for (char c : ArrayUtils.concat(key, keys)) {
-            for (Slot slot : matrix.getSlots(key)) {
+            for (Slot slot : matrix.getSlots(c)) {
                 notifyWindows(slot);
             }
         }
