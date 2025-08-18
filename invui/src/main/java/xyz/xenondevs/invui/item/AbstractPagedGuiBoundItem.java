@@ -15,7 +15,7 @@ public abstract class AbstractPagedGuiBoundItem extends AbstractBoundItem {
     @Override
     public void bind(Gui gui) {
         if (!(gui instanceof PagedGui<?> pagedGui))
-            throw new IllegalArgumentException("PageItem can only be used in a PagedGui");
+            throw new IllegalArgumentException("AbstractPagedGuiBoundItem can only be bound to a PagedGui");
         
         super.bind(gui);
         pagedGui.addPageChangeHandler(notifier);

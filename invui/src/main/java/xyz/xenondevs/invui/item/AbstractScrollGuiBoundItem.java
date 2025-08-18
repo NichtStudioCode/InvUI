@@ -15,7 +15,7 @@ public abstract class AbstractScrollGuiBoundItem extends AbstractBoundItem {
     @Override
     public void bind(Gui gui) {
         if (!(gui instanceof ScrollGui<?> scrollGui))
-            throw new IllegalArgumentException("ScrollItem can only be used in a ScrollGui");
+            throw new IllegalArgumentException("AbstractScrollGuiBoundItem can only be bound to a ScrollGui");
         
         super.bind(gui);
         scrollGui.addScrollHandler(notifier);

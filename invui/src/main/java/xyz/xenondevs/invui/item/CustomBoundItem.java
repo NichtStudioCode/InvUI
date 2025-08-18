@@ -23,6 +23,7 @@ import java.util.function.*;
 
 class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
     
+    private final Class<? extends Gui> guiClass;
     private final TriConsumer<? super Item, ? super G, ? super Click> clickHandler;
     private final QuadConsumer<? super Item, ? super G, ? super Player, ? super Integer> selectHandler;
     private volatile BiFunction<? super Player, ? super G, ? extends ItemProvider> itemProvider;
@@ -32,6 +33,7 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
     private @Nullable BukkitTask updateTask;
     
     public CustomBoundItem(
+        Class<? extends Gui> guiClass,
         BiConsumer<? super Item, ? super G> bindHandler,
         BiConsumer<? super Item, ? super G> unbindHandler,
         TriConsumer<? super Item, ? super G, ? super Click> clickHandler,
@@ -39,6 +41,7 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         BiFunction<? super Player, ? super G, ? extends ItemProvider> itemProvider,
         int updatePeriod
     ) {
+        this.guiClass = guiClass;
         this.bindHandler = bindHandler;
         this.unbindHandler = unbindHandler;
         this.clickHandler = clickHandler;
@@ -61,6 +64,8 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
     @SuppressWarnings("unchecked")
     @Override
     public void bind(Gui gui) {
+        if (!guiClass.isAssignableFrom(gui.getClass()))
+            throw new IllegalArgumentException("This item can only be bound to a " + guiClass.getSimpleName());
         bindHandler.accept(this, (G) gui);
         super.bind(gui);
     }
@@ -105,6 +110,7 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
     
     non-sealed static class Builder<G extends Gui> implements BoundItem.Builder<G> {
         
+        private final Class<? extends Gui> guiClass;
         protected BiConsumer<Item, G> bindHandler = (item, gui) -> {};
         protected BiConsumer<Item, G> unbindHandler = (item, gui) -> {};
         private TriConsumer<Item, G, Click> clickHandler = (item, gui, click) -> {};
@@ -116,6 +122,10 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         private Consumer<Item> modifier = item -> {};
         private boolean updateOnClick;
         private int updatePeriod = -1;
+        
+        public Builder(Class<? extends Gui> guiClass) {
+            this.guiClass = guiClass;
+        }
         
         @Override
         public Builder<G> setItemProvider(ItemProvider itemProvider) {
@@ -229,6 +239,7 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
             CustomBoundItem<G> customItem;
             if (asyncPlaceholder != null && itemProviderFn != null) {
                 customItem = new CustomBoundItem<>(
+                    guiClass,
                     bindHandler,
                     unbindHandler,
                     clickHandler,
@@ -254,6 +265,7 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
                 }
             } else {
                 customItem = new CustomBoundItem<>(
+                    guiClass,
                     bindHandler,
                     unbindHandler,
                     clickHandler,
@@ -271,6 +283,8 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         static class Paged extends Builder<PagedGui<?>> {
             
             Paged() {
+                super(PagedGui.class);
+                
                 var pageChangeHandler = new AtomicReference<BiConsumer<Integer, Integer>>();
                 var pageCountChangeHandler = new AtomicReference<BiConsumer<Integer, Integer>>();
                 
@@ -292,6 +306,8 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         static class Scroll extends Builder<ScrollGui<?>> {
             
             Scroll() {
+                super(ScrollGui.class);
+                
                 var scrollHandler = new AtomicReference<BiConsumer<Integer, Integer>>();
                 var lineCountChangeHandler = new AtomicReference<BiConsumer<Integer, Integer>>();
                 
@@ -314,6 +330,8 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         static class Tab extends Builder<TabGui> {
             
             Tab() {
+                super(TabGui.class);
+                
                 var tabChangeHandler = new AtomicReference<BiConsumer<Integer, Integer>>();
                 
                 bindHandler = bindHandler.andThen((item, gui) -> {

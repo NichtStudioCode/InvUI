@@ -55,7 +55,7 @@ public sealed interface BoundItem extends Item permits AbstractBoundItem {
      * @return A new {@link Builder} for a {@link BoundItem}.
      */
     static Builder<Gui> builder() {
-        return new CustomBoundItem.Builder<>();
+        return new CustomBoundItem.Builder<>(Gui.class);
     }
     
     /**
