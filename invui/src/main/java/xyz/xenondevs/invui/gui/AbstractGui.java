@@ -40,9 +40,9 @@ public sealed abstract class AbstractGui
     permits NormalGuiImpl, AbstractPagedGui, AbstractScrollGui, TabGuiImpl
 {
     
-    private static final boolean DEFAULT_FROZEN = false;
-    private static final boolean DEFAULT_IGNORE_OBSCURED_INVENTORY_SLOTS = true;
-    private static final @Nullable ItemProvider DEFAULT_BACKGROUND = null;
+    public static final boolean DEFAULT_FROZEN = false;
+    public static final boolean DEFAULT_IGNORE_OBSCURED_INVENTORY_SLOTS = true;
+    public static final @Nullable ItemProvider DEFAULT_BACKGROUND = null;
     
     private final int width;
     private final int height;

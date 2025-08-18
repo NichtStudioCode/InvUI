@@ -60,7 +60,12 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
      * @return The created {@link Gui}.
      */
     static Gui of(Structure structure) {
-        return new NormalGuiImpl(structure);
+        return new NormalGuiImpl(
+            structure, 
+            MutableProperty.of(AbstractGui.DEFAULT_FROZEN),
+            MutableProperty.of(AbstractGui.DEFAULT_IGNORE_OBSCURED_INVENTORY_SLOTS),
+            MutableProperty.of(AbstractGui.DEFAULT_BACKGROUND)
+        );
     }
     
     /**
