@@ -149,7 +149,7 @@ sealed abstract class AbstractScrollGui<C>
     
     @Override
     public int getLineCount() {
-        if (elements == null)
+        if (elements == null || lineLength == 0)
             return 0;
         
         return (int) Math.ceil((double) elements.size() / (double) lineLength);
@@ -157,7 +157,7 @@ sealed abstract class AbstractScrollGui<C>
     
     @Override
     public int getMaxLine() {
-        if (elements == null)
+        if (elements == null || lineLength == 0)
             return 0;
         
         int visibleLines = contentListSlots.length / lineLength;
