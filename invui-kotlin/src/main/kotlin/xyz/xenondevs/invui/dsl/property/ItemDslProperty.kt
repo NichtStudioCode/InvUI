@@ -5,10 +5,12 @@ package xyz.xenondevs.invui.dsl.property
 import org.bukkit.inventory.ItemStack
 import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.invui.ExperimentalReactiveApi
+import xyz.xenondevs.invui.dsl.ExperimentalDslApi
 import xyz.xenondevs.invui.item.Item
 import xyz.xenondevs.invui.item.ItemProvider
 import xyz.xenondevs.invui.item.setItemProvider
 
+@ExperimentalDslApi
 class ItemDslProperty internal constructor() {
     
     internal var value: Item = Item.EMPTY

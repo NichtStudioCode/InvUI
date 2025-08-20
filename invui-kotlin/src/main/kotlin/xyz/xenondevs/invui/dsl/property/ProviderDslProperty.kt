@@ -5,10 +5,12 @@ package xyz.xenondevs.invui.dsl.property
 import xyz.xenondevs.commons.provider.DeferredValue
 import xyz.xenondevs.commons.provider.MutableProvider
 import xyz.xenondevs.commons.provider.Provider
+import xyz.xenondevs.commons.provider.UnstableProviderApi
 import xyz.xenondevs.commons.provider.flatten
 import xyz.xenondevs.commons.provider.mutableProvider
-import xyz.xenondevs.commons.provider.UnstableProviderApi
+import xyz.xenondevs.invui.dsl.ExperimentalDslApi
 
+@ExperimentalDslApi
 open class ProviderDslProperty<T> internal constructor(
     delegate: MutableProvider<MutableProvider<T>>
 ) : MutableProvider<T> by delegate.flatten() {
@@ -31,6 +33,7 @@ open class ProviderDslProperty<T> internal constructor(
     
 }
 
+@ExperimentalDslApi
 private class NonMutableMutableProvider<T>(delegate: Provider<T>) : MutableProvider<T>, Provider<T> by delegate {
     override fun <R> strongMap(transform: (T) -> R, untransform: (R) -> T) = throwUoe()
     override fun <R> map(transform: (T) -> R, untransform: (R) -> T) = throwUoe()
@@ -41,6 +44,7 @@ private class NonMutableMutableProvider<T>(delegate: Provider<T>) : MutableProvi
         throw UnsupportedOperationException("This property was changed to a non-mutable provider")
 }
 
+@ExperimentalDslApi
 class MutableProviderDslProperty<T> internal constructor(
     delegate: MutableProvider<MutableProvider<T>>
 ) : MutableProvider<T> by delegate.flatten() {

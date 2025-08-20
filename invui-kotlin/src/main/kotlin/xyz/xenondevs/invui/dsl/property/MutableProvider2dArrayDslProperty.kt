@@ -2,7 +2,9 @@ package xyz.xenondevs.invui.dsl.property
 
 import xyz.xenondevs.commons.provider.MutableProvider
 import xyz.xenondevs.commons.provider.mutableProvider
+import xyz.xenondevs.invui.dsl.ExperimentalDslApi
 
+@ExperimentalDslApi
 class MutableProvider2dArrayDslProperty<T> internal constructor(
     private val width: Int, private val height: Int,
     initial: T

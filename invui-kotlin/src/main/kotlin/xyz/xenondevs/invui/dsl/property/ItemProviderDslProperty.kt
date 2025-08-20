@@ -3,9 +3,11 @@ package xyz.xenondevs.invui.dsl.property
 import org.bukkit.inventory.ItemStack
 import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.commons.provider.mapNonNull
+import xyz.xenondevs.invui.dsl.ExperimentalDslApi
 import xyz.xenondevs.invui.item.ItemProvider
 import xyz.xenondevs.invui.item.ItemWrapper
 
+@ExperimentalDslApi
 class ItemProviderDslProperty internal constructor() : ProviderDslProperty<ItemProvider>(ItemProvider.EMPTY) {
     
     infix fun by(itemStack: ItemStack): Unit =
@@ -17,6 +19,7 @@ class ItemProviderDslProperty internal constructor() : ProviderDslProperty<ItemP
     
 }
 
+@ExperimentalDslApi
 class NullableItemProviderDslProperty internal constructor() : ProviderDslProperty<ItemProvider?>(null) {
     
     infix fun by(itemStack: ItemStack?): Unit =

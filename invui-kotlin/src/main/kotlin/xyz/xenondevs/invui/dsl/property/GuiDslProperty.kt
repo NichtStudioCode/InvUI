@@ -1,14 +1,17 @@
 package xyz.xenondevs.invui.dsl.property
 
+import xyz.xenondevs.invui.dsl.ExperimentalDslApi
 import xyz.xenondevs.invui.gui.Gui
 import xyz.xenondevs.invui.inventory.Inventory
 import kotlin.math.ceil
 
+@ExperimentalDslApi
 internal data class Dimensions(val width: Int, val height: Int) {
     val size: Int
         get() = width * height
 }
 
+@ExperimentalDslApi
 class GuiDslProperty internal constructor(
     private val dimensions: List<Dimensions>,
     private val arbitraryHeight: Boolean = false,
