@@ -4,6 +4,8 @@ package xyz.xenondevs.invui.dsl
 
 import org.bukkit.entity.Player
 import xyz.xenondevs.invui.ExperimentalReactiveApi
+import xyz.xenondevs.invui.dsl.property.GuiDslProperty
+import xyz.xenondevs.invui.dsl.property.ProviderDslProperty
 import xyz.xenondevs.invui.window.CartographyWindow
 import xyz.xenondevs.invui.window.setIcons
 import xyz.xenondevs.invui.window.setView
@@ -41,8 +43,8 @@ internal class CartographyWindowDslImpl(
         builder.apply { 
             setInputGui(inputGui.value)
             setResultGui(resultGui.value)
-            setIcons(icons.value)
-            setView(view.value)
+            setIcons(icons.delegate)
+            setView(view.delegate)
         }
     }
     

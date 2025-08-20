@@ -6,6 +6,8 @@ import org.bukkit.entity.Player
 import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.commons.provider.mutableProvider
 import xyz.xenondevs.invui.ExperimentalReactiveApi
+import xyz.xenondevs.invui.dsl.property.GuiDslProperty
+import xyz.xenondevs.invui.dsl.property.ProviderDslProperty
 import xyz.xenondevs.invui.window.AnvilWindow
 import xyz.xenondevs.invui.window.addRenameHandler
 import xyz.xenondevs.invui.window.setResultAlwaysValid
@@ -42,8 +44,8 @@ internal class AnvilWindowDslImpl(
         builder.apply { 
             setUpperGui(upperGui.value)
             addRenameHandler(text)
-            setTextFieldAlwaysEnabled(textFieldAlwaysEnabled.value)
-            setResultAlwaysValid(resultAlwaysValid.value)
+            setTextFieldAlwaysEnabled(textFieldAlwaysEnabled.delegate)
+            setResultAlwaysValid(resultAlwaysValid.delegate)
         }
     }
     

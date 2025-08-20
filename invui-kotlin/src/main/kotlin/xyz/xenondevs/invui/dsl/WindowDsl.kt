@@ -2,13 +2,17 @@
 
 package xyz.xenondevs.invui.dsl
 
-import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryCloseEvent
 import xyz.xenondevs.invui.ClickEvent
 import xyz.xenondevs.invui.ExperimentalReactiveApi
+import xyz.xenondevs.invui.dsl.property.ComponentProviderDslProperty
+import xyz.xenondevs.invui.dsl.property.Dimensions
+import xyz.xenondevs.invui.dsl.property.GuiDslProperty
+import xyz.xenondevs.invui.dsl.property.ProviderDslProperty
 import xyz.xenondevs.invui.internal.util.InventoryUtils
 import xyz.xenondevs.invui.window.Window
+import xyz.xenondevs.invui.window.setCloseable
 import xyz.xenondevs.invui.window.setTitle
 
 @ExperimentalDslApi
@@ -20,10 +24,10 @@ fun mergedWindow(viewer: Player, window: NormalMergedWindowDsl.() -> Unit): Wind
     NormalMergedWindowDslImpl(viewer).apply(window).build()
 
 @ExperimentalDslApi
-@MenuDsl
+@WindowDslMarker
 sealed interface WindowDsl {
     
-    val title: ProviderDslProperty<Component>
+    val title: ComponentProviderDslProperty
     val closeable: ProviderDslProperty<Boolean>
     val fallbackWindow: ProviderDslProperty<Window?>
     
@@ -61,7 +65,7 @@ internal abstract class AbstractWindowDsl<W : Window, B : Window.Builder<W, B>>(
     private val viewer: Player
 ) : WindowDsl {
     
-    override val title = ProviderDslProperty<Component>(Component.empty())
+    override val title = ComponentProviderDslProperty()
     override val closeable = ProviderDslProperty(true)
     override val fallbackWindow = ProviderDslProperty<Window?>(null)
     private val openHandlers = mutableListOf<() -> Unit>()
@@ -85,7 +89,9 @@ internal abstract class AbstractWindowDsl<W : Window, B : Window.Builder<W, B>>(
     open fun applyToBuilder(builder: B) {
         builder.apply { 
             setViewer(viewer)
-            setTitle(title.value)
+            setTitle(title.delegate)
+            setCloseable(closeable.delegate)
+            setFallbackWindow(fallbackWindow.delegate)
             openHandlers.forEach { addOpenHandler(it) }
             closeHandlers.forEach { addCloseHandler(it) }
             outsideClickHandlers.forEach { addOutsideClickHandler(it) }
@@ -101,7 +107,7 @@ internal abstract class AbstractSplitWindowDsl<W : Window, B : Window.Builder.Sp
     viewer: Player
 ) : AbstractWindowDsl<W, B>(viewer), SplitWindowDsl {
     
-    override val lowerGui = GuiDslProperty(9, 4, InventoryUtils.createPlayerReferencingInventoryGui(viewer))
+    override val lowerGui = GuiDslProperty(9, 4) { InventoryUtils.createPlayerReferencingInventoryGui(viewer) }
     
     override fun applyToBuilder(builder: B) {
         super.applyToBuilder(builder)

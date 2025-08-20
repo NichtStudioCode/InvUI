@@ -4,6 +4,8 @@ package xyz.xenondevs.invui.dsl
 
 import org.bukkit.entity.Player
 import xyz.xenondevs.invui.ExperimentalReactiveApi
+import xyz.xenondevs.invui.dsl.property.GuiDslProperty
+import xyz.xenondevs.invui.dsl.property.MutableProviderDslProperty
 import xyz.xenondevs.invui.window.StonecutterWindow
 import xyz.xenondevs.invui.window.setSelectedSlot
 
@@ -36,7 +38,7 @@ internal class StonecutterWindowDslImpl(
         builder.apply {
             setUpperGui(upperGui.value)
             setButtonsGui(buttonsGui.value)
-            setSelectedSlot(selectedSlot.value)
+            setSelectedSlot(selectedSlot.delegate)
         }
     }
     

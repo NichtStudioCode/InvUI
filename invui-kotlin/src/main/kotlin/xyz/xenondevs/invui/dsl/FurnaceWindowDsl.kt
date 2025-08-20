@@ -5,6 +5,8 @@ package xyz.xenondevs.invui.dsl
 import net.kyori.adventure.key.Key
 import org.bukkit.entity.Player
 import xyz.xenondevs.invui.ExperimentalReactiveApi
+import xyz.xenondevs.invui.dsl.property.GuiDslProperty
+import xyz.xenondevs.invui.dsl.property.ProviderDslProperty
 import xyz.xenondevs.invui.window.FurnaceWindow
 import xyz.xenondevs.invui.window.setBurnProgress
 import xyz.xenondevs.invui.window.setCookProgress
@@ -47,8 +49,8 @@ internal class FurnaceWindowDslImpl(
         builder.apply {
             setInputGui(inputGui.value)
             setResultGui(resultGui.value)
-            setCookProgress(cookProgress.value)
-            setBurnProgress(burnProgress.value)
+            setCookProgress(cookProgress.delegate)
+            setBurnProgress(burnProgress.delegate)
             recipeClickHandlers.forEach { addRecipeClickHandler(it) }
         }
     }

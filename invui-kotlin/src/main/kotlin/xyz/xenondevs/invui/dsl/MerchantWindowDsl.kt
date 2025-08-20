@@ -6,6 +6,9 @@ import org.bukkit.entity.Player
 import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.commons.provider.mutableProvider
 import xyz.xenondevs.invui.ExperimentalReactiveApi
+import xyz.xenondevs.invui.dsl.property.GuiDslProperty
+import xyz.xenondevs.invui.dsl.property.ItemDslProperty
+import xyz.xenondevs.invui.dsl.property.ProviderDslProperty
 import xyz.xenondevs.invui.window.MerchantWindow
 import xyz.xenondevs.invui.window.setAvailable
 import xyz.xenondevs.invui.window.setDiscount
@@ -29,7 +32,7 @@ sealed interface MerchantWindowDsl : SplitWindowDsl {
 }
 
 @ExperimentalDslApi
-@MenuDsl
+@TradeDslMarker
 sealed interface TradeDsl {
     
     val firstInput: ItemDslProperty
@@ -55,7 +58,7 @@ internal class MerchantWindowDslImpl(
         super.applyToBuilder(builder)
         builder.apply {
             setUpperGui(upperGui.value)
-            setTrades(trades.value)
+            setTrades(trades.delegate)
             addTradeSelectHandler { _, trade -> selectedTrade.set(trade) }
         }
     }
@@ -75,8 +78,8 @@ internal class TradeDslImpl : TradeDsl {
         .setFirstInput(firstInput.value)
         .setSecondInput(secondInput.value)
         .setResult(result.value)
-        .setDiscount(discount.value)
-        .setAvailable(isAvailable.value)
+        .setDiscount(discount.delegate)
+        .setAvailable(isAvailable.delegate)
         .build()
     
 }

@@ -5,6 +5,7 @@ package xyz.xenondevs.invui.dsl
 import org.bukkit.entity.Player
 import xyz.xenondevs.invui.Click
 import xyz.xenondevs.invui.ExperimentalReactiveApi
+import xyz.xenondevs.invui.dsl.property.ItemProviderDslProperty
 import xyz.xenondevs.invui.item.Item
 import xyz.xenondevs.invui.item.setItemProvider
 
@@ -12,7 +13,7 @@ import xyz.xenondevs.invui.item.setItemProvider
 fun item(item: ItemDsl.() -> Unit): Item =
     ItemDslImpl().apply(item).build()
 
-@MenuDsl
+@ItemDslMarker
 @ExperimentalDslApi
 sealed interface ItemDsl {
     
@@ -40,7 +41,7 @@ internal class ItemDslImpl : ItemDsl {
     }
     
     fun build() = Item.builder().apply {
-        setItemProvider(itemProvider.value)
+        setItemProvider(itemProvider.delegate)
         clickHandlers.forEach { addClickHandler(it) }
         bundleSelectHandlers.forEach { addBundleSelectHandler(it) }
     }.build()

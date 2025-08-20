@@ -5,6 +5,8 @@ package xyz.xenondevs.invui.dsl
 import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.commons.provider.mutableProvider
 import xyz.xenondevs.invui.ExperimentalReactiveApi
+import xyz.xenondevs.invui.dsl.property.MutableProviderDslProperty
+import xyz.xenondevs.invui.dsl.property.ProviderDslProperty
 import xyz.xenondevs.invui.gui.Gui
 import xyz.xenondevs.invui.gui.IngredientPreset
 import xyz.xenondevs.invui.gui.PagedGui
@@ -34,12 +36,14 @@ internal abstract class PagedGuiDslImpl<C : Any>(
     
     override fun applyToBuilder(builder: PagedGui.Builder<C>) {
         super.applyToBuilder(builder)
-        builder.setContent(content.value)
-        builder.setPage(page.value)
-        
-        builder.addModifier { gui ->
-            pageCount.set(gui.pageCount)
-            gui.addPageCountChangeHandler { _, p -> pageCount.set(p) }
+        builder.apply { 
+            setContent(content.delegate)
+            setPage(page.delegate)
+            
+            addModifier { gui ->
+                pageCount.set(gui.pageCount)
+                gui.addPageCountChangeHandler { _, p -> pageCount.set(p) }
+            }
         }
     }
     

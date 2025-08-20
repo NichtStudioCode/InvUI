@@ -3,6 +3,8 @@
 package xyz.xenondevs.invui.dsl
 
 import xyz.xenondevs.invui.ExperimentalReactiveApi
+import xyz.xenondevs.invui.dsl.property.MutableProviderDslProperty
+import xyz.xenondevs.invui.dsl.property.ProviderDslProperty
 import xyz.xenondevs.invui.gui.Gui
 import xyz.xenondevs.invui.gui.IngredientPreset
 import xyz.xenondevs.invui.gui.TabGui
@@ -30,8 +32,8 @@ internal class TabGuiDslImpl(
     
     override fun applyToBuilder(builder: TabGui.Builder) {
         super.applyToBuilder(builder)
-        builder.setTabs(tabs.value)
-        builder.setTab(tab.value)
+        builder.setTabs(tabs.delegate)
+        builder.setTab(tab.delegate)
     }
     
 }

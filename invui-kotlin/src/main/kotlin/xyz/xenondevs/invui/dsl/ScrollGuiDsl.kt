@@ -5,6 +5,8 @@ package xyz.xenondevs.invui.dsl
 import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.commons.provider.mutableProvider
 import xyz.xenondevs.invui.ExperimentalReactiveApi
+import xyz.xenondevs.invui.dsl.property.MutableProviderDslProperty
+import xyz.xenondevs.invui.dsl.property.ProviderDslProperty
 import xyz.xenondevs.invui.gui.Gui
 import xyz.xenondevs.invui.gui.IngredientPreset
 import xyz.xenondevs.invui.gui.ScrollGui
@@ -35,8 +37,8 @@ internal abstract class ScrollGuiDslImpl<C : Any>(
     override fun applyToBuilder(builder: ScrollGui.Builder<C>) {
         super.applyToBuilder(builder)
         builder.apply {
-            setContent(content.value)
-            setLine(line.value)
+            setContent(content.delegate)
+            setLine(line.delegate)
             
             addModifier { gui ->
                 lineCount.set(gui.lineCount)
