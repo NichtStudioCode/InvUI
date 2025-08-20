@@ -1,4 +1,4 @@
-name: Build InvUI
+name: Run Tests
 
 on:
   push:
@@ -7,13 +7,12 @@ on:
     branches: [ "**" ]
 
 jobs:
-  build:
-    name: Build InvUI
+  test:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -21,8 +20,8 @@ jobs:
           java-version: 21
           distribution: adopt
 
-      - name: Build InvUI
-        uses: gradle/gradle-build-action@v3
-        with:
-          cache-disabled: true
-          arguments: clean build test
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run Tests
+        run: ./gradlew clean build test
