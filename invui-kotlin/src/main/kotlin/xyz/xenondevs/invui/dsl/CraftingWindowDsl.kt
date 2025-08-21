@@ -13,12 +13,15 @@ fun craftingWindow(viewer: Player, craftingWindow: CraftingWindowDsl.() -> Unit)
     CraftingWindowDslImpl(viewer).apply(craftingWindow).build()
 
 @ExperimentalDslApi
+class RecipeClick internal constructor(val recipeKey: Key)
+
+@ExperimentalDslApi
 sealed interface CraftingWindowDsl : SplitWindowDsl {
     
     val craftingGui: GuiDslProperty
     val resultGui: GuiDslProperty
     
-    fun onRecipeClick(handler: (recipeKey: Key) -> Unit)
+    fun onRecipeClick(handler: RecipeClick.() -> Unit)
     
 }
 
@@ -29,9 +32,9 @@ internal class CraftingWindowDslImpl(
     
     override val craftingGui = GuiDslProperty(3, 3)
     override val resultGui = GuiDslProperty(1, 1)
-    private val recipeClickHandlers = mutableListOf<(Key) -> Unit>()
+    private val recipeClickHandlers = mutableListOf<RecipeClick.() -> Unit>()
     
-    override fun onRecipeClick(handler: (Key) -> Unit) {
+    override fun onRecipeClick(handler: RecipeClick.() -> Unit) {
         recipeClickHandlers += handler
     }
     
@@ -42,7 +45,7 @@ internal class CraftingWindowDslImpl(
         builder.apply {
             setCraftingGui(craftingGui.value)
             setResultGui(resultGui.value)
-            recipeClickHandlers.forEach { addRecipeClickHandler(it) }
+            recipeClickHandlers.forEach { handler -> addRecipeClickHandler { RecipeClick(it).handler() } }
         }
     }
     

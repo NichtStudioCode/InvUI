@@ -24,6 +24,9 @@ fun mergedWindow(viewer: Player, window: NormalMergedWindowDsl.() -> Unit): Wind
     NormalMergedWindowDslImpl(viewer).apply(window).build()
 
 @ExperimentalDslApi
+class Close internal constructor(val reason: InventoryCloseEvent.Reason)
+
+@ExperimentalDslApi
 @WindowDslMarker
 sealed interface WindowDsl {
     
@@ -33,9 +36,9 @@ sealed interface WindowDsl {
     
     fun onOpen(handler: () -> Unit)
     
-    fun onClose(handler: (reason: InventoryCloseEvent.Reason) -> Unit)
+    fun onClose(handler: Close.() -> Unit)
     
-    fun onOutsideClick(handler: (ClickEvent) -> Unit)
+    fun onOutsideClick(handler: ClickEvent.() -> Unit)
     
 }
 
@@ -69,18 +72,18 @@ internal abstract class AbstractWindowDsl<W : Window, B : Window.Builder<W, B>>(
     override val closeable = ProviderDslProperty(true)
     override val fallbackWindow = ProviderDslProperty<Window?>(null)
     private val openHandlers = mutableListOf<() -> Unit>()
-    private val closeHandlers = mutableListOf<(InventoryCloseEvent.Reason) -> Unit>()
-    private val outsideClickHandlers = mutableListOf<(ClickEvent) -> Unit>()
+    private val closeHandlers = mutableListOf<Close.() -> Unit>()
+    private val outsideClickHandlers = mutableListOf<ClickEvent.() -> Unit>()
     
     override fun onOpen(handler: () -> Unit) {
         openHandlers += handler
     }
     
-    override fun onClose(handler: (InventoryCloseEvent.Reason) -> Unit) {
+    override fun onClose(handler: Close.() -> Unit) {
         closeHandlers += handler
     }
     
-    override fun onOutsideClick(handler: (ClickEvent) -> Unit) {
+    override fun onOutsideClick(handler: ClickEvent.() -> Unit) {
         outsideClickHandlers += handler
     }
     
@@ -93,7 +96,7 @@ internal abstract class AbstractWindowDsl<W : Window, B : Window.Builder<W, B>>(
             setCloseable(closeable.delegate)
             setFallbackWindow(fallbackWindow.delegate)
             openHandlers.forEach { addOpenHandler(it) }
-            closeHandlers.forEach { addCloseHandler(it) }
+            closeHandlers.forEach { handler -> addCloseHandler { Close(it).handler() } }
             outsideClickHandlers.forEach { addOutsideClickHandler(it) }
         }
     }

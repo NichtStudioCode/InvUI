@@ -2,7 +2,6 @@
 
 package xyz.xenondevs.invui.dsl
 
-import net.kyori.adventure.key.Key
 import org.bukkit.entity.Player
 import xyz.xenondevs.invui.ExperimentalReactiveApi
 import xyz.xenondevs.invui.dsl.property.GuiDslProperty
@@ -23,7 +22,7 @@ sealed interface FurnaceWindowDsl : SplitWindowDsl {
     val cookProgress: ProviderDslProperty<Double>
     val burnProgress: ProviderDslProperty<Double>
     
-    fun onRecipeClick(handler: (Key) -> Unit)
+    fun onRecipeClick(handler: RecipeClick.() -> Unit)
     
 }
 
@@ -36,9 +35,9 @@ internal class FurnaceWindowDslImpl(
     override val resultGui = GuiDslProperty(1, 1)
     override val cookProgress = ProviderDslProperty(0.0)
     override val burnProgress = ProviderDslProperty(0.0)
-    private val recipeClickHandlers = mutableListOf<(Key) -> Unit>()
+    private val recipeClickHandlers = mutableListOf<RecipeClick.() -> Unit>()
     
-    override fun onRecipeClick(handler: (Key) -> Unit) {
+    override fun onRecipeClick(handler: RecipeClick.() -> Unit) {
         recipeClickHandlers += handler
     }
     
@@ -51,7 +50,7 @@ internal class FurnaceWindowDslImpl(
             setResultGui(resultGui.value)
             setCookProgress(cookProgress.delegate)
             setBurnProgress(burnProgress.delegate)
-            recipeClickHandlers.forEach { addRecipeClickHandler(it) }
+            recipeClickHandlers.forEach { handler -> addRecipeClickHandler { RecipeClick(it).handler() } }
         }
     }
     
