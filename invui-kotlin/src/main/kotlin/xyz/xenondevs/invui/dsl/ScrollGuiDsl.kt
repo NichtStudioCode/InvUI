@@ -16,6 +16,18 @@ import xyz.xenondevs.invui.inventory.Inventory
 import xyz.xenondevs.invui.item.Item
 
 @ExperimentalDslApi
+fun scrollItemsGui(vararg structure: String, gui: ScrollGuiDsl<Item>.() -> Unit): ScrollGui<Item> =
+    ScrollGuiDslImpl.Items(structure).apply(gui).build()
+
+@ExperimentalDslApi
+fun scrollGuisGui(vararg structure: String, gui: ScrollGuiDsl<Gui>.() -> Unit): ScrollGui<Gui> =
+    ScrollGuiDslImpl.Guis(structure).apply(gui).build()
+
+@ExperimentalDslApi
+fun scrollInventoriesGui(vararg structure: String, gui: ScrollGuiDsl<Inventory>.() -> Unit): ScrollGui<Inventory> =
+    ScrollGuiDslImpl.Inventories(structure).apply(gui).build()
+
+@ExperimentalDslApi
 sealed interface ScrollGuiDsl<C : Any> : GuiDsl {
     
     val content: ProviderDslProperty<List<C>>

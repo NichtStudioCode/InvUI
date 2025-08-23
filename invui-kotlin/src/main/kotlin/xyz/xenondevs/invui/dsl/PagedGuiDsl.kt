@@ -16,6 +16,18 @@ import xyz.xenondevs.invui.inventory.Inventory
 import xyz.xenondevs.invui.item.Item
 
 @ExperimentalDslApi
+fun pagedItemsGui(vararg structure: String, gui: PagedGuiDsl<Item>.() -> Unit): PagedGui<Item> =
+    PagedGuiDslImpl.Items(structure).apply(gui).build()
+
+@ExperimentalDslApi
+fun pagedGuisGui(vararg structure: String, gui: PagedGuiDsl<Gui>.() -> Unit): PagedGui<Gui> =
+    PagedGuiDslImpl.Guis(structure).apply(gui).build()
+
+@ExperimentalDslApi
+fun pagedInventoriesGui(vararg structure: String, gui: PagedGuiDsl<Inventory>.() -> Unit): PagedGui<Inventory> =
+    PagedGuiDslImpl.Inventories(structure).apply(gui).build()
+
+@ExperimentalDslApi
 sealed interface PagedGuiDsl<C : Any> : GuiDsl {
     
     val content: ProviderDslProperty<List<C>>

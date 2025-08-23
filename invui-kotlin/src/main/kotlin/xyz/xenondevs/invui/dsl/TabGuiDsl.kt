@@ -12,6 +12,10 @@ import xyz.xenondevs.invui.gui.setTab
 import xyz.xenondevs.invui.gui.setTabs
 
 @ExperimentalDslApi
+fun tabGui(vararg structure: String, gui: TabGuiDsl.() -> Unit): TabGui =
+    TabGuiDslImpl(structure).apply(gui).build()
+
+@ExperimentalDslApi
 sealed interface TabGuiDsl : GuiDsl {
     
     val tabs: ProviderDslProperty<List<Gui?>>
