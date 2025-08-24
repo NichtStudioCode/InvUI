@@ -1128,6 +1128,21 @@ public final class ItemBuilder implements ItemProvider {
         return this;
     }
     
+    /**
+     * Actives, deactivates, or resets the enchantment glint to its default behavior.
+     *
+     * @param glint {@code true} to activate, {@code false} to deactivate, {@code null}
+     *              to reset the enchantment glint to its default behavior
+     * @return The builder instance
+     */
+    public ItemBuilder setGlint(@Nullable Boolean glint) {
+        if (glint == null) {
+            unset(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE);
+        } else {
+            set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, glint);
+        }
+        return this;
+    }
     //</editor-fold>
     
     //<editor-fold desc="modifiers">
