@@ -8,6 +8,7 @@ import org.bukkit.scheduler.BukkitTask;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.Observer;
+import xyz.xenondevs.invui.util.ItemUtils;
 import xyz.xenondevs.invui.util.TriConsumer;
 
 import java.util.Arrays;
@@ -98,7 +99,7 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
     
     @Override
     public @Nullable ItemStack[] getItems() {
-        return itemsGetter.apply(inventory);
+        return ItemUtils.clone(itemsGetter.apply(inventory));
     }
     
     @Override
@@ -108,22 +109,22 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
     
     @Override
     public @Nullable ItemStack getItem(int slot) {
-        return itemGetter.apply(inventory, slot);
+        return ItemUtils.cloneUnlessEmpty(itemGetter.apply(inventory, slot));
     }
     
     @Override
     public @Nullable ItemStack getUnsafeItem(int slot) {
-        return itemGetter.apply(inventory, slot);
+        return ItemUtils.takeUnlessEmpty(itemGetter.apply(inventory, slot));
     }
     
     @Override
     protected void setCloneBackingItem(int slot, @Nullable ItemStack itemStack) {
-        itemSetter.accept(inventory, slot, itemStack);
+        itemSetter.accept(inventory, slot, ItemUtils.cloneUnlessEmpty(itemStack));
     }
     
     @Override
     protected void setDirectBackingItem(int slot, @Nullable ItemStack itemStack) {
-        itemSetter.accept(inventory, slot, itemStack);
+        itemSetter.accept(inventory, slot, ItemUtils.takeUnlessEmpty(itemStack));
     }
     
     @Override
@@ -171,11 +172,6 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
         
         @Override
         public @Nullable ItemStack[] getUnsafeItems() {
-            return getItems();
-        }
-        
-        @Override
-        public @Nullable ItemStack[] getItems() {
             @Nullable ItemStack[] items = itemsGetter.apply(inventory);
             @Nullable ItemStack[] reorderedItems = new ItemStack[items.length];
             
@@ -183,6 +179,11 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
             System.arraycopy(items, 9, reorderedItems, 0, 27);
             
             return reorderedItems;
+        }
+        
+        @Override
+        public @Nullable ItemStack[] getItems() {
+            return ItemUtils.clone(getUnsafeItems());
         }
         
         @Override
