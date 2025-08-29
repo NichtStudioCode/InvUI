@@ -234,11 +234,8 @@ public class TabGuiTest {
         
         // validate assumptions for s2
         for (int i = 0; i < 3; i++) {
-            // element or holding element should be null
             var element = gui.getSlotElement(i);
-            if (element != null) {
-                assertNull(element.getHoldingElement());
-            }
+            assertNull(element);
         }
         for (int i = 3; i < 6; i++) {
             var element = gui.getSlotElement(i);

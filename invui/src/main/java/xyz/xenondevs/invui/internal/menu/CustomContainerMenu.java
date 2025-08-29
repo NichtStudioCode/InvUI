@@ -44,7 +44,7 @@ import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.internal.network.PacketListener;
 import xyz.xenondevs.invui.internal.util.InventoryUtils;
-import xyz.xenondevs.invui.window.AbstractWindow;
+import xyz.xenondevs.invui.window.Window;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -113,7 +113,7 @@ public abstract class CustomContainerMenu {
     protected final int containerId;
     protected final Player player;
     private final ServerPlayer serverPlayer;
-    private @Nullable AbstractWindow<?> window;
+    private @Nullable Window window;
     private final ContainerMenuProxy proxy;
     
     protected final NonNullList<ItemStack> items;
@@ -367,9 +367,8 @@ public abstract class CustomContainerMenu {
         if (packet.getContainerId() != containerId)
             return;
         
-        var window = getWindow();
-        if (window.isCloseable()) {
-            window.handleClose(InventoryCloseEvent.Reason.PLAYER);
+        if (getWindow().isCloseable()) {
+            getWindowEvents().handleClose(InventoryCloseEvent.Reason.PLAYER);
         } else {
             sendOpenPacket(title);
         }
@@ -454,7 +453,7 @@ public abstract class CustomContainerMenu {
         int finalHotbarBtn = hotbarBtn;
         runInInteractionContext(() -> {
             Click click = new Click(player, clickType, finalHotbarBtn);
-            getWindow().handleClick(packet.slotNum(), click);
+            getWindowEvents().handleClick(packet.slotNum(), click);
         });
     }
     
@@ -493,9 +492,9 @@ public abstract class CustomContainerMenu {
                     if (dragSlots.size() == 1) {
                         // handle one slot drags as simple clicks
                         int slot = dragSlots.iterator().nextInt();
-                        getWindow().handleClick(slot, new Click(player, dragMode, -1));
+                        getWindowEvents().handleClick(slot, new Click(player, dragMode, -1));
                     } else {
-                        getWindow().handleDrag(dragSlots, dragMode);
+                        getWindowEvents().handleDrag(dragSlots, dragMode);
                         
                     }
                 });
@@ -534,7 +533,7 @@ public abstract class CustomContainerMenu {
         bundle.set(DataComponents.BUNDLE_CONTENTS, mutableBundleContents.toImmutable());
         
         // let window handle the selection
-        runInInteractionContext(() -> getWindow().handleBundleSelect(slot, packet.selectedItemIndex()));
+        runInInteractionContext(() -> getWindowEvents().handleBundleSelect(slot, packet.selectedItemIndex()));
         
         // syncs server and client state
         sendToRemote(false);
@@ -577,24 +576,30 @@ public abstract class CustomContainerMenu {
     }
     
     /**
-     * Sets the {@link AbstractWindow} that is associated with this menu.
+     * Sets the {@link Window} that is associated with this menu.
      *
-     * @param window The {@link AbstractWindow}
+     * @param window The {@link Window}
      */
-    public void setWindow(AbstractWindow<?> window) {
+    public void setWindow(Window window) {
         this.window = window;
     }
     
     /**
-     * Gets the {@link AbstractWindow} that is associated with this menu.
+     * Gets the {@link Window} that is associated with this menu.
      *
-     * @return The {@link AbstractWindow}
-     * @throws IllegalStateException If the window is not {@link #setWindow(AbstractWindow) set}
+     * @return The {@link Window}
+     * @throws IllegalStateException If the window is not {@link #setWindow(Window) set}
      */
-    public AbstractWindow<?> getWindow() {
+    public Window getWindow() {
         if (window == null)
             throw new IllegalStateException("Window is not set");
         return window;
+    }
+    
+    public WindowEventListener getWindowEvents() {
+        if (window == null)
+            throw new IllegalStateException("Window is not set");
+        return (WindowEventListener) window;
     }
     
     /**

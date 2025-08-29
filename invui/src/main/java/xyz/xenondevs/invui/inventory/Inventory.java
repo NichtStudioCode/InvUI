@@ -2,13 +2,13 @@ package xyz.xenondevs.invui.inventory;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.InvUI;
+import xyz.xenondevs.invui.Observable;
+import xyz.xenondevs.invui.Observer;
 import xyz.xenondevs.invui.gui.Gui;
-import xyz.xenondevs.invui.internal.ViewerAtSlot;
 import xyz.xenondevs.invui.internal.util.ArrayUtils;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
 import xyz.xenondevs.invui.inventory.event.InventoryClickEvent;
@@ -16,7 +16,7 @@ import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
 import xyz.xenondevs.invui.util.ItemUtils;
-import xyz.xenondevs.invui.window.AbstractWindow;
+import xyz.xenondevs.invui.util.ObserverAtSlot;
 import xyz.xenondevs.invui.window.Window;
 
 import java.util.*;
@@ -51,10 +51,10 @@ import java.util.stream.IntStream;
  * </ul>
  */
 @SuppressWarnings("SynchronizeOnNonFinalField") // VirtualInventory synchronizes on viewers when changing the field
-public sealed abstract class Inventory permits VirtualInventory, CompositeInventory, ObscuredInventory, ReferencingInventory {
+public sealed abstract class Inventory implements Observable permits VirtualInventory, CompositeInventory, ObscuredInventory, ReferencingInventory {
     
     protected int size;
-    protected @Nullable Set<ViewerAtSlot>[] viewers;
+    protected @Nullable Set<ObserverAtSlot>[] observers;
     private @Nullable List<Consumer<? super InventoryClickEvent>> clickHandlers;
     private @Nullable List<Consumer<? super ItemPreUpdateEvent>> preUpdateHandlers;
     private @Nullable List<Consumer<? super ItemPostUpdateEvent>> postUpdateHandlers;
@@ -64,7 +64,7 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
     @SuppressWarnings("unchecked")
     public Inventory(int size) {
         this.size = size;
-        viewers = new Set[size];
+        observers = new Set[size];
         iterationOrders = CollectionUtils.newEnumMap(OperationCategory.class, k -> IntStream.range(0, size).toArray());
         guiPriorities = CollectionUtils.newEnumMap(OperationCategory.class, k -> 0);
     }
@@ -205,33 +205,27 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      */
     protected abstract void setDirectBackingItem(int slot, @Nullable ItemStack itemStack);
     
-    /**
-     * @hidden
-     */
-    @ApiStatus.Internal
-    public void addViewer(AbstractWindow<?> viewer, int what, int how) {
-        synchronized (viewers) {
-            var viewerSet = viewers[what];
-            if (viewerSet == null) {
-                viewerSet = new HashSet<>();
-                viewers[what] = viewerSet;
+    @Override
+    public void addObserver(Observer who, int what, int how) {
+        synchronized (observers) {
+            var observerSet = observers[what];
+            if (observerSet == null) {
+                observerSet = new HashSet<>();
+                observers[what] = observerSet;
             }
             
-            viewerSet.add(new ViewerAtSlot(viewer, how));
+            observerSet.add(new ObserverAtSlot(who, how));
         }
     }
     
-    /**
-     * @hidden
-     */
-    @ApiStatus.Internal
-    public void removeViewer(AbstractWindow<?> viewer, int what, int how) {
-        synchronized (viewers) {
-            var viewerSet = viewers[what];
-            if (viewerSet != null) {
-                viewerSet.remove(new ViewerAtSlot(viewer, how));
-                if (viewerSet.isEmpty())
-                    viewers[what] = null;
+    @Override
+    public void removeObserver(Observer who, int what, int how) {
+        synchronized (observers) {
+            var observerSet = observers[what];
+            if (observerSet != null) {
+                observerSet.remove(new ObserverAtSlot(who, how));
+                if (observerSet.isEmpty())
+                    observers[what] = null;
             }
         }
     }
@@ -243,12 +237,14 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      */
     public List<Window> getWindows() {
         var windows = new ArrayList<Window>();
-        synchronized (viewers) {
-            for (var viewerSet : viewers) {
-                if (viewerSet == null)
+        synchronized (observers) {
+            for (var observerSet : observers) {
+                if (observerSet == null)
                     continue;
-                for (var viewerAtSlot : viewerSet) {
-                    windows.add(viewerAtSlot.window());
+                for (var viewerAtSlot : observerSet) {
+                    if (!(viewerAtSlot.observer() instanceof Window w))
+                        continue;
+                    windows.add(w);
                 }
             }
         }
@@ -262,11 +258,11 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      * Can be called asynchronously.
      */
     public void notifyWindows() {
-        synchronized (viewers) {
-            for (var viewerSet : viewers) {
-                if (viewerSet == null)
+        synchronized (observers) {
+            for (var observerSet : observers) {
+                if (observerSet == null)
                     continue;
-                for (var viewerAtSlot : viewerSet) {
+                for (var viewerAtSlot : observerSet) {
                     viewerAtSlot.notifyUpdate();
                 }
             }
@@ -282,10 +278,10 @@ public sealed abstract class Inventory permits VirtualInventory, CompositeInvent
      * @param slot The slot to notify
      */
     public void notifyWindows(int slot) {
-        synchronized (viewers) {
-            var viewerSet = viewers[slot];
-            if (viewerSet != null) {
-                for (var viewerAtSlot : viewerSet) {
+        synchronized (observers) {
+            var observerSet = observers[slot];
+            if (observerSet != null) {
+                for (var viewerAtSlot : observerSet) {
                     viewerAtSlot.notifyUpdate();
                 }
             }

@@ -7,7 +7,9 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.ClickEvent;
+import xyz.xenondevs.invui.Observer;
 import xyz.xenondevs.invui.gui.Gui;
+import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.List;
@@ -18,7 +20,7 @@ import java.util.function.Supplier;
  * A Window is the way to show a player a {@link Gui}. Windows can only have one viewer.
  * To create a new {@link Window}, use the builder factory methods {@link Window#builder} and {@link Window#mergedBuilder}.
  */
-public sealed interface Window permits AbstractWindow, AnvilWindow, BrewingWindow, CartographyWindow, CrafterWindow, CraftingWindow, FurnaceWindow, GrindstoneWindow, MerchantWindow, SmithingWindow, StonecutterWindow {
+public sealed interface Window extends Observer permits AbstractWindow, AnvilWindow, BrewingWindow, CartographyWindow, CrafterWindow, CraftingWindow, FurnaceWindow, GrindstoneWindow, MerchantWindow, SmithingWindow, StonecutterWindow {
     
     /**
      * Creates a new {@link Builder.Normal.Split Window Builder} for a normal split window.
@@ -53,6 +55,22 @@ public sealed interface Window permits AbstractWindow, AnvilWindow, BrewingWindo
      */
     @Unmodifiable
     List<Gui> getGuis();
+    
+    /**
+     * Gets a link to the {@link Gui} at the given window slot, or null if there is no {@link Gui} at that slot.
+     *
+     * @param slot The window slot.
+     * @return A link to the {@link Gui} at the given slot, or null if there is no {@link Gui} at that slot.
+     */
+    SlotElement.@Nullable GuiLink getGuiAt(int slot);
+    
+    /**
+     * Gets a link to the {@link Gui} at the given hotbar slot, or null if there is no {@link Gui} at that slot.
+     *
+     * @param slot The hotbar slot (0-8).
+     * @return A link to the {@link Gui} at the given hotbar slot, or null if there is no {@link Gui} at that slot.
+     */
+    SlotElement.@Nullable GuiLink getGuiAtHotbar(int slot);
     
     /**
      * Shows the window to the player.

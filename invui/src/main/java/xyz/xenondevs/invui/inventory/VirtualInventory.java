@@ -338,8 +338,8 @@ public final class VirtualInventory extends Inventory {
         this.size = size;
         items = Arrays.copyOf(items, size);
         maxStackSizes = Arrays.copyOf(maxStackSizes, size);
-        synchronized (viewers) {
-            viewers = Arrays.copyOf(viewers, size);
+        synchronized (observers) {
+            observers = Arrays.copyOf(observers, size);
         }
         
         // fill stackSizes with the last stack size if the array was extended

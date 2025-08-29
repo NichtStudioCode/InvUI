@@ -3,7 +3,6 @@ package xyz.xenondevs.invui.window;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Unmodifiable;
-import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomGrindstoneMenu;
 import xyz.xenondevs.invui.state.MutableProperty;
@@ -13,16 +12,16 @@ import java.util.function.Supplier;
 
 final class GrindstoneWindowImpl extends AbstractSplitWindow<CustomGrindstoneMenu> implements GrindstoneWindow {
     
-    private final AbstractGui inputGui;
-    private final AbstractGui resultGui;
-    private final AbstractGui lowerGui;
+    private final Gui inputGui;
+    private final Gui resultGui;
+    private final Gui lowerGui;
     
     public GrindstoneWindowImpl(
         Player player,
         Supplier<? extends Component> title,
-        AbstractGui inputGui,
-        AbstractGui resultGui,
-        AbstractGui lowerGui,
+        Gui inputGui,
+        Gui resultGui,
+        Gui lowerGui,
         MutableProperty<Boolean> closeable
     ) {
         super(player, title, lowerGui, 41, new CustomGrindstoneMenu(player), closeable);
@@ -66,8 +65,8 @@ final class GrindstoneWindowImpl extends AbstractSplitWindow<CustomGrindstoneMen
             var window = new GrindstoneWindowImpl(
                 viewer,
                 titleSupplier,
-                (AbstractGui) inputGuiSupplier.get(),
-                (AbstractGui) resultGuiSupplier.get(),
+                inputGuiSupplier.get(),
+                resultGuiSupplier.get(),
                 supplyLowerGui(viewer),
                 closeable
             );

@@ -6,7 +6,7 @@ import xyz.xenondevs.invui.gui.Gui;
 /**
  * An abstract implementation of {@link BoundItem}.
  */
-public non-sealed abstract class AbstractBoundItem extends AbstractItem implements BoundItem {
+public abstract class AbstractBoundItem extends AbstractItem implements BoundItem {
     
     private @Nullable Gui gui;
     

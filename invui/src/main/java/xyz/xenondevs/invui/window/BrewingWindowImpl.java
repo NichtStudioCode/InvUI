@@ -3,7 +3,6 @@ package xyz.xenondevs.invui.window;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Unmodifiable;
-import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomBrewingStandMenu;
 import xyz.xenondevs.invui.internal.util.FuncUtils;
@@ -19,20 +18,20 @@ final class BrewingWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu
     private static final double DEFAULT_BREW_PROGRESS = 0.0;
     private static final double DEFAULT_FUEL_PROGRESS = 0.0;
     
-    private final AbstractGui inputGui;
-    private final AbstractGui fuelGui;
-    private final AbstractGui resultGui;
-    private final AbstractGui lowerGui;
+    private final Gui inputGui;
+    private final Gui fuelGui;
+    private final Gui resultGui;
+    private final Gui lowerGui;
     private final MutableProperty<Double> brewProgress;
     private final MutableProperty<Double> fuelProgress;
     
     public BrewingWindowImpl(
         Player player,
         Supplier<? extends Component> title,
-        AbstractGui inputGui,
-        AbstractGui fuelGui,
-        AbstractGui resultGui,
-        AbstractGui lowerGui,
+        Gui inputGui,
+        Gui fuelGui,
+        Gui resultGui,
+        Gui lowerGui,
         MutableProperty<Double> brewProgress,
         MutableProperty<Double> fuelProgress,
         MutableProperty<Boolean> closeable
@@ -138,9 +137,9 @@ final class BrewingWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu
             var window = new BrewingWindowImpl(
                 viewer,
                 titleSupplier,
-                (AbstractGui) inputGuiSupplier.get(),
-                (AbstractGui) fuelGuiSupplier.get(),
-                (AbstractGui) resultGuiSupplier.get(),
+                inputGuiSupplier.get(),
+                fuelGuiSupplier.get(),
+                resultGuiSupplier.get(),
                 supplyLowerGui(viewer),
                 brewProgress,
                 fuelProgress,

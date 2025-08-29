@@ -63,12 +63,9 @@ public class PagedGuiTest {
         // validate assumptions for s1
         for (int i = 0; i < 6; i++) {
             var element = gui.getSlotElement(i);
-            assertNotNull(element);
+            assertInstanceOf(SlotElement.Item.class, element);
             
-            var holdingElement = element.getHoldingElement();
-            assertInstanceOf(SlotElement.Item.class, holdingElement);
-            
-            var item = ((SlotElement.Item) holdingElement).item();
+            var item = ((SlotElement.Item) element).item();
             assertSame(content.get(i), item);
         }
         for (int i = 6; i < 9; i++) {
@@ -84,20 +81,13 @@ public class PagedGuiTest {
         
         // validate assumptions for s2
         for (int i = 0; i < 3; i++) {
-            // element or holding element should be null
-            var element = gui.getSlotElement(i);
-            if (element != null) {
-                assertNull(element.getHoldingElement());
-            }
+            assertNull(gui.getSlotElement(i));
         }
         for (int i = 3; i < 6; i++) {
             var element = gui.getSlotElement(i);
-            assertNotNull(element);
+            assertInstanceOf(SlotElement.Item.class, element);
             
-            var holdingElement = element.getHoldingElement();
-            assertInstanceOf(SlotElement.Item.class, holdingElement);
-            
-            var item = ((SlotElement.Item) holdingElement).item();
+            var item = ((SlotElement.Item) element).item();
             assertSame(content.get(i - 3), item);
         }
         for (int i = 6; i < 9; i++) {

@@ -8,7 +8,6 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
-import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomStonecutterMenu;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
@@ -38,9 +37,9 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
     private static final int SELECTED_SLOT_MAGIC_SLOT = 100;
     private static final int DEFAULT_SELECTED_SLOT = -1;
     
-    private final AbstractGui upperGui;
-    private final AbstractGui lowerGui;
-    private final AbstractGui buttonsGui;
+    private final Gui upperGui;
+    private final Gui lowerGui;
+    private final Gui buttonsGui;
     private final @Nullable ItemStack[] buttons;
     private boolean buttonsDirty = false;
     private final List<BiConsumer<? super Integer, ? super Integer>> selectedSlotChangeHandlers;
@@ -49,9 +48,9 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
     public StonecutterWindowImpl(
         Player player,
         Supplier<? extends Component> title,
-        AbstractGui upperGui,
-        AbstractGui lowerGui,
-        AbstractGui buttonsGui,
+        Gui upperGui,
+        Gui lowerGui,
+        Gui buttonsGui,
         MutableProperty<Integer> selectedSlot,
         List<BiConsumer<? super Integer, ? super Integer>> selectedSlotChangeHandlers,
         MutableProperty<Boolean> closeable
@@ -196,9 +195,9 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
             var window = new StonecutterWindowImpl(
                 viewer,
                 titleSupplier,
-                (AbstractGui) upperGuiSupplier.get(),
+                upperGuiSupplier.get(),
                 supplyLowerGui(viewer),
-                (AbstractGui) butonsGuiSupplier.get(),
+                butonsGuiSupplier.get(),
                 selectedSlot,
                 selectedSlotChangeHandlers,
                 closeable

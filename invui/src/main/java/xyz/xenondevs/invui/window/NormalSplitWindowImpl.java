@@ -3,7 +3,6 @@ package xyz.xenondevs.invui.window;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Unmodifiable;
-import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomPlainMenu;
 import xyz.xenondevs.invui.state.MutableProperty;
@@ -13,14 +12,14 @@ import java.util.function.Supplier;
 
 final class NormalSplitWindowImpl extends AbstractSplitWindow<CustomPlainMenu> {
     
-    private final AbstractGui upperGui;
-    private final AbstractGui lowerGui;
+    private final Gui upperGui;
+    private final Gui lowerGui;
     
     public NormalSplitWindowImpl(
         Player player,
         Supplier<? extends Component> title,
-        AbstractGui upperGui,
-        AbstractGui lowerGui,
+        Gui upperGui,
+        Gui lowerGui,
         MutableProperty<Boolean> closeable
     ) {
         super(player, title, lowerGui, upperGui.getSize() + lowerGui.getSize(), new CustomPlainMenu(upperGui.getWidth(), upperGui.getHeight(), player), closeable);
@@ -51,7 +50,7 @@ final class NormalSplitWindowImpl extends AbstractSplitWindow<CustomPlainMenu> {
             var window = new NormalSplitWindowImpl(
                 viewer,
                 titleSupplier,
-                (AbstractGui) upperGuiSupplier.get(),
+                upperGuiSupplier.get(),
                 supplyLowerGui(viewer),
                 closeable
             );

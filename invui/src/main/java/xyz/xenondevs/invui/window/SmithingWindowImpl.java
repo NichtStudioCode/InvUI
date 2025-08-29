@@ -3,7 +3,6 @@ package xyz.xenondevs.invui.window;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Unmodifiable;
-import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomSmithingTableMenu;
 import xyz.xenondevs.invui.state.MutableProperty;
@@ -13,14 +12,14 @@ import java.util.function.Supplier;
 
 final class SmithingWindowImpl extends AbstractSplitWindow<CustomSmithingTableMenu> implements SmithingWindow {
     
-    private final AbstractGui upperGui;
-    private final AbstractGui lowerGui;
+    private final Gui upperGui;
+    private final Gui lowerGui;
     
     public SmithingWindowImpl(
         Player player,
         Supplier<? extends Component> title,
-        AbstractGui upperGui,
-        AbstractGui lowerGui,
+        Gui upperGui,
+        Gui lowerGui,
         MutableProperty<Boolean> closeable
     ) {
         super(player, title, lowerGui, 41, new CustomSmithingTableMenu(player), closeable);
@@ -54,7 +53,7 @@ final class SmithingWindowImpl extends AbstractSplitWindow<CustomSmithingTableMe
             var window = new SmithingWindowImpl(
                 viewer,
                 titleSupplier,
-                (AbstractGui) upperGuiSupplier.get(),
+                upperGuiSupplier.get(),
                 supplyLowerGui(viewer),
                 closeable
             );

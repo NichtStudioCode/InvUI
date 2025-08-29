@@ -4,7 +4,6 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
-import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomCrafterMenu;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
@@ -22,18 +21,18 @@ final class CrafterWindowImpl extends AbstractSplitWindow<CustomCrafterMenu> imp
     private static final int CRAFTING_SLOTS = 9;
     private static final boolean DEFAULT_SLOT_DISABLED_STATE = false;
     
-    private final AbstractGui craftingGui;
-    private final AbstractGui resultGui;
-    private final AbstractGui lowerGui;
+    private final Gui craftingGui;
+    private final Gui resultGui;
+    private final Gui lowerGui;
     private final List<? extends MutableProperty<Boolean>> slots;
     private final List<BiConsumer<? super Integer, ? super Boolean>> slotToggleHandlers;
     
     CrafterWindowImpl(
         Player player,
         Supplier<? extends Component> title,
-        AbstractGui craftingGui,
-        AbstractGui resultGui,
-        AbstractGui lowerGui,
+        Gui craftingGui,
+        Gui resultGui,
+        Gui lowerGui,
         List<? extends MutableProperty<Boolean>> slots,
         List<BiConsumer<? super Integer, ? super Boolean>> slotToggleHandlers,
         MutableProperty<Boolean> closeable
@@ -172,8 +171,8 @@ final class CrafterWindowImpl extends AbstractSplitWindow<CustomCrafterMenu> imp
             var window = new CrafterWindowImpl(
                 viewer,
                 titleSupplier,
-                (AbstractGui) craftingGuiSupplier.get(),
-                (AbstractGui) resultGuiSupplier.get(),
+                craftingGuiSupplier.get(),
+                resultGuiSupplier.get(),
                 supplyLowerGui(viewer),
                 slots,
                 slotToggleHandlers,

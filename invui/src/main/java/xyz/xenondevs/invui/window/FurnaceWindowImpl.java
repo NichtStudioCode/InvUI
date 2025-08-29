@@ -5,7 +5,6 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
-import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomFurnaceMenu;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
@@ -24,9 +23,9 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
     private static final double DEFAULT_COOK_PROGRESS = 0.0;
     private static final double DEFAULT_BURN_PROGRESS = 0.0;
     
-    private final AbstractGui inputGui;
-    private final AbstractGui resultGui;
-    private final AbstractGui lowerGui;
+    private final Gui inputGui;
+    private final Gui resultGui;
+    private final Gui lowerGui;
     private final List<Consumer<? super Key>> recipeClickHandlers = new ArrayList<>();
     private final MutableProperty<Double> cookProgress;
     private final MutableProperty<Double> burnProgress;
@@ -34,9 +33,9 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
     public FurnaceWindowImpl(
         Player player,
         Supplier<? extends Component> title,
-        AbstractGui inputGui,
-        AbstractGui resultGui,
-        AbstractGui lowerGui,
+        Gui inputGui,
+        Gui resultGui,
+        Gui lowerGui,
         MutableProperty<Double> cookProgress,
         MutableProperty<Double> burnProgress,
         MutableProperty<Boolean> closeable
@@ -184,8 +183,8 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
             var window = new FurnaceWindowImpl(
                 viewer,
                 titleSupplier,
-                (AbstractGui) inputGuiSupplier.get(),
-                (AbstractGui) resultGuiSupplier.get(),
+                inputGuiSupplier.get(),
+                resultGuiSupplier.get(),
                 supplyLowerGui(viewer),
                 cookProgress,
                 burnProgress,

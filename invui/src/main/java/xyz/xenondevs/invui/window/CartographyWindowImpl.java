@@ -6,7 +6,6 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomCartographyMenu;
 import xyz.xenondevs.invui.internal.util.FuncUtils;
@@ -28,18 +27,18 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
     private static final View DEFAULT_VIEW = View.NORMAL;
     
     private static final int MAP_SIZE = 128;
-    private final AbstractGui inputGui;
-    private final AbstractGui resultGui;
-    private final AbstractGui lowerGui;
+    private final Gui inputGui;
+    private final Gui resultGui;
+    private final Gui lowerGui;
     private final MutableProperty<Set<? extends MapIcon>> icons;
     private final MutableProperty<View> view;
     
     public CartographyWindowImpl(
         Player player,
         Supplier<? extends Component> title,
-        AbstractGui inputGui,
-        AbstractGui resultGui,
-        AbstractGui lowerGui,
+        Gui inputGui,
+        Gui resultGui,
+        Gui lowerGui,
         MutableProperty<View> view,
         MutableProperty<Set<? extends MapIcon>> icons,
         MutableProperty<Boolean> closeable
@@ -172,8 +171,8 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
             var window = new CartographyWindowImpl(
                 viewer,
                 titleSupplier,
-                (AbstractGui) inputGuiSupplier.get(),
-                (AbstractGui) resultGuiSupplier.get(),
+                inputGuiSupplier.get(),
+                resultGuiSupplier.get(),
                 supplyLowerGui(viewer),
                 view,
                 icons,

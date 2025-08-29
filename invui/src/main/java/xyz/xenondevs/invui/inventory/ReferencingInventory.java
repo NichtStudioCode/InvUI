@@ -7,8 +7,8 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitTask;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
+import xyz.xenondevs.invui.Observer;
 import xyz.xenondevs.invui.util.TriConsumer;
-import xyz.xenondevs.invui.window.AbstractWindow;
 
 import java.util.Arrays;
 import java.util.function.BiFunction;
@@ -127,8 +127,8 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
     }
     
     @Override
-    public void addViewer(AbstractWindow<?> viewer, int what, int how) {
-        super.addViewer(viewer, what, how);
+    public void addObserver(Observer who, int what, int how) {
+        super.addObserver(who, what, how);
         if (updateTask == null) {
             updateTask = Bukkit.getScheduler().runTaskTimer(
                 InvUI.getInstance().getPlugin(),
@@ -139,10 +139,10 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
     }
     
     @Override
-    public void removeViewer(AbstractWindow<?> viewer, int what, int how) {
-        super.removeViewer(viewer, what, how);
+    public void removeObserver(Observer who, int what, int how) {
+        super.removeObserver(who, what, how);
         if (updateTask != null
-            && Arrays.stream(viewers).allMatch(s -> s == null || s.isEmpty())
+            && Arrays.stream(observers).allMatch(s -> s == null || s.isEmpty())
         ) {
             updateTask.cancel();
             updateTask = null;

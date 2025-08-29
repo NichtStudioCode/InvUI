@@ -2,8 +2,11 @@ package xyz.xenondevs.invui.gui;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
+import xyz.xenondevs.invui.Observable;
+import xyz.xenondevs.invui.Observer;
 import xyz.xenondevs.invui.i18n.Languages;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.ItemProvider;
@@ -15,7 +18,6 @@ import java.util.logging.Level;
 
 /**
  * Represents an element in a slot in a {@link Gui}.
- * You will rarely need to use this interface directly.
  */
 public sealed interface SlotElement {
     
@@ -35,6 +37,22 @@ public sealed interface SlotElement {
      */
     @Nullable
     SlotElement getHoldingElement();
+    
+    /**
+     * Adds an {@link Observer} to the content of this {@link SlotElement}.
+     * @param who The {@link Observer} to add
+     * @param how An integer specifying how the {@link Observer} is observing this {@link Observable}.
+     *            Used to {@link Observer#notifyUpdate(int) notify} the {@link Observer} about updates.
+     */
+    void addObserver(Observer who, int how);
+    
+    /**
+     * Removes an {@link Observer} from the content of this {@link SlotElement}.
+     *
+     * @param who The {@link Observer} to remove
+     * @param how An integer specifying how the {@link Observer} was observing this {@link Observable}.
+     */
+    void removeObserver(Observer who, int how);
     
     /**
      * Contains an {@link xyz.xenondevs.invui.item.Item}
@@ -57,6 +75,16 @@ public sealed interface SlotElement {
         @Override
         public SlotElement getHoldingElement() {
             return this;
+        }
+        
+        @Override
+        public void addObserver(Observer who, int how) {
+            item.addObserver(who, 0, how);
+        }
+        
+        @Override
+        public void removeObserver(Observer who, int how) {
+            item.removeObserver(who, 0, how);
         }
         
     }
@@ -93,6 +121,16 @@ public sealed interface SlotElement {
             return this;
         }
         
+        @Override
+        public void addObserver(Observer who, int how) {
+            inventory.addObserver(who, slot, how);
+        }
+        
+        @Override
+        public void removeObserver(Observer who, int how) {
+            inventory.removeObserver(who, slot, how);
+        }
+        
     }
     
     /**
@@ -105,27 +143,31 @@ public sealed interface SlotElement {
         
         @Override
         public @Nullable SlotElement getHoldingElement() {
-            GuiLink element = this;
-            while (true) {
-                SlotElement below = element.gui().getSlotElement(element.slot());
-                if (below instanceof GuiLink) element = (GuiLink) below;
-                else return below;
+            SlotElement current = this;
+            while (current instanceof GuiLink(Gui g, int s)) {
+                current = g.getSlotElement(s);
             }
+            return current;
         }
         
         @Override
-        public @Nullable ItemStack getItemStack(Player player) {
+        @Nullable
+        public ItemStack getItemStack(Player player) {
             SlotElement holdingElement = getHoldingElement();
-            return holdingElement != null ? holdingElement.getItemStack(player) : null;
+            if (holdingElement != null)
+                return holdingElement.getItemStack(player);
+            return null;
         }
         
         /**
-         * Creates a {@link List} of all {@link SlotElement SlotElements} that are linked together,
-         * starting with this {@link GuiLink}.
+         * Follows {@link #getHoldingElement()} until a non-{@link GuiLink} is reached
+         * and builds a list of all {@link SlotElement SlotElements} reached during the traversal.
+         * If the last {@link GuiLink} element {@link #getHoldingElement() returns} {@code null}, the list will
+         * end with that {@link GuiLink} element and not contain {@code null}.
          *
-         * @return A {@link List} of all linked {@link SlotElement SlotElements}
+         * @return A {@link List} of all {@link SlotElement SlotElements} reached by traversing.
          */
-        public List<SlotElement> traverse() {
+        public @Unmodifiable List<SlotElement> traverse() {
             var elements = new ArrayList<SlotElement>();
             
             SlotElement current = this;
@@ -137,6 +179,16 @@ public sealed interface SlotElement {
                 elements.add(current);
             
             return Collections.unmodifiableList(elements);
+        }
+        
+        @Override
+        public void addObserver(Observer who, int how) {
+            gui.addObserver(who, slot, how);
+        }
+        
+        @Override
+        public void removeObserver(Observer who, int how) {
+            gui.removeObserver(who, slot, how);
         }
         
     }

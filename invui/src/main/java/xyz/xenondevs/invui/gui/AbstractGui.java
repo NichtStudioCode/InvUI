@@ -5,12 +5,12 @@ import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
-import xyz.xenondevs.invui.internal.ViewerAtSlot;
+import xyz.xenondevs.invui.Observer;
 import xyz.xenondevs.invui.internal.util.*;
+import xyz.xenondevs.invui.inventory.CompositeInventory;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.inventory.ObscuredInventory;
 import xyz.xenondevs.invui.inventory.OperationCategory;
@@ -22,7 +22,7 @@ import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
 import xyz.xenondevs.invui.util.ItemUtils;
-import xyz.xenondevs.invui.window.AbstractWindow;
+import xyz.xenondevs.invui.util.ObserverAtSlot;
 import xyz.xenondevs.invui.window.Window;
 import xyz.xenondevs.invui.window.WindowManager;
 
@@ -31,14 +31,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-/**
- * @hidden
- */
-@Internal
-public sealed abstract class AbstractGui
-    implements Gui
-    permits NormalGuiImpl, AbstractPagedGui, AbstractScrollGui, TabGuiImpl
-{
+non-sealed abstract class AbstractGui implements Gui {
     
     public static final boolean DEFAULT_FROZEN = false;
     public static final boolean DEFAULT_IGNORE_OBSCURED_INVENTORY_SLOTS = true;
@@ -48,7 +41,7 @@ public sealed abstract class AbstractGui
     private final int height;
     private final int size;
     private final @Nullable SlotElement[] slotElements;
-    private final @Nullable Set<ViewerAtSlot>[] viewers;
+    private final @Nullable Set<ObserverAtSlot>[] observers;
     
     private final MutableProperty<Boolean> frozen;
     private final MutableProperty<Boolean> ignoreObscuredInventorySlots;
@@ -84,11 +77,12 @@ public sealed abstract class AbstractGui
         this.background = background;
         
         slotElements = new SlotElement[size];
-        viewers = new Set[size];
+        observers = new Set[size];
         
         this.background.observeWeak(this, AbstractGui::notifyWindowsOnBackgroundSlots);
     }
     
+    @Override
     public void handleClick(int slot, Click click) {
         // ignore all clicks if the gui is frozen
         if (isFrozen())
@@ -96,21 +90,22 @@ public sealed abstract class AbstractGui
         
         SlotElement slotElement = slotElements[slot];
         switch (slotElement) {
-            case SlotElement.GuiLink le -> ((AbstractGui) le.gui()).handleClick(le.slot(), click);
+            case SlotElement.GuiLink le -> le.gui().handleClick(le.slot(), click);
             case SlotElement.Item ie -> ie.item().handleClick(click.clickType(), click.player(), click);
             case SlotElement.InventoryLink ie -> handleInvSlotElementClick(ie, click);
             case null -> {}
         }
     }
     
-    public void handleBundleSelect(Player player, int slot, int bundleSlot) {
+    @Override
+    public void handleBundleSelect(int slot, Player player, int bundleSlot) {
         // ignore all clicks if the gui is frozen
         if (isFrozen())
             return;
         
         SlotElement slotElement = slotElements[slot];
         switch (slotElement) {
-            case SlotElement.GuiLink le -> ((AbstractGui) le.gui()).handleBundleSelect(player, le.slot(), bundleSlot);
+            case SlotElement.GuiLink le -> le.gui().handleBundleSelect(le.slot(), player, bundleSlot);
             case SlotElement.Item ie -> ie.item().handleBundleSelect(player, bundleSlot);
             case SlotElement.InventoryLink ie -> handleInvBundleSelect(player, ie.inventory(), ie.slot(), bundleSlot);
             case null -> {}
@@ -284,18 +279,14 @@ public sealed abstract class AbstractGui
         Player player = click.player();
         ItemStack clicked = inventory.getItem(slot);
         
-        AbstractWindow<?> window = (AbstractWindow<?>) WindowManager.getInstance().getOpenWindow(player);
+        Window window = WindowManager.getInstance().getOpenWindow(player);
         assert window != null;
         
         SlotElement.GuiLink link = window.getGuiAtHotbar(click.hotbarButton());
         if (link == null)
             return;
-        SlotElement hotbarElement = link.gui().getSlotElement(link.slot());
-        if (hotbarElement == null)
-            return;
-        hotbarElement = hotbarElement.getHoldingElement();
         
-        if (hotbarElement instanceof SlotElement.InventoryLink(var otherInventory, var otherSlot, var unused)) {
+        if (link.getHoldingElement() instanceof SlotElement.InventoryLink(var otherInventory, var otherSlot, var unused)) {
             if (inventory == otherInventory && slot == otherSlot)
                 return;
             
@@ -351,10 +342,27 @@ public sealed abstract class AbstractGui
         if (ItemUtils.isEmpty(player.getItemOnCursor()))
             return;
         
-        // windows handle cursor collect because it is a cross-inventory / cross-gui operation
+        // requires window as collect to cursor is a cross-gui operation
         Window window = WindowManager.getInstance().getOpenWindow(player);
         assert window != null;
-        ((AbstractWindow<?>) window).handleCursorCollect(click);
+        
+        // the template item stack that is used to collect similar items
+        ItemStack template = player.getItemOnCursor();
+        
+        // create a composite inventory consisting of all the gui's inventories and the player's inventory
+        List<? extends Inventory> inventories = window.getGuis().stream()
+            .flatMap(g -> g.getInventories().stream())
+            .sorted(Comparator.<Inventory>comparingInt(inv -> inv.getGuiPriority(OperationCategory.COLLECT)).reversed())
+            .toList();
+        Inventory inventory = new CompositeInventory(inventories);
+        
+        // collect items from inventories until the cursor is full
+        UpdateReason updateReason = new PlayerUpdateReason.Click(player, click);
+        int amount = inventory.collectSimilar(updateReason, template);
+        
+        // put collected items on cursor
+        template.setAmount(amount);
+        player.setItemOnCursor(template);
     }
     
     private void handleInvMiddleClick(Click click, Inventory inventory, int slot) {
@@ -476,10 +484,10 @@ public sealed abstract class AbstractGui
     
     @Override
     public void notifyWindows() {
-        synchronized (viewers) {
-            for (var viewerSet : viewers) {
-                if (viewerSet != null) {
-                    for (var viewerAtSlot : viewerSet) {
+        synchronized (observers) {
+            for (var observerSet : observers) {
+                if (observerSet != null) {
+                    for (var viewerAtSlot : observerSet) {
                         viewerAtSlot.notifyUpdate();
                     }
                 }
@@ -493,65 +501,69 @@ public sealed abstract class AbstractGui
         if (element == null)
             return;
         
-        synchronized (viewers) {
-            var viewerSet = viewers[index];
-            if (viewerSet == null)
+        synchronized (observers) {
+            var observerSet = observers[index];
+            if (observerSet == null)
                 return;
             
-            for (var viewerAtSlot : viewerSet) {
+            for (var viewerAtSlot : observerSet) {
                 viewerAtSlot.notifyUpdate();
             }
         }
     }
     
     private void notifyWindowsOnBackgroundSlots() {
-        synchronized (viewers) {
+        synchronized (observers) {
             for (int i = 0; i < getSize(); i++) {
                 if (slotElements[i] != null)
                     continue;
                 
-                var viewerSet = viewers[i];
-                if (viewerSet == null)
+                var observerSet = observers[i];
+                if (observerSet == null)
                     continue;
                 
-                for (var viewerAtSlot : viewerSet) {
+                for (var viewerAtSlot : observerSet) {
                     viewerAtSlot.notifyUpdate();
                 }
             }
         }
     }
     
-    public void addViewer(AbstractWindow<?> who, int what, int how) {
-        synchronized (viewers) {
-            var viewerSet = this.viewers[what];
-            if (viewerSet == null) {
-                viewerSet = new HashSet<>();
-                this.viewers[what] = viewerSet;
+    @Override
+    public void addObserver(Observer who, int what, int how) {
+        synchronized (observers) {
+            var observerSet = this.observers[what];
+            if (observerSet == null) {
+                observerSet = new HashSet<>();
+                this.observers[what] = observerSet;
             }
-            viewerSet.add(new ViewerAtSlot(who, how));
+            observerSet.add(new ObserverAtSlot(who, how));
         }
     }
     
-    public void removeViewer(AbstractWindow<?> who, int what, int how) {
-        synchronized (viewers) {
-            var viewerSet = this.viewers[what];
-            if (viewerSet != null) {
-                viewerSet.remove(new ViewerAtSlot(who, how));
-                if (viewerSet.isEmpty())
-                    this.viewers[what] = null;
+    @Override
+    public void removeObserver(Observer who, int what, int how) {
+        synchronized (observers) {
+            var observerSet = this.observers[what];
+            if (observerSet != null) {
+                observerSet.remove(new ObserverAtSlot(who, how));
+                if (observerSet.isEmpty())
+                    this.observers[what] = null;
             }
         }
     }
     
     @Override
     public @Unmodifiable Collection<Window> getWindows() {
-        synchronized (viewers) {
+        synchronized (observers) {
             var windows = new HashSet<Window>();
-            for (var viewerSet : viewers) {
-                if (viewerSet != null) {
-                    for (var viewerAtSlot : viewerSet) {
-                        windows.add(viewerAtSlot.window());
-                    }
+            for (var observerSet : observers) {
+                if (observerSet == null)
+                    continue;
+                for (var viewerAtSlot : observerSet) {
+                    if (!(viewerAtSlot.observer() instanceof Window w))
+                        continue;
+                    windows.add(w);
                 }
             }
             
@@ -670,7 +682,7 @@ public sealed abstract class AbstractGui
         }
         
         // notify parents that a slot element has been changed
-        var viewers = this.viewers[index];
+        var viewers = this.observers[index];
         if (viewers != null) {
             for (var viewer : viewers) {
                 viewer.notifyUpdate();
@@ -731,10 +743,9 @@ public sealed abstract class AbstractGui
         
         if (slotElement instanceof SlotElement.Item) {
             return ((SlotElement.Item) slotElement).item();
-        } else if (slotElement instanceof SlotElement.GuiLink) {
-            SlotElement holdingElement = slotElement.getHoldingElement();
-            if (holdingElement instanceof SlotElement.Item)
-                return ((SlotElement.Item) holdingElement).item();
+        } else if (slotElement instanceof SlotElement.GuiLink l) {
+            if (l.getHoldingElement() instanceof SlotElement.Item(Item item))
+                return item;
         }
         
         return null;

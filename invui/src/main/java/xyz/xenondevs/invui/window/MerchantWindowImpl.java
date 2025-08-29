@@ -7,12 +7,10 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
-import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomMerchantMenu;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
 import xyz.xenondevs.invui.internal.util.FuncUtils;
-import xyz.xenondevs.invui.item.AbstractItem;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.state.MutableProperty;
 import xyz.xenondevs.invui.state.Property;
@@ -33,8 +31,8 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
     private static final double DEFAULT_PROGRESS = -1.0;
     private static final boolean DEFAULT_RESTOCK_MESSAGE_ENABLED = false;
     
-    private final AbstractGui upperGui;
-    private final AbstractGui lowerGui;
+    private final Gui upperGui;
+    private final Gui lowerGui;
     private final List<TradeImpl> activeTrades = new ArrayList<>();
     
     private final MutableProperty<? super List<? extends Trade>> trades;
@@ -48,8 +46,8 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
     MerchantWindowImpl(
         Player player,
         Supplier<? extends Component> title,
-        AbstractGui upperGui,
-        AbstractGui lowerGui,
+        Gui upperGui,
+        Gui lowerGui,
         MutableProperty<? super List<? extends Trade>> trades,
         MutableProperty<Integer> level,
         MutableProperty<Double> progress,
@@ -165,22 +163,22 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
     
     private void removeTradeViewer(TradeImpl trade) {
         if (trade.getFirstInput() != null)
-            trade.getFirstInput().removeViewer(this, TRADES_RESEND_MAGIC_SLOT);
+            trade.getFirstInput().removeObserver(this, 0, TRADES_RESEND_MAGIC_SLOT);
         if (trade.getSecondInput() != null)
-            trade.getSecondInput().removeViewer(this, TRADES_RESEND_MAGIC_SLOT);
+            trade.getSecondInput().removeObserver(this, 0, TRADES_RESEND_MAGIC_SLOT);
         if (trade.getOutput() != null)
-            trade.getOutput().removeViewer(this, TRADES_RESEND_MAGIC_SLOT);
+            trade.getOutput().removeObserver(this, 0, TRADES_RESEND_MAGIC_SLOT);
         trade.getDiscountProperty().unobserveWeak(this);
         trade.getAvailableProperty().unobserveWeak(this);
     }
     
     private void addTradeViewer(TradeImpl trade) {
         if (trade.getFirstInput() != null)
-            trade.getFirstInput().addViewer(this, TRADES_RESEND_MAGIC_SLOT);
+            trade.getFirstInput().addObserver(this, 0, TRADES_RESEND_MAGIC_SLOT);
         if (trade.getSecondInput() != null)
-            trade.getSecondInput().addViewer(this, TRADES_RESEND_MAGIC_SLOT);
+            trade.getSecondInput().addObserver(this, 0, TRADES_RESEND_MAGIC_SLOT);
         if (trade.getOutput() != null)
-            trade.getOutput().addViewer(this, TRADES_RESEND_MAGIC_SLOT);
+            trade.getOutput().addObserver(this, 0, TRADES_RESEND_MAGIC_SLOT);
         trade.getDiscountProperty().observeWeak(this, thisRef -> thisRef.notifyUpdate(TRADES_RESEND_MAGIC_SLOT));
         trade.getAvailableProperty().observeWeak(this, thisRef -> thisRef.notifyUpdate(TRADES_RESEND_MAGIC_SLOT));
     }
@@ -216,16 +214,16 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
         private static final int DEFAULT_DISCOUNT = 0;
         private static final boolean DEFAULT_AVAILABLE = true;
         
-        private final @Nullable AbstractItem firstInput;
-        private final @Nullable AbstractItem secondInput;
-        private final @Nullable AbstractItem output;
+        private final @Nullable Item firstInput;
+        private final @Nullable Item secondInput;
+        private final @Nullable Item output;
         private final Property<? extends Integer> discount;
         private final Property<? extends Boolean> available;
         
         public TradeImpl(
-            @Nullable AbstractItem firstInput,
-            @Nullable AbstractItem secondInput,
-            @Nullable AbstractItem output,
+            @Nullable Item firstInput,
+            @Nullable Item secondInput,
+            @Nullable Item output,
             Property<? extends Integer> discount,
             Property<? extends Boolean> available
         ) {
@@ -237,17 +235,17 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
         }
         
         @Override
-        public @Nullable AbstractItem getFirstInput() {
+        public @Nullable Item getFirstInput() {
             return firstInput;
         }
         
         @Override
-        public @Nullable AbstractItem getSecondInput() {
+        public @Nullable Item getSecondInput() {
             return secondInput;
         }
         
         @Override
-        public @Nullable AbstractItem getOutput() {
+        public @Nullable Item getOutput() {
             return output;
         }
         
@@ -281,9 +279,9 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
         
         final static class BuilderImpl implements MerchantWindow.Trade.Builder {
             
-            private @Nullable AbstractItem firstInput;
-            private @Nullable AbstractItem secondInput;
-            private @Nullable AbstractItem output;
+            private @Nullable Item firstInput;
+            private @Nullable Item secondInput;
+            private @Nullable Item output;
             
             private Property<? extends Integer> discount = Property.of(DEFAULT_DISCOUNT);
             private Property<? extends Boolean> available = Property.of(DEFAULT_AVAILABLE);
@@ -291,19 +289,19 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
             
             @Override
             public Trade.Builder setFirstInput(Item item) {
-                this.firstInput = (AbstractItem) item;
+                this.firstInput = item;
                 return this;
             }
             
             @Override
             public Trade.Builder setSecondInput(Item item) {
-                this.secondInput = (AbstractItem) item;
+                this.secondInput = item;
                 return this;
             }
             
             @Override
             public Trade.Builder setResult(Item item) {
-                this.output = (AbstractItem) item;
+                this.output = item;
                 return this;
             }
             
@@ -397,7 +395,7 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
             var window = new MerchantWindowImpl(
                 viewer,
                 titleSupplier,
-                (AbstractGui) upperGuiSupplier.get(),
+                upperGuiSupplier.get(),
                 supplyLowerGui(viewer),
                 trades,
                 level,

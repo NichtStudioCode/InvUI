@@ -6,7 +6,6 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomAnvilMenu;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
@@ -25,16 +24,16 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
     private static final boolean DEFAULT_RESULT_ALWAYS_VALID = false;
     
     private final List<Consumer<? super String>> renameHandlers = new ArrayList<>();
-    private final AbstractGui upperGui;
-    private final AbstractGui lowerGui;
+    private final Gui upperGui;
+    private final Gui lowerGui;
     private final MutableProperty<Boolean> textFieldAlwaysEnabled;
     private final MutableProperty<Boolean> resultAlwaysValid;
     
     public AnvilWindowImpl(
         Player player,
         Supplier<? extends Component> title,
-        AbstractGui upperGui,
-        AbstractGui lowerGui,
+        Gui upperGui,
+        Gui lowerGui,
         MutableProperty<Boolean> textFieldAlwaysEnabled,
         MutableProperty<Boolean> resultAlwaysValid,
         MutableProperty<Boolean> closeable
@@ -178,7 +177,7 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
             var window = new AnvilWindowImpl(
                 viewer,
                 titleSupplier,
-                (AbstractGui) upperGuiSupplier.get(),
+                upperGuiSupplier.get(),
                 supplyLowerGui(viewer),
                 textFieldAlwaysEnabled,
                 resultAlwaysValid,

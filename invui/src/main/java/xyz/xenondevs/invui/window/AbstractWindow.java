@@ -8,26 +8,21 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryCloseEvent.Reason;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.ClickEvent;
-import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.i18n.Languages;
 import xyz.xenondevs.invui.internal.menu.CustomContainerMenu;
+import xyz.xenondevs.invui.internal.menu.WindowEventListener;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
 import xyz.xenondevs.invui.internal.util.FuncUtils;
 import xyz.xenondevs.invui.internal.util.InventoryUtils;
-import xyz.xenondevs.invui.inventory.CompositeInventory;
-import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.inventory.InventorySlot;
-import xyz.xenondevs.invui.inventory.OperationCategory;
 import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
-import xyz.xenondevs.invui.item.AbstractItem;
 import xyz.xenondevs.invui.state.MutableProperty;
 import xyz.xenondevs.invui.util.ItemUtils;
 
@@ -39,14 +34,7 @@ import java.util.stream.IntStream;
 
 import static xyz.xenondevs.invui.internal.util.CollectionUtils.forEachCatching;
 
-/**
- * @hidden
- */
-@ApiStatus.Internal
-public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
-    implements Window
-    permits AbstractMergedWindow, AbstractSplitWindow
-{
+non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implements Window, WindowEventListener {
     
     private static final ThreadLocal<Boolean> isInOpeningContext = ThreadLocal.withInitial(() -> false);
     private static final ThreadLocal<Integer> isInCloseHandlerContext = ThreadLocal.withInitial(() -> 0);
@@ -102,10 +90,10 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
         
         // create and place item stack in inventory
         ItemStack itemStack;
-        SlotElement holdingElement = newPath.getLast().getHoldingElement();
-        if (holdingElement != null) {
-            itemStack = holdingElement.getItemStack(getViewer());
-        } else { // holding element is null
+        SlotElement lastElement = newPath.getLast();
+        if (!(lastElement instanceof SlotElement.GuiLink)) {
+            itemStack = lastElement.getItemStack(getViewer());
+        } else { // there is no holding element
             // background by gui
             itemStack = newPath.reversed().stream()
                 .filter(e -> e instanceof SlotElement.GuiLink)
@@ -127,12 +115,7 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
      */
     private void registerAsViewer(int slot, List<? extends SlotElement> path) {
         for (SlotElement newElement : path) {
-            switch (newElement) {
-                case SlotElement.Item ie -> ((AbstractItem) ie.item()).addViewer(this, slot);
-                case SlotElement.InventoryLink il -> il.inventory().addViewer(this, il.slot(), slot);
-                case SlotElement.GuiLink gl -> ((AbstractGui) gl.gui()).addViewer(this, gl.slot(), slot);
-                default -> {}
-            }
+            newElement.addObserver(this, slot);
         }
     }
     
@@ -144,12 +127,7 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
      */
     private void unregisterAsViewer(int slot, List<? extends SlotElement> path) {
         for (SlotElement oldElement : path) {
-            switch (oldElement) {
-                case SlotElement.Item ie -> ((AbstractItem) ie.item()).removeViewer(this, slot);
-                case SlotElement.InventoryLink il -> il.inventory().removeViewer(this, il.slot(), slot);
-                case SlotElement.GuiLink gl -> ((AbstractGui) gl.gui()).removeViewer(this, gl.slot(), slot);
-                default -> {}
-            }
+            oldElement.removeObserver(this, slot);
         }
     }
     
@@ -200,11 +178,12 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
         menu.sendChangesToRemote();
     }
     
+    @Override
     public void handleClick(int slot, Click click) {
         if (slot != -999) { // inside
             var link = getGuiAt(slot);
             if (link != null) {
-                ((AbstractGui) link.gui()).handleClick(link.slot(), click);
+                link.gui().handleClick(link.slot(), click);
             }
         } else { // outside
             var event = new ClickEvent(click);
@@ -235,13 +214,15 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
         }
     }
     
+    @Override
     public void handleBundleSelect(int slot, int bundleSlot) {
         var link = getGuiAt(slot);
         if (link == null)
             return;
-        ((AbstractGui) link.gui()).handleBundleSelect(getViewer(), link.slot(), bundleSlot);
+        link.gui().handleBundleSelect(link.slot(), getViewer(), bundleSlot);
     }
     
+    @Override
     public void handleDrag(IntSet slots, ClickType mode) {
         if (mode == ClickType.MIDDLE && viewer.getGameMode() != GameMode.CREATIVE)
             return;
@@ -346,28 +327,6 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
         return changed;
     }
     
-    public void handleCursorCollect(Click click) {
-        Player player = click.player();
-        
-        // the template item stack that is used to collect similar items
-        ItemStack template = player.getItemOnCursor();
-        
-        // create a composite inventory consisting of all the gui's inventories and the player's inventory
-        List<? extends Inventory> inventories = getGuis().stream()
-            .flatMap(g -> g.getInventories().stream())
-            .sorted(Comparator.<Inventory>comparingInt(inv -> inv.getGuiPriority(OperationCategory.COLLECT)).reversed())
-            .toList();
-        Inventory inventory = new CompositeInventory(inventories);
-        
-        // collect items from inventories until the cursor is full
-        UpdateReason updateReason = new PlayerUpdateReason.Click(player, click);
-        int amount = inventory.collectSimilar(updateReason, template);
-        
-        // put collected items on cursor
-        template.setAmount(amount);
-        player.setItemOnCursor(template);
-    }
-    
     @Override
     public void open() {
         Player viewer = getViewer();
@@ -424,6 +383,7 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
         }
     }
     
+    @Override
     public void handleClose(Reason cause) {
         // might have already been called by close() or open() if the window was replaced by another one
         if (!isOpen)
@@ -484,7 +444,8 @@ public sealed abstract class AbstractWindow<M extends CustomContainerMenu>
         menu.sendOpenPacket(Languages.getInstance().localized(viewer, title));
     }
     
-    protected SlotElement.@Nullable GuiLink getGuiAt(int i) {
+    @Override
+    public SlotElement.@Nullable GuiLink getGuiAt(int i) {
         if (i < 0)
             return null;
         

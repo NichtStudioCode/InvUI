@@ -4,12 +4,12 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
+import xyz.xenondevs.invui.Observer;
 import xyz.xenondevs.invui.internal.util.ArrayUtils;
 import xyz.xenondevs.invui.inventory.event.InventoryClickEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
-import xyz.xenondevs.invui.window.AbstractWindow;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -127,13 +127,13 @@ public final class ObscuredInventory extends Inventory {
     }
     
     @Override
-    public void addViewer(AbstractWindow<?> viewer, int what, int how) {
-        inventory.addViewer(viewer, what, how);
+    public void addObserver(Observer who, int what, int how) {
+        inventory.addObserver(who, what, how);
     }
     
     @Override
-    public void removeViewer(AbstractWindow<?> viewer, int what, int how) {
-        inventory.removeViewer(viewer, what, how);
+    public void removeObserver(Observer who, int what, int how) {
+        inventory.removeObserver(who, what, how);
     }
     
     @Override

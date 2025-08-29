@@ -8,13 +8,13 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.InvUI;
+import xyz.xenondevs.invui.Observer;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.PagedGui;
 import xyz.xenondevs.invui.gui.ScrollGui;
 import xyz.xenondevs.invui.gui.TabGui;
 import xyz.xenondevs.invui.util.QuadConsumer;
 import xyz.xenondevs.invui.util.TriConsumer;
-import xyz.xenondevs.invui.window.AbstractWindow;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -87,8 +87,8 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
     }
     
     @Override
-    public void addViewer(AbstractWindow<?> who, int how) {
-        super.addViewer(who, how);
+    public void addObserver(Observer who, int what, int how) {
+        super.addObserver(who, what, how);
         if (updatePeriod > 0 && updateTask == null) {
             updateTask = Bukkit.getScheduler().runTaskTimer(
                 InvUI.getInstance().getPlugin(),
@@ -100,9 +100,9 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
     }
     
     @Override
-    public void removeViewer(AbstractWindow<?> who, int how) {
-        super.removeViewer(who, how);
-        if (updateTask != null && viewers.isEmpty()) {
+    public void removeObserver(Observer who, int what, int how) {
+        super.removeObserver(who, what, how);
+        if (updateTask != null && observers.isEmpty()) {
             updateTask.cancel();
             updateTask = null;
         }

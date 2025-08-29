@@ -3,9 +3,9 @@ package xyz.xenondevs.invui.item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import xyz.xenondevs.invui.Click;
-import xyz.xenondevs.invui.window.AbstractWindow;
+import xyz.xenondevs.invui.Observer;
 
-final class EmptyItem extends AbstractItem {
+final class EmptyItem implements Item {
     
     @Override
     public ItemProvider getItemProvider(Player viewer) {
@@ -17,13 +17,14 @@ final class EmptyItem extends AbstractItem {
         // empty
     }
     
+    
     @Override
-    public void addViewer(AbstractWindow<?> who, int how) {
+    public void addObserver(Observer who, int what, int how) {
         // empty
     }
     
     @Override
-    public void removeViewer(AbstractWindow<?> who, int how) {
+    public void removeObserver(Observer who, int what, int how) {
         // empty
     }
     

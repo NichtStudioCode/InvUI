@@ -4,6 +4,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import xyz.xenondevs.invui.Click;
+import xyz.xenondevs.invui.Observable;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.util.ArrayUtils;
 import xyz.xenondevs.invui.util.TriConsumer;
@@ -20,7 +21,7 @@ import java.util.function.Supplier;
 /**
  * A UI element for use in {@link Gui Guis}.
  */
-public sealed interface Item permits AbstractItem, BoundItem {
+public interface Item extends Observable {
     
     /**
      * An empty {@link Item} that displays {@link ItemProvider#EMPTY} and has no click actions.
@@ -61,7 +62,7 @@ public sealed interface Item permits AbstractItem, BoundItem {
      * @param player The {@link Player} that interacted with the bundle.
      * @param bundleSlot The selected bundle slot, or -1 if the player's cursor left the {@link ItemProvider}.
      */
-    void handleBundleSelect(Player player, int bundleSlot);
+    default void handleBundleSelect(Player player, int bundleSlot) {}
     
     /**
      * Creates a new {@link Builder} for an {@link Item}.
@@ -108,7 +109,7 @@ public sealed interface Item permits AbstractItem, BoundItem {
      *
      * @param <S> The type of the builder itself.
      */
-    interface Builder<S extends Builder<S>> {
+    sealed interface Builder<S extends Builder<S>> permits BoundItem.Builder, CustomItem.Builder {
         
         /**
          * Sets the {@link ItemProvider} of the {@link Item} to a static {@link ItemStack}.

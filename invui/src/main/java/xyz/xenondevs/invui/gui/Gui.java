@@ -4,6 +4,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.Nullable;
+import xyz.xenondevs.invui.Click;
+import xyz.xenondevs.invui.Observable;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
@@ -18,20 +20,13 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
- * A Gui is a container for width * height {@link SlotElement SlotElements}.<br>
- * Each {@link SlotElement} can either be an {@link Item},
- * a reference to a {@link Inventory}'s or another {@link Gui}'s
- * slot index.<br>
- * A {@link Gui} is not an {@link org.bukkit.inventory.Inventory}, nor does
- * it access one. It just contains {@link SlotElement SlotElements} and their positions.<br>
- * In order to create an {@link org.bukkit.inventory.Inventory} which is visible
- * to players, you will need to use a {@link Window}.
+ * A Gui is a container for width * height {@link SlotElement SlotElements}.
  *
  * @see PagedGui
  * @see ScrollGui
  * @see TabGui
  */
-public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
+public sealed interface Gui extends Observable permits AbstractGui, PagedGui, ScrollGui, TabGui {
     
     /**
      * Creates a new {@link Builder Gui Builder} for a normal {@link Gui}.
@@ -134,6 +129,23 @@ public sealed interface Gui permits AbstractGui, PagedGui, ScrollGui, TabGui {
         gui.setSlotElement(0, new SlotElement.InventoryLink(inventory, slot, background));
         return gui;
     }
+    
+    /**
+     * Handles a click on the given slot.
+     *
+     * @param slot  The slot index that was clicked.
+     * @param click The {@link Click} that was performed on the slot.
+     */
+    void handleClick(int slot, Click click);
+    
+    /**
+     * Handles a bundle select action on the given slot.
+     *
+     * @param slot       The slot index of the bundle.
+     * @param player     The {@link Player} that performed the action.
+     * @param bundleSlot The bundle slot index that was selected.
+     */
+    void handleBundleSelect(int slot, Player player, int bundleSlot);
     
     /**
      * Gets the size of the {@link Gui}.

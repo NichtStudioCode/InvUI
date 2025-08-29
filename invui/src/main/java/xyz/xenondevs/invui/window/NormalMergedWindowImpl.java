@@ -2,7 +2,7 @@ package xyz.xenondevs.invui.window;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
-import xyz.xenondevs.invui.gui.AbstractGui;
+import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomPlainMenu;
 import xyz.xenondevs.invui.state.MutableProperty;
 
@@ -13,7 +13,7 @@ final class NormalMergedWindowImpl extends AbstractMergedWindow<CustomPlainMenu>
     public NormalMergedWindowImpl(
         Player player,
         Supplier<? extends Component> title,
-        AbstractGui gui,
+        Gui gui,
         MutableProperty<Boolean> closeable
     ) {
         super(player, title, gui, new CustomPlainMenu(gui.getWidth(), gui.getHeight() - 4, player), closeable);
@@ -29,7 +29,7 @@ final class NormalMergedWindowImpl extends AbstractMergedWindow<CustomPlainMenu>
             var window = new NormalMergedWindowImpl(
                 viewer,
                 titleSupplier,
-                (AbstractGui) guiSupplier.get(),
+                guiSupplier.get(),
                 closeable
             );
             

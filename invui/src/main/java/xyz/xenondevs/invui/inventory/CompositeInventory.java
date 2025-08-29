@@ -4,12 +4,12 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
+import xyz.xenondevs.invui.Observer;
 import xyz.xenondevs.invui.internal.util.ArrayUtils;
 import xyz.xenondevs.invui.inventory.event.InventoryClickEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
-import xyz.xenondevs.invui.window.AbstractWindow;
 
 import java.util.Collection;
 import java.util.List;
@@ -173,15 +173,15 @@ public final class CompositeInventory extends Inventory {
     }
     
     @Override
-    public void addViewer(AbstractWindow<?> viewer, int what, int how) {
+    public void addObserver(Observer who, int what, int how) {
         var invSlot = findInventory(what);
-        invSlot.inventory().addViewer(viewer, invSlot.slot(), how);
+        invSlot.inventory().addObserver(who, invSlot.slot(), how);
     }
     
     @Override
-    public void removeViewer(AbstractWindow<?> viewer, int what, int how) {
+    public void removeObserver(Observer who, int what, int how) {
         var invSlot = findInventory(what);
-        invSlot.inventory().removeViewer(viewer, invSlot.slot(), how);
+        invSlot.inventory().removeObserver(who, invSlot.slot(), how);
     }
     
     @Override

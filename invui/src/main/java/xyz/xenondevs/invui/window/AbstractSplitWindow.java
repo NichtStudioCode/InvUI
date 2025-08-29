@@ -2,9 +2,7 @@ package xyz.xenondevs.invui.window;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.internal.menu.CustomContainerMenu;
@@ -13,18 +11,14 @@ import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.function.Supplier;
 
-/**
- * @hidden
- */
-@ApiStatus.Internal
 sealed abstract class AbstractSplitWindow<M extends CustomContainerMenu>
     extends AbstractWindow<M>
     permits AnvilWindowImpl, BrewingWindowImpl, CartographyWindowImpl, CrafterWindowImpl, CraftingWindowImpl, FurnaceWindowImpl, GrindstoneWindowImpl, MerchantWindowImpl, NormalSplitWindowImpl, SmithingWindowImpl, StonecutterWindowImpl
 {
     
-    private final AbstractGui lowerGui;
+    private final Gui lowerGui;
     
-    AbstractSplitWindow(Player player, Supplier<? extends Component> title, AbstractGui lowerGui, int size, M menu, MutableProperty<Boolean> closeable) {
+    AbstractSplitWindow(Player player, Supplier<? extends Component> title, Gui lowerGui, int size, M menu, MutableProperty<Boolean> closeable) {
         super(player, title, size, menu, closeable);
         this.lowerGui = lowerGui;
         
@@ -52,10 +46,10 @@ sealed abstract class AbstractSplitWindow<M extends CustomContainerMenu>
             return (S) this;
         }
         
-        protected AbstractGui supplyLowerGui(Player viewer) {
-            return lowerGuiSupplier != null 
-                ? (AbstractGui) lowerGuiSupplier.get() 
-                : (AbstractGui) InventoryUtils.createPlayerReferencingInventoryGui(viewer); 
+        protected Gui supplyLowerGui(Player viewer) {
+            return lowerGuiSupplier != null
+                ? lowerGuiSupplier.get()
+                : InventoryUtils.createPlayerReferencingInventoryGui(viewer);
         }
         
     }

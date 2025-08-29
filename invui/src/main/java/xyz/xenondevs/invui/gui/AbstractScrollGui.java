@@ -5,8 +5,8 @@ import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.internal.util.ArrayUtils;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
-import xyz.xenondevs.invui.internal.util.SlotUtils;
 import xyz.xenondevs.invui.internal.util.FuncUtils;
+import xyz.xenondevs.invui.internal.util.SlotUtils;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
 
@@ -16,11 +16,7 @@ import java.util.List;
 import java.util.SequencedSet;
 import java.util.function.BiConsumer;
 
-sealed abstract class AbstractScrollGui<C>
-    extends AbstractGui
-    implements ScrollGui<C>
-    permits ScrollItemsGuiImpl, ScrollNestedGuiImpl, ScrollInventoryGuiImpl
-{
+non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements ScrollGui<C> {
     
     private static final int DEFAULT_LINE = 0;
     

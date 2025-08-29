@@ -4,8 +4,8 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
-import xyz.xenondevs.invui.internal.util.SlotUtils;
 import xyz.xenondevs.invui.internal.util.FuncUtils;
+import xyz.xenondevs.invui.internal.util.SlotUtils;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
 
@@ -15,11 +15,7 @@ import java.util.List;
 import java.util.SequencedSet;
 import java.util.function.BiConsumer;
 
-sealed abstract class AbstractPagedGui<C>
-    extends AbstractGui
-    implements PagedGui<C>
-    permits PagedInventoriesGuiImpl, PagedItemsGuiImpl, PagedNestedGuiImpl
-{
+non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements PagedGui<C> {
     
     private static final int DEFAULT_PAGE = 0;
     

@@ -15,7 +15,7 @@ import java.util.function.BiFunction;
 /**
  * An item that is bound to a specific {@link Gui}.
  */
-public sealed interface BoundItem extends Item permits AbstractBoundItem {
+public interface BoundItem extends Item {
     
     /**
      * Gets the {@link Gui} this item is bound to.

@@ -5,7 +5,6 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
-import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomCraftingTableMenu;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
@@ -18,17 +17,17 @@ import java.util.function.Supplier;
 
 final class CraftingWindowImpl extends AbstractSplitWindow<CustomCraftingTableMenu> implements CraftingWindow {
     
-    private final AbstractGui craftingGui;
-    private final AbstractGui resultGui;
-    private final AbstractGui lowerGui;
+    private final Gui craftingGui;
+    private final Gui resultGui;
+    private final Gui lowerGui;
     private final List<Consumer<? super Key>> recipeClickHandlers = new ArrayList<>();
     
     public CraftingWindowImpl(
         Player player,
         Supplier<? extends Component> title,
-        AbstractGui craftingGui,
-        AbstractGui resultGui,
-        AbstractGui lowerGui,
+        Gui craftingGui,
+        Gui resultGui,
+        Gui lowerGui,
         MutableProperty<Boolean> closeable
     ) {
         super(player, title, lowerGui, 46, new CustomCraftingTableMenu(player), closeable);
@@ -124,8 +123,8 @@ final class CraftingWindowImpl extends AbstractSplitWindow<CustomCraftingTableMe
             var window = new CraftingWindowImpl(
                 viewer,
                 titleSupplier,
-                (AbstractGui) craftingGuiSupplier.get(),
-                (AbstractGui) resultGuiSupplier.get(),
+                craftingGuiSupplier.get(),
+                resultGuiSupplier.get(),
                 supplyLowerGui(viewer),
                 closeable
             );

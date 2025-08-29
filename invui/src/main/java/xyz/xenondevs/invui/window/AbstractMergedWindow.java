@@ -2,10 +2,8 @@ package xyz.xenondevs.invui.window;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.invui.gui.AbstractGui;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.internal.menu.CustomContainerMenu;
@@ -14,15 +12,11 @@ import xyz.xenondevs.invui.state.MutableProperty;
 import java.util.List;
 import java.util.function.Supplier;
 
-/**
- * @hidden
- */
-@ApiStatus.Internal
 sealed abstract class AbstractMergedWindow<M extends CustomContainerMenu> extends AbstractWindow<M> permits NormalMergedWindowImpl {
     
-    private final AbstractGui gui;
+    private final Gui gui;
     
-    AbstractMergedWindow(Player viewer, Supplier<? extends Component> title, AbstractGui gui, M menu, MutableProperty<Boolean> closeable) {
+    AbstractMergedWindow(Player viewer, Supplier<? extends Component> title, Gui gui, M menu, MutableProperty<Boolean> closeable) {
         super(viewer, title, gui.getSize(), menu, closeable);
         this.gui = gui;
     }
