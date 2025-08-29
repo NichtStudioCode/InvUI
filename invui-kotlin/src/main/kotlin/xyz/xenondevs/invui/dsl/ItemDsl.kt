@@ -16,8 +16,24 @@ import xyz.xenondevs.invui.item.ItemProvider
 fun item(item: ItemDsl.() -> Unit): Item =
     ItemDslImpl().apply(item).build()
 
+@ItemDslMarker
 @ExperimentalDslApi
-class BundleSelect internal constructor(val player: Player, val bundleSlot: Int)
+sealed interface ClickDsl {
+    
+    val clickType: ClickType
+    val player: Player
+    val hotbarButton: Int
+    
+}
+
+@ItemDslMarker
+@ExperimentalDslApi
+sealed interface BundleSelectDsl {
+    
+    val player: Player
+    val bundleSlot: Int
+    
+}
 
 @ItemDslMarker
 @ExperimentalDslApi
@@ -25,9 +41,9 @@ sealed interface ItemDsl {
     
     val itemProvider: ItemProviderDslProperty
     
-    fun onClick(handler: Click.() -> Unit)
+    fun onClick(handler: ClickDsl.() -> Unit)
     
-    fun onBundleSelect(handler: BundleSelect.() -> Unit)
+    fun onBundleSelect(handler: BundleSelectDsl.() -> Unit)
     
 }
 
@@ -35,14 +51,14 @@ sealed interface ItemDsl {
 internal class ItemDslImpl : ItemDsl {
     
     override val itemProvider = ItemProviderDslProperty()
-    private val clickHandlers = mutableListOf<Click.() -> Unit>()
-    private val bundleSelectHandlers = mutableListOf<BundleSelect.() -> Unit>()
+    private val clickHandlers = mutableListOf<ClickDsl.() -> Unit>()
+    private val bundleSelectHandlers = mutableListOf<BundleSelectDsl.() -> Unit>()
     
-    override fun onClick(handler: Click.() -> Unit) {
+    override fun onClick(handler: ClickDsl.() -> Unit) {
         clickHandlers += handler
     }
     
-    override fun onBundleSelect(handler: BundleSelect.() -> Unit) {
+    override fun onBundleSelect(handler: BundleSelectDsl.() -> Unit) {
         bundleSelectHandlers += handler
     }
     
@@ -52,10 +68,23 @@ internal class ItemDslImpl : ItemDsl {
 }
 
 @ExperimentalDslApi
+internal class ClickDslImpl(
+    override val clickType: ClickType,
+    override val player: Player,
+    override val hotbarButton: Int
+) : ClickDsl
+
+@ExperimentalDslApi
+internal class BundleSelectDslImpl(
+    override val player: Player,
+    override val bundleSlot: Int
+) : BundleSelectDsl
+
+@ExperimentalDslApi
 private class DslItemImpl(
     private val itemProvider: Provider<ItemProvider>,
-    private val clickHandlers: List<Click.() -> Unit>,
-    private val bundleSelectHandlers: List<BundleSelect.() -> Unit>
+    private val clickHandlers: List<ClickDsl.() -> Unit>,
+    private val bundleSelectHandlers: List<BundleSelectDsl.() -> Unit>
 ) : AbstractItem() {
     
     init {
@@ -65,12 +94,13 @@ private class DslItemImpl(
     override fun getItemProvider(viewer: Player) = itemProvider.get()
     
     override fun handleClick(clickType: ClickType, player: Player, click: Click) {
-        clickHandlers.forEach { it(click) }
+        val cd = ClickDslImpl(clickType, player, click.hotbarButton)
+        clickHandlers.forEach { it(cd) }
     }
     
     override fun handleBundleSelect(player: Player, bundleSlot: Int) {
-        val bs = BundleSelect(player, bundleSlot)
-        bundleSelectHandlers.forEach { it(bs) }
+        val bsd = BundleSelectDslImpl(player, bundleSlot)
+        bundleSelectHandlers.forEach { it(bsd) }
     }
     
     

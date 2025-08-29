@@ -22,7 +22,7 @@ sealed interface FurnaceWindowDsl : SplitWindowDsl {
     val cookProgress: ProviderDslProperty<Double>
     val burnProgress: ProviderDslProperty<Double>
     
-    fun onRecipeClick(handler: RecipeClick.() -> Unit)
+    fun onRecipeClick(handler: RecipeClickDsl.() -> Unit)
     
 }
 
@@ -35,9 +35,9 @@ internal class FurnaceWindowDslImpl(
     override val resultGui = GuiDslProperty(1, 1)
     override val cookProgress = ProviderDslProperty(0.0)
     override val burnProgress = ProviderDslProperty(0.0)
-    private val recipeClickHandlers = mutableListOf<RecipeClick.() -> Unit>()
+    private val recipeClickHandlers = mutableListOf<RecipeClickDsl.() -> Unit>()
     
-    override fun onRecipeClick(handler: RecipeClick.() -> Unit) {
+    override fun onRecipeClick(handler: RecipeClickDsl.() -> Unit) {
         recipeClickHandlers += handler
     }
     
@@ -50,7 +50,9 @@ internal class FurnaceWindowDslImpl(
             setResultGui(resultGui.value)
             setCookProgress(cookProgress)
             setBurnProgress(burnProgress)
-            recipeClickHandlers.forEach { handler -> addRecipeClickHandler { RecipeClick(it).handler() } }
+            for (handler in recipeClickHandlers) {
+                addRecipeClickHandler { RecipeClickDslImpl(it).handler() }
+            }
         }
     }
     
