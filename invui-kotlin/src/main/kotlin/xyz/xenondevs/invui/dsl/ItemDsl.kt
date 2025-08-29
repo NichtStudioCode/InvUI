@@ -3,11 +3,14 @@
 package xyz.xenondevs.invui.dsl
 
 import org.bukkit.entity.Player
+import org.bukkit.event.inventory.ClickType
+import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.invui.Click
 import xyz.xenondevs.invui.ExperimentalReactiveApi
 import xyz.xenondevs.invui.dsl.property.ItemProviderDslProperty
+import xyz.xenondevs.invui.item.AbstractItem
 import xyz.xenondevs.invui.item.Item
-import xyz.xenondevs.invui.item.setItemProvider
+import xyz.xenondevs.invui.item.ItemProvider
 
 @ExperimentalDslApi
 fun item(item: ItemDsl.() -> Unit): Item =
@@ -43,10 +46,32 @@ internal class ItemDslImpl : ItemDsl {
         bundleSelectHandlers += handler
     }
     
-    fun build() = Item.builder().apply {
-        setItemProvider(itemProvider)
-        clickHandlers.forEach { addClickHandler(it) }
-        bundleSelectHandlers.forEach { handler -> addBundleSelectHandler { player, bundleSlot -> BundleSelect(player, bundleSlot).handler() }}
-    }.build()
+    fun build(): Item =
+        DslItemImpl(itemProvider, clickHandlers.toList(), bundleSelectHandlers.toList())
+    
+}
+
+@ExperimentalDslApi
+private class DslItemImpl(
+    private val itemProvider: Provider<ItemProvider>,
+    private val clickHandlers: List<Click.() -> Unit>,
+    private val bundleSelectHandlers: List<BundleSelect.() -> Unit>
+) : AbstractItem() {
+    
+    init {
+        itemProvider.observeWeak(this) { thisRef -> thisRef.notifyWindows() }
+    }
+    
+    override fun getItemProvider(viewer: Player) = itemProvider.get()
+    
+    override fun handleClick(clickType: ClickType, player: Player, click: Click) {
+        clickHandlers.forEach { it(click) }
+    }
+    
+    override fun handleBundleSelect(player: Player, bundleSlot: Int) {
+        val bs = BundleSelect(player, bundleSlot)
+        bundleSelectHandlers.forEach { it(bs) }
+    }
+    
     
 }
