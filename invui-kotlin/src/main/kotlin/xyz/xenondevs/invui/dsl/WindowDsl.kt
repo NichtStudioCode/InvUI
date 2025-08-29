@@ -92,9 +92,9 @@ internal abstract class AbstractWindowDsl<W : Window, B : Window.Builder<W, B>>(
     open fun applyToBuilder(builder: B) {
         builder.apply { 
             setViewer(viewer)
-            setTitle(title.delegate)
-            setCloseable(closeable.delegate)
-            setFallbackWindow(fallbackWindow.delegate)
+            setTitle(title)
+            setCloseable(closeable)
+            setFallbackWindow(fallbackWindow)
             openHandlers.forEach { addOpenHandler(it) }
             closeHandlers.forEach { handler -> addCloseHandler { Close(it).handler() } }
             outsideClickHandlers.forEach { addOutsideClickHandler(it) }

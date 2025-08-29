@@ -49,8 +49,8 @@ internal abstract class ScrollGuiDslImpl<C : Any>(
     override fun applyToBuilder(builder: ScrollGui.Builder<C>) {
         super.applyToBuilder(builder)
         builder.apply {
-            setContent(content.delegate)
-            setLine(line.delegate)
+            setContent(content)
+            setLine(line)
             
             addModifier { gui ->
                 lineCount.set(gui.lineCount)

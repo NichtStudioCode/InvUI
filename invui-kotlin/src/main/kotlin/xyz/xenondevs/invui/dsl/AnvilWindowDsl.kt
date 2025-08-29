@@ -44,8 +44,8 @@ internal class AnvilWindowDslImpl(
         builder.apply { 
             setUpperGui(upperGui.value)
             addRenameHandler(text)
-            setTextFieldAlwaysEnabled(textFieldAlwaysEnabled.delegate)
-            setResultAlwaysValid(resultAlwaysValid.delegate)
+            setTextFieldAlwaysEnabled(textFieldAlwaysEnabled)
+            setResultAlwaysValid(resultAlwaysValid)
         }
     }
     

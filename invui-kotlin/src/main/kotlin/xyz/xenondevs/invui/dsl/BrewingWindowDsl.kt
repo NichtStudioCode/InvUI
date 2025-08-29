@@ -44,8 +44,8 @@ internal class BrewingWindowDslImpl(
             setInputGui(inputGui.value)
             setFuelGui(fuelGui.value)
             setResultGui(resultGui.value)
-            setBrewProgress(brewProgress.delegate)
-            setFuelProgress(fuelProgress.delegate)
+            setBrewProgress(brewProgress)
+            setFuelProgress(fuelProgress)
         }
     }
     

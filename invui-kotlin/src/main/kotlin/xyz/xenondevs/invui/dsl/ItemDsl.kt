@@ -44,7 +44,7 @@ internal class ItemDslImpl : ItemDsl {
     }
     
     fun build() = Item.builder().apply {
-        setItemProvider(itemProvider.delegate)
+        setItemProvider(itemProvider)
         clickHandlers.forEach { addClickHandler(it) }
         bundleSelectHandlers.forEach { handler -> addBundleSelectHandler { player, bundleSlot -> BundleSelect(player, bundleSlot).handler() }}
     }.build()

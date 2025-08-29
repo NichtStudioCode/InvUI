@@ -58,7 +58,7 @@ internal class MerchantWindowDslImpl(
         super.applyToBuilder(builder)
         builder.apply {
             setUpperGui(upperGui.value)
-            setTrades(trades.delegate)
+            setTrades(trades)
             addTradeSelectHandler { _, trade -> selectedTrade.set(trade) }
         }
     }
@@ -78,8 +78,8 @@ internal class TradeDslImpl : TradeDsl {
         .setFirstInput(firstInput.value)
         .setSecondInput(secondInput.value)
         .setResult(result.value)
-        .setDiscount(discount.delegate)
-        .setAvailable(isAvailable.delegate)
+        .setDiscount(discount)
+        .setAvailable(isAvailable)
         .build()
     
 }

@@ -38,7 +38,7 @@ internal class StonecutterWindowDslImpl(
         builder.apply {
             setUpperGui(upperGui.value)
             setButtonsGui(buttonsGui.value)
-            setSelectedSlot(selectedSlot.delegate)
+            setSelectedSlot(selectedSlot)
         }
     }
     

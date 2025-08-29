@@ -46,9 +46,9 @@ internal abstract class GuiDslImpl<G : Gui, B : Gui.Builder<G, B>>(
             }
             applyPreset(ingredients.build())
             
-            setBackground(background.delegate)
-            setFrozen(frozen.delegate)
-            setIgnoreObscuredInventorySlots(ignoreObscuredInventorySlots.delegate)
+            setBackground(background)
+            setFrozen(frozen)
+            setIgnoreObscuredInventorySlots(ignoreObscuredInventorySlots)
         }
     }
     

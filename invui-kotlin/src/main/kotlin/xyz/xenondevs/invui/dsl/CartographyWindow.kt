@@ -43,8 +43,8 @@ internal class CartographyWindowDslImpl(
         builder.apply { 
             setInputGui(inputGui.value)
             setResultGui(resultGui.value)
-            setIcons(icons.delegate)
-            setView(view.delegate)
+            setIcons(icons)
+            setView(view)
         }
     }
     

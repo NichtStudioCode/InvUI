@@ -36,8 +36,8 @@ internal class TabGuiDslImpl(
     
     override fun applyToBuilder(builder: TabGui.Builder) {
         super.applyToBuilder(builder)
-        builder.setTabs(tabs.delegate)
-        builder.setTab(tab.delegate)
+        builder.setTabs(tabs)
+        builder.setTab(tab)
     }
     
 }

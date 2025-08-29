@@ -6,29 +6,27 @@ import xyz.xenondevs.commons.provider.DeferredValue
 import xyz.xenondevs.commons.provider.MutableProvider
 import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.commons.provider.UnstableProviderApi
-import xyz.xenondevs.commons.provider.flatten
+import xyz.xenondevs.commons.provider.immediateFlatten
 import xyz.xenondevs.commons.provider.mutableProvider
 import xyz.xenondevs.invui.dsl.ExperimentalDslApi
 
 @ExperimentalDslApi
 open class ProviderDslProperty<T> internal constructor(
-    delegate: MutableProvider<MutableProvider<T>>
-) : MutableProvider<T> by delegate.flatten() {
+    private val source: MutableProvider<MutableProvider<T>>
+) : MutableProvider<T> by source.immediateFlatten() {
     
     internal constructor(initial: T) : this(mutableProvider(mutableProvider(initial)))
     
-    internal var delegate: MutableProvider<T> by delegate
+    infix fun by(provider: MutableProvider<T>) {
+        source.set(provider)
+    }
     
     infix fun by(provider: Provider<T>) {
-        if (provider is MutableProvider<T>) {
-            this.delegate = provider
-        } else {
-            this.delegate = NonMutableMutableProvider(provider)
-        }
+        source.set(NonMutableMutableProvider(provider))
     }
     
     infix fun by(value: T) {
-        this.delegate = mutableProvider(value)
+        source.set(mutableProvider(value))
     }
     
 }
@@ -46,19 +44,17 @@ private class NonMutableMutableProvider<T>(delegate: Provider<T>) : MutableProvi
 
 @ExperimentalDslApi
 class MutableProviderDslProperty<T> internal constructor(
-    delegate: MutableProvider<MutableProvider<T>>
-) : MutableProvider<T> by delegate.flatten() {
+    private val source: MutableProvider<MutableProvider<T>>
+) : MutableProvider<T> by source.immediateFlatten() {
     
     internal constructor(initial: T) : this(mutableProvider(mutableProvider(initial)))
     
-    internal var delegate: MutableProvider<T> by delegate
-    
     infix fun by(provider: MutableProvider<T>) {
-        this.delegate = provider
+        source.set(provider)
     }
     
     infix fun by(value: T) {
-        this.delegate = mutableProvider(value)
+        source.set(mutableProvider(value))
     }
     
 }
