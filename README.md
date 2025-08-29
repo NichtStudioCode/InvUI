@@ -6,10 +6,10 @@
 
 # InvUI
 
-An Inventory API for Minecraft Paper servers.  
+An Inventory GUI library for Minecraft Paper servers.  
 
 Highlighted features:
-* Supports many inventory types: Chest, Anvil, Brewer, Cartography, Crafter, Crafting, Furnace, Grindstone, Merchant, Smithing, Stonecutter
+* Supports most inventory types: Chest, Anvil, Brewer, Cartography, Crafter, Crafting, Furnace, Grindstone, Merchant, Smithing, Stonecutter
 * Different Gui types: Normal, Paged, Tab, Scroll
 * Gui-embeddable inventories with a powerful event system (e.g. only allow input for certain item types, customize maximum stack size per slot, etc.)
 * First-class [MiniMessage](https://docs.advntr.dev/minimessage/index.html) support
