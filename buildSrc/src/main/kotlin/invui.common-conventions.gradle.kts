@@ -14,6 +14,7 @@ version = "2.0.0-alpha.18"
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://jitpack.io")
 }
 
 dependencies {
