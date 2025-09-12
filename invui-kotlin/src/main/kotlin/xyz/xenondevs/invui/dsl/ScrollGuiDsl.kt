@@ -33,6 +33,7 @@ sealed interface ScrollGuiDsl<C : Any> : GuiDsl {
     val content: ProviderDslProperty<List<C>>
     val line: MutableProviderDslProperty<Int>
     val lineCount: Provider<Int>
+    val maxLine: Provider<Int>
     
 }
 
@@ -45,6 +46,7 @@ internal abstract class ScrollGuiDslImpl<C : Any>(
     override val content = ProviderDslProperty(emptyList<C>())
     override val line = MutableProviderDslProperty(0)
     override val lineCount = mutableProvider(0)
+    override val maxLine = mutableProvider(0)
     
     override fun applyToBuilder(builder: ScrollGui.Builder<C>) {
         super.applyToBuilder(builder)
@@ -54,7 +56,9 @@ internal abstract class ScrollGuiDslImpl<C : Any>(
             
             addModifier { gui ->
                 lineCount.set(gui.lineCount)
+                maxLine.set(gui.maxLine)
                 gui.addLineCountChangeHandler { _, l -> lineCount.set(l) }
+                gui.addLineCountChangeHandler { _, _ -> maxLine.set(gui.maxLine) }
             }
         }
     }
