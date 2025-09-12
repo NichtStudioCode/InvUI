@@ -3,7 +3,7 @@ kotlin = "2.1.0"
 paper = "1.21.8-R0.1-SNAPSHOT"
 
 [libraries]
-commons-provider = { module = "xyz.xenondevs.commons:commons-provider", version = "2.0.0-alpha.6" }
+commons-provider = { module = "xyz.xenondevs.commons:commons-provider", version = "2.0.0-alpha.7" }
 jetbrains-annotations = { module = "org.jetbrains:annotations", version = "26.0.1" }
 jspecify = { module = "org.jspecify:jspecify", version = "1.0.0" }
 junit-bom = { module = "org.junit:junit-bom", version = "5.11.4" }

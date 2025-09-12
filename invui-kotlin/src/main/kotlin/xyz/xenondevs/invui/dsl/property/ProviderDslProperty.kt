@@ -12,8 +12,9 @@ import xyz.xenondevs.invui.dsl.ExperimentalDslApi
 
 @ExperimentalDslApi
 open class ProviderDslProperty<T> internal constructor(
-    private val source: MutableProvider<MutableProvider<T>>
-) : MutableProvider<T> by source.immediateFlatten() {
+    private val source: MutableProvider<MutableProvider<T>>,
+    override val identifier: MutableProvider<T> = source.immediateFlatten()
+) : MutableProvider<T> by identifier {
     
     internal constructor(initial: T) : this(mutableProvider(mutableProvider(initial)))
     
@@ -29,10 +30,13 @@ open class ProviderDslProperty<T> internal constructor(
         source.set(mutableProvider(value))
     }
     
+    override fun equals(other: Any?): Boolean = other is Provider<*> && other.identifier === identifier
+    override fun hashCode(): Int = System.identityHashCode(identifier)
+    
 }
 
 @ExperimentalDslApi
-private class NonMutableMutableProvider<T>(delegate: Provider<T>) : MutableProvider<T>, Provider<T> by delegate {
+private class NonMutableMutableProvider<T>(override val identifier: Provider<T>) : MutableProvider<T>, Provider<T> by identifier {
     override fun <R> strongMap(transform: (T) -> R, untransform: (R) -> T) = throwUoe()
     override fun <R> map(transform: (T) -> R, untransform: (R) -> T) = throwUoe()
     override fun <R> mapObserved(createObservable: (T, () -> Unit) -> R) = throwUoe()
@@ -40,12 +44,16 @@ private class NonMutableMutableProvider<T>(delegate: Provider<T>) : MutableProvi
     override fun update(value: DeferredValue<T>, ignore: Set<Provider<*>>) = throwUoe()
     private fun throwUoe(): Nothing =
         throw UnsupportedOperationException("This property was changed to a non-mutable provider")
+    
+    override fun equals(other: Any?): Boolean = other is Provider<*> && other.identifier === identifier
+    override fun hashCode(): Int = System.identityHashCode(identifier)
 }
 
 @ExperimentalDslApi
 class MutableProviderDslProperty<T> internal constructor(
-    private val source: MutableProvider<MutableProvider<T>>
-) : MutableProvider<T> by source.immediateFlatten() {
+    private val source: MutableProvider<MutableProvider<T>>,
+    override val identifier: MutableProvider<T> = source.immediateFlatten()
+) : MutableProvider<T> by identifier {
     
     internal constructor(initial: T) : this(mutableProvider(mutableProvider(initial)))
     
@@ -56,5 +64,8 @@ class MutableProviderDslProperty<T> internal constructor(
     infix fun by(value: T) {
         source.set(mutableProvider(value))
     }
+    
+    override fun equals(other: Any?): Boolean = other is Provider<*> && other.identifier === identifier
+    override fun hashCode(): Int = System.identityHashCode(identifier)
     
 }
