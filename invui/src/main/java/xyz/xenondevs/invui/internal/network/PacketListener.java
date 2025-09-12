@@ -57,17 +57,26 @@ public class PacketListener implements Listener {
         injectOutgoing(player, new ClientboundBundlePacket(packets));
     }
     
-    public void injectOutgoing(Player player, Packet<ClientGamePacketListener> packet) {
+    public void injectOutgoing(Player player, Packet<? super ClientGamePacketListener> packet) {
         getPacketHandler(player.getUniqueId()).injectOutgoing(packet);
     }
     
     @SuppressWarnings("unchecked")
-    public <T extends Packet<ServerGamePacketListener>> void redirectIncoming(Player player, Class<? extends T> clazz, Consumer<? super T> handler) {
-        getPacketHandler(player.getUniqueId()).redirections.put(clazz, (Consumer<Packet<ServerGamePacketListener>>) handler);
+    public <T extends Packet<? super ServerGamePacketListener>> void redirectIncoming(Player player, Class<? extends T> clazz, Consumer<? super T> handler) {
+        getPacketHandler(player.getUniqueId()).redirections.put(clazz, (Consumer<Packet<? super ServerGamePacketListener>>) handler);
     }
     
     public boolean removeRedirect(Player player, Class<? extends Packet<ServerGamePacketListener>> clazz) {
         return getPacketHandler(player.getUniqueId()).redirections.remove(clazz) != null;
+    }
+    
+    @SuppressWarnings("unchecked")
+    public <T extends Packet<? super ServerGamePacketListener>> void listenIncoming(Player player, Class<? extends T> clazz, Consumer<? super T> handler) {
+        getPacketHandler(player.getUniqueId()).listeners.put(clazz, (Consumer<Packet<? super ServerGamePacketListener>>) handler);
+    }
+    
+    public boolean stopListening(Player player, Class<? extends Packet<? super ServerGamePacketListener>> clazz) {
+        return getPacketHandler(player.getUniqueId()).listeners.remove(clazz) != null;
     }
     
     private PacketHandler getPacketHandler(UUID uuid) {
@@ -105,7 +114,8 @@ public class PacketListener implements Listener {
     
     private static class PacketHandler extends ChannelDuplexHandler {
         
-        private final Map<Class<? extends Packet<ServerGamePacketListener>>, Consumer<Packet<ServerGamePacketListener>>> redirections = new ConcurrentHashMap<>();
+        private final Map<Class<? extends Packet<? super ServerGamePacketListener>>, Consumer<Packet<? super ServerGamePacketListener>>> redirections = new ConcurrentHashMap<>();
+        private final Map<Class<? extends Packet<? super ServerGamePacketListener>>, Consumer<Packet<? super ServerGamePacketListener>>> listeners = new ConcurrentHashMap<>();
         private final Set<Class<? extends Packet<ClientGamePacketListener>>> discardRules = Collections.newSetFromMap(new ConcurrentHashMap<>());
         private final Channel channel;
         
@@ -113,7 +123,7 @@ public class PacketListener implements Listener {
             this.channel = channel;
         }
         
-        public void injectOutgoing(Packet<ClientGamePacketListener> packet) {
+        public void injectOutgoing(Packet<? super ClientGamePacketListener> packet) {
             if (!channel.eventLoop().inEventLoop()) {
                 channel.eventLoop().execute(() -> injectOutgoing(packet));
                 return;
@@ -170,11 +180,16 @@ public class PacketListener implements Listener {
         @SuppressWarnings("unchecked")
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-            var handler = redirections.get(msg.getClass());
-            if (handler != null) {
+            var listener = listeners.get(msg.getClass());
+            if (listener != null) {
+                listener.accept((Packet<ServerGamePacketListener>) msg);
+            }
+            
+            var redirectHandler = redirections.get(msg.getClass());
+            if (redirectHandler != null) {
                 Bukkit.getScheduler().runTask(
                     InvUI.getInstance().getPlugin(),
-                    () -> handler.accept((Packet<ServerGamePacketListener>) msg)
+                    () -> redirectHandler.accept((Packet<ServerGamePacketListener>) msg)
                 );
             } else {
                 super.channelRead(ctx, msg);

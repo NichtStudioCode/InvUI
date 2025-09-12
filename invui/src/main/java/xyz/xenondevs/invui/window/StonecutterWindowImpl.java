@@ -53,9 +53,10 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
         Gui buttonsGui,
         MutableProperty<Integer> selectedSlot,
         List<BiConsumer<? super Integer, ? super Integer>> selectedSlotChangeHandlers,
-        MutableProperty<Boolean> closeable
+        MutableProperty<Boolean> closeable,
+        MutableProperty<Integer> windowState
     ) {
-        super(player, title, lowerGui, upperGui.getSize() + lowerGui.getSize() + buttonsGui.getSize(), new CustomStonecutterMenu(player), closeable);
+        super(player, title, lowerGui, upperGui.getSize() + lowerGui.getSize() + buttonsGui.getSize(), new CustomStonecutterMenu(player), closeable, windowState);
         if (upperGui.getWidth() != 2 || upperGui.getHeight() != 1)
             throw new IllegalArgumentException("Gui must of of dimensions 2x1.");
         if (lowerGui.getWidth() != 9 || lowerGui.getHeight() != 4)
@@ -200,7 +201,8 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
                 butonsGuiSupplier.get(),
                 selectedSlot,
                 selectedSlotChangeHandlers,
-                closeable
+                closeable,
+                windowState
             );
             applyModifiers(window);
             return window;

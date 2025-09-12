@@ -34,9 +34,10 @@ final class BrewingWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu
         Gui lowerGui,
         MutableProperty<Double> brewProgress,
         MutableProperty<Double> fuelProgress,
-        MutableProperty<Boolean> closeable
+        MutableProperty<Boolean> closeable,
+        MutableProperty<Integer> windowState
     ) {
-        super(player, title, lowerGui, 41, new CustomBrewingStandMenu(player), closeable);
+        super(player, title, lowerGui, 41, new CustomBrewingStandMenu(player), closeable, windowState);
         if (inputGui.getWidth() != 1 || inputGui.getHeight() != 1)
             throw new IllegalArgumentException("Input Gui must be of dimensions 1x1");
         if (fuelGui.getWidth() != 1 || fuelGui.getHeight() != 1)
@@ -143,7 +144,8 @@ final class BrewingWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu
                 supplyLowerGui(viewer),
                 brewProgress,
                 fuelProgress,
-                closeable
+                closeable,
+                windowState
             );
             
             applyModifiers(window);

@@ -18,8 +18,16 @@ sealed abstract class AbstractSplitWindow<M extends CustomContainerMenu>
     
     private final Gui lowerGui;
     
-    AbstractSplitWindow(Player player, Supplier<? extends Component> title, Gui lowerGui, int size, M menu, MutableProperty<Boolean> closeable) {
-        super(player, title, size, menu, closeable);
+    AbstractSplitWindow(
+        Player player,
+        Supplier<? extends Component> title,
+        Gui lowerGui,
+        int size,
+        M menu,
+        MutableProperty<Boolean> closeable,
+        MutableProperty<Integer> windowState
+    ) {
+        super(player, title, size, menu, closeable, windowState);
         this.lowerGui = lowerGui;
         
         if (lowerGui.getWidth() != 9 || lowerGui.getHeight() != 4)

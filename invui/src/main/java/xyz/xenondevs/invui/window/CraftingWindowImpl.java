@@ -28,9 +28,10 @@ final class CraftingWindowImpl extends AbstractSplitWindow<CustomCraftingTableMe
         Gui craftingGui,
         Gui resultGui,
         Gui lowerGui,
-        MutableProperty<Boolean> closeable
+        MutableProperty<Boolean> closeable,
+        MutableProperty<Integer> windowState
     ) {
-        super(player, title, lowerGui, 46, new CustomCraftingTableMenu(player), closeable);
+        super(player, title, lowerGui, 46, new CustomCraftingTableMenu(player), closeable, windowState);
         if (craftingGui.getWidth() != 3 || craftingGui.getHeight() != 3)
             throw new IllegalArgumentException("Crafting Gui must be of dimensions 3x3");
         if (resultGui.getWidth() != 1 || resultGui.getHeight() != 1)
@@ -126,7 +127,8 @@ final class CraftingWindowImpl extends AbstractSplitWindow<CustomCraftingTableMe
                 craftingGuiSupplier.get(),
                 resultGuiSupplier.get(),
                 supplyLowerGui(viewer),
-                closeable
+                closeable,
+                windowState
             );
             
             window.setRecipeClickHandlers((List) recipeClickHandlers);

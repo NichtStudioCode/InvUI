@@ -5,6 +5,8 @@ package xyz.xenondevs.invui.dsl
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryCloseEvent
+import xyz.xenondevs.commons.provider.Provider
+import xyz.xenondevs.commons.provider.mutableProvider
 import xyz.xenondevs.invui.ClickEvent
 import xyz.xenondevs.invui.ExperimentalReactiveApi
 import xyz.xenondevs.invui.dsl.property.ComponentProviderDslProperty
@@ -15,6 +17,7 @@ import xyz.xenondevs.invui.internal.util.InventoryUtils
 import xyz.xenondevs.invui.window.Window
 import xyz.xenondevs.invui.window.setCloseable
 import xyz.xenondevs.invui.window.setTitle
+import xyz.xenondevs.invui.window.setWindowState
 
 @ExperimentalDslApi
 fun window(viewer: Player, window: NormalSplitWindowDsl.() -> Unit): Window =
@@ -54,6 +57,8 @@ sealed interface WindowDsl {
     val title: ComponentProviderDslProperty
     val closeable: ProviderDslProperty<Boolean>
     val fallbackWindow: ProviderDslProperty<Window?>
+    val serverWindowState: ProviderDslProperty<Int>
+    val clientWindowState: Provider<Int>
     
     fun onOpen(handler: WindowOpenDsl.() -> Unit)
     
@@ -92,6 +97,8 @@ internal abstract class AbstractWindowDsl<W : Window, B : Window.Builder<W, B>>(
     override val title = ComponentProviderDslProperty()
     override val closeable = ProviderDslProperty(true)
     override val fallbackWindow = ProviderDslProperty<Window?>(null)
+    override val serverWindowState = ProviderDslProperty(0)
+    override val clientWindowState = mutableProvider(0)
     private val openHandlers = mutableListOf<WindowOpenDsl.() -> Unit>()
     private val closeHandlers = mutableListOf<WindowCloseDsl.() -> Unit>()
     private val outsideClickHandlers = mutableListOf<WindowOutsideClickDsl.() -> Unit>()
@@ -125,6 +132,8 @@ internal abstract class AbstractWindowDsl<W : Window, B : Window.Builder<W, B>>(
             for (handler in outsideClickHandlers) {
                 addOutsideClickHandler { event -> WindowOutsideClickDslImpl(event).handler() }
             }
+            setWindowState(serverWindowState)
+            addWindowStateChangeHandler(clientWindowState::set)
         }
     }
     

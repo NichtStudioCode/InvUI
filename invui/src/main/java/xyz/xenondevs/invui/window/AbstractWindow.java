@@ -42,16 +42,20 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
     private static final @Nullable Window DEFAULT_FALLBACK_WINDOW = null;
     private static final Component DEFAULT_TITLE = Component.empty();
     private static final boolean DEFAULT_CLOSEABLE = true;
+    private static final int DEFAULT_WINDOW_STATE = 0;
     
     protected final M menu;
     private final Player viewer;
     private final List<Runnable> openHandlers = new ArrayList<>(0);
     private final List<Consumer<? super Reason>> closeHandlers = new ArrayList<>(0);
     private final List<Consumer<? super ClickEvent>> outsideClickHandlers = new ArrayList<>(0);
+    private final List<Consumer<? super Integer>> windowStateChangeHandlers = new ArrayList<>(0);
     private Supplier<? extends @Nullable Window> fallbackWindow = () -> null;
     private Supplier<? extends Component> titleSupplier;
     private final MutableProperty<Boolean> closeable;
+    private final MutableProperty<Integer> serverWindowState;
     private boolean isOpen;
+    private int clientWindowState;
     
     private final int size;
     private final List<List<SlotElement>> elementsDisplayed;
@@ -59,16 +63,29 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
     
     private @Nullable Component activeTitle;
     
-    AbstractWindow(Player viewer, Supplier<? extends Component> titleSupplier, int size, M menu, MutableProperty<Boolean> closeable) {
+    AbstractWindow(
+        Player viewer,
+        Supplier<? extends Component> titleSupplier,
+        int size,
+        M menu,
+        MutableProperty<Boolean> closeable,
+        MutableProperty<Integer> windowState
+    ) {
         this.menu = menu;
         this.viewer = viewer;
         this.titleSupplier = titleSupplier;
         this.closeable = closeable;
+        this.serverWindowState = windowState;
         this.size = size;
         this.dirtySlots = new BitSet(size);
         this.elementsDisplayed = IntStream.range(0, size)
             .<List<SlotElement>>mapToObj(i -> new ArrayList<>())
             .collect(Collectors.toCollection(ArrayList::new));
+        
+        serverWindowState.observeWeak(this, thisRef -> {
+            thisRef.handleTick(); // important: flush item updates and send packets
+            thisRef.menu.sendPing(serverWindowState.get());
+        });
         
         menu.setWindow(this);
     }
@@ -532,6 +549,27 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
     }
     
     @Override
+    public void setWindowStateChangeHandlers(List<? extends Consumer<Integer>> handlers) {
+        this.windowStateChangeHandlers.clear();
+        this.windowStateChangeHandlers.addAll(handlers);
+    }
+    
+    @Override
+    public @UnmodifiableView List<Consumer<Integer>> getWindowStateChangeHandlers() {
+        return CollectionUtils.unmodifiableListUnchecked(windowStateChangeHandlers);
+    }
+    
+    @Override
+    public void addWindowStateChangeHandler(Consumer<? super Integer> handler) {
+        windowStateChangeHandlers.add(handler);
+    }
+    
+    @Override
+    public void removeWindowStateChangeHandler(Consumer<? super Integer> handler) {
+        windowStateChangeHandlers.remove(handler);
+    }
+    
+    @Override
     public Player getViewer() {
         return viewer;
     }
@@ -551,6 +589,27 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
     }
     
     @Override
+    public void setWindowState(int windowState) {
+        serverWindowState.set(windowState);
+    }
+    
+    @Override
+    public int getServerWindowState() {
+        return FuncUtils.getSafely(serverWindowState, DEFAULT_WINDOW_STATE);
+    }
+    
+    @Override
+    public int getClientWindowState() {
+        return clientWindowState;
+    }
+    
+    @Override
+    public void handlePong(int id) {
+        clientWindowState = id;
+        forEachCatching(windowStateChangeHandlers, handler -> handler.accept(id), "Failed to handle window state change");
+    }
+    
+    @Override
     public boolean isOpen() {
         return isOpen;
     }
@@ -564,9 +623,11 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
         private @Nullable Player viewer;
         protected Supplier<? extends Component> titleSupplier = () -> DEFAULT_TITLE;
         protected MutableProperty<Boolean> closeable = MutableProperty.of(DEFAULT_CLOSEABLE);
+        protected MutableProperty<Integer> windowState = MutableProperty.of(DEFAULT_WINDOW_STATE);
         private List<Runnable> openHandlers = new ArrayList<>(0);
         private List<Consumer<? super Reason>> closeHandlers = new ArrayList<>(0);
         private List<Consumer<? super ClickEvent>> outsideClickHandlers = new ArrayList<>(0);
+        private List<Consumer<? super Integer>> windowStateChangeHandlers = new ArrayList<>(0);
         private List<Consumer<? super W>> modifiers = new ArrayList<>(0);
         private Supplier<? extends @Nullable Window> fallbackWindow = () -> DEFAULT_FALLBACK_WINDOW;
         
@@ -646,6 +707,25 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
         }
         
         @Override
+        public S setWindowState(MutableProperty<Integer> windowState) {
+            this.windowState = windowState;
+            return (S) this;
+        }
+        
+        @Override
+        public S setWindowStateChangeHandlers(List<? extends Consumer<? super Integer>> handlers) {
+            this.windowStateChangeHandlers.clear();
+            this.windowStateChangeHandlers.addAll(handlers);
+            return (S) this;
+        }
+        
+        @Override
+        public S addWindowStateChangeHandler(Consumer<? super Integer> handler) {
+            windowStateChangeHandlers.add(handler);
+            return (S) this;
+        }
+        
+        @Override
         public S setModifiers(List<? extends Consumer<? super W>> modifiers) {
             this.modifiers.clear();
             this.modifiers.addAll(modifiers);
@@ -663,6 +743,7 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
             window.setOpenHandlers(openHandlers);
             window.setCloseHandlers((List) closeHandlers);
             window.setOutsideClickHandlers((List) outsideClickHandlers);
+            window.setWindowStateChangeHandlers((List) windowStateChangeHandlers);
             window.setFallbackWindow(fallbackWindow);
             modifiers.forEach(modifier -> modifier.accept(window));
         }
@@ -687,6 +768,7 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
                 clone.openHandlers = new ArrayList<>(openHandlers);
                 clone.closeHandlers = new ArrayList<>(closeHandlers);
                 clone.outsideClickHandlers = new ArrayList<>(outsideClickHandlers);
+                clone.windowStateChangeHandlers = new ArrayList<>(windowStateChangeHandlers);
                 clone.modifiers = new ArrayList<>(modifiers);
                 return (S) clone;
             } catch (CloneNotSupportedException e) {

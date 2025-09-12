@@ -22,9 +22,10 @@ final class GrindstoneWindowImpl extends AbstractSplitWindow<CustomGrindstoneMen
         Gui inputGui,
         Gui resultGui,
         Gui lowerGui,
-        MutableProperty<Boolean> closeable
+        MutableProperty<Boolean> closeable,
+        MutableProperty<Integer> windowState
     ) {
-        super(player, title, lowerGui, 41, new CustomGrindstoneMenu(player), closeable);
+        super(player, title, lowerGui, 41, new CustomGrindstoneMenu(player), closeable, windowState);
         if (inputGui.getWidth() != 1 || inputGui.getHeight() != 2)
             throw new IllegalArgumentException("Input Gui must be of dimensions 1x2");
         if (resultGui.getWidth() != 1 || resultGui.getHeight() != 1)
@@ -68,7 +69,8 @@ final class GrindstoneWindowImpl extends AbstractSplitWindow<CustomGrindstoneMen
                 inputGuiSupplier.get(),
                 resultGuiSupplier.get(),
                 supplyLowerGui(viewer),
-                closeable
+                closeable,
+                windowState
             );
             
             applyModifiers(window);

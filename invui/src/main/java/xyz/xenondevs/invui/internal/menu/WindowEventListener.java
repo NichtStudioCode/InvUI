@@ -15,4 +15,6 @@ public interface WindowEventListener {
     
     void handleClose(InventoryCloseEvent.Reason cause);
     
+    void handlePong(int id);
+    
 }

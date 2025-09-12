@@ -35,9 +35,10 @@ final class CrafterWindowImpl extends AbstractSplitWindow<CustomCrafterMenu> imp
         Gui lowerGui,
         List<? extends MutableProperty<Boolean>> slots,
         List<BiConsumer<? super Integer, ? super Boolean>> slotToggleHandlers,
-        MutableProperty<Boolean> closeable
+        MutableProperty<Boolean> closeable,
+        MutableProperty<Integer> windowState
     ) {
-        super(player, title, lowerGui, 46, new CustomCrafterMenu(player), closeable);
+        super(player, title, lowerGui, 46, new CustomCrafterMenu(player), closeable, windowState);
         if (craftingGui.getWidth() != 3 || craftingGui.getHeight() != 3)
             throw new IllegalArgumentException("Crafting Gui must be of dimensions 3x3");
         if (resultGui.getWidth() != 1 || resultGui.getHeight() != 1)
@@ -176,7 +177,8 @@ final class CrafterWindowImpl extends AbstractSplitWindow<CustomCrafterMenu> imp
                 supplyLowerGui(viewer),
                 slots,
                 slotToggleHandlers,
-                closeable
+                closeable,
+                windowState
             );
             
             applyModifiers(window);

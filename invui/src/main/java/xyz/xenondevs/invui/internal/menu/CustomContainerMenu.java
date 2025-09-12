@@ -18,6 +18,8 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.HashedPatchMap;
 import net.minecraft.network.HashedStack;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.common.ClientboundPingPacket;
+import net.minecraft.network.protocol.common.ServerboundPongPacket;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
@@ -30,6 +32,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.BundleContents;
+import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.inventory.CraftInventory;
 import org.bukkit.craftbukkit.inventory.CraftInventoryView;
@@ -44,11 +47,15 @@ import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.internal.network.PacketListener;
 import xyz.xenondevs.invui.internal.util.InventoryUtils;
+import xyz.xenondevs.invui.internal.util.MathUtils;
+import xyz.xenondevs.invui.internal.util.PingData;
 import xyz.xenondevs.invui.window.Window;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 /**
@@ -65,6 +72,11 @@ public abstract class CustomContainerMenu {
      * The slot number of the off-hand slot in the inventory menu.
      */
     private static final int OFF_HAND_SLOT = 45;
+    
+    /**
+     * The timeout for {@link #pendingPongs}, in ms.
+     */
+    private static final long PING_TIMEOUT_MS = 10_000;
     
     /**
      * A thread local that stores whether the current thread is an interaction handling context (i.e. handling a click).
@@ -128,6 +140,8 @@ public abstract class CustomContainerMenu {
     
     private final IntSet dragSlots = new IntLinkedOpenHashSet();
     private ClickType dragMode = ClickType.LEFT;
+    
+    private final Map<Integer, PingData> pendingPongs = new ConcurrentHashMap<>();
     
     /**
      * Creates a new {@link CustomContainerMenu} for the specified player.
@@ -322,6 +336,7 @@ public abstract class CustomContainerMenu {
         pl.redirectIncoming(player, ServerboundContainerClickPacket.class, this::handleClick);
         pl.redirectIncoming(player, ServerboundContainerClosePacket.class, this::handleClose);
         pl.redirectIncoming(player, ServerboundSelectBundleItemPacket.class, this::handleBundleSelect);
+        pl.listenIncoming(player, ServerboundPongPacket.class, this::handlePongAsync);
         pl.discard(player, ClientboundOpenScreenPacket.class);
         pl.discard(player, ClientboundContainerSetContentPacket.class);
         pl.discard(player, ClientboundContainerSetDataPacket.class);
@@ -340,6 +355,7 @@ public abstract class CustomContainerMenu {
         pl.removeRedirect(player, ServerboundContainerClickPacket.class);
         pl.removeRedirect(player, ServerboundContainerClosePacket.class);
         pl.removeRedirect(player, ServerboundSelectBundleItemPacket.class);
+        pl.stopListening(player, ServerboundPongPacket.class);
         pl.stopDiscard(player, ClientboundOpenScreenPacket.class);
         pl.stopDiscard(player, ClientboundContainerSetContentPacket.class);
         pl.stopDiscard(player, ClientboundContainerSetDataPacket.class);
@@ -354,6 +370,38 @@ public abstract class CustomContainerMenu {
         serverPlayer.inventoryMenu.setRemoteSlotUnsafe(OFF_HAND_SLOT, remoteOffHand);
         
         serverPlayer.containerMenu = serverPlayer.inventoryMenu;
+    }
+    
+    /**
+     * Sends a ping packet with a random id mapping to the given window state id.
+     *
+     * @param id The window state id
+     */
+    public void sendPing(int id) {
+        // generate new ping id, remember mapping and timestamp
+        int ping = MathUtils.RANDOM.nextInt();
+        pendingPongs.put(ping, new PingData(id, System.currentTimeMillis()));
+        
+        // clear timed out pings
+        long now = System.currentTimeMillis();
+        pendingPongs.values().removeIf(data -> now - data.timestamp() > PING_TIMEOUT_MS);
+        
+        PacketListener.getInstance().injectOutgoing(player, new ClientboundPingPacket(ping));
+    }
+    
+    /**
+     * Handles a pong packet from the client.
+     *
+     * @param packet The packet that was received
+     */
+    public void handlePongAsync(ServerboundPongPacket packet) {
+        var data = pendingPongs.remove(packet.getId());
+        if (data == null)
+            return; // ignore unknown pongs, unrelated to InvUI
+        Bukkit.getScheduler().runTask(
+            InvUI.getInstance().getPlugin(),
+            () -> getWindowEvents().handlePong(data.id())
+        );
     }
     
     //<editor-fold desc="action handlers">

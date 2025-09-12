@@ -43,3 +43,12 @@ fun <S : Window.Builder<*, *>> S.setCloseable(closeable: Provider<Boolean>): S {
     setCloseable(PropertyAdapter(closeable))
     return this
 }
+
+/**
+ * Sets the provider containing the server state of the [Window] built by this builder.
+ */
+@ExperimentalReactiveApi
+fun <S : Window.Builder<*, *>> S.setWindowState(windowState: MutableProvider<Int>): S {
+    setWindowState(PropertyAdapter(windowState))
+    return this
+}

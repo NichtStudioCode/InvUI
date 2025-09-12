@@ -14,9 +14,10 @@ final class NormalMergedWindowImpl extends AbstractMergedWindow<CustomPlainMenu>
         Player player,
         Supplier<? extends Component> title,
         Gui gui,
-        MutableProperty<Boolean> closeable
+        MutableProperty<Boolean> closeable,
+        MutableProperty<Integer> windowState
     ) {
-        super(player, title, gui, new CustomPlainMenu(gui.getWidth(), gui.getHeight() - 4, player), closeable);
+        super(player, title, gui, new CustomPlainMenu(gui.getWidth(), gui.getHeight() - 4, player), closeable, windowState);
     }
     
     public static final class BuilderImpl
@@ -30,7 +31,8 @@ final class NormalMergedWindowImpl extends AbstractMergedWindow<CustomPlainMenu>
                 viewer,
                 titleSupplier,
                 guiSupplier.get(),
-                closeable
+                closeable,
+                windowState
             );
             
             applyModifiers(window);

@@ -16,8 +16,15 @@ sealed abstract class AbstractMergedWindow<M extends CustomContainerMenu> extend
     
     private final Gui gui;
     
-    AbstractMergedWindow(Player viewer, Supplier<? extends Component> title, Gui gui, M menu, MutableProperty<Boolean> closeable) {
-        super(viewer, title, gui.getSize(), menu, closeable);
+    AbstractMergedWindow(
+        Player viewer,
+        Supplier<? extends Component> title,
+        Gui gui,
+        M menu,
+        MutableProperty<Boolean> closeable,
+        MutableProperty<Integer> windowState
+    ) {
+        super(viewer, title, gui.getSize(), menu, closeable, windowState);
         this.gui = gui;
     }
     

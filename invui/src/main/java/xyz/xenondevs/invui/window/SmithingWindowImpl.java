@@ -20,9 +20,10 @@ final class SmithingWindowImpl extends AbstractSplitWindow<CustomSmithingTableMe
         Supplier<? extends Component> title,
         Gui upperGui,
         Gui lowerGui,
-        MutableProperty<Boolean> closeable
+        MutableProperty<Boolean> closeable,
+        MutableProperty<Integer> windowState
     ) {
-        super(player, title, lowerGui, 41, new CustomSmithingTableMenu(player), closeable);
+        super(player, title, lowerGui, 41, new CustomSmithingTableMenu(player), closeable, windowState);
         if (upperGui.getWidth() != 4 || upperGui.getHeight() != 1)
             throw new IllegalArgumentException("Upper Gui must be of dimensions 4x1");
         
@@ -55,7 +56,8 @@ final class SmithingWindowImpl extends AbstractSplitWindow<CustomSmithingTableMe
                 titleSupplier,
                 upperGuiSupplier.get(),
                 supplyLowerGui(viewer),
-                closeable
+                closeable,
+                windowState
             );
             
             applyModifiers(window);

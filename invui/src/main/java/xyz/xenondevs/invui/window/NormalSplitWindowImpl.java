@@ -20,9 +20,10 @@ final class NormalSplitWindowImpl extends AbstractSplitWindow<CustomPlainMenu> {
         Supplier<? extends Component> title,
         Gui upperGui,
         Gui lowerGui,
-        MutableProperty<Boolean> closeable
+        MutableProperty<Boolean> closeable,
+        MutableProperty<Integer> windowState
     ) {
-        super(player, title, lowerGui, upperGui.getSize() + lowerGui.getSize(), new CustomPlainMenu(upperGui.getWidth(), upperGui.getHeight(), player), closeable);
+        super(player, title, lowerGui, upperGui.getSize() + lowerGui.getSize(), new CustomPlainMenu(upperGui.getWidth(), upperGui.getHeight(), player), closeable, windowState);
         this.upperGui = upperGui;
         this.lowerGui = lowerGui;
     }
@@ -52,7 +53,8 @@ final class NormalSplitWindowImpl extends AbstractSplitWindow<CustomPlainMenu> {
                 titleSupplier,
                 upperGuiSupplier.get(),
                 supplyLowerGui(viewer),
-                closeable
+                closeable,
+                windowState
             );
             
             applyModifiers(window);

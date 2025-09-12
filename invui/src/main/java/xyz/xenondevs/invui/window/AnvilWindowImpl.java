@@ -36,9 +36,10 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
         Gui lowerGui,
         MutableProperty<Boolean> textFieldAlwaysEnabled,
         MutableProperty<Boolean> resultAlwaysValid,
-        MutableProperty<Boolean> closeable
+        MutableProperty<Boolean> closeable,
+        MutableProperty<Integer> windowState
     ) {
-        super(player, title, lowerGui, upperGui.getSize() + lowerGui.getSize(), new CustomAnvilMenu(player), closeable);
+        super(player, title, lowerGui, upperGui.getSize() + lowerGui.getSize(), new CustomAnvilMenu(player), closeable, windowState);
         if (upperGui.getWidth() != 3 && upperGui.getHeight() != 1)
             throw new IllegalArgumentException("Upper gui must be of dimensions 3x1");
         
@@ -181,7 +182,8 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
                 supplyLowerGui(viewer),
                 textFieldAlwaysEnabled,
                 resultAlwaysValid,
-                closeable
+                closeable,
+                windowState
             );
             
             window.setRenameHandlers((List) renameHandlers);

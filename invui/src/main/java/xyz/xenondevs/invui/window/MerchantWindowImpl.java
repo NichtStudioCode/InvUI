@@ -52,9 +52,10 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
         MutableProperty<Integer> level,
         MutableProperty<Double> progress,
         MutableProperty<Boolean> restockMessage,
-        MutableProperty<Boolean> closeable
+        MutableProperty<Boolean> closeable,
+        MutableProperty<Integer> windowState
     ) {
-        super(player, title, lowerGui, 3 + 36, new CustomMerchantMenu(player), closeable);
+        super(player, title, lowerGui, 3 + 36, new CustomMerchantMenu(player), closeable, windowState);
         if (upperGui.getWidth() != 3 || upperGui.getHeight() != 1)
             throw new IllegalArgumentException("Upper gui must be of dimensions 3x1");
         
@@ -401,7 +402,8 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
                 level,
                 progress,
                 restockMessageEnabled,
-                closeable
+                closeable,
+                windowState
             );
             
             window.setTradeSelectHandlers((List) tradeSelectHandlers);

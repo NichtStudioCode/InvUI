@@ -41,9 +41,10 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
         Gui lowerGui,
         MutableProperty<View> view,
         MutableProperty<Set<? extends MapIcon>> icons,
-        MutableProperty<Boolean> closeable
+        MutableProperty<Boolean> closeable,
+        MutableProperty<Integer> windowState
     ) {
-        super(player, title, lowerGui, 3 + 36, new CustomCartographyMenu(player), closeable);
+        super(player, title, lowerGui, 3 + 36, new CustomCartographyMenu(player), closeable, windowState);
         if (inputGui.getWidth() != 1 || inputGui.getHeight() != 2)
             throw new IllegalArgumentException("Input gui must be of dimensions 1x2");
         if (resultGui.getWidth() != 1 || resultGui.getHeight() != 1)
@@ -176,7 +177,8 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
                 supplyLowerGui(viewer),
                 view,
                 icons,
-                closeable
+                closeable,
+                windowState
             );
             
             if (canvas != null)

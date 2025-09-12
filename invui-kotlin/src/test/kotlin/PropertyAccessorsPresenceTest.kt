@@ -35,6 +35,7 @@ class PropertyAccessorsPresenceTest {
     private lateinit var stonecutterWindow: StonecutterWindow
     private lateinit var window: Window
     
+    @Suppress("UnusedLambdaExpression")
     @Test
     fun verifyPresenceOfPropertyAccessors() {
         {
@@ -114,6 +115,9 @@ class PropertyAccessorsPresenceTest {
             
             window.outsideClickHandlers
             window.outsideClickHandlers = emptyList()
+            
+            window.windowStateChangeHandlers
+            window.windowStateChangeHandlers = emptyList()
         }
     }
     
