@@ -27,6 +27,7 @@ dependencies {
     testRuntimeOnly(libs.junit.platformLauncher)
     testImplementation(libs.mockbukkit)
     testImplementation(libs.logback.classic)
+    testImplementation(libs.paper.api)
 }
 
 java {

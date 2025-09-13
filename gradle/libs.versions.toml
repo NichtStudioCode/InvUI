@@ -12,6 +12,7 @@ junit-platformLauncher = { module = "org.junit.platform:junit-platform-launcher"
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 mockbukkit = { module = "com.github.MockBukkit:MockBukkit", version = "v1.21-SNAPSHOT" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version = "1.5.13" }
+paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
 paperweight-userdev-plugin = { module = "io.papermc.paperweight:paperweight-userdev", version = "2.0.0-beta.17" }
 
 [plugins]
