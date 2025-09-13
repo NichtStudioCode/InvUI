@@ -41,20 +41,33 @@ class IngredientMatrix {
         this.markers = new Marker[structure.length()];
         this.slots = new Char2ObjectOpenHashMap<>();
         
-        // for loop order is important to invoke slot element suppliers left-to-right, top-to-bottom
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 int i = y * width + x;
-                
                 char key = structure.charAt(i);
                 
-                var ingredient = ingredientMap.get(key);
-                if (ingredient != null) {
-                    slotElements[i] = ingredient.getSlotElement();
-                    markers[i] = ingredient.getMarker();
-                }
-                
                 slots.computeIfAbsent(key, ArrayList::new).add(new Slot(x, y));
+            }
+        }
+        
+        for (var entry : slots.char2ObjectEntrySet()) {
+            char key = entry.getCharKey();
+            Ingredient ingredient = ingredientMap.get(key);
+            if (ingredient == null)
+                continue;
+            
+            List<Slot> slotsForKey = entry.getValue();
+            if (ingredient.isSlotElementSupplier()) {
+                var slotElements = ingredient.generateSlotElements(slotsForKey);
+                assert slotElements != null;
+                for (int i = 0; i < slotsForKey.size(); i++) {
+                    var slot = slotsForKey.get(i);
+                    this.slotElements[slot.y() * width + slot.x()] = slotElements.get(i);
+                }
+            } else {
+                for (Slot slot : slotsForKey) {
+                    markers[slot.y() * width + slot.x()] = ingredient.getMarker();
+                }
             }
         }
     }
@@ -172,7 +185,7 @@ class IngredientMatrix {
      * @return a collection of slots for the given key
      */
     @Unmodifiable
-    SequencedCollection<Slot> getSlots(char key) {
+    List<Slot> getSlots(char key) {
         return Collections.unmodifiableList(slots.getOrDefault(key, Collections.emptyList()));
     }
     

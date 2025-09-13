@@ -2,6 +2,7 @@ package xyz.xenondevs.invui.gui;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -11,7 +12,7 @@ import java.util.function.Supplier;
 class Ingredient {
     
     private final @Nullable Marker marker;
-    private final @Nullable Supplier<? extends SlotElement> elementSupplier;
+    private final @Nullable SlotElementSupplier elementSupplier;
     
     /**
      * Creates a new {@link Ingredient} with the given {@link Marker}.
@@ -28,18 +29,8 @@ class Ingredient {
      *
      * @param elementSupplier The {@link Supplier} for the {@link SlotElement}.
      */
-    public Ingredient(Supplier<? extends SlotElement> elementSupplier) {
+    public Ingredient(SlotElementSupplier elementSupplier) {
         this.elementSupplier = elementSupplier;
-        this.marker = null;
-    }
-    
-    /**
-     * Creates a new {@link Ingredient} with the given {@link SlotElement}.
-     *
-     * @param element The {@link SlotElement} of this {@link Ingredient}.
-     */
-    public Ingredient(SlotElement element) {
-        this.elementSupplier = () -> element;
         this.marker = null;
     }
     
@@ -49,8 +40,8 @@ class Ingredient {
      * @return The {@link SlotElement} or null if this {@link Ingredient} is a {@link Marker}
      */
     @Nullable
-    SlotElement getSlotElement() {
-        return elementSupplier != null ? elementSupplier.get() : null;
+    List<? extends SlotElement> generateSlotElements(List<? extends Slot> slots) {
+        return elementSupplier != null ? elementSupplier.generateSlotElements(slots) : null;
     }
     
     /**
@@ -69,7 +60,7 @@ class Ingredient {
      *
      * @return Whether this {@link Ingredient} is a {@link SlotElement}.
      */
-    boolean isSlotElement() {
+    boolean isSlotElementSupplier() {
         return elementSupplier != null;
     }
     
@@ -80,16 +71,6 @@ class Ingredient {
      */
     boolean isMarker() {
         return marker != null;
-    }
-    
-    /**
-     * Calls {@link ResettableSlotElementSupplier#reset()} if this {@link #isSlotElement()} and
-     * a {@link ResettableSlotElementSupplier} is used as the supplier.
-     */
-    void reset() {
-        if (elementSupplier instanceof ResettableSlotElementSupplier<?> e) {
-            e.reset();
-        }
     }
     
 }

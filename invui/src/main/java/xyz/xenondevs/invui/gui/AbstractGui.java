@@ -834,6 +834,19 @@ non-sealed abstract class AbstractGui implements Gui {
     }
     
     @Override
+    public void setSlotElement(char key, SlotElementSupplier elementSupplier) {
+        var matrix = ingredientMatrix;
+        if (matrix == null)
+            return;
+        
+        var slots = matrix.getSlots(key);
+        var elements = elementSupplier.generateSlotElements(slots);
+        for (int i = 0; i < slots.size(); i++) {
+            setSlotElement(slots.get(i), elements.get(i));
+        }
+    }
+    
+    @Override
     public void setItem(char key, @Nullable Item item) {
         setItem(key, () -> item);
     }
@@ -1099,19 +1112,11 @@ non-sealed abstract class AbstractGui implements Gui {
         }
         
         @Override
-        public S addIngredient(char key, SlotElement element) {
+        public S addIngredient(char key, SlotElementSupplier elementSupplier) {
             if (structure == null)
                 throw new IllegalStateException("Structure is not set");
-            structure.addIngredient(key, element);
-            return (S) this;
-        }
-        
-        @Override
-        public S addIngredientElementSupplier(char key, Supplier<? extends SlotElement> elementSupplier) {
-            if (structure == null)
-                throw new IllegalStateException("Structure is not set");
-            structure.addIngredientElementSupplier(key, elementSupplier);
-            return (S) this;
+            structure.addIngredient(key, elementSupplier);
+            return (S) this;    
         }
         
         @Override

@@ -122,9 +122,7 @@ public final class Structure extends AbstractIngredientMapper<Structure> {
      * @param element The {@link SlotElement} ingredient
      */
     public static void addGlobalIngredient(char key, SlotElement element) {
-        if (globalIngredientsFrozen)
-            throw new IllegalStateException("Global ingredients are frozen");
-        globalIngredientMap.put(key, new Ingredient(element));
+        addGlobalIngredientElementSupplier(key, () -> element);
     }
     
     /**
@@ -136,8 +134,12 @@ public final class Structure extends AbstractIngredientMapper<Structure> {
      * @param elementSupplier The {@link SlotElement} {@link Supplier} ingredient
      */
     public static void addGlobalIngredientElementSupplier(char key, Supplier<? extends SlotElement> elementSupplier) {
+        addGlobalIngredient(key, SlotElementSupplier.fromSupplier(elementSupplier));
+    }
+    
+    public static void addGlobalIngredient(char key, SlotElementSupplier elementSupplier) {
         if (globalIngredientsFrozen)
-            throw new IllegalStateException("Global ingredients are frozen");
+            throw new IllegalStateException("Global ingredients are frozen");         
         globalIngredientMap.put(key, new Ingredient(elementSupplier));
     }
     
@@ -179,7 +181,6 @@ public final class Structure extends AbstractIngredientMapper<Structure> {
         HashMap<Character, Ingredient> ingredients = new HashMap<>(ingredientMap.size() + globalIngredientMap.size());
         ingredients.putAll(globalIngredientMap);
         ingredients.putAll(ingredientMap);
-        ingredients.values().forEach(Ingredient::reset);
         return cachedIngredientMatrix = new IngredientMatrix(width, height, structureData, ingredients);
     }
     

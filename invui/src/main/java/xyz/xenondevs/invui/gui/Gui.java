@@ -56,7 +56,7 @@ public sealed interface Gui extends Observable permits AbstractGui, PagedGui, Sc
      */
     static Gui of(Structure structure) {
         return new NormalGuiImpl(
-            structure, 
+            structure,
             MutableProperty.of(AbstractGui.DEFAULT_FROZEN),
             MutableProperty.of(AbstractGui.DEFAULT_IGNORE_OBSCURED_INVENTORY_SLOTS),
             MutableProperty.of(AbstractGui.DEFAULT_BACKGROUND)
@@ -189,6 +189,15 @@ public sealed interface Gui extends Observable permits AbstractGui, PagedGui, Sc
      * @see #applyStructure(Structure)
      */
     void setSlotElement(char key, Supplier<? extends @Nullable SlotElement> elementSupplier);
+    
+    /**
+     * Sets the {@link SlotElement SlotElements} on all slots associated with the given key through a {@link Structure},
+     * using the given {@link SlotElementSupplier} to generate them.
+     *
+     * @param key             The key
+     * @param elementSupplier The {@link SlotElementSupplier} to generate the {@link SlotElement SlotElements}
+     */
+    void setSlotElement(char key, SlotElementSupplier elementSupplier);
     
     /**
      * Sets the {@link SlotElement} on the given {@link Slot}. If you need to set an {@link Item},
@@ -432,14 +441,25 @@ public sealed interface Gui extends Observable permits AbstractGui, PagedGui, Sc
     }
     
     /**
-     * Fills the slots associated with the given key through a {@link Structure} with the given {@link Gui},
-     * using the given {@link ItemProvider} as background for empty slots.
+     * Fills the slots associated with the given key through a {@link Structure} with the given {@link Gui}.
      *
      * @param key The key
      * @param gui The {@link Gui} that should be placed on these slots
      */
     default void setGui(char key, Gui gui) {
-        setSlotElement(key, new GuiSlotElementSupplier(gui));
+        setGui(key, gui, 0, 0);
+    }
+    
+    /**
+     * Fills the slots associated with the given key through a {@link Structure} with the given {@link Gui}.
+     *
+     * @param key     The key
+     * @param gui     The {@link Gui} that should be placed on these slots
+     * @param offsetX The x offset inside the given {@link Gui} to start from
+     * @param offsetY The y offset inside the given {@link Gui} to start from
+     */
+    default void setGui(char key, Gui gui, int offsetX, int offsetY) {
+        setSlotElement(key, new GuiSlotElementSupplier(gui, offsetX, offsetY));
     }
     
     /**

@@ -4,12 +4,14 @@ import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.ItemProvider;
 
-class InventorySlotElementSupplier implements ResettableSlotElementSupplier<SlotElement.InventoryLink> {
+import java.util.ArrayList;
+import java.util.List;
+
+class InventorySlotElementSupplier implements SlotElementSupplier {
     
     private final Inventory inventory;
     private final @Nullable ItemProvider background;
     private final int offset;
-    private int slot;
     
     public InventorySlotElementSupplier(Inventory inventory, @Nullable ItemProvider background, int offset) {
         if (inventory.getSize() <= 0)
@@ -20,19 +22,19 @@ class InventorySlotElementSupplier implements ResettableSlotElementSupplier<Slot
         this.inventory = inventory;
         this.background = background;
         this.offset = offset;
-        this.slot = offset;
     }
     
     @Override
-    public SlotElement.InventoryLink get() {
-        if (slot >= inventory.getSize())
-            throw new IllegalStateException("No more slots available");
-        return new SlotElement.InventoryLink(inventory, slot++, background);
-    }
-    
-    @Override
-    public void reset() {
-        slot = offset;
+    public List<? extends SlotElement> generateSlotElements(List<? extends Slot> slots) {
+        if (slots.size() > inventory.getSize())
+            throw new IndexOutOfBoundsException("Structure requests " + slots.size() + " slots, but inventory only has " + inventory.getSize() + " slots");
+        
+        var elements = new ArrayList<SlotElement.InventoryLink>();
+        for (int i = 0; i < slots.size(); i++) {
+            elements.add(new SlotElement.InventoryLink(inventory, offset + i, background));
+        }
+        
+        return elements;
     }
     
 }

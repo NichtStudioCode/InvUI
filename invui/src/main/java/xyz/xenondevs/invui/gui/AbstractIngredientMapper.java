@@ -1,7 +1,6 @@
 package xyz.xenondevs.invui.gui;
 
 import java.util.HashMap;
-import java.util.function.Supplier;
 
 @SuppressWarnings("unchecked")
 abstract sealed class AbstractIngredientMapper<S extends AbstractIngredientMapper<S>> implements IngredientMapper<S> permits IngredientPreset.Builder, Structure {
@@ -18,14 +17,7 @@ abstract sealed class AbstractIngredientMapper<S extends AbstractIngredientMappe
     }
     
     @Override
-    public S addIngredient(char key, SlotElement element) {
-        handleUpdate();
-        ingredientMap.put(key, new Ingredient(element));
-        return (S) this;
-    }
-    
-    @Override
-    public S addIngredientElementSupplier(char key, Supplier<? extends SlotElement> elementSupplier) {
+    public S addIngredient(char key, SlotElementSupplier elementSupplier) {
         handleUpdate();
         ingredientMap.put(key, new Ingredient(elementSupplier));
         return (S) this;

@@ -74,6 +74,7 @@ public class CollectionUtils {
      * @param <K>         The type of the enum keys in the map
      * @param <V>         The type of the values in the map
      * @return A new {@link EnumMap} of the specified type, filled with the results of the
+     * specified {@link Function initializer}.
      */
     public static <K extends Enum<K>, V> EnumMap<K, V> newEnumMap(Class<K> keyType, Function<? super K, ? extends V> initializer) {
         var map = new EnumMap<K, V>(keyType);

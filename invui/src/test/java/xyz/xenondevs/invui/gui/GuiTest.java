@@ -52,6 +52,85 @@ public class GuiTest {
     }
     
     @Test
+    public void testGuiBuilderGuiIngredientDisplaced() {
+        var inner = Gui.empty(2, 2);
+        inner.fill(Item.simple(ItemStack.of(Material.DIAMOND)), true);
+        
+        var outer = Gui.builder()
+            .setStructure(
+                ". . .",
+                ". x x",
+                ". x x"
+            )
+            .addIngredient('x', inner)
+            .build();
+        
+        assertGuiLink(outer, 4, inner, 0);
+        assertGuiLink(outer, 5, inner, 1);
+        assertGuiLink(outer, 7, inner, 2);
+        assertGuiLink(outer, 8, inner, 3);
+    }
+    
+    @Test
+    public void testGuiBuilderGuiIngredientWithOffset() {
+        var inner = Gui.empty(3, 3);
+        inner.fill(Item.simple(ItemStack.of(Material.DIAMOND)), true);
+        
+        var outer = Gui.builder()
+            .setStructure(
+                ". . .",
+                "x x x",
+                ". . ."
+            )
+            .addIngredient('x', inner, 0, 1)
+            .build();
+        
+        for (int i = 3; i < 6; i++) {
+            assertGuiLink(outer, i, inner, i);
+        }
+    }
+    
+    @Test
+    public void testGuiBuilderGuiIngredientWithHoles() {
+        var inner = Gui.empty(3, 3);
+        inner.fill(Item.simple(ItemStack.of(Material.DIAMOND)), true);
+        
+        var outer = Gui.builder()
+            .setStructure(
+                ". x x",
+                "x . x",
+                "x x ."
+            )
+            .addIngredient('x', inner)
+            .build();
+        
+        assertGuiLink(outer, 1, inner, 1);
+        assertGuiLink(outer, 2, inner, 2);
+        assertGuiLink(outer, 3, inner, 3);
+        assertGuiLink(outer, 5, inner, 5);
+        assertGuiLink(outer, 6, inner, 6);
+        assertGuiLink(outer, 7, inner, 7);
+    }
+    
+    @Test
+    public void testGuiBuilderGuiIngredientTargetSlotOutOfBounds() {
+        var inner = Gui.empty(2, 2);
+        inner.fill(Item.simple(ItemStack.of(Material.DIAMOND)), true);
+        
+        assertThrows(
+            IndexOutOfBoundsException.class,
+            () -> Gui.builder()
+                .setStructure(
+                    "x . .",
+                    ". . .",
+                    ". . x"
+                )
+                .addIngredient('x', inner, 1, 2)
+                .build()
+        );
+    }
+    
+    @Test
     public void testGuiBuilderGuiIngredientNotEnoughSlots() {
         var inner = Gui.empty(3, 3);
         inner.fill(Item.simple(ItemStack.of(Material.DIAMOND)), true);
@@ -81,7 +160,7 @@ public class GuiTest {
         inner.fill(Item.simple(ItemStack.of(Material.DIAMOND)), true);
         
         assertThrows(
-            IllegalStateException.class,
+            IndexOutOfBoundsException.class,
             () -> Gui.builder()
                 .setStructure(
                     "x x x",
@@ -118,7 +197,7 @@ public class GuiTest {
         assertNull(gui1.getSlotElement(8));
         
         builder.addIngredient('a', Markers.CONTENT_LIST_SLOT_HORIZONTAL); // modify builder to invalidate cache
-    
+        
         var gui2 = builder.build();
         assertNull(gui2.getSlotElement(0));
         assertNull(gui2.getSlotElement(1));
@@ -185,15 +264,15 @@ public class GuiTest {
     public void testGuiBuilderInventoryIngredientTooManySlots() {
         var inv = new VirtualInventory(6);
         
-        assertThrows(IllegalStateException.class, () ->
+        assertThrows(IndexOutOfBoundsException.class, () ->
             Gui.builder()
-            .setStructure(
-                "x x x",
-                "x x x",
-                "x x x"
-            )
-            .addIngredient('x', inv)
-            .build()
+                .setStructure(
+                    "x x x",
+                    "x x x",
+                    "x x x"
+                )
+                .addIngredient('x', inv)
+                .build()
         );
     }
     
@@ -241,6 +320,38 @@ public class GuiTest {
         var invLink = (SlotElement.InventoryLink) element;
         assertSame(linked, invLink.inventory());
         assertEquals(linkedSlot, invLink.slot());
+    }
+    
+    @Test
+    public void testGuiBuilderSlotElementSupplierIngredient() {
+        var delegatedTo = Gui.empty(3, 2);
+        var gui = Gui.builder()
+            .setStructure(
+                "x . x",
+                ". x x"
+            )
+            .addIngredient('x', slots -> {
+                assertEquals(
+                    slots,
+                    List.of(
+                        new Slot(0, 0),
+                        new Slot(2, 0),
+                        new Slot(1, 1),
+                        new Slot(2, 1)
+                    )
+                );
+                return slots.stream()
+                    .map(s -> new SlotElement.GuiLink(delegatedTo, s.y() * delegatedTo.getWidth() + s.x()))
+                    .toList();
+            })
+            .build();
+        
+        assertEquals(gui.getSlotElement(0), new SlotElement.GuiLink(delegatedTo, 0));
+        assertNull(gui.getSlotElement(1));
+        assertEquals(gui.getSlotElement(2), new SlotElement.GuiLink(delegatedTo, 2));
+        assertNull(gui.getSlotElement(3));
+        assertEquals(gui.getSlotElement(4), new SlotElement.GuiLink(delegatedTo, 4));
+        assertEquals(gui.getSlotElement(5), new SlotElement.GuiLink(delegatedTo, 5));
     }
     
     @Test
@@ -359,6 +470,42 @@ public class GuiTest {
             assertSame(innerGui, ((SlotElement.GuiLink) gui.getSlotElement(i)).gui());
             assertEquals(i, ((SlotElement.GuiLink) gui.getSlotElement(i)).slot());
         }
+    }
+    
+    @Test
+    public void testSetSlotElementSupplierUsingIngredientKey() {
+        var delegatedTo = Gui.empty(3, 2);
+        var gui = Gui.builder()
+            .setStructure(
+                "x . x",
+                ". x x"
+            ).build();
+        
+        for (int i = 0; i < 6; i++) {
+            assertNull(gui.getSlotElement(i));
+        }
+        
+        gui.setSlotElement('x', slots -> {
+            assertEquals(
+                slots,
+                List.of(
+                    new Slot(0, 0),
+                    new Slot(2, 0),
+                    new Slot(1, 1),
+                    new Slot(2, 1)
+                )
+            );
+            return slots.stream()
+                .map(s -> new SlotElement.GuiLink(delegatedTo, s.y() * delegatedTo.getWidth() + s.x()))
+                .toList();
+        });
+        
+        assertEquals(gui.getSlotElement(0), new SlotElement.GuiLink(delegatedTo, 0));
+        assertNull(gui.getSlotElement(1));
+        assertEquals(gui.getSlotElement(2), new SlotElement.GuiLink(delegatedTo, 2));
+        assertNull(gui.getSlotElement(3));
+        assertEquals(gui.getSlotElement(4), new SlotElement.GuiLink(delegatedTo, 4));
+        assertEquals(gui.getSlotElement(5), new SlotElement.GuiLink(delegatedTo, 5));
     }
     
 }

@@ -124,7 +124,7 @@ public sealed interface IngredientMapper<S extends IngredientMapper<S>> extends 
      * @return This {@link IngredientMapper}
      */
     default S addIngredient(char key, Inventory inventory, @Nullable ItemProvider background, int offset) {
-        return addIngredientElementSupplier(key, new InventorySlotElementSupplier(inventory, background, offset));
+        return addIngredient(key, new InventorySlotElementSupplier(inventory, background, offset));
     }
     
     /**
@@ -135,7 +135,20 @@ public sealed interface IngredientMapper<S extends IngredientMapper<S>> extends 
      * @return This {@link IngredientMapper}
      */
     default S addIngredient(char key, Gui gui) {
-        return addIngredientElementSupplier(key, new GuiSlotElementSupplier(gui));
+        return addIngredient(key, gui, 0, 0);
+    }
+    
+    /**
+     * Adds a {@link Gui} ingredient under the given key.
+     *
+     * @param key     The key of the ingredient
+     * @param gui     The {@link Gui} ingredient
+     * @param offsetX The x offset inside the given {@link Gui} to start from
+     * @param offsetY The y offset inside the given {@link Gui} to start from
+     * @return This {@link IngredientMapper}
+     */
+    default S addIngredient(char key, Gui gui, int offsetX, int offsetY) {
+        return addIngredient(key, new GuiSlotElementSupplier(gui, offsetX, offsetY));
     }
     
     /**
@@ -145,7 +158,9 @@ public sealed interface IngredientMapper<S extends IngredientMapper<S>> extends 
      * @param element The {@link SlotElement} ingredient
      * @return This {@link IngredientMapper}
      */
-    S addIngredient(char key, SlotElement element);
+    default S addIngredient(char key, SlotElement element) {
+        return addIngredientElementSupplier(key, () -> element);
+    }
     
     /**
      * Adds a {@link SlotElement} {@link Supplier} ingredient under the given key.
@@ -154,7 +169,18 @@ public sealed interface IngredientMapper<S extends IngredientMapper<S>> extends 
      * @param elementSupplier The {@link SlotElement} {@link Supplier} ingredient
      * @return This {@link IngredientMapper}
      */
-    S addIngredientElementSupplier(char key, Supplier<? extends SlotElement> elementSupplier);
+    default S addIngredientElementSupplier(char key, Supplier<? extends SlotElement> elementSupplier) {
+        return addIngredient(key, SlotElementSupplier.fromSupplier(elementSupplier));
+    }
+    
+    /**
+     * Adds a {@link SlotElementSupplier} ingredient under the given key.
+     *
+     * @param key             The key of the ingredient
+     * @param elementSupplier The {@link SlotElementSupplier} ingredient
+     * @return This {@link IngredientMapper}
+     */
+    S addIngredient(char key, SlotElementSupplier elementSupplier);
     
     /**
      * Adds a {@link Marker} ingredient under the given key.
