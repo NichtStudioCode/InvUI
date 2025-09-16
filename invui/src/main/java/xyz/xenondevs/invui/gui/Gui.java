@@ -620,7 +620,44 @@ public sealed interface Gui extends Observable permits AbstractGui, PagedGui, Sc
     
     /**
      * Notifies all {@link Window Windows} that display the slots associated with
-     * the given key(s) through a {@link Structure} to update their
+     * the given key through a {@link Structure} to update their
+     * representative {@link ItemStack ItemStacks}.
+     * <p>
+     * Note that this does not notify the ingredient that was initially associated with the
+     * given key through the structure (if any), but instead just notifies the {@link Window Windows}
+     * displaying the affected slots of this {@link Gui}.
+     * <p>
+     * Can be called asynchronously.
+     *
+     * @param key The key of the slot elements to notify.
+     * @see #applyStructure(Structure)
+     */
+    default void notifyWindows(char key) {
+        notifyWindows(key, new char[0]);
+    }
+    
+    /**
+     * Notifies all {@link Window Windows} that display the slots associated with
+     * the given keys through a {@link Structure} to update their
+     * representative {@link ItemStack ItemStacks}.
+     * <p>
+     * Note that this does not notify the ingredient that was initially associated with the
+     * given key through the structure (if any), but instead just notifies the {@link Window Windows}
+     * displaying the affected slots of this {@link Gui}.
+     * <p>
+     * Can be called asynchronously.
+     *
+     * @param key1 The first key of the slot elements to notify.
+     * @param key2 The second key of the slot elements to notify.
+     * @see #applyStructure(Structure)
+     */
+    default void notifyWindows(char key1, char key2) {
+        notifyWindows(key1, new char[] {key2});
+    }
+    
+    /**
+     * Notifies all {@link Window Windows} that display the slots associated with
+     * the given keys through a {@link Structure} to update their
      * representative {@link ItemStack ItemStacks}.
      * <p>
      * Note that this does not notify the ingredient that was initially associated with the
