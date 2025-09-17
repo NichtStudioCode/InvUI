@@ -8,8 +8,9 @@ import xyz.xenondevs.invui.internal.util.DataUtils;
 import xyz.xenondevs.invui.util.ItemUtils;
 
 import java.io.*;
-import java.util.*;
-import java.util.function.BiConsumer;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -19,13 +20,11 @@ import java.util.zip.GZIPOutputStream;
  *
  * @see VirtualInventoryManager
  */
-@SuppressWarnings("SynchronizeOnNonFinalField")
 public final class VirtualInventory extends Inventory {
     
     private final UUID uuid;
-    private @Nullable ItemStack[] items;
+    private final @Nullable ItemStack[] items;
     private int[] maxStackSizes;
-    private @Nullable List<BiConsumer<Integer, Integer>> resizeHandlers;
     
     /**
      * Constructs a new {@link VirtualInventory}
@@ -166,7 +165,6 @@ public final class VirtualInventory extends Inventory {
         }
         setPreUpdateHandlers(inventory.getPreUpdateHandlers());
         setPostUpdateHandlers(inventory.getPostUpdateHandlers());
-        setResizeHandlers(inventory.getResizeHandlers());
     }
     
     /**
@@ -278,81 +276,6 @@ public final class VirtualInventory extends Inventory {
             dos.flush();
         } catch (IOException e) {
             InvUI.getInstance().getLogger().log(Level.SEVERE, "Failed to serialize VirtualInventory", e);
-        }
-    }
-    
-    /**
-     * Sets the handlers that are called every time this {@link VirtualInventory} is resized.
-     *
-     * @param resizeHandlers The handlers to set.
-     */
-    public void setResizeHandlers(@Nullable List<BiConsumer<Integer, Integer>> resizeHandlers) {
-        this.resizeHandlers = resizeHandlers;
-    }
-    
-    /**
-     * Gets the handlers that are called every time this {@link VirtualInventory} is resized.
-     *
-     * @return The handlers.
-     */
-    public @Nullable List<BiConsumer<Integer, Integer>> getResizeHandlers() {
-        return resizeHandlers;
-    }
-    
-    /**
-     * Adds a handler that is called every time this {@link VirtualInventory} is resized.
-     *
-     * @param resizeHandler The handler to add.
-     */
-    public void addResizeHandler(BiConsumer<Integer, Integer> resizeHandler) {
-        if (resizeHandlers == null)
-            resizeHandlers = new ArrayList<>();
-        
-        resizeHandlers.add(resizeHandler);
-    }
-    
-    /**
-     * Removes a handler that is called every time this {@link VirtualInventory} is resized.
-     *
-     * @param resizeHandler The handler to remove.
-     */
-    public void removeResizeHandler(BiConsumer<Integer, Integer> resizeHandler) {
-        if (resizeHandlers != null)
-            resizeHandlers.remove(resizeHandler);
-    }
-    
-    /**
-     * Changes the size of the {@link VirtualInventory}.
-     * <p>
-     * {@link ItemStack ItemStacks} in slots which are no longer valid will be removed from the {@link VirtualInventory}.
-     * This method does not call an event.
-     *
-     * @param size The new size of the {@link VirtualInventory}
-     */
-    public void resize(int size) {
-        if (this.size == size)
-            return;
-        
-        int previousSize = this.size;
-        
-        this.size = size;
-        items = Arrays.copyOf(items, size);
-        maxStackSizes = Arrays.copyOf(maxStackSizes, size);
-        synchronized (observers) {
-            observers = Arrays.copyOf(observers, size);
-        }
-        
-        // fill stackSizes with the last stack size if the array was extended
-        if (size > previousSize) {
-            int stackSize = previousSize != 0 ? maxStackSizes[previousSize - 1] : 64;
-            Arrays.fill(maxStackSizes, previousSize, maxStackSizes.length, stackSize);
-        }
-        
-        // call resize handlers if present
-        if (resizeHandlers != null) {
-            for (BiConsumer<Integer, Integer> resizeHandler : resizeHandlers) {
-                resizeHandler.accept(previousSize, size);
-            }
         }
     }
     

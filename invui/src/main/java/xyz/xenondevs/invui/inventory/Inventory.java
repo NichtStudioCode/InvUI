@@ -50,11 +50,10 @@ import java.util.stream.IntStream;
  *     </li>
  * </ul>
  */
-@SuppressWarnings("SynchronizeOnNonFinalField") // VirtualInventory synchronizes on viewers when changing the field
 public sealed abstract class Inventory implements Observable permits VirtualInventory, CompositeInventory, ObscuredInventory, ReferencingInventory {
     
     protected int size;
-    protected @Nullable Set<ObserverAtSlot>[] observers;
+    protected final @Nullable Set<ObserverAtSlot>[] observers;
     private @Nullable List<Consumer<? super InventoryClickEvent>> clickHandlers;
     private @Nullable List<Consumer<? super ItemPreUpdateEvent>> preUpdateHandlers;
     private @Nullable List<Consumer<? super ItemPostUpdateEvent>> postUpdateHandlers;
