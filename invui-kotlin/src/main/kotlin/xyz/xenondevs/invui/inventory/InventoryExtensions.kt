@@ -24,4 +24,11 @@ operator fun Inventory.plusAssign(item: ItemStack) {
 /**
  * Checks if the [Inventory] contains an [ItemStack] similar to the given [item].
  */
-operator fun Inventory.contains(item: ItemStack) = containsSimilar(item)
+operator fun Inventory.contains(item: ItemStack): Boolean =
+    containsSimilar(item)
+
+/**
+ * Creates an [ObscuredInventory] of only the slots in the given [range].
+ */
+operator fun Inventory.get(range: IntRange): ObscuredInventory = 
+    ObscuredInventory(this) { it !in range }
