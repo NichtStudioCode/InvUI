@@ -3,7 +3,6 @@ package xyz.xenondevs.invui.inventory;
 import org.bukkit.craftbukkit.util.CraftMagicNumbers;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.internal.util.DataUtils;
 import xyz.xenondevs.invui.util.ItemUtils;
 
@@ -11,7 +10,6 @@ import java.io.*;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.UUID;
-import java.util.logging.Level;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -174,7 +172,12 @@ public final class VirtualInventory extends Inventory {
      * @return The deserialized {@link VirtualInventory}.
      */
     public static VirtualInventory deserialize(byte[] bytes) {
-        return deserialize(new ByteArrayInputStream(bytes));
+        try {
+            return deserialize(new ByteArrayInputStream(bytes));
+        } catch (IOException e) {
+            // ByteArrayInputStream should not throw IOException
+            throw new RuntimeException(e);
+        }
     }
     
     /**
@@ -182,48 +185,45 @@ public final class VirtualInventory extends Inventory {
      *
      * @param in The {@link InputStream} to deserialize from.
      * @return The deserialized {@link VirtualInventory}.
+     * @throws IOException If an I/O error has occurred.
      */
-    public static VirtualInventory deserialize(InputStream in) {
-        try {
-            DataInputStream din = new DataInputStream(in);
-            UUID uuid = new UUID(din.readLong(), din.readLong());
-            @Nullable ItemStack[] items;
-            
-            byte id = din.readByte(); // id, pre v1.0: 3, v1.0: 4, v2.0: 5
-            switch (id) {
-                case 3, 4 -> {
-                    if (id == 3) {
-                        // stack sizes are no longer serialized
-                        DataUtils.readByteArray(din);
-                    }
-                    
-                    items = Arrays.stream(DataUtils.read2DByteArray(din))
-                        .map(data -> data.length != 0 ? ItemStack.deserializeBytes(data) : null)
-                        .toArray(ItemStack[]::new);
+    public static VirtualInventory deserialize(InputStream in) throws IOException {
+        DataInputStream din = new DataInputStream(in);
+        UUID uuid = new UUID(din.readLong(), din.readLong());
+        @Nullable ItemStack[] items;
+        
+        byte id = din.readByte(); // id, pre v1.0: 3, v1.0: 4, v2.0: 5
+        switch (id) {
+            case 3, 4 -> {
+                if (id == 3) {
+                    // stack sizes are no longer serialized
+                    DataUtils.readByteArray(din);
                 }
                 
-                case 5 -> {
-                    int dataVersion = din.readInt();
-                    int size = din.readInt();
-                    var itemsMask = BitSet.valueOf(din.readNBytes((size + 7) / 8)); // ceil(size / 8)
-                    var itemsIn = new BufferedInputStream(new GZIPInputStream(din));
-                    
-                    items = new ItemStack[size];
-                    for (int i = 0; i < size; i++) {
-                        if (!itemsMask.get(i))
-                            continue;
-                        
-                        items[i] = DataUtils.deserializeItemStack(dataVersion, itemsIn);
-                    }
-                }
-                
-                default -> throw new UnsupportedOperationException("Unsupported VirtualInventory version: " + id);
+                items = Arrays.stream(DataUtils.read2DByteArray(din))
+                    .map(data -> data.length != 0 ? ItemStack.deserializeBytes(data) : null)
+                    .toArray(ItemStack[]::new);
             }
             
-            return new VirtualInventory(uuid, items);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to deserialize VirtualInventory", e);
+            case 5 -> {
+                int dataVersion = din.readInt();
+                int size = din.readInt();
+                var itemsMask = BitSet.valueOf(din.readNBytes((size + 7) / 8)); // ceil(size / 8)
+                var itemsIn = new BufferedInputStream(new GZIPInputStream(din));
+                
+                items = new ItemStack[size];
+                for (int i = 0; i < size; i++) {
+                    if (!itemsMask.get(i))
+                        continue;
+                    
+                    items[i] = DataUtils.deserializeItemStack(dataVersion, itemsIn);
+                }
+            }
+            
+            default -> throw new UnsupportedOperationException("Unsupported VirtualInventory version: " + id);
         }
+        
+        return new VirtualInventory(uuid, items);
     }
     
     /**
@@ -234,9 +234,14 @@ public final class VirtualInventory extends Inventory {
      * @return The serialized data.
      */
     public byte[] serialize() {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        serialize(out);
-        return out.toByteArray();
+        try {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            serialize(out);
+            return out.toByteArray();
+        } catch (IOException e) {
+            // ByteArrayOutputStream should not throw IOException
+            throw new RuntimeException(e);
+        }
     }
     
     /**
@@ -245,38 +250,35 @@ public final class VirtualInventory extends Inventory {
      * This method only serializes the {@link UUID} and {@link ItemStack ItemStacks}.
      *
      * @param out The {@link OutputStream} to write serialized data to.
+     * @throws IOException If an I/O error has occurred.
      */
-    public void serialize(OutputStream out) {
-        try {
-            var dos = new DataOutputStream(out);
-            dos.writeLong(uuid.getMostSignificantBits());
-            dos.writeLong(uuid.getLeastSignificantBits());
-            dos.writeByte((byte) 5); // id, pre v1.0: 3, v1.0: 4, v2.0: 5
+    public void serialize(OutputStream out) throws IOException {
+        var dos = new DataOutputStream(out);
+        dos.writeLong(uuid.getMostSignificantBits());
+        dos.writeLong(uuid.getLeastSignificantBits());
+        dos.writeByte((byte) 5); // id, pre v1.0: 3, v1.0: 4, v2.0: 5
+        
+        dos.writeInt(CraftMagicNumbers.INSTANCE.getDataVersion());
+        dos.writeInt(items.length);
+        
+        var itemMask = new BitSet(items.length);
+        var itemsBin = new ByteArrayOutputStream();
+        var itemsOut = new BufferedOutputStream(new GZIPOutputStream(itemsBin));
+        
+        for (int i = 0; i < items.length; i++) {
+            var itemStack = items[i];
+            if (ItemUtils.isEmpty(itemStack))
+                continue;
             
-            dos.writeInt(CraftMagicNumbers.INSTANCE.getDataVersion());
-            dos.writeInt(items.length);
-            
-            var itemMask = new BitSet(items.length);
-            var itemsBin = new ByteArrayOutputStream();
-            var itemsOut = new BufferedOutputStream(new GZIPOutputStream(itemsBin));
-            
-            for (int i = 0; i < items.length; i++) {
-                var itemStack = items[i];
-                if (ItemUtils.isEmpty(itemStack))
-                    continue;
-                
-                itemMask.set(i, true);
-                DataUtils.serializeItemStack(itemStack, itemsOut);
-            }
-            
-            itemsOut.close();
-            dos.write(Arrays.copyOf(itemMask.toByteArray(), (items.length + 7) / 8)); // ceil(size / 8)
-            dos.write(itemsBin.toByteArray());
-            
-            dos.flush();
-        } catch (IOException e) {
-            InvUI.getInstance().getLogger().log(Level.SEVERE, "Failed to serialize VirtualInventory", e);
+            itemMask.set(i, true);
+            DataUtils.serializeItemStack(itemStack, itemsOut);
         }
+        
+        itemsOut.close();
+        dos.write(Arrays.copyOf(itemMask.toByteArray(), (items.length + 7) / 8)); // ceil(size / 8)
+        dos.write(itemsBin.toByteArray());
+        
+        dos.flush();
     }
     
     /**
