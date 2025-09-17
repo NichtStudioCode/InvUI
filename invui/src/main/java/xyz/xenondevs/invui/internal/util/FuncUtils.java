@@ -23,7 +23,7 @@ public class FuncUtils {
         try {
             return supplier.get();
         } catch (Throwable t) {
-            InvUI.getInstance().getLogger().log(Level.SEVERE, "Failed to get value from supplier", t);
+            InvUI.getInstance().handleUncaughtException("Failed to get value from supplier", t);
             return fallback;
         }
     }

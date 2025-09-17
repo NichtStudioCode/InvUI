@@ -11,7 +11,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
-import java.util.logging.Level;
 
 /**
  * Automatically reads and writes {@link VirtualInventory VirtualInventories} to files when the server starts and stops.
@@ -156,8 +155,7 @@ public final class VirtualInventoryManager {
                 VirtualInventory inventory = VirtualInventory.deserialize(in);
                 inventories.put(inventory.getUuid(), inventory);
             } catch (IOException e) {
-                InvUI.getInstance().getLogger().log(
-                    Level.SEVERE,
+                InvUI.getInstance().handleUncaughtException(
                     "Failed to deserialize a VirtualInventory from file " + file.getPath(),
                     e
                 );
@@ -176,8 +174,7 @@ public final class VirtualInventoryManager {
             try (FileOutputStream out = new FileOutputStream(file)) {
                 inventory.serialize(out);
             } catch (IOException e) {
-                InvUI.getInstance().getLogger().log(
-                    Level.SEVERE,
+                InvUI.getInstance().handleUncaughtException(
                     "Failed to serialize a VirtualInventory to file " + file.getPath(),
                     e
                 );

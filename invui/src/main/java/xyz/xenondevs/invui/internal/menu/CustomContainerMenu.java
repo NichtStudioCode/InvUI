@@ -56,7 +56,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 
 /**
  * A packet-based container menu.
@@ -606,7 +605,7 @@ public abstract class CustomContainerMenu {
             interactionContext.set(true);
             run.run();
         } catch (Throwable t) {
-            InvUI.getInstance().getLogger().log(Level.SEVERE, "An exception occurred while handling a window interaction", t);
+            InvUI.getInstance().handleUncaughtException("An exception occurred while handling a window interaction", t);
         } finally {
             interactionContext.set(false);
         }

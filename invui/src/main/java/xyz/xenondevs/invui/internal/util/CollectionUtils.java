@@ -43,7 +43,7 @@ public class CollectionUtils {
                 action.accept(obj);
                 i++;
             } catch (Throwable t) {
-                InvUI.getInstance().getLogger().log(Level.SEVERE, message + " (" + i + ")", t);
+                InvUI.getInstance().handleUncaughtException(message + " (" + i + ")", t);
             }
         }
     }

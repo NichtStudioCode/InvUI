@@ -10,7 +10,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
+import java.util.function.BiConsumer;
 
 /**
  * Main class of InvUI, managing the plugin instance.
@@ -21,6 +21,7 @@ public final class InvUI implements Listener {
     
     private final List<Runnable> disableHandlers = new ArrayList<>();
     private @Nullable Plugin plugin;
+    private BiConsumer<? super String, ? super Throwable> uncaughtExceptionHandler = (msg, e) -> getPlugin().getComponentLogger().error(msg, e);
     
     private InvUI() {}
     
@@ -86,13 +87,23 @@ public final class InvUI implements Listener {
     }
     
     /**
-     * Gets the logger of the configured plugin instance.
+     * Sets a handler for uncaught exceptions in InvUI.
      *
-     * @return The logger of the plugin instance.
-     * @throws IllegalStateException If the plugin instance is not set and cannot be inferred.
+     * @param uncaughtExceptionHandler The new uncaught exception handler.
      */
-    public Logger getLogger() {
-        return getPlugin().getLogger();
+    public void setUncaughtExceptionHandler(BiConsumer<? super String, ? super Throwable> uncaughtExceptionHandler) {
+        this.uncaughtExceptionHandler = uncaughtExceptionHandler;
+    }
+    
+    /**
+     * Handles an uncaught exception using the configured
+     * {@link #setUncaughtExceptionHandler(BiConsumer) uncaught exception handler}.
+     *
+     * @param msg An additional message that provides more context.
+     * @param t   The uncaught exception that was thrown.
+     */
+    public void handleUncaughtException(String msg, Throwable t) {
+        uncaughtExceptionHandler.accept(msg, t);
     }
     
     /**

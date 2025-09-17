@@ -14,7 +14,6 @@ import xyz.xenondevs.invui.item.ItemProvider;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
 
 /**
  * Represents an element in a slot in a {@link Gui}.
@@ -66,7 +65,7 @@ public sealed interface SlotElement {
             try {
                 return item.getItemProvider(player).get(Languages.getInstance().getLocale(player));
             } catch (Throwable t) {
-                InvUI.getInstance().getLogger().log(Level.SEVERE, "Failed to get item stack for item slot element", t);
+                InvUI.getInstance().handleUncaughtException("Failed to get item stack for item slot element", t);
             }
             
             return null;
