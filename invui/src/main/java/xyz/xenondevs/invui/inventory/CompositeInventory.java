@@ -11,7 +11,6 @@ import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
 
 import java.util.Collection;
-import java.util.logging.Level;
 
 /**
  * An {@link Inventory} which is composed of multiple other {@link Inventory Inventories}.
@@ -195,7 +194,7 @@ public final class CompositeInventory extends Inventory {
             try {
                 handler.accept(clickEvent);
             } catch (Throwable t) {
-                InvUI.getInstance().handleUncaughtException("An exception occurred while handling an inventory event", t);
+                InvUI.getInstance().handleException("An exception occurred while handling an inventory event", t);
             }
         }
         
@@ -216,7 +215,7 @@ public final class CompositeInventory extends Inventory {
             try {
                 handler.accept(event);
             } catch (Throwable t) {
-                InvUI.getInstance().handleUncaughtException("An exception occurred while handling an inventory event", t);
+                InvUI.getInstance().handleException("An exception occurred while handling an inventory event", t);
             }
         }
         

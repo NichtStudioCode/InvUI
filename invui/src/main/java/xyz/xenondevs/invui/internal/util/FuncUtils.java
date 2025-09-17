@@ -5,7 +5,6 @@ import org.jspecify.annotations.NullUnmarked;
 import xyz.xenondevs.invui.InvUI;
 
 import java.util.function.Supplier;
-import java.util.logging.Level;
 
 public class FuncUtils {
     
@@ -23,7 +22,7 @@ public class FuncUtils {
         try {
             return supplier.get();
         } catch (Throwable t) {
-            InvUI.getInstance().handleUncaughtException("Failed to get value from supplier", t);
+            InvUI.getInstance().handleException("Failed to get value from supplier", t);
             return fallback;
         }
     }

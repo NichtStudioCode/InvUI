@@ -9,7 +9,6 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.logging.Level;
 
 public class CollectionUtils {
     
@@ -43,7 +42,7 @@ public class CollectionUtils {
                 action.accept(obj);
                 i++;
             } catch (Throwable t) {
-                InvUI.getInstance().handleUncaughtException(message + " (" + i + ")", t);
+                InvUI.getInstance().handleException(message + " (" + i + ")", t);
             }
         }
     }

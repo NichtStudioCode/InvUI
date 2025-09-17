@@ -65,7 +65,7 @@ public sealed interface SlotElement {
             try {
                 return item.getItemProvider(player).get(Languages.getInstance().getLocale(player));
             } catch (Throwable t) {
-                InvUI.getInstance().handleUncaughtException("Failed to get item stack for item slot element", t);
+                InvUI.getInstance().handleException("Failed to get item stack for item slot element", t);
             }
             
             return null;

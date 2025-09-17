@@ -464,7 +464,7 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
             try {
                 handler.accept(clickEvent);
             } catch (Throwable t) {
-                InvUI.getInstance().handleUncaughtException("An exception occurred while handling an inventory event", t);
+                InvUI.getInstance().handleException("An exception occurred while handling an inventory event", t);
             }
         }
         
@@ -491,7 +491,7 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
             try {
                 handler.accept(event);
             } catch (Throwable t) {
-                InvUI.getInstance().handleUncaughtException("An exception occurred while handling an inventory event", t);
+                InvUI.getInstance().handleException("An exception occurred while handling an inventory event", t);
             }
         }
         return event;
@@ -516,7 +516,7 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
             try {
                 handler.accept(event);
             } catch (Throwable t) {
-                InvUI.getInstance().handleUncaughtException("An exception occurred while handling an inventory event", t);
+                InvUI.getInstance().handleException("An exception occurred while handling an inventory event", t);
             }
         }
     }

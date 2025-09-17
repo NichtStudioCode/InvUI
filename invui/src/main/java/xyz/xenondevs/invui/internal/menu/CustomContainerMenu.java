@@ -605,7 +605,7 @@ public abstract class CustomContainerMenu {
             interactionContext.set(true);
             run.run();
         } catch (Throwable t) {
-            InvUI.getInstance().handleUncaughtException("An exception occurred while handling a window interaction", t);
+            InvUI.getInstance().handleException("An exception occurred while handling a window interaction", t);
         } finally {
             interactionContext.set(false);
         }

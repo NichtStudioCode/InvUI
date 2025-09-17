@@ -21,7 +21,7 @@ public final class InvUI implements Listener {
     
     private final List<Runnable> disableHandlers = new ArrayList<>();
     private @Nullable Plugin plugin;
-    private BiConsumer<? super String, ? super Throwable> uncaughtExceptionHandler = (msg, e) -> getPlugin().getComponentLogger().error(msg, e);
+    private BiConsumer<? super String, ? super Throwable> exceptionHandler = (msg, e) -> getPlugin().getComponentLogger().error(msg, e);
     
     private InvUI() {}
     
@@ -87,23 +87,24 @@ public final class InvUI implements Listener {
     }
     
     /**
-     * Sets a handler for uncaught exceptions in InvUI.
+     * Sets a handler for exceptions that were thrown in user-provided code but suppressed by InvUI,
+     * such as when handling inventory events or similar.
      *
-     * @param uncaughtExceptionHandler The new uncaught exception handler.
+     * @param exceptionHandler The new exception handler.
      */
-    public void setUncaughtExceptionHandler(BiConsumer<? super String, ? super Throwable> uncaughtExceptionHandler) {
-        this.uncaughtExceptionHandler = uncaughtExceptionHandler;
+    public void setExceptionHandler(BiConsumer<? super String, ? super Throwable> exceptionHandler) {
+        this.exceptionHandler = exceptionHandler;
     }
     
     /**
-     * Handles an uncaught exception using the configured
-     * {@link #setUncaughtExceptionHandler(BiConsumer) uncaught exception handler}.
+     * Handles an exception using the configured
+     * {@link #setExceptionHandler(BiConsumer) exception handler}.
      *
      * @param msg An additional message that provides more context.
-     * @param t   The uncaught exception that was thrown.
+     * @param t   The exception that was thrown.
      */
-    public void handleUncaughtException(String msg, Throwable t) {
-        uncaughtExceptionHandler.accept(msg, t);
+    public void handleException(String msg, Throwable t) {
+        exceptionHandler.accept(msg, t);
     }
     
     /**

@@ -13,7 +13,6 @@ import xyz.xenondevs.invui.inventory.event.UpdateReason;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.function.IntPredicate;
-import java.util.logging.Level;
 import java.util.stream.IntStream;
 
 /**
@@ -160,7 +159,7 @@ public final class ObscuredInventory extends Inventory {
             try {
                 handler.accept(clickEvent);
             } catch (Throwable t) {
-                InvUI.getInstance().handleUncaughtException("An exception occurred while handling an inventory event", t);
+                InvUI.getInstance().handleException("An exception occurred while handling an inventory event", t);
             }
         }
         
@@ -180,7 +179,7 @@ public final class ObscuredInventory extends Inventory {
             try {
                 handler.accept(event);
             } catch (Throwable t) {
-                InvUI.getInstance().handleUncaughtException("An exception occurred while handling an inventory event", t);
+                InvUI.getInstance().handleException("An exception occurred while handling an inventory event", t);
             }
         }
         

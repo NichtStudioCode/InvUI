@@ -25,7 +25,7 @@ public class CompositeInventoryTest {
     @BeforeAll
     public static void setUp() {
         server = MockBukkit.mock();
-        InvUI.getInstance().setUncaughtExceptionHandler((msg, t) -> {
+        InvUI.getInstance().setExceptionHandler((msg, t) -> {
             throw new AssertionError(msg, t);
         });
     }

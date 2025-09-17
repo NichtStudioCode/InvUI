@@ -155,7 +155,7 @@ public final class VirtualInventoryManager {
                 VirtualInventory inventory = VirtualInventory.deserialize(in);
                 inventories.put(inventory.getUuid(), inventory);
             } catch (IOException e) {
-                InvUI.getInstance().handleUncaughtException(
+                InvUI.getInstance().handleException(
                     "Failed to deserialize a VirtualInventory from file " + file.getPath(),
                     e
                 );
@@ -174,7 +174,7 @@ public final class VirtualInventoryManager {
             try (FileOutputStream out = new FileOutputStream(file)) {
                 inventory.serialize(out);
             } catch (IOException e) {
-                InvUI.getInstance().handleUncaughtException(
+                InvUI.getInstance().handleException(
                     "Failed to serialize a VirtualInventory to file " + file.getPath(),
                     e
                 );
