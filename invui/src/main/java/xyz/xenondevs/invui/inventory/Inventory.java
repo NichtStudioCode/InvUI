@@ -23,7 +23,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.logging.Level;
 import java.util.stream.IntStream;
 
 /**
@@ -78,10 +77,24 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
     }
     
     /**
+     * Sets the order in which slots are iterated over on methods that affect multiple slots,
+     * such as {@link #addItem(UpdateReason, ItemStack)} or {@link #collectSimilar(UpdateReason, ItemStack, int)}.
+     *
+     * @param iterationOrder The new iteration order. Must include all slots and no duplicates.
+     * @throws IllegalArgumentException If the iteration order does not include all slots or has duplicates.
+     */
+    public void setIterationOrder(int[] iterationOrder) {
+        for (var category : OperationCategory.values()) {
+            setIterationOrder(category, iterationOrder);
+        }
+    }
+    
+    /**
      * Sets the order in which slots are iterated over for the given category.
      *
-     * @param category The category of iteration operations
+     * @param category       The category of iteration operations
      * @param iterationOrder The new iteration order. Must include all slots and no duplicates.
+     * @throws IllegalArgumentException If the iteration order does not include all slots or has duplicates.
      */
     public void setIterationOrder(OperationCategory category, int[] iterationOrder) {
         if (iterationOrder.length != size)
@@ -124,7 +137,7 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
      * @param category The category of operations where the iteration order should be reversed
      */
     public void reverseIterationOrder(OperationCategory category) {
-        setIterationOrder(category, ArrayUtils.reversed(getIterationOrder(category)));
+        setIterationOrder(category, ArrayUtils.reversed(iterationOrders.get(category)));
     }
     
     /**
@@ -471,7 +484,7 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
      */
     public ItemPreUpdateEvent callPreUpdateEvent(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
         if (updateReason == UpdateReason.SUPPRESSED)
-            throw new IllegalArgumentException("Cannot call ItemUpdateEvent with UpdateReason.SUPPRESSED");
+            throw new IllegalArgumentException("Cannot call ItemPreUpdateEvent with UpdateReason.SUPPRESSED");
         
         ItemPreUpdateEvent event = new ItemPreUpdateEvent(this, slot, updateReason, previousItemStack, newItemStack);
         for (var handler : getPreUpdateHandlers()) {
@@ -496,7 +509,7 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
      */
     public void callPostUpdateEvent(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
         if (updateReason == UpdateReason.SUPPRESSED)
-            throw new IllegalArgumentException("Cannot call InventoryUpdatedEvent with UpdateReason.SUPPRESSED");
+            throw new IllegalArgumentException("Cannot call ItemPostUpdateEvent with UpdateReason.SUPPRESSED");
         
         ItemPostUpdateEvent event = new ItemPostUpdateEvent(this, slot, updateReason, previousItemStack, newItemStack);
         for (var handler : getPostUpdateHandlers()) {

@@ -1,19 +1,17 @@
 package xyz.xenondevs.invui.inventory;
 
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
+import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.Observer;
 import xyz.xenondevs.invui.internal.util.ArrayUtils;
 import xyz.xenondevs.invui.inventory.event.InventoryClickEvent;
-import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.function.Consumer;
+import java.util.logging.Level;
 
 /**
  * An {@link Inventory} which is composed of multiple other {@link Inventory Inventories}.
@@ -64,16 +62,18 @@ public final class CompositeInventory extends Inventory {
     
     @Override
     public int[] getIterationOrder(OperationCategory category) {
+        int[] compositeIterationOrder = super.getIterationOrder(category);
         int[] iterationOrder = new int[getSize()];
         int i = 0;
         int offset = 0;
         for (Inventory inventory : inventories) {
             int[] invOrder = inventory.getIterationOrder(category);
             for (var slot : invOrder) {
-                iterationOrder[i++] = offset + slot;
+                iterationOrder[compositeIterationOrder[i++]] = offset + slot;
             }
             offset += inventory.getSize();
         }
+        
         return iterationOrder;
     }
     
@@ -187,94 +187,60 @@ public final class CompositeInventory extends Inventory {
     @Override
     public boolean callClickEvent(int slot, Click click) {
         var invSlot = findInventory(slot);
-        return invSlot.inventory().callClickEvent(invSlot.slot(), click);
+        var cancelled = invSlot.inventory().callClickEvent(invSlot.slot(), click);
+        
+        var clickEvent = new InventoryClickEvent(this, slot, click);
+        clickEvent.setCancelled(cancelled);
+        for (var handler : getClickHandlers()) {
+            try {
+                handler.accept(clickEvent);
+            } catch (Throwable t) {
+                InvUI.getInstance().handleUncaughtException("An exception occurred while handling an inventory event", t);
+            }
+        }
+        
+        return clickEvent.isCancelled();
     }
     
     @Override
     public ItemPreUpdateEvent callPreUpdateEvent(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
+        if (updateReason == UpdateReason.SUPPRESSED)
+            throw new IllegalArgumentException("Cannot call ItemPreUpdateEvent with UpdateReason.SUPPRESSED");
+        
         var invSlot = findInventory(slot);
-        return invSlot.inventory().callPreUpdateEvent(updateReason, invSlot.slot(), previousItemStack, newItemStack);
+        var delegatedEvent = invSlot.inventory().callPreUpdateEvent(updateReason, invSlot.slot(), previousItemStack, newItemStack);
+        var event = new ItemPreUpdateEvent(this, slot, updateReason, delegatedEvent.getPreviousItem(), delegatedEvent.getNewItem());
+        event.setCancelled(delegatedEvent.isCancelled());
+        
+        for (var handler : getPreUpdateHandlers()) {
+            try {
+                handler.accept(event);
+            } catch (Throwable t) {
+                InvUI.getInstance().handleUncaughtException("An exception occurred while handling an inventory event", t);
+            }
+        }
+        
+        return event;
     }
     
     @Override
     public void callPostUpdateEvent(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
         var invSlot = findInventory(slot);
         invSlot.inventory().callPostUpdateEvent(updateReason, invSlot.slot(), previousItemStack, newItemStack);
+        super.callPostUpdateEvent(updateReason, slot, previousItemStack, newItemStack);
     }
     
     @Override
     public boolean hasEventHandlers() {
+        if (super.hasEventHandlers())
+            return true;
+        
         for (Inventory inventory : inventories) {
             if (inventory.hasEventHandlers())
                 return true;
         }
         
         return false;
-    }
-    
-    @Override
-    public void setIterationOrder(OperationCategory category, int[] iterationOrder) {
-        throw new UnsupportedOperationException("Iteration order needs to be set in the backing inventories");
-    }
-    
-    @Override
-    public @UnmodifiableView List<Consumer<InventoryClickEvent>> getClickHandlers() {
-        throw new UnsupportedOperationException("Click handlers need to be set in the backing inventory");
-    }
-    
-    @Override
-    public void setClickHandlers(List<? extends Consumer<InventoryClickEvent>> clickHandlers) {
-        throw new UnsupportedOperationException("Click handlers need to be set in the backing inventory");
-    }
-    
-    @Override
-    public void addClickHandler(Consumer<? super InventoryClickEvent> clickHandler) {
-        throw new UnsupportedOperationException("Click handlers need to be set in the backing inventory");
-    }
-    
-    @Override
-    public void removeClickHandler(Consumer<? super InventoryClickEvent> clickHandler) {
-        throw new UnsupportedOperationException("Click handlers need to be set in the backing inventory");
-    }
-    
-    @Override
-    public @UnmodifiableView List<Consumer<ItemPreUpdateEvent>> getPreUpdateHandlers() {
-        throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
-    }
-    
-    @Override
-    public void setPreUpdateHandlers(List<? extends Consumer<ItemPreUpdateEvent>> preUpdateHandlers) {
-        throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
-    }
-    
-    @Override
-    public void addPreUpdateHandler(Consumer<? super ItemPreUpdateEvent> preUpdateHandler) {
-        throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
-    }
-    
-    @Override
-    public void removePreUpdateHandler(Consumer<? super ItemPreUpdateEvent> preUpdateHandler) {
-        throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
-    }
-    
-    @Override
-    public @UnmodifiableView List<Consumer<ItemPostUpdateEvent>> getPostUpdateHandlers() {
-        throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
-    }
-    
-    @Override
-    public void setPostUpdateHandlers(List<? extends Consumer<ItemPostUpdateEvent>> postUpdateHandlers) {
-        throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
-    }
-    
-    @Override
-    public void addPostUpdateHandler(Consumer<? super ItemPostUpdateEvent> postUpdateHandler) {
-        throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
-    }
-    
-    @Override
-    public void removePostUpdateHandler(Consumer<? super ItemPostUpdateEvent> postUpdateHandler) {
-        throw new UnsupportedOperationException("Update handlers need to be set in the backing inventory");
     }
     
 }
