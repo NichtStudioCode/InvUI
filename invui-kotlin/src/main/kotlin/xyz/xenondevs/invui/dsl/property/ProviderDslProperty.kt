@@ -41,6 +41,7 @@ private class NonMutableMutableProvider<T>(override val identifier: Provider<T>)
     override fun <R> map(transform: (T) -> R, untransform: (R) -> T) = throwUoe()
     override fun <R> mapObserved(createObservable: (T, () -> Unit) -> R) = throwUoe()
     override fun <R> strongMapObserved(createObservable: (T, () -> Unit) -> R) = throwUoe()
+    override fun consume(source: Provider<T>) = throwUoe()
     override fun update(value: DeferredValue<T>, ignore: Set<Provider<*>>) = throwUoe()
     private fun throwUoe(): Nothing =
         throw UnsupportedOperationException("This property was changed to a non-mutable provider")
