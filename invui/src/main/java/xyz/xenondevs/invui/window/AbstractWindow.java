@@ -4,14 +4,17 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.GameMode;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryCloseEvent.Reason;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.ClickEvent;
+import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.i18n.Languages;
@@ -36,6 +39,7 @@ import static xyz.xenondevs.invui.internal.util.CollectionUtils.forEachCatching;
 
 non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implements Window, WindowEventListener {
     
+    private static final NamespacedKey SLOT_KEY = new NamespacedKey(InvUI.getInstance().getPlugin(), "slot");
     private static final ThreadLocal<Boolean> isInOpeningContext = ThreadLocal.withInitial(() -> false);
     private static final ThreadLocal<Integer> isInCloseHandlerContext = ThreadLocal.withInitial(() -> 0);
     
@@ -110,6 +114,11 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
         SlotElement lastElement = newPath.getLast();
         if (!(lastElement instanceof SlotElement.GuiLink)) {
             itemStack = lastElement.getItemStack(getViewer());
+            if (itemStack != null && lastElement instanceof SlotElement.Item) {
+                // This makes every item unique to prevent Shift-DoubleClick "clicking" multiple items at the same time.
+                itemStack = itemStack.clone(); // clone ItemStack in order to not modify the original
+                itemStack.editPersistentDataContainer(pdc -> pdc.set(SLOT_KEY, PersistentDataType.BYTE, (byte) slot));
+            }
         } else { // there is no holding element
             // background by gui
             itemStack = newPath.reversed().stream()
