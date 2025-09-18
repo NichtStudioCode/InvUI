@@ -9,27 +9,23 @@ import xyz.xenondevs.invui.internal.util.SlotUtils;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.SequencedSet;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 final class TabGuiImpl extends AbstractGui implements TabGui {
     
     private static final int DEFAULT_TAB = -1;
     
-    private int[] contentListSlots;
+    private List<Slot> contentListSlots = List.of();
     
     private final MutableProperty<Integer> tab;
     private final MutableProperty<List<? extends @Nullable Gui>> tabs;
     private final List<BiConsumer<? super Integer, ? super Integer>> tabChangeHandlers = new ArrayList<>(0);
-    private List<@Nullable List<SlotElement.GuiLink>> linkingElements = List.of();
     private int previousTab = -1;
     
     public TabGuiImpl(
         int width, int height,
-        SequencedSet<? extends Slot> contentListSlots,
+        List<? extends Slot> contentListSlots,
         MutableProperty<List<? extends @Nullable Gui>> tabs
     ) {
         super(width, height);
@@ -39,7 +35,7 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
         tab.observeWeak(this, TabGuiImpl::handleTabChange);
         this.tabs = tabs;
         tabs.observeWeak(this, TabGuiImpl::bake);
-        this.contentListSlots = SlotUtils.toSlotIndices(contentListSlots, getWidth());
+        this.contentListSlots = new ArrayList<>(contentListSlots);
         bake();
     }
     
@@ -57,45 +53,32 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
         this.tabs = tabs;
         tabs.observeWeak(this, TabGuiImpl::bake);
         super.applyStructure(structure); // super call to avoid bake() through applyStructure override
-        this.contentListSlots = structure.getIngredientMatrix().findContentListSlots();
+        setContentListSlots(structure.getIngredientMatrix().getContentListSlots());
+        this.contentListSlots = structure.getIngredientMatrix().getContentListSlots();
         bake();
     }
     
     @Override
     public void applyStructure(Structure structure) {
         super.applyStructure(structure);
-        this.contentListSlots = structure.getIngredientMatrix().findContentListSlots();
+        this.contentListSlots = structure.getIngredientMatrix().getContentListSlots();
         bake();
     }
     
     @Override
-    public void setContentListSlots(SequencedSet<Slot> slots) {
-        this.contentListSlots = SlotUtils.toSlotIndices(slots, getWidth());
+    public void setContentListSlots(List<? extends Slot> slots) {
+        this.contentListSlots = new ArrayList<>(slots);
         bake();
     }
     
     @Override
-    public @Unmodifiable SequencedSet<Slot> getContentListSlots() {
-        return Collections.unmodifiableSequencedSet(SlotUtils.toSlotSet(contentListSlots, getWidth()));
+    public @Unmodifiable List<Slot> getContentListSlots() {
+        return Collections.unmodifiableList(contentListSlots);
     }
     
     @Override
     public void bake() {
-        List<@Nullable List<SlotElement.GuiLink>> linkingElements = new ArrayList<>();
-        for (var gui : getTabs()) {
-            if (gui != null) {
-                List<SlotElement.GuiLink> elements = new ArrayList<>();
-                for (int slot = 0; slot < gui.getSize(); slot++) {
-                    var link = new SlotElement.GuiLink(gui, slot);
-                    elements.add(link);
-                }
-                linkingElements.add(elements);
-            } else {
-                linkingElements.add(null);
-            }
-        }
-        
-        this.linkingElements = linkingElements;
+        // -- baking removed --
         setTab(getTab()); // corrects tab and refreshes content
     }
     
@@ -150,13 +133,14 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     
     private void updateContent() {
         int currentTab = getTab();
-        if (currentTab >= 0) {
-            List<SlotElement.GuiLink> slotElements = linkingElements.get(currentTab);
-            for (int i = 0; i < contentListSlots.length; i++) {
-                setSlotElement(contentListSlots[i], slotElements != null && slotElements.size() > i ? slotElements.get(i) : null);
+        var tabs = getTabs();
+        var min = SlotUtils.min(contentListSlots);
+        if (currentTab >= 0 && tabs.size() > currentTab && tabs.get(currentTab) instanceof Gui gui) {
+            for (Slot slot : contentListSlots) {
+                setSlotElement(slot, SlotUtils.getGuiLinkOrNull(gui, slot.x() - min.x(), slot.y() - min.y()));
             }
         } else {
-            for (int slot : contentListSlots) {
+            for (Slot slot : contentListSlots) {
                 setSlotElement(slot, null);
             }
         }

@@ -41,7 +41,7 @@ class PropertyAccessorsPresenceTest {
         {
             // -- PagedGui --
             pagedGui.contentListSlots
-            pagedGui.contentListSlots = emptySequencedSet()
+            pagedGui.contentListSlots = emptyList()
             
             pagedGui.content
             pagedGui.content = emptyList()
@@ -64,7 +64,7 @@ class PropertyAccessorsPresenceTest {
             
             // -- TabGui --
             tabGui.contentListSlots
-            tabGui.contentListSlots = emptySequencedSet()
+            tabGui.contentListSlots = emptyList()
             
             tabGui.tabs
             tabGui.tabs = emptyList()

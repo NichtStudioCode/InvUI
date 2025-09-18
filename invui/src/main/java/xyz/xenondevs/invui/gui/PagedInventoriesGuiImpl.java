@@ -5,16 +5,14 @@ import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.SequencedSet;
 
 final class PagedInventoriesGuiImpl<C extends Inventory> extends AbstractPagedGui<C> {
     
     public PagedInventoriesGuiImpl(
         int width, int height,
         List<? extends C> inventories,
-        SequencedSet<? extends Slot> contentListSlots
+        List<? extends Slot> contentListSlots
     ) {
         super(width, height, contentListSlots, MutableProperty.of(inventories));
         bake();
@@ -33,30 +31,42 @@ final class PagedInventoriesGuiImpl<C extends Inventory> extends AbstractPagedGu
     }
     
     @Override
-    public void bake() {
-        int contentSize = contentListSlots.length;
+    protected void updateContent() {
+        int page = getPage();
+        List<Slot> cls = getContentListSlots();
+        List<C> content = getContent();
         
-        List<? extends Inventory> inventories = getContent();
-        List<List<SlotElement>> pages = new ArrayList<>();
-        List<SlotElement> page = new ArrayList<>(contentSize);
+        if (page < 0)
+            return;
         
-        for (Inventory inventory : inventories) {
-            for (int slot = 0; slot < inventory.getSize(); slot++) {
-                page.add(new SlotElement.InventoryLink(inventory, slot));
-                
-                if (page.size() >= contentSize) {
-                    pages.add(page);
-                    page = new ArrayList<>(contentSize);
-                }
+        int skip = page * cls.size();
+        int i = 0;
+        for (Inventory inv : content) {
+            if (skip >= inv.getSize()) {
+                skip -= inv.getSize();
+                continue;
             }
+            for (int invSlot = skip; invSlot < inv.getSize(); invSlot++) {
+                if (i >= cls.size())
+                    return;
+                Slot guiSlot = cls.get(i++);
+                setSlotElement(guiSlot, new SlotElement.InventoryLink(inv, invSlot));
+            }
+            skip = 0;
         }
-        
-        if (!page.isEmpty()) {
-            pages.add(page);
+        for (; i < cls.size(); i++) {
+            setSlotElement(cls.get(i), null);
         }
+    }
+    
+    @Override
+    public int getPageCount() {
+        var cls = getContentListSlots();
+        if (cls.isEmpty())
+            return 0;
         
-        setBakedPages(pages);
-        setPage(getPage()); // corrects page and refreshes content
+        int slots = getContent().stream().mapToInt(Inventory::getSize).sum();
+        return Math.ceilDiv(slots, cls.size());
     }
     
     public static final class Builder<C extends Inventory> extends AbstractBuilder<C> {

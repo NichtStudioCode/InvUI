@@ -6,9 +6,7 @@ import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.state.MutableProperty;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.SequencedSet;
 import java.util.function.BiConsumer;
 
 /**
@@ -34,11 +32,11 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @param height           The height of the {@link ScrollGui}.
      * @param items            The {@link Item Items} to use.
      * @param contentListSlots The slots where content should be displayed.
-     * @param direction        The direction in which the {@link ScrollGui} will scroll.
+     * @param orientation      The direction in which the {@link ScrollGui} will scroll.
      * @return The created {@link ScrollGui}.
      */
-    static ScrollGui<Item> ofItems(int width, int height, List<? extends Item> items, SequencedSet<? extends Slot> contentListSlots, ScrollDirection direction) {
-        return new ScrollItemsGuiImpl<>(width, height, items, contentListSlots, direction == ScrollDirection.VERTICAL);
+    static ScrollGui<Item> ofItems(int width, int height, List<? extends Item> items, List<? extends Slot> contentListSlots, LineOrientation orientation) {
+        return new ScrollItemsGuiImpl<>(width, height, items, contentListSlots, orientation);
     }
     
     /**
@@ -49,7 +47,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @return The created {@link ScrollGui}.
      */
     static ScrollGui<Item> ofItems(Structure structure, List<? extends Item> items) {
-        var gui = ofItems(structure.getWidth(), structure.getHeight(), items, Collections.emptySortedSet(), ScrollDirection.HORIZONTAL);
+        var gui = ofItems(structure.getWidth(), structure.getHeight(), items, List.of(), LineOrientation.HORIZONTAL);
         gui.applyStructure(structure);
         return gui;
     }
@@ -70,11 +68,11 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @param height           The height of the {@link ScrollGui}.
      * @param guis             The {@link Gui Guis} to use.
      * @param contentListSlots The slots where content should be displayed.
-     * @param direction        The direction in which the {@link ScrollGui} will scroll.
+     * @param orientation      The direction in which the {@link ScrollGui} will scroll.
      * @return The created {@link ScrollGui}.
      */
-    static ScrollGui<Gui> ofGuis(int width, int height, List<? extends Gui> guis, SequencedSet<? extends Slot> contentListSlots, ScrollDirection direction) {
-        return new ScrollNestedGuiImpl<>(width, height, guis, contentListSlots, direction == ScrollDirection.VERTICAL);
+    static ScrollGui<Gui> ofGuis(int width, int height, List<? extends Gui> guis, List<? extends Slot> contentListSlots, LineOrientation orientation) {
+        return new ScrollNestedGuiImpl<>(width, height, guis, contentListSlots, orientation);
     }
     
     /**
@@ -85,7 +83,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @return The created {@link ScrollGui}.
      */
     static ScrollGui<Gui> ofGuis(Structure structure, List<? extends Gui> guis) {
-        var gui = ofGuis(structure.getWidth(), structure.getHeight(), guis, Collections.emptySortedSet(), ScrollDirection.HORIZONTAL);
+        var gui = ofGuis(structure.getWidth(), structure.getHeight(), guis, List.of(), LineOrientation.HORIZONTAL);
         gui.applyStructure(structure);
         return gui;
     }
@@ -106,11 +104,11 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @param height           The height of the {@link ScrollGui}.
      * @param inventories      The {@link Inventory VirtualInventories} to use.
      * @param contentListSlots The slots where content should be displayed.
-     * @param direction        The direction in which the {@link ScrollGui} will scroll.
+     * @param orientation      The direction in which the {@link ScrollGui} will scroll.
      * @return The created {@link ScrollGui}.
      */
-    static ScrollGui<Inventory> ofInventories(int width, int height, List<? extends Inventory> inventories, SequencedSet<? extends Slot> contentListSlots, ScrollDirection direction) {
-        return new ScrollInventoryGuiImpl<>(width, height, inventories, contentListSlots, direction == ScrollDirection.VERTICAL);
+    static ScrollGui<Inventory> ofInventories(int width, int height, List<? extends Inventory> inventories, List<? extends Slot> contentListSlots, LineOrientation orientation) {
+        return new ScrollInventoryGuiImpl<>(width, height, inventories, contentListSlots, orientation);
     }
     
     /**
@@ -121,28 +119,18 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @return The created {@link ScrollGui}.
      */
     static ScrollGui<Inventory> ofInventories(Structure structure, List<? extends Inventory> inventories) {
-        var gui = ofInventories(structure.getWidth(), structure.getHeight(), inventories, Collections.emptySortedSet(), ScrollDirection.HORIZONTAL);
+        var gui = ofInventories(structure.getWidth(), structure.getHeight(), inventories, List.of(), LineOrientation.HORIZONTAL);
         gui.applyStructure(structure);
         return gui;
     }
     
     /**
-     * Sets the slots at which scroll content should be displayed, in order of appearance,
-     * assuming a horizontal line orientation.
+     * Sets the slots that are used to display the scrollable content.
      *
-     * @param slots The slots to set.
-     * @throws IllegalArgumentException If there are differing line lengths
+     * @param slots       The slots to set.
+     * @param orientation The line orientation of the content list slots.
      */
-    void setContentListSlotsHorizontal(SequencedSet<? extends Slot> slots);
-    
-    /**
-     * Sets the slots at which scroll content should be displayed, in order of appearance,
-     * assuming a vertical line orientation.
-     *
-     * @param slots The slots to set
-     * @throws IllegalArgumentException If there are differing line lengths
-     */
-    void setContentListSlotsVertical(SequencedSet<? extends Slot> slots);
+    void setContentListSlots(List<? extends Slot> slots, LineOrientation orientation);
     
     /**
      * Gets the slots that are used to display the content.
@@ -150,7 +138,14 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @return The slots that are used to display the content.
      */
     @Unmodifiable
-    SequencedSet<Slot> getContentListSlots();
+    List<Slot> getContentListSlots();
+    
+    /**
+     * Gets the line orientation of the {@link #getContentListSlots() content list slots} of this {@link ScrollGui}.
+     *
+     * @return The line orientation of the content list slots.
+     */
+    LineOrientation getLineOrientation();
     
     /**
      * Gets the current line, which is the index of the first line to be displayed.
@@ -330,18 +325,20 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
     }
     
     /**
-     * The direction in which a {@link ScrollGui} scrolls.
+     * The direction how lines in a {@link ScrollGui} are oriented.
      */
-    enum ScrollDirection {
-        /**
-         * The {@link ScrollGui} scrolls vertically, i.e. uses horizontal lines.
-         */
-        VERTICAL,
+    enum LineOrientation {
         
         /**
-         * The {@link ScrollGui} scrolls horizontally, i.e. uses vertical lines.
+         * Horizontal lines, i.e. the {@link ScrollGui} scrolls vertically.
          */
-        HORIZONTAL
+        HORIZONTAL,
+        
+        /**
+         * Vertical lines, i.e. the {@link ScrollGui} scrolls horizontally.
+         */
+        VERTICAL
+        
     }
     
 }

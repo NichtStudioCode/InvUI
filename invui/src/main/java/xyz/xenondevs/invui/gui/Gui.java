@@ -575,7 +575,7 @@ public sealed interface Gui extends Observable permits AbstractGui, PagedGui, Sc
     Collection<Player> getCurrentViewers();
     
     /**
-     * Closes the all open {@link Window Windows} that display this {@link Gui}.
+     * Closes all open {@link Window Windows} that display this {@link Gui}.
      */
     void closeForAllViewers();
     

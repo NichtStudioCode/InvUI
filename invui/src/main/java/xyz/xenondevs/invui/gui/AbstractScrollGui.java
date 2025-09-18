@@ -3,7 +3,6 @@ package xyz.xenondevs.invui.gui;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
-import xyz.xenondevs.invui.internal.util.ArrayUtils;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
 import xyz.xenondevs.invui.internal.util.FuncUtils;
 import xyz.xenondevs.invui.internal.util.SlotUtils;
@@ -13,27 +12,28 @@ import xyz.xenondevs.invui.state.MutableProperty;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.SequencedSet;
 import java.util.function.BiConsumer;
 
 non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements ScrollGui<C> {
     
     private static final int DEFAULT_LINE = 0;
     
-    private int lineLength;
-    private int[] contentListSlots = new int[0];
+    private List<Slot> contentListSlots = List.of();
+    protected Slot min = new Slot(0, 0);
+    protected Slot max = new Slot(0, 0);
+    protected int lineLength = 0;
+    private LineOrientation orientation = LineOrientation.HORIZONTAL;
     
     private final MutableProperty<Integer> line;
     private final MutableProperty<List<? extends C>> content;
     private final List<BiConsumer<? super Integer, ? super Integer>> scrollHandlers = new ArrayList<>(0);
     private final List<BiConsumer<? super Integer, ? super Integer>> lineCountChangeHandlers = new ArrayList<>(0);
-    private @Nullable List<SlotElement> elements;
     private int previousLine;
     
     public AbstractScrollGui(
         int width, int height,
-        SequencedSet<? extends Slot> contentListSlots,
-        boolean horizontalLines,
+        List<? extends Slot> contentListSlots,
+        LineOrientation orientation,
         MutableProperty<List<? extends C>> content
     ) {
         super(width, height);
@@ -41,7 +41,7 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
         line.observeWeak(this, AbstractScrollGui::handleLineChange);
         this.content = content;
         content.observeWeak(this, AbstractScrollGui::bake);
-        setContentListSlots(SlotUtils.toSlotIndicesSet(contentListSlots, getWidth()), horizontalLines);
+        setContentListSlotsNoBake(contentListSlots, orientation);
     }
     
     public AbstractScrollGui(
@@ -70,43 +70,40 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
     
     private void setContentListSlotsFromStructure(Structure structure) {
         IngredientMatrix matrix = structure.getIngredientMatrix();
-        int[] horizontal = matrix.findIndices(Markers.CONTENT_LIST_SLOT_HORIZONTAL);
-        int[] vertical = matrix.findIndices(Markers.CONTENT_LIST_SLOT_VERTICAL);
+        List<Slot> horizontal = matrix.getSlots(Markers.CONTENT_LIST_SLOT_HORIZONTAL);
+        List<Slot> vertical = matrix.getSlots(Markers.CONTENT_LIST_SLOT_VERTICAL);
         
-        if (horizontal.length > 0 && vertical.length > 0)
+        if (!horizontal.isEmpty() && !vertical.isEmpty())
             throw new IllegalArgumentException("Cannot determine line orientation as structure contains both horizontal and vertical content list slots");
         
-        if (horizontal.length > 0) {
-            setContentListSlots(ArrayUtils.toSequencedSet(horizontal), true);
-        } else if (vertical.length > 0) {
-            setContentListSlots(ArrayUtils.toSequencedSet(vertical), false);
+        if (!horizontal.isEmpty()) {
+            setContentListSlotsNoBake(horizontal, LineOrientation.HORIZONTAL);
+        } else if (!vertical.isEmpty()) {
+            setContentListSlotsNoBake(vertical, LineOrientation.VERTICAL);
         }
     }
     
     @Override
-    public void setContentListSlotsHorizontal(SequencedSet<? extends Slot> slots) {
-        setContentListSlots(SlotUtils.toSlotIndicesSet(slots, getWidth()), true);
+    public void setContentListSlots(List<? extends Slot> slots, LineOrientation orientation) {
+        setContentListSlotsNoBake(slots, orientation);
         bake();
     }
     
-    @Override
-    public void setContentListSlotsVertical(SequencedSet<? extends Slot> slots) {
-        setContentListSlots(SlotUtils.toSlotIndicesSet(slots, getWidth()), false);
-        bake();
+    public void setContentListSlotsNoBake(List<? extends Slot> slots, LineOrientation orientation) {
+        lineLength = switch (orientation) {
+            case HORIZONTAL -> SlotUtils.determineLongestHorizontalLineLength(slots, getHeight());
+            case VERTICAL -> SlotUtils.determineLongestVerticalLineLength(slots, getWidth());
+        };
+        this.min = SlotUtils.min(slots);
+        this.max = SlotUtils.max(slots);
+        this.contentListSlots = new ArrayList<>(slots);
+        this.orientation = orientation;
     }
     
     @Override
-    public @Unmodifiable SequencedSet<Slot> getContentListSlots() {
-        return Collections.unmodifiableSequencedSet(SlotUtils.toSlotSet(contentListSlots, getWidth()));
-    }
-    
-    private void setContentListSlots(SequencedSet<Integer> slots, boolean horizontal) {
-        int lineLength = horizontal
-            ? SlotUtils.determineHorizontalLinesLength(slots, getWidth())
-            : SlotUtils.determineVerticalLinesLength(slots, getWidth());
-        
-        this.contentListSlots = ArrayUtils.toIntArray(slots);
-        this.lineLength = lineLength;
+    public final void bake() {
+        // -- baking removed --
+        setLine(getLine()); // corrects line and refreshes content
     }
     
     private void handleLineChange() {
@@ -128,15 +125,7 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
         previousLine = targetLine;
     }
     
-    private void updateContent() {
-        assert elements != null;
-        int offset = getLine() * lineLength;
-        List<SlotElement> slotElements = elements.subList(offset, Math.min(elements.size(), contentListSlots.length + offset));
-        
-        for (int i = 0; i < contentListSlots.length; i++) {
-            setSlotElement(contentListSlots[i], slotElements.size() > i ? slotElements.get(i) : null);
-        }
-    }
+    protected abstract void updateContent();
     
     private int correctLine(int line) {
         // 0 <= line <= maxLine
@@ -144,21 +133,15 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
     }
     
     @Override
-    public int getLineCount() {
-        if (elements == null || lineLength == 0)
-            return 0;
-        
-        return (int) Math.ceil((double) elements.size() / (double) lineLength);
-    }
-    
-    @Override
     public int getMaxLine() {
-        if (elements == null || lineLength == 0)
+        if (lineLength == 0)
             return 0;
         
-        int visibleLines = contentListSlots.length / lineLength;
-        int lineCount = getLineCount();
-        return Math.max(0, lineCount - visibleLines);
+        int lines = switch(orientation) {
+            case HORIZONTAL -> max.y() - min.y();
+            case VERTICAL -> max.x() - min.x();
+        } + 1;
+        return Math.max(0, getLineCount() - lines);
     }
     
     @Override
@@ -166,21 +149,19 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
         this.content.set(content);
     }
     
-    public void setElements(@Nullable List<SlotElement> elements) {
-        int previousLineCount = getLineCount();
-        this.elements = elements;
-        int newLineCount = getLineCount();
-        
-        CollectionUtils.forEachCatching(
-            lineCountChangeHandlers,
-            handler -> handler.accept(previousLineCount, newLineCount),
-            "Failed to handle line count change from " + previousLineCount + " to " + newLineCount
-        );
-    }
-    
     @Override
     public @UnmodifiableView List<C> getContent() {
         return Collections.unmodifiableList(FuncUtils.getSafely(content, List.of()));
+    }
+    
+    @Override
+    public @Unmodifiable List<Slot> getContentListSlots() {
+        return Collections.unmodifiableList(contentListSlots);
+    }
+    
+    @Override
+    public LineOrientation getLineOrientation() {
+        return orientation;
     }
     
     @Override

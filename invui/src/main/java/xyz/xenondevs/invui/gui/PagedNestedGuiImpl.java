@@ -1,19 +1,18 @@
 package xyz.xenondevs.invui.gui;
 
 import org.jspecify.annotations.Nullable;
+import xyz.xenondevs.invui.internal.util.SlotUtils;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.SequencedSet;
 
 final class PagedNestedGuiImpl<C extends Gui> extends AbstractPagedGui<C> {
     
     public PagedNestedGuiImpl(
         int width, int height,
         List<? extends C> guis,
-        SequencedSet<? extends Slot> contentListSlots
+        List<? extends Slot> contentListSlots
     ) {
         super(width, height, contentListSlots, MutableProperty.of(guis));
         bake();
@@ -32,20 +31,30 @@ final class PagedNestedGuiImpl<C extends Gui> extends AbstractPagedGui<C> {
     }
     
     @Override
-    public void bake() {
-        List<List<SlotElement>> pages = new ArrayList<>();
+    protected void updateContent() {
+        int page = getPage();
+        List<Slot> cls = getContentListSlots();
+        List<C> content = getContent();
         
-        for (Gui gui : getContent()) {
-            List<SlotElement> page = new ArrayList<>(gui.getSize());
-            for (int slot = 0; slot < gui.getSize(); slot++) {
-                page.add(new SlotElement.GuiLink(gui, slot));
+        if (page < 0)
+            return;
+        
+        if (page < content.size()) {
+            Gui gui = content.get(page);
+            Slot min = SlotUtils.min(cls);
+            for (Slot slot : cls) {
+                setSlotElement(slot, SlotUtils.getGuiLinkOrNull(gui, slot.x() - min.x(), slot.y() - min.y()));
             }
-            
-            pages.add(page);
+        } else {
+            for (Slot slot : cls) {
+                setSlotElement(slot, null);
+            }
         }
-        
-        setBakedPages(pages);
-        setPage(getPage()); // corrects page and refreshes content
+    }
+    
+    @Override
+    public int getPageCount() {
+        return getContent().size();
     }
     
     public static final class Builder<C extends Gui> extends AbstractBuilder<C> {

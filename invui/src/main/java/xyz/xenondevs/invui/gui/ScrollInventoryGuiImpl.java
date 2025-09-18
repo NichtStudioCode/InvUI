@@ -5,19 +5,17 @@ import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.SequencedSet;
 
 final class ScrollInventoryGuiImpl<C extends Inventory> extends AbstractScrollGui<C> {
     
     public ScrollInventoryGuiImpl(
         int width, int height,
         List<? extends C> inventories,
-        SequencedSet<? extends Slot> contentListSlots,
-        boolean horizontalLines
+        List<? extends Slot> contentListSlots,
+        LineOrientation direction
     ) {
-        super(width, height, contentListSlots, horizontalLines, MutableProperty.of(inventories));
+        super(width, height, contentListSlots, direction, MutableProperty.of(inventories));
         bake();
     }
     
@@ -34,17 +32,66 @@ final class ScrollInventoryGuiImpl<C extends Inventory> extends AbstractScrollGu
     }
     
     @Override
-    public void bake() {
-        List<? extends Inventory> inventories = getContent();
-        List<SlotElement> elements = new ArrayList<>();
-        for (Inventory inventory : inventories) {
-            for (int i = 0; i < inventory.getSize(); i++) {
-                elements.add(new SlotElement.InventoryLink(inventory, i));
-            }
+    protected void updateContent() {
+        switch(getLineOrientation()) {
+            case HORIZONTAL -> updateContentHorizontal();
+            case VERTICAL -> updateContentVertical();
         }
+    }
+    
+    private void updateContentHorizontal() {
+        int topLine = getLine();
+        List<Slot> cls = getContentListSlots();
+        List<C> content = getContent();
         
-        setElements(elements);
-        setLine(getLine()); // corrects line and refreshes content
+        slot:
+        for (Slot slot : cls) {
+            int line = slot.y() - min.y() + topLine;
+            int offset = slot.x() - min.x();
+            int i = line * lineLength + offset;
+            
+            for (Inventory inv : content) {
+                if (inv.getSize() > i) {
+                    setSlotElement(slot, new SlotElement.InventoryLink(inv, i));
+                    continue slot;
+                }
+                i -= inv.getSize();
+            }
+            
+            setSlotElement(slot, null); // no inv for slot
+        }
+    }
+    
+    private void updateContentVertical() {
+        int topLine = getLine();
+        List<Slot> cls = getContentListSlots();
+        List<C> content = getContent();
+        
+        slot:
+        for (Slot slot : cls) {
+            int line = slot.x() - min.x() + topLine;
+            int offset = slot.y() - min.y();
+            int i = line * lineLength + offset;
+            
+            for (Inventory inv : content) {
+                if (inv.getSize() > i) {
+                    setSlotElement(slot, new SlotElement.InventoryLink(inv, i));
+                    continue slot;
+                }
+                i -= inv.getSize();
+            }
+            
+            setSlotElement(slot, null); // no inv for slot
+        }
+    }
+    
+    @Override
+    public int getLineCount() {
+        if (lineLength <= 0)
+            return 0;
+        
+        int slots = getContent().stream().mapToInt(Inventory::getSize).sum();
+        return Math.ceilDiv(slots, lineLength);
     }
     
     public static final class Builder<C extends Inventory> extends AbstractBuilder<C> {

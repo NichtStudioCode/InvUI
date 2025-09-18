@@ -1,9 +1,11 @@
 package xyz.xenondevs.invui.internal.util;
 
+import org.jspecify.annotations.Nullable;
+import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.Slot;
+import xyz.xenondevs.invui.gui.SlotElement;
 
-import java.util.LinkedHashSet;
-import java.util.SequencedSet;
+import java.util.*;
 
 public class SlotUtils {
     
@@ -61,46 +63,14 @@ public class SlotUtils {
     }
     
     /**
-     * Converts the given slot array to a slot indices array.
-     *
-     * @param slots the slots
-     * @param width the width of the flattened 2D array
-     * @return the slot indices
-     */
-    public static int[] toSlotIndices(Slot[] slots, int width) {
-        int[] indices = new int[slots.length];
-        for (int i = 0; i < slots.length; i++) {
-            Slot slot = slots[i];
-            indices[i] = convertToIndex(slot.x(), slot.y(), width);
-        }
-        return indices;
-    }
-    
-    /**
-     * Converts the given slot set to a slot indices array.
-     *
-     * @param slots the slots
-     * @param width the width of the flattened 2D array
-     * @return the slot indices
-     */
-    public static int[] toSlotIndices(SequencedSet<? extends Slot> slots, int width) {
-        int[] indices = new int[slots.size()];
-        int i = 0;
-        for (Slot slot : slots) {
-            indices[i++] = convertToIndex(slot.x(), slot.y(), width);
-        }
-        return indices;
-    }
-    
-    /**
      * Converts the given slot indices array to a sequenced slot set.
      *
      * @param slots the slot indices
      * @param width the width of the flattened 2D array
      * @return the sequenced slot set
      */
-    public static SequencedSet<Slot> toSlotSet(int[] slots, int width) {
-        var set = new LinkedHashSet<Slot>();
+    public static List<Slot> toSlotList(int[] slots, int width) {
+        var set = new ArrayList<Slot>();
         for (int i : slots) {
             set.add(new Slot(i % width, i / width));
         }
@@ -108,92 +78,120 @@ public class SlotUtils {
     }
     
     /**
-     * Converts the given slot set to a slot indices set.
+     * Determines the length of the longest, possibly non-continuous vertical line of slots.
      *
      * @param slots the slots
-     * @param width the width of the flattened 2D array
-     * @return the slot indices set
+     * @param width the width of the slot container, i.e. the maximum x value + 1
+     * @return The length of the longest vertical line of slots
      */
-    public static SequencedSet<Integer> toSlotIndicesSet(SequencedSet<? extends Slot> slots, int width) {
-        var set = new LinkedHashSet<Integer>();
+    public static int determineLongestVerticalLineLength(Collection<? extends Slot> slots, int width) {
+        int longestLength = 0;
+        int[][] lineLengths = new int[width][2];
+        for (int i = 0; i < width; i++) {
+            lineLengths[i][0] = Integer.MAX_VALUE; // minY
+            lineLengths[i][1] = Integer.MIN_VALUE; // maxY
+        }
         for (Slot slot : slots) {
-            set.add(convertToIndex(slot.x(), slot.y(), width));
+            int[] dim = lineLengths[slot.x()]; // [minY, maxY] on x
+            
+            if (slot.y() < dim[0])
+                dim[0] = slot.y();
+            if (slot.y() > dim[1])
+                dim[1] = slot.y();
+            
+            int length = dim[1] - dim[0] + 1;
+            if (length > longestLength)
+                longestLength = length;
         }
-        return set;
+        
+        return longestLength;
     }
     
     /**
-     * Finds the length of the horizontal lines in the given slots, assuming slots is a flattened 2D array with the
-     * given width. If there are differing line lengths, an exception is thrown.
+     * Determines the length of the longest, possibly non-continuous horizontal line of slots.
      *
-     * @param slots the slots
-     * @param width the width of the 2D array
-     * @return the length of the longest horizontal line
-     * @throws IllegalArgumentException if there are multiple horizontal lines with differing lengths
+     * @param slots  the slots
+     * @param height the height of the slot container, i.e. the maximum y value + 1
+     * @return The length of the longest horizontal line of slots
      */
-    public static int determineHorizontalLinesLength(SequencedSet<? extends Integer> slots, int width) {
-        int longestLineLength = -1;
-        int currentLineLength = 0;
-        int previous = -1;
-        
-        for (int slot : slots) {
-            // is first slot || (slots are one unit apart && on the same line)
-            if (previous == -1 || (Math.abs(previous - slot) == 1 && (previous / width) == (slot / width))) {
-                currentLineLength++;
-            } else {
-                // line ended
-                if (longestLineLength != -1 && longestLineLength != currentLineLength)
-                    throw new IllegalArgumentException("Differing line lengths");
-                
-                longestLineLength = currentLineLength;
-                currentLineLength = 1;
-            }
+    public static int determineLongestHorizontalLineLength(Collection<? extends Slot> slots, int height) {
+        int longestLength = 0;
+        int[][] lineLengths = new int[height][2];
+        for (int i = 0; i < height; i++) {
+            lineLengths[i][0] = Integer.MAX_VALUE; // minX
+            lineLengths[i][1] = Integer.MIN_VALUE; // maxX
+        }
+        for (Slot slot : slots) {
+            int[] range = lineLengths[slot.y()]; // [minX, maxX] on y
             
-            previous = slot;
+            if (slot.x() < range[0])
+                range[0] = slot.x();
+            if (slot.x() > range[1])
+                range[1] = slot.x();
+            
+            int length = range[1] - range[0] + 1;
+            if (length > longestLength)
+                longestLength = length;
         }
         
-        // line ended
-        if (longestLineLength != -1 && longestLineLength != currentLineLength)
-            throw new IllegalArgumentException("Differing line lengths");
-        
-        return currentLineLength;
+        return longestLength;
     }
     
     /**
-     * Finds the length of the vertical lines in the given slots, assuming slots is a flattened 2D array with the given
-     * width. If there are differing line lengths, an exception is thrown.
+     * Creates a new {@link Slot} that is the minimum x and y of the given slots.
      *
      * @param slots the slots
-     * @param width the width of the 2D array
-     * @return the length of the longest vertical line
-     * @throws IllegalArgumentException if there are multiple vertical lines with differing lengths
+     * @return the minimum slot
      */
-    public static int determineVerticalLinesLength(SequencedSet<? extends Integer> slots, int width) {
-        int longestLineLength = -1;
-        int currentLineLength = 0;
-        int previous = -1;
+    public static Slot min(Collection<? extends Slot> slots) {
+        if (slots.isEmpty())
+            return new Slot(0, 0);
         
-        for (int slot : slots) {
-            // is first slot || (slots are on same x && slots are one line apart)
-            if (previous == -1 || ((previous % width) == (slot % width) && Math.abs((previous / width) - (slot / width)) == 1)) {
-                currentLineLength++;
-            } else {
-                // line ended
-                if (longestLineLength != -1 && longestLineLength != currentLineLength)
-                    throw new IllegalArgumentException("Differing line lengths");
-                
-                longestLineLength = currentLineLength;
-                currentLineLength = 1;
-            }
-            
-            previous = slot;
+        int minX = Integer.MAX_VALUE;
+        int minY = Integer.MAX_VALUE;
+        
+        for (Slot slot : slots) {
+            if (slot.x() < minX) minX = slot.x();
+            if (slot.y() < minY) minY = slot.y();
         }
         
-        // line ended
-        if (longestLineLength != -1 && longestLineLength != currentLineLength)
-            throw new IllegalArgumentException("Differing line lengths");
+        return new Slot(minX, minY);
+    }
+    
+    /**
+     * Creates a new {@link Slot} that is the maximum x and y of the given slots.
+     *
+     * @param slots the slots
+     * @return the maximum slot
+     */
+    public static Slot max(Collection<? extends Slot> slots) {
+        if (slots.isEmpty())
+            return new Slot(0, 0);
         
-        return currentLineLength;
+        int maxX = Integer.MIN_VALUE;
+        int maxY = Integer.MIN_VALUE;
+        
+        for (Slot slot : slots) {
+            if (slot.x() > maxX) maxX = slot.x();
+            if (slot.y() > maxY) maxY = slot.y();
+        }
+        
+        return new Slot(maxX, maxY);
+    }
+    
+    /**
+     * Creates a new {@link SlotElement.GuiLink} for the given coordinates in the given {@link Gui}, or returns null
+     * if the coordinates are out of bounds.
+     *
+     * @param gui the gui
+     * @param x   the x coordinate
+     * @param y   the y coordinate
+     * @return the gui link, or null if out of bounds
+     */
+    public static SlotElement.@Nullable GuiLink getGuiLinkOrNull(@Nullable Gui gui, int x, int y) {
+        if (gui == null || x < 0 || y < 0 || x >= gui.getWidth() || y >= gui.getHeight())
+            return null;
+        return new SlotElement.GuiLink(gui, y * gui.getWidth() + x);
     }
     
     public enum Order {

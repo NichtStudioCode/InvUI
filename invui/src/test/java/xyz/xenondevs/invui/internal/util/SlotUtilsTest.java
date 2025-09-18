@@ -1,124 +1,112 @@
 package xyz.xenondevs.invui.internal.util;
 
 import org.junit.jupiter.api.Test;
+import xyz.xenondevs.invui.gui.Slot;
 
-import java.util.LinkedHashSet;
-import java.util.SequencedSet;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class SlotUtilsTest {
     
     @Test
     public void testDetermineHorizontalLinesLengthEven5() {
-        var slots = sequencedIntSetOf(
-            0, 1, 2, 3, 4, // 5, 6, 7, 8, length 5
-            9, 10, 11, 12, 13, // 14, 15, 16, 17, length 5
-            18, 19, 20, 21, 22 // 23, 24, 25, 26, length 5
+        var slots = List.of(
+            s(1, 0), s(2, 0), s(3, 0), s(4, 0), s(5, 0),
+            s(1, 1), s(2, 1), s(3, 1), s(4, 1), s(5, 1),
+            s(1, 2), s(2, 2), s(3, 2), s(4, 2), s(5, 2)
         );
         
-        assertEquals(5, SlotUtils.determineHorizontalLinesLength(slots, 9));
+        assertEquals(5, SlotUtils.determineLongestHorizontalLineLength(slots, 3));
     }
     
     @Test
     public void testDetermineHorizontalLinesLengthEven5Reversed() {
-        var slots = sequencedIntSetOf(
-            0, 1, 2, 3, 4, // 5, 6, 7, 8, length 5
-            9, 10, 11, 12, 13, // 14, 15, 16, 17, length 5
-            18, 19, 20, 21, 22 // 23, 24, 25, 26, length 5
+        var slots = List.of(
+            s(1, 0), s(2, 0), s(3, 0), s(4, 0), s(5, 0),
+            s(1, 1), s(2, 1), s(3, 1), s(4, 1), s(5, 1),
+            s(1, 2), s(2, 2), s(3, 2), s(4, 2), s(5, 2)
         ).reversed();
         
-        assertEquals(5, SlotUtils.determineHorizontalLinesLength(slots, 9));
+        assertEquals(5, SlotUtils.determineLongestHorizontalLineLength(slots, 3));
     }
     
     @Test
     public void testDetermineHorizontalLinesLength5Single() {
-        var slots = sequencedIntSetOf(
-            0, 1, 2, 3, 4 // 5, 6, 7, 8, length 5
+        var slots = List.of(
+            s(0, 0), s(1, 0), s(2, 0), s(3, 0), s(4, 0)
         );
         
-        assertEquals(5, SlotUtils.determineHorizontalLinesLength(slots, 9));
-    }
-    
-    @Test
-    public void testDetermineHorizontalLineLengthCompleteLine() {
-        var slots = sequencedIntSetOf(0, 1, 2, 3, 4, 5, 6, 7, 8);
-        
-        assertEquals(9, SlotUtils.determineHorizontalLinesLength(slots, 9));
+        assertEquals(5, SlotUtils.determineLongestHorizontalLineLength(slots, 1));
     }
     
     @Test
     public void testDetermineHorizontalLinesLengthUneven() {
-        var slots = sequencedIntSetOf(
-            0, 1, 2, // 3, 4, 5, 6, 7, 8, length 3
-            9, 10, 11, 12, 13, // 14, 15, 16, 17, length 5
-            18 // length 1
+        var slots = List.of(
+            s(0, 0), s(1, 0), s(2, 0),
+            s(1, 1), s(2, 1), s(3, 1), s(4, 1), s(5, 1),
+            s(0, 2)
         );
         
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> SlotUtils.determineHorizontalLinesLength(slots, 9)
+        assertEquals(5, SlotUtils.determineLongestHorizontalLineLength(slots, 3));
+    }
+    
+    @Test
+    public void testDetermineHorizontalLinesLengthNonContinuous() {
+        var slots = List.of(
+            s(0, 0), /* 1,0 2,0 3,0 4,0 */ s(5, 0),
+            s(0, 0), s(1, 0)
         );
+        assertEquals(6, SlotUtils.determineLongestHorizontalLineLength(slots, 2));
     }
     
     @Test
     public void testDetermineVerticalLinesLength5Even() {
-        /*
-         * 01 . 06 11 . . . . .
-         * 02 . 07 12 . . . . .
-         * 03 . 08 13 . . . . .
-         * 04 . 09 14 . . . . .
-         * 05 . 10 15 . . . . .
-         */ 
-        var slots = sequencedIntSetOf(
-            0, 9, 18, 27, 36,
-            2, 11, 20, 29, 38,
-            3, 12, 21, 30, 39
+        var slots = List.of(
+            s(1, 1), s(2, 1), s(3, 1),
+            s(1, 2), s(2, 2), s(3, 2),
+            s(1, 3), s(2, 3), s(3, 3),
+            s(1, 4), s(2, 4), s(3, 4),
+            s(1, 5), s(2, 5), s(3, 5)
         );
         
-        assertEquals(5, SlotUtils.determineVerticalLinesLength(slots, 9));
-    }
-    
-    @Test
-    public void testDetermineVerticalLinesLengthUneven() {
-        /*
-         * 01 . 04 07 . . . . .
-         * 02 . .  08 . . . . .
-         * 03 . .  09 . . . . .
-         * .  . 05 10 . . . . .
-         * .  . 06 11 . . . . .
-         */
-        var slots = sequencedIntSetOf(
-            0, 9, 18,
-            2, 29, 38,
-            3, 12, 21, 30, 39
-        );
-        
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> SlotUtils.determineVerticalLinesLength(slots, 9)
-        );
+        assertEquals(5, SlotUtils.determineLongestVerticalLineLength(slots, 4));
     }
     
     @Test
     public void testDetermineVerticalLinesLength5Single() {
-        var slots = sequencedIntSetOf(0, 9, 18, 27, 36);
-        assertEquals(5, SlotUtils.determineVerticalLinesLength(slots, 9));
+        var slots = List.of(s(0, 0), s(0, 1), s(0, 2), s(0, 3), s(0, 4));
+        assertEquals(5, SlotUtils.determineLongestVerticalLineLength(slots, 1));
     }
     
     @Test
-    public void testDetermineVerticalLineLengthCompleteLine() {
-        var slots = sequencedIntSetOf(0, 1, 2, 3, 4, 5, 6, 7, 8);
-        assertEquals(1, SlotUtils.determineVerticalLinesLength(slots, 9));
+    public void testDetermineVerticalLinesLengthUneven() {
+        var slots = List.of(
+            s(1, 1), s(2, 1), /*    */
+            s(1, 2), s(2, 2), /*    */
+            s(1, 3), s(2, 3), s(3, 3),
+            s(1, 4), /*    */ s(3, 4),
+            s(1, 5), /*    */ s(3, 5)
+        );
+        
+        assertEquals(5, SlotUtils.determineLongestVerticalLineLength(slots, 4));
     }
     
-    private SequencedSet<Integer> sequencedIntSetOf(int... ints) {
-        var set = new LinkedHashSet<Integer>();
-        for (int i : ints) {
-            set.add(i);
-        }
-        return set;
+    @Test
+    public void testDetermineVerticalLinesLengthNonContinuous() {
+        var slots = List.of(
+            s(1, 0), /*    */ /*    */
+            /*    */ s(2, 1), /*    */
+            /*    */ s(2, 2), /*    */
+            /*    */ s(2, 3), s(3, 3),
+            /*    */ /*    */ s(3, 4),
+            s(1, 5), /*    */ s(3, 5)
+        );
+        assertEquals(6, SlotUtils.determineLongestVerticalLineLength(slots, 4));
+    }
+    
+    private Slot s(int x, int y) {
+        return new Slot(x, y);
     }
     
 }

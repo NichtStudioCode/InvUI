@@ -5,32 +5,27 @@ import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
 import xyz.xenondevs.invui.internal.util.FuncUtils;
-import xyz.xenondevs.invui.internal.util.SlotUtils;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.SequencedSet;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements PagedGui<C> {
     
     private static final int DEFAULT_PAGE = 0;
     
-    protected int[] contentListSlots;
+    private List<Slot> contentListSlots = List.of();
     
     private final MutableProperty<Integer> page;
     private final MutableProperty<List<? extends C>> content;
     private final List<BiConsumer<? super Integer, ? super Integer>> pageChangeHandlers = new ArrayList<>(0);
     private final List<BiConsumer<? super Integer, ? super Integer>> pageCountChangeHandlers = new ArrayList<>(0);
-    private @Nullable List<? extends List<SlotElement>> pages;
     private int previousPage;
     
     public AbstractPagedGui(
         int width, int height,
-        SequencedSet<? extends Slot> contentListSlots,
+        List<? extends Slot> contentListSlots,
         MutableProperty<List<? extends C>> content
     ) {
         super(width, height);
@@ -38,7 +33,7 @@ non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements Pag
         page.observeWeak(this, AbstractPagedGui::handlePageChange);
         this.content = content;
         content.observeWeak(this, AbstractPagedGui::bake);
-        this.contentListSlots = SlotUtils.toSlotIndices(contentListSlots, getWidth());
+        this.contentListSlots = new ArrayList<>(contentListSlots);
     }
     
     public AbstractPagedGui(
@@ -54,26 +49,32 @@ non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements Pag
         page.observeWeak(this, AbstractPagedGui::handlePageChange);
         this.content = content;
         content.observeWeak(this, AbstractPagedGui::bake);
-        this.contentListSlots = structure.getIngredientMatrix().findContentListSlots();
+        this.contentListSlots = structure.getIngredientMatrix().getContentListSlots();
         super.applyStructure(structure); // super call to avoid bake() through applyStructure override
     }
     
     @Override
     public void applyStructure(Structure structure) {
         super.applyStructure(structure);
-        this.contentListSlots = structure.getIngredientMatrix().findContentListSlots();
+        this.contentListSlots = structure.getIngredientMatrix().getContentListSlots();
         bake();
     }
     
     @Override
-    public void setContentListSlots(SequencedSet<Slot> slots) {
-        this.contentListSlots = SlotUtils.toSlotIndices(slots, getWidth());
+    public void setContentListSlots(List<? extends Slot> slots) {
+        this.contentListSlots = new ArrayList<>(slots);
         bake();
     }
     
     @Override
-    public @Unmodifiable SequencedSet<Slot> getContentListSlots() {
-        return Collections.unmodifiableSequencedSet(SlotUtils.toSlotSet(contentListSlots, getWidth()));
+    public @Unmodifiable List<Slot> getContentListSlots() {
+        return Collections.unmodifiableList(contentListSlots);
+    }
+    
+    @Override
+    public final void bake() {
+        // -- baking removed --
+        setPage(getPage()); // corrects page and refreshes content
     }
     
     private void handlePageChange() {
@@ -95,12 +96,7 @@ non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements Pag
         previousPage = targetPage;
     }
     
-    private void updateContent() {
-        List<SlotElement> slotElements = (pages != null && !pages.isEmpty()) ? pages.get(getPage()) : List.of();
-        for (int i = 0; i < contentListSlots.length; i++) {
-            setSlotElement(contentListSlots[i], slotElements.size() > i ? slotElements.get(i) : null);
-        }
-    }
+    protected abstract void updateContent();
     
     private int correctPage(int page) {
         // 0 <= page < pageAmount
@@ -112,26 +108,9 @@ non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements Pag
         this.content.set(content);
     }
     
-    public void setBakedPages(@Nullable List<? extends List<SlotElement>> pages) {
-        int prevPageCount = getPageCount();
-        this.pages = pages;
-        int newPageCount = getPageCount();
-        
-        CollectionUtils.forEachCatching(
-            pageCountChangeHandlers,
-            handler -> handler.accept(prevPageCount, newPageCount),
-            "Failed to handle page count change from " + prevPageCount + " to " + newPageCount
-        );
-    }
-    
     @Override
     public @UnmodifiableView List<C> getContent() {
         return Collections.unmodifiableList(FuncUtils.getSafely(content, List.of()));
-    }
-    
-    @Override
-    public int getPageCount() {
-        return pages != null ? pages.size() : 0;
     }
     
     @Override

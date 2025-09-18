@@ -2,7 +2,6 @@ package xyz.xenondevs.invui.gui;
 
 import it.unimi.dsi.fastutil.chars.Char2ObjectMap;
 import it.unimi.dsi.fastutil.chars.Char2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.Nullable;
 
@@ -17,8 +16,9 @@ class IngredientMatrix {
     private final int height;
     private final String structure;
     private final @Nullable SlotElement[] slotElements;
-    private final @Nullable Marker[] markers;
     private final Char2ObjectMap<List<Slot>> slots;
+    private final Map<Marker, List<Slot>> markedSlots;
+    private final List<Slot> contentListSlots;
     
     /**
      * Creates a new {@link IngredientMatrix} with the given width, height, structure, and ingredient map.
@@ -30,7 +30,7 @@ class IngredientMatrix {
      * @param ingredientMap maps characters from the structure string to ingredients
      * @throws IllegalArgumentException if the length of the structure does not match width * height
      */
-    IngredientMatrix(int width, int height, String structure, HashMap<Character, Ingredient> ingredientMap) {
+    IngredientMatrix(int width, int height, String structure, Map<Character, Ingredient> ingredientMap) {
         if (structure.length() != width * height)
             throw new IllegalArgumentException("Length of structure does not match width * height");
         
@@ -38,38 +38,52 @@ class IngredientMatrix {
         this.height = height;
         this.structure = structure;
         this.slotElements = new SlotElement[structure.length()];
-        this.markers = new Marker[structure.length()];
         this.slots = new Char2ObjectOpenHashMap<>();
+        this.markedSlots = new HashMap<>();
         
+        // populate slots map (ingredient key -> slots)
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 int i = y * width + x;
                 char key = structure.charAt(i);
                 
-                slots.computeIfAbsent(key, ArrayList::new).add(new Slot(x, y));
+                slots.computeIfAbsent(key, k -> new ArrayList<>()).add(new Slot(x, y));
             }
         }
         
+        // generate slot elements
         for (var entry : slots.char2ObjectEntrySet()) {
             char key = entry.getCharKey();
             Ingredient ingredient = ingredientMap.get(key);
-            if (ingredient == null)
+            if (!(ingredient instanceof Ingredient.Element(SlotElementSupplier supplier)))
                 continue;
             
             List<Slot> slotsForKey = entry.getValue();
-            if (ingredient.isSlotElementSupplier()) {
-                var slotElements = ingredient.generateSlotElements(slotsForKey);
-                assert slotElements != null;
-                for (int i = 0; i < slotsForKey.size(); i++) {
-                    var slot = slotsForKey.get(i);
-                    this.slotElements[slot.y() * width + slot.x()] = slotElements.get(i);
-                }
-            } else {
-                for (Slot slot : slotsForKey) {
-                    markers[slot.y() * width + slot.x()] = ingredient.getMarker();
-                }
+            var slotElements = supplier.generateSlotElements(slotsForKey);
+            for (int i = 0; i < slotsForKey.size(); i++) {
+                var slot = slotsForKey.get(i);
+                this.slotElements[slot.y() * width + slot.x()] = slotElements.get(i);
             }
         }
+        
+        // generate marked slots map (marker -> slots) and aggregate content list slots
+        var horizontal = findMarkedSlots(Markers.CONTENT_LIST_SLOT_HORIZONTAL, width, height, structure, ingredientMap);
+        var vertical = findMarkedSlots(Markers.CONTENT_LIST_SLOT_VERTICAL, width, height, structure, ingredientMap);
+        this.markedSlots.put(Markers.CONTENT_LIST_SLOT_HORIZONTAL, horizontal);
+        this.markedSlots.put(Markers.CONTENT_LIST_SLOT_VERTICAL, vertical);
+        this.contentListSlots = new ArrayList<>(horizontal.size() + vertical.size());
+        this.contentListSlots.addAll(horizontal);
+        this.contentListSlots.addAll(vertical);
+    }
+    
+    private static List<Slot> findMarkedSlots(Marker marker, int width, int height, String structure, Map<Character, Ingredient> ingredientMap) {
+        var slots = new ArrayList<Slot>();
+        marker.iterate(width, height, (x, y) -> {
+            Ingredient ingredient = ingredientMap.get(structure.charAt(y * width + x));
+            if (ingredient instanceof Ingredient.Marker(Marker m) && m == marker)
+                slots.add(new Slot(x, y));
+        });
+        return slots;
     }
     
     /**
@@ -122,59 +136,14 @@ class IngredientMatrix {
         return slotElements[y * width + x];
     }
     
-    /**
-     * Gets the {@link Marker} at the given index.
-     *
-     * @param i the index
-     * @return the marker at the given index
-     * @throws ArrayIndexOutOfBoundsException if the index is out of bounds
-     */
-    @Nullable
-    Marker getMarker(int i) {
-        return markers[i];
+    @Unmodifiable
+    List<Slot> getContentListSlots() {
+        return Collections.unmodifiableList(contentListSlots);
     }
     
-    /**
-     * Gets the {@link Marker} at the given coordinates.
-     *
-     * @param x the x coordinate
-     * @param y the y coordinate
-     * @return the marker at the given coordinates
-     * @throws IndexOutOfBoundsException if the coordinates are out of bounds
-     */
-    @Nullable
-    Marker getMarker(int x, int y) {
-        checkBounds(x, y);
-        return markers[y * width + x];
-    }
-    
-    /**
-     * Finds all indices of the given marker, in the order defined by the marker.
-     *
-     * @param marker the marker to find
-     * @return an array of indices of the marker
-     */
-    int[] findIndices(Marker marker) {
-        var indices = new IntArrayList();
-        marker.iterate(width, height, (x, y) -> {
-            if (getMarker(x, y) == marker)
-                indices.add(y * width + x);
-        });
-        return indices.toIntArray();
-    }
-    
-    /**
-     * Finds all indices of {@link Markers#CONTENT_LIST_SLOT_HORIZONTAL} and {@link Markers#CONTENT_LIST_SLOT_VERTICAL}.
-     *
-     * @return an array of indices of the content list slots
-     */
-    int[] findContentListSlots() {
-        int[] horizontal = findIndices(Markers.CONTENT_LIST_SLOT_HORIZONTAL);
-        int[] vertical = findIndices(Markers.CONTENT_LIST_SLOT_VERTICAL);
-        int[] indices = new int[horizontal.length + vertical.length];
-        System.arraycopy(horizontal, 0, indices, 0, horizontal.length);
-        System.arraycopy(vertical, 0, indices, horizontal.length, vertical.length);
-        return indices;
+    @Unmodifiable
+    List<Slot> getSlots(Marker marker) {
+        return Collections.unmodifiableList(markedSlots.getOrDefault(marker, List.of()));
     }
     
     /**
@@ -186,7 +155,7 @@ class IngredientMatrix {
      */
     @Unmodifiable
     List<Slot> getSlots(char key) {
-        return Collections.unmodifiableList(slots.getOrDefault(key, Collections.emptyList()));
+        return Collections.unmodifiableList(slots.getOrDefault(key, List.of()));
     }
     
     /**

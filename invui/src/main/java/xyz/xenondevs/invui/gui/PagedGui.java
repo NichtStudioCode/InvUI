@@ -6,9 +6,7 @@ import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.state.MutableProperty;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.SequencedSet;
 import java.util.function.BiConsumer;
 
 /**
@@ -36,7 +34,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link PagedGui}.
      */
-    static PagedGui<Item> ofItems(int width, int height, List<? extends Item> items, SequencedSet<? extends Slot> contentListSlots) {
+    static PagedGui<Item> ofItems(int width, int height, List<? extends Item> items, List<? extends Slot> contentListSlots) {
         return new PagedItemsGuiImpl<>(width, height, items, contentListSlots);
     }
     
@@ -48,7 +46,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @return The created {@link PagedGui}.
      */
     static PagedGui<Item> ofItems(Structure structure, List<? extends Item> items) {
-        var gui = ofItems(structure.getWidth(), structure.getHeight(), items, Collections.emptySortedSet());
+        var gui = ofItems(structure.getWidth(), structure.getHeight(), items, List.of());
         gui.applyStructure(structure);
         return gui;
     }
@@ -71,7 +69,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link PagedGui}.
      */
-    static PagedGui<Gui> ofGuis(int width, int height, List<? extends Gui> guis, SequencedSet<? extends Slot> contentListSlots) {
+    static PagedGui<Gui> ofGuis(int width, int height, List<? extends Gui> guis, List<? extends Slot> contentListSlots) {
         return new PagedNestedGuiImpl<>(width, height, guis, contentListSlots);
     }
     
@@ -83,7 +81,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @return The created {@link PagedGui}.
      */
     static PagedGui<Gui> ofGuis(Structure structure, List<? extends Gui> guis) {
-        var gui = ofGuis(structure.getWidth(), structure.getHeight(), guis, Collections.emptySortedSet());
+        var gui = ofGuis(structure.getWidth(), structure.getHeight(), guis, List.of());
         gui.applyStructure(structure);
         return gui;
     }
@@ -106,7 +104,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link PagedGui}.
      */
-    static PagedGui<Inventory> ofInventories(int width, int height, List<? extends Inventory> inventories, SequencedSet<? extends Slot> contentListSlots) {
+    static PagedGui<Inventory> ofInventories(int width, int height, List<? extends Inventory> inventories, List<? extends Slot> contentListSlots) {
         return new PagedInventoriesGuiImpl<>(width, height, inventories, contentListSlots);
     }
     
@@ -118,7 +116,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @return The created {@link PagedGui}.
      */
     static PagedGui<Inventory> ofInventories(Structure structure, List<? extends Inventory> inventories) {
-        var gui = ofInventories(structure.getWidth(), structure.getHeight(), inventories, Collections.emptySortedSet());
+        var gui = ofInventories(structure.getWidth(), structure.getHeight(), inventories, List.of());
         gui.applyStructure(structure);
         return gui;
     }
@@ -128,7 +126,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      *
      * @param slots The slots to set.
      */
-    void setContentListSlots(SequencedSet<Slot> slots);
+    void setContentListSlots(List<? extends Slot> slots);
     
     /**
      * Gets the slots that are used to display content in this {@link PagedGui}.
@@ -136,7 +134,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @return The slots that are used to display content in this {@link PagedGui}.
      */
     @Unmodifiable
-    SequencedSet<Slot> getContentListSlots();
+    List<Slot> getContentListSlots();
     
     /**
      * Gets the current page of this {@link PagedGui} as an index.

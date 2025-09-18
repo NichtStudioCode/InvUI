@@ -19,14 +19,14 @@ abstract sealed class AbstractIngredientMapper<S extends AbstractIngredientMappe
     @Override
     public S addIngredient(char key, SlotElementSupplier elementSupplier) {
         handleUpdate();
-        ingredientMap.put(key, new Ingredient(elementSupplier));
+        ingredientMap.put(key, new Ingredient.Element(elementSupplier));
         return (S) this;
     }
     
     @Override
     public S addIngredient(char key, Marker marker) {
         handleUpdate();
-        ingredientMap.put(key, new Ingredient(marker));
+        ingredientMap.put(key, new Ingredient.Marker(marker));
         return (S) this;
     }
     

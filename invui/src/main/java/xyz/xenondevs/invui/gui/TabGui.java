@@ -5,9 +5,7 @@ import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.state.MutableProperty;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.SequencedSet;
 import java.util.function.BiConsumer;
 
 /**
@@ -33,7 +31,7 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
      * @param contentListSlots The slots where content should be displayed.
      * @return The created {@link TabGui}.
      */
-    static TabGui of(int width, int height, List<? extends @Nullable Gui> tabs, SequencedSet<? extends Slot> contentListSlots) {
+    static TabGui of(int width, int height, List<? extends @Nullable Gui> tabs, List<? extends Slot> contentListSlots) {
         return new TabGuiImpl(width, height, contentListSlots, MutableProperty.of(tabs));
     }
     
@@ -45,7 +43,7 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
      * @return The created {@link TabGui}.
      */
     static TabGui of(Structure structure, List<? extends @Nullable Gui> tabs) {
-        var gui = of(structure.getWidth(), structure.getHeight(), tabs, Collections.emptySortedSet());
+        var gui = of(structure.getWidth(), structure.getHeight(), tabs, List.of());
         gui.applyStructure(structure);
         return gui;
     }
@@ -55,7 +53,7 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
      *
      * @param slots The slots to set.
      */
-    void setContentListSlots(SequencedSet<Slot> slots);
+    void setContentListSlots(List<? extends Slot> slots);
     
     /**
      * Gets the slots that are used to display the tabs.
@@ -63,7 +61,7 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
      * @return The slots that are used to display the tabs.
      */
     @Unmodifiable
-    SequencedSet<Slot> getContentListSlots();
+    List<Slot> getContentListSlots();
     
     /**
      * Gets the current tab index.

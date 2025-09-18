@@ -5,19 +5,17 @@ import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.SequencedSet;
 
 final class ScrollItemsGuiImpl<C extends Item> extends AbstractScrollGui<C> {
     
     public ScrollItemsGuiImpl(
         int width, int height,
         List<? extends C> items,
-        SequencedSet<? extends Slot> contentListSlots,
-        boolean horizontalLines
+        List<? extends Slot> contentListSlots,
+        LineOrientation direction
     ) {
-        super(width, height, contentListSlots, horizontalLines, MutableProperty.of(items));
+        super(width, height, contentListSlots, direction, MutableProperty.of(items));
         bake();
     }
     
@@ -34,15 +32,34 @@ final class ScrollItemsGuiImpl<C extends Item> extends AbstractScrollGui<C> {
     }
     
     @Override
-    public void bake() {
-        ArrayList<SlotElement> elements = new ArrayList<>();
+    protected void updateContent() {
+        int topLine = getLine();
+        List<Slot> cls = getContentListSlots();
+        List<C> content = getContent();
         
-        for (Item item : getContent()) {
-            elements.add(new SlotElement.Item(item));
+        if (getLineOrientation() == LineOrientation.HORIZONTAL) {
+            for (Slot slot : cls) {
+                int line = slot.y() - min.y() + topLine;
+                int offset = slot.x() - min.x();
+                int i = line * lineLength + offset;
+                setSlotElement(slot, i < content.size() ? new SlotElement.Item(content.get(i)) : null);
+            }
+        } else {
+            for (Slot slot : cls) {
+                int line = slot.x() - min.x() + topLine;
+                int offset = slot.y() - min.y();
+                int i = line * lineLength + offset;
+                setSlotElement(slot, i < content.size() ? new SlotElement.Item(content.get(i)) : null);
+            }
         }
+    }
+    
+    @Override
+    public int getLineCount() {
+        if (lineLength <= 0)
+            return 0;
         
-        setElements(elements);
-        setLine(getLine()); // corrects line and refreshes content
+        return Math.ceilDiv(getContent().size(), lineLength);
     }
     
     public static final class Builder<C extends Item> extends AbstractBuilder<C> {

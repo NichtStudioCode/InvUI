@@ -140,7 +140,7 @@ public final class Structure extends AbstractIngredientMapper<Structure> {
     public static void addGlobalIngredient(char key, SlotElementSupplier elementSupplier) {
         if (globalIngredientsFrozen)
             throw new IllegalStateException("Global ingredients are frozen");         
-        globalIngredientMap.put(key, new Ingredient(elementSupplier));
+        globalIngredientMap.put(key, new Ingredient.Element(elementSupplier));
     }
     
     /**
@@ -154,7 +154,7 @@ public final class Structure extends AbstractIngredientMapper<Structure> {
     public static void addGlobalIngredient(char key, Marker marker) {
         if (globalIngredientsFrozen)
             throw new IllegalStateException("Global ingredients are frozen");
-        globalIngredientMap.put(key, new Ingredient(marker));
+        globalIngredientMap.put(key, new Ingredient.Marker(marker));
     }
     
     /**
