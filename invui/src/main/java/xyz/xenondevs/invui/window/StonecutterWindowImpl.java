@@ -79,7 +79,7 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
     @Override
     protected void update(int slot) {
         if (slot == SELECTED_SLOT_MAGIC_SLOT) {
-            playerSelectSlot(getSelectedSlot(), menu.getSelectedSlot());
+            menu.setSelectedSlot(getSelectedSlot());
         } else {
             super.update(slot);
         }
