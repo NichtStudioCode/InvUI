@@ -223,15 +223,15 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
             if (!event.isCancelled() && !ItemUtils.isEmpty(cursor)) {
                 switch (click.clickType()) {
                     case LEFT -> {
-                        InventoryUtils.dropItemLikePlayer(viewer, cursor);
-                        viewer.setItemOnCursor(null);
+                        if (InventoryUtils.dropItemLikePlayer(viewer, cursor))
+                            viewer.setItemOnCursor(null);
                     }
                     
                     case RIGHT -> {
                         var drop = cursor.clone();
                         drop.setAmount(1);
-                        InventoryUtils.dropItemLikePlayer(viewer, drop);
-                        cursor.setAmount(cursor.getAmount() - 1);
+                        if (InventoryUtils.dropItemLikePlayer(viewer, drop))
+                            cursor.setAmount(cursor.getAmount() - 1);
                     }
                     
                     default -> {}

@@ -80,6 +80,22 @@ public final class ItemUtils {
     }
     
     /**
+     * Clones the given {@link ItemStack} and sets its amount to the given count.
+     *
+     * @param itemStack the item stack to clone
+     * @param count     the amount for the cloned item stack
+     * @return the cloned item stack with the given amount, or null if the item stack is empty
+     */
+    public static @Nullable ItemStack cloneWithCount(@Nullable ItemStack itemStack, int count) {
+        if (isEmpty(itemStack))
+            return null;
+        
+        ItemStack clone = itemStack.clone();
+        clone.setAmount(count);
+        return clone;
+    }
+    
+    /**
      * Returns a copy of the non-empty placeholder item, which is an invisible non-air item stack.
      *
      * @return the non-empty placeholder item

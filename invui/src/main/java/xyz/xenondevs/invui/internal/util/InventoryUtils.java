@@ -4,7 +4,9 @@ import net.minecraft.world.inventory.MenuType;
 import org.bukkit.Location;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemStack;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.inventory.OperationCategory;
@@ -134,24 +136,37 @@ public class InventoryUtils {
     }
     
     /**
-     * Spawns an item entity as if the player dropped it.
+     * Spawns an item entity as if the player dropped it, also firing {@link PlayerDropItemEvent}.
      *
      * @param player    The player
      * @param itemStack The item stack
+     * @return Whether the item was dropped. False if the event was cancelled.
      */
-    public static void dropItemLikePlayer(Player player, ItemStack itemStack) {
+    @SuppressWarnings("UnstableApiUsage")
+    public static boolean dropItemLikePlayer(Player player, @Nullable ItemStack itemStack) {
         if (ItemUtils.isEmpty(itemStack))
-            return;
+            return true;
         
         Location location = player.getLocation();
         location.add(0, 1.5, 0); // not the eye location
-        Item item = location.getWorld().dropItem(location, itemStack);
+        
+        Item item = location.getWorld().createEntity(location, Item.class);
+        item.setItemStack(itemStack.clone());
         item.setPickupDelay(40);
         item.setVelocity(location.getDirection().multiply(0.35));
+        
+        if (new PlayerDropItemEvent(player, item).callEvent()) {
+            location.getWorld().addEntity(item);
+            return true;
+        }
+        
+        return false;
     }
     
     /**
      * Adds an item stack to the player's inventory or drops it if it doesn't fit.
+     * Also fires {@link PlayerDropItemEvent}, effectively deleting the item if the event is cancelled.
+     * 
      * @param player The player
      * @param itemStack The item stack
      */

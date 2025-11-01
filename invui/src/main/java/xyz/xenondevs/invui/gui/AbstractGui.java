@@ -286,7 +286,9 @@ non-sealed abstract class AbstractGui implements Gui {
         if (link == null)
             return;
         
-        if (link.getHoldingElement() instanceof SlotElement.InventoryLink(var otherInventory, var otherSlot, var unused)) {
+        if (link.getHoldingElement() instanceof SlotElement.InventoryLink(
+            var otherInventory, var otherSlot, var unused
+        )) {
             if (inventory == otherInventory && slot == otherSlot)
                 return;
             
@@ -319,22 +321,27 @@ non-sealed abstract class AbstractGui implements Gui {
     }
     
     private void handleInvDrop(boolean ctrl, Click click, Inventory inventory, int slot) {
-        Player player = click.player();
         ItemStack clicked = inventory.getItem(slot);
-        
-        if (clicked == null)
+        if (ItemUtils.isEmpty(clicked))
             return;
         
+        Player player = click.player();
         UpdateReason updateReason = new PlayerUpdateReason.Click(player, click);
         
-        if (ctrl) {
-            if (inventory.setItem(updateReason, slot, null)) {
-                InventoryUtils.dropItemLikePlayer(player, clicked);
-            }
-        } else if (inventory.addItemAmount(updateReason, slot, -1) == -1) {
-            clicked.setAmount(1);
-            InventoryUtils.dropItemLikePlayer(player, clicked);
-        }
+        int initialDropCount = ctrl ? clicked.getAmount() : 1;
+        var initialNewItem = ItemUtils.cloneWithCount(clicked, clicked.getAmount() - initialDropCount);
+        var event = inventory.callPreUpdateEvent(updateReason, slot, clicked, initialNewItem);
+        if (event.isCancelled())
+            return;
+        
+        var newItem = event.getNewItem();
+        int dropCount = clicked.getAmount() - (newItem != null ? newItem.getAmount() : 0);
+        var toDrop = ItemUtils.cloneWithCount(clicked, dropCount);
+        if (!InventoryUtils.dropItemLikePlayer(player, toDrop))
+            return;
+        
+        inventory.forceSetItem(UpdateReason.SUPPRESSED, slot, newItem);
+        inventory.callPostUpdateEvent(updateReason, slot, clicked, newItem);
     }
     
     private void handleInvDoubleClick(Click click) {
@@ -385,28 +392,7 @@ non-sealed abstract class AbstractGui implements Gui {
             inventory.setItem(new PlayerUpdateReason.BundleSelect(player, bundleSlot), slot, bundle);
         }
     }
-    
-    /**
-     * Puts the given {@link ItemStack} into the first inventory that accepts it, starting with the
-     * {@link Inventory#getGuiPriority(OperationCategory)} for {@link OperationCategory#ADD} highest priority inventory.
-     * If one inventory accepts any amount of items, further inventories will not be queried, meaning that an item stack will not be split
-     * across multiple inventories.
-     *
-     * @param updateReason the update reason to use
-     * @param itemStack    the item stack to put
-     * @param ignored      the inventories to ignore
-     * @return the amount of items that are left over
-     */
-    protected int putIntoFirstInventory(UpdateReason updateReason, ItemStack itemStack, Inventory... ignored) {
-        return putIntoFirstInventory(
-            updateReason,
-            itemStack, 
-            getInventories(ignored).stream()
-                .sorted(Comparator.<Inventory>comparingInt(inv -> inv.getGuiPriority(OperationCategory.ADD)).reversed())
-                .toList()
-        );
-    }
-    
+            
     /**
      * Puts the given {@link ItemStack} into the first inventory that accepts it of the given collection of inventories.
      * If one inventory accepts any amount of items, further inventories will not be queried, meaning that an item stack
@@ -1116,7 +1102,7 @@ non-sealed abstract class AbstractGui implements Gui {
             if (structure == null)
                 throw new IllegalStateException("Structure is not set");
             structure.addIngredient(key, elementSupplier);
-            return (S) this;    
+            return (S) this;
         }
         
         @Override
