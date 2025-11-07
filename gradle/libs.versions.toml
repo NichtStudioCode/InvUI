@@ -1,6 +1,6 @@
 [versions]
 kotlin = "2.1.0"
-paper = "1.21.8-R0.1-SNAPSHOT"
+paper = "1.21.10-R0.1-SNAPSHOT"
 
 [libraries]
 commons-provider = { module = "xyz.xenondevs.commons:commons-provider", version = "2.0.0-alpha.7" }
@@ -10,7 +10,7 @@ junit-bom = { module = "org.junit:junit-bom", version = "5.11.4" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 junit-platformLauncher = { module = "org.junit.platform:junit-platform-launcher" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
-mockbukkit = { module = "com.github.MockBukkit:MockBukkit", version = "v1.21-SNAPSHOT" }
+mockbukkit = { module = "org.mockbukkit.mockbukkit:mockbukkit-v1.21", version = "4.98.0"}
 logback-classic = { module = "ch.qos.logback:logback-classic", version = "1.5.13" }
 paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
 paperweight-userdev-plugin = { module = "io.papermc.paperweight:paperweight-userdev", version = "2.0.0-beta.17" }
