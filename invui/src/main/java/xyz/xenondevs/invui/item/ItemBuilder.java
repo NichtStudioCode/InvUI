@@ -54,7 +54,7 @@ public final class ItemBuilder implements ItemProvider {
     private @Nullable Map<String, TagResolver> placeholders;
     private @Nullable List<Function<? super ItemStack, ? extends ItemStack>> modifiers;
     
-    private final Map<Locale, ItemStack> buildCache = new HashMap<>();
+    private Map<Locale, ItemStack> buildCache = new HashMap<>();
     
     /**
      * Constructs a new {@link ItemBuilder} based on the given {@link Material}.
@@ -1260,6 +1260,7 @@ public final class ItemBuilder implements ItemProvider {
         try {
             ItemBuilder clone = ((ItemBuilder) super.clone());
             clone.itemStack = itemStack.clone();
+            clone.buildCache = new HashMap<>(buildCache);
             if (lore != null)
                 clone.lore = new ArrayList<>(lore);
             if (customModelDataFloats != null)
