@@ -2,7 +2,6 @@ package xyz.xenondevs.invui.util;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -14,14 +13,12 @@ public final class ColorPalette {
     private static final byte[] colorCache;
     
     static {
-        ByteArrayOutputStream out = new ByteArrayOutputStream(256 * 256 * 256);
         try (InputStream in = ColorPalette.class.getResourceAsStream("/colors.bin")) {
             assert in != null;
-            in.transferTo(out);
+            colorCache = in.readNBytes(256 * 256 * 256);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        colorCache = out.toByteArray();
     }
     
     private ColorPalette() {}
@@ -46,7 +43,8 @@ public final class ColorPalette {
      * @return The map color
      */
     public static byte getColor(int argb) {
-        if ((argb >> 24 & 0xFF) < 255) return 0;
+        if ((argb >> 24 & 0xFF) < 255)
+            return 0;
         return colorCache[argb & 0xFFFFFF];
     }
     
