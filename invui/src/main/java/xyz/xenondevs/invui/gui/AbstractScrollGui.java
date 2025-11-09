@@ -8,6 +8,7 @@ import xyz.xenondevs.invui.internal.util.FuncUtils;
 import xyz.xenondevs.invui.internal.util.SlotUtils;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
+import xyz.xenondevs.invui.state.Property;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +26,8 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
     private LineOrientation orientation = LineOrientation.HORIZONTAL;
     
     private final MutableProperty<Integer> line;
+    private final MutableProperty<Integer> lineCount = MutableProperty.of(-1);
+    private final MutableProperty<Integer> maxLine = MutableProperty.of(-1);
     private final MutableProperty<List<? extends C>> content;
     private final List<BiConsumer<? super Integer, ? super Integer>> scrollHandlers = new ArrayList<>(0);
     private final List<BiConsumer<? super Integer, ? super Integer>> lineCountChangeHandlers = new ArrayList<>(0);
@@ -102,8 +105,28 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
     
     @Override
     public final void bake() {
-        // -- baking removed --
+        int prevLineCount = lineCount.get();
+        int prevMaxLine = maxLine.get();
         setLine(getLine()); // corrects line and refreshes content
+        int newLineCount = getLineCount();
+        int newMaxLine = getMaxLine();
+        
+        if (prevLineCount != newLineCount) {
+            lineCount.set(newLineCount);
+            
+            // skip handlers for initial bake
+            if (prevLineCount != -1) {
+                CollectionUtils.forEachCatching(
+                    lineCountChangeHandlers,
+                    handler -> handler.accept(prevLineCount, newLineCount),
+                    "Failed to handle line count change from " + prevLineCount + " to " + newLineCount
+                );
+            }
+        }
+        
+        if (prevMaxLine != newMaxLine) {
+            maxLine.set(newMaxLine);
+        }
     }
     
     private void handleLineChange() {
@@ -150,6 +173,11 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
     }
     
     @Override
+    public MutableProperty<List<? extends C>> getContentProperty() {
+        return content;
+    }
+    
+    @Override
     public @UnmodifiableView List<C> getContent() {
         return Collections.unmodifiableList(FuncUtils.getSafely(content, List.of()));
     }
@@ -162,6 +190,21 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
     @Override
     public LineOrientation getLineOrientation() {
         return orientation;
+    }
+    
+    @Override
+    public Property<Integer> getLineCountProperty() {
+        return lineCount;
+    }
+    
+    @Override
+    public Property<Integer> getMaxLineProperty() {
+        return maxLine;
+    }
+    
+    @Override
+    public MutableProperty<Integer> getLineProperty() {
+        return line;
     }
     
     @Override

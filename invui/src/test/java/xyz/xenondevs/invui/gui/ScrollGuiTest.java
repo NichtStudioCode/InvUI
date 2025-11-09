@@ -290,6 +290,74 @@ public class ScrollGuiTest {
         assertEquals(0, line.get());
     }
     
+    @Test
+    public void testLineCountChangeHandler() {
+        var lineCount = new AtomicInteger(-1);
+        var lineCountChangeCount = new AtomicInteger(0);
+        
+        var gui = ScrollGui.itemsBuilder()
+            .setStructure("x x x")
+            .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
+            .addLineCountChangeHandler((from, to) -> {
+                lineCount.set(to);
+                lineCountChangeCount.incrementAndGet();
+            })
+            .build();
+        
+        assertEquals(-1, lineCount.get());
+        assertEquals(0, lineCountChangeCount.get());
+        
+        gui.setContent(IntStream.range(0, 7).mapToObj(i -> Item.builder().build()).toList());
+        assertEquals(3, lineCount.get());
+        assertEquals(1, lineCountChangeCount.get());
+        
+        // no line count change, no handler invocation
+        gui.setContent(IntStream.range(0, 7).mapToObj(i -> Item.builder().build()).toList());
+        assertEquals(3, lineCount.get());
+        assertEquals(1, lineCountChangeCount.get());
+        
+        gui.setContent(List.of());
+        assertEquals(0, lineCount.get());
+        assertEquals(2, lineCountChangeCount.get());
+    }
+    
+    @Test
+    public void testLineCountProperty() {
+        var gui = ScrollGui.itemsBuilder()
+            .setStructure("x x x")
+            .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
+            .build();
+        var lineCount = gui.getLineCountProperty();
+        
+        assertEquals(0, lineCount.get());
+        
+        gui.setContent(IntStream.range(0, 7).mapToObj(i -> Item.builder().build()).toList());
+        assertEquals(3, lineCount.get());
+        
+        gui.setContent(List.of());
+        assertEquals(0, lineCount.get());
+    }
+    
+    @Test
+    public void testMaxLineProperty() {
+        var gui = ScrollGui.itemsBuilder()
+            .setStructure(
+                "x x x",
+                "x x x"
+            )
+            .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
+            .build();
+        var maxLine = gui.getMaxLineProperty();
+        
+        assertEquals(0, maxLine.get());
+        
+        gui.setContent(IntStream.range(0, 7).mapToObj(i -> Item.builder().build()).toList());
+        assertEquals(1, maxLine.get());
+        
+        gui.setContent(List.of());
+        assertEquals(0, maxLine.get());
+    }
+    
     private List<? extends Item> exampleItems() {
         return Arrays.stream(Material.values())
             .filter(m -> !m.isLegacy() && m.isItem())

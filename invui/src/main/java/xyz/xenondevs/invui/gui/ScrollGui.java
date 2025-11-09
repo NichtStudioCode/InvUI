@@ -5,6 +5,7 @@ import org.jetbrains.annotations.UnmodifiableView;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.state.MutableProperty;
+import xyz.xenondevs.invui.state.Property;
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -148,6 +149,13 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
     LineOrientation getLineOrientation();
     
     /**
+     * Gets the property containing the currently selected line.
+     *
+     * @return The line property.
+     */
+    MutableProperty<Integer> getLineProperty();
+    
+    /**
      * Gets the current line, which is the index of the first line to be displayed.
      *
      * @return The current line.
@@ -162,11 +170,25 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
     void setLine(int line);
     
     /**
+     * Gets the property containing the amount of lines.
+     *
+     * @return The line count property.
+     */
+    Property<Integer> getLineCountProperty();
+    
+    /**
      * Gets the amount of lines.
      *
      * @return The amount of lines.
      */
     int getLineCount();
+    
+    /**
+     * Gets the property containing the maximum selectable line index.
+     *
+     * @return The max line property.
+     */
+    Property<Integer> getMaxLineProperty();
     
     /**
      * Gets the maximum selectable line index.
@@ -182,6 +204,12 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      * @param content The content to set.
      */
     void setContent(List<? extends C> content);
+    
+    /**
+     * Gets the property containing the scrollable content.
+     * @return The content property.
+     */
+    MutableProperty<List<? extends C>> getContentProperty();
     
     /**
      * Gets the scrollable content.

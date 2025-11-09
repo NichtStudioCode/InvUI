@@ -1,3 +1,5 @@
+package xyz.xenondevs.invui
+
 import org.junit.jupiter.api.Test
 import xyz.xenondevs.invui.gui.PagedGui
 import xyz.xenondevs.invui.gui.ScrollGui
@@ -62,6 +64,9 @@ class PropertyAccessorsPresenceTest {
             scrollGui.scrollHandlers
             scrollGui.scrollHandlers = emptyList()
             
+            scrollGui.lineCountChangeHandlers
+            scrollGui.lineCountChangeHandlers = emptyList()
+            
             // -- TabGui --
             tabGui.contentListSlots
             tabGui.contentListSlots = emptyList()
@@ -120,7 +125,5 @@ class PropertyAccessorsPresenceTest {
             window.windowStateChangeHandlers = emptyList()
         }
     }
-    
-    private fun <T> emptySequencedSet() = LinkedHashSet<T>()
     
 }

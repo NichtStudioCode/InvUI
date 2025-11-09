@@ -64,6 +64,13 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
     List<Slot> getContentListSlots();
     
     /**
+     * Gets the property containing the current tab index.
+     *
+     * @return The tab property.
+     */
+    MutableProperty<Integer> getTabProperty();
+    
+    /**
      * Gets the current tab index.
      *
      * @return The current tab index.
@@ -91,6 +98,13 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
      * @param tabs The tabs to set.
      */
     void setTabs(List<? extends @Nullable Gui> tabs);
+    
+    /**
+     * Gets the property containing the tabs.
+     *
+     * @return The tabs property.
+     */
+    MutableProperty<List<? extends @Nullable Gui>> getTabsProperty();
     
     /**
      * Gets the configured tabs.

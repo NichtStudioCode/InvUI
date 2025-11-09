@@ -5,6 +5,7 @@ import org.jetbrains.annotations.UnmodifiableView;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.state.MutableProperty;
+import xyz.xenondevs.invui.state.Property;
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -137,6 +138,13 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
     List<Slot> getContentListSlots();
     
     /**
+     * Gets the property containing the currently selected page.
+     *
+     * @return The page property.
+     */
+    MutableProperty<Integer> getPageProperty();
+    
+    /**
      * Gets the current page of this {@link PagedGui} as an index.
      *
      * @return Gets the current page of this {@link PagedGui} as an index.
@@ -151,6 +159,13 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
     void setPage(int page);
     
     /**
+     * Gets the property containing the page count.
+     *
+     * @return The page count property.
+     */
+    Property<Integer> getPageCountProperty();
+    
+    /**
      * Gets the amount of pages this {@link PagedGui} has.
      *
      * @return The amount of pages this {@link PagedGui} has.
@@ -163,6 +178,13 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @param content The content to set.
      */
     void setContent(List<? extends C> content);
+    
+    /**
+     * Gets the property containing the page content.
+     *
+     * @return The content property.
+     */
+    MutableProperty<List<? extends C>> getContentProperty();
     
     /**
      * Gets the content of this {@link PagedGui}.

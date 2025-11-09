@@ -228,6 +228,54 @@ public class PagedGuiTest {
         assertEquals(0, page.get());
     }
     
+    @Test
+    public void testPageCountChangeHandler() {
+        var pageCount = new AtomicInteger(-1);
+        var pageCountChangeCount = new AtomicInteger(0);
+        
+        var gui = PagedGui.itemsBuilder()
+            .setStructure("x x x")
+            .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
+            .addPageCountChangeHandler((from, to) -> {
+                pageCount.set(to);
+                pageCountChangeCount.incrementAndGet();
+            })
+            .build();
+        
+        assertEquals(-1, pageCount.get());
+        assertEquals(0, pageCountChangeCount.get());
+        
+        gui.setContent(IntStream.range(0, 7).mapToObj(i -> Item.builder().build()).toList());
+        assertEquals(3, pageCount.get());
+        assertEquals(1, pageCountChangeCount.get());
+        
+        // no page count change, no handler invocation
+        gui.setContent(IntStream.range(0, 7).mapToObj(i -> Item.builder().build()).toList());
+        assertEquals(3, pageCount.get());
+        assertEquals(1, pageCountChangeCount.get());
+        
+        gui.setContent(List.of());
+        assertEquals(0, pageCount.get());
+        assertEquals(2, pageCountChangeCount.get());
+    }
+    
+    @Test
+    public void testPageCountProperty() {
+        var gui = PagedGui.itemsBuilder()
+            .setStructure("x x x")
+            .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
+            .build();
+        var pageCount = gui.getPageCountProperty();
+        
+        assertEquals(0, pageCount.get());
+        
+        gui.setContent(IntStream.range(0, 7).mapToObj(i -> Item.builder().build()).toList());
+        assertEquals(3, pageCount.get());
+     
+        gui.setContent(List.of());
+        assertEquals(0, pageCount.get());
+    }
+    
     private List<? extends Item> exampleItems() {
         return Arrays.stream(Material.values())
             .filter(m -> !m.isLegacy() && m.isItem())

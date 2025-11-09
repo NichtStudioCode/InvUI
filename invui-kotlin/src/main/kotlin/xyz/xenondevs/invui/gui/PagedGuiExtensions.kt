@@ -4,6 +4,8 @@ import xyz.xenondevs.commons.provider.MutableProvider
 import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.invui.ExperimentalReactiveApi
 import xyz.xenondevs.invui.PropertyAdapter
+import xyz.xenondevs.invui.toProvider
+import java.lang.ref.WeakReference
 
 /**
  * Sets the provider containing the current page for the [PagedGui] built by this builder.
@@ -29,3 +31,36 @@ fun <C : Any, T> PagedGui.Builder<C>.setContent(provider: Provider<T>, transform
 @ExperimentalReactiveApi
 fun <C : Any> PagedGui.Builder<C>.setContent(content: Provider<List<C>>): PagedGui.Builder<C> =
     setContent(PropertyAdapter(content))
+
+/**
+ * A provider containing the content of this [PagedGui].
+ * 
+ * - If the content was defined through a [MutableProvider], the same instance is returned.
+ * - If the content was defined through a [Provider], a non-mutable [MutableProvider]
+ * that throws on mutation attempts is returned.
+ * - Otherwise, each invocation returns a new instance of a [MutableProvider] that is [weakly][WeakReference]
+ *  linked to the [PagedGui.contentProperty].
+ */
+val <C : Any> PagedGui<C>.contentProvider: MutableProvider<List<C>>
+    get() = contentProperty.toProvider()
+
+/**
+ * A provider containing currently selected page of this [PagedGui].
+ *
+ * - If the page was defined through a [MutableProvider], the same instance is returned.
+ * - If the page was defined through a [Provider], a non-mutable [MutableProvider]
+ * that throws on mutation attempts is returned.
+ * - Otherwise, each invocation returns a new instance of a [MutableProvider] that is [weakly][WeakReference]
+ *  linked to the [PagedGui.pageProperty].
+ */
+val PagedGui<*>.pageProvider: MutableProvider<Int>
+    get() = pageProperty.toProvider()
+
+/**
+ * A provider containing the page count of this [PagedGui].
+ *
+ * Each invocation returns a new instance of a [MutableProvider] that is [weakly][WeakReference]
+ * linked to the [PagedGui.getPageCountProperty].
+ */
+val PagedGui<*>.pageCountProvider: Provider<Int>
+    get() = pageCountProperty.toProvider()

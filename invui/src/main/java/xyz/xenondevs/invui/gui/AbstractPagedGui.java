@@ -7,8 +7,11 @@ import xyz.xenondevs.invui.internal.util.CollectionUtils;
 import xyz.xenondevs.invui.internal.util.FuncUtils;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
+import xyz.xenondevs.invui.state.Property;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.BiConsumer;
 
 non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements PagedGui<C> {
@@ -18,9 +21,10 @@ non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements Pag
     private List<Slot> contentListSlots = List.of();
     
     private final MutableProperty<Integer> page;
+    private final MutableProperty<Integer> pageCount = MutableProperty.of(-1);
     private final MutableProperty<List<? extends C>> content;
     private final List<BiConsumer<? super Integer, ? super Integer>> pageChangeHandlers = new ArrayList<>(0);
-    private final List<BiConsumer<? super Integer, ? super Integer>> pageCountChangeHandlers = new ArrayList<>(0);
+    private final List<BiConsumer<? super Integer, ? super Integer>> pageCountChangeHandlers = new ArrayList<>(0); // TODO: are they called?
     private int previousPage;
     
     public AbstractPagedGui(
@@ -73,8 +77,22 @@ non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements Pag
     
     @Override
     public final void bake() {
-        // -- baking removed --
+        int prevPageCount = pageCount.get();
         setPage(getPage()); // corrects page and refreshes content
+        int newPageCount = getPageCount();
+        
+        if (prevPageCount == newPageCount)
+            return;
+        pageCount.set(newPageCount);
+        
+        // skip handlers for initial bake
+        if (prevPageCount == -1)
+            return;
+        CollectionUtils.forEachCatching(
+            pageCountChangeHandlers,
+            handler -> handler.accept(prevPageCount, newPageCount),
+            "Failed to handle page count change from " + prevPageCount + " to " + newPageCount
+        );
     }
     
     private void handlePageChange() {
@@ -109,6 +127,11 @@ non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements Pag
     }
     
     @Override
+    public MutableProperty<List<? extends C>> getContentProperty() {
+        return content;
+    }
+    
+    @Override
     public @UnmodifiableView List<C> getContent() {
         return Collections.unmodifiableList(FuncUtils.getSafely(content, List.of()));
     }
@@ -116,6 +139,16 @@ non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements Pag
     @Override
     public void setPage(int page) {
         this.page.set(page);
+    }
+    
+    @Override
+    public MutableProperty<Integer> getPageProperty() {
+        return page;
+    }
+    
+    @Override
+    public Property<Integer> getPageCountProperty() {
+        return pageCount;
     }
     
     @Override

@@ -151,6 +151,11 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
         this.tab.set(tab);
     }
     
+    @Override
+    public MutableProperty<Integer> getTabProperty() {
+        return tab;
+    }
+    
     public int getTab() {
         return FuncUtils.getSafely(tab, DEFAULT_TAB);
     }
@@ -158,6 +163,11 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     @Override
     public void setTabs(List<? extends @Nullable Gui> tabs) {
         this.tabs.set(tabs);
+    }
+    
+    @Override
+    public MutableProperty<List<? extends @Nullable Gui>> getTabsProperty() {
+        return tabs;
     }
     
     @Override

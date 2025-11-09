@@ -17,6 +17,7 @@ dependencies {
     api(project(":invui"))
     api(libs.kotlin.stdlib)
     api(libs.commons.provider)
+    testImplementation(libs.kotlin.test.junit)
 }
 
 publishing {
