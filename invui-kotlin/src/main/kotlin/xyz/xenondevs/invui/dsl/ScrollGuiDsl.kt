@@ -3,13 +3,17 @@
 package xyz.xenondevs.invui.dsl
 
 import xyz.xenondevs.commons.provider.Provider
+import xyz.xenondevs.commons.provider.flatten
 import xyz.xenondevs.commons.provider.mutableProvider
+import xyz.xenondevs.commons.provider.provider
 import xyz.xenondevs.invui.ExperimentalReactiveApi
 import xyz.xenondevs.invui.dsl.property.MutableProviderDslProperty
 import xyz.xenondevs.invui.dsl.property.ProviderDslProperty
 import xyz.xenondevs.invui.gui.Gui
 import xyz.xenondevs.invui.gui.IngredientPreset
 import xyz.xenondevs.invui.gui.ScrollGui
+import xyz.xenondevs.invui.gui.lineCountProvider
+import xyz.xenondevs.invui.gui.maxLineProvider
 import xyz.xenondevs.invui.gui.setContent
 import xyz.xenondevs.invui.gui.setLine
 import xyz.xenondevs.invui.inventory.Inventory
@@ -43,9 +47,12 @@ internal abstract class ScrollGuiDslImpl<C : Any>(
     presets: List<IngredientPreset>
 ) : GuiDslImpl<ScrollGui<C>, ScrollGui.Builder<C>>(structure, presets), ScrollGuiDsl<C> {
     
+    private val internalLineCount = mutableProvider { provider(0) }
+    private val internalMaxLine = mutableProvider { provider(0) }
+    
     override val content = ProviderDslProperty(emptyList<C>())
     override val line = MutableProviderDslProperty(0)
-    override val lineCount = mutableProvider(0)
+    override val lineCount = internalLineCount.flatten()
     override val maxLine = mutableProvider(0)
     
     override fun applyToBuilder(builder: ScrollGui.Builder<C>) {
@@ -55,10 +62,8 @@ internal abstract class ScrollGuiDslImpl<C : Any>(
             setLine(line)
             
             addModifier { gui ->
-                lineCount.set(gui.lineCount)
-                maxLine.set(gui.maxLine)
-                gui.addLineCountChangeHandler { _, l -> lineCount.set(l) }
-                gui.addLineCountChangeHandler { _, _ -> maxLine.set(gui.maxLine) }
+                internalLineCount.set(gui.lineCountProvider)
+                internalMaxLine.set(gui.maxLineProvider)
             }
         }
     }

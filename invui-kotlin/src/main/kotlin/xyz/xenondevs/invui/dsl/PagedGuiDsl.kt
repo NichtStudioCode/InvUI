@@ -3,13 +3,16 @@
 package xyz.xenondevs.invui.dsl
 
 import xyz.xenondevs.commons.provider.Provider
+import xyz.xenondevs.commons.provider.flatten
 import xyz.xenondevs.commons.provider.mutableProvider
+import xyz.xenondevs.commons.provider.provider
 import xyz.xenondevs.invui.ExperimentalReactiveApi
 import xyz.xenondevs.invui.dsl.property.MutableProviderDslProperty
 import xyz.xenondevs.invui.dsl.property.ProviderDslProperty
 import xyz.xenondevs.invui.gui.Gui
 import xyz.xenondevs.invui.gui.IngredientPreset
 import xyz.xenondevs.invui.gui.PagedGui
+import xyz.xenondevs.invui.gui.pageCountProvider
 import xyz.xenondevs.invui.gui.setContent
 import xyz.xenondevs.invui.gui.setPage
 import xyz.xenondevs.invui.inventory.Inventory
@@ -42,20 +45,18 @@ internal abstract class PagedGuiDslImpl<C : Any>(
     presets: List<IngredientPreset>
 ) : GuiDslImpl<PagedGui<C>, PagedGui.Builder<C>>(structure, presets), PagedGuiDsl<C> {
     
+    private val internalPageCount = mutableProvider { provider(0) }
+    
     override val content = ProviderDslProperty(emptyList<C>())
     override val page = MutableProviderDslProperty(0)
-    override val pageCount = mutableProvider(0)
+    override val pageCount = internalPageCount.flatten()
     
     override fun applyToBuilder(builder: PagedGui.Builder<C>) {
         super.applyToBuilder(builder)
         builder.apply { 
             setContent(content)
             setPage(page)
-            
-            addModifier { gui ->
-                pageCount.set(gui.pageCount)
-                gui.addPageCountChangeHandler { _, p -> pageCount.set(p) }
-            }
+            addModifier { internalPageCount.set(it.pageCountProvider) }
         }
     }
     
