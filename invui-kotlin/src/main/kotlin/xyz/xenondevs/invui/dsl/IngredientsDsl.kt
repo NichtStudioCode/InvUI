@@ -52,7 +52,7 @@ sealed interface IngredientsDsl {
     
     fun scrollInventoriesGui(vararg structure: String, gui: ScrollGuiDsl<Inventory>.() -> Unit): ScrollGui<Inventory>
     
-    fun tabGui(vararg structure: String, gui: TabGuiDsl.() -> Unit): TabGui
+    fun <G : Gui> tabGui(vararg structure: String, gui: TabGuiDsl<G>.() -> Unit): TabGui
     
 }
 
@@ -119,7 +119,7 @@ internal open class IngredientsDslImpl(
     override fun scrollInventoriesGui(vararg structure: String, gui: ScrollGuiDsl<Inventory>.() -> Unit): ScrollGui<Inventory> =
         ScrollGuiDslImpl.Inventories(structure, presets + ingredients.build()).apply(gui).build()
     
-    override fun tabGui(vararg structure: String, gui: TabGuiDsl.() -> Unit): TabGui =
-        TabGuiDslImpl(structure, presets + ingredients.build()).apply(gui).build()
+    override fun <G : Gui> tabGui(vararg structure: String, gui: TabGuiDsl<G>.() -> Unit): TabGui =
+        TabGuiDslImpl<G>(structure, presets + ingredients.build()).apply(gui).build()
     
 }
