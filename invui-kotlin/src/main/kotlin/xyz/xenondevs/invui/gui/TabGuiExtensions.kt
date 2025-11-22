@@ -42,6 +42,7 @@ fun TabGui.Builder.setTabs(tabs: Provider<List<Gui?>>): TabGui.Builder =
  * - Otherwise, each invocation returns a new instance of a [MutableProvider] that is [weakly][WeakReference]
  *  linked to the [TabGui.tabsProperty].
  */
+@ExperimentalReactiveApi
 val TabGui.tabsProvider: MutableProvider<List<Gui?>>
     get() = tabsProperty.toProvider()
 
@@ -54,6 +55,7 @@ val TabGui.tabsProvider: MutableProvider<List<Gui?>>
  * - Otherwise, each invocation returns a new instance of a [MutableProvider] that is [weakly][WeakReference]
  *  linked to the [TabGui.tabProperty].
  */
+@ExperimentalReactiveApi
 val TabGui.tabProvider: MutableProvider<Int>
     get() = tabProperty.toProvider()
 
@@ -63,5 +65,6 @@ val TabGui.tabProvider: MutableProvider<Int>
  * 
  * Equivalent to `tabsProvider.getOrNull(tabProvider)`.
  */
+@ExperimentalReactiveApi
 val TabGui.activeTabProvider: Provider<Gui?>
     get() = tabsProvider.getOrNull(tabProvider)

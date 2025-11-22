@@ -41,6 +41,7 @@ fun <C : Any> PagedGui.Builder<C>.setContent(content: Provider<List<C>>): PagedG
  * - Otherwise, each invocation returns a new instance of a [MutableProvider] that is [weakly][WeakReference]
  *  linked to the [PagedGui.contentProperty].
  */
+@ExperimentalReactiveApi
 val <C : Any> PagedGui<C>.contentProvider: MutableProvider<List<C>>
     get() = contentProperty.toProvider()
 
@@ -53,6 +54,7 @@ val <C : Any> PagedGui<C>.contentProvider: MutableProvider<List<C>>
  * - Otherwise, each invocation returns a new instance of a [MutableProvider] that is [weakly][WeakReference]
  *  linked to the [PagedGui.pageProperty].
  */
+@ExperimentalReactiveApi
 val PagedGui<*>.pageProvider: MutableProvider<Int>
     get() = pageProperty.toProvider()
 
@@ -62,5 +64,6 @@ val PagedGui<*>.pageProvider: MutableProvider<Int>
  * Each invocation returns a new instance of a [MutableProvider] that is [weakly][WeakReference]
  * linked to the [PagedGui.getPageCountProperty].
  */
+@ExperimentalReactiveApi
 val PagedGui<*>.pageCountProvider: Provider<Int>
     get() = pageCountProperty.toProvider()

@@ -41,6 +41,7 @@ fun <C : Any> ScrollGui.Builder<C>.setContent(content: Provider<List<C>>): Scrol
  * - Otherwise, each invocation returns a new instance of a [MutableProvider] that is [weakly][WeakReference]
  *  linked to the [ScrollGui.contentProperty].
  */
+@ExperimentalReactiveApi
 val <C : Any> ScrollGui<C>.contentProvider: MutableProvider<List<C>>
     get() = contentProperty.toProvider()
 
@@ -53,6 +54,7 @@ val <C : Any> ScrollGui<C>.contentProvider: MutableProvider<List<C>>
  * - Otherwise, each invocation returns a new instance of a [MutableProvider] that is [weakly][WeakReference]
  *  linked to the [ScrollGui.lineProperty].
  */
+@ExperimentalReactiveApi
 val ScrollGui<*>.lineProvider: MutableProvider<Int>
     get() = lineProperty.toProvider()
 
@@ -62,6 +64,7 @@ val ScrollGui<*>.lineProvider: MutableProvider<Int>
  * Each invocation returns a new instance of a [MutableProvider] that is [weakly][WeakReference]
  * linked to the [ScrollGui.getLineCountProperty].
  */
+@ExperimentalReactiveApi
 val ScrollGui<*>.lineCountProvider: Provider<Int>
     get() = lineCountProperty.toProvider()
 
@@ -71,5 +74,6 @@ val ScrollGui<*>.lineCountProvider: Provider<Int>
  * Each invocation returns a new instance of a [MutableProvider] that is [weakly][WeakReference]
  * linked to the [ScrollGui.getMaxLineProperty].
  */
+@ExperimentalReactiveApi
 val ScrollGui<*>.maxLineProvider: Provider<Int>
     get() = maxLineProperty.toProvider()
