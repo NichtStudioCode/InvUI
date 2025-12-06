@@ -1,10 +1,12 @@
 package xyz.xenondevs.inventoryaccess.r20;
 
+import com.mojang.authlib.GameProfile;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.nbt.*;
 import net.minecraft.util.datafix.DataFixers;
 import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ResolvableProfile;
 import org.bukkit.craftbukkit.v1_21_R1.CraftRegistry;
 import org.bukkit.craftbukkit.v1_21_R1.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_21_R1.util.CraftMagicNumbers;
@@ -104,6 +106,12 @@ class ItemUtilsImpl implements ItemUtils {
             itemMeta,
             lore.stream().map(InventoryUtilsImpl::createNMSComponent).collect(Collectors.toList())
         );
+    }
+    
+    @Override
+    public void setSkullProfile(@NotNull ItemMeta itemMeta, @NotNull GameProfile profile) {
+        assert ReflectionRegistry.CB_CRAFT_META_SKULL_SET_RESOLVABLE_PROFILE_METHOD != null;
+        ReflectionUtils.invokeMethod(ReflectionRegistry.CB_CRAFT_META_SKULL_SET_RESOLVABLE_PROFILE_METHOD, itemMeta, new ResolvableProfile(profile));
     }
     
 }

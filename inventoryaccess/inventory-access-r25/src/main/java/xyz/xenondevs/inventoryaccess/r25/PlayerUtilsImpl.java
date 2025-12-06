@@ -1,5 +1,9 @@
 package xyz.xenondevs.inventoryaccess.r25;
 
+import com.google.common.collect.ImmutableMultimap;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
+import com.mojang.authlib.properties.PropertyMap;
 import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket;
 import net.minecraft.server.PlayerAdvancements;
@@ -21,6 +25,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 class PlayerUtilsImpl implements PlayerUtils {
@@ -82,7 +87,7 @@ class PlayerUtilsImpl implements PlayerUtils {
     }
     
     private Holder<MapDecorationType> getDecorationTypeByIconType(MapIcon.MapIconType icon) {
-        return switch(icon) {
+        return switch (icon) {
             case WHITE_ARROW -> MapDecorationTypes.PLAYER;
             case GREEN_ARROW -> MapDecorationTypes.FRAME;
             case RED_ARROW -> MapDecorationTypes.RED_MARKER;
@@ -111,6 +116,12 @@ class PlayerUtilsImpl implements PlayerUtils {
             case BLACK_BANNER -> MapDecorationTypes.BLACK_BANNER;
             case RED_CROSS -> MapDecorationTypes.RED_X;
         };
+    }
+    
+    @Override
+    public GameProfile crateGameProfile(@NotNull UUID uuid, @NotNull String name, @NotNull String texture) {
+        var properties = ImmutableMultimap.of("textures", new Property("textures", texture));
+        return new GameProfile(uuid, name, new PropertyMap(properties));
     }
     
 }

@@ -14,6 +14,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import xyz.xenondevs.inventoryaccess.InventoryAccess;
 import xyz.xenondevs.inventoryaccess.util.ReflectionRegistry;
 import xyz.xenondevs.inventoryaccess.util.ReflectionUtils;
 import xyz.xenondevs.invui.util.MojangApiUtils;
@@ -66,9 +67,7 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
     }
     
     private void setGameProfile(@NotNull HeadTexture texture) {
-        gameProfile = new GameProfile(UUID.randomUUID(), "InvUI");
-        PropertyMap propertyMap = gameProfile.getProperties();
-        propertyMap.put("textures", new Property("textures", texture.getTextureValue()));
+        gameProfile = InventoryAccess.getPlayerUtils().crateGameProfile(UUID.randomUUID(), "InvUI", texture.getTextureValue());
     }
     
     @Contract(value = "_ -> new", pure = true)
@@ -77,15 +76,8 @@ public final class SkullBuilder extends AbstractItemBuilder<SkullBuilder> {
         ItemStack item = super.get(lang);
         ItemMeta meta = item.getItemMeta();
         
-        if (gameProfile != null) {
-            if (ReflectionRegistry.CB_CRAFT_META_SKULL_SET_RESOLVABLE_PROFILE_METHOD != null && ReflectionRegistry.RESOLVABLE_PROFILE_FROM_GAME_PROFILE_CONSTRUCTOR != null) {
-                Object resolvableProfile = ReflectionUtils.construct(ReflectionRegistry.RESOLVABLE_PROFILE_FROM_GAME_PROFILE_CONSTRUCTOR, gameProfile);
-                ReflectionUtils.invokeMethod(ReflectionRegistry.CB_CRAFT_META_SKULL_SET_RESOLVABLE_PROFILE_METHOD, meta, resolvableProfile);
-            } else if (ReflectionRegistry.CB_CRAFT_META_SKULL_SET_PROFILE_METHOD != null) {
-                ReflectionUtils.invokeMethod(ReflectionRegistry.CB_CRAFT_META_SKULL_SET_PROFILE_METHOD, meta, gameProfile);
-            } else {
-                ReflectionUtils.setFieldValue(ReflectionRegistry.CB_CRAFT_META_SKULL_PROFILE_FIELD, meta, gameProfile);
-            }
+        if (meta != null && gameProfile != null) {
+            InventoryAccess.getItemUtils().setSkullProfile(meta, gameProfile);
         }
         
         item.setItemMeta(meta);

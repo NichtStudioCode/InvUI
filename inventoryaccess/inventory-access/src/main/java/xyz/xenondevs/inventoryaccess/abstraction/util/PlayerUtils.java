@@ -1,5 +1,6 @@
 package xyz.xenondevs.inventoryaccess.abstraction.util;
 
+import com.mojang.authlib.GameProfile;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -7,6 +8,7 @@ import xyz.xenondevs.inventoryaccess.map.MapIcon;
 import xyz.xenondevs.inventoryaccess.map.MapPatch;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface PlayerUtils {
     
@@ -50,5 +52,15 @@ public interface PlayerUtils {
      * @param icons    The {@link MapIcon new icons} to be displayed, can be null
      */
     void sendMapUpdate(@NotNull Player player, int mapId, byte scale, boolean locked, @Nullable MapPatch mapPatch, @Nullable List<MapIcon> icons);
+    
+    /**
+     * Creates a {@link GameProfile} with the given parameters.
+     *
+     * @param uuid    The UUID of the profile
+     * @param name    The name of the profile
+     * @param texture The value under the "textures" property
+     * @return The created {@link GameProfile}
+     */
+    GameProfile crateGameProfile(@NotNull UUID uuid, @NotNull String name, @NotNull String texture);
     
 }

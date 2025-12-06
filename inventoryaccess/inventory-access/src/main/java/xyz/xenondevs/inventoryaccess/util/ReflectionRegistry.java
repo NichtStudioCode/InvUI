@@ -1,11 +1,13 @@
 package xyz.xenondevs.inventoryaccess.util;
 
 import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.PropertyMap;
 import org.bukkit.Bukkit;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.UUID;
 
 import static xyz.xenondevs.inventoryaccess.util.ReflectionUtils.*;
 

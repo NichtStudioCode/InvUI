@@ -1,5 +1,6 @@
 package xyz.xenondevs.inventoryaccess.r7;
 
+import com.mojang.authlib.GameProfile;
 import net.minecraft.server.v1_16_R3.ItemStack;
 import net.minecraft.server.v1_16_R3.NBTCompressedStreamTools;
 import net.minecraft.server.v1_16_R3.NBTTagCompound;
@@ -86,6 +87,15 @@ class ItemUtilsImpl implements ItemUtils {
             itemMeta,
             lore.stream().map(ComponentWrapper::serializeToJson).collect(Collectors.toList())
         );
+    }
+    
+    @Override
+    public void setSkullProfile(@NotNull ItemMeta itemMeta, @NotNull GameProfile profile) {
+        if (ReflectionRegistry.CB_CRAFT_META_SKULL_SET_PROFILE_METHOD != null) {
+            ReflectionUtils.invokeMethod(ReflectionRegistry.CB_CRAFT_META_SKULL_SET_PROFILE_METHOD, itemMeta, profile);
+        } else {
+            ReflectionUtils.setFieldValue(ReflectionRegistry.CB_CRAFT_META_SKULL_PROFILE_FIELD, itemMeta, profile);
+        }
     }
     
 }

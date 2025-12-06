@@ -1,5 +1,6 @@
 package xyz.xenondevs.inventoryaccess.abstraction.util;
 
+import com.mojang.authlib.GameProfile;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
@@ -66,5 +67,12 @@ public interface ItemUtils {
      * @param lore     The lore
      */
     void setLore(@NotNull ItemMeta itemMeta, @NotNull List<@NotNull ComponentWrapper> lore);
+    
+    /**
+     * Sets the skull profile of an {@link ItemMeta}
+     * @param itemMeta The {@link ItemMeta}
+     * @param profile The skull's {@link GameProfile}
+     */
+    void setSkullProfile(@NotNull ItemMeta itemMeta, @NotNull GameProfile profile);
     
 }

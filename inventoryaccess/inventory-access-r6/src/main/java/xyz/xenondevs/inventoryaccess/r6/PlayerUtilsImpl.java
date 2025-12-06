@@ -1,5 +1,7 @@
 package xyz.xenondevs.inventoryaccess.r6;
 
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
 import net.minecraft.server.v1_16_R2.*;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_16_R2.CraftServer;
@@ -14,6 +16,7 @@ import xyz.xenondevs.inventoryaccess.util.ReflectionUtils;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 class PlayerUtilsImpl implements PlayerUtils {
@@ -73,6 +76,13 @@ class PlayerUtilsImpl implements PlayerUtils {
             icon.getRot(),
             icon.getComponent() != null ? InventoryUtilsImpl.createNMSComponent(icon.getComponent()) : null
         );
+    }
+    
+    @Override
+    public GameProfile crateGameProfile(@NotNull UUID uuid, @NotNull String name, @NotNull String texture) {
+        GameProfile gameProfile = new GameProfile(uuid, name);
+        gameProfile.getProperties().put("textures", new Property("textures", texture));
+        return gameProfile;
     }
     
 }
