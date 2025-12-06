@@ -60,5 +60,6 @@ _These examples are taken from the documentation linked above. To keep the code 
     <a href="https://docs.xenondevs.xyz/invui2/window/#anvil-window"><img src="https://docs.xenondevs.xyz/invui2/assets/img/window/anvil_search.avif" width="256"></a>
     <a href="https://docs.xenondevs.xyz/invui2/window/#stonecutter-window"><img src="https://docs.xenondevs.xyz/invui2/assets/img/window/stonecutter_buttons_as_inventory.avif" width="256"></a>
     <a href="https://docs.xenondevs.xyz/invui2/window/#cartography-window"><img src="https://docs.xenondevs.xyz/invui2/assets/img/window/cartography_drawing.avif" width="256"></a>
-    <a href="https://docs.xenondevs.xyz/invui2/window/#merchant-window"><img src="https://docs.xenondevs.xyz/invui2/assets/img/window/merchant_tabs.avif" width="400"></a>
+    <a href="https://docs.xenondevs.xyz/invui2/window/#merchant-window"><img src="https://docs.xenondevs.xyz/invui2/assets/img/window/merchant_tabs.avif" width="426"></a>
+    <a href="https://docs.xenondevs.xyz/invui2/item/#bundle-selection"><img src="https://docs.xenondevs.xyz/invui2/assets/img/item/bundleSelect.avif" width="344"></a>
 </p>
