@@ -6,7 +6,7 @@ import net.minecraft.network.HashedStack;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
@@ -128,7 +128,7 @@ public class CustomStonecutterMenu extends CustomContainerMenu {
                     Optional.of(new RecipeHolder<>(
                         ResourceKey.create(
                             Registries.RECIPE,
-                            ResourceLocation.fromNamespaceAndPath("invui", "fake_stonecutter_" + MathUtils.RANDOM.nextInt())
+                            Identifier.fromNamespaceAndPath("invui", "fake_stonecutter_" + MathUtils.RANDOM.nextInt())
                         ),
                         new StonecutterRecipe("", ingredient, button.copy())
                     ))

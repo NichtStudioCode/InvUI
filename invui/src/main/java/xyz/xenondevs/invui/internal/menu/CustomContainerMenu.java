@@ -22,7 +22,7 @@ import net.minecraft.network.protocol.common.ClientboundPingPacket;
 import net.minecraft.network.protocol.common.ServerboundPongPacket;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.resources.RegistryOps;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.HashOps;
@@ -116,7 +116,7 @@ public abstract class CustomContainerMenu {
     protected static final HashedStack DIRTY_MARKER = HashedStack.create(new ItemStack(
         BuiltInRegistries.ITEM.wrapAsHolder(Items.DIRT), 1,
         DataComponentPatch.builder()
-            .set(DataComponents.ITEM_MODEL, ResourceLocation.fromNamespaceAndPath("invui", "dirty_marker"))
+            .set(DataComponents.ITEM_MODEL, Identifier.fromNamespaceAndPath("invui", "dirty_marker"))
             .build()
     ), HASH_GENERATOR);
     

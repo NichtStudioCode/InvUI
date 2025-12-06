@@ -6,7 +6,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.protocol.game.ClientboundPlaceGhostRecipePacket;
 import net.minecraft.network.protocol.game.ServerboundPlaceRecipePacket;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.crafting.display.RecipeDisplayEntry;
@@ -55,7 +55,7 @@ public abstract class CustomRecipeBookPoweredMenu extends CustomContainerMenu {
      */
     public void sendGhostRecipe(Key id) {
         var entryRef = new AtomicReference<@Nullable RecipeDisplayEntry>();
-        var rk = ResourceKey.create(Registries.RECIPE, ResourceLocation.fromNamespaceAndPath(id.namespace(), id.value()));
+        var rk = ResourceKey.create(Registries.RECIPE, Identifier.fromNamespaceAndPath(id.namespace(), id.value()));
         MinecraftServer.getServer().getRecipeManager().listDisplaysForRecipe(rk, entryRef::set);
         var entry = entryRef.get();
         if (entry == null)
@@ -87,7 +87,7 @@ public abstract class CustomRecipeBookPoweredMenu extends CustomContainerMenu {
         var rl = displayInfo
             .parent()
             .id()
-            .location();
+            .identifier();
         var key = Key.key(rl.getNamespace(), rl.getPath());
         recipeSelectHandler.accept(key);
     }
