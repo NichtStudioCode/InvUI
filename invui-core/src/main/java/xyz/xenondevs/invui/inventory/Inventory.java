@@ -833,14 +833,17 @@ public abstract class Inventory {
             newStack.setAmount(Math.min(amountLeft, getMaxSlotStackSize(slot, itemStack)));
             if (shouldCallEvents(updateReason)) {
                 ItemPreUpdateEvent event = callPreUpdateEvent(updateReason, slot, null, newStack);
-                if (!event.isCancelled()) {
-                    newStack = event.getNewItem();
-                    setCloneBackingItem(slot, newStack);
-                    callPostUpdateEvent(updateReason, slot, null, newStack);
-                    
-                    int newStackAmount = newStack != null ? newStack.getAmount() : 0;
-                    amountLeft -= newStackAmount;
+                if (event.isCancelled()) {
+                    break; //This is in-line with Bukkit's behavior, if an event is cancelled while adding to an inventory, stop trying to add further
                 }
+                newStack = event.getNewItem();
+                setCloneBackingItem(slot, newStack);
+                callPostUpdateEvent(updateReason, slot, null, newStack);
+
+                int newStackAmount = newStack != null ? newStack.getAmount() : 0;
+                amountLeft -= newStackAmount;
+                if (amountLeft == 0) break;  //Break since the item has been placed
+
             } else {
                 setDirectBackingItem(slot, newStack);
                 amountLeft -= newStack.getAmount();
