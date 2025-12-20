@@ -1,6 +1,6 @@
 [versions]
 kotlin = "2.2.21"
-paper = "1.21.11-rc2-R0.1-SNAPSHOT"
+paper = "1.21.11-R0.1-SNAPSHOT"
 testpaper = "1.21.10-R0.1-SNAPSHOT"
 
 [libraries]

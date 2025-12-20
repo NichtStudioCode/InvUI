@@ -3,6 +3,7 @@ package xyz.xenondevs.invui.gui;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.Unmodifiable;
@@ -117,9 +118,6 @@ non-sealed abstract class AbstractGui implements Gui {
         Inventory inventory = element.inventory();
         int slot = element.slot();
         
-        if (inventory.callClickEvent(slot, click))
-            return;
-        
         switch (click.clickType()) {
             case LEFT -> handleInvLeftClick(click, inventory, slot);
             case RIGHT -> handleInvRightClick(click, inventory, slot);
@@ -128,7 +126,7 @@ non-sealed abstract class AbstractGui implements Gui {
             case SWAP_OFFHAND -> handleInvOffHandKey(click, inventory, slot);
             case DROP -> handleInvDrop(false, click, inventory, slot);
             case CONTROL_DROP -> handleInvDrop(true, click, inventory, slot);
-            case DOUBLE_CLICK -> handleInvDoubleClick(click);
+            case DOUBLE_CLICK -> handleInvDoubleClick(click, inventory, slot);
             case MIDDLE -> handleInvMiddleClick(click, inventory, slot);
         }
     }
@@ -139,18 +137,26 @@ non-sealed abstract class AbstractGui implements Gui {
         ItemStack clicked = inventory.getItem(slot);
         
         // nothing happens if both cursor and clicked stack are empty
-        if (clicked == null && cursor == null)
+        if (clicked == null && cursor == null) {
+            inventory.callClickEvent(slot, click, InventoryAction.NOTHING);
             return;
+        }
         
         UpdateReason updateReason = new PlayerUpdateReason.Click(player, click);
         
         if (cursor == null) {
             // if the cursor is empty, pick the stack up
+            if (inventory.callClickEvent(slot, click, InventoryAction.PICKUP_SOME))
+                return;
+            
             int amount = -inventory.addItemAmount(updateReason, slot, -clicked.getAmount());
             clicked.setAmount(amount);
             player.setItemOnCursor(clicked);
         } else if (clicked != null && ItemUtils2.isBundle(cursor)) {
             // insert clicked item into bundle on cursor
+            if (inventory.callClickEvent(slot, click, InventoryAction.PICKUP_SOME_INTO_BUNDLE))
+                return;
+            
             int toAdd = ItemUtils2.getMaxAmountToAddToBundle(cursor, clicked);
             toAdd = -inventory.addItemAmount(updateReason, slot, -toAdd);
             clicked.setAmount(toAdd);
@@ -158,6 +164,9 @@ non-sealed abstract class AbstractGui implements Gui {
             player.setItemOnCursor(cursor);
         } else if (clicked != null && ItemUtils2.isBundle(clicked)) {
             // insert cursor item into clicked bundle
+            if (inventory.callClickEvent(slot, click, InventoryAction.PLACE_SOME_INTO_BUNDLE))
+                return;
+            
             ItemStack bundle = clicked.clone();
             if (ItemUtils2.tryMoveIntoBundle(bundle, cursor.clone())) { // writes back into bundle
                 // some items were inserted, now try to place the updated bundle into the inventory
@@ -171,6 +180,9 @@ non-sealed abstract class AbstractGui implements Gui {
             }
         } else if (clicked == null || cursor.isSimilar(clicked)) {
             // if there are no items, or they're similar to the cursor, add the cursor items to the stack
+            if (inventory.callClickEvent(slot, click, InventoryAction.PLACE_SOME))
+                return;
+            
             int remains = inventory.putItem(updateReason, slot, cursor);
             if (remains == 0) {
                 player.setItemOnCursor(null);
@@ -180,6 +192,9 @@ non-sealed abstract class AbstractGui implements Gui {
             }
         } else if (!cursor.isSimilar(clicked)) {
             // if the stacks are not similar, swap them
+            if (inventory.callClickEvent(slot, click, InventoryAction.SWAP_WITH_CURSOR))
+                return;
+            
             if (inventory.setItem(updateReason, slot, cursor))
                 player.setItemOnCursor(clicked);
         }
@@ -191,13 +206,18 @@ non-sealed abstract class AbstractGui implements Gui {
         ItemStack clicked = inventory.getItem(slot);
         
         // nothing happens if both cursor and clicked stack are empty
-        if (clicked == null && cursor == null)
+        if (clicked == null && cursor == null) {
+            inventory.callClickEvent(slot, click, InventoryAction.NOTHING);
             return;
+        }
         
         UpdateReason updateReason = new PlayerUpdateReason.Click(player, click);
         
         if (cursor == null && ItemUtils2.isBundle(clicked)) {
             // take the selected item from the bundle
+            if (inventory.callClickEvent(slot, click, InventoryAction.PICKUP_FROM_BUNDLE))
+                return;
+            
             ItemStack bundle = clicked.clone();
             ItemStack taken = ItemUtils2.takeSelectedFromBundle(bundle); // writes back to bundle
             if (taken != null) {
@@ -213,6 +233,9 @@ non-sealed abstract class AbstractGui implements Gui {
         } else if (cursor == null) {
             // if the cursor is empty, split the stack to the cursor
             // if the stack is not divisible by 2, give the cursor the bigger part
+            if (inventory.callClickEvent(slot, click, InventoryAction.PICKUP_HALF))
+                return;
+            
             int newCursorAmount = (int) Math.ceil(clicked.getAmount() / 2.0);
             newCursorAmount = -inventory.addItemAmount(updateReason, slot, -newCursorAmount);
             ItemStack newCursor = clicked.clone();
@@ -220,6 +243,9 @@ non-sealed abstract class AbstractGui implements Gui {
             player.setItemOnCursor(newCursor);
         } else if (clicked == null && ItemUtils2.isBundle(cursor)) {
             // if the player right-clicked on an empty slot with a bundle, place the first item from the bundle there
+            if (inventory.callClickEvent(slot, click, InventoryAction.PLACE_FROM_BUNDLE))
+                return;
+            
             ItemStack toTake = ItemUtils2.getFirstFromBundle(cursor);
             if (toTake != null) {
                 int amountTaken = toTake.getAmount() - inventory.putItem(updateReason, slot, toTake);
@@ -231,6 +257,9 @@ non-sealed abstract class AbstractGui implements Gui {
             }
         } else if (clicked == null || cursor.isSimilar(clicked)) {
             // put one item from the cursor in the inventory
+            if (inventory.callClickEvent(slot, click, InventoryAction.PLACE_ONE))
+                return;
+            
             ItemStack toAdd = cursor.clone();
             toAdd.setAmount(1);
             int remains = inventory.putItem(updateReason, slot, toAdd);
@@ -240,6 +269,9 @@ non-sealed abstract class AbstractGui implements Gui {
             }
         } else {
             // swap cursor and clicked
+            if (inventory.callClickEvent(slot, click, InventoryAction.SWAP_WITH_CURSOR))
+                return;
+            
             if (inventory.setItem(updateReason, slot, cursor))
                 player.setItemOnCursor(clicked);
         }
@@ -249,7 +281,12 @@ non-sealed abstract class AbstractGui implements Gui {
         Player player = click.player();
         ItemStack clicked = inventory.getItem(slot);
         
-        if (clicked == null)
+        if (clicked == null) {
+            inventory.callClickEvent(slot, click, InventoryAction.NOTHING);
+            return;
+        }
+        
+        if (inventory.callClickEvent(slot, click, InventoryAction.MOVE_TO_OTHER_INVENTORY))
             return;
         
         UpdateReason updateReason = new PlayerUpdateReason.Click(player, click);
@@ -293,6 +330,14 @@ non-sealed abstract class AbstractGui implements Gui {
                 return;
             
             ItemStack hotbar = otherInventory.getItem(otherSlot);
+            if (clicked == null && hotbar == null) {
+                inventory.callClickEvent(slot, click, InventoryAction.NOTHING);
+                return;
+            }
+            
+            if (inventory.callClickEvent(slot, click, InventoryAction.HOTBAR_SWAP))
+                return;
+            
             var updateReason = new PlayerUpdateReason.Click(click);
             
             // check if clicked inventory would allow hotbar swap
@@ -316,6 +361,14 @@ non-sealed abstract class AbstractGui implements Gui {
         ItemStack clicked = inventory.getItem(slot);
         ItemStack offhandItem = ItemUtils.takeUnlessEmpty(playerInventory.getItemInOffHand());
         
+        if (clicked == null && offhandItem == null) {
+            inventory.callClickEvent(slot, click, InventoryAction.NOTHING);
+            return;
+        }
+        
+        if (inventory.callClickEvent(slot, click, InventoryAction.HOTBAR_SWAP))
+            return;
+        
         if (inventory.setItem(new PlayerUpdateReason.Click(click), slot, offhandItem))
             playerInventory.setItemInOffHand(clicked);
     }
@@ -323,6 +376,9 @@ non-sealed abstract class AbstractGui implements Gui {
     private void handleInvDrop(boolean ctrl, Click click, Inventory inventory, int slot) {
         ItemStack clicked = inventory.getItem(slot);
         if (ItemUtils.isEmpty(clicked))
+            return;
+        
+        if (inventory.callClickEvent(slot, click, ctrl ? InventoryAction.DROP_ALL_SLOT : InventoryAction.DROP_ONE_SLOT))
             return;
         
         Player player = click.player();
@@ -344,9 +400,14 @@ non-sealed abstract class AbstractGui implements Gui {
         inventory.callPostUpdateEvent(updateReason, slot, clicked, newItem);
     }
     
-    private void handleInvDoubleClick(Click click) {
+    private void handleInvDoubleClick(Click click, Inventory clickedinventory, int clickedSlot) {
         Player player = click.player();
-        if (ItemUtils.isEmpty(player.getItemOnCursor()))
+        if (ItemUtils.isEmpty(player.getItemOnCursor())) {
+            clickedinventory.callClickEvent(clickedSlot, click, InventoryAction.NOTHING);
+            return;
+        }
+        
+        if (clickedinventory.callClickEvent(clickedSlot, click, InventoryAction.COLLECT_TO_CURSOR))
             return;
         
         // requires window as collect to cursor is a cross-gui operation
@@ -374,13 +435,14 @@ non-sealed abstract class AbstractGui implements Gui {
     
     private void handleInvMiddleClick(Click click, Inventory inventory, int slot) {
         Player player = click.player();
-        if (player.getGameMode() != GameMode.CREATIVE || !player.getItemOnCursor().isEmpty())
-            return;
-        
-        ItemStack cursor = inventory.getItem(slot);
-        if (cursor != null) {
-            cursor.setAmount(cursor.getMaxStackSize());
-            player.setItemOnCursor(cursor);
+        ItemStack target = inventory.getItem(slot);
+        if (player.getGameMode() == GameMode.CREATIVE && target != null && ItemUtils.isEmpty(player.getItemOnCursor())) {
+            if (inventory.callClickEvent(slot, click, InventoryAction.CLONE_STACK))
+                return;
+            target.setAmount(target.getMaxStackSize());
+            player.setItemOnCursor(target);
+        } else {
+            inventory.callClickEvent(slot, click, InventoryAction.NOTHING);
         }
     }
     
@@ -392,7 +454,7 @@ non-sealed abstract class AbstractGui implements Gui {
             inventory.setItem(new PlayerUpdateReason.BundleSelect(player, bundleSlot), slot, bundle);
         }
     }
-            
+    
     /**
      * Puts the given {@link ItemStack} into the first inventory that accepts it of the given collection of inventories.
      * If one inventory accepts any amount of items, further inventories will not be queried, meaning that an item stack

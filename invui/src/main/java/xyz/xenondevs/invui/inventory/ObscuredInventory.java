@@ -1,12 +1,12 @@
 package xyz.xenondevs.invui.inventory;
 
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.Observer;
 import xyz.xenondevs.invui.internal.util.ArrayUtils;
-import xyz.xenondevs.invui.inventory.event.InventoryClickEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
 
@@ -151,19 +151,9 @@ public final class ObscuredInventory extends Inventory {
     }
     
     @Override
-    public boolean callClickEvent(int slot, Click click) {
-        var cancelled = inventory.callClickEvent(slots[slot], click);
-        var clickEvent = new InventoryClickEvent(this, slot, click);
-        clickEvent.setCancelled(cancelled);
-        for (var handler : getClickHandlers()) {
-            try {
-                handler.accept(clickEvent);
-            } catch (Throwable t) {
-                InvUI.getInstance().handleException("An exception occurred while handling an inventory event", t);
-            }
-        }
-        
-        return clickEvent.isCancelled();
+    protected boolean callClickEvent(int slot, Click click, InventoryAction action, boolean cancelled) {
+        cancelled = inventory.callClickEvent(slots[slot], click, action, cancelled);
+        return super.callClickEvent(slot, click, action, cancelled);
     }
     
     @Override
@@ -198,6 +188,11 @@ public final class ObscuredInventory extends Inventory {
     @Override
     public boolean hasEventHandlers() {
         return super.hasEventHandlers() || inventory.hasEventHandlers();
+    }
+    
+    @Override
+    public InventorySlot getBackingSlot(int slot) {
+        return inventory.getBackingSlot(slots[slot]);
     }
     
 }

@@ -96,6 +96,19 @@ public final class ItemUtils {
     }
     
     /**
+     * Gets the amount of the given {@link ItemStack}, or 0 if it is empty.
+     *
+     * @param itemStack the item stack
+     * @return the amount of the item stack, or 0 if it is empty
+     */
+    public static int getAmount(@Nullable ItemStack itemStack) {
+        if (isEmpty(itemStack))
+            return 0;
+        
+        return itemStack.getAmount();
+    }
+    
+    /**
      * Returns a copy of the non-empty placeholder item, which is an invisible non-air item stack.
      *
      * @return the non-empty placeholder item

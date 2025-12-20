@@ -1,7 +1,9 @@
 package xyz.xenondevs.invui.inventory;
 
 import org.bukkit.Material;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
@@ -454,12 +456,18 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
     /**
      * Calls the click handlers of this {@link Inventory} for the given slot and {@link Click}.
      *
-     * @param slot  The slot of this {@link Inventory} that was clicked.
-     * @param click The {@link Click} that occurred.
+     * @param slot   The slot of this {@link Inventory} that was clicked.
+     * @param click  The {@link Click} that occurred.
+     * @param action The {@link InventoryAction} representing the normal outcome of this click.
      * @return Whether the click event was cancelled.
      */
-    public boolean callClickEvent(int slot, Click click) {
-        var clickEvent = new InventoryClickEvent(this, slot, click);
+    public final boolean callClickEvent(int slot, Click click, InventoryAction action) {
+        return callClickEvent(slot, click, action, false);
+    }
+    
+    protected boolean callClickEvent(int slot, Click click, InventoryAction action, boolean cancelled) {
+        var clickEvent = new InventoryClickEvent(this, slot, click, action);
+        clickEvent.setCancelled(cancelled);
         for (var handler : getClickHandlers()) {
             try {
                 handler.accept(clickEvent);
@@ -1342,7 +1350,7 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
             ItemStack item = items[slot];
             if (item != null && predicate.test(item.clone())) {
                 leftOver -= takeFrom(updateReason, slot, leftOver);
-                if (leftOver == 0) return 0;
+                if (leftOver == 0) return amount;
             }
         }
         
@@ -1386,7 +1394,7 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
             ItemStack item = items[slot];
             if (item != null && item.isSimilar(itemStack)) {
                 leftOver -= takeFrom(updateReason, slot, leftOver);
-                if (leftOver == 0) return 0;
+                if (leftOver == 0) return amount;
             }
         }
         
@@ -1436,6 +1444,23 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
         }
         
         return 0;
+    }
+    
+    /**
+     * @return This inventory as a Bukkit inventory.
+     */
+    @ApiStatus.Experimental
+    public org.bukkit.inventory.Inventory asBukkitInventory() {
+        return new InventoryAdapter(this);
+    }
+    
+    /**
+     * Gets the slot that is backing the given slot in this inventory.
+     * @param slot The slot number
+     * @return The backing {@link InventorySlot}
+     */
+    public InventorySlot getBackingSlot(int slot) {
+        return new InventorySlot(this, slot);
     }
     
 }

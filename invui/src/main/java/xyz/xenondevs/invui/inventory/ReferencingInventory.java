@@ -1,13 +1,18 @@
 package xyz.xenondevs.invui.inventory;
 
 import org.bukkit.Bukkit;
+import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitTask;
 import org.jspecify.annotations.Nullable;
+import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.Observer;
+import xyz.xenondevs.invui.internal.util.FakeInventoryView;
 import xyz.xenondevs.invui.util.ItemUtils;
 import xyz.xenondevs.invui.util.TriConsumer;
 
@@ -41,7 +46,7 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
      * @param itemGetter  A {@link BiFunction} which returns a copy of the {@link ItemStack} on the specified slot.
      * @param itemSetter  A {@link TriConsumer} which copies and then sets the {@link ItemStack} on the specified slot.
      */
-    public ReferencingInventory(
+    private ReferencingInventory(
         Inventory inventory,
         Function<Inventory, @Nullable ItemStack[]> itemsGetter,
         BiFunction<Inventory, Integer, @Nullable ItemStack> itemGetter,
@@ -83,7 +88,7 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
      * @param inventory The {@link PlayerInventory} to reference.
      * @return The new {@link ReferencingInventory}.
      */
-    public static ReferencingInventory fromPlayerStorageContents(PlayerInventory inventory) {
+    public static ReferencingInventory.PlayerStorageContents fromPlayerStorageContents(PlayerInventory inventory) {
         return new PlayerStorageContents(inventory);
     }
     
@@ -150,7 +155,61 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
         }
     }
     
-    private static final class PlayerStorageContents extends ReferencingInventory {
+    @SuppressWarnings("UnstableApiUsage")
+    @Override
+    protected boolean callClickEvent(int slot, Click click, InventoryAction action, boolean cancelled) {
+        cancelled = super.callClickEvent(slot, click, action, cancelled);
+        if (!InvUI.getInstance().isFireBukkitInventoryEvents())
+            return cancelled;
+        
+        var player = click.player();
+        InventoryClickEvent bukkitEvent;
+        if (this instanceof PlayerStorageContents && inventory == player.getInventory()) {
+            // for the player's own inventory, we use the bottom inventory of the view, regardless where the inventory is embedded,
+            // as many plugins will assume the player inventory to be at the bottom
+            var openView = player.getOpenInventory();
+            int rawSlot = openView.getTopInventory().getSize() + slot;
+            bukkitEvent = new InventoryClickEvent(
+                openView,
+                openView.getSlotType(rawSlot),
+                rawSlot,
+                click.clickType(),
+                action,
+                click.hotbarButton()
+            );
+        } else {
+            // all other inventories are put at the top of the view, this requires a fake view
+            // does not unwrap referencing inventories, since they may reorder slots
+            bukkitEvent = new InventoryClickEvent(
+                new FakeInventoryView(player, asBukkitInventory()),
+                InventoryType.SlotType.CONTAINER,
+                slot,
+                click.clickType(),
+                action,
+                click.hotbarButton()
+            );
+        }
+        
+        bukkitEvent.setCancelled(cancelled);
+        Bukkit.getPluginManager().callEvent(bukkitEvent);
+        return bukkitEvent.isCancelled();
+    }
+    
+    /**
+     * Gets the referenced Bukkit {@link Inventory}.
+     *
+     * @return The referenced Bukkit {@link Inventory}.
+     */
+    public Inventory getReferencedInventory() {
+        return inventory;
+    }
+    
+    /**
+     * A {@link ReferencingInventory} which references a {@link PlayerInventory}'s
+     * {@link Inventory#getStorageContents() storage contents}, with hotbar slot reordering such that
+     * the hotbar slots are the last nine slots.
+     */
+    public static final class PlayerStorageContents extends ReferencingInventory {
         
         public PlayerStorageContents(PlayerInventory inventory) {
             super(inventory, Inventory::getStorageContents, Inventory::getItem, Inventory::setItem);
@@ -196,6 +255,10 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
             super.setDirectBackingItem(convertSlot(slot), itemStack);
         }
         
+        @Override
+        public PlayerInventory getReferencedInventory() {
+            return (PlayerInventory) super.getReferencedInventory();
+        }
     }
     
 }

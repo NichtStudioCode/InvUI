@@ -1,5 +1,7 @@
 package xyz.xenondevs.invui.util;
 
+import org.jspecify.annotations.NullUnmarked;
+
 /**
  * A functional interface that takes three arguments and returns no result.
  *
@@ -7,6 +9,7 @@ package xyz.xenondevs.invui.util;
  * @param <B> The second argument type
  * @param <C> The third argument type
  */
+@NullUnmarked
 @FunctionalInterface
 public interface TriConsumer<A, B, C> {
     

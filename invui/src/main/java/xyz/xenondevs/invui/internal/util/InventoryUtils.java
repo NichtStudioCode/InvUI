@@ -1,10 +1,15 @@
 package xyz.xenondevs.invui.internal.util;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.world.inventory.MenuType;
 import org.bukkit.Location;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
@@ -166,8 +171,8 @@ public class InventoryUtils {
     /**
      * Adds an item stack to the player's inventory or drops it if it doesn't fit.
      * Also fires {@link PlayerDropItemEvent}, effectively deleting the item if the event is cancelled.
-     * 
-     * @param player The player
+     *
+     * @param player    The player
      * @param itemStack The item stack
      */
     public static void addToInventoryOrDrop(Player player, ItemStack itemStack) {
@@ -191,6 +196,53 @@ public class InventoryUtils {
         inv.setGuiPriority(OperationCategory.ADD, Integer.MAX_VALUE); // shift-click always moves between upper and lower inv
         inv.setGuiPriority(OperationCategory.COLLECT, Integer.MIN_VALUE); // double-click collects from lower inv last
         return Gui.of(9, 4, inv);
+    }
+    
+    /**
+     * Simulates an item drag operation.
+     *
+     * @param clickType The click type of the drag
+     * @param view      The inventory view
+     * @param slots     The slots involved in the drag
+     * @param cursor    The current cursor item stack. Will be modified to reflect the remaining items after the drag.
+     * @return A map of slot indices to the resulting item stacks in those slots after the drag
+     */
+    public static Int2ObjectMap<ItemStack> simulateItemDrag(ClickType clickType, InventoryView view, IntList slots, ItemStack cursor) {
+        if (ItemUtils.isEmpty(cursor) || slots.isEmpty())
+            return new Int2ObjectOpenHashMap<>();
+        
+        var result = new Int2ObjectOpenHashMap<ItemStack>();
+        if (clickType == ClickType.LEFT || clickType == ClickType.RIGHT) {
+            int amountPerSlot = clickType == ClickType.LEFT ? cursor.getAmount() / slots.size() : 1;
+            for (int slot : slots) {
+                if (cursor.getAmount() <= 0)
+                    break;
+                
+                var itemThere = view.getItem(slot);
+                if (itemThere == null || (itemThere.isSimilar(cursor) && itemThere.getAmount() < itemThere.getMaxStackSize())) {
+                    var currentAmount = ItemUtils.getAmount(itemThere);
+                    var newAmount = Math.min(cursor.getMaxStackSize(), currentAmount + amountPerSlot);
+                    var toPut = ItemUtils.cloneWithCount(cursor, newAmount);
+                    assert toPut != null;
+                    
+                    result.put(slot, toPut);
+                    cursor.setAmount(cursor.getAmount() - (newAmount - currentAmount));
+                }
+            }
+        } else if (clickType == ClickType.MIDDLE) {
+            for (int slot : slots) {
+                var itemThere = view.getItem(slot);
+                if (itemThere == null || (itemThere.isSimilar(cursor) && itemThere.getAmount() < itemThere.getMaxStackSize())) {
+                    var toPut = ItemUtils.cloneWithCount(cursor, cursor.getMaxStackSize());
+                    assert toPut != null;
+                    
+                    view.setItem(slot, toPut);
+                }
+            }
+            cursor.setAmount(0);
+        }
+        
+        return result;
     }
     
 }

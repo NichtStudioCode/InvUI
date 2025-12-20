@@ -21,8 +21,8 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.ClientboundPingPacket;
 import net.minecraft.network.protocol.common.ServerboundPongPacket;
 import net.minecraft.network.protocol.game.*;
-import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.HashOps;
@@ -35,7 +35,6 @@ import net.minecraft.world.item.component.BundleContents;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.inventory.CraftInventory;
-import org.bukkit.craftbukkit.inventory.CraftInventoryView;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -49,6 +48,7 @@ import xyz.xenondevs.invui.internal.network.PacketListener;
 import xyz.xenondevs.invui.internal.util.InventoryUtils;
 import xyz.xenondevs.invui.internal.util.MathUtils;
 import xyz.xenondevs.invui.internal.util.PingData;
+import xyz.xenondevs.invui.internal.util.FakeInventoryView;
 import xyz.xenondevs.invui.window.Window;
 
 import java.time.Duration;
@@ -486,8 +486,8 @@ public abstract class CustomContainerMenu {
             case CLONE -> ClickType.MIDDLE;
             
             case THROW -> switch (packet.buttonNum()) {
-                case 0 -> ClickType.DROP;
-                case 1 -> ClickType.CONTROL_DROP;
+                case 0 -> packet.slotNum() > 0 ? ClickType.DROP : ClickType.LEFT;
+                case 1 -> packet.slotNum() > 0 ? ClickType.CONTROL_DROP : ClickType.RIGHT;
                 default -> ClickType.UNKNOWN;
             };
             
@@ -542,7 +542,6 @@ public abstract class CustomContainerMenu {
                         getWindowEvents().handleClick(slot, new Click(player, dragMode, -1));
                     } else {
                         getWindowEvents().handleDrag(dragSlots, dragMode);
-                        
                     }
                 });
                 dragSlots.clear();
@@ -677,7 +676,7 @@ public abstract class CustomContainerMenu {
         
         @Override
         public InventoryView getBukkitView() {
-            return new CraftInventoryView<>(player, bukkitInventory, this);
+            return new FakeInventoryView(player, bukkitInventory);
         }
         
         @Override

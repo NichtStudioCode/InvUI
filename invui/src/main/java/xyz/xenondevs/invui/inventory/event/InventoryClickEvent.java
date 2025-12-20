@@ -1,6 +1,7 @@
 package xyz.xenondevs.invui.inventory.event;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryAction;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.ClickEvent;
 import xyz.xenondevs.invui.inventory.Inventory;
@@ -11,6 +12,7 @@ import xyz.xenondevs.invui.inventory.Inventory;
 public class InventoryClickEvent extends ClickEvent {
     
     private final Inventory inventory;
+    private final InventoryAction action;
     private final int slot;
     
     /**
@@ -20,10 +22,11 @@ public class InventoryClickEvent extends ClickEvent {
      * @param slot      The slot that was clicked.
      * @param click     The {@link Click} that was performed.
      */
-    public InventoryClickEvent(Inventory inventory, int slot, Click click) {
+    public InventoryClickEvent(Inventory inventory, int slot, Click click, InventoryAction action) {
         super(click);
         this.inventory = inventory;
         this.slot = slot;
+        this.action = action;
     }
     
     /**
@@ -33,6 +36,16 @@ public class InventoryClickEvent extends ClickEvent {
      */
     public Inventory getInventory() {
         return inventory;
+    }
+    
+    /**
+     * Gets the {@link InventoryAction} of this event,
+     * representing the normal outcome of the click.
+     *
+     * @return The action of this event.
+     */
+    public InventoryAction getAction() {
+        return action;
     }
     
     /**

@@ -1,9 +1,16 @@
 package xyz.xenondevs.invui.inventory;
 
+import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.util.CraftMagicNumbers;
+import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
+import xyz.xenondevs.invui.Click;
+import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.internal.util.DataUtils;
+import xyz.xenondevs.invui.internal.util.FakeInventoryView;
 import xyz.xenondevs.invui.util.ItemUtils;
 
 import java.io.*;
@@ -359,4 +366,26 @@ public final class VirtualInventory extends Inventory {
         items[slot] = itemStack;
     }
     
+    @SuppressWarnings("UnstableApiUsage")
+    @Override
+    protected boolean callClickEvent(int slot, Click click, InventoryAction action, boolean cancelled) {
+        cancelled = super.callClickEvent(slot, click, action, cancelled);
+        if (!InvUI.getInstance().isFireBukkitInventoryEvents())
+            return cancelled;
+        
+        // the virtual inventory is always put as the top inventory,
+        // as most plugins will expect the bottom inventory to be the player's inventory
+        var player = click.player();
+        var bukkitEvent = new InventoryClickEvent(
+            new FakeInventoryView(player, asBukkitInventory()),
+            InventoryType.SlotType.CONTAINER,
+            slot,
+            click.clickType(),
+            action,
+            click.hotbarButton()
+        );
+        bukkitEvent.setCancelled(cancelled);
+        Bukkit.getPluginManager().callEvent(bukkitEvent);
+        return bukkitEvent.isCancelled();
+    }
 }

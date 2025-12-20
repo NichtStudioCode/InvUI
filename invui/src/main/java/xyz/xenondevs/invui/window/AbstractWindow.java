@@ -1,13 +1,17 @@
 package xyz.xenondevs.invui.window;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.inventory.InventoryCloseEvent.Reason;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -21,9 +25,13 @@ import xyz.xenondevs.invui.i18n.Languages;
 import xyz.xenondevs.invui.internal.menu.CustomContainerMenu;
 import xyz.xenondevs.invui.internal.menu.WindowEventListener;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
+import xyz.xenondevs.invui.internal.util.FakeInventoryView;
 import xyz.xenondevs.invui.internal.util.FuncUtils;
 import xyz.xenondevs.invui.internal.util.InventoryUtils;
+import xyz.xenondevs.invui.inventory.CompositeInventory;
+import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.inventory.InventorySlot;
+import xyz.xenondevs.invui.inventory.ReferencingInventory;
 import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
 import xyz.xenondevs.invui.state.MutableProperty;
@@ -212,31 +220,58 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
                 link.gui().handleClick(link.slot(), click);
             }
         } else { // outside
-            var event = new ClickEvent(click);
-            CollectionUtils.forEachCatching(
-                outsideClickHandlers,
-                handler -> handler.accept(event),
-                "Failed to handle outside click: " + click
-            );
-            
-            var cursor = viewer.getItemOnCursor();
-            if (!event.isCancelled() && !ItemUtils.isEmpty(cursor)) {
-                switch (click.clickType()) {
-                    case LEFT -> {
-                        if (InventoryUtils.dropItemLikePlayer(viewer, cursor))
-                            viewer.setItemOnCursor(null);
-                    }
-                    
-                    case RIGHT -> {
-                        var drop = cursor.clone();
-                        drop.setAmount(1);
-                        if (InventoryUtils.dropItemLikePlayer(viewer, drop))
-                            cursor.setAmount(cursor.getAmount() - 1);
-                    }
-                    
-                    default -> {}
-                }
+            handleOutsideClick(click);
+        }
+    }
+    
+    @SuppressWarnings("UnstableApiUsage")
+    private void handleOutsideClick(Click click) {
+        var cursor = viewer.getItemOnCursor();
+        
+        // fire InvUI event
+        var event = new ClickEvent(click);
+        CollectionUtils.forEachCatching(
+            outsideClickHandlers,
+            handler -> handler.accept(event),
+            "Failed to handle outside click: " + click
+        );
+        if (event.isCancelled())
+            return;
+        
+        // fire bukkit event
+        if (InvUI.getInstance().isFireBukkitInventoryEvents()) {
+            InventoryAction action;
+            if (ItemUtils.isEmpty(cursor)) {
+                action = InventoryAction.NOTHING;
+            } else if (click.clickType() == ClickType.LEFT) {
+                action = InventoryAction.DROP_ALL_CURSOR;
+            } else { // RIGHT
+                action = InventoryAction.DROP_ONE_CURSOR;
             }
+            
+            var bukkitEvent = new InventoryClickEvent(
+                getViewer().getOpenInventory(),
+                InventoryType.SlotType.OUTSIDE,
+                -999,
+                click.clickType(),
+                action
+            );
+            Bukkit.getPluginManager().callEvent(bukkitEvent);
+            if (bukkitEvent.isCancelled())
+                return;
+        }
+        
+        // perform drop
+        if (ItemUtils.isEmpty(cursor))
+            return;
+        if (click.clickType() == ClickType.LEFT) {
+            if (InventoryUtils.dropItemLikePlayer(viewer, cursor))
+                viewer.setItemOnCursor(null);
+        } else if (click.clickType() == ClickType.RIGHT) {
+            var drop = cursor.clone();
+            drop.setAmount(1);
+            if (InventoryUtils.dropItemLikePlayer(viewer, drop))
+                cursor.setAmount(cursor.getAmount() - 1);
         }
     }
     
@@ -259,6 +294,10 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
         
         ItemStack cursor = viewer.getItemOnCursor();
         var updateReason = new PlayerUpdateReason.Drag(viewer, mode, invSlots);
+        
+        if (InvUI.getInstance().isFireBukkitInventoryEvents() && fireBukkitDragEvent(updateReason))
+            return;
+        
         switch (mode) {
             // distribute items from cursor equally onto all slots
             case ClickType.LEFT -> {
@@ -351,6 +390,53 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
         
         cursor.setAmount(amount);
         return changed;
+    }
+    
+    @SuppressWarnings("UnstableApiUsage")
+    private boolean fireBukkitDragEvent(PlayerUpdateReason.Drag reason) {
+        // accumulate slots by inventory (special case: player inventory, as it uses the lower inventory)
+        var slotsByInventory = new LinkedHashMap<Inventory, IntSet>();
+        var playerInvSlots = new IntLinkedOpenHashSet();
+        for (InventorySlot dragSlot : reason.slots()) {
+            var slot = dragSlot.inventory().getBackingSlot(dragSlot.slot());
+            var inv = slot.inventory();
+            if (inv instanceof ReferencingInventory.PlayerStorageContents psc
+                && psc.getReferencedInventory() == reason.player().getInventory()
+            ) {
+                playerInvSlots.add(slot.slot());
+            } else {
+                slotsByInventory
+                    .computeIfAbsent(inv, x -> new IntLinkedOpenHashSet())
+                    .add(slot.slot());
+            }
+        }
+        
+        InventoryView view;
+        var rawSlots = new IntArrayList();
+        int off = 0;
+        if (slotsByInventory.isEmpty()) {
+            // only the player inventory is involved, so we can use the existing view
+            view = reason.player().getOpenInventory();
+        } else {
+            // otherwise, a composite inventory that includes all affected non-player inventories is used
+            var bigComposite = new CompositeInventory(slotsByInventory.keySet());
+            for (Map.Entry<Inventory, IntSet> entry : slotsByInventory.entrySet()) {
+                for (int slot : entry.getValue()) {
+                    rawSlots.add(off + slot);
+                }
+                off += entry.getKey().getSize();
+            }
+            view = new FakeInventoryView(reason.player(), bigComposite.asBukkitInventory());
+        }
+        for (int playerSlot : playerInvSlots) {
+            rawSlots.add(off + playerSlot);
+        }
+        
+        // simulate drag results & fire event
+        var oldCursor = reason.player().getItemOnCursor().clone();
+        var newCursor = oldCursor.clone();
+        var results = InventoryUtils.simulateItemDrag(reason.clickType(), view, rawSlots, newCursor);
+        return !new InventoryDragEvent(view, newCursor, oldCursor, reason.clickType() == ClickType.RIGHT, results).callEvent();
     }
     
     @Override

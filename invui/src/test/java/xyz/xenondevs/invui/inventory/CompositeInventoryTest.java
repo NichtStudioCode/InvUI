@@ -2,6 +2,7 @@ package xyz.xenondevs.invui.inventory;
 
 import org.bukkit.Material;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -105,20 +106,20 @@ public class CompositeInventoryTest {
         
         var player = server.addPlayer();
         
-        composite.callClickEvent(0, new Click(player, ClickType.LEFT));
+        composite.callClickEvent(0, new Click(player, ClickType.LEFT), InventoryAction.UNKNOWN);
         
         assertEquals(1, inv1ClickedAt.get());
         assertEquals(0, inv2ClickedAt.get());
         assertEquals(2, compositeClickedAt.get());
         
-        composite.callClickEvent(5, new Click(player, ClickType.LEFT));
+        composite.callClickEvent(5, new Click(player, ClickType.LEFT), InventoryAction.UNKNOWN);
         
         assertEquals(1, inv1ClickedAt.get());
         assertEquals(3, inv2ClickedAt.get());
         assertEquals(4, compositeClickedAt.get());
         
-        inv1.callClickEvent(0, new Click(player, ClickType.LEFT));
-        inv2.callClickEvent(0, new Click(player, ClickType.LEFT));
+        inv1.callClickEvent(0, new Click(player, ClickType.LEFT), InventoryAction.UNKNOWN);
+        inv2.callClickEvent(0, new Click(player, ClickType.LEFT), InventoryAction.UNKNOWN);
         
         assertEquals(5, inv1ClickedAt.get());
         assertEquals(6, inv2ClickedAt.get());
@@ -137,10 +138,10 @@ public class CompositeInventoryTest {
         var player = server.addPlayer();
         
         doCancel.set(false);
-        composite.callClickEvent(0, new Click(player, ClickType.LEFT));
+        composite.callClickEvent(0, new Click(player, ClickType.LEFT), InventoryAction.UNKNOWN);
         
         doCancel.set(true);
-        composite.callClickEvent(0, new Click(player, ClickType.LEFT));
+        composite.callClickEvent(0, new Click(player, ClickType.LEFT), InventoryAction.UNKNOWN);
     }
     
     @Test

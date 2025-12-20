@@ -2,6 +2,7 @@ package xyz.xenondevs.invui.inventory;
 
 import org.bukkit.Material;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -114,12 +115,12 @@ public class ObscuredInventoryTest {
         
         var player = server.addPlayer();
         
-        obscured.callClickEvent(0, new Click(player, ClickType.LEFT));
+        obscured.callClickEvent(0, new Click(player, ClickType.LEFT), InventoryAction.UNKNOWN);
         
         assertEquals(1, backingClickedAt.get());
         assertEquals(2, obscuredClickedAt.get());
         
-        backing.callClickEvent(0, new Click(player, ClickType.LEFT));
+        backing.callClickEvent(0, new Click(player, ClickType.LEFT), InventoryAction.UNKNOWN);
         
         assertEquals(3, backingClickedAt.get());
         assertEquals(2, obscuredClickedAt.get());
@@ -137,10 +138,10 @@ public class ObscuredInventoryTest {
         var player = server.addPlayer();
         
         doCancel.set(false);
-        obscured.callClickEvent(0, new Click(player, ClickType.LEFT));
+        obscured.callClickEvent(0, new Click(player, ClickType.LEFT), InventoryAction.UNKNOWN);
         
         doCancel.set(true);
-        obscured.callClickEvent(0, new Click(player, ClickType.LEFT));
+        obscured.callClickEvent(0, new Click(player, ClickType.LEFT), InventoryAction.UNKNOWN);
     }
     
     @Test

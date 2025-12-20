@@ -13,15 +13,26 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 /**
- * Main class of InvUI, managing the plugin instance.
+ * Main class of InvUI, managing the plugin instance and global settings.
  */
 public final class InvUI implements Listener {
     
     private static final InvUI INSTANCE = new InvUI();
+    private static final @Nullable Boolean FIRE_BUKKIT_INVENTORY_EVENTS_OVERRIDE;
+    
+    static {
+        String property = System.getProperty("invui.fireBukkitInventoryEvents");
+        if (property != null) {
+            FIRE_BUKKIT_INVENTORY_EVENTS_OVERRIDE = Boolean.parseBoolean(property);
+        } else {
+            FIRE_BUKKIT_INVENTORY_EVENTS_OVERRIDE = null;
+        }
+    }
     
     private final List<Runnable> disableHandlers = new ArrayList<>();
     private @Nullable Plugin plugin;
     private BiConsumer<? super String, ? super Throwable> exceptionHandler = (msg, e) -> getPlugin().getComponentLogger().error(msg, e);
+    private boolean fireBukkitInventoryEvents = true;
     
     private InvUI() {}
     
@@ -105,6 +116,38 @@ public final class InvUI implements Listener {
      */
     public void handleException(String msg, Throwable t) {
         exceptionHandler.accept(msg, t);
+    }
+    
+    /**
+     * Whether Bukkit's {@link org.bukkit.event.inventory.InventoryClickEvent} and
+     * {@link org.bukkit.event.inventory.InventoryDragEvent} should be called for interactions with InvUI inventories.
+     * <p>
+     * By default, this is {@code true}. It can be changed using {@link #setFireBukkitInventoryEvents(boolean)} or
+     * with the system property {@code invui.fireBukkitClickEvents}. If the system property is present,
+     * it overrides the value set using {@link #setFireBukkitInventoryEvents(boolean)}.
+     *
+     * @return Whether Bukkit's inventory events should be fired for interactions with InvUI inventories.
+     */
+    public boolean isFireBukkitInventoryEvents() {
+        if (FIRE_BUKKIT_INVENTORY_EVENTS_OVERRIDE != null)
+            return FIRE_BUKKIT_INVENTORY_EVENTS_OVERRIDE;
+        return fireBukkitInventoryEvents;
+    }
+    
+    /**
+     * Sets whether Bukkit's {@link org.bukkit.event.inventory.InventoryClickEvent} and
+     * {@link org.bukkit.event.inventory.InventoryDragEvent} should be called for interactions with InvUI inventories.
+     * <p>
+     * By default, this is {@code true}. It can be changed using this method or
+     * with the system property {@code invui.fireBukkitInventoryEvents}. If the system property is present,
+     * it overrides the value set using this method.
+     *
+     * @param fireBukkitInventoryEvents Whether Bukkit's {@link org.bukkit.event.inventory.InventoryClickEvent} and
+     *                                  {@link org.bukkit.event.inventory.InventoryDragEvent}
+     *                                  should be called for interactions with InvUI inventories.
+     */
+    public void setFireBukkitInventoryEvents(boolean fireBukkitInventoryEvents) {
+        this.fireBukkitInventoryEvents = fireBukkitInventoryEvents;
     }
     
     /**
