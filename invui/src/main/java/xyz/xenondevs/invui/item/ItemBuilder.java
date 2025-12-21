@@ -24,6 +24,7 @@ import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.i18n.Languages;
 import xyz.xenondevs.invui.internal.util.ArrayUtils;
@@ -55,6 +56,25 @@ public final class ItemBuilder implements ItemProvider {
     private @Nullable List<Function<? super ItemStack, ? extends ItemStack>> modifiers;
     
     private Map<Locale, ItemStack> buildCache = new HashMap<>();
+    
+    /**
+     * Constructs a new {@link ItemBuilder} based on the given {@link ItemType}.
+     *
+     * @param type The {@link ItemType}
+     */
+    public ItemBuilder(ItemType type) {
+        this(type.createItemStack());
+    }
+    
+    /**
+     * Constructs a new {@link ItemBuilder} based on the given {@link ItemType} and amount.
+     *
+     * @param type   The {@link ItemType}
+     * @param amount The amount
+     */
+    public ItemBuilder(ItemType type, int amount) {
+        this(type.createItemStack(amount));
+    }
     
     /**
      * Constructs a new {@link ItemBuilder} based on the given {@link Material}.
