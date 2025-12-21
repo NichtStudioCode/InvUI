@@ -77,11 +77,6 @@ public abstract class CustomContainerMenu {
     private static final long PING_TIMEOUT_MS = 10_000;
     
     /**
-     * A thread local that stores whether the current thread is an interaction handling context (i.e. handling a click).
-     */
-    private static final ThreadLocal<Boolean> interactionContext = ThreadLocal.withInitial(() -> false);
-    
-    /**
      * Hash generator for {@link HashedStack}.
      */
     private static final HashedPatchMap.HashGenerator HASH_GENERATOR = new HashedPatchMap.HashGenerator() {
@@ -163,16 +158,6 @@ public abstract class CustomContainerMenu {
         this.remoteDataSlots = new int[dataSize];
         
         this.proxy = new ContainerMenuProxy();
-    }
-    
-    /**
-     * Checks whether the current thread is an interaction handling context, i.e.
-     * currently handling a click packet.
-     *
-     * @return Whether we are currently in an interaction handling context
-     */
-    public static boolean isInInteractionHandlingContext() {
-        return interactionContext.get();
     }
     
     /**
@@ -602,12 +587,10 @@ public abstract class CustomContainerMenu {
      */
     protected void runInInteractionContext(Runnable run) {
         try {
-            interactionContext.set(true);
             run.run();
+            getWindowEvents().updateSlots();
         } catch (Throwable t) {
             InvUI.getInstance().handleException("An exception occurred while handling a window interaction", t);
-        } finally {
-            interactionContext.set(false);
         }
     }
     //</editor-fold>

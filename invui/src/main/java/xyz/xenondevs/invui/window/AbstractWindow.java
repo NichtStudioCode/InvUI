@@ -189,16 +189,22 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
     }
     
     public void notifyUpdate(int slot) {
-        if (CustomContainerMenu.isInInteractionHandlingContext()) {
-            update(slot);
-        } else {
-            synchronized (dirtySlots) {
-                dirtySlots.set(slot);
-            }
+        synchronized (dirtySlots) {
+            dirtySlots.set(slot);
         }
     }
     
     public void handleTick() {
+        updateSlots();
+        
+        if (titleSupplier instanceof AnimatedTitle)
+            updateTitle();
+        
+        menu.sendChangesToRemote();
+    }
+    
+    @Override
+    public void updateSlots() {
         synchronized (dirtySlots) {
             int slot = 0;
             while ((slot = dirtySlots.nextSetBit(slot)) != -1) {
@@ -207,11 +213,6 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
             }
             dirtySlots.clear();
         }
-        
-        if (titleSupplier instanceof AnimatedTitle)
-            updateTitle();
-        
-        menu.sendChangesToRemote();
     }
     
     @Override

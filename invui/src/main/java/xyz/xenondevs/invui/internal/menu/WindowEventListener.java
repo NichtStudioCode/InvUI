@@ -17,4 +17,6 @@ public interface WindowEventListener {
     
     void handlePong(int id);
     
+    void updateSlots();
+    
 }
