@@ -10,10 +10,10 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Manages all {@link Window Windows} and provides methods for searching them.
@@ -22,11 +22,10 @@ public final class WindowManager implements Listener {
     
     private static final WindowManager INSTANCE = new WindowManager();
     
-    private final Map<Player, AbstractWindow<?>> windowsByPlayer = new HashMap<>();
+    private final Map<Player, AbstractWindow<?>> windowsByPlayer = new ConcurrentHashMap<>();
     
     private WindowManager() {
         Bukkit.getPluginManager().registerEvents(this, InvUI.getInstance().getPlugin());
-        Bukkit.getScheduler().runTaskTimer(InvUI.getInstance().getPlugin(), this::handleTick, 1, 1);
         InvUI.getInstance().addDisableHandler(() -> new HashSet<>(windowsByPlayer.values()).forEach(AbstractWindow::close));
     }
     
@@ -77,12 +76,6 @@ public final class WindowManager implements Listener {
      */
     public @Unmodifiable Set<Window> getWindows() {
         return Set.copyOf(windowsByPlayer.values());
-    }
-    
-    private void handleTick() {
-        for (AbstractWindow<?> window : windowsByPlayer.values()) {
-            window.handleTick();
-        }
     }
     
     @EventHandler(priority = EventPriority.HIGHEST)

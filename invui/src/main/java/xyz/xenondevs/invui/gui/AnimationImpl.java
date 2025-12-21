@@ -1,7 +1,7 @@
 package xyz.xenondevs.invui.gui;
 
+import io.papermc.paper.threadedregions.scheduler.EntityScheduler;
 import org.bukkit.Bukkit;
-import org.bukkit.scheduler.BukkitTask;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.internal.util.MathUtils;
@@ -47,7 +47,7 @@ final class AnimationImpl implements Animation {
         private final Set<Slot> remainingSlots = new HashSet<>();
         private final Gui gui;
         
-        private @Nullable BukkitTask task;
+        private @Nullable Runnable cancelTask;
         private int currentFrame;
         
         public StateImpl(
@@ -73,13 +73,19 @@ final class AnimationImpl implements Animation {
         /**
          * Starts the animation task timer;
          */
-        public void start() {
+        public void start(@Nullable EntityScheduler scheduler) {
             if (isFinished())
                 throw new IllegalStateException("Animation is already completed");
-            if (task != null)
+            if (cancelTask != null)
                 throw new IllegalStateException("Animation is already running");
             
-            task = Bukkit.getScheduler().runTaskTimer(InvUI.getInstance().getPlugin(), this::handleTick, 0, tickDelay);
+            if (scheduler != null)  {
+                var task = scheduler.runAtFixedRate(InvUI.getInstance().getPlugin(), x -> handleTick(), null, 1, tickDelay);
+                cancelTask = task != null ? task::cancel : null;
+            } else {
+                var task = Bukkit.getScheduler().runTaskTimer(InvUI.getInstance().getPlugin(), this::handleTick, 0, tickDelay);
+                cancelTask = task::cancel;
+            }
         }
         
         private void handleTick() {
@@ -95,8 +101,8 @@ final class AnimationImpl implements Animation {
         }
         
         public void cancel() {
-            if (task != null) {
-                task.cancel();
+            if (cancelTask != null) {
+                cancelTask.run();
                 finishHandler.accept(this);
                 extraFinishHandler.run();
             }

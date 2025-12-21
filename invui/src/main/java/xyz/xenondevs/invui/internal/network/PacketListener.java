@@ -30,7 +30,7 @@ public class PacketListener implements Listener {
     private static final PacketListener INSTANCE = new PacketListener();
     
     private final String invuiPacketHandlerName;
-    private final Map<UUID, PacketHandler> packetHandlers = new HashMap<>();
+    private final Map<UUID, PacketHandler> packetHandlers = new ConcurrentHashMap<>();
     
     private PacketListener() {
         invuiPacketHandlerName = "invui_packet_handler_" + InvUI.getInstance().getPlugin().getName();
@@ -101,7 +101,7 @@ public class PacketListener implements Listener {
             throw new IllegalStateException("A packet handler is already registered for this player");
         
         var channel = ((CraftPlayer) player).getHandle().connection.connection.channel;
-        var packetHandler = new PacketHandler(channel);
+        var packetHandler = new PacketHandler(player, channel);
         packetHandlers.put(player.getUniqueId(), packetHandler);
         channel.pipeline().addBefore(MC_PACKET_HANDLER_NAME, invuiPacketHandlerName, packetHandler);
     }
@@ -117,9 +117,11 @@ public class PacketListener implements Listener {
         private final Map<Class<? extends Packet<? super ServerGamePacketListener>>, Consumer<Packet<? super ServerGamePacketListener>>> redirections = new ConcurrentHashMap<>();
         private final Map<Class<? extends Packet<? super ServerGamePacketListener>>, Consumer<Packet<? super ServerGamePacketListener>>> listeners = new ConcurrentHashMap<>();
         private final Set<Class<? extends Packet<ClientGamePacketListener>>> discardRules = Collections.newSetFromMap(new ConcurrentHashMap<>());
+        private final Player player;
         private final Channel channel;
         
-        public PacketHandler(Channel channel) {
+        public PacketHandler(Player player, Channel channel) {
+            this.player = player;
             this.channel = channel;
         }
         
@@ -187,9 +189,10 @@ public class PacketListener implements Listener {
             
             var redirectHandler = redirections.get(msg.getClass());
             if (redirectHandler != null) {
-                Bukkit.getScheduler().runTask(
+                player.getScheduler().run(
                     InvUI.getInstance().getPlugin(),
-                    () -> redirectHandler.accept((Packet<ServerGamePacketListener>) msg)
+                    x -> redirectHandler.accept((Packet<ServerGamePacketListener>) msg),
+                    null
                 );
             } else {
                 super.channelRead(ctx, msg);

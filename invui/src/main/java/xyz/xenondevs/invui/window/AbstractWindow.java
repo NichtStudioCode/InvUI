@@ -1,5 +1,6 @@
 package xyz.xenondevs.invui.window;
 
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -72,6 +73,7 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
     private final int size;
     private final List<List<SlotElement>> elementsDisplayed;
     private final BitSet dirtySlots;
+    private @Nullable ScheduledTask tickTask;
     
     private @Nullable Component activeTitle;
     
@@ -469,6 +471,7 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
             
             // track window and elements
             WindowManager.getInstance().addWindow(this);
+            tickTask = getViewer().getScheduler().runAtFixedRate(InvUI.getInstance().getPlugin(), x -> handleTick(), null, 1, 1);
             registerAsViewer();
             
             // init items
@@ -502,6 +505,8 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
             return;
         
         WindowManager.getInstance().removeWindow(this);
+        if (tickTask != null)
+            tickTask.cancel();
         unregisterAsViewer();
         menu.handleClosed();
         isOpen = false;

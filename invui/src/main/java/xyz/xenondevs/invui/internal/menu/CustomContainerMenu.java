@@ -32,7 +32,6 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.BundleContents;
-import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.inventory.CraftInventory;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
@@ -45,10 +44,10 @@ import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.internal.network.PacketListener;
+import xyz.xenondevs.invui.internal.util.FakeInventoryView;
 import xyz.xenondevs.invui.internal.util.InventoryUtils;
 import xyz.xenondevs.invui.internal.util.MathUtils;
 import xyz.xenondevs.invui.internal.util.PingData;
-import xyz.xenondevs.invui.internal.util.FakeInventoryView;
 import xyz.xenondevs.invui.window.Window;
 
 import java.time.Duration;
@@ -397,9 +396,11 @@ public abstract class CustomContainerMenu {
         var data = pendingPongs.remove(packet.getId());
         if (data == null)
             return; // ignore unknown pongs, unrelated to InvUI
-        Bukkit.getScheduler().runTask(
+        
+        player.getScheduler().run(
             InvUI.getInstance().getPlugin(),
-            () -> getWindowEvents().handlePong(data.id())
+            x -> getWindowEvents().handlePong(data.id()),
+            null
         );
     }
     

@@ -1,5 +1,6 @@
 package xyz.xenondevs.invui.gui;
 
+import io.papermc.paper.threadedregions.scheduler.EntityScheduler;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Unmodifiable;
@@ -674,11 +675,24 @@ public sealed interface Gui extends Observable permits AbstractGui, PagedGui, Sc
     
     /**
      * Plays an {@link Animation}.
+     * <p>
+     * For Folia, use {@link #playAnimation(Animation, EntityScheduler)} instead.
      *
      * @param animation The {@link Animation} to play.
      * @throws IllegalStateException If the {@link Animation} is already playing or was already played.
      */
-    void playAnimation(Animation animation);
+    default void playAnimation(Animation animation) {
+        playAnimation(animation, null);
+    }
+    
+    /**
+     * Plays an {@link Animation}, ticked by the given {@link EntityScheduler}.
+     *
+     * @param animation The {@link Animation} to play.
+     * @param scheduler The {@link EntityScheduler} that will be used to tick the animation.
+     *                  If this is null, the default Bukkit scheduler will be used (fails on Folia).
+     */
+    void playAnimation(Animation animation, @Nullable EntityScheduler scheduler);
     
     /**
      * Checks whether an {@link Animation} is currently running.

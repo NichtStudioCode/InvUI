@@ -1,9 +1,9 @@
 package xyz.xenondevs.invui.item;
 
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
-import org.bukkit.scheduler.BukkitTask;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.InvUI;
@@ -12,6 +12,7 @@ import xyz.xenondevs.invui.util.TriConsumer;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -23,7 +24,7 @@ class CustomItem extends AbstractItem {
     private final TriConsumer<? super Item, ? super Player, ? super Integer> selectHandler;
     private volatile Function<? super Player, ? extends ItemProvider> itemProvider;
     private final int updatePeriod;
-    private @Nullable BukkitTask updateTask;
+    private @Nullable ScheduledTask updateTask;
     
     public CustomItem(
         BiConsumer<? super Item, ? super Click> clickHandler,
@@ -56,11 +57,12 @@ class CustomItem extends AbstractItem {
     public void addObserver(Observer who, int what, int how) {
         super.addObserver(who, what, how);
         if (updatePeriod > 0 && updateTask == null) {
-            updateTask = Bukkit.getScheduler().runTaskTimer(
+            updateTask = Bukkit.getAsyncScheduler().runAtFixedRate(
                 InvUI.getInstance().getPlugin(),
-                this::notifyWindows,
+                x -> notifyWindows(),
                 0,
-                updatePeriod
+                updatePeriod * 50L,
+                TimeUnit.MILLISECONDS
             );
         }
     }
@@ -175,9 +177,9 @@ class CustomItem extends AbstractItem {
                 );
                 
                 if (asyncSupplier != null) {
-                    Bukkit.getScheduler().runTaskAsynchronously(
+                    Bukkit.getAsyncScheduler().runNow(
                         InvUI.getInstance().getPlugin(),
-                        () -> {
+                        x -> {
                             var itemProvider = asyncSupplier.get();
                             customItem.itemProvider = (viewer -> itemProvider);
                             customItem.notifyWindows();

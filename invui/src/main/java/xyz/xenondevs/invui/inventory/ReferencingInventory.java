@@ -1,5 +1,6 @@
 package xyz.xenondevs.invui.inventory;
 
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -7,7 +8,6 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.scheduler.BukkitTask;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.InvUI;
@@ -17,6 +17,7 @@ import xyz.xenondevs.invui.util.ItemUtils;
 import xyz.xenondevs.invui.util.TriConsumer;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -36,7 +37,7 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
     protected final TriConsumer<Inventory, Integer, @Nullable ItemStack> itemSetter;
     protected final int[] maxStackSizes;
     
-    private @Nullable BukkitTask updateTask;
+    private @Nullable ScheduledTask updateTask;
     
     /**
      * Constructs a new {@link ReferencingInventory}.
@@ -136,10 +137,12 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
     public void addObserver(Observer who, int what, int how) {
         super.addObserver(who, what, how);
         if (updateTask == null) {
-            updateTask = Bukkit.getScheduler().runTaskTimer(
+            updateTask = Bukkit.getAsyncScheduler().runAtFixedRate(
                 InvUI.getInstance().getPlugin(),
-                () -> notifyWindows(),
-                0, 1
+                x -> notifyWindows(),
+                0,
+                50,
+                TimeUnit.MILLISECONDS
             );
         }
     }

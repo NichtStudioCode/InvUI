@@ -1,6 +1,7 @@
 package xyz.xenondevs.invui.gui;
 
 import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.threadedregions.scheduler.EntityScheduler;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryAction;
@@ -633,7 +634,7 @@ non-sealed abstract class AbstractGui implements Gui {
     }
     
     @Override
-    public void playAnimation(Animation animation) {
+    public void playAnimation(Animation animation, @Nullable EntityScheduler scheduler) {
         if (this.animation != null)
             cancelAnimation();
         
@@ -665,7 +666,7 @@ non-sealed abstract class AbstractGui implements Gui {
             }
         });
         
-        animState.start();
+        animState.start(scheduler);
     }
     
     @Override
