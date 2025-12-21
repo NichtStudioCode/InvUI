@@ -14,7 +14,6 @@ import xyz.xenondevs.invui.InvUI;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -173,22 +172,17 @@ public class ObscuredInventoryTest {
         var obscured = new ObscuredInventory(backing, i -> i == 0);
         
         AtomicBoolean doCancel = new AtomicBoolean();
-        AtomicReference<ItemStack> newItemStack = new AtomicReference<>(ItemStack.empty());
         backing.addPreUpdateHandler(event -> {
             event.setCancelled(doCancel.get());
-            event.setNewItem(newItemStack.get());
         });
         obscured.addPreUpdateHandler(event -> {
             assertEquals(event.isCancelled(), doCancel.get());
-            assertEquals(event.getNewItem(), newItemStack.get());
         });
         
         doCancel.set(false);
-        newItemStack.set(ItemStack.of(Material.STONE));
         obscured.setItem(null, 0, ItemStack.of(Material.DIAMOND));
         
         doCancel.set(true);
-        newItemStack.set(ItemStack.of(Material.STONE));
         obscured.setItem(null, 0, ItemStack.of(Material.DIAMOND));
     }
     

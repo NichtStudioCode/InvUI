@@ -14,7 +14,6 @@ import xyz.xenondevs.invui.InvUI;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -185,22 +184,17 @@ public class CompositeInventoryTest {
         var composite = new CompositeInventory(inv1);
         
         AtomicBoolean doCancel = new AtomicBoolean();
-        AtomicReference<ItemStack> newItemStack = new AtomicReference<>(ItemStack.empty());
         inv1.addPreUpdateHandler(event -> {
             event.setCancelled(doCancel.get());
-            event.setNewItem(newItemStack.get());
         });
         composite.addPreUpdateHandler(event -> {
             assertEquals(event.isCancelled(), doCancel.get());
-            assertEquals(event.getNewItem(), newItemStack.get());
         });
         
         doCancel.set(false);
-        newItemStack.set(ItemStack.of(Material.DIRT));
         composite.setItem(null, 0, ItemStack.of(Material.DIAMOND));
         
         doCancel.set(true);
-        newItemStack.set(ItemStack.of(Material.STONE));
         composite.setItem(null, 0, ItemStack.of(Material.DIAMOND));
     }
     

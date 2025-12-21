@@ -28,6 +28,8 @@ abstract class ItemUpdateEvent {
      */
     public ItemUpdateEvent(Inventory inventory, int slot, @Nullable UpdateReason updateReason,
                            @Nullable ItemStack previousItem, @Nullable ItemStack newItem) {
+        if (updateReason == UpdateReason.SUPPRESSED)
+            throw new IllegalArgumentException("UpdateReason.SUPPRESSED cannot be used for ItemUpdateEvents");
         
         this.inventory = inventory;
         this.slot = slot;
@@ -60,7 +62,7 @@ abstract class ItemUpdateEvent {
      * @return The {@link ItemStack}
      */
     public @Nullable ItemStack getPreviousItem() {
-        return previousItemStack;
+        return ItemUtils.cloneUnlessEmpty(previousItemStack);
     }
     
     /**
@@ -69,7 +71,7 @@ abstract class ItemUpdateEvent {
      * @return The new {@link ItemStack}
      */
     public @Nullable ItemStack getNewItem() {
-        return newItemStack;
+        return ItemUtils.cloneUnlessEmpty(newItemStack);
     }
     
     /**
@@ -128,7 +130,7 @@ abstract class ItemUpdateEvent {
             throw new IllegalStateException("No items have been removed");
         
         assert previousItemStack != null;
-        if (newItemStack == null) 
+        if (newItemStack == null)
             return previousItemStack.getAmount();
         return previousItemStack.getAmount() - newItemStack.getAmount();
     }

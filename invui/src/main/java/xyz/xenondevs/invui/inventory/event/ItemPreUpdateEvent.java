@@ -4,14 +4,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.inventory.Inventory;
-import xyz.xenondevs.invui.util.ItemUtils;
 
 /**
  * An event that is called before a slot in an {@link Inventory} is updated.
  * <p>
  * Cancelling this event affects the source of the change, i.e. a {@link Player} would for example keep the item they
- * tried to place on their cursor. In certain situations, changing the amount of {@link #getNewItem()} will also be
- * reflected in the source.
+ * tried to place on their cursor.
  * <p>
  * Note that a fired {@link ItemPreUpdateEvent} does not necessitate that the given action will actually take place,
  * even if the event remains uncancelled. For example, moving an item from one inventory to another via shift-clicking
@@ -39,17 +37,6 @@ public class ItemPreUpdateEvent extends ItemUpdateEvent {
                               @Nullable ItemStack previousItem, @Nullable ItemStack newItem) {
         
         super(inventory, slot, updateReason, previousItem, newItem);
-    }
-    
-    /**
-     * Change the {@link ItemStack} that will appear in the {@link Inventory}
-     * to a different one.
-     *
-     * @param newItem The {@link ItemStack} to appear in the {@link Inventory}
-     *                if the {@link ItemPreUpdateEvent} is not cancelled.
-     */
-    public void setNewItem(@Nullable ItemStack newItem) {
-        this.newItemStack = ItemUtils.takeUnlessEmpty(newItem);
     }
     
     /**
