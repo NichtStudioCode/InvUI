@@ -24,7 +24,7 @@ non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements Pag
     private final MutableProperty<Integer> pageCount = MutableProperty.of(-1);
     private final MutableProperty<List<? extends C>> content;
     private final List<BiConsumer<? super Integer, ? super Integer>> pageChangeHandlers = new ArrayList<>(0);
-    private final List<BiConsumer<? super Integer, ? super Integer>> pageCountChangeHandlers = new ArrayList<>(0); // TODO: are they called?
+    private final List<BiConsumer<? super Integer, ? super Integer>> pageCountChangeHandlers = new ArrayList<>(0);
     private int previousPage;
     
     public AbstractPagedGui(
