@@ -631,7 +631,15 @@ public abstract class CustomContainerMenu {
             throw new IllegalStateException("Window is not set");
         return (WindowEventListener) window;
     }
-    
+
+    /**
+     * Gets the container ID (window ID) for the window
+     * @return the container id, or -1 if the window isn't a container
+     */
+    public int getContainerId() {
+        return containerId;
+    }
+
     /**
      * A proxy {@link AbstractContainerMenu} for intercepting carried item change and general bukkit interoperability.
      */
