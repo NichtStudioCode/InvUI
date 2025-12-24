@@ -1,5 +1,9 @@
 package xyz.xenondevs.invui.inventory;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
@@ -18,7 +22,6 @@ import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
 import xyz.xenondevs.invui.util.ItemUtils;
-import xyz.xenondevs.invui.util.ObserverAtSlot;
 import xyz.xenondevs.invui.window.Window;
 
 import java.util.*;
@@ -54,7 +57,7 @@ import java.util.stream.IntStream;
 public sealed abstract class Inventory implements Observable permits VirtualInventory, CompositeInventory, ObscuredInventory, ReferencingInventory {
     
     protected int size;
-    protected final @Nullable Set<ObserverAtSlot>[] observers;
+    protected final Map<Observer, Int2ObjectMap<IntSet>> observers;
     private @Nullable List<Consumer<? super InventoryClickEvent>> clickHandlers;
     private @Nullable List<Consumer<? super ItemPreUpdateEvent>> preUpdateHandlers;
     private @Nullable List<Consumer<? super ItemPostUpdateEvent>> postUpdateHandlers;
@@ -64,7 +67,7 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
     @SuppressWarnings("unchecked")
     public Inventory(int size) {
         this.size = size;
-        observers = new Set[size];
+        observers = new HashMap<>();
         iterationOrders = CollectionUtils.newEnumMap(OperationCategory.class, k -> IntStream.range(0, size).toArray());
         guiPriorities = CollectionUtils.newEnumMap(OperationCategory.class, k -> 0);
     }
@@ -222,24 +225,29 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
     @Override
     public void addObserver(Observer who, int what, int how) {
         synchronized (observers) {
-            var observerSet = observers[what];
-            if (observerSet == null) {
-                observerSet = new HashSet<>();
-                observers[what] = observerSet;
-            }
-            
-            observerSet.add(new ObserverAtSlot(who, how));
+            Int2ObjectMap<IntSet> whatToHow = observers.computeIfAbsent(who, x -> new Int2ObjectOpenHashMap<>());
+            IntSet hows = whatToHow.computeIfAbsent(what, x -> new IntOpenHashSet());
+            hows.add(how);
         }
     }
     
     @Override
     public void removeObserver(Observer who, int what, int how) {
         synchronized (observers) {
-            var observerSet = observers[what];
-            if (observerSet != null) {
-                observerSet.remove(new ObserverAtSlot(who, how));
-                if (observerSet.isEmpty())
-                    observers[what] = null;
+            if (!observers.containsKey(who))
+                return;
+            
+            Int2ObjectMap<IntSet> whatToHow = observers.get(who);
+            if (!whatToHow.containsKey(what))
+                return;
+            
+            IntSet hows = whatToHow.get(what);
+            hows.remove(how);
+            if (hows.isEmpty()) {
+                whatToHow.remove(what);
+                if (whatToHow.isEmpty()) {
+                    observers.remove(who);
+                }
             }
         }
     }
@@ -252,14 +260,9 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
     public List<Window> getWindows() {
         var windows = new ArrayList<Window>();
         synchronized (observers) {
-            for (var observerSet : observers) {
-                if (observerSet == null)
-                    continue;
-                for (var viewerAtSlot : observerSet) {
-                    if (!(viewerAtSlot.observer() instanceof Window w))
-                        continue;
+            for (var entry : observers.keySet()) {
+                if (entry instanceof Window w)
                     windows.add(w);
-                }
             }
         }
         return windows;
@@ -273,11 +276,12 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
      */
     public void notifyWindows() {
         synchronized (observers) {
-            for (var observerSet : observers) {
-                if (observerSet == null)
-                    continue;
-                for (var viewerAtSlot : observerSet) {
-                    viewerAtSlot.notifyUpdate();
+            for (var entry : observers.entrySet()) {
+                var observer = entry.getKey();
+                for (var howSet : entry.getValue().values()) {
+                    for (int how : howSet) {
+                        observer.notifyUpdate(how);
+                    }
                 }
             }
         }
@@ -293,10 +297,13 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
      */
     public void notifyWindows(int slot) {
         synchronized (observers) {
-            var observerSet = observers[slot];
-            if (observerSet != null) {
-                for (var viewerAtSlot : observerSet) {
-                    viewerAtSlot.notifyUpdate();
+            for (var entry : observers.entrySet()) {
+                var observer = entry.getKey();
+                var whatToHow = entry.getValue();
+                if (!whatToHow.containsKey(slot))
+                    continue;
+                for (int how : whatToHow.get(slot)) {
+                    observer.notifyUpdate(how);
                 }
             }
         }
@@ -1456,6 +1463,7 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
     
     /**
      * Gets the slot that is backing the given slot in this inventory.
+     *
      * @param slot The slot number
      * @return The backing {@link InventorySlot}
      */

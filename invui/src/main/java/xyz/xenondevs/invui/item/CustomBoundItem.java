@@ -1,6 +1,5 @@
 package xyz.xenondevs.invui.item;
 
-import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -18,7 +17,6 @@ import xyz.xenondevs.invui.util.TriConsumer;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.*;
 
@@ -30,8 +28,7 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
     private volatile BiFunction<? super Player, ? super G, ? extends ItemProvider> itemProvider;
     private final BiConsumer<? super Item, ? super G> bindHandler;
     private final BiConsumer<? super Item, ? super G> unbindHandler;
-    private final int updatePeriod;
-    private @Nullable ScheduledTask updateTask;
+    private final ObserverHolder observers;
     
     public CustomBoundItem(
         Class<? extends Gui> guiClass,
@@ -48,7 +45,7 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         this.clickHandler = clickHandler;
         this.selectHandler = selectHandler;
         this.itemProvider = itemProvider;
-        this.updatePeriod = updatePeriod;
+        this.observers = updatePeriod > 0 ? new ObserverHolder.Ticking(updatePeriod) : new ObserverHolder.NonTicking();
     }
     
     @Override
@@ -89,25 +86,17 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
     
     @Override
     public void addObserver(Observer who, int what, int how) {
-        super.addObserver(who, what, how);
-        if (updatePeriod > 0 && updateTask == null) {
-            updateTask = Bukkit.getAsyncScheduler().runAtFixedRate(
-                InvUI.getInstance().getPlugin(),
-                x -> notifyWindows(),
-                0,
-                updatePeriod * 50L,
-                TimeUnit.MILLISECONDS
-            );
-        }
+        observers.addObserver(who, how);
     }
     
     @Override
     public void removeObserver(Observer who, int what, int how) {
-        super.removeObserver(who, what, how);
-        if (updateTask != null && observers.isEmpty()) {
-            updateTask.cancel();
-            updateTask = null;
-        }
+        observers.removeObserver(who, how);
+    }
+    
+    @Override
+    public void notifyWindows() {
+        observers.notifyWindows();
     }
     
     non-sealed static class Builder<G extends Gui> implements BoundItem.Builder<G> {

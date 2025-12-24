@@ -1,5 +1,6 @@
 package xyz.xenondevs.invui.window;
 
+import io.papermc.paper.threadedregions.scheduler.EntityScheduler;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntLinkedOpenHashSet;
@@ -713,6 +714,11 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
     @Override
     public boolean isOpen() {
         return isOpen;
+    }
+    
+    @Override
+    public EntityScheduler getScheduler() {
+        return viewer.getScheduler();
     }
     
     @SuppressWarnings("unchecked")

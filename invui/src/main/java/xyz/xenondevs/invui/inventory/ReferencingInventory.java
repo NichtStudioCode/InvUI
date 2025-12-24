@@ -17,7 +17,8 @@ import xyz.xenondevs.invui.util.ItemUtils;
 import xyz.xenondevs.invui.util.TriConsumer;
 
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -37,7 +38,7 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
     protected final TriConsumer<Inventory, Integer, @Nullable ItemStack> itemSetter;
     protected final int[] maxStackSizes;
     
-    private @Nullable ScheduledTask updateTask;
+    private final Map<Observer, ScheduledTask> updateTasks = new HashMap<>();
     
     /**
      * Constructs a new {@link ReferencingInventory}.
@@ -135,26 +136,34 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
     
     @Override
     public void addObserver(Observer who, int what, int how) {
-        super.addObserver(who, what, how);
-        if (updateTask == null) {
-            updateTask = Bukkit.getAsyncScheduler().runAtFixedRate(
+        synchronized (observers) {
+            super.addObserver(who, what, how);
+            updateTasks.computeIfAbsent(who, x -> who.getScheduler().runAtFixedRate(
                 InvUI.getInstance().getPlugin(),
-                x -> notifyWindows(),
-                0,
-                50,
-                TimeUnit.MILLISECONDS
-            );
+                x1 -> notifyWindows(who),
+                null,
+                1,
+                1
+            ));
         }
     }
     
     @Override
     public void removeObserver(Observer who, int what, int how) {
-        super.removeObserver(who, what, how);
-        if (updateTask != null
-            && Arrays.stream(observers).allMatch(s -> s == null || s.isEmpty())
-        ) {
-            updateTask.cancel();
-            updateTask = null;
+        synchronized (observers) {
+            super.removeObserver(who, what, how);
+            
+            ScheduledTask task;
+            if (!observers.containsKey(who) && (task = updateTasks.remove(who)) != null)
+                task.cancel();
+        }
+    }
+    
+    private void notifyWindows(Observer who) {
+        synchronized (observers) {
+            if (!observers.containsKey(who))
+                return;
+            observers.get(who).forEach((what, hows) -> hows.forEach(who::notifyUpdate));
         }
     }
     
