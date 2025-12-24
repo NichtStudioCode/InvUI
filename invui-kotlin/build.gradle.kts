@@ -20,6 +20,12 @@ dependencies {
     testImplementation(libs.kotlin.test.junit)
 }
 
+kotlin {
+    compilerOptions {
+        optIn.add("kotlin.experimental.ExperimentalTypeInference")
+    }
+}
+
 publishing {
     publications {
         create<MavenPublication>("maven") {

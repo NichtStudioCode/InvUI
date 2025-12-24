@@ -1,3 +1,4 @@
+@file:Suppress("INAPPLICABLE_JVM_NAME")
 package xyz.xenondevs.invui.dsl
 
 import org.bukkit.inventory.ItemStack
@@ -6,11 +7,13 @@ import xyz.xenondevs.invui.gui.IngredientPreset
 import xyz.xenondevs.invui.gui.Marker
 import xyz.xenondevs.invui.gui.PagedGui
 import xyz.xenondevs.invui.gui.ScrollGui
+import xyz.xenondevs.invui.gui.Slot
 import xyz.xenondevs.invui.gui.SlotElement
 import xyz.xenondevs.invui.gui.TabGui
 import xyz.xenondevs.invui.inventory.Inventory
 import xyz.xenondevs.invui.item.Item
 import xyz.xenondevs.invui.item.ItemProvider
+import java.util.function.Supplier
 
 @ExperimentalDslApi
 fun ingredients(run: IngredientsDsl.() -> Unit): Unit =
@@ -26,6 +29,8 @@ sealed interface IngredientsDsl {
     
     infix fun Char.by(item: Item)
     
+    infix fun Char.by(itemBuilder: Item.Builder<*>)
+    
     infix fun Char.by(itemProvider: ItemProvider)
     
     infix fun Char.by(itemStack: ItemStack)
@@ -35,6 +40,30 @@ sealed interface IngredientsDsl {
     infix fun Char.by(inventory: Inventory)
     
     infix fun Char.by(gui: Gui)
+    
+    @OverloadResolutionByLambdaReturnType
+    @JvmName("byItemSupplier")
+    infix fun Char.by(supplier: () -> Item)
+    
+    @OverloadResolutionByLambdaReturnType
+    @JvmName("byItemProviderSupplier")
+    infix fun Char.by(supplier: () -> ItemProvider)
+    
+    @OverloadResolutionByLambdaReturnType
+    @JvmName("byItemStackSupplier")
+    infix fun Char.by(supplier: () -> ItemStack)
+    
+    @OverloadResolutionByLambdaReturnType
+    @JvmName("bySlotElementSupplier")
+    infix fun Char.by(supplier: () -> SlotElement)
+    
+    @OverloadResolutionByLambdaReturnType
+    @JvmName("bySlotElementSupplier")
+    infix fun Char.by(supplier: (List<Slot>) -> List<SlotElement>)
+    
+    @OverloadResolutionByLambdaReturnType
+    @JvmName("byItemSupplier")
+    infix fun Char.by(supplier: (List<Slot>) -> List<Item>)
     
     fun ingredients(run: IngredientsDsl.() -> Unit)
     
@@ -75,6 +104,10 @@ internal open class IngredientsDslImpl(
         ingredients.addIngredient(this, item)
     }
     
+    override fun Char.by(itemBuilder: Item.Builder<*>) {
+        ingredients.addIngredient(this, itemBuilder)
+    }
+    
     override fun Char.by(itemProvider: ItemProvider) {
         ingredients.addIngredient(this, itemProvider)
     }
@@ -93,6 +126,36 @@ internal open class IngredientsDslImpl(
     
     override fun Char.by(gui: Gui) {
         ingredients.addIngredient(this, gui)
+    }
+    
+    @JvmName("byItemSupplier")
+    override fun Char.by(supplier: () -> Item) {
+        ingredients.addIngredient(this, supplier)
+    }
+    
+    @JvmName("byItemProviderSupplier")
+    override fun Char.by(supplier: () -> ItemProvider) {
+        ingredients.addIngredient(this, Supplier { Item.simple(supplier()) })
+    }
+    
+    @JvmName("byItemStackSupplier")
+    override fun Char.by(supplier: () -> ItemStack) {
+        ingredients.addIngredient(this, Supplier { Item.simple(supplier()) })
+    }
+    
+    @JvmName("bySlotElementSupplier")
+    override fun Char.by(supplier: () -> SlotElement) {
+        ingredients.addIngredientElementSupplier(this, supplier)
+    }
+    
+    @JvmName("bySlotElementSupplier")
+    override fun Char.by(supplier: (List<Slot>) -> List<SlotElement>) {
+        ingredients.addIngredient(this, supplier)
+    }
+    
+    @JvmName("byItemSupplier")
+    override fun Char.by(supplier: (List<Slot>) -> List<Item>) {
+        ingredients.addIngredient(this) { slots -> supplier(slots).map(SlotElement::Item) }
     }
     
     override fun ingredients(run: IngredientsDsl.() -> Unit): Unit =
