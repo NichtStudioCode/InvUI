@@ -206,13 +206,16 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
     
     @Override
     public void updateSlots() {
+        BitSet toUpdate;
         synchronized (dirtySlots) {
-            int slot = 0;
-            while ((slot = dirtySlots.nextSetBit(slot)) != -1) {
-                update(slot);
-                slot++;
-            }
+            toUpdate = (BitSet) dirtySlots.clone();
             dirtySlots.clear();
+        }
+        
+        int slot = 0;
+        while ((slot = toUpdate.nextSetBit(slot)) != -1) {
+            update(slot);
+            slot++;
         }
     }
     
