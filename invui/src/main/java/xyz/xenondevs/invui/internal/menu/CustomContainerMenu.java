@@ -351,8 +351,6 @@ public abstract class CustomContainerMenu {
             serverPlayer.inventoryMenu.setRemoteSlotUnsafe(9 + i, item);
         }
         serverPlayer.inventoryMenu.setRemoteSlotUnsafe(OFF_HAND_SLOT, remoteOffHand);
-        
-        serverPlayer.containerMenu = serverPlayer.inventoryMenu;
     }
     
     /**
@@ -402,6 +400,7 @@ public abstract class CustomContainerMenu {
         
         if (getWindow().isCloseable()) {
             getWindowEvents().handleClose(InventoryCloseEvent.Reason.PLAYER);
+            serverPlayer.containerMenu = serverPlayer.inventoryMenu;
         } else {
             sendOpenPacket(title);
         }
