@@ -301,7 +301,15 @@ public sealed interface Window extends Observer permits AbstractWindow, AnvilWin
      * @param handler The window state change handler to remove
      */
     void removeWindowStateChangeHandler(Consumer<? super Integer> handler);
-    
+
+    /**
+     * Gets the container ID (window ID) for the window
+     * @return the container id, or -1 if the window isn't a container
+     */
+    default int getContainerId() {
+        return -1;
+    }
+
     /**
      * A {@link Window} builder.
      *

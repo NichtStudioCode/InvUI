@@ -722,7 +722,12 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
     public int getClientWindowState() {
         return clientWindowState;
     }
-    
+
+    @Override
+    public int getContainerId() {
+        return menu.getContainerId();
+    }
+
     @Override
     public void handlePong(int id) {
         clientWindowState = id;
