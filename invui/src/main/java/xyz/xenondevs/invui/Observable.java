@@ -30,7 +30,7 @@ public interface Observable {
      * query for updates.
      *
      * @param what An integer specifying what part of this {@link Observable} the update period is requested for.
-     * @return The update period of this {@link Observable} in ticks, or <= 0 for no auto-updates.
+     * @return The update period of this {@link Observable} in ticks, or {@code <= 0} for no auto-updates.
      */
     default int getUpdatePeriod(int what) {
         return -1;

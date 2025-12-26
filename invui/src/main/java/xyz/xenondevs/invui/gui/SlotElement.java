@@ -56,7 +56,7 @@ public sealed interface SlotElement {
     /**
      * Gets the {@link Observable#getUpdatePeriod(int)} of the content of this {@link SlotElement}.
      *
-     * @return The update period in ticks, or <= 0 for no auto-updates.
+     * @return The update period in ticks, or {@code <= 0} for no auto-updates.
      */
     int getUpdatePeriod();
     
