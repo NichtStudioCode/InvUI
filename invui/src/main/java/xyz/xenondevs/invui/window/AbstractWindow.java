@@ -295,7 +295,7 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
         if (mode == ClickType.MIDDLE && viewer.getGameMode() != GameMode.CREATIVE)
             return;
         
-        List<InventorySlot> invSlots = getActiveInventorySlots(slots);
+        SequencedSet<InventorySlot> invSlots = getActiveInventorySlots(slots);
         if (invSlots.isEmpty())
             return;
         
@@ -349,8 +349,8 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
      * @param slots The window slots
      * @return A list of all active inventory slots referenced by the window slots
      */
-    private List<InventorySlot> getActiveInventorySlots(IntSet slots) {
-        List<InventorySlot> invSlots = new ArrayList<>();
+    private SequencedSet<InventorySlot> getActiveInventorySlots(IntSet slots) {
+        SequencedSet<InventorySlot> invSlots = new LinkedHashSet<>();
         
         slotLoop:
         for (int slot : slots) {
@@ -375,7 +375,7 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
         return invSlots;
     }
     
-    private boolean distributeItems(UpdateReason updateReason, List<InventorySlot> slots) {
+    private boolean distributeItems(UpdateReason updateReason, Set<InventorySlot> slots) {
         ItemStack cursor = viewer.getItemOnCursor();
         int amount = cursor.getAmount();
         int itemsPerSlot = amount / slots.size();
