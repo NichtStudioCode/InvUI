@@ -237,4 +237,10 @@ public final class CompositeInventory extends Inventory {
         return invSlot.inventory().getBackingSlot(invSlot.slot());
     }
     
+    @Override
+    public int getUpdatePeriod(int what) {
+        var invSlot = findInventory(what);
+        return invSlot.inventory().getUpdatePeriod(invSlot.slot());
+    }
+    
 }

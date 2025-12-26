@@ -195,4 +195,9 @@ public final class ObscuredInventory extends Inventory {
         return inventory.getBackingSlot(slots[slot]);
     }
     
+    @Override
+    public int getUpdatePeriod(int what) {
+        return inventory.getUpdatePeriod(slots[what]);
+    }
+    
 }

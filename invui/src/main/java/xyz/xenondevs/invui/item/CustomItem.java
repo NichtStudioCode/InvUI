@@ -6,7 +6,6 @@ import org.bukkit.event.inventory.ClickType;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.InvUI;
-import xyz.xenondevs.invui.Observer;
 import xyz.xenondevs.invui.util.TriConsumer;
 
 import java.util.List;
@@ -16,12 +15,12 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-class CustomItem implements Item {
+class CustomItem extends AbstractItem {
     
     private final BiConsumer<? super Item, ? super Click> clickHandler;
     private final TriConsumer<? super Item, ? super Player, ? super Integer> selectHandler;
     private volatile Function<? super Player, ? extends ItemProvider> itemProvider;
-    private final ObserverHolder observers;
+    private final int updatePeriod;
     
     public CustomItem(
         BiConsumer<? super Item, ? super Click> clickHandler,
@@ -32,7 +31,7 @@ class CustomItem implements Item {
         this.clickHandler = clickHandler;
         this.selectHandler = selectHandler;
         this.itemProvider = itemProvider;
-        this.observers = updatePeriod > 0 ? new ObserverHolder.Ticking(updatePeriod) : new ObserverHolder.NonTicking();
+        this.updatePeriod = updatePeriod;
     }
     
     @Override
@@ -51,18 +50,8 @@ class CustomItem implements Item {
     }
     
     @Override
-    public void addObserver(Observer who, int what, int how) {
-        observers.addObserver(who, how);
-    }
-    
-    @Override
-    public void removeObserver(Observer who, int what, int how) {
-        observers.removeObserver(who, how);
-    }
-    
-    @Override
-    public void notifyWindows() {
-        observers.notifyWindows();
+    public int getUpdatePeriod(int what) {
+        return updatePeriod;
     }
     
     static final class Builder implements Item.Builder<Builder> {

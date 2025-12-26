@@ -57,7 +57,7 @@ public class CollectionUtils {
      * @return A new {@link List} of the specified size, filled with the results of the
      */
     public static <T> List<T> newList(int size, Function<? super Integer, ? extends T> initializer) {
-        var list = new ArrayList<T>();
+        var list = new ArrayList<T>(size);
         for (int i = 0; i < size; i++) {
             list.add(initializer.apply(i));
         }

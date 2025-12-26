@@ -233,4 +233,16 @@ public class CompositeInventoryTest {
         assertEquals(4, compositeUpdatedAt.get());
     }
     
+    @Test
+    public void testGetUpdatePeriod() {
+        var inv1 = new VirtualInventory(3);
+        var inv2 = ReferencingInventory.fromPlayerStorageContents(server.addPlayer().getInventory());
+        var composite = new CompositeInventory(inv1, inv2);
+        
+        assertEquals(-1, composite.getUpdatePeriod(0));
+        assertEquals(-1, composite.getUpdatePeriod(1));
+        assertEquals(-1, composite.getUpdatePeriod(2));
+        assertEquals(1, composite.getUpdatePeriod(3));
+    }
+    
 }

@@ -1,6 +1,5 @@
 package xyz.xenondevs.invui.window;
 
-import io.papermc.paper.threadedregions.scheduler.EntityScheduler;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntLinkedOpenHashSet;
@@ -75,6 +74,7 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
     private final List<List<SlotElement>> elementsDisplayed;
     private final BitSet dirtySlots;
     private @Nullable ScheduledTask tickTask;
+    private int windowTick;
     
     private @Nullable Component activeTitle;
     
@@ -202,6 +202,8 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
             updateTitle();
         
         menu.sendChangesToRemote();
+        
+        windowTick++;
     }
     
     @Override
@@ -210,6 +212,19 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
         synchronized (dirtySlots) {
             toUpdate = (BitSet) dirtySlots.clone();
             dirtySlots.clear();
+        }
+        
+        for (int slot = 0; slot < size; slot++) {
+            if (slot >= elementsDisplayed.size())
+                continue;
+            
+            var path = elementsDisplayed.get(slot);
+            if (path.isEmpty())
+                continue;
+            
+            var updatePeriod = path.getLast().getUpdatePeriod();
+            if (updatePeriod > 0 && windowTick % updatePeriod == 0)
+                toUpdate.set(slot);
         }
         
         int slot = 0;
@@ -717,11 +732,6 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
     @Override
     public boolean isOpen() {
         return isOpen;
-    }
-    
-    @Override
-    public EntityScheduler getScheduler() {
-        return viewer.getScheduler();
     }
     
     @SuppressWarnings("unchecked")

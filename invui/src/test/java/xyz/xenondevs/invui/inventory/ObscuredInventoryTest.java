@@ -209,4 +209,16 @@ public class ObscuredInventoryTest {
         assertEquals(2, obscuredClickedAt.get());
     }
     
+    @Test
+    public void testGetUpdatePeriod() {
+        var backing1 = new VirtualInventory(3);
+        var obscured1 = new ObscuredInventory(backing1, i -> i == 0);
+        
+        assertEquals(-1, obscured1.getUpdatePeriod(0));
+        
+        var backing2 = ReferencingInventory.fromPlayerStorageContents(server.addPlayer().getInventory());
+        var obscured2 = new ObscuredInventory(backing2, i -> i == 0);
+        assertEquals(1, obscured2.getUpdatePeriod(0));
+    }
+    
 }

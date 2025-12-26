@@ -163,7 +163,7 @@ public final class VirtualInventory extends Inventory {
      * @param inventory The {@link VirtualInventory} to copy.
      */
     public VirtualInventory(VirtualInventory inventory) {
-        this(inventory.uuid, inventory.size, ItemUtils.clone(inventory.items), inventory.maxStackSizes.clone());
+        this(inventory.uuid, inventory.getSize(), ItemUtils.clone(inventory.items), inventory.maxStackSizes.clone());
         for (var category : OperationCategory.values()) {
             setIterationOrder(category, inventory.getIterationOrder(category));
             setGuiPriority(category, inventory.getGuiPriority(category));
@@ -294,8 +294,8 @@ public final class VirtualInventory extends Inventory {
      * @param stackSizes The array defining the max stack sizes for this {@link Inventory}.
      */
     public void setMaxStackSizes(int[] stackSizes) {
-        if (stackSizes.length != size)
-            throw new IllegalArgumentException("Size of stackSizes array (" + stackSizes.length + ") does not match inventory size (" + size + ")");
+        if (stackSizes.length != getSize())
+            throw new IllegalArgumentException("Size of stackSizes array (" + stackSizes.length + ") does not match inventory size (" + getSize() + ")");
         
         this.maxStackSizes = stackSizes;
     }
@@ -307,8 +307,8 @@ public final class VirtualInventory extends Inventory {
      * @param maxStackSize The max stack size
      */
     public void setMaxStackSize(int slot, int maxStackSize) {
-        if (slot < 0 || slot >= size)
-            throw new IndexOutOfBoundsException("Slot " + slot + " out of bounds for size " + size);
+        if (slot < 0 || slot >= getSize())
+            throw new IndexOutOfBoundsException("Slot " + slot + " out of bounds for size " + getSize());
         
         maxStackSizes[slot] = maxStackSize;
     }
@@ -329,8 +329,8 @@ public final class VirtualInventory extends Inventory {
     
     @Override
     public int getMaxSlotStackSize(int slot) {
-        if (slot < 0 || slot >= size)
-            throw new IndexOutOfBoundsException("Slot " + slot + " out of bounds for size " + size);
+        if (slot < 0 || slot >= getSize())
+            throw new IndexOutOfBoundsException("Slot " + slot + " out of bounds for size " + getSize());
         
         return maxStackSizes[slot];
     }
@@ -388,4 +388,10 @@ public final class VirtualInventory extends Inventory {
         Bukkit.getPluginManager().callEvent(bukkitEvent);
         return bukkitEvent.isCancelled();
     }
+    
+    @Override
+    public int getUpdatePeriod(int what) {
+        return -1;
+    }
+    
 }

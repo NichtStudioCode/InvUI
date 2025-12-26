@@ -113,7 +113,7 @@ public final class VirtualInventoryManager {
         VirtualInventory inventory = getByUuid(uuid);
         if (inventory != null) {
             if (maxStackSizes != null) {
-                inventory.setMaxStackSizes(ArrayUtils.copyOf(maxStackSizes, inventory.size, 64));
+                inventory.setMaxStackSizes(ArrayUtils.copyOf(maxStackSizes, inventory.getSize(), 64));
             }
             return inventory;
         } else {

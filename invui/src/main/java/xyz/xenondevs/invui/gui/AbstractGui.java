@@ -29,6 +29,7 @@ import xyz.xenondevs.invui.window.Window;
 import xyz.xenondevs.invui.window.WindowManager;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -43,7 +44,7 @@ non-sealed abstract class AbstractGui implements Gui {
     private final int height;
     private final int size;
     private final @Nullable SlotElement[] slotElements;
-    private final @Nullable Set<ObserverAtSlot>[] observers;
+    private final List<Set<ObserverAtSlot>> observers;
     
     private final MutableProperty<Boolean> frozen;
     private final MutableProperty<Boolean> ignoreObscuredInventorySlots;
@@ -63,7 +64,6 @@ non-sealed abstract class AbstractGui implements Gui {
         );
     }
     
-    @SuppressWarnings("unchecked")
     AbstractGui(
         int width, int height,
         MutableProperty<Boolean> frozen,
@@ -79,7 +79,7 @@ non-sealed abstract class AbstractGui implements Gui {
         this.background = background;
         
         slotElements = new SlotElement[size];
-        observers = new Set[size];
+        observers = CollectionUtils.newList(size, x -> ConcurrentHashMap.newKeySet());
         
         this.background.observeWeak(this, AbstractGui::notifyWindowsOnBackgroundSlots);
     }
@@ -533,91 +533,59 @@ non-sealed abstract class AbstractGui implements Gui {
     
     @Override
     public void notifyWindows() {
-        synchronized (observers) {
-            for (var observerSet : observers) {
-                if (observerSet != null) {
-                    for (var viewerAtSlot : observerSet) {
-                        viewerAtSlot.notifyUpdate();
-                    }
-                }
-            }
-        }
-    }
-    
-    @Override
-    public void notifyWindows(int index) {
-        var element = getSlotElement(index);
-        if (element == null)
-            return;
-        
-        synchronized (observers) {
-            var observerSet = observers[index];
-            if (observerSet == null)
-                return;
-            
+        for (var observerSet : observers) {
             for (var viewerAtSlot : observerSet) {
                 viewerAtSlot.notifyUpdate();
             }
         }
     }
     
+    @Override
+    public void notifyWindows(int index) {
+        for (var viewerAtSlot : observers.get(index)) {
+            viewerAtSlot.notifyUpdate();
+        }
+    }
+    
     private void notifyWindowsOnBackgroundSlots() {
-        synchronized (observers) {
-            for (int i = 0; i < getSize(); i++) {
-                if (slotElements[i] != null)
-                    continue;
-                
-                var observerSet = observers[i];
-                if (observerSet == null)
-                    continue;
-                
-                for (var viewerAtSlot : observerSet) {
-                    viewerAtSlot.notifyUpdate();
-                }
-            }
+        for (int i = 0; i < getSize(); i++) {
+            if (slotElements[i] != null)
+                continue;
+            
+            notifyWindows(i);
         }
     }
     
     @Override
     public void addObserver(Observer who, int what, int how) {
-        synchronized (observers) {
-            var observerSet = this.observers[what];
-            if (observerSet == null) {
-                observerSet = new HashSet<>();
-                this.observers[what] = observerSet;
-            }
-            observerSet.add(new ObserverAtSlot(who, how));
-        }
+        observers.get(what).add(new ObserverAtSlot(who, how));
     }
     
     @Override
     public void removeObserver(Observer who, int what, int how) {
-        synchronized (observers) {
-            var observerSet = this.observers[what];
-            if (observerSet != null) {
-                observerSet.remove(new ObserverAtSlot(who, how));
-                if (observerSet.isEmpty())
-                    this.observers[what] = null;
-            }
-        }
+        observers.get(what).remove(new ObserverAtSlot(who, how));
+    }
+    
+    @Override
+    public int getUpdatePeriod(int what) {
+        var element = getSlotElement(what);
+        if (element != null)
+            return element.getUpdatePeriod();
+        return -1;
     }
     
     @Override
     public @Unmodifiable Collection<Window> getWindows() {
-        synchronized (observers) {
-            var windows = new HashSet<Window>();
-            for (var observerSet : observers) {
-                if (observerSet == null)
+        var windows = new HashSet<Window>();
+        for (var observerSet : observers) {
+            for (var viewerAtSlot : observerSet) {
+                if (!(viewerAtSlot.observer() instanceof Window w))
                     continue;
-                for (var viewerAtSlot : observerSet) {
-                    if (!(viewerAtSlot.observer() instanceof Window w))
-                        continue;
-                    windows.add(w);
-                }
+                windows.add(w);
             }
-            
-            return Collections.unmodifiableSet(windows);
         }
+        
+        return Collections.unmodifiableSet(windows);
     }
     
     @Override
@@ -731,12 +699,7 @@ non-sealed abstract class AbstractGui implements Gui {
         }
         
         // notify parents that a slot element has been changed
-        var viewers = this.observers[index];
-        if (viewers != null) {
-            for (var viewer : viewers) {
-                viewer.notifyUpdate();
-            }
-        }
+        notifyWindows(index);
     }
     
     @Override

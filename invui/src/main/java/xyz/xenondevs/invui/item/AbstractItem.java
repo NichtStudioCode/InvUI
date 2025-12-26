@@ -3,36 +3,30 @@ package xyz.xenondevs.invui.item;
 import xyz.xenondevs.invui.Observer;
 import xyz.xenondevs.invui.util.ObserverAtSlot;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * An abstract implementation of {@link Item}.
  */
 public abstract class AbstractItem implements Item {
     
-    protected final Set<ObserverAtSlot> observers = new HashSet<>();
+    protected final Set<ObserverAtSlot> observers = ConcurrentHashMap.newKeySet();
     
     @Override
     public void addObserver(Observer who, int what, int how) {
-        synchronized (observers) {
-            observers.add(new ObserverAtSlot(who, how));
-        }
+        observers.add(new ObserverAtSlot(who, how));
     }
     
     @Override
     public void removeObserver(Observer who, int what, int how) {
-        synchronized (observers) {
-            observers.remove(new ObserverAtSlot(who, how));
-        }
+        observers.remove(new ObserverAtSlot(who, how));
     }
     
     @Override
     public void notifyWindows() {
-        synchronized (observers) {
-            for (var viewer : observers) {
-                viewer.notifyUpdate();
-            }
+        for (var viewer : observers) {
+            viewer.notifyUpdate();
         }
     }
     

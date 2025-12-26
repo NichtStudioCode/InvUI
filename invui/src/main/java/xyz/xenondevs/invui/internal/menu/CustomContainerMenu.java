@@ -588,7 +588,8 @@ public abstract class CustomContainerMenu {
     protected void runInInteractionContext(Runnable run) {
         try {
             run.run();
-            getWindowEvents().updateSlots();
+            if (getWindow().isOpen())
+                getWindowEvents().updateSlots();
         } catch (Throwable t) {
             InvUI.getInstance().handleException("An exception occurred while handling a window interaction", t);
         }

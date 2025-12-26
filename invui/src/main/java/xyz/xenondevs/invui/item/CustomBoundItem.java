@@ -7,7 +7,6 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.InvUI;
-import xyz.xenondevs.invui.Observer;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.PagedGui;
 import xyz.xenondevs.invui.gui.ScrollGui;
@@ -28,7 +27,7 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
     private volatile BiFunction<? super Player, ? super G, ? extends ItemProvider> itemProvider;
     private final BiConsumer<? super Item, ? super G> bindHandler;
     private final BiConsumer<? super Item, ? super G> unbindHandler;
-    private final ObserverHolder observers;
+    private final int updatePeriod;
     
     public CustomBoundItem(
         Class<? extends Gui> guiClass,
@@ -45,7 +44,7 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
         this.clickHandler = clickHandler;
         this.selectHandler = selectHandler;
         this.itemProvider = itemProvider;
-        this.observers = updatePeriod > 0 ? new ObserverHolder.Ticking(updatePeriod) : new ObserverHolder.NonTicking();
+        this.updatePeriod = updatePeriod;
     }
     
     @Override
@@ -85,18 +84,8 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
     }
     
     @Override
-    public void addObserver(Observer who, int what, int how) {
-        observers.addObserver(who, how);
-    }
-    
-    @Override
-    public void removeObserver(Observer who, int what, int how) {
-        observers.removeObserver(who, how);
-    }
-    
-    @Override
-    public void notifyWindows() {
-        observers.notifyWindows();
+    public int getUpdatePeriod(int what) {
+        return updatePeriod;
     }
     
     non-sealed static class Builder<G extends Gui> implements BoundItem.Builder<G> {

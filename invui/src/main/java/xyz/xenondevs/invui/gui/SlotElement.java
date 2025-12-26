@@ -54,6 +54,13 @@ public sealed interface SlotElement {
     void removeObserver(Observer who, int how);
     
     /**
+     * Gets the {@link Observable#getUpdatePeriod(int)} of the content of this {@link SlotElement}.
+     *
+     * @return The update period in ticks, or <= 0 for no auto-updates.
+     */
+    int getUpdatePeriod();
+    
+    /**
      * Contains an {@link xyz.xenondevs.invui.item.Item}
      *
      * @param item The {@link xyz.xenondevs.invui.item.Item}
@@ -84,6 +91,11 @@ public sealed interface SlotElement {
         @Override
         public void removeObserver(Observer who, int how) {
             item.removeObserver(who, 0, how);
+        }
+        
+        @Override
+        public int getUpdatePeriod() {
+            return item.getUpdatePeriod(0);
         }
         
     }
@@ -128,6 +140,11 @@ public sealed interface SlotElement {
         @Override
         public void removeObserver(Observer who, int how) {
             inventory.removeObserver(who, slot, how);
+        }
+        
+        @Override
+        public int getUpdatePeriod() {
+            return inventory.getUpdatePeriod(slot);
         }
         
     }
@@ -190,6 +207,10 @@ public sealed interface SlotElement {
             gui.removeObserver(who, slot, how);
         }
         
+        @Override
+        public int getUpdatePeriod() {
+            return gui.getUpdatePeriod(slot);
+        }
     }
     
 }

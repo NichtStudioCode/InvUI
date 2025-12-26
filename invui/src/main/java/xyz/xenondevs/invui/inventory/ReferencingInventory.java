@@ -1,6 +1,5 @@
 package xyz.xenondevs.invui.inventory;
 
-import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -11,14 +10,11 @@ import org.bukkit.inventory.PlayerInventory;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.InvUI;
-import xyz.xenondevs.invui.Observer;
 import xyz.xenondevs.invui.internal.util.FakeInventoryView;
 import xyz.xenondevs.invui.util.ItemUtils;
 import xyz.xenondevs.invui.util.TriConsumer;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -39,8 +35,6 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
     protected final TriConsumer<Inventory, Integer, @Nullable ItemStack> itemSetter;
     protected final int[] maxStackSizes;
     
-    private final Map<Observer, ScheduledTask> updateTasks = new HashMap<>();
-    
     /**
      * Constructs a new {@link ReferencingInventory}.
      *
@@ -60,7 +54,7 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
         this.itemsGetter = itemsGetter;
         this.itemGetter = itemGetter;
         this.itemSetter = itemSetter;
-        this.maxStackSizes = new int[size];
+        this.maxStackSizes = new int[getSize()];
         Arrays.fill(maxStackSizes, MAX_STACK_SIZE);
     }
     
@@ -135,39 +129,6 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
         itemSetter.accept(inventory, slot, ItemUtils.takeUnlessEmpty(itemStack));
     }
     
-    @Override
-    public void addObserver(Observer who, int what, int how) {
-        synchronized (observers) {
-            super.addObserver(who, what, how);
-            updateTasks.computeIfAbsent(who, x -> who.getScheduler().runAtFixedRate(
-                InvUI.getInstance().getPlugin(),
-                x1 -> notifyWindows(who),
-                null,
-                1,
-                1
-            ));
-        }
-    }
-    
-    @Override
-    public void removeObserver(Observer who, int what, int how) {
-        synchronized (observers) {
-            super.removeObserver(who, what, how);
-            
-            ScheduledTask task;
-            if (!observers.containsKey(who) && (task = updateTasks.remove(who)) != null)
-                task.cancel();
-        }
-    }
-    
-    private void notifyWindows(Observer who) {
-        synchronized (observers) {
-            if (!observers.containsKey(who))
-                return;
-            observers.get(who).forEach((what, hows) -> hows.forEach(who::notifyUpdate));
-        }
-    }
-    
     @SuppressWarnings("UnstableApiUsage")
     @Override
     protected boolean callClickEvent(int slot, Click click, InventoryAction action, boolean cancelled) {
@@ -215,6 +176,11 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
      */
     public Inventory getReferencedInventory() {
         return inventory;
+    }
+    
+    @Override
+    public int getUpdatePeriod(int what) {
+        return 1;
     }
     
     /**
