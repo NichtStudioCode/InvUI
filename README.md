@@ -23,10 +23,10 @@ If you have any questions, feel free to join the [Discord](https://discord.com/i
 Starting with v2, InvUI is no longer a multi-version library.
 See the table below for an overview of which InvUI version is compatible with which Minecraft version.
 
-| InvUI version | Minecraft version |
-|---------------|-------------------|
-| `2.0.x`       | `TBD`             |
-| `1.46`        | `1.14.0` - `TBD`  |
+| InvUI version | Minecraft version     |
+|---------------|-----------------------|
+| `2.0.x`       | `26.1`                |
+| `1.49`        | `1.14.0` - `1.21.11`  |
 
 ## Maven
 
