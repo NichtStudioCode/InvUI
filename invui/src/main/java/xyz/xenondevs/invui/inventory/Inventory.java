@@ -1307,10 +1307,10 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
     }
     
     /**
-     * Removes the first n {@link ItemStack ItemStacks} matching the given {@link Predicate}.
+     * Removes the first n items matching the given {@link Predicate}.
      *
      * @param updateReason The reason used in the {@link ItemPreUpdateEvent} and {@link ItemPostUpdateEvent}.
-     * @param amount       The maximum amount of {@link ItemStack ItemStacks} to remove.
+     * @param amount       The maximum amount of items to remove.
      * @param predicate    The {@link Predicate} to use.
      * @return The amount of items that were removed.
      */
@@ -1351,10 +1351,10 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
     }
     
     /**
-     * Removes the first n {@link ItemStack ItemStacks} that are similar to the specified {@link ItemStack}.
+     * Removes the first n items that are similar to the specified {@link ItemStack}.
      *
      * @param updateReason The reason used in the {@link ItemPreUpdateEvent} and {@link ItemPostUpdateEvent}.
-     * @param amount       The maximum amount of {@link ItemStack ItemStacks} to remove.
+     * @param amount       The maximum amount of items to remove.
      * @param itemStack    The {@link ItemStack} to match against.
      * @return The amount of items that were removed.
      */
