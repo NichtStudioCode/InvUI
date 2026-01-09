@@ -965,7 +965,7 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
         } else {
             setDirectBackingItem(slot, newItemStack); // already cloned above
             notifyWindows(slot);
-            return amount;
+            return newItemStack != null ? newItemStack.getAmount() : 0;
         }
         
         return currentStack.getAmount();
