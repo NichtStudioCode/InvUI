@@ -98,7 +98,7 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
             .collect(Collectors.toCollection(ArrayList::new));
         
         serverWindowState.observeWeak(this, thisRef -> {
-            thisRef.handleTick(); // important: flush item updates and send packets
+            thisRef.updateAndFlush(); // important: flush item updates and send packets
             thisRef.menu.sendPing(serverWindowState.get());
         });
         
@@ -196,14 +196,17 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
     }
     
     public void handleTick() {
+        updateAndFlush();
+        windowTick++;
+    }
+    
+    private void updateAndFlush() {
         updateSlots();
         
         if (titleSupplier instanceof AnimatedTitle)
             updateTitle();
         
         menu.sendChangesToRemote();
-        
-        windowTick++;
     }
     
     @Override
