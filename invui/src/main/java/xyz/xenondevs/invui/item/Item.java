@@ -59,7 +59,7 @@ public interface Item extends Observable {
      * Called when the {@link #getItemProvider(Player) ItemProvider} has bundle contents
      * and the player selects a bundle slot.
      *
-     * @param player The {@link Player} that interacted with the bundle.
+     * @param player     The {@link Player} that interacted with the bundle.
      * @param bundleSlot The selected bundle slot, or -1 if the player's cursor left the {@link ItemProvider}.
      */
     default void handleBundleSelect(Player player, int bundleSlot) {}
@@ -223,7 +223,7 @@ public interface Item extends Observable {
          * selects a bundle slot.
          *
          * @param selectHandler The select handler, receiving the selected bundle slot or -1 if the player's
-         *                     cursor left the {@link ItemProvider}.
+         *                      cursor left the {@link ItemProvider}.
          * @return This builder.
          */
         default S addBundleSelectHandler(Consumer<? super Integer> selectHandler) {

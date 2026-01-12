@@ -9,7 +9,9 @@ import xyz.xenondevs.invui.internal.util.SlotUtils;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.BiConsumer;
 
 final class TabGuiImpl extends AbstractGui implements TabGui {

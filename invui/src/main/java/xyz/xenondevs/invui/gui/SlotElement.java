@@ -40,6 +40,7 @@ public sealed interface SlotElement {
     
     /**
      * Adds an {@link Observer} to the content of this {@link SlotElement}.
+     *
      * @param who The {@link Observer} to add
      * @param how An integer specifying how the {@link Observer} is observing this {@link Observable}.
      *            Used to {@link Observer#notifyUpdate(int) notify} the {@link Observer} about updates.
@@ -104,8 +105,8 @@ public sealed interface SlotElement {
     /**
      * Links to a slot in a {@link Inventory}
      *
-     * @param inventory  The {@link Inventory} to link to
-     * @param slot       The slot in the {@link Inventory} to link to
+     * @param inventory          The {@link Inventory} to link to
+     * @param slot               The slot in the {@link Inventory} to link to
      * @param backgroundProperty The property containing the {@link ItemProvider} to use as background if the linked slot is empty.
      */
     record InventoryLink(Inventory inventory, int slot,

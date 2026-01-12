@@ -18,6 +18,7 @@ public final class ItemWrapper implements ItemProvider {
     
     /**
      * Creates a new {@link ItemWrapper} using a clone of the given {@link ItemStack}.
+     *
      * @param itemStack The {@link ItemStack} to wrap as an {@link ItemProvider}.
      */
     public ItemWrapper(ItemStack itemStack) {

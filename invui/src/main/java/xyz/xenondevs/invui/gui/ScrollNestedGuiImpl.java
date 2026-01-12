@@ -33,7 +33,7 @@ final class ScrollNestedGuiImpl<C extends Gui> extends AbstractScrollGui<C> {
     
     @Override
     protected void updateContent() {
-        switch(getLineOrientation()) {
+        switch (getLineOrientation()) {
             case HORIZONTAL -> updateContentHorizontal();
             case VERTICAL -> updateContentVertical();
         }

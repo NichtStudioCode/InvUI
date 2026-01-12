@@ -207,6 +207,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
     
     /**
      * Gets the property containing the scrollable content.
+     *
      * @return The content property.
      */
     MutableProperty<List<? extends C>> getContentProperty();

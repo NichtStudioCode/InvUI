@@ -37,7 +37,7 @@ class GuiSlotElementSupplier implements SlotElementSupplier {
             
             if (guiX < 0 || guiY < 0 || guiX >= gui.getWidth() || guiY >= gui.getHeight())
                 throw new IndexOutOfBoundsException(
-                    "Structure slot at (" + slot.x() + ", " + slot.y() + 
+                    "Structure slot at (" + slot.x() + ", " + slot.y() +
                     ") with offset (" + offsetX + ", " + offsetY +
                     ") is looking for slot (" + guiX + ", " + guiY +
                     "), which is out of bounds for a gui of size " + gui.getWidth() + "x" + gui.getHeight()

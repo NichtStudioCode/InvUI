@@ -55,8 +55,8 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
     
     private void handleRename(String text) {
         CollectionUtils.forEachCatching(
-            renameHandlers, 
-            handler -> handler.accept(text), 
+            renameHandlers,
+            handler -> handler.accept(text),
             "Failed to handle anvil rename to '" + text + "'"
         );
     }

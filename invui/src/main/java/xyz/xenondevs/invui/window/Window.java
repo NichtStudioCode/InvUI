@@ -267,24 +267,28 @@ public sealed interface Window extends Observer permits AbstractWindow, AnvilWin
     
     /**
      * Gets the server-side window state of the {@link Window}.
+     *
      * @return The server-side window state of the {@link Window}
      */
     int getServerWindowState();
     
     /**
      * Gets the last window state that was acknowledged by the client.
+     *
      * @return The client-side window state of the {@link Window}
      */
     int getClientWindowState();
     
     /**
      * Sets the window state change handlers of the {@link Window}.
+     *
      * @param handlers The window state change handlers
      */
     void setWindowStateChangeHandlers(List<? extends Consumer<Integer>> handlers);
     
     /**
      * Gets the currently registered window state change handlers.
+     *
      * @return An unmodifiable view of the currently registered window state change handlers
      */
     @UnmodifiableView
@@ -292,12 +296,14 @@ public sealed interface Window extends Observer permits AbstractWindow, AnvilWin
     
     /**
      * Adds a window state change handler to the {@link Window}.
+     *
      * @param handler The window state change handler
      */
     void addWindowStateChangeHandler(Consumer<? super Integer> handler);
     
     /**
      * Removes a window state change handler that has been added previously.
+     *
      * @param handler The window state change handler to remove
      */
     void removeWindowStateChangeHandler(Consumer<? super Integer> handler);
@@ -434,7 +440,7 @@ public sealed interface Window extends Observer permits AbstractWindow, AnvilWin
          * is updated accordingly and the {@link #getWindowStateChangeHandlers() window state change handlers} are fired.
          * <br>
          * This can be used to track what state the window is in during interactions.
-         * 
+         *
          * @param windowState The server-side window state
          * @return This {@link Builder Window Builder}
          */
@@ -444,6 +450,7 @@ public sealed interface Window extends Observer permits AbstractWindow, AnvilWin
         
         /**
          * Sets the window state change handlers of the {@link Window}.
+         *
          * @param handlers The window state change handlers
          * @return This {@link Builder Window Builder}
          */
@@ -451,6 +458,7 @@ public sealed interface Window extends Observer permits AbstractWindow, AnvilWin
         
         /**
          * Adds a window state change handler to the {@link Window}.
+         *
          * @param handler The window state change handler
          * @return This {@link Builder Window Builder}
          */

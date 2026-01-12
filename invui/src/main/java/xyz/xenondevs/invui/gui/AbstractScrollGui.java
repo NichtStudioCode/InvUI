@@ -160,7 +160,7 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
         if (lineLength == 0)
             return 0;
         
-        int lines = switch(orientation) {
+        int lines = switch (orientation) {
             case HORIZONTAL -> max.y() - min.y();
             case VERTICAL -> max.x() - min.x();
         } + 1;

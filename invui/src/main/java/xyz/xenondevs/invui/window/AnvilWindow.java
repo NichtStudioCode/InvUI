@@ -73,18 +73,21 @@ public sealed interface AnvilWindow extends Window permits AnvilWindowImpl {
     
     /**
      * Registers a rename handler that is called when the input text changes.
+     *
      * @param handler The rename handler to add.
      */
     void addRenameHandler(Consumer<? super String> handler);
     
     /**
      * Removes a previously registered rename handler.
+     *
      * @param handler The rename handler to remove.
      */
     void removeRenameHandler(Consumer<? super String> handler);
     
     /**
      * Replaces all rename handlers with the given list.
+     *
      * @param handlers The new rename handlers.
      */
     void setRenameHandlers(List<? extends Consumer<String>> handlers);

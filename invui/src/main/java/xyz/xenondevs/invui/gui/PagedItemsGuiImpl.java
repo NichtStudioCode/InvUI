@@ -49,7 +49,7 @@ final class PagedItemsGuiImpl<C extends Item> extends AbstractPagedGui<C> {
     @Override
     public int getPageCount() {
         var cls = getContentListSlots();
-        if (cls.isEmpty()) 
+        if (cls.isEmpty())
             return 0;
         
         return Math.ceilDiv(getContent().size(), cls.size());

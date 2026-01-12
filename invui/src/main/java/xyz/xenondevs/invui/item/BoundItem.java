@@ -37,7 +37,7 @@ public interface BoundItem extends Item {
     /**
      * Unbinds this item from the currently bound {@link Gui}.
      * Called when the item is fully removed from a {@link Gui}.
-     * 
+     *
      * @throws IllegalStateException If this item is not bound to a {@link Gui}.
      */
     void unbind();

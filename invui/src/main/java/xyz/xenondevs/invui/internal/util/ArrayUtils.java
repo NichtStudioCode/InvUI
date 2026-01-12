@@ -2,7 +2,9 @@ package xyz.xenondevs.invui.internal.util;
 
 import org.jspecify.annotations.NullUnmarked;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.IntFunction;
 
 public class ArrayUtils {

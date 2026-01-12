@@ -51,7 +51,7 @@ class MutablePropertyImpl<T> implements MutableProperty<T> {
     @Override
     public <O> void observeWeak(O owner, @NonNull Consumer<? super O> observer) {
         weakObservers.computeIfAbsent(owner, k -> new ArrayList<>())
-            .add((Consumer<Object>)observer);
+            .add((Consumer<Object>) observer);
     }
     
     @Override

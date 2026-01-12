@@ -33,7 +33,7 @@ final class ScrollInventoryGuiImpl<C extends Inventory> extends AbstractScrollGu
     
     @Override
     protected void updateContent() {
-        switch(getLineOrientation()) {
+        switch (getLineOrientation()) {
             case HORIZONTAL -> updateContentHorizontal();
             case VERTICAL -> updateContentVertical();
         }

@@ -74,8 +74,8 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
     
     @Override
     protected void update(int slot) {
-        switch(slot) {
-            case VIEW_MAGIC_SLOT ->  menu.setView(getView());
+        switch (slot) {
+            case VIEW_MAGIC_SLOT -> menu.setView(getView());
             case ICONS_MAGIC_SLOT -> menu.setIcons(getIcons(), isOpen());
             default -> super.update(slot);
         }

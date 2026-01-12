@@ -11,7 +11,7 @@ import java.util.function.Predicate;
 public enum OperationCategory {
     
     /**
-     * Operations that add items to the inventory, such as {@link Inventory#addItem(UpdateReason, ItemStack)}. 
+     * Operations that add items to the inventory, such as {@link Inventory#addItem(UpdateReason, ItemStack)}.
      */
     ADD,
     
@@ -21,7 +21,7 @@ public enum OperationCategory {
     COLLECT,
     
     /**
-     * Other operations that do not fit into the above categories, such as {@link Inventory#removeFirst(UpdateReason, int, Predicate)}. 
+     * Other operations that do not fit into the above categories, such as {@link Inventory#removeFirst(UpdateReason, int, Predicate)}.
      */
     OTHER
     

@@ -145,6 +145,7 @@ public sealed interface BrewingWindow extends Window permits BrewingWindowImpl {
         
         /**
          * Sets the brew progress, i.e. how much of the arrow is white.
+         *
          * @param progress The brew progress, between 0.0 and 1.0.
          * @return This {@link Builder}
          */
@@ -154,6 +155,7 @@ public sealed interface BrewingWindow extends Window permits BrewingWindowImpl {
         
         /**
          * Sets the property containing the brew progress, i.e. how much of the arrow is white.
+         *
          * @param progress The brew progress property, between 0.0 and 1.0.
          * @return This {@link Builder}
          */
@@ -161,6 +163,7 @@ public sealed interface BrewingWindow extends Window permits BrewingWindowImpl {
         
         /**
          * Sets the fuel progress, i.e. how much of the blaze bar is filled in.
+         *
          * @param progress The fuel progress, between 0.0 and 1.0.
          * @return This {@link Builder}
          */
@@ -170,6 +173,7 @@ public sealed interface BrewingWindow extends Window permits BrewingWindowImpl {
         
         /**
          * Sets the property containing the fuel progress, i.e. how much of the blaze bar is filled in.
+         *
          * @param progress The fuel progress property, between 0.0 and 1.0.
          * @return This {@link Builder}
          */

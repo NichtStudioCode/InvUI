@@ -285,8 +285,8 @@ public abstract class CustomContainerMenu {
     private List<Packet<? super ClientGamePacketListener>> createContainerInitPacketList() {
         var packets = new ArrayList<Packet<? super ClientGamePacketListener>>();
         packets.add(new ClientboundContainerSetContentPacket(
-            containerId, 
-            incrementStateId(), 
+            containerId,
+            incrementStateId(),
             items.stream().map(ItemStack::copy).toList(),
             carried.copy()
         ));

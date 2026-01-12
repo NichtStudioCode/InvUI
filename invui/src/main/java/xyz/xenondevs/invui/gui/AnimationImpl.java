@@ -79,7 +79,7 @@ final class AnimationImpl implements Animation {
             if (cancelTask != null)
                 throw new IllegalStateException("Animation is already running");
             
-            if (scheduler != null)  {
+            if (scheduler != null) {
                 var task = scheduler.runAtFixedRate(InvUI.getInstance().getPlugin(), x -> handleTick(), null, 1, tickDelay);
                 cancelTask = task != null ? task::cancel : null;
             } else {
@@ -135,7 +135,7 @@ final class AnimationImpl implements Animation {
         public boolean isFinished() {
             return remainingSlots.isEmpty();
         }
-    
+        
     }
     
     static final class BuilderImpl implements Animation.Builder {
