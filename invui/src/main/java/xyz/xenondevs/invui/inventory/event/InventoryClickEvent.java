@@ -21,6 +21,7 @@ public class InventoryClickEvent extends ClickEvent {
      * @param inventory The {@link Inventory} that was clicked.
      * @param slot      The slot that was clicked.
      * @param click     The {@link Click} that was performed.
+     * @param action    The {@link InventoryAction} of this event, representing the normal outcome of the click.
      */
     public InventoryClickEvent(Inventory inventory, int slot, Click click, InventoryAction action) {
         super(click);

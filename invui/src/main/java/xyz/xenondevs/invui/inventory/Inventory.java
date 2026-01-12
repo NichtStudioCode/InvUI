@@ -13,12 +13,12 @@ import xyz.xenondevs.invui.Observer;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.util.ArrayUtils;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
+import xyz.xenondevs.invui.util.ObserverAtSlot;
 import xyz.xenondevs.invui.inventory.event.InventoryClickEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
 import xyz.xenondevs.invui.util.ItemUtils;
-import xyz.xenondevs.invui.util.ObserverAtSlot;
 import xyz.xenondevs.invui.window.Window;
 
 import java.util.*;
@@ -1419,6 +1419,8 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
     }
     
     /**
+     * Returns this inventory as a Bukkit inventory.
+     *
      * @return This inventory as a Bukkit inventory.
      */
     @ApiStatus.Experimental

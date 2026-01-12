@@ -91,10 +91,26 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
     @UnmodifiableView
     List<Trade> getTrades();
     
+    /**
+     * Adds a handler that is called when the selected trade is changed.
+     * Receives the old and new selected trade indices.
+     *
+     * @param handler The handler
+     */
     void addTradeSelectHandler(BiConsumer<? super Integer, ? super Integer> handler);
     
+    /**
+     * Removes a handler that is called when the selected trade is changed.
+     *
+     * @param handler The handler
+     */
     void removeTradeSelectHandler(BiConsumer<? super Integer, ? super Integer> handler);
     
+    /**
+     * Sets the handlers that are called when the selected trade is changed.
+     *
+     * @param handlers The handlers
+     */
     void setTradeSelectHandlers(List<? extends BiConsumer<Integer, Integer>> handlers);
     
     @UnmodifiableView
@@ -381,8 +397,21 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
          */
         Builder setTrades(MutableProperty<List<? extends Trade>> trades);
         
+        /**
+         * Adds a handler that is called when the selected trade is changed.
+         * Receives the old and new selected trade indices.
+         *
+         * @param handler The handler
+         * @return This {@link Builder}
+         */
         Builder addTradeSelectHandler(BiConsumer<? super Integer, ? super Integer> handler);
         
+        /**
+         * Sets the handlers that are called when the selected trade is changed.
+         *
+         * @param handlers The handlers
+         * @return This {@link Builder}
+         */
         Builder setTradeSelectHandlers(List<? extends BiConsumer<Integer, Integer>> handlers);
         
     }

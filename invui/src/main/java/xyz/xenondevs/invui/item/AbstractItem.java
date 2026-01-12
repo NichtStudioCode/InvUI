@@ -11,6 +11,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public abstract class AbstractItem implements Item {
     
+    /**
+     * The observers of this item.
+     */
     protected final Set<ObserverAtSlot> observers = ConcurrentHashMap.newKeySet();
     
     @Override

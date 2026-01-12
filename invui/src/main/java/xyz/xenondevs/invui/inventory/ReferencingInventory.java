@@ -19,6 +19,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 // TODO: equals+hashCode for normal referencing inventories
+
 /**
  * A {@link xyz.xenondevs.invui.inventory.Inventory} which is backed by a bukkit {@link Inventory}.
  * <p>
@@ -190,6 +191,11 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
      */
     public static final class PlayerStorageContents extends ReferencingInventory {
         
+        /**
+         * Constructs a new {@link PlayerStorageContents}.
+         *
+         * @param inventory The {@link PlayerInventory} to reference.
+         */
         public PlayerStorageContents(PlayerInventory inventory) {
             super(inventory, Inventory::getStorageContents, Inventory::getItem, Inventory::setItem);
         }
@@ -247,7 +253,7 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
         @Override
         public boolean equals(Object obj) {
             return obj instanceof ReferencingInventory.PlayerStorageContents other &&
-                getReferencedInventory().equals(other.getReferencedInventory());
+                   getReferencedInventory().equals(other.getReferencedInventory());
         }
     }
     

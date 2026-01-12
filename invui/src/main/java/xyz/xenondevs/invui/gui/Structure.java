@@ -137,9 +137,15 @@ public final class Structure extends AbstractIngredientMapper<Structure> {
         addGlobalIngredient(key, SlotElementSupplier.fromSupplier(elementSupplier));
     }
     
+    /**
+     * Adds a global {@link SlotElementSupplier} ingredient under the given key.
+     *
+     * @param key             The key of the ingredient
+     * @param elementSupplier The {@link SlotElementSupplier} ingredient
+     */
     public static void addGlobalIngredient(char key, SlotElementSupplier elementSupplier) {
         if (globalIngredientsFrozen)
-            throw new IllegalStateException("Global ingredients are frozen");         
+            throw new IllegalStateException("Global ingredients are frozen");
         globalIngredientMap.put(key, new Ingredient.Element(elementSupplier));
     }
     
