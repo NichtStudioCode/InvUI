@@ -9,6 +9,7 @@ import xyz.xenondevs.invui.state.MutableProperty
 import xyz.xenondevs.invui.state.Property
 import java.util.function.Consumer
 
+@ExperimentalReactiveApi
 internal class PropertyAdapter<T>(
     val provider: Provider<T>,
     val mutableView: MutableProvider<T>
@@ -55,6 +56,7 @@ internal class NonMutableMutableProvider<T>(override val identifier: Provider<T>
     override fun hashCode(): Int = System.identityHashCode(identifier)
 }
 
+@ExperimentalReactiveApi
 internal fun <T> MutableProperty<T>.toProvider(): MutableProvider<T> {
     if (this is PropertyAdapter<T>) 
         return mutableView
@@ -65,6 +67,7 @@ internal fun <T> MutableProperty<T>.toProvider(): MutableProvider<T> {
     return child
 }
 
+@ExperimentalReactiveApi
 internal fun <T> Property<T>.toProvider(): Provider<T> {
     if (this is PropertyAdapter<T>)
         return provider

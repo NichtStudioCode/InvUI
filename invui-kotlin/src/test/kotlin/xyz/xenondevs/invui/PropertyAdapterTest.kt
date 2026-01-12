@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalReactiveApi::class)
+
 package xyz.xenondevs.invui
 
 import org.junit.jupiter.api.Test

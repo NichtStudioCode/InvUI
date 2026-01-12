@@ -3,6 +3,7 @@ package xyz.xenondevs.invui.gui;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.ItemProvider;
+import xyz.xenondevs.invui.state.Property;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,10 +11,10 @@ import java.util.List;
 class InventorySlotElementSupplier implements SlotElementSupplier {
     
     private final Inventory inventory;
-    private final @Nullable ItemProvider background;
+    private final Property<@Nullable ItemProvider> background;
     private final int offset;
     
-    public InventorySlotElementSupplier(Inventory inventory, @Nullable ItemProvider background, int offset) {
+    public InventorySlotElementSupplier(Inventory inventory, Property<@Nullable ItemProvider> background, int offset) {
         if (inventory.getSize() <= 0)
             throw new IllegalArgumentException("Illegal inventory size: " + inventory.getSize());
         if (offset >= inventory.getSize())

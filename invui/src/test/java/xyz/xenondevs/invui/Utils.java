@@ -13,7 +13,7 @@ public class Utils {
     public static void assertSlotElements(Gui gui, @Nullable SlotElement... elements) {
         assertEquals(gui.getSize(), elements.length);
         for (int i = 0; i < elements.length; i++) {
-            assertEquals(elements[i], gui.getSlotElement(i), "i=" + i);
+            assertSlotElementEquals(elements[i], gui.getSlotElement(i), "i=" + i);
         }
     }
     
@@ -27,6 +27,16 @@ public class Utils {
                 assertInstanceOf(SlotElement.Item.class, se, "i=" + i);
                 assertEquals(items[i], ((SlotElement.Item) se).item(), "i=" + i);
             }
+        }
+    }
+    
+    public static void assertSlotElementEquals(SlotElement expected, SlotElement actual, String message) {
+        if (expected instanceof SlotElement.InventoryLink el && actual instanceof SlotElement.InventoryLink al) {
+            assertEquals(el.inventory(), al.inventory(), message);
+            assertEquals(el.slot(), al.slot(), message);
+            assertEquals(el.background(), al.background(), message);
+        } else {
+            assertEquals(expected, actual, message);
         }
     }
     

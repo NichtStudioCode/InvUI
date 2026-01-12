@@ -6,6 +6,7 @@ import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.item.ItemWrapper;
+import xyz.xenondevs.invui.state.Property;
 
 import java.util.function.Supplier;
 
@@ -99,7 +100,7 @@ public sealed interface IngredientMapper<S extends IngredientMapper<S>> extends 
      * @return This {@link IngredientMapper}
      */
     default S addIngredient(char key, Inventory inventory, int offset) {
-        return addIngredient(key, inventory, null, offset);
+        return addIngredient(key, inventory, (ItemProvider) null, offset);
     }
     
     /**
@@ -124,6 +125,31 @@ public sealed interface IngredientMapper<S extends IngredientMapper<S>> extends 
      * @return This {@link IngredientMapper}
      */
     default S addIngredient(char key, Inventory inventory, @Nullable ItemProvider background, int offset) {
+        return addIngredient(key, inventory, Property.of(background), offset);
+    }
+    
+    /**
+     * Adds a {@link Inventory} ingredient under the given key.
+     *
+     * @param key        The key of the ingredient
+     * @param inventory  The {@link Inventory} ingredient
+     * @param background The background {@link ItemProvider} {@link Property} for the {@link Inventory}
+     * @return This {@link IngredientMapper}
+     */
+    default S addIngredient(char key, Inventory inventory, Property<@Nullable ItemProvider> background) {
+        return addIngredient(key, inventory, background, 0);
+    }
+    
+    /**
+     * Adds a {@link Inventory} ingredient with the given offset and background under the given key.
+     *
+     * @param key        The key of the ingredient
+     * @param inventory  The {@link Inventory} ingredient
+     * @param background The background {@link ItemProvider} {@link Property} for the {@link Inventory}
+     * @param offset     The slot offset inside the {@link Inventory} to start from
+     * @return This {@link IngredientMapper}
+     */
+    default S addIngredient(char key, Inventory inventory, Property<@Nullable ItemProvider> background, int offset) {
         return addIngredient(key, new InventorySlotElementSupplier(inventory, background, offset));
     }
     

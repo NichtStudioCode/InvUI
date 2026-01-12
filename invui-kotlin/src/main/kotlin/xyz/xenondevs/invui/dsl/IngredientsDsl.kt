@@ -1,7 +1,11 @@
 @file:Suppress("INAPPLICABLE_JVM_NAME")
+@file:OptIn(ExperimentalReactiveApi::class)
+
 package xyz.xenondevs.invui.dsl
 
 import org.bukkit.inventory.ItemStack
+import xyz.xenondevs.commons.provider.Provider
+import xyz.xenondevs.invui.ExperimentalReactiveApi
 import xyz.xenondevs.invui.gui.Gui
 import xyz.xenondevs.invui.gui.IngredientPreset
 import xyz.xenondevs.invui.gui.Marker
@@ -10,6 +14,7 @@ import xyz.xenondevs.invui.gui.ScrollGui
 import xyz.xenondevs.invui.gui.Slot
 import xyz.xenondevs.invui.gui.SlotElement
 import xyz.xenondevs.invui.gui.TabGui
+import xyz.xenondevs.invui.gui.addIngredient
 import xyz.xenondevs.invui.inventory.Inventory
 import xyz.xenondevs.invui.item.Item
 import xyz.xenondevs.invui.item.ItemProvider
@@ -32,6 +37,8 @@ sealed interface IngredientsDsl {
     infix fun Char.by(itemBuilder: Item.Builder<*>)
     
     infix fun Char.by(itemProvider: ItemProvider)
+    
+    infix fun Char.by(itemProvider: Provider<ItemProvider>)
     
     infix fun Char.by(itemStack: ItemStack)
     
@@ -109,6 +116,10 @@ internal open class IngredientsDslImpl(
     }
     
     override fun Char.by(itemProvider: ItemProvider) {
+        ingredients.addIngredient(this, itemProvider)
+    }
+    
+    override fun Char.by(itemProvider: Provider<ItemProvider>) {
         ingredients.addIngredient(this, itemProvider)
     }
     

@@ -10,6 +10,7 @@ import xyz.xenondevs.invui.Observer;
 import xyz.xenondevs.invui.i18n.Languages;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.ItemProvider;
+import xyz.xenondevs.invui.state.Property;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -105,9 +106,11 @@ public sealed interface SlotElement {
      *
      * @param inventory  The {@link Inventory} to link to
      * @param slot       The slot in the {@link Inventory} to link to
-     * @param background The {@link ItemProvider} to use as background if the slot is empty
+     * @param backgroundProperty The property containing the {@link ItemProvider} to use as background if the linked slot is empty.
      */
-    record InventoryLink(Inventory inventory, int slot, @Nullable ItemProvider background) implements SlotElement {
+    record InventoryLink(Inventory inventory, int slot,
+                         Property<@Nullable ItemProvider> backgroundProperty) implements SlotElement
+    {
         
         /**
          * Creates a new {@link InventoryLink} using the given {@link Inventory} and slot.
@@ -116,12 +119,33 @@ public sealed interface SlotElement {
          * @param slot      The slot in the {@link Inventory} to link to
          */
         public InventoryLink(Inventory inventory, int slot) {
-            this(inventory, slot, null);
+            this(inventory, slot, (ItemProvider) null);
+        }
+        
+        /**
+         * Creates a new {@link InventoryLink} using the given {@link Inventory}, slot and background {@link ItemProvider}.
+         *
+         * @param inventory  The {@link Inventory} to link to
+         * @param slot       The slot in the {@link Inventory} to link to
+         * @param background The {@link ItemProvider} to use as background if the linked slot is empty.
+         */
+        public InventoryLink(Inventory inventory, int slot, @Nullable ItemProvider background) {
+            this(inventory, slot, Property.of(background));
+        }
+        
+        /**
+         * Gets the background {@link ItemProvider}.
+         *
+         * @return The background {@link ItemProvider}
+         */
+        public @Nullable ItemProvider background() {
+            return backgroundProperty().get();
         }
         
         @Override
         public @Nullable ItemStack getItemStack(Player player) {
             ItemStack itemStack = inventory.getUnsafeItem(slot);
+            ItemProvider background = backgroundProperty().get();
             if (itemStack == null && background != null)
                 itemStack = background.get(Languages.getInstance().getLocale(player));
             return itemStack;
@@ -135,11 +159,13 @@ public sealed interface SlotElement {
         @Override
         public void addObserver(Observer who, int how) {
             inventory.addObserver(who, slot, how);
+            backgroundProperty.observeWeak(this, thisRef -> thisRef.inventory.notifyWindows(slot));
         }
         
         @Override
         public void removeObserver(Observer who, int how) {
             inventory.removeObserver(who, slot, how);
+            backgroundProperty.unobserveWeak(this);
         }
         
         @Override

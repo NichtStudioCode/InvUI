@@ -12,6 +12,7 @@ import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.item.ItemWrapper;
 import xyz.xenondevs.invui.state.MutableProperty;
+import xyz.xenondevs.invui.state.Property;
 import xyz.xenondevs.invui.window.Window;
 
 import java.util.Collection;
@@ -400,7 +401,7 @@ public sealed interface Gui extends Observable permits AbstractGui, PagedGui, Sc
      * @see #applyStructure(Structure)
      */
     default void setInventory(char key, Inventory inventory) {
-        setSlotElement(key, new InventorySlotElementSupplier(inventory, null, 0));
+        setSlotElement(key, new InventorySlotElementSupplier(inventory, Property.of(null), 0));
     }
     
     /**
@@ -412,7 +413,7 @@ public sealed interface Gui extends Observable permits AbstractGui, PagedGui, Sc
      * @param offset    The slot offset inside the {@link Inventory} to start from
      */
     default void setInventory(char key, Inventory inventory, int offset) {
-        setSlotElement(key, new InventorySlotElementSupplier(inventory, null, offset));
+        setSlotElement(key, new InventorySlotElementSupplier(inventory, Property.of(null), offset));
     }
     
     /**
@@ -425,7 +426,7 @@ public sealed interface Gui extends Observable permits AbstractGui, PagedGui, Sc
      * @see #applyStructure(Structure)
      */
     default void setInventory(char key, Inventory inventory, @Nullable ItemProvider background) {
-        setSlotElement(key, new InventorySlotElementSupplier(inventory, background, 0));
+        setSlotElement(key, new InventorySlotElementSupplier(inventory, Property.of(background), 0));
     }
     
     /**
@@ -438,7 +439,7 @@ public sealed interface Gui extends Observable permits AbstractGui, PagedGui, Sc
      * @param offset     The slot offset inside the {@link Inventory} to start from
      */
     default void setInventory(char key, Inventory inventory, @Nullable ItemProvider background, int offset) {
-        setSlotElement(key, new InventorySlotElementSupplier(inventory, background, offset));
+        setSlotElement(key, new InventorySlotElementSupplier(inventory, Property.of(background), offset));
     }
     
     /**
