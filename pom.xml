@@ -6,7 +6,7 @@
 
     <groupId>xyz.xenondevs.invui</groupId>
     <artifactId>invui-parent</artifactId>
-    <version>1.49</version>
+    <version>1.50</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -34,8 +34,8 @@
 
     <repositories>
         <repository>
-            <id>spigot-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+            <id>papermc</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
         <repository>
             <id>minecraft-repo</id>

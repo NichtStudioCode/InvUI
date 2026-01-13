@@ -181,12 +181,11 @@ public abstract class AbstractWindow implements Window, GuiParent {
         }
         
         // Redraw all items after the event so there won't be any Items that aren't actually there
-        Bukkit.getScheduler().runTask(InvUI.getInstance().getPlugin(),
-            () -> event.getRawSlots().forEach(rawSlot -> {
+        player.getScheduler().run(InvUI.getInstance().getPlugin(), (task) ->
+            event.getRawSlots().forEach(rawSlot -> {
                 if (getGuiAt(rawSlot) != null) redrawItem(rawSlot);
-            })
-        );
-        
+            }), null);
+
         // update the amount on the cursor
         ItemStack cursorStack = event.getOldCursor();
         cursorStack.setAmount(itemsLeft);
@@ -331,7 +330,7 @@ public abstract class AbstractWindow implements Window, GuiParent {
                 closeHandlers.forEach(Runnable::run);
             }
         } else {
-            Bukkit.getScheduler().runTaskLater(InvUI.getInstance().getPlugin(), () -> openInventory(viewer), 0);
+            viewer.getScheduler().run(InvUI.getInstance().getPlugin(), (task) -> openInventory(viewer),null);
         }
     }
     
