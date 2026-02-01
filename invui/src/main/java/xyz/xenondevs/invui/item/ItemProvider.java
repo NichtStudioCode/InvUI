@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 public interface ItemProvider extends Supplier<ItemStack>, Cloneable {
     
     /**
-     * An {@link ItemProvider} for an {@link ItemStack}.
+     * An {@link ItemProvider} for an empty {@link ItemStack}.
      */
     ItemProvider EMPTY = new ItemWrapper(ItemStack.empty());
     
