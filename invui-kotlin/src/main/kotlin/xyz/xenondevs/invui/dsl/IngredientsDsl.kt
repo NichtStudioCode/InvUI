@@ -72,6 +72,12 @@ sealed interface IngredientsDsl {
     @JvmName("byItemSupplier")
     infix fun Char.by(supplier: (List<Slot>) -> List<Item>)
     
+    @JvmName("byItemSupplier")
+    infix fun Char.by(supplier: Supplier<Item>)
+    
+    @JvmName("bySlotElementSupplier")
+    infix fun Char.by(supplier: Supplier<SlotElement>)
+    
     fun ingredients(run: IngredientsDsl.() -> Unit)
     
     fun gui(vararg structure: String, gui: GuiDsl.() -> Unit): Gui
@@ -167,6 +173,16 @@ internal open class IngredientsDslImpl(
     @JvmName("byItemSupplier")
     override fun Char.by(supplier: (List<Slot>) -> List<Item>) {
         ingredients.addIngredient(this) { slots -> supplier(slots).map(SlotElement::Item) }
+    }
+    
+    @JvmName("byItemSupplier")
+    override fun Char.by(supplier: Supplier<Item>) {
+        ingredients.addIngredient(this, supplier)
+    }
+    
+    @JvmName("bySlotElementSupplier")
+    override fun Char.by(supplier: Supplier<SlotElement>) {
+        ingredients.addIngredientElementSupplier(this, supplier)
     }
     
     override fun ingredients(run: IngredientsDsl.() -> Unit): Unit =
