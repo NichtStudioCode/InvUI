@@ -65,8 +65,8 @@ internal class ItemDslImpl : ItemDsl {
     
     fun build(): Item {
         if (clickHandlers.isEmpty() && bundleSelectHandlers.isEmpty())
-            return simpleOrConstItem(itemProvider)
-        return DslItemImpl(itemProvider, clickHandlers.toList(), bundleSelectHandlers.toList())
+            return simpleOrConstItem(itemProvider.delegate)
+        return DslItemImpl(itemProvider.delegate, clickHandlers.toList(), bundleSelectHandlers.toList())
     }
     
 }

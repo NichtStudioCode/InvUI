@@ -30,5 +30,5 @@ operator fun Inventory.contains(item: ItemStack): Boolean =
 /**
  * Creates an [ObscuredInventory] of only the slots in the given [range].
  */
-operator fun Inventory.get(range: IntRange): ObscuredInventory = 
+operator fun Inventory.get(range: IntRange): ObscuredInventory =
     ObscuredInventory(this) { it !in range }

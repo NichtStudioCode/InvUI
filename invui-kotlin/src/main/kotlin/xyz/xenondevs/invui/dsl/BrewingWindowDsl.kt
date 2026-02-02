@@ -40,12 +40,12 @@ internal class BrewingWindowDslImpl(
     
     override fun applyToBuilder(builder: BrewingWindow.Builder) {
         super.applyToBuilder(builder)
-        builder.apply { 
+        builder.apply {
             setInputGui(inputGui.value)
             setFuelGui(fuelGui.value)
             setResultGui(resultGui.value)
-            setBrewProgress(brewProgress)
-            setFuelProgress(fuelProgress)
+            setBrewProgress(brewProgress.delegate)
+            setFuelProgress(fuelProgress.delegate)
         }
     }
     

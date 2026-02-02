@@ -35,33 +35,29 @@ fun <C : Any> ScrollGui.Builder<C>.setContent(content: Provider<List<C>>): Scrol
 /**
  * A provider containing the content of this [ScrollGui].
  *
- * - If the content was defined through a [MutableProvider], the same instance is returned.
- * - If the content was defined through a [Provider], a non-mutable [MutableProvider]
- * that throws on mutation attempts is returned.
- * - Otherwise, each invocation returns a new instance of a [MutableProvider] that is [weakly][WeakReference]
+ * - If the content was defined through a [Provider], the same instance is returned.
+ * - Otherwise, each invocation returns a new instance of a [Provider] that is [weakly][WeakReference]
  *  linked to the [ScrollGui.contentProperty].
  */
 @ExperimentalReactiveApi
-val <C : Any> ScrollGui<C>.contentProvider: MutableProvider<List<C>>
+val <C : Any> ScrollGui<C>.contentProvider: Provider<List<C>>
     get() = contentProperty.toProvider()
 
 /**
  * A provider containing currently selected line of this [ScrollGui].
  *
- * - If the line was defined through a [MutableProvider], the same instance is returned.
- * - If the line was defined through a [Provider], a non-mutable [MutableProvider]
- * that throws on mutation attempts is returned.
- * - Otherwise, each invocation returns a new instance of a [MutableProvider] that is [weakly][WeakReference]
+ * - If the line was defined through a [Provider], the same instance is returned.
+ * - Otherwise, each invocation returns a new instance of a [Provider] that is [weakly][WeakReference]
  *  linked to the [ScrollGui.lineProperty].
  */
 @ExperimentalReactiveApi
-val ScrollGui<*>.lineProvider: MutableProvider<Int>
+val ScrollGui<*>.lineProvider: Provider<Int>
     get() = lineProperty.toProvider()
 
 /**
  * A provider containing the line count of this [ScrollGui].
  *
- * Each invocation returns a new instance of a [MutableProvider] that is [weakly][WeakReference]
+ * Each invocation returns a new instance of a [Provider] that is [weakly][WeakReference]
  * linked to the [ScrollGui.getLineCountProperty].
  */
 @ExperimentalReactiveApi
@@ -71,7 +67,7 @@ val ScrollGui<*>.lineCountProvider: Provider<Int>
 /**
  * A provider containing the max line index of this [ScrollGui].
  *
- * Each invocation returns a new instance of a [MutableProvider] that is [weakly][WeakReference]
+ * Each invocation returns a new instance of a [Provider] that is [weakly][WeakReference]
  * linked to the [ScrollGui.getMaxLineProperty].
  */
 @ExperimentalReactiveApi

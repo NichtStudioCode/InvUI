@@ -30,7 +30,7 @@ sealed interface TabGuiDsl<G : Gui> : GuiDsl {
 }
 
 @ExperimentalDslApi
-internal class TabGuiDslImpl<G: Gui>(
+internal class TabGuiDslImpl<G : Gui>(
     structure: Array<out String>,
     presets: List<IngredientPreset> = emptyList()
 ) : GuiDslImpl<TabGui, TabGui.Builder>(structure, presets), TabGuiDsl<G> {
@@ -45,8 +45,8 @@ internal class TabGuiDslImpl<G: Gui>(
     
     override fun applyToBuilder(builder: TabGui.Builder) {
         super.applyToBuilder(builder)
-        builder.setTabs(tabs)
-        builder.setTab(tab)
+        builder.setTabs(tabs.delegate)
+        builder.setTab(tab.delegate)
         builder.addModifier { gui ->
             @Suppress("UNCHECKED_CAST")
             internalActiveTab.set(gui.activeTabProvider as Provider<G?>)

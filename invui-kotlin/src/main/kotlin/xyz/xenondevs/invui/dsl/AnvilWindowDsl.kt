@@ -41,11 +41,11 @@ internal class AnvilWindowDslImpl(
     
     override fun applyToBuilder(builder: AnvilWindow.Builder) {
         super.applyToBuilder(builder)
-        builder.apply { 
+        builder.apply {
             setUpperGui(upperGui.value)
             addRenameHandler(text)
-            setTextFieldAlwaysEnabled(textFieldAlwaysEnabled)
-            setResultAlwaysValid(resultAlwaysValid)
+            setTextFieldAlwaysEnabled(textFieldAlwaysEnabled.delegate)
+            setResultAlwaysValid(resultAlwaysValid.delegate)
         }
     }
     

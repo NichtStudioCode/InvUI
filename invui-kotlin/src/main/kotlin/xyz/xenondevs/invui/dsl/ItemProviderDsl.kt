@@ -118,6 +118,7 @@ internal class ItemProviderDslImpl(
                             result.unsetData(type)
                         }
                     }
+                    
                     else -> throw UnsupportedOperationException()
                 }
             }

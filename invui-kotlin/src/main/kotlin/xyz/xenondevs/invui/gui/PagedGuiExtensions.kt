@@ -35,33 +35,29 @@ fun <C : Any> PagedGui.Builder<C>.setContent(content: Provider<List<C>>): PagedG
 /**
  * A provider containing the content of this [PagedGui].
  * 
- * - If the content was defined through a [MutableProvider], the same instance is returned.
- * - If the content was defined through a [Provider], a non-mutable [MutableProvider]
- * that throws on mutation attempts is returned.
- * - Otherwise, each invocation returns a new instance of a [MutableProvider] that is [weakly][WeakReference]
+ * - If the content was defined through a [Provider], the same instance is returned.
+ * - Otherwise, each invocation returns a new instance of a [Provider] that is [weakly][WeakReference]
  *  linked to the [PagedGui.contentProperty].
  */
 @ExperimentalReactiveApi
-val <C : Any> PagedGui<C>.contentProvider: MutableProvider<List<C>>
+val <C : Any> PagedGui<C>.contentProvider: Provider<List<C>>
     get() = contentProperty.toProvider()
 
 /**
  * A provider containing currently selected page of this [PagedGui].
  *
- * - If the page was defined through a [MutableProvider], the same instance is returned.
- * - If the page was defined through a [Provider], a non-mutable [MutableProvider]
- * that throws on mutation attempts is returned.
- * - Otherwise, each invocation returns a new instance of a [MutableProvider] that is [weakly][WeakReference]
+ * - If the page was defined through a [Provider], the same instance is returned.
+ * - Otherwise, each invocation returns a new instance of a [Provider] that is [weakly][WeakReference]
  *  linked to the [PagedGui.pageProperty].
  */
 @ExperimentalReactiveApi
-val PagedGui<*>.pageProvider: MutableProvider<Int>
+val PagedGui<*>.pageProvider: Provider<Int>
     get() = pageProperty.toProvider()
 
 /**
  * A provider containing the page count of this [PagedGui].
  *
- * Each invocation returns a new instance of a [MutableProvider] that is [weakly][WeakReference]
+ * Each invocation returns a new instance of a [Provider] that is [weakly][WeakReference]
  * linked to the [PagedGui.getPageCountProperty].
  */
 @ExperimentalReactiveApi

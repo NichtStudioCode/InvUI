@@ -91,7 +91,7 @@ class PropertyAdapterTest {
     @Test
     fun `default mutable property to mutable provider`() {
         val mutableProperty: MutableProperty<Int> = MutableProperty.of(0)
-        val mutableProvider: MutableProvider<Int> = mutableProperty.toProvider()
+        val mutableProvider: MutableProvider<Int> = mutableProperty.toProvider() as MutableProvider<Int>
         
         var providerValue = -1
         var propertyValue = -1

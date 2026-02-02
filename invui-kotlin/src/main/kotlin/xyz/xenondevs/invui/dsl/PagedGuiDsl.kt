@@ -53,9 +53,9 @@ internal abstract class PagedGuiDslImpl<C : Any>(
     
     override fun applyToBuilder(builder: PagedGui.Builder<C>) {
         super.applyToBuilder(builder)
-        builder.apply { 
-            setContent(content)
-            setPage(page)
+        builder.apply {
+            setContent(content.delegate)
+            setPage(page.delegate)
             addModifier { internalPageCount.set(it.pageCountProvider) }
         }
     }

@@ -10,7 +10,6 @@ import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.commons.provider.mutableProvider
 import xyz.xenondevs.invui.ClickEvent
 import xyz.xenondevs.invui.ExperimentalReactiveApi
-import xyz.xenondevs.invui.NonMutableMutableProvider
 import xyz.xenondevs.invui.dsl.property.Dimensions
 import xyz.xenondevs.invui.dsl.property.GuiDslProperty
 import xyz.xenondevs.invui.dsl.property.MutableProviderDslProperty
@@ -120,11 +119,11 @@ internal abstract class AbstractWindowDsl<W : Window, B : Window.Builder<W, B>>(
     fun build(): W = createBuilder().apply(::applyToBuilder).build()
     
     open fun applyToBuilder(builder: B) {
-        builder.apply { 
+        builder.apply {
             setViewer(viewer)
-            setTitle(title)
-            setCloseable(closeable)
-            setFallbackWindow(fallbackWindow)
+            setTitle(title.delegate)
+            setCloseable(closeable.delegate)
+            setFallbackWindow(fallbackWindow.delegate)
             for (handler in openHandlers) {
                 addOpenHandler { WindowOpenDslImpl().handler() }
             }
@@ -134,7 +133,7 @@ internal abstract class AbstractWindowDsl<W : Window, B : Window.Builder<W, B>>(
             for (handler in outsideClickHandlers) {
                 addOutsideClickHandler { event -> WindowOutsideClickDslImpl(event).handler() }
             }
-            setWindowState(serverWindowState)
+            setWindowState(serverWindowState.delegate)
             addWindowStateChangeHandler(clientWindowState::set)
         }
     }

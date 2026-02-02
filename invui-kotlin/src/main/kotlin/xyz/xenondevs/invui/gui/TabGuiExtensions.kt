@@ -36,27 +36,23 @@ fun TabGui.Builder.setTabs(tabs: Provider<List<Gui?>>): TabGui.Builder =
 /**
  * A provider containing the tabs of this [TabGui].
  *
- * - If the tabs were defined through a [MutableProvider], the same instance is returned.
- * - If the tabs were defined through a [Provider], a non-mutable [MutableProvider]
- * that throws on mutation attempts is returned.
- * - Otherwise, each invocation returns a new instance of a [MutableProvider] that is [weakly][WeakReference]
+ * - If the tabs were defined through a [Provider], the same instance is returned.
+ * - Otherwise, each invocation returns a new instance of a [Provider] that is [weakly][WeakReference]
  *  linked to the [TabGui.tabsProperty].
  */
 @ExperimentalReactiveApi
-val TabGui.tabsProvider: MutableProvider<List<Gui?>>
+val TabGui.tabsProvider: Provider<List<Gui?>>
     get() = tabsProperty.toProvider()
 
 /**
  * A provider containing the currently selected tab index of this [TabGui].
  *
- * - If the tab was defined through a [MutableProvider], the same instance is returned.
- * - If the tab was defined through a [Provider], a non-mutable [MutableProvider]
- * that throws on mutation attempts is returned.
- * - Otherwise, each invocation returns a new instance of a [MutableProvider] that is [weakly][WeakReference]
+ * - If the tab was defined through a [Provider], the same instance is returned.
+ * - Otherwise, each invocation returns a new instance of a [Provider] that is [weakly][WeakReference]
  *  linked to the [TabGui.tabProperty].
  */
 @ExperimentalReactiveApi
-val TabGui.tabProvider: MutableProvider<Int>
+val TabGui.tabProvider: Provider<Int>
     get() = tabProperty.toProvider()
 
 /**

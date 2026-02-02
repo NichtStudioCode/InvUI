@@ -40,11 +40,11 @@ internal class CartographyWindowDslImpl(
     
     override fun applyToBuilder(builder: CartographyWindow.Builder) {
         super.applyToBuilder(builder)
-        builder.apply { 
+        builder.apply {
             setInputGui(inputGui.value)
             setResultGui(resultGui.value)
-            setIcons(icons)
-            setView(view)
+            setIcons(icons.delegate)
+            setView(view.delegate)
         }
     }
     

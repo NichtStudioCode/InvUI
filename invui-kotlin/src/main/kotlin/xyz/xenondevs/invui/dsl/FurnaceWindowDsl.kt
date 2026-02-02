@@ -48,8 +48,8 @@ internal class FurnaceWindowDslImpl(
         builder.apply {
             setInputGui(inputGui.value)
             setResultGui(resultGui.value)
-            setCookProgress(cookProgress)
-            setBurnProgress(burnProgress)
+            setCookProgress(cookProgress.delegate)
+            setBurnProgress(burnProgress.delegate)
             for (handler in recipeClickHandlers) {
                 addRecipeClickHandler { RecipeClickDslImpl(it).handler() }
             }
