@@ -2,6 +2,7 @@
 
 package xyz.xenondevs.invui.dsl
 
+import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryCloseEvent
@@ -9,9 +10,10 @@ import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.commons.provider.mutableProvider
 import xyz.xenondevs.invui.ClickEvent
 import xyz.xenondevs.invui.ExperimentalReactiveApi
-import xyz.xenondevs.invui.dsl.property.ComponentProviderDslProperty
+import xyz.xenondevs.invui.NonMutableMutableProvider
 import xyz.xenondevs.invui.dsl.property.Dimensions
 import xyz.xenondevs.invui.dsl.property.GuiDslProperty
+import xyz.xenondevs.invui.dsl.property.MutableProviderDslProperty
 import xyz.xenondevs.invui.dsl.property.ProviderDslProperty
 import xyz.xenondevs.invui.internal.util.InventoryUtils
 import xyz.xenondevs.invui.window.Window
@@ -54,7 +56,7 @@ interface WindowOutsideClickDsl {
 @WindowDslMarker
 sealed interface WindowDsl {
     
-    val title: ComponentProviderDslProperty
+    val title: ProviderDslProperty<Component>
     val closeable: ProviderDslProperty<Boolean>
     val fallbackWindow: ProviderDslProperty<Window?>
     val serverWindowState: MutableProviderDslProperty<Int>
@@ -94,7 +96,7 @@ internal abstract class AbstractWindowDsl<W : Window, B : Window.Builder<W, B>>(
     private val viewer: Player
 ) : WindowDsl {
     
-    override val title = ComponentProviderDslProperty()
+    override val title = ProviderDslProperty<Component>(Component.empty())
     override val closeable = ProviderDslProperty(true)
     override val fallbackWindow = ProviderDslProperty<Window?>(null)
     override val serverWindowState = MutableProviderDslProperty(0)

@@ -7,7 +7,7 @@ import org.bukkit.event.inventory.ClickType
 import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.invui.Click
 import xyz.xenondevs.invui.ExperimentalReactiveApi
-import xyz.xenondevs.invui.dsl.property.ItemProviderDslProperty
+import xyz.xenondevs.invui.dsl.property.ProviderDslProperty
 import xyz.xenondevs.invui.item.AbstractItem
 import xyz.xenondevs.invui.item.Item
 import xyz.xenondevs.invui.item.ItemProvider
@@ -39,7 +39,7 @@ sealed interface BundleSelectDsl {
 @ExperimentalDslApi
 sealed interface ItemDsl {
     
-    val itemProvider: ItemProviderDslProperty
+    val itemProvider: ProviderDslProperty<ItemProvider>
     
     fun onClick(handler: ClickDsl.() -> Unit)
     
@@ -50,7 +50,7 @@ sealed interface ItemDsl {
 @ExperimentalDslApi
 internal class ItemDslImpl : ItemDsl {
     
-    override val itemProvider = ItemProviderDslProperty()
+    override val itemProvider = ProviderDslProperty(ItemProvider.EMPTY)
     private val clickHandlers = mutableListOf<ClickDsl.() -> Unit>()
     private val bundleSelectHandlers = mutableListOf<BundleSelectDsl.() -> Unit>()
     

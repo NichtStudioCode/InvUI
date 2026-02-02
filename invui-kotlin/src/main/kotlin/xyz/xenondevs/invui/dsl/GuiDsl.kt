@@ -3,13 +3,13 @@
 package xyz.xenondevs.invui.dsl
 
 import xyz.xenondevs.invui.ExperimentalReactiveApi
-import xyz.xenondevs.invui.dsl.property.NullableItemProviderDslProperty
 import xyz.xenondevs.invui.dsl.property.ProviderDslProperty
 import xyz.xenondevs.invui.gui.Gui
 import xyz.xenondevs.invui.gui.IngredientPreset
 import xyz.xenondevs.invui.gui.setBackground
 import xyz.xenondevs.invui.gui.setFrozen
 import xyz.xenondevs.invui.gui.setIgnoreObscuredInventorySlots
+import xyz.xenondevs.invui.item.ItemProvider
 
 @ExperimentalDslApi
 fun gui(vararg structure: String, gui: GuiDsl.() -> Unit): Gui =
@@ -18,7 +18,7 @@ fun gui(vararg structure: String, gui: GuiDsl.() -> Unit): Gui =
 @ExperimentalDslApi
 sealed interface GuiDsl : IngredientsDsl {
     
-    val background: NullableItemProviderDslProperty
+    val background: ProviderDslProperty<ItemProvider?>
     
     val frozen: ProviderDslProperty<Boolean>
     
@@ -32,7 +32,7 @@ internal abstract class GuiDslImpl<G : Gui, B : Gui.Builder<G, B>>(
     presets: List<IngredientPreset>
 ) : IngredientsDslImpl(presets), GuiDsl {
     
-    override val background = NullableItemProviderDslProperty()
+    override val background = ProviderDslProperty<ItemProvider?>(null)
     override val frozen = ProviderDslProperty(false)
     override val ignoreObscuredInventorySlots = ProviderDslProperty(false)
     
