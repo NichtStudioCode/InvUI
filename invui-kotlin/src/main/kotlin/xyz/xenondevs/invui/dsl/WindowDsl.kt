@@ -57,7 +57,7 @@ sealed interface WindowDsl {
     val title: ComponentProviderDslProperty
     val closeable: ProviderDslProperty<Boolean>
     val fallbackWindow: ProviderDslProperty<Window?>
-    val serverWindowState: ProviderDslProperty<Int>
+    val serverWindowState: MutableProviderDslProperty<Int>
     val clientWindowState: Provider<Int>
     
     fun onOpen(handler: WindowOpenDsl.() -> Unit)
@@ -97,7 +97,7 @@ internal abstract class AbstractWindowDsl<W : Window, B : Window.Builder<W, B>>(
     override val title = ComponentProviderDslProperty()
     override val closeable = ProviderDslProperty(true)
     override val fallbackWindow = ProviderDslProperty<Window?>(null)
-    override val serverWindowState = ProviderDslProperty(0)
+    override val serverWindowState = MutableProviderDslProperty(0)
     override val clientWindowState = mutableProvider(0)
     private val openHandlers = mutableListOf<WindowOpenDsl.() -> Unit>()
     private val closeHandlers = mutableListOf<WindowCloseDsl.() -> Unit>()
