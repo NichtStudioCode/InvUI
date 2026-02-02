@@ -11,6 +11,7 @@ import xyz.xenondevs.invui.dsl.property.ProviderDslProperty
 import xyz.xenondevs.invui.item.AbstractItem
 import xyz.xenondevs.invui.item.Item
 import xyz.xenondevs.invui.item.ItemProvider
+import xyz.xenondevs.invui.item.simpleOrConstItem
 
 @ExperimentalDslApi
 fun item(item: ItemDsl.() -> Unit): Item =
@@ -62,8 +63,11 @@ internal class ItemDslImpl : ItemDsl {
         bundleSelectHandlers += handler
     }
     
-    fun build(): Item =
-        DslItemImpl(itemProvider, clickHandlers.toList(), bundleSelectHandlers.toList())
+    fun build(): Item {
+        if (clickHandlers.isEmpty() && bundleSelectHandlers.isEmpty())
+            return simpleOrConstItem(itemProvider)
+        return DslItemImpl(itemProvider, clickHandlers.toList(), bundleSelectHandlers.toList())
+    }
     
 }
 

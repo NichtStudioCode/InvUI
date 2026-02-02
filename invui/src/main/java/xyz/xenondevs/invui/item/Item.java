@@ -90,7 +90,7 @@ public interface Item extends Observable {
      * @return A simple {@link Item}.
      */
     static Item simple(ItemProvider itemProvider) {
-        return builder().setItemProvider(itemProvider).build();
+        return new ConstItem(itemProvider);
     }
     
     /**
