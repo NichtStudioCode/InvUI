@@ -153,6 +153,11 @@ public final class Languages {
     
     /**
      * Enables or disables server-side translations for components.
+     * Enabled by default.
+     * <p>
+     * Server-side translations should only be enabled or disabled at server startup,
+     * before any InvUI features are used. Changing the setting at a later point may
+     * lead to inconsistent behavior.
      *
      * @param enable Whether server-side translations should be enabled.
      */
