@@ -67,8 +67,11 @@ public class CustomStonecutterMenu extends CustomContainerMenu {
     @Override
     public void setItem(int slot, org.bukkit.inventory.@Nullable ItemStack item) {
         super.setItem(slot, item);
-        if (slot == 0)
+        if (slot == 0) {
             updateButtons(buttons);
+            // client-side prediction clears output slot when input slot is modified
+            remoteItems.set(1, HashedStack.EMPTY);
+        }
     }
     
     /**
