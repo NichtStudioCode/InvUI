@@ -6,6 +6,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.HashedStack;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket;
+import net.minecraft.network.protocol.game.ServerboundContainerClickPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -74,6 +75,12 @@ public class CustomStonecutterMenu extends CustomContainerMenu {
         var recipeManager = MinecraftServer.getServer().getRecipeManager();
         var packet = new ClientboundUpdateRecipesPacket(recipeManager.getSynchronizedItemProperties(), recipeManager.getSynchronizedStonecutterRecipes());
         PacketListener.getInstance().injectOutgoing(player, packet);
+    }
+    
+    @Override
+    protected void handleClick(ServerboundContainerClickPacket packet) {
+        remoteDataSlots[0] = -1;
+        super.handleClick(packet);
     }
     
     @Override

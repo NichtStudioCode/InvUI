@@ -412,7 +412,7 @@ public abstract class CustomContainerMenu {
      *
      * @param packet The packet that was received
      */
-    private void handleClick(ServerboundContainerClickPacket packet) {
+    protected void handleClick(ServerboundContainerClickPacket packet) {
         boolean requiresFullUpdate = packet.stateId() != stateId;
         
         // update remote slots
