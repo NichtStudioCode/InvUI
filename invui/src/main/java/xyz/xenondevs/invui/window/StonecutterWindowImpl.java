@@ -40,7 +40,7 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
     private final Gui lowerGui;
     private final Gui buttonsGui;
     private final @Nullable ItemStack[] buttons;
-    private boolean buttonsDirty = false;
+    private boolean buttonsDirty = true;
     private final List<BiConsumer<? super Integer, ? super Integer>> selectedSlotChangeHandlers;
     private final MutableProperty<Integer> selectedSlot;
     private final int selectedSlotMagicSlot;
