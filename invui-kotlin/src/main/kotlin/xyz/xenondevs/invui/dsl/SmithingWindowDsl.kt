@@ -3,10 +3,14 @@ package xyz.xenondevs.invui.dsl
 import org.bukkit.entity.Player
 import xyz.xenondevs.invui.dsl.property.GuiDslProperty
 import xyz.xenondevs.invui.window.SmithingWindow
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 @ExperimentalDslApi
-fun smithingWindow(viewer: Player, smithingWindow: SmithingWindowDsl.() -> Unit): SmithingWindow =
-    SmithingWindowDslImpl(viewer).apply(smithingWindow).build()
+inline fun smithingWindow(viewer: Player, smithingWindow: SmithingWindowDsl.() -> Unit): SmithingWindow {
+    contract { callsInPlace(smithingWindow, InvocationKind.EXACTLY_ONCE) }
+    return SmithingWindowDslImpl(viewer).apply(smithingWindow).build()
+}
 
 @ExperimentalDslApi
 sealed interface SmithingWindowDsl : SplitWindowDsl {
@@ -15,6 +19,7 @@ sealed interface SmithingWindowDsl : SplitWindowDsl {
     
 }
 
+@PublishedApi
 @ExperimentalDslApi
 internal class SmithingWindowDslImpl(
     viewer: Player

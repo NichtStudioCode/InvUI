@@ -14,14 +14,20 @@ import xyz.xenondevs.invui.window.MerchantWindow
 import xyz.xenondevs.invui.window.setAvailable
 import xyz.xenondevs.invui.window.setDiscount
 import xyz.xenondevs.invui.window.setTrades
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 @ExperimentalDslApi
-fun merchantWindow(viewer: Player, merchantWindow: MerchantWindowDsl.() -> Unit): MerchantWindow =
-    MerchantWindowDslImpl(viewer).apply(merchantWindow).build()
+inline fun merchantWindow(viewer: Player, merchantWindow: MerchantWindowDsl.() -> Unit): MerchantWindow {
+    contract { callsInPlace(merchantWindow, InvocationKind.EXACTLY_ONCE) }
+    return MerchantWindowDslImpl(viewer).apply(merchantWindow).build()
+}
 
 @ExperimentalDslApi
-fun trade(trade: TradeDsl.() -> Unit): MerchantWindow.Trade =
-    TradeDslImpl().apply(trade).build()
+inline fun trade(trade: TradeDsl.() -> Unit): MerchantWindow.Trade {
+    contract { callsInPlace(trade, InvocationKind.EXACTLY_ONCE) }
+    return TradeDslImpl().apply(trade).build()
+}
 
 @ExperimentalDslApi
 sealed interface MerchantWindowDsl : SplitWindowDsl {
@@ -44,6 +50,7 @@ sealed interface TradeDsl {
     
 }
 
+@PublishedApi
 @ExperimentalDslApi
 internal class MerchantWindowDslImpl(
     viewer: Player
@@ -69,6 +76,7 @@ internal class MerchantWindowDslImpl(
     
 }
 
+@PublishedApi
 @ExperimentalDslApi
 internal class TradeDslImpl : TradeDsl {
     

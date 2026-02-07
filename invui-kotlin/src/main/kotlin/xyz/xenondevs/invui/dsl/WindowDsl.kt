@@ -20,14 +20,20 @@ import xyz.xenondevs.invui.window.Window
 import xyz.xenondevs.invui.window.setCloseable
 import xyz.xenondevs.invui.window.setTitle
 import xyz.xenondevs.invui.window.setWindowState
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 @ExperimentalDslApi
-fun window(viewer: Player, window: NormalSplitWindowDsl.() -> Unit): Window =
-    NormalSplitWindowDslImpl(viewer).apply(window).build()
+inline fun window(viewer: Player, window: NormalSplitWindowDsl.() -> Unit): Window {
+    contract { callsInPlace(window, InvocationKind.EXACTLY_ONCE) }
+    return NormalSplitWindowDslImpl(viewer).apply(window).build()
+}
 
 @ExperimentalDslApi
-fun mergedWindow(viewer: Player, window: NormalMergedWindowDsl.() -> Unit): Window =
-    NormalMergedWindowDslImpl(viewer).apply(window).build()
+inline fun mergedWindow(viewer: Player, window: NormalMergedWindowDsl.() -> Unit): Window {
+    contract { callsInPlace(window, InvocationKind.EXACTLY_ONCE) }
+    return NormalMergedWindowDslImpl(viewer).apply(window).build()
+}
 
 @WindowDslMarker
 @ExperimentalDslApi
@@ -91,6 +97,7 @@ sealed interface NormalMergedWindowDsl : WindowDsl {
     
 }
 
+@PublishedApi
 @ExperimentalDslApi
 internal abstract class AbstractWindowDsl<W : Window, B : Window.Builder<W, B>>(
     private val viewer: Player
@@ -166,6 +173,7 @@ internal abstract class AbstractSplitWindowDsl<W : Window, B : Window.Builder.Sp
     
 }
 
+@PublishedApi
 @ExperimentalDslApi
 internal class NormalSplitWindowDslImpl(viewer: Player) : AbstractSplitWindowDsl<Window, Window.Builder.Normal.Split>(viewer), NormalSplitWindowDsl {
     
@@ -191,6 +199,7 @@ internal class NormalSplitWindowDslImpl(viewer: Player) : AbstractSplitWindowDsl
     
 }
 
+@PublishedApi
 @ExperimentalDslApi
 internal class NormalMergedWindowDslImpl(viewer: Player) : AbstractWindowDsl<Window, Window.Builder.Normal.Merged>(viewer), NormalMergedWindowDsl {
     

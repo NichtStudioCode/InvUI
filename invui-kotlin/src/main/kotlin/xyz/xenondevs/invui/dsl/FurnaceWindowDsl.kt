@@ -10,10 +10,14 @@ import xyz.xenondevs.invui.dsl.property.ProviderDslProperty
 import xyz.xenondevs.invui.window.FurnaceWindow
 import xyz.xenondevs.invui.window.setBurnProgress
 import xyz.xenondevs.invui.window.setCookProgress
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 @ExperimentalDslApi
-fun furnaceWindow(viewer: Player, furnaceWindow: FurnaceWindowDsl.() -> Unit): FurnaceWindow =
-    FurnaceWindowDslImpl(viewer).apply(furnaceWindow).build()
+inline fun furnaceWindow(viewer: Player, furnaceWindow: FurnaceWindowDsl.() -> Unit): FurnaceWindow {
+    contract { callsInPlace(furnaceWindow, InvocationKind.EXACTLY_ONCE) }
+    return FurnaceWindowDslImpl(viewer).apply(furnaceWindow).build()
+}
 
 @ExperimentalDslApi
 sealed interface FurnaceWindowDsl : SplitWindowDsl {
@@ -27,6 +31,7 @@ sealed interface FurnaceWindowDsl : SplitWindowDsl {
     
 }
 
+@PublishedApi
 @ExperimentalDslApi
 internal class FurnaceWindowDslImpl(
     viewer: Player

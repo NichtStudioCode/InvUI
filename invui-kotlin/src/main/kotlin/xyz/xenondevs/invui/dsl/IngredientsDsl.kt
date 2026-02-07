@@ -9,20 +9,27 @@ import xyz.xenondevs.invui.ExperimentalReactiveApi
 import xyz.xenondevs.invui.gui.Gui
 import xyz.xenondevs.invui.gui.IngredientPreset
 import xyz.xenondevs.invui.gui.Marker
-import xyz.xenondevs.invui.gui.PagedGui
-import xyz.xenondevs.invui.gui.ScrollGui
 import xyz.xenondevs.invui.gui.Slot
 import xyz.xenondevs.invui.gui.SlotElement
-import xyz.xenondevs.invui.gui.TabGui
 import xyz.xenondevs.invui.gui.addIngredient
 import xyz.xenondevs.invui.inventory.Inventory
 import xyz.xenondevs.invui.item.Item
 import xyz.xenondevs.invui.item.ItemProvider
 import java.util.function.Supplier
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 @ExperimentalDslApi
-fun ingredients(run: IngredientsDsl.() -> Unit): Unit =
+inline fun ingredients(run: IngredientsDsl.() -> Unit) {
+    contract { callsInPlace(run, InvocationKind.EXACTLY_ONCE) }
     IngredientsDslImpl().run()
+}
+
+@ExperimentalDslApi
+inline fun IngredientsDsl.ingredients(run: IngredientsDsl.() -> Unit) {
+    contract { callsInPlace(run, InvocationKind.EXACTLY_ONCE) }
+    IngredientsDslImpl((this as IngredientsDslImpl).buildPresets()).run()
+}
 
 @GuiDslMarker
 @ExperimentalDslApi
@@ -78,26 +85,9 @@ sealed interface IngredientsDsl {
     @JvmName("bySlotElementSupplier")
     infix fun Char.by(supplier: Supplier<SlotElement>)
     
-    fun ingredients(run: IngredientsDsl.() -> Unit)
-    
-    fun gui(vararg structure: String, gui: GuiDsl.() -> Unit): Gui
-    
-    fun pagedItemsGui(vararg structure: String, gui: PagedGuiDsl<Item>.() -> Unit): PagedGui<Item>
-    
-    fun pagedGuisGui(vararg structure: String, gui: PagedGuiDsl<Gui>.() -> Unit): PagedGui<Gui>
-    
-    fun pagedInventoriesGui(vararg structure: String, gui: PagedGuiDsl<Inventory>.() -> Unit): PagedGui<Inventory>
-    
-    fun scrollItemsGui(vararg structure: String, gui: ScrollGuiDsl<Item>.() -> Unit): ScrollGui<Item>
-    
-    fun scrollGuisGui(vararg structure: String, gui: ScrollGuiDsl<Gui>.() -> Unit): ScrollGui<Gui>
-    
-    fun scrollInventoriesGui(vararg structure: String, gui: ScrollGuiDsl<Inventory>.() -> Unit): ScrollGui<Inventory>
-    
-    fun <G : Gui> tabGui(vararg structure: String, gui: TabGuiDsl<G>.() -> Unit): TabGui
-    
 }
 
+@PublishedApi
 @ExperimentalDslApi
 internal open class IngredientsDslImpl(
     protected val presets: List<IngredientPreset> = emptyList()
@@ -185,31 +175,6 @@ internal open class IngredientsDslImpl(
         ingredients.addIngredientElementSupplier(this, supplier)
     }
     
-    override fun ingredients(run: IngredientsDsl.() -> Unit): Unit =
-        IngredientsDslImpl(presets + ingredients.build()).run()
-    
-    override fun gui(vararg structure: String, gui: GuiDsl.() -> Unit): Gui =
-        NormalGuiDslImpl(structure, presets + ingredients.build()).apply(gui).build()
-    
-    override fun pagedItemsGui(vararg structure: String, gui: PagedGuiDsl<Item>.() -> Unit): PagedGui<Item> =
-        PagedGuiDslImpl.Items(structure, presets + ingredients.build()).apply(gui).build()
-    
-    override fun pagedGuisGui(vararg structure: String, gui: PagedGuiDsl<Gui>.() -> Unit): PagedGui<Gui> =
-        PagedGuiDslImpl.Guis(structure, presets + ingredients.build()).apply(gui).build()
-    
-    override fun pagedInventoriesGui(vararg structure: String, gui: PagedGuiDsl<Inventory>.() -> Unit): PagedGui<Inventory> =
-        PagedGuiDslImpl.Inventories(structure, presets + ingredients.build()).apply(gui).build()
-    
-    override fun scrollItemsGui(vararg structure: String, gui: ScrollGuiDsl<Item>.() -> Unit): ScrollGui<Item> =
-        ScrollGuiDslImpl.Items(structure, presets + ingredients.build()).apply(gui).build()
-    
-    override fun scrollGuisGui(vararg structure: String, gui: ScrollGuiDsl<Gui>.() -> Unit): ScrollGui<Gui> =
-        ScrollGuiDslImpl.Guis(structure, presets + ingredients.build()).apply(gui).build()
-    
-    override fun scrollInventoriesGui(vararg structure: String, gui: ScrollGuiDsl<Inventory>.() -> Unit): ScrollGui<Inventory> =
-        ScrollGuiDslImpl.Inventories(structure, presets + ingredients.build()).apply(gui).build()
-    
-    override fun <G : Gui> tabGui(vararg structure: String, gui: TabGuiDsl<G>.() -> Unit): TabGui =
-        TabGuiDslImpl<G>(structure, presets + ingredients.build()).apply(gui).build()
+    fun buildPresets(): List<IngredientPreset> = presets + ingredients.build()
     
 }

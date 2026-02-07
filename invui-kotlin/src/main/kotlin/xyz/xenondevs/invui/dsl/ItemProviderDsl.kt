@@ -15,14 +15,20 @@ import xyz.xenondevs.commons.provider.provider
 import xyz.xenondevs.invui.dsl.property.ProviderDslProperty
 import xyz.xenondevs.invui.item.ItemProvider
 import xyz.xenondevs.invui.item.ItemWrapper
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 @ExperimentalDslApi
-fun itemProvider(base: Provider<ItemStack>, itemProvider: ItemProviderDsl.() -> Unit): Provider<ItemProvider> =
-    ItemProviderDslImpl(base).apply(itemProvider).build()
+inline fun itemProvider(base: Provider<ItemStack>, itemProvider: ItemProviderDsl.() -> Unit): Provider<ItemProvider> {
+    contract { callsInPlace(itemProvider, InvocationKind.EXACTLY_ONCE) }
+    return ItemProviderDslImpl(base).apply(itemProvider).build()
+}
 
 @ExperimentalDslApi
-fun itemProvider(type: ItemType, itemProvider: ItemProviderDsl.() -> Unit): Provider<ItemProvider> =
-    itemProvider(provider(type.createItemStack()), itemProvider)
+inline fun itemProvider(type: ItemType, itemProvider: ItemProviderDsl.() -> Unit): Provider<ItemProvider> {
+    contract { callsInPlace(itemProvider, InvocationKind.EXACTLY_ONCE) }
+    return itemProvider(provider(type.createItemStack()), itemProvider)
+}
 
 @ItemDslMarker
 @ExperimentalDslApi
@@ -64,6 +70,7 @@ internal class DataComponentsPatchImpl : DataComponentsPatchDsl {
     
 }
 
+@PublishedApi
 @ExperimentalDslApi
 internal class ItemProviderDslImpl(
     private val base: Provider<ItemStack>
@@ -86,9 +93,9 @@ internal class ItemProviderDslImpl(
         get() = ProviderDslProperty(::_hasTooltip)
     override val name: ProviderDslProperty<Component?>
         get() = data[DataComponentTypes.ITEM_NAME]
-    override val customName: ProviderDslProperty<Component?> 
+    override val customName: ProviderDslProperty<Component?>
         get() = data[DataComponentTypes.CUSTOM_NAME]
-    override val hasGlint: ProviderDslProperty<Boolean?> 
+    override val hasGlint: ProviderDslProperty<Boolean?>
         get() = data[DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE]
     
     fun build(): Provider<ItemProvider> {

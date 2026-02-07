@@ -3,10 +3,14 @@ package xyz.xenondevs.invui.dsl
 import org.bukkit.entity.Player
 import xyz.xenondevs.invui.dsl.property.GuiDslProperty
 import xyz.xenondevs.invui.window.GrindstoneWindow
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 @ExperimentalDslApi
-fun grindstoneWindow(viewer: Player, grindstoneWindow: GrindstoneWindowDsl.() -> Unit): GrindstoneWindow =
-    GrindstoneWindowDslImpl(viewer).apply(grindstoneWindow).build()
+inline fun grindstoneWindow(viewer: Player, grindstoneWindow: GrindstoneWindowDsl.() -> Unit): GrindstoneWindow {
+    contract { callsInPlace(grindstoneWindow, InvocationKind.EXACTLY_ONCE) }
+    return GrindstoneWindowDslImpl(viewer).apply(grindstoneWindow).build()
+}
 
 @ExperimentalDslApi
 sealed interface GrindstoneWindowDsl : SplitWindowDsl {
@@ -16,6 +20,7 @@ sealed interface GrindstoneWindowDsl : SplitWindowDsl {
     
 }
 
+@PublishedApi
 @ExperimentalDslApi
 internal class GrindstoneWindowDslImpl(
     viewer: Player

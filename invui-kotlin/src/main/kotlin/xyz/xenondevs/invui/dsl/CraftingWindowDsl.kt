@@ -7,10 +7,14 @@ import org.bukkit.entity.Player
 import xyz.xenondevs.invui.ExperimentalReactiveApi
 import xyz.xenondevs.invui.dsl.property.GuiDslProperty
 import xyz.xenondevs.invui.window.CraftingWindow
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 @ExperimentalDslApi
-fun craftingWindow(viewer: Player, craftingWindow: CraftingWindowDsl.() -> Unit): CraftingWindow =
-    CraftingWindowDslImpl(viewer).apply(craftingWindow).build()
+inline fun craftingWindow(viewer: Player, craftingWindow: CraftingWindowDsl.() -> Unit): CraftingWindow {
+    contract { callsInPlace(craftingWindow, InvocationKind.EXACTLY_ONCE) }
+    return CraftingWindowDslImpl(viewer).apply(craftingWindow).build()
+}
 
 @WindowDslMarker
 @ExperimentalDslApi
@@ -30,6 +34,7 @@ sealed interface CraftingWindowDsl : SplitWindowDsl {
     
 }
 
+@PublishedApi
 @ExperimentalDslApi
 internal class CraftingWindowDslImpl(
     viewer: Player

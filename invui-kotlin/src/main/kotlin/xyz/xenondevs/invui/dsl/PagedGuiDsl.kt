@@ -17,18 +17,44 @@ import xyz.xenondevs.invui.gui.setContent
 import xyz.xenondevs.invui.gui.setPage
 import xyz.xenondevs.invui.inventory.Inventory
 import xyz.xenondevs.invui.item.Item
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 @ExperimentalDslApi
-fun pagedItemsGui(vararg structure: String, gui: PagedGuiDsl<Item>.() -> Unit): PagedGui<Item> =
-    PagedGuiDslImpl.Items(structure).apply(gui).build()
+inline fun pagedItemsGui(vararg structure: String, gui: PagedGuiDsl<Item>.() -> Unit): PagedGui<Item> {
+    contract { callsInPlace(gui, InvocationKind.EXACTLY_ONCE) }
+    return PagedGuiDslImpl.Items(structure).apply(gui).build()
+}
 
 @ExperimentalDslApi
-fun pagedGuisGui(vararg structure: String, gui: PagedGuiDsl<Gui>.() -> Unit): PagedGui<Gui> =
-    PagedGuiDslImpl.Guis(structure).apply(gui).build()
+inline fun IngredientsDsl.pagedItemsGui(vararg structure: String, gui: PagedGuiDsl<Item>.() -> Unit): PagedGui<Item> {
+    contract { callsInPlace(gui, InvocationKind.EXACTLY_ONCE) }
+    return PagedGuiDslImpl.Items(structure, (this as IngredientsDslImpl).buildPresets()).apply(gui).build()
+}
 
 @ExperimentalDslApi
-fun pagedInventoriesGui(vararg structure: String, gui: PagedGuiDsl<Inventory>.() -> Unit): PagedGui<Inventory> =
-    PagedGuiDslImpl.Inventories(structure).apply(gui).build()
+inline fun pagedGuisGui(vararg structure: String, gui: PagedGuiDsl<Gui>.() -> Unit): PagedGui<Gui> {
+    contract { callsInPlace(gui, InvocationKind.EXACTLY_ONCE) }
+    return PagedGuiDslImpl.Guis(structure).apply(gui).build()
+}
+
+@ExperimentalDslApi
+inline fun IngredientsDsl.pagedGuisGui(vararg structure: String, gui: PagedGuiDsl<Gui>.() -> Unit): PagedGui<Gui> {
+    contract { callsInPlace(gui, InvocationKind.EXACTLY_ONCE) }
+    return PagedGuiDslImpl.Guis(structure, (this as IngredientsDslImpl).buildPresets()).apply(gui).build()
+}
+
+@ExperimentalDslApi
+inline fun pagedInventoriesGui(vararg structure: String, gui: PagedGuiDsl<Inventory>.() -> Unit): PagedGui<Inventory> {
+    contract { callsInPlace(gui, InvocationKind.EXACTLY_ONCE) }
+    return PagedGuiDslImpl.Inventories(structure).apply(gui).build()
+}
+
+@ExperimentalDslApi
+inline fun IngredientsDsl.pagedInventoriesGui(vararg structure: String, gui: PagedGuiDsl<Inventory>.() -> Unit): PagedGui<Inventory> {
+    contract { callsInPlace(gui, InvocationKind.EXACTLY_ONCE) }
+    return PagedGuiDslImpl.Inventories(structure, (this as IngredientsDslImpl).buildPresets()).apply(gui).build()
+}
 
 @ExperimentalDslApi
 sealed interface PagedGuiDsl<C : Any> : GuiDsl {
@@ -39,6 +65,7 @@ sealed interface PagedGuiDsl<C : Any> : GuiDsl {
     
 }
 
+@PublishedApi
 @ExperimentalDslApi
 internal abstract class PagedGuiDslImpl<C : Any>(
     structure: Array<out String>,
@@ -65,6 +92,7 @@ internal abstract class PagedGuiDslImpl<C : Any>(
         }
     }
     
+    @PublishedApi
     internal class Items(
         structure: Array<out String>,
         presets: List<IngredientPreset> = emptyList()
@@ -72,6 +100,7 @@ internal abstract class PagedGuiDslImpl<C : Any>(
         override fun createBuilder() = PagedGui.itemsBuilder()
     }
     
+    @PublishedApi
     internal class Guis(
         structure: Array<out String>,
         presets: List<IngredientPreset> = emptyList()
@@ -79,6 +108,7 @@ internal abstract class PagedGuiDslImpl<C : Any>(
         override fun createBuilder() = PagedGui.guisBuilder()
     }
     
+    @PublishedApi
     internal class Inventories(
         structure: Array<out String>,
         presets: List<IngredientPreset> = emptyList()

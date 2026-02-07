@@ -15,10 +15,20 @@ import xyz.xenondevs.invui.gui.TabGui
 import xyz.xenondevs.invui.gui.activeTabProvider
 import xyz.xenondevs.invui.gui.setTab
 import xyz.xenondevs.invui.gui.setTabs
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 @ExperimentalDslApi
-fun <G : Gui> tabGui(vararg structure: String, gui: TabGuiDsl<G>.() -> Unit): TabGui =
-    TabGuiDslImpl<G>(structure).apply(gui).build()
+inline fun <G : Gui> tabGui(vararg structure: String, gui: TabGuiDsl<G>.() -> Unit): TabGui {
+    contract { callsInPlace(gui, InvocationKind.EXACTLY_ONCE) }
+    return TabGuiDslImpl<G>(structure).apply(gui).build()
+}
+
+@ExperimentalDslApi
+inline fun <G : Gui> IngredientsDsl.tabGui(vararg structure: String, gui: TabGuiDsl<G>.() -> Unit): TabGui {
+    contract { callsInPlace(gui, InvocationKind.EXACTLY_ONCE) }
+    return TabGuiDslImpl<G>(structure, (this as IngredientsDslImpl).buildPresets()).apply(gui).build()
+}
 
 @ExperimentalDslApi
 sealed interface TabGuiDsl<G : Gui> : GuiDsl {
@@ -29,6 +39,7 @@ sealed interface TabGuiDsl<G : Gui> : GuiDsl {
     
 }
 
+@PublishedApi
 @ExperimentalDslApi
 internal class TabGuiDslImpl<G : Gui>(
     structure: Array<out String>,

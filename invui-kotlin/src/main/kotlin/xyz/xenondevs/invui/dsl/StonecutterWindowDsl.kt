@@ -9,10 +9,14 @@ import xyz.xenondevs.invui.dsl.property.GuiDslProperty
 import xyz.xenondevs.invui.dsl.property.MutableProviderDslProperty
 import xyz.xenondevs.invui.window.StonecutterWindow
 import xyz.xenondevs.invui.window.setSelectedSlot
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 @ExperimentalDslApi
-fun stonecutterWindow(viewer: Player, stonecutterWindow: StonecutterWindowDsl.() -> Unit): StonecutterWindow =
-    StonecutterWindowDslImpl(viewer).apply(stonecutterWindow).build()
+inline fun stonecutterWindow(viewer: Player, stonecutterWindow: StonecutterWindowDsl.() -> Unit): StonecutterWindow {
+    contract { callsInPlace(stonecutterWindow, InvocationKind.EXACTLY_ONCE) }
+    return StonecutterWindowDslImpl(viewer).apply(stonecutterWindow).build()
+}
 
 @ExperimentalDslApi
 sealed interface StonecutterWindowDsl : SplitWindowDsl {
@@ -23,6 +27,7 @@ sealed interface StonecutterWindowDsl : SplitWindowDsl {
     
 }
 
+@PublishedApi
 @ExperimentalDslApi
 internal class StonecutterWindowDslImpl(
     viewer: Player

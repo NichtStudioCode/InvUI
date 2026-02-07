@@ -13,10 +13,14 @@ import xyz.xenondevs.invui.window.AnvilWindow
 import xyz.xenondevs.invui.window.addRenameHandler
 import xyz.xenondevs.invui.window.setResultAlwaysValid
 import xyz.xenondevs.invui.window.setTextFieldAlwaysEnabled
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 @ExperimentalDslApi
-fun anvilWindow(viewer: Player, anvilWindow: AnvilWindowDsl.() -> Unit): AnvilWindow =
-    AnvilWindowDslImpl(viewer).apply(anvilWindow).build()
+inline fun anvilWindow(viewer: Player, anvilWindow: AnvilWindowDsl.() -> Unit): AnvilWindow {
+    contract { callsInPlace(anvilWindow, InvocationKind.EXACTLY_ONCE) }
+    return AnvilWindowDslImpl(viewer).apply(anvilWindow).build()
+}
 
 @ExperimentalDslApi
 sealed interface AnvilWindowDsl : SplitWindowDsl {
@@ -28,6 +32,7 @@ sealed interface AnvilWindowDsl : SplitWindowDsl {
     
 }
 
+@PublishedApi
 @ExperimentalDslApi
 internal class AnvilWindowDslImpl(
     viewer: Player

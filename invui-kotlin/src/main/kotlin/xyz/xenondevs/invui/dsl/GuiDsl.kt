@@ -11,10 +11,20 @@ import xyz.xenondevs.invui.gui.setBackground
 import xyz.xenondevs.invui.gui.setFrozen
 import xyz.xenondevs.invui.gui.setIgnoreObscuredInventorySlots
 import xyz.xenondevs.invui.item.ItemProvider
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 @ExperimentalDslApi
-fun gui(vararg structure: String, gui: GuiDsl.() -> Unit): Gui =
-    NormalGuiDslImpl(structure).apply(gui).build()
+inline fun gui(vararg structure: String, gui: GuiDsl.() -> Unit): Gui {
+    contract { callsInPlace(gui, InvocationKind.EXACTLY_ONCE) }
+    return NormalGuiDslImpl(structure).apply(gui).build()
+}
+
+@ExperimentalDslApi
+inline fun IngredientsDsl.gui(vararg structure: String, gui: GuiDsl.() -> Unit): Gui {
+    contract { callsInPlace(gui, InvocationKind.EXACTLY_ONCE) }
+    return NormalGuiDslImpl(structure, (this as IngredientsDslImpl).buildPresets()).apply(gui).build()
+}
 
 @ExperimentalDslApi
 sealed interface GuiDsl : IngredientsDsl {
@@ -27,6 +37,7 @@ sealed interface GuiDsl : IngredientsDsl {
     
 }
 
+@PublishedApi
 @ExperimentalDslApi
 internal abstract class GuiDslImpl<G : Gui, B : Gui.Builder<G, B>>(
     private val structure: Array<out String>,
@@ -64,6 +75,7 @@ internal abstract class GuiDslImpl<G : Gui, B : Gui.Builder<G, B>>(
     
 }
 
+@PublishedApi
 @ExperimentalDslApi
 internal class NormalGuiDslImpl<B : Gui.Builder<Gui, B>>(
     structure: Array<out String>,

@@ -13,10 +13,14 @@ import xyz.xenondevs.invui.item.AbstractItem
 import xyz.xenondevs.invui.item.Item
 import xyz.xenondevs.invui.item.ItemProvider
 import xyz.xenondevs.invui.item.simpleOrConstItem
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 @ExperimentalDslApi
-fun item(item: ItemDsl.() -> Unit): Item =
-    ItemDslImpl().apply(item).build()
+inline fun item(item: ItemDsl.() -> Unit): Item {
+    contract { callsInPlace(item, InvocationKind.EXACTLY_ONCE) }
+    return ItemDslImpl().apply(item).build()
+}
 
 @ItemDslMarker
 @ExperimentalDslApi
@@ -49,6 +53,7 @@ sealed interface ItemDsl {
     
 }
 
+@PublishedApi
 @ExperimentalDslApi
 internal class ItemDslImpl : ItemDsl {
     

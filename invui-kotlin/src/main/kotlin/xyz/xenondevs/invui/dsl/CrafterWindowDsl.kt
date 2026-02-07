@@ -8,10 +8,14 @@ import xyz.xenondevs.invui.dsl.property.GuiDslProperty
 import xyz.xenondevs.invui.dsl.property.MutableProvider2dArrayDslProperty
 import xyz.xenondevs.invui.window.CrafterWindow
 import xyz.xenondevs.invui.window.setSlots
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 @ExperimentalDslApi
-fun crafterWindow(viewer: Player, crafterWindow: CrafterWindowDsl.() -> Unit): CrafterWindow =
-    CrafterWindowDslImpl(viewer).apply(crafterWindow).build()
+inline fun crafterWindow(viewer: Player, crafterWindow: CrafterWindowDsl.() -> Unit): CrafterWindow {
+    contract { callsInPlace(crafterWindow, InvocationKind.EXACTLY_ONCE) }
+    return CrafterWindowDslImpl(viewer).apply(crafterWindow).build()
+}
 
 @ExperimentalDslApi
 sealed interface CrafterWindowDsl : SplitWindowDsl {
@@ -22,6 +26,7 @@ sealed interface CrafterWindowDsl : SplitWindowDsl {
     
 }
 
+@PublishedApi
 @ExperimentalDslApi
 internal class CrafterWindowDslImpl(
     viewer: Player

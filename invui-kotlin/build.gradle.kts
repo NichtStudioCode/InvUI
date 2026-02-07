@@ -22,7 +22,10 @@ dependencies {
 
 kotlin {
     compilerOptions {
-        optIn.add("kotlin.experimental.ExperimentalTypeInference")
+        optIn.addAll(
+            "kotlin.experimental.ExperimentalTypeInference",
+            "kotlin.contracts.ExperimentalContracts",
+        )
     }
 }
 

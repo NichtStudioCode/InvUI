@@ -18,18 +18,44 @@ import xyz.xenondevs.invui.gui.setContent
 import xyz.xenondevs.invui.gui.setLine
 import xyz.xenondevs.invui.inventory.Inventory
 import xyz.xenondevs.invui.item.Item
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 @ExperimentalDslApi
-fun scrollItemsGui(vararg structure: String, gui: ScrollGuiDsl<Item>.() -> Unit): ScrollGui<Item> =
-    ScrollGuiDslImpl.Items(structure).apply(gui).build()
+inline fun scrollItemsGui(vararg structure: String, gui: ScrollGuiDsl<Item>.() -> Unit): ScrollGui<Item> {
+    contract { callsInPlace(gui, InvocationKind.EXACTLY_ONCE) }
+    return ScrollGuiDslImpl.Items(structure).apply(gui).build()
+}
 
 @ExperimentalDslApi
-fun scrollGuisGui(vararg structure: String, gui: ScrollGuiDsl<Gui>.() -> Unit): ScrollGui<Gui> =
-    ScrollGuiDslImpl.Guis(structure).apply(gui).build()
+inline fun IngredientsDsl.scrollItemsGui(vararg structure: String, gui: ScrollGuiDsl<Item>.() -> Unit): ScrollGui<Item> {
+    contract { callsInPlace(gui, InvocationKind.EXACTLY_ONCE) }
+    return ScrollGuiDslImpl.Items(structure, (this as IngredientsDslImpl).buildPresets()).apply(gui).build()
+}
 
 @ExperimentalDslApi
-fun scrollInventoriesGui(vararg structure: String, gui: ScrollGuiDsl<Inventory>.() -> Unit): ScrollGui<Inventory> =
-    ScrollGuiDslImpl.Inventories(structure).apply(gui).build()
+inline fun scrollGuisGui(vararg structure: String, gui: ScrollGuiDsl<Gui>.() -> Unit): ScrollGui<Gui> {
+    contract { callsInPlace(gui, InvocationKind.EXACTLY_ONCE) }
+    return ScrollGuiDslImpl.Guis(structure).apply(gui).build()
+}
+
+@ExperimentalDslApi
+inline fun IngredientsDsl.scrollGuisGui(vararg structure: String, gui: ScrollGuiDsl<Gui>.() -> Unit): ScrollGui<Gui> {
+    contract { callsInPlace(gui, InvocationKind.EXACTLY_ONCE) }
+    return ScrollGuiDslImpl.Guis(structure, (this as IngredientsDslImpl).buildPresets()).apply(gui).build()
+}
+
+@ExperimentalDslApi
+inline fun scrollInventoriesGui(vararg structure: String, gui: ScrollGuiDsl<Inventory>.() -> Unit): ScrollGui<Inventory> {
+    contract { callsInPlace(gui, InvocationKind.EXACTLY_ONCE) }
+    return ScrollGuiDslImpl.Inventories(structure).apply(gui).build()
+}
+
+@ExperimentalDslApi
+inline fun IngredientsDsl.scrollInventoriesGui(vararg structure: String, gui: ScrollGuiDsl<Inventory>.() -> Unit): ScrollGui<Inventory> {
+    contract { callsInPlace(gui, InvocationKind.EXACTLY_ONCE) }
+    return ScrollGuiDslImpl.Inventories(structure, (this as IngredientsDslImpl).buildPresets()).apply(gui).build()
+}
 
 @ExperimentalDslApi
 sealed interface ScrollGuiDsl<C : Any> : GuiDsl {
@@ -41,6 +67,7 @@ sealed interface ScrollGuiDsl<C : Any> : GuiDsl {
     
 }
 
+@PublishedApi
 @ExperimentalDslApi
 internal abstract class ScrollGuiDslImpl<C : Any>(
     structure: Array<out String>,
@@ -73,6 +100,7 @@ internal abstract class ScrollGuiDslImpl<C : Any>(
         }
     }
     
+    @PublishedApi
     internal class Items(
         structure: Array<out String>,
         presets: List<IngredientPreset> = emptyList()
@@ -80,6 +108,7 @@ internal abstract class ScrollGuiDslImpl<C : Any>(
         override fun createBuilder() = ScrollGui.itemsBuilder()
     }
     
+    @PublishedApi
     internal class Guis(
         structure: Array<out String>,
         presets: List<IngredientPreset> = emptyList()
@@ -87,6 +116,7 @@ internal abstract class ScrollGuiDslImpl<C : Any>(
         override fun createBuilder() = ScrollGui.guisBuilder()
     }
     
+    @PublishedApi
     internal class Inventories(
         structure: Array<out String>,
         presets: List<IngredientPreset> = emptyList()

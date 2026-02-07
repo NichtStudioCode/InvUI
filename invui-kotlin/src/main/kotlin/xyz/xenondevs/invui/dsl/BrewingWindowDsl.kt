@@ -10,10 +10,14 @@ import xyz.xenondevs.invui.dsl.property.ProviderDslProperty
 import xyz.xenondevs.invui.window.BrewingWindow
 import xyz.xenondevs.invui.window.setBrewProgress
 import xyz.xenondevs.invui.window.setFuelProgress
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 @ExperimentalDslApi
-fun brewingWindow(viewer: Player, brewingWindow: BrewingWindowDsl.() -> Unit): BrewingWindow =
-    BrewingWindowDslImpl(viewer).apply(brewingWindow).build()
+inline fun brewingWindow(viewer: Player, brewingWindow: BrewingWindowDsl.() -> Unit): BrewingWindow {
+    contract { callsInPlace(brewingWindow, InvocationKind.EXACTLY_ONCE) }
+    return BrewingWindowDslImpl(viewer).apply(brewingWindow).build()
+}
 
 @ExperimentalDslApi
 sealed interface BrewingWindowDsl : SplitWindowDsl {
@@ -26,6 +30,7 @@ sealed interface BrewingWindowDsl : SplitWindowDsl {
     
 }
 
+@PublishedApi
 @ExperimentalDslApi
 internal class BrewingWindowDslImpl(
     viewer: Player
