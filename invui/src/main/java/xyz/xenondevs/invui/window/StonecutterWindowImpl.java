@@ -196,6 +196,12 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
         }
         
         @Override
+        public BuilderImpl setSelectedSlot(int slot) {
+            this.selectedSlot = MutableProperty.of(slot);
+            return this;
+        }
+        
+        @Override
         public BuilderImpl setSelectedSlot(MutableProperty<Integer> slot) {
             this.selectedSlot = slot;
             return this;

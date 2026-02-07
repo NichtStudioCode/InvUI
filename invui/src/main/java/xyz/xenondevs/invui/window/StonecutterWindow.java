@@ -143,6 +143,14 @@ public sealed interface StonecutterWindow extends Window permits StonecutterWind
         Builder addSelectedSlotChangeHandler(BiConsumer<? super Integer, ? super Integer> handler);
         
         /**
+         * Sets the initial selected slot of the {@link StonecutterWindow}.
+         *
+         * @param slot The initial selected slot, or -1 if no slot should be selected (default).
+         * @return This {@link Builder}
+         */
+        Builder setSelectedSlot(int slot);
+        
+        /**
          * Sets the property containing the selected slot.
          *
          * @param slot The property containing the selected slot, or -1 if no slot is selected.
