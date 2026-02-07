@@ -1,6 +1,7 @@
 package xyz.xenondevs.invui.internal.menu;
 
 import net.kyori.adventure.text.Component;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.HashedStack;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
@@ -10,6 +11,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.SelectableRecipe;
@@ -29,8 +31,19 @@ import java.util.function.BiConsumer;
  */
 public class CustomStonecutterMenu extends CustomContainerMenu {
     
+    /**
+     * An ingredient that matches all item types (except air, since that is forbidden).
+     * Using an everything-ingredient instead of changing the ingredient based on the input slot
+     * allows changing the input item without needing to resend recipes (which would reset the scroll bar).
+     */
+    private static final Ingredient INGREDIENT = Ingredient.ofStacks(
+        BuiltInRegistries.ITEM.stream()
+            .filter(item -> item != Items.AIR)
+            .map(ItemStack::new)
+            .toList()
+    );
+    
     private @Nullable BiConsumer<? super Integer, ? super Integer> clickHandler;
-    private List<? extends ItemStack> buttons = List.of();
     
     /**
      * Creates a new custom stonecutter menu.
@@ -67,9 +80,8 @@ public class CustomStonecutterMenu extends CustomContainerMenu {
     public void setItem(int slot, org.bukkit.inventory.@Nullable ItemStack item) {
         super.setItem(slot, item);
         if (slot == 0) {
-            setNmsButtons(buttons);
-            // client-side prediction clears output slot when input slot is modified
-            remoteItems.set(1, HashedStack.EMPTY);
+            // client-side prediction may clear the output slot (e.g. when shift-clicking into input)
+            remoteItems.set(1, DIRTY_MARKER);
         }
     }
     
@@ -91,30 +103,20 @@ public class CustomStonecutterMenu extends CustomContainerMenu {
      * @param buttons The buttons.
      */
     private void setNmsButtons(List<? extends ItemStack> buttons) {
-        this.buttons = buttons;
-        updateButtons(buttons);
+        // create and send the recipes required for displaying the buttons
+        var recipeManager = MinecraftServer.getServer().getRecipeManager();
+        var stonecutterRecipes = new SelectableRecipe.SingleInputSet<>(createRecipes(buttons));
+        var recipesPacket = new ClientboundUpdateRecipesPacket(recipeManager.getSynchronizedItemProperties(), stonecutterRecipes);
+        PacketListener.getInstance().injectOutgoing(player, recipesPacket);
         
         // to force the client to recalculate the recipe list, the item needs to be removed and re-added
         // this also triggers result and selected slot to be reset, requiring them to be resent
-        var packet = new ClientboundContainerSetSlotPacket(containerId, incrementStateId(), 0, ItemStack.EMPTY);
-        PacketListener.getInstance().injectOutgoing(player, packet);
+        var setInputPacket = new ClientboundContainerSetSlotPacket(containerId, incrementStateId(), 0, ItemStack.EMPTY);
+        PacketListener.getInstance().injectOutgoing(player, setInputPacket);
         remoteItems.set(0, HashedStack.EMPTY);
         remoteItems.set(1, HashedStack.EMPTY);
         remoteDataSlots[0] = -1;
         sendChangesToRemote();
-    }
-    
-    /**
-     * Creates and sends the required recipes to display the buttons.
-     * This requires a non-air item in the input slot.
-     *
-     * @param buttons The buttons.
-     */
-    private void updateButtons(List<? extends ItemStack> buttons) {
-        var recipeManager = MinecraftServer.getServer().getRecipeManager();
-        var stonecutterRecipes = new SelectableRecipe.SingleInputSet<>(createRecipes(buttons));
-        var packet = new ClientboundUpdateRecipesPacket(recipeManager.getSynchronizedItemProperties(), stonecutterRecipes);
-        PacketListener.getInstance().injectOutgoing(player, packet);
     }
     
     /**
@@ -125,22 +127,19 @@ public class CustomStonecutterMenu extends CustomContainerMenu {
      * @return The stonecutter recipes.
      */
     private List<SelectableRecipe.SingleInputEntry<StonecutterRecipe>> createRecipes(List<? extends ItemStack> buttons) {
-        return buttons.stream().map(button -> {
-            Ingredient ingredient = Ingredient.ofStacks(List.of(items.getFirst()));
-            return new SelectableRecipe.SingleInputEntry<>(
-                ingredient,
-                new SelectableRecipe<>(
-                    new SlotDisplay.ItemStackSlotDisplay(button),
-                    Optional.of(new RecipeHolder<>(
-                        ResourceKey.create(
-                            Registries.RECIPE,
-                            Identifier.fromNamespaceAndPath("invui", "fake_stonecutter_" + MathUtils.RANDOM.nextInt())
-                        ),
-                        new StonecutterRecipe("", ingredient, button.copy())
-                    ))
-                )
-            );
-        }).toList();
+        return buttons.stream().map(button -> new SelectableRecipe.SingleInputEntry<>(
+            INGREDIENT,
+            new SelectableRecipe<>(
+                new SlotDisplay.ItemStackSlotDisplay(button),
+                Optional.of(new RecipeHolder<>(
+                    ResourceKey.create(
+                        Registries.RECIPE,
+                        Identifier.fromNamespaceAndPath("invui", "fake_stonecutter_" + MathUtils.RANDOM.nextInt())
+                    ),
+                    new StonecutterRecipe("", INGREDIENT, button.copy())
+                ))
+            )
+        )).toList();
     }
     
     @Override
