@@ -103,6 +103,15 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
     @Override
     public void handleTick() {
         super.handleTick();
+        flushDirtyButtons();
+    }
+    
+    @Override
+    protected void postItemInit() {
+        flushDirtyButtons();
+    }
+    
+    private void flushDirtyButtons() {
         if (buttonsDirty) {
             menu.setButtons(ItemUtils2.withoutIntermediaryEmpties(Arrays.asList(buttons)));
             buttonsDirty = false;

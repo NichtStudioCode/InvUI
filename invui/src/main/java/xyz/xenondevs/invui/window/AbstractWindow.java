@@ -501,6 +501,7 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
             for (int i = 0; i < size; i++) {
                 update(i);
             }
+            postItemInit();
             
             // open menu
             var title = getTitle();
@@ -512,6 +513,9 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
         } finally {
             isInOpeningContext.set(false);
         }
+    }
+    
+    protected void postItemInit() {
     }
     
     @Override
