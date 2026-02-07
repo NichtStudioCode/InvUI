@@ -34,7 +34,6 @@ import java.util.function.Supplier;
  */
 final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterMenu> implements StonecutterWindow {
     
-    private static final int SELECTED_SLOT_MAGIC_SLOT = 100;
     private static final int DEFAULT_SELECTED_SLOT = -1;
     
     private final Gui upperGui;
@@ -44,6 +43,7 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
     private boolean buttonsDirty = false;
     private final List<BiConsumer<? super Integer, ? super Integer>> selectedSlotChangeHandlers;
     private final MutableProperty<Integer> selectedSlot;
+    private final int selectedSlotMagicSlot;
     
     public StonecutterWindowImpl(
         Player player,
@@ -70,15 +70,16 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
         this.buttons = new ItemStack[buttonsGui.getSize()];
         this.selectedSlot = selectedSlot;
         this.selectedSlotChangeHandlers = new ArrayList<>(selectedSlotChangeHandlers);
+        this.selectedSlotMagicSlot = upperGui.getSize() + lowerGui.getSize() + buttonsGui.getSize();
         
-        selectedSlot.observeWeak(this, thisRef -> thisRef.notifyUpdate(SELECTED_SLOT_MAGIC_SLOT));
+        selectedSlot.observeWeak(this, thisRef -> thisRef.notifyUpdate(selectedSlotMagicSlot));
         menu.setSelectedSlot(getSelectedSlot());
         menu.setClickHandler(this::playerSelectSlot);
     }
     
     @Override
     protected void update(int slot) {
-        if (slot == SELECTED_SLOT_MAGIC_SLOT) {
+        if (slot == selectedSlotMagicSlot) {
             menu.setSelectedSlot(getSelectedSlot());
         } else {
             super.update(slot);
