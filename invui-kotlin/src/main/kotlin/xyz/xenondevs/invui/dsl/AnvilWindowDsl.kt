@@ -5,6 +5,7 @@ package xyz.xenondevs.invui.dsl
 import org.bukkit.entity.Player
 import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.commons.provider.mutableProvider
+import xyz.xenondevs.commons.provider.provider
 import xyz.xenondevs.invui.ExperimentalReactiveApi
 import xyz.xenondevs.invui.dsl.property.GuiDslProperty
 import xyz.xenondevs.invui.dsl.property.ProviderDslProperty
@@ -32,10 +33,15 @@ internal class AnvilWindowDslImpl(
     viewer: Player
 ) : AbstractSplitWindowDsl<AnvilWindow, AnvilWindow.Builder>(viewer), AnvilWindowDsl {
     
+    private var _textFieldAlwaysEnabled = provider(true)
+    private var _resultAlwaysValid = provider(false)
+    
     override val upperGui = GuiDslProperty(3, 1)
     override val text = mutableProvider("")
-    override val textFieldAlwaysEnabled = ProviderDslProperty(true)
-    override val resultAlwaysValid = ProviderDslProperty(false)
+    override val textFieldAlwaysEnabled: ProviderDslProperty<Boolean>
+        get() = ProviderDslProperty(::_textFieldAlwaysEnabled)
+    override val resultAlwaysValid: ProviderDslProperty<Boolean>
+        get() = ProviderDslProperty(::_resultAlwaysValid)
     
     override fun createBuilder() = AnvilWindow.builder()
     
@@ -44,8 +50,8 @@ internal class AnvilWindowDslImpl(
         builder.apply {
             setUpperGui(upperGui.value)
             addRenameHandler(text)
-            setTextFieldAlwaysEnabled(textFieldAlwaysEnabled.delegate)
-            setResultAlwaysValid(resultAlwaysValid.delegate)
+            setTextFieldAlwaysEnabled(_textFieldAlwaysEnabled)
+            setResultAlwaysValid(_resultAlwaysValid)
         }
     }
     

@@ -8,6 +8,7 @@ import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryCloseEvent
 import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.commons.provider.mutableProvider
+import xyz.xenondevs.commons.provider.provider
 import xyz.xenondevs.invui.ClickEvent
 import xyz.xenondevs.invui.ExperimentalReactiveApi
 import xyz.xenondevs.invui.dsl.property.Dimensions
@@ -95,10 +96,19 @@ internal abstract class AbstractWindowDsl<W : Window, B : Window.Builder<W, B>>(
     private val viewer: Player
 ) : WindowDsl {
     
-    override val title = ProviderDslProperty<Component>(Component.empty())
-    override val closeable = ProviderDslProperty(true)
-    override val fallbackWindow = ProviderDslProperty<Window?>(null)
-    override val serverWindowState = MutableProviderDslProperty(0)
+    private var _title = provider<Component>(Component.empty())
+    private var _closeable = provider(true)
+    private var _fallbackWindow = provider<Window?>(null)
+    private var _serverWindowState = mutableProvider(0)
+    
+    override val title: ProviderDslProperty<Component>
+        get() = ProviderDslProperty(::_title)
+    override val closeable: ProviderDslProperty<Boolean>
+        get() = ProviderDslProperty(::_closeable)
+    override val fallbackWindow: ProviderDslProperty<Window?>
+        get() = ProviderDslProperty(::_fallbackWindow)
+    override val serverWindowState: MutableProviderDslProperty<Int>
+        get() = MutableProviderDslProperty(::_serverWindowState)
     override val clientWindowState = mutableProvider(0)
     private val openHandlers = mutableListOf<WindowOpenDsl.() -> Unit>()
     private val closeHandlers = mutableListOf<WindowCloseDsl.() -> Unit>()
@@ -121,9 +131,9 @@ internal abstract class AbstractWindowDsl<W : Window, B : Window.Builder<W, B>>(
     open fun applyToBuilder(builder: B) {
         builder.apply {
             setViewer(viewer)
-            setTitle(title.delegate)
-            setCloseable(closeable.delegate)
-            setFallbackWindow(fallbackWindow.delegate)
+            setTitle(_title)
+            setCloseable(_closeable)
+            setFallbackWindow(_fallbackWindow)
             for (handler in openHandlers) {
                 addOpenHandler { WindowOpenDslImpl().handler() }
             }
@@ -133,7 +143,7 @@ internal abstract class AbstractWindowDsl<W : Window, B : Window.Builder<W, B>>(
             for (handler in outsideClickHandlers) {
                 addOutsideClickHandler { event -> WindowOutsideClickDslImpl(event).handler() }
             }
-            setWindowState(serverWindowState.delegate)
+            setWindowState(_serverWindowState)
             addWindowStateChangeHandler(clientWindowState::set)
         }
     }

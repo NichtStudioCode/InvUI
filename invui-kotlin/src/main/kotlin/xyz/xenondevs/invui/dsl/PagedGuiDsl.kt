@@ -47,15 +47,20 @@ internal abstract class PagedGuiDslImpl<C : Any>(
     
     private val internalPageCount = mutableProvider { provider(0) }
     
-    override val content = ProviderDslProperty(emptyList<C>())
-    override val page = MutableProviderDslProperty(0)
+    private var _content = provider(emptyList<C>())
+    private var _page = mutableProvider(0)
+    
+    override val content: ProviderDslProperty<List<C>>
+        get() = ProviderDslProperty(::_content)
+    override val page: MutableProviderDslProperty<Int>
+        get() = MutableProviderDslProperty(::_page)
     override val pageCount = internalPageCount.flatten()
     
     override fun applyToBuilder(builder: PagedGui.Builder<C>) {
         super.applyToBuilder(builder)
         builder.apply {
-            setContent(content.delegate)
-            setPage(page.delegate)
+            setContent(_content)
+            setPage(_page)
             addModifier { internalPageCount.set(it.pageCountProvider) }
         }
     }

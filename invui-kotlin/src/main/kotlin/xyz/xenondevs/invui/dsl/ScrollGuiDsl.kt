@@ -50,16 +50,21 @@ internal abstract class ScrollGuiDslImpl<C : Any>(
     private val internalLineCount = mutableProvider { provider(0) }
     private val internalMaxLine = mutableProvider { provider(0) }
     
-    override val content = ProviderDslProperty(emptyList<C>())
-    override val line = MutableProviderDslProperty(0)
+    private var _content = provider(emptyList<C>())
+    private var _line = mutableProvider(0)
+    
+    override val content: ProviderDslProperty<List<C>>
+        get() = ProviderDslProperty(::_content)
+    override val line: MutableProviderDslProperty<Int>
+        get() = MutableProviderDslProperty(::_line)
     override val lineCount = internalLineCount.flatten()
     override val maxLine = internalMaxLine.flatten()
     
     override fun applyToBuilder(builder: ScrollGui.Builder<C>) {
         super.applyToBuilder(builder)
         builder.apply {
-            setContent(content.delegate)
-            setLine(line.delegate)
+            setContent(_content)
+            setLine(_line)
             
             addModifier { gui ->
                 internalLineCount.set(gui.lineCountProvider)

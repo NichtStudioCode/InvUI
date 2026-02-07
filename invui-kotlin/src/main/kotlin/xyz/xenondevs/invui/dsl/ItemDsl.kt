@@ -5,6 +5,7 @@ package xyz.xenondevs.invui.dsl
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 import xyz.xenondevs.commons.provider.Provider
+import xyz.xenondevs.commons.provider.provider
 import xyz.xenondevs.invui.Click
 import xyz.xenondevs.invui.ExperimentalReactiveApi
 import xyz.xenondevs.invui.dsl.property.ProviderDslProperty
@@ -51,7 +52,10 @@ sealed interface ItemDsl {
 @ExperimentalDslApi
 internal class ItemDslImpl : ItemDsl {
     
-    override val itemProvider = ProviderDslProperty(ItemProvider.EMPTY)
+    private var _itemProvider = provider(ItemProvider.EMPTY)
+    
+    override val itemProvider: ProviderDslProperty<ItemProvider>
+        get() = ProviderDslProperty(::_itemProvider)
     private val clickHandlers = mutableListOf<ClickDsl.() -> Unit>()
     private val bundleSelectHandlers = mutableListOf<BundleSelectDsl.() -> Unit>()
     
@@ -65,8 +69,8 @@ internal class ItemDslImpl : ItemDsl {
     
     fun build(): Item {
         if (clickHandlers.isEmpty() && bundleSelectHandlers.isEmpty())
-            return simpleOrConstItem(itemProvider.delegate)
-        return DslItemImpl(itemProvider.delegate, clickHandlers.toList(), bundleSelectHandlers.toList())
+            return simpleOrConstItem(_itemProvider)
+        return DslItemImpl(_itemProvider, clickHandlers.toList(), bundleSelectHandlers.toList())
     }
     
 }

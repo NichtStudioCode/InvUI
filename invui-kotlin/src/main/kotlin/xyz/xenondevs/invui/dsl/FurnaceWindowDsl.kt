@@ -3,6 +3,7 @@
 package xyz.xenondevs.invui.dsl
 
 import org.bukkit.entity.Player
+import xyz.xenondevs.commons.provider.provider
 import xyz.xenondevs.invui.ExperimentalReactiveApi
 import xyz.xenondevs.invui.dsl.property.GuiDslProperty
 import xyz.xenondevs.invui.dsl.property.ProviderDslProperty
@@ -31,10 +32,15 @@ internal class FurnaceWindowDslImpl(
     viewer: Player
 ) : AbstractSplitWindowDsl<FurnaceWindow, FurnaceWindow.Builder>(viewer), FurnaceWindowDsl {
     
+    private var _cookProgress = provider(0.0)
+    private var _burnProgress = provider(0.0)
+    
     override val inputGui = GuiDslProperty(1, 2)
     override val resultGui = GuiDslProperty(1, 1)
-    override val cookProgress = ProviderDslProperty(0.0)
-    override val burnProgress = ProviderDslProperty(0.0)
+    override val cookProgress: ProviderDslProperty<Double>
+        get() = ProviderDslProperty(::_cookProgress)
+    override val burnProgress: ProviderDslProperty<Double>
+        get() = ProviderDslProperty(::_burnProgress)
     private val recipeClickHandlers = mutableListOf<RecipeClickDsl.() -> Unit>()
     
     override fun onRecipeClick(handler: RecipeClickDsl.() -> Unit) {
@@ -48,8 +54,8 @@ internal class FurnaceWindowDslImpl(
         builder.apply {
             setInputGui(inputGui.value)
             setResultGui(resultGui.value)
-            setCookProgress(cookProgress.delegate)
-            setBurnProgress(burnProgress.delegate)
+            setCookProgress(_cookProgress)
+            setBurnProgress(_burnProgress)
             for (handler in recipeClickHandlers) {
                 addRecipeClickHandler { RecipeClickDslImpl(it).handler() }
             }

@@ -5,6 +5,7 @@ package xyz.xenondevs.invui.dsl
 import org.bukkit.entity.Player
 import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.commons.provider.mutableProvider
+import xyz.xenondevs.commons.provider.provider
 import xyz.xenondevs.invui.ExperimentalReactiveApi
 import xyz.xenondevs.invui.dsl.property.GuiDslProperty
 import xyz.xenondevs.invui.dsl.property.ItemDslProperty
@@ -48,8 +49,11 @@ internal class MerchantWindowDslImpl(
     viewer: Player
 ) : AbstractSplitWindowDsl<MerchantWindow, MerchantWindow.Builder>(viewer), MerchantWindowDsl {
     
+    private var _trades = provider(emptyList<MerchantWindow.Trade>())
+    
     override val upperGui = GuiDslProperty(3, 1)
-    override val trades = ProviderDslProperty(emptyList<MerchantWindow.Trade>())
+    override val trades: ProviderDslProperty<List<MerchantWindow.Trade>>
+        get() = ProviderDslProperty(::_trades)
     override val selectedTrade = mutableProvider(-1)
     
     override fun createBuilder() = MerchantWindow.builder()
@@ -58,7 +62,7 @@ internal class MerchantWindowDslImpl(
         super.applyToBuilder(builder)
         builder.apply {
             setUpperGui(upperGui.value)
-            setTrades(trades.delegate)
+            setTrades(_trades)
             addTradeSelectHandler { _, trade -> selectedTrade.set(trade) }
         }
     }
@@ -68,18 +72,23 @@ internal class MerchantWindowDslImpl(
 @ExperimentalDslApi
 internal class TradeDslImpl : TradeDsl {
     
+    private var _discount = provider(0)
+    private var _isAvailable = provider(true)
+    
     override val firstInput = ItemDslProperty()
     override val secondInput = ItemDslProperty()
     override val result = ItemDslProperty()
-    override val discount = ProviderDslProperty(0)
-    override val isAvailable = ProviderDslProperty(true)
+    override val discount: ProviderDslProperty<Int>
+        get() = ProviderDslProperty(::_discount)
+    override val isAvailable: ProviderDslProperty<Boolean>
+        get() = ProviderDslProperty(::_isAvailable)
     
     fun build() = MerchantWindow.Trade.builder()
         .setFirstInput(firstInput.value)
         .setSecondInput(secondInput.value)
         .setResult(result.value)
-        .setDiscount(discount.delegate)
-        .setAvailable(isAvailable.delegate)
+        .setDiscount(_discount)
+        .setAvailable(_isAvailable)
         .build()
     
 }

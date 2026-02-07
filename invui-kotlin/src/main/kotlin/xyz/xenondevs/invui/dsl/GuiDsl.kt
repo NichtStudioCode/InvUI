@@ -2,6 +2,7 @@
 
 package xyz.xenondevs.invui.dsl
 
+import xyz.xenondevs.commons.provider.provider
 import xyz.xenondevs.invui.ExperimentalReactiveApi
 import xyz.xenondevs.invui.dsl.property.ProviderDslProperty
 import xyz.xenondevs.invui.gui.Gui
@@ -32,9 +33,16 @@ internal abstract class GuiDslImpl<G : Gui, B : Gui.Builder<G, B>>(
     presets: List<IngredientPreset>
 ) : IngredientsDslImpl(presets), GuiDsl {
     
-    override val background = ProviderDslProperty<ItemProvider?>(null)
-    override val frozen = ProviderDslProperty(false)
-    override val ignoreObscuredInventorySlots = ProviderDslProperty(false)
+    private var _background = provider<ItemProvider?>(null)
+    private var _frozen = provider(false)
+    private var _ignoreObscuredInventorySlots = provider(false)
+    
+    override val background: ProviderDslProperty<ItemProvider?>
+        get() = ProviderDslProperty(::_background)
+    override val frozen: ProviderDslProperty<Boolean>
+        get() = ProviderDslProperty(::_frozen)
+    override val ignoreObscuredInventorySlots: ProviderDslProperty<Boolean>
+        get() = ProviderDslProperty(::_ignoreObscuredInventorySlots)
     
     fun build(): G = createBuilder().apply(::applyToBuilder).build()
     
@@ -46,9 +54,9 @@ internal abstract class GuiDslImpl<G : Gui, B : Gui.Builder<G, B>>(
             }
             applyPreset(ingredients.build())
             
-            setBackground(background.delegate)
-            setFrozen(frozen.delegate)
-            setIgnoreObscuredInventorySlots(ignoreObscuredInventorySlots.delegate)
+            setBackground(_background)
+            setFrozen(_frozen)
+            setIgnoreObscuredInventorySlots(_ignoreObscuredInventorySlots)
         }
     }
     

@@ -3,6 +3,7 @@
 package xyz.xenondevs.invui.dsl
 
 import org.bukkit.entity.Player
+import xyz.xenondevs.commons.provider.mutableProvider
 import xyz.xenondevs.invui.ExperimentalReactiveApi
 import xyz.xenondevs.invui.dsl.property.GuiDslProperty
 import xyz.xenondevs.invui.dsl.property.MutableProviderDslProperty
@@ -27,9 +28,12 @@ internal class StonecutterWindowDslImpl(
     viewer: Player
 ) : AbstractSplitWindowDsl<StonecutterWindow, StonecutterWindow.Builder>(viewer), StonecutterWindowDsl {
     
+    private var _selectedSlot = mutableProvider(-1)
+    
     override val upperGui = GuiDslProperty(2, 1)
     override val buttonsGui = GuiDslProperty(4, 0, arbitraryHeight = true)
-    override val selectedSlot = MutableProviderDslProperty(-1)
+    override val selectedSlot: MutableProviderDslProperty<Int>
+        get() = MutableProviderDslProperty(::_selectedSlot)
     
     override fun createBuilder() = StonecutterWindow.builder()
     
@@ -38,7 +42,7 @@ internal class StonecutterWindowDslImpl(
         builder.apply {
             setUpperGui(upperGui.value)
             setButtonsGui(buttonsGui.value)
-            setSelectedSlot(selectedSlot.delegate)
+            setSelectedSlot(_selectedSlot)
         }
     }
     

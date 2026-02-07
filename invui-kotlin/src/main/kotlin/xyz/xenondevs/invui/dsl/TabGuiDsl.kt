@@ -37,16 +37,21 @@ internal class TabGuiDslImpl<G : Gui>(
     
     private val internalActiveTab = mutableProvider { provider<G?>(null) }
     
-    override val tabs = ProviderDslProperty(emptyList<G?>())
-    override val tab = MutableProviderDslProperty(-1)
+    private var _tabs = provider(emptyList<G?>())
+    private var _tab = mutableProvider(-1)
+    
+    override val tabs: ProviderDslProperty<List<G?>>
+        get() = ProviderDslProperty(::_tabs)
+    override val tab: MutableProviderDslProperty<Int>
+        get() = MutableProviderDslProperty(::_tab)
     override val activeTab = internalActiveTab.flatten()
     
     override fun createBuilder() = TabGui.builder()
     
     override fun applyToBuilder(builder: TabGui.Builder) {
         super.applyToBuilder(builder)
-        builder.setTabs(tabs.delegate)
-        builder.setTab(tab.delegate)
+        builder.setTabs(_tabs)
+        builder.setTab(_tab)
         builder.addModifier { gui ->
             @Suppress("UNCHECKED_CAST")
             internalActiveTab.set(gui.activeTabProvider as Provider<G?>)
