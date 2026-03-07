@@ -109,7 +109,14 @@ public class PacketListener implements Listener {
     private void removeChannelHandler(Player player) {
         packetHandlers.remove(player.getUniqueId());
         var channel = ((CraftPlayer) player).getHandle().connection.connection.channel;
-        channel.pipeline().remove(invuiPacketHandlerName);
+        
+        try {
+            channel.pipeline().remove(invuiPacketHandlerName);
+        } catch (NoSuchElementException ignored) {
+            // On server shutdown, the handler may have already been removed.
+            // Checking whether the handler is still present before removing it
+            // could cause a race condition, so we just catch the exception instead.
+        }
     }
     
     private static class PacketHandler extends ChannelDuplexHandler {
