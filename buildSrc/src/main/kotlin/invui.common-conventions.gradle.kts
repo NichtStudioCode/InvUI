@@ -58,10 +58,3 @@ publishing {
         }
     }
 }
-
-// remove "dev" classifier set by paperweight-userdev
-afterEvaluate {
-    tasks.getByName<Jar>("jar") {
-        archiveClassifier = ""
-    }
-}
