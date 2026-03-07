@@ -19,3 +19,4 @@ test-paper-api = { module = "io.papermc.paper:paper-api", version.ref = "testpap
 
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+dokka = { id = "org.jetbrains.dokka", version = "2.1.0" }

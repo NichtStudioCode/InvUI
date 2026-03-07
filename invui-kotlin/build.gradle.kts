@@ -1,6 +1,7 @@
 plugins {
     id("invui.common-conventions")
     alias(libs.plugins.kotlin)
+    alias(libs.plugins.dokka)
 }
 
 repositories {
@@ -29,10 +30,17 @@ kotlin {
     }
 }
 
+val dokkaGenerateHtmlIntoJavadoc by tasks.registering(Jar::class) {
+    group = "dokka"
+    archiveClassifier = "javadoc"
+    from(tasks.dokkaGeneratePublicationHtml.flatMap { it.outputDirectory })
+}
+
 publishing {
     publications {
         create<MavenPublication>("maven") {
             from(components["kotlin"])
+            artifact(dokkaGenerateHtmlIntoJavadoc)
         }
     }
 }
