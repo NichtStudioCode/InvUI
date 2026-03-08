@@ -73,6 +73,7 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
     private final int size;
     private final List<List<SlotElement>> elementsDisplayed;
     private final BitSet dirtySlots;
+    private volatile boolean dirtyTitle;
     private @Nullable ScheduledTask tickTask;
     private int windowTick;
     
@@ -195,18 +196,32 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
         }
     }
     
+    // notifyUpdate for title
+    @Override
+    public void updateTitle() {
+        dirtyTitle = true;
+    }
+    
     public void handleTick() {
         updateAndFlush();
         windowTick++;
     }
     
     private void updateAndFlush() {
+        if (!isOpen())
+            return;
+        
         updateSlots();
         
-        if (titleSupplier instanceof AnimatedTitle)
-            updateTitle();
-        
-        menu.sendChangesToRemote();
+        if (dirtyTitle) {
+            dirtyTitle = false;
+            actuallyUpdateTitle();
+        } else if (titleSupplier instanceof AnimatedTitle) {
+            actuallyUpdateTitle();
+        } else {
+            // title update resends entire inventory, so changes only need to be sent if title is not updated
+            menu.sendChangesToRemote();
+        }
     }
     
     @Override
@@ -235,6 +250,15 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
             update(slot);
             slot++;
         }
+    }
+    
+    private void actuallyUpdateTitle() {
+        var title = getTitle();
+        if (title.equals(activeTitle))
+            return;
+        activeTitle = title;
+        
+        menu.sendOpenPacket(Languages.getInstance().localized(viewer, title));
     }
     
     @Override
@@ -573,19 +597,6 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
     
     protected Component getTitle() {
         return FuncUtils.getSafely(titleSupplier, DEFAULT_TITLE);
-    }
-    
-    @Override
-    public void updateTitle() {
-        if (!isOpen())
-            return;
-        
-        var title = getTitle();
-        if (title.equals(activeTitle))
-            return;
-        activeTitle = title;
-        
-        menu.sendOpenPacket(Languages.getInstance().localized(viewer, title));
     }
     
     @Override

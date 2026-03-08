@@ -130,7 +130,9 @@ public sealed interface Window extends Observer permits AbstractWindow, AnvilWin
     void setTitle(String title);
     
     /**
-     * Refreshes the title using the currently set {@link Supplier}.
+     * Notifies the window that it should refresh the title using the currently set {@link Supplier}.
+     * <p>
+     * Can be called asynchronously.
      */
     void updateTitle();
     
