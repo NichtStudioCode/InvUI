@@ -309,6 +309,15 @@ public sealed interface Window extends Observer permits AbstractWindow, AnvilWin
     void removeWindowStateChangeHandler(Consumer<? super Integer> handler);
     
     /**
+     * Re-sends all window data (excluding title) to the viewer.
+     * Does nothing if the window is not currently open.
+     * <p>
+     * Note: This method is only necessary to call in extreme edge cases, e.g. if you do
+     * packet-level modifications to items and need to refresh them.
+     */
+    void sendAllDataToViewer();
+    
+    /**
      * A {@link Window} builder.
      *
      * @param <W> The window type

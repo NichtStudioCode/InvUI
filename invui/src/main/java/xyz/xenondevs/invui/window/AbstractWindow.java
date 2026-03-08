@@ -589,6 +589,13 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
     }
     
     @Override
+    public void sendAllDataToViewer() {
+        if (!isOpen())
+            return;
+        menu.sendAllToRemote();
+    }
+    
+    @Override
     public SlotElement.@Nullable GuiLink getGuiAt(int i) {
         if (i < 0)
             return null;
