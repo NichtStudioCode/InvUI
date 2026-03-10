@@ -157,7 +157,7 @@ class CustomItem extends AbstractItem {
                 if (asyncSupplier != null) {
                     Bukkit.getAsyncScheduler().runNow(
                         InvUI.getInstance().getPlugin(),
-                        x -> {
+                        _ -> {
                             var itemProvider = asyncSupplier.get();
                             customItem.itemProvider = (viewer -> itemProvider);
                             customItem.notifyWindows();

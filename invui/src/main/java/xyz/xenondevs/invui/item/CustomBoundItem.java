@@ -231,7 +231,7 @@ class CustomBoundItem<G extends Gui> extends AbstractBoundItem {
                 if (asyncSupplier != null) {
                     Bukkit.getAsyncScheduler().runNow(
                         InvUI.getInstance().getPlugin(),
-                        x -> {
+                        _ -> {
                             var itemProvider = asyncSupplier.get();
                             customItem.itemProvider = (viewer, gui) -> itemProvider;
                             customItem.notifyWindows();

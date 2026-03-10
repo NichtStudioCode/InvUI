@@ -1,5 +1,5 @@
 [versions]
-kotlin = "2.2.21"
+kotlin = "2.3.10"
 paper = "1.21.11-R0.1-SNAPSHOT"
 testpaper = "1.21.11-R0.1-SNAPSHOT"
 

@@ -198,7 +198,7 @@ public class PacketListener implements Listener {
             if (redirectHandler != null) {
                 player.getScheduler().run(
                     InvUI.getInstance().getPlugin(),
-                    x -> redirectHandler.accept((Packet<ServerGamePacketListener>) msg),
+                    _ -> redirectHandler.accept((Packet<ServerGamePacketListener>) msg),
                     null
                 );
             } else {

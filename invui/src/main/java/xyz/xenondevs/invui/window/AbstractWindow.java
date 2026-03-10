@@ -455,7 +455,7 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
                 playerInvSlots.add(slot.slot());
             } else {
                 slotsByInventory
-                    .computeIfAbsent(inv, x -> new IntLinkedOpenHashSet())
+                    .computeIfAbsent(inv, _ -> new IntLinkedOpenHashSet())
                     .add(slot.slot());
             }
         }
@@ -518,7 +518,7 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
             
             // track window and elements
             WindowManager.getInstance().addWindow(this);
-            tickTask = getViewer().getScheduler().runAtFixedRate(InvUI.getInstance().getPlugin(), x -> handleTick(), null, 1, 1);
+            tickTask = getViewer().getScheduler().runAtFixedRate(InvUI.getInstance().getPlugin(), _ -> handleTick(), null, 1, 1);
             registerAsViewer();
             
             // init items

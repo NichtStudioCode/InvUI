@@ -79,7 +79,7 @@ non-sealed abstract class AbstractGui implements Gui {
         this.background = background;
         
         slotElements = new SlotElement[size];
-        observers = CollectionUtils.newList(size, x -> ConcurrentHashMap.newKeySet());
+        observers = CollectionUtils.newList(size, _ -> ConcurrentHashMap.newKeySet());
         
         this.background.observeWeak(this, AbstractGui::notifyWindowsOnBackgroundSlots);
     }
@@ -996,10 +996,6 @@ non-sealed abstract class AbstractGui implements Gui {
     @Override
     public int getHeight() {
         return height;
-    }
-    
-    protected int convToIndex(Slot slot) {
-        return convToIndex(slot.x(), slot.y());
     }
     
     protected int convToIndex(int x, int y) {

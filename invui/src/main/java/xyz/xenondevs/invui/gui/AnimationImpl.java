@@ -80,7 +80,7 @@ final class AnimationImpl implements Animation {
                 throw new IllegalStateException("Animation is already running");
             
             if (scheduler != null) {
-                var task = scheduler.runAtFixedRate(InvUI.getInstance().getPlugin(), x -> handleTick(), null, 1, tickDelay);
+                var task = scheduler.runAtFixedRate(InvUI.getInstance().getPlugin(), _ -> handleTick(), null, 1, tickDelay);
                 cancelTask = task != null ? task::cancel : null;
             } else {
                 var task = Bukkit.getScheduler().runTaskTimer(InvUI.getInstance().getPlugin(), this::handleTick, 0, tickDelay);

@@ -382,7 +382,7 @@ public abstract class CustomContainerMenu {
         
         player.getScheduler().run(
             InvUI.getInstance().getPlugin(),
-            x -> getWindowEvents().handlePong(data.id()),
+            _ -> getWindowEvents().handlePong(data.id()),
             null
         );
     }
