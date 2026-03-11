@@ -3,7 +3,9 @@ package xyz.xenondevs.invui.internal.menu;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundPlaceGhostRecipePacket;
+import net.minecraft.network.protocol.game.ServerGamePacketListener;
 import net.minecraft.network.protocol.game.ServerboundPlaceRecipePacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -37,7 +39,7 @@ public abstract class CustomRecipeBookPoweredMenu extends CustomContainerMenu {
     @Override
     public void open(Component title) {
         var pl = PacketListener.getInstance();
-        pl.redirectIncoming(player, ServerboundPlaceRecipePacket.class, this::handleRecipePlace);
+        pl.redirectIncoming(player, ServerboundPlaceRecipePacket.class, incoming);
         super.open(title);
     }
     
@@ -46,6 +48,16 @@ public abstract class CustomRecipeBookPoweredMenu extends CustomContainerMenu {
         var pl = PacketListener.getInstance();
         pl.removeRedirect(player, ServerboundPlaceRecipePacket.class);
         super.handleClosed();
+    }
+    
+    @Override
+    protected UpdateType processPacket(Packet<? super ServerGamePacketListener> packet) {
+        if (packet instanceof ServerboundPlaceRecipePacket) {
+            handleRecipePlace((ServerboundPlaceRecipePacket) packet);
+            return UpdateType.NONE;
+        } else {
+            return super.processPacket(packet);
+        }
     }
     
     /**

@@ -1,6 +1,8 @@
 package xyz.xenondevs.invui.internal.menu;
 
 import net.kyori.adventure.text.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ServerGamePacketListener;
 import net.minecraft.network.protocol.game.ServerboundRenameItemPacket;
 import net.minecraft.world.inventory.MenuType;
 import org.bukkit.entity.Player;
@@ -32,7 +34,7 @@ public class CustomAnvilMenu extends CustomContainerMenu {
     @Override
     public void open(Component title) {
         var pl = PacketListener.getInstance();
-        pl.redirectIncoming(player, ServerboundRenameItemPacket.class, this::handleRename);
+        pl.redirectIncoming(player, ServerboundRenameItemPacket.class, incoming);
         super.open(title);
     }
     
@@ -41,6 +43,16 @@ public class CustomAnvilMenu extends CustomContainerMenu {
         var pl = PacketListener.getInstance();
         pl.removeRedirect(player, ServerboundRenameItemPacket.class);
         super.handleClosed();
+    }
+    
+    @Override
+    protected UpdateType processPacket(Packet<? super ServerGamePacketListener> packet) {
+        if (packet instanceof ServerboundRenameItemPacket renameItemPacket) {
+            handleRename(renameItemPacket);
+            return UpdateType.NONE;
+        } else {
+            return super.processPacket(packet);
+        }
     }
     
     @Override

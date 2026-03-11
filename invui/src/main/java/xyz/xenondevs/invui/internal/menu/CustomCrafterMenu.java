@@ -2,6 +2,8 @@ package xyz.xenondevs.invui.internal.menu;
 
 import net.kyori.adventure.text.Component;
 import net.minecraft.network.HashedStack;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ServerGamePacketListener;
 import net.minecraft.network.protocol.game.ServerboundContainerSlotStateChangedPacket;
 import net.minecraft.world.inventory.MenuType;
 import org.bukkit.entity.Player;
@@ -29,7 +31,7 @@ public class CustomCrafterMenu extends CustomContainerMenu {
     @Override
     public void open(Component title) {
         var pl = PacketListener.getInstance();
-        pl.redirectIncoming(player, ServerboundContainerSlotStateChangedPacket.class, this::handleSlotStateChange);
+        pl.redirectIncoming(player, ServerboundContainerSlotStateChangedPacket.class, incoming);
         
         super.open(title);
     }
@@ -40,6 +42,16 @@ public class CustomCrafterMenu extends CustomContainerMenu {
         pl.removeRedirect(player, ServerboundContainerSlotStateChangedPacket.class);
         
         super.handleClosed();
+    }
+    
+    @Override
+    protected UpdateType processPacket(Packet<? super ServerGamePacketListener> packet) {
+        if (packet instanceof ServerboundContainerSlotStateChangedPacket slotStateChangedPacket) {
+            handleSlotStateChange(slotStateChangedPacket);
+            return UpdateType.NONE;
+        } else {
+            return super.processPacket(packet);
+        }
     }
     
     /**

@@ -78,9 +78,10 @@ public class CustomStonecutterMenu extends CustomContainerMenu {
     }
     
     @Override
-    protected void handleClick(ServerboundContainerClickPacket packet) {
+    protected UpdateType handleClick(ServerboundContainerClickPacket packet) {
         remoteDataSlots[0] = -1;
-        super.handleClick(packet);
+        var updateType = super.handleClick(packet);
+        return UpdateType.DIRTY.or(updateType);
     }
     
     @Override
@@ -150,7 +151,7 @@ public class CustomStonecutterMenu extends CustomContainerMenu {
     }
     
     @Override
-    public void handleButtonClick(int clicked) {
+    public UpdateType handleButtonClick(int clicked) {
         int prev = dataSlots[0];
         dataSlots[0] = clicked;
         remoteDataSlots[0] = clicked;
@@ -159,7 +160,7 @@ public class CustomStonecutterMenu extends CustomContainerMenu {
         if (clickHandler != null)
             clickHandler.accept(prev, clicked);
         
-        sendChangesToRemote();
+        return UpdateType.DIRTY;
     }
     
     /**

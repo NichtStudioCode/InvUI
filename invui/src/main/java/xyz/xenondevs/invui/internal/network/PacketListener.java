@@ -62,8 +62,8 @@ public class PacketListener implements Listener {
     }
     
     @SuppressWarnings("unchecked")
-    public <T extends Packet<? super ServerGamePacketListener>> void redirectIncoming(Player player, Class<? extends T> clazz, Consumer<? super T> handler) {
-        getPacketHandler(player.getUniqueId()).redirections.put(clazz, (Consumer<Packet<? super ServerGamePacketListener>>) handler);
+    public <T extends Packet<? super ServerGamePacketListener>> void redirectIncoming(Player player, Class<? extends T> clazz, Queue<? super T> queue) {
+        getPacketHandler(player.getUniqueId()).redirections.put(clazz, (Queue<Packet<? super ServerGamePacketListener>>) queue);
     }
     
     public boolean removeRedirect(Player player, Class<? extends Packet<ServerGamePacketListener>> clazz) {
@@ -121,7 +121,7 @@ public class PacketListener implements Listener {
     
     private static class PacketHandler extends ChannelDuplexHandler {
         
-        private final Map<Class<? extends Packet<? super ServerGamePacketListener>>, Consumer<Packet<? super ServerGamePacketListener>>> redirections = new ConcurrentHashMap<>();
+        private final Map<Class<? extends Packet<? super ServerGamePacketListener>>, Queue<Packet<? super ServerGamePacketListener>>> redirections = new ConcurrentHashMap<>();
         private final Map<Class<? extends Packet<? super ServerGamePacketListener>>, Consumer<Packet<? super ServerGamePacketListener>>> listeners = new ConcurrentHashMap<>();
         private final Set<Class<? extends Packet<ClientGamePacketListener>>> discardRules = Collections.newSetFromMap(new ConcurrentHashMap<>());
         private final Player player;
@@ -189,20 +189,21 @@ public class PacketListener implements Listener {
         @SuppressWarnings("unchecked")
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-            var listener = listeners.get(msg.getClass());
-            if (listener != null) {
-                listener.accept((Packet<ServerGamePacketListener>) msg);
+            if (!(msg instanceof Packet<?> packet)) {
+                super.channelRead(ctx, msg);
+                return;
             }
             
-            var redirectHandler = redirections.get(msg.getClass());
-            if (redirectHandler != null) {
-                player.getScheduler().run(
-                    InvUI.getInstance().getPlugin(),
-                    _ -> redirectHandler.accept((Packet<ServerGamePacketListener>) msg),
-                    null
-                );
+            var listener = listeners.get(packet.getClass());
+            if (listener != null) {
+                listener.accept((Packet<ServerGamePacketListener>) packet);
+            }
+            
+            var queue = redirections.get(packet.getClass());
+            if (queue != null) {
+                queue.add((Packet<ServerGamePacketListener>)packet);
             } else {
-                super.channelRead(ctx, msg);
+                super.channelRead(ctx, packet);
             }
         }
         

@@ -24,6 +24,7 @@ import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.i18n.Languages;
 import xyz.xenondevs.invui.internal.menu.CustomContainerMenu;
+import xyz.xenondevs.invui.internal.menu.UpdateType;
 import xyz.xenondevs.invui.internal.menu.WindowEventListener;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
 import xyz.xenondevs.invui.internal.util.FakeInventoryView;
@@ -99,7 +100,7 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
             .collect(Collectors.toCollection(ArrayList::new));
         
         serverWindowState.observeWeak(this, thisRef -> {
-            thisRef.updateAndFlush(); // important: flush item updates and send packets
+            thisRef.updateAndFlush(UpdateType.DIRTY); // important: flush item updates and send packets
             thisRef.menu.sendPing(serverWindowState.get());
         });
         
@@ -203,29 +204,31 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
     }
     
     public void handleTick() {
-        updateAndFlush();
+        var updateType = menu.processIncoming();
+        updateAndFlush(updateType);
         windowTick++;
     }
     
-    private void updateAndFlush() {
+    private void updateAndFlush(UpdateType updateType) {
         if (!isOpen())
             return;
         
-        updateSlots();
+        updateType = updateType.or(updateSlots());
         
+        // title update resends entire inventory, so changes only need to be sent if title is not updated
         if (dirtyTitle) {
             dirtyTitle = false;
             actuallyUpdateTitle();
         } else if (titleSupplier instanceof AnimatedTitle) {
             actuallyUpdateTitle();
-        } else {
-            // title update resends entire inventory, so changes only need to be sent if title is not updated
+        } else if (updateType == UpdateType.FULL) {
+            menu.sendAllToRemote();
+        } else if (updateType == UpdateType.DIRTY) {
             menu.sendChangesToRemote();
         }
     }
     
-    @Override
-    public void updateSlots() {
+    private UpdateType updateSlots() {
         BitSet toUpdate;
         synchronized (dirtySlots) {
             toUpdate = (BitSet) dirtySlots.clone();
@@ -245,11 +248,15 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
                 toUpdate.set(slot);
         }
         
+        boolean changedAny = false;
         int slot = 0;
         while ((slot = toUpdate.nextSetBit(slot)) != -1) {
             update(slot);
+            changedAny = true;
             slot++;
         }
+        
+        return changedAny ? UpdateType.DIRTY : UpdateType.NONE;
     }
     
     private void actuallyUpdateTitle() {

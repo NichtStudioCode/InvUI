@@ -54,7 +54,9 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * A packet-based container menu.
@@ -134,6 +136,7 @@ public abstract class CustomContainerMenu {
     private final IntSet dragSlots = new IntLinkedOpenHashSet();
     private ClickType dragMode = ClickType.LEFT;
     
+    protected final Queue<Packet<? super ServerGamePacketListener>> incoming = new ConcurrentLinkedQueue<>();
     private final Map<Integer, PingData> pendingPongs = new ConcurrentHashMap<>();
     
     /**
@@ -192,24 +195,6 @@ public abstract class CustomContainerMenu {
     }
     
     //<editor-fold desc="synchronization">
-    
-    /**
-     * Synchronizes the menu with the remote client.
-     *
-     * @param all Whether to send all data or only changes
-     */
-    public void sendToRemote(boolean all) {
-        // the window might have been closed, for example while handling a click
-        // in such cases, no more updates should be sent
-        if (!getWindow().isOpen())
-            return;
-        
-        if (all) {
-            sendAllToRemote();
-        } else {
-            sendChangesToRemote();
-        }
-    }
     
     /**
      * Sends all changes to the remote client.
@@ -315,10 +300,10 @@ public abstract class CustomContainerMenu {
      */
     public void open(Component title) {
         var pl = PacketListener.getInstance();
-        pl.redirectIncoming(player, ServerboundContainerButtonClickPacket.class, p -> handleButtonClick(p.buttonId()));
-        pl.redirectIncoming(player, ServerboundContainerClickPacket.class, this::handleClick);
-        pl.redirectIncoming(player, ServerboundContainerClosePacket.class, this::handleClose);
-        pl.redirectIncoming(player, ServerboundSelectBundleItemPacket.class, this::handleBundleSelect);
+        pl.redirectIncoming(player, ServerboundContainerButtonClickPacket.class, incoming);
+        pl.redirectIncoming(player, ServerboundContainerClickPacket.class, incoming);
+        pl.redirectIncoming(player, ServerboundContainerClosePacket.class, incoming);
+        pl.redirectIncoming(player, ServerboundSelectBundleItemPacket.class, incoming);
         pl.listenIncoming(player, ServerboundPongPacket.class, this::handlePongAsync);
         pl.discard(player, ClientboundOpenScreenPacket.class);
         pl.discard(player, ClientboundContainerSetContentPacket.class);
@@ -390,6 +375,40 @@ public abstract class CustomContainerMenu {
     //<editor-fold desc="action handlers">
     
     /**
+     * Handles all queued interaction packets.
+     *
+     * @return The kind of update that is required after processing the incoming packets
+     */
+    public UpdateType processIncoming() {
+        Packet<? super ServerGamePacketListener> packet;
+        UpdateType updateType = UpdateType.NONE;
+        while ((packet = incoming.poll()) != null) {
+            updateType = updateType.or(processPacket(packet));
+        }
+        
+        return updateType;
+    }
+    
+    /**
+     * Processes a single incoming packet.
+     *
+     * @param packet The packet to process
+     * @return The kind of update that is required after processing this packet
+     */
+    protected UpdateType processPacket(Packet<? super ServerGamePacketListener> packet) {
+        return switch (packet) {
+            case ServerboundContainerButtonClickPacket p -> handleButtonClick(p.buttonId());
+            case ServerboundContainerClickPacket p -> handleClick(p);
+            case ServerboundSelectBundleItemPacket p -> handleBundleSelect(p);
+            case ServerboundContainerClosePacket p -> {
+                handleClose(p);
+                yield UpdateType.NONE;
+            }
+            default -> UpdateType.NONE; // unhandled packet
+        };
+    }
+    
+    /**
      * Handles a client-initiated inventory close.
      *
      * @param packet The packet that was received
@@ -411,8 +430,9 @@ public abstract class CustomContainerMenu {
      * See <a href="https://minecraft.wiki/w/Java_Edition_protocol#Click_Container">Click Container</a> for more information.
      *
      * @param packet The packet that was received
+     * @return The kind of update that is required after processing this packet
      */
-    protected void handleClick(ServerboundContainerClickPacket packet) {
+    protected UpdateType handleClick(ServerboundContainerClickPacket packet) {
         boolean requiresFullUpdate = packet.stateId() != stateId;
         
         // update remote slots
@@ -427,13 +447,12 @@ public abstract class CustomContainerMenu {
         
         if (packet.clickType() == net.minecraft.world.inventory.ClickType.QUICK_CRAFT) {
             if (!handleDragClick(packet))
-                return;
+                return requiresFullUpdate ? UpdateType.FULL : UpdateType.DIRTY;
         } else {
             handleNormalClick(packet);
         }
         
-        // syncs server and client state, if necessary
-        sendToRemote(requiresFullUpdate);
+        return requiresFullUpdate ? UpdateType.FULL : UpdateType.DIRTY;
     }
     
     /**
@@ -546,17 +565,17 @@ public abstract class CustomContainerMenu {
      *
      * @param packet The packet that was received
      */
-    private void handleBundleSelect(ServerboundSelectBundleItemPacket packet) {
+    private UpdateType handleBundleSelect(ServerboundSelectBundleItemPacket packet) {
         // verify legal slot
         int slot = packet.slotId();
         if (slot < 0 || slot >= items.size())
-            return;
+            return UpdateType.NONE;
         
         // verify bundle at slot
         var bundle = items.get(slot);
         var bundleContents = bundle.get(DataComponents.BUNDLE_CONTENTS);
         if (bundleContents == null)
-            return;
+            return UpdateType.NONE;
         
         // update remote item to expected selected item index
         var mutableBundleContents = new BundleContents.Mutable(bundleContents);
@@ -566,8 +585,7 @@ public abstract class CustomContainerMenu {
         // let window handle the selection
         runInInteractionContext(() -> getWindowEvents().handleBundleSelect(slot, packet.selectedItemIndex()));
         
-        // syncs server and client state
-        sendToRemote(false);
+        return UpdateType.DIRTY;
     }
     
     /**
@@ -575,20 +593,18 @@ public abstract class CustomContainerMenu {
      *
      * @param buttonId The id of the button that was clicked
      */
-    protected void handleButtonClick(int buttonId) {
+    protected UpdateType handleButtonClick(int buttonId) {
+        return UpdateType.NONE;
     }
     
     /**
      * Runs the given {@link Runnable} in a catching interaction context.
-     * In an interaction context, item items will be propagated to this container immediately.
      *
      * @param run The {@link Runnable} to run in the interaction context
      */
     protected void runInInteractionContext(Runnable run) {
         try {
             run.run();
-            if (getWindow().isOpen())
-                getWindowEvents().updateSlots();
         } catch (Throwable t) {
             InvUI.getInstance().handleException("An exception occurred while handling a window interaction", t);
         }

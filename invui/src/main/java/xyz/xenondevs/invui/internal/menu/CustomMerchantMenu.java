@@ -3,7 +3,9 @@ package xyz.xenondevs.invui.internal.menu;
 import net.kyori.adventure.text.Component;
 import net.minecraft.core.component.DataComponentExactPredicate;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundMerchantOffersPacket;
+import net.minecraft.network.protocol.game.ServerGamePacketListener;
 import net.minecraft.network.protocol.game.ServerboundSelectTradePacket;
 import net.minecraft.world.entity.npc.villager.VillagerData;
 import net.minecraft.world.inventory.MenuType;
@@ -80,7 +82,7 @@ public class CustomMerchantMenu extends CustomContainerMenu {
     @Override
     public void open(Component title) {
         var pl = PacketListener.getInstance();
-        pl.redirectIncoming(player, ServerboundSelectTradePacket.class, this::handleSelectTrade);
+        pl.redirectIncoming(player, ServerboundSelectTradePacket.class, incoming);
         
         super.open(title);
     }
@@ -91,6 +93,16 @@ public class CustomMerchantMenu extends CustomContainerMenu {
         pl.removeRedirect(player, ServerboundSelectTradePacket.class);
         
         super.handleClosed();
+    }
+    
+    @Override
+    protected UpdateType processPacket(Packet<? super ServerGamePacketListener> packet) {
+        if (packet instanceof ServerboundSelectTradePacket selectTradePacket) {
+            handleSelectTrade(selectTradePacket);
+            return UpdateType.NONE;
+        } else {
+            return super.processPacket(packet);
+        }
     }
     
     // fixme: removing trades can lead to client's game crashing when trying to click on removed trade
