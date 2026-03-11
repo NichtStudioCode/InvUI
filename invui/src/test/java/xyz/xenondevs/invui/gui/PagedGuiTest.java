@@ -125,8 +125,10 @@ public class PagedGuiTest {
         
         // check that page value is coerced into valid range
         page.set(0);
+        gui.getSlotElement(0); // trigger lazy refresh after property change
         assertEquals(0, gui.getPage());
         page.set(Integer.MAX_VALUE);
+        gui.getSlotElement(0); // trigger lazy refresh after property change
         assertEquals(maxPage, gui.getPage());
         assertEquals(maxPage, page.get());
     }
@@ -199,7 +201,7 @@ public class PagedGuiTest {
         
         var pageProperty = MutableProperty.of(0);
         
-        PagedGui.itemsBuilder()
+        var gui = PagedGui.itemsBuilder()
             .setStructure(
                 "x x x",
                 "x x x",
@@ -215,15 +217,18 @@ public class PagedGuiTest {
             .build();
         
         pageProperty.set(10);
+        gui.getSlotElement(0); // trigger lazy refresh after property change
         assertEquals(0, prevPage.get());
         assertEquals(10, page.get());
         
         pageProperty.set(-999); // out of bounds, coerced to 0
+        gui.getSlotElement(0); // trigger lazy refresh after property change
         assertEquals(10, prevPage.get());
         assertEquals(0, page.get());
         assertEquals(0, pageProperty.get());
         
         pageProperty.set(0); // same page, ignored
+        gui.getSlotElement(0); // trigger lazy refresh after property change
         assertEquals(10, prevPage.get());
         assertEquals(0, page.get());
     }

@@ -25,10 +25,10 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
     protected int lineLength = 0;
     private LineOrientation orientation = LineOrientation.HORIZONTAL;
     
-    private final MutableProperty<Integer> line;
+    private final BatchingProperty<Integer> line;
     private final MutableProperty<Integer> lineCount = MutableProperty.of(-1);
     private final MutableProperty<Integer> maxLine = MutableProperty.of(-1);
-    private final MutableProperty<List<? extends C>> content;
+    private final BatchingProperty<List<? extends C>> content;
     private final List<BiConsumer<? super Integer, ? super Integer>> scrollHandlers = new ArrayList<>(0);
     private final List<BiConsumer<? super Integer, ? super Integer>> lineCountChangeHandlers = new ArrayList<>(0);
     private int previousLine;
@@ -40,10 +40,10 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
         MutableProperty<List<? extends C>> content
     ) {
         super(width, height);
-        this.line = MutableProperty.of(DEFAULT_LINE);
-        line.observeWeak(this, AbstractScrollGui::handleLineChange);
-        this.content = content;
-        content.observeWeak(this, AbstractScrollGui::bake);
+        this.line = new BatchingProperty<>(DEFAULT_LINE);
+        this.line.observeWeak(this, AbstractScrollGui::handleLineChange);
+        this.content = new BatchingProperty<>(content, this::notifyWindowsOfContentListSlots);
+        this.content.observeWeak(this, AbstractScrollGui::bake);
         setContentListSlotsNoBake(contentListSlots, orientation);
     }
     
@@ -56,12 +56,19 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
         MutableProperty<@Nullable ItemProvider> background
     ) {
         super(structure.getWidth(), structure.getHeight(), frozen, ignoreObscuredInventorySlots, background);
-        this.line = line;
-        line.observeWeak(this, AbstractScrollGui::handleLineChange);
-        this.content = content;
-        content.observeWeak(this, AbstractScrollGui::bake);
+        this.line = new BatchingProperty<>(line, this::notifyWindowsOfContentListSlots);
+        this.line.observeWeak(this, AbstractScrollGui::handleLineChange);
+        this.content = new BatchingProperty<>(content, this::notifyWindowsOfContentListSlots);
+        this.content.observeWeak(this, AbstractScrollGui::bake);
         super.applyStructure(structure); // super call to avoid bake() through applyStructure override
         setContentListSlotsFromStructure(structure);
+    }
+    
+    @Override
+    public @Nullable SlotElement getSlotElement(int index) {
+        content.flushDirty();
+        line.flushDirty();
+        return super.getSlotElement(index);
     }
     
     @Override
@@ -167,6 +174,12 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
         return Math.max(0, getLineCount() - lines);
     }
     
+    private void notifyWindowsOfContentListSlots() {
+        for (Slot cls : contentListSlots) {
+            notifyWindows(convToIndex(cls));
+        }
+    }
+    
     @Override
     public void setContent(List<? extends C> content) {
         this.content.set(content);
@@ -174,7 +187,7 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
     
     @Override
     public MutableProperty<List<? extends C>> getContentProperty() {
-        return content;
+        return content.upstream;
     }
     
     @Override
@@ -204,7 +217,7 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
     
     @Override
     public MutableProperty<Integer> getLineProperty() {
-        return line;
+        return line.upstream;
     }
     
     @Override

@@ -90,7 +90,7 @@ non-sealed abstract class AbstractGui implements Gui {
         if (isFrozen())
             return;
         
-        SlotElement slotElement = slotElements[slot];
+        SlotElement slotElement = getSlotElement(slot);
         switch (slotElement) {
             case SlotElement.GuiLink le -> le.gui().handleClick(le.slot(), click);
             case SlotElement.Item ie -> ie.item().handleClick(click.clickType(), click.player(), click);
@@ -105,7 +105,7 @@ non-sealed abstract class AbstractGui implements Gui {
         if (isFrozen())
             return;
         
-        SlotElement slotElement = slotElements[slot];
+        SlotElement slotElement = getSlotElement(slot);
         switch (slotElement) {
             case SlotElement.GuiLink le -> le.gui().handleBundleSelect(le.slot(), player, bundleSlot);
             case SlotElement.Item ie -> ie.item().handleBundleSelect(player, bundleSlot);
@@ -491,7 +491,7 @@ non-sealed abstract class AbstractGui implements Gui {
         Set<Inventory> ignoredSet = Arrays.stream(ignored).collect(Collectors.toSet());
         
         slotLoop:
-        for (SlotElement element : slotElements) {
+        for (SlotElement element : getSlotElements()) {
             if (element == null)
                 continue;
             
@@ -549,7 +549,7 @@ non-sealed abstract class AbstractGui implements Gui {
     
     private void notifyWindowsOnBackgroundSlots() {
         for (int i = 0; i < getSize(); i++) {
-            if (slotElements[i] != null)
+            if (hasSlotElement(i))
                 continue;
             
             notifyWindows(i);
@@ -675,7 +675,7 @@ non-sealed abstract class AbstractGui implements Gui {
         if (isAnimationRunning() && !isInAnimationContext)
             throw new IllegalStateException("Cannot set slot element while an animation is running");
         
-        var previousElement = slotElements[index];
+        var previousElement = getSlotElement(index);
         slotElements[index] = slotElement;
         
         // replacing a bound item may require unbinding
@@ -709,7 +709,7 @@ non-sealed abstract class AbstractGui implements Gui {
     
     @Override
     public boolean hasSlotElement(int index) {
-        return slotElements[index] != null;
+        return getSlotElement(index) != null;
     }
     
     @Override
@@ -730,7 +730,7 @@ non-sealed abstract class AbstractGui implements Gui {
             if (elementIndex >= slotElements.length)
                 break;
             
-            if (this.slotElements[i] == null) {
+            if (!hasSlotElement(i)) {
                 setSlotElement(i, slotElements[elementIndex++]);
             }
         }
@@ -743,7 +743,7 @@ non-sealed abstract class AbstractGui implements Gui {
             if (elementIndex >= items.length)
                 break;
             
-            if (this.slotElements[i] == null) {
+            if (!hasSlotElement(i)) {
                 setSlotElement(i, new SlotElement.Item(items[elementIndex++]));
             }
         }
@@ -751,7 +751,7 @@ non-sealed abstract class AbstractGui implements Gui {
     
     @Override
     public @Nullable Item getItem(int index) {
-        SlotElement slotElement = slotElements[index];
+        SlotElement slotElement = getSlotElement(index);
         
         if (slotElement instanceof SlotElement.Item) {
             return ((SlotElement.Item) slotElement).item();
@@ -996,6 +996,10 @@ non-sealed abstract class AbstractGui implements Gui {
     @Override
     public int getHeight() {
         return height;
+    }
+    
+    protected int convToIndex(Slot slot) {
+        return convToIndex(slot.x(), slot.y());
     }
     
     protected int convToIndex(int x, int y) {

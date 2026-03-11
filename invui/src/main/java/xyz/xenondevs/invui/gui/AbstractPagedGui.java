@@ -9,9 +9,7 @@ import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
 import xyz.xenondevs.invui.state.Property;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements PagedGui<C> {
@@ -20,9 +18,9 @@ non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements Pag
     
     private List<Slot> contentListSlots = List.of();
     
-    private final MutableProperty<Integer> page;
+    private final BatchingProperty<Integer> page;
     private final MutableProperty<Integer> pageCount = MutableProperty.of(-1);
-    private final MutableProperty<List<? extends C>> content;
+    private final BatchingProperty<List<? extends C>> content;
     private final List<BiConsumer<? super Integer, ? super Integer>> pageChangeHandlers = new ArrayList<>(0);
     private final List<BiConsumer<? super Integer, ? super Integer>> pageCountChangeHandlers = new ArrayList<>(0);
     private int previousPage;
@@ -33,10 +31,10 @@ non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements Pag
         MutableProperty<List<? extends C>> content
     ) {
         super(width, height);
-        this.page = MutableProperty.of(DEFAULT_PAGE);
-        page.observeWeak(this, AbstractPagedGui::handlePageChange);
-        this.content = content;
-        content.observeWeak(this, AbstractPagedGui::bake);
+        this.page = new BatchingProperty<>(DEFAULT_PAGE);
+        this.page.observeWeak(this, AbstractPagedGui::handlePageChange);
+        this.content = new BatchingProperty<>(content, this::notifyWindowsOfContentListSlots);
+        this.content.observeWeak(this, AbstractPagedGui::bake);
         this.contentListSlots = new ArrayList<>(contentListSlots);
     }
     
@@ -49,12 +47,20 @@ non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements Pag
         MutableProperty<@Nullable ItemProvider> background
     ) {
         super(structure.getWidth(), structure.getHeight(), frozen, ignoreObscuredInventorySlots, background);
-        this.page = page;
-        page.observeWeak(this, AbstractPagedGui::handlePageChange);
-        this.content = content;
-        content.observeWeak(this, AbstractPagedGui::bake);
+        this.page = new BatchingProperty<>(page, this::notifyWindowsOfContentListSlots);
+        this.page.observeWeak(this, AbstractPagedGui::handlePageChange);
+        this.content = new BatchingProperty<>(content, this::notifyWindowsOfContentListSlots);
+        this.content.observeWeak(this, AbstractPagedGui::bake);
+        
         this.contentListSlots = structure.getIngredientMatrix().getContentListSlots();
         super.applyStructure(structure); // super call to avoid bake() through applyStructure override
+    }
+    
+    @Override
+    public @Nullable SlotElement getSlotElement(int index) {
+        content.flushDirty();
+        page.flushDirty();
+        return super.getSlotElement(index);
     }
     
     @Override
@@ -116,6 +122,12 @@ non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements Pag
     
     protected abstract void updateContent();
     
+    private void notifyWindowsOfContentListSlots() {
+        for (Slot cls : contentListSlots) {
+            notifyWindows(convToIndex(cls));
+        }
+    }
+    
     private int correctPage(int page) {
         // 0 <= page < pageAmount
         return Math.max(0, Math.min(page, getPageCount() - 1));
@@ -128,7 +140,7 @@ non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements Pag
     
     @Override
     public MutableProperty<List<? extends C>> getContentProperty() {
-        return content;
+        return content.upstream;
     }
     
     @Override
@@ -143,7 +155,7 @@ non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements Pag
     
     @Override
     public MutableProperty<Integer> getPageProperty() {
-        return page;
+        return page.upstream;
     }
     
     @Override

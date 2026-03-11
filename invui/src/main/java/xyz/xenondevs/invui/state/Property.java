@@ -39,7 +39,7 @@ class PropertyImpl<T> implements Property<T> {
     }
     
     @Override
-    public <O> void observeWeak(O owner, @NonNull Consumer<? super O> observer) {
+    public <O> void observeWeak(@NonNull O owner, @NonNull Consumer<? super O> observer) {
         // empty
     }
     

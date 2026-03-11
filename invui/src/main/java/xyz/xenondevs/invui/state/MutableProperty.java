@@ -27,6 +27,7 @@ public interface MutableProperty<T> extends Property<T>, Consumer<T> {
     
 }
 
+@NullUnmarked
 class MutablePropertyImpl<T> implements MutableProperty<T> {
     
     private final Map<Object, List<Consumer<Object>>> weakObservers = new WeakHashMap<>();
@@ -49,13 +50,13 @@ class MutablePropertyImpl<T> implements MutableProperty<T> {
     
     @SuppressWarnings("unchecked")
     @Override
-    public <O> void observeWeak(O owner, @NonNull Consumer<? super O> observer) {
+    public <O> void observeWeak(@NonNull O owner, @NonNull Consumer<? super O> observer) {
         weakObservers.computeIfAbsent(owner, k -> new ArrayList<>())
             .add((Consumer<Object>) observer);
     }
     
     @Override
-    public <O> void unobserveWeak(O owner, @NonNull Consumer<? super O> observer) {
+    public <O> void unobserveWeak(@NonNull O owner, @NonNull Consumer<? super O> observer) {
         List<Consumer<Object>> observers = weakObservers.get(owner);
         if (observers != null) {
             observers.remove(observer);

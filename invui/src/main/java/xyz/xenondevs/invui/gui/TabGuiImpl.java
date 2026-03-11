@@ -20,8 +20,8 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     
     private List<Slot> contentListSlots = List.of();
     
-    private final MutableProperty<Integer> tab;
-    private final MutableProperty<List<? extends @Nullable Gui>> tabs;
+    private final BatchingProperty<Integer> tab;
+    private final BatchingProperty<List<? extends @Nullable Gui>> tabs;
     private final List<BiConsumer<? super Integer, ? super Integer>> tabChangeHandlers = new ArrayList<>(0);
     private int previousTab = -1;
     
@@ -33,10 +33,10 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
         super(width, height);
         if (contentListSlots.isEmpty())
             throw new IllegalArgumentException("Content list slots must not be empty");
-        this.tab = MutableProperty.of(DEFAULT_TAB);
-        tab.observeWeak(this, TabGuiImpl::handleTabChange);
-        this.tabs = tabs;
-        tabs.observeWeak(this, TabGuiImpl::bake);
+        this.tab = new BatchingProperty<>(DEFAULT_TAB);
+        this.tab.observeWeak(this, TabGuiImpl::handleTabChange);
+        this.tabs = new BatchingProperty<>(tabs, this::notifyWindowsOfContentListSlots);
+        this.tabs.observeWeak(this, TabGuiImpl::bake);
         this.contentListSlots = new ArrayList<>(contentListSlots);
         bake();
     }
@@ -50,14 +50,21 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
         MutableProperty<@Nullable ItemProvider> background
     ) {
         super(structure.getWidth(), structure.getHeight(), frozen, ignoreObscuredInventorySlots, background);
-        this.tab = tab;
-        tab.observeWeak(this, TabGuiImpl::handleTabChange);
-        this.tabs = tabs;
-        tabs.observeWeak(this, TabGuiImpl::bake);
+        this.tab = new BatchingProperty<>(tab, this::notifyWindowsOfContentListSlots);
+        this.tab.observeWeak(this, TabGuiImpl::handleTabChange);
+        this.tabs = new BatchingProperty<>(tabs, this::notifyWindowsOfContentListSlots);
+        this.tabs.observeWeak(this, TabGuiImpl::bake);
         super.applyStructure(structure); // super call to avoid bake() through applyStructure override
         setContentListSlots(structure.getIngredientMatrix().getContentListSlots());
         this.contentListSlots = structure.getIngredientMatrix().getContentListSlots();
         bake();
+    }
+    
+    @Override
+    public @Nullable SlotElement getSlotElement(int index) {
+        tabs.flushDirty();
+        tab.flushDirty();
+        return super.getSlotElement(index);
     }
     
     @Override
@@ -145,6 +152,12 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
             for (Slot slot : contentListSlots) {
                 setSlotElement(slot, null);
             }
+        }
+    }
+    
+    private void notifyWindowsOfContentListSlots() {
+        for (Slot cls : contentListSlots) {
+            notifyWindows(convToIndex(cls));
         }
     }
     

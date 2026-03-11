@@ -221,8 +221,10 @@ public class TabGuiTest {
         
         // check that tab value is coerced into valid range
         tab.set(0);
+        gui.getSlotElement(0); // trigger lazy refresh after property change
         assertEquals(Math.min(tabCount - 1, 0), gui.getTab());
         tab.set(Integer.MAX_VALUE);
+        gui.getSlotElement(0); // trigger lazy refresh after property change
         assertEquals(tabCount - 1, gui.getTab());
         assertEquals(tabCount - 1, tab.get());
     }
@@ -371,7 +373,7 @@ public class TabGuiTest {
         
         var tabProperty = MutableProperty.of(0);
         
-        TabGui.builder()
+        var gui = TabGui.builder()
             .setStructure(
                 "x x x",
                 "x x x",
@@ -387,15 +389,18 @@ public class TabGuiTest {
             .build();
         
         tabProperty.set(5);
+        gui.getSlotElement(0); // trigger lazy refresh after property change
         assertEquals(0, prevTab.get());
         assertEquals(5, tab.get());
         
         tabProperty.set(-999); // out of bounds, coerced to 0
+        gui.getSlotElement(0); // trigger lazy refresh after property change
         assertEquals(5, prevTab.get());
         assertEquals(0, tab.get());
         assertEquals(0, tabProperty.get());
         
         tabProperty.set(0); // same tab, ignored
+        gui.getSlotElement(0); // trigger lazy refresh after property change
         assertEquals(5, prevTab.get());
         assertEquals(0, tab.get());
     }

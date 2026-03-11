@@ -187,8 +187,10 @@ public class ScrollGuiTest {
         
         // check that line value is coerced into valid range
         line.set(0);
+        gui.getSlotElement(0); // trigger lazy refresh after property change
         assertEquals(0, gui.getLine());
         line.set(Integer.MAX_VALUE);
+        gui.getSlotElement(0); // trigger lazy refresh after property change
         assertEquals(maxLine, gui.getLine());
         assertEquals(maxLine, line.get());
     }
@@ -261,7 +263,7 @@ public class ScrollGuiTest {
         
         var lineProperty = MutableProperty.of(0);
         
-        ScrollGui.itemsBuilder()
+        var gui = ScrollGui.itemsBuilder()
             .setStructure(
                 "x x x",
                 "x x x",
@@ -277,15 +279,18 @@ public class ScrollGuiTest {
             .build();
         
         lineProperty.set(10);
+        gui.getSlotElement(0); // trigger lazy refresh after property change
         assertEquals(0, prevLine.get());
         assertEquals(10, line.get());
         
         lineProperty.set(-999); // out of bounds, coerced to 0
+        gui.getSlotElement(0); // trigger lazy refresh after property change
         assertEquals(10, prevLine.get());
         assertEquals(0, line.get());
         assertEquals(0, lineProperty.get());
         
         lineProperty.set(0); // same line, ignored
+        gui.getSlotElement(0); // trigger lazy refresh after property change
         assertEquals(10, prevLine.get());
         assertEquals(0, line.get());
     }
