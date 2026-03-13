@@ -26,6 +26,12 @@ inline fun itemProvider(base: Provider<ItemStack>, itemProvider: ItemProviderDsl
 }
 
 @ExperimentalDslApi
+inline fun itemProvider(base: ItemStack, itemProvider: ItemProviderDsl.() -> Unit): Provider<ItemProvider> {
+    contract { callsInPlace(itemProvider, InvocationKind.EXACTLY_ONCE) }
+    return itemProvider(provider(base), itemProvider)
+}
+
+@ExperimentalDslApi
 inline fun itemProvider(type: ItemType, itemProvider: ItemProviderDsl.() -> Unit): Provider<ItemProvider> {
     contract { callsInPlace(itemProvider, InvocationKind.EXACTLY_ONCE) }
     return itemProvider(provider(type.createItemStack()), itemProvider)
