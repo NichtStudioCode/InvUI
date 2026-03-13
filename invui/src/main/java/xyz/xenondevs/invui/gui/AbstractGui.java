@@ -325,7 +325,7 @@ non-sealed abstract class AbstractGui implements Gui {
             return;
         
         if (link.getHoldingElement() instanceof SlotElement.InventoryLink(
-            var otherInventory, var otherSlot, var unused
+            var otherInventory, var otherSlot, _, _
         )) {
             if (inventory == otherInventory && slot == otherSlot)
                 return;

@@ -15,6 +15,7 @@ import xyz.xenondevs.invui.state.Property;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Represents an element in a slot in a {@link Gui}.
@@ -108,9 +109,13 @@ public sealed interface SlotElement {
      * @param inventory          The {@link Inventory} to link to
      * @param slot               The slot in the {@link Inventory} to link to
      * @param backgroundProperty The property containing the {@link ItemProvider} to use as background if the linked slot is empty.
+     * @param visualizer         A function that takes the actual {@link ItemStack} in the linked slot and returns an {@link ItemProvider} to visualize it.
+     *                           May return {@code null} to display the item stack normally and to e.g. fall back to the background provider.
      */
     record InventoryLink(Inventory inventory, int slot,
-                         Property<@Nullable ItemProvider> backgroundProperty) implements SlotElement
+                         Property<@Nullable ItemProvider> backgroundProperty,
+                         Function<@Nullable ItemStack, @Nullable ItemProvider> visualizer
+    ) implements SlotElement
     {
         
         /**
@@ -135,6 +140,17 @@ public sealed interface SlotElement {
         }
         
         /**
+         * Creates a new {@link InventoryLink} using the given {@link Inventory}, slot and background property.
+         *
+         * @param inventory          The {@link Inventory} to link to
+         * @param slot               The slot in the {@link Inventory} to link to
+         * @param backgroundProperty The property containing the {@link ItemProvider} to use as background if the linked slot is empty.
+         */
+        public InventoryLink(Inventory inventory, int slot, Property<@Nullable ItemProvider> backgroundProperty) {
+            this(inventory, slot, backgroundProperty, _ -> null);
+        }
+        
+        /**
          * Gets the background {@link ItemProvider}.
          *
          * @return The background {@link ItemProvider}
@@ -145,10 +161,19 @@ public sealed interface SlotElement {
         
         @Override
         public @Nullable ItemStack getItemStack(Player player) {
-            ItemStack itemStack = inventory.getUnsafeItem(slot);
+            var locale = Languages.getInstance().getLocale(player);
+            var itemStack = inventory.getUnsafeItem(slot);
+            
+            // pass actual item stack to visualizer
+            var visualization = visualizer.apply(itemStack);
+            if (visualization != null)
+                itemStack = visualization.get(locale);
+            
+            // if visualizer returned null and the slot is empty: use background provider
             ItemProvider background = backgroundProperty().get();
             if (itemStack == null && background != null)
-                itemStack = background.get(Languages.getInstance().getLocale(player));
+                itemStack = background.get(locale);
+            
             return itemStack;
         }
         
