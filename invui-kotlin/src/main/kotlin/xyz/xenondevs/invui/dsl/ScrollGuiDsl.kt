@@ -12,6 +12,7 @@ import xyz.xenondevs.invui.dsl.property.ProviderDslProperty
 import xyz.xenondevs.invui.gui.Gui
 import xyz.xenondevs.invui.gui.IngredientPreset
 import xyz.xenondevs.invui.gui.ScrollGui
+import xyz.xenondevs.invui.gui.SlotElement
 import xyz.xenondevs.invui.gui.lineCountProvider
 import xyz.xenondevs.invui.gui.maxLineProvider
 import xyz.xenondevs.invui.gui.setContent
@@ -31,6 +32,18 @@ inline fun scrollItemsGui(vararg structure: String, gui: ScrollGuiDsl<Item>.() -
 inline fun IngredientsDsl.scrollItemsGui(vararg structure: String, gui: ScrollGuiDsl<Item>.() -> Unit): ScrollGui<Item> {
     contract { callsInPlace(gui, InvocationKind.EXACTLY_ONCE) }
     return ScrollGuiDslImpl.Items(structure, (this as IngredientsDslImpl).buildPresets()).apply(gui).build()
+}
+
+@ExperimentalDslApi
+inline fun scrollSlotElementsGui(vararg structure: String, gui: ScrollGuiDsl<SlotElement>.() -> Unit): ScrollGui<SlotElement> {
+    contract { callsInPlace(gui, InvocationKind.EXACTLY_ONCE) }
+    return ScrollGuiDslImpl.SlotElements(structure).apply(gui).build()
+}
+
+@ExperimentalDslApi
+inline fun IngredientsDsl.scrollSlotElementsGui(vararg structure: String, gui: ScrollGuiDsl<SlotElement>.() -> Unit): ScrollGui<SlotElement> {
+    contract { callsInPlace(gui, InvocationKind.EXACTLY_ONCE) }
+    return ScrollGuiDslImpl.SlotElements(structure, (this as IngredientsDslImpl).buildPresets()).apply(gui).build()
 }
 
 @ExperimentalDslApi
@@ -106,6 +119,14 @@ internal abstract class ScrollGuiDslImpl<C : Any>(
         presets: List<IngredientPreset> = emptyList()
     ) : ScrollGuiDslImpl<Item>(structure, presets) {
         override fun createBuilder() = ScrollGui.itemsBuilder()
+    }
+
+    @PublishedApi
+    internal class SlotElements(
+        structure: Array<out String>,
+        presets: List<IngredientPreset> = emptyList()
+    ) : ScrollGuiDslImpl<SlotElement>(structure, presets) {
+        override fun createBuilder() = ScrollGui.slotElementsBuilder()
     }
     
     @PublishedApi

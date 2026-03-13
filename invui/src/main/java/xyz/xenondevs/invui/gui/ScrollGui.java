@@ -9,6 +9,7 @@ import xyz.xenondevs.invui.state.Property;
 
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * A {@link Gui} that displays content in lines that can be scrolled through.
@@ -25,6 +26,15 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
     static Builder<Item> itemsBuilder() {
         return new ScrollItemsGuiImpl.Builder<>();
     }
+
+    /**
+     * Creates a new {@link Builder Gui Builder} for a {@link ScrollGui} that uses {@link SlotElement SlotElements} as content.
+     *
+     * @return The new {@link Builder Gui Builder}.
+     */
+    static Builder<SlotElement> slotElementsBuilder() {
+        return new ScrollSlotElementsGuiImpl.Builder<>();
+    }
     
     /**
      * Creates a new {@link ScrollGui}.
@@ -39,6 +49,20 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
     static ScrollGui<Item> ofItems(int width, int height, List<? extends Item> items, List<? extends Slot> contentListSlots, LineOrientation orientation) {
         return new ScrollItemsGuiImpl<>(width, height, items, contentListSlots, orientation);
     }
+
+    /**
+     * Creates a new {@link ScrollGui}.
+     *
+     * @param width            The width of the {@link ScrollGui}.
+     * @param height           The height of the {@link ScrollGui}.
+     * @param slotElements     The {@link SlotElement SlotElements} to use.
+     * @param contentListSlots The slots where content should be displayed.
+     * @param orientation      The direction in which the {@link ScrollGui} will scroll.
+     * @return The created {@link ScrollGui}.
+     */
+    static ScrollGui<SlotElement> ofSlotElements(int width, int height, List<? extends SlotElement> slotElements, List<? extends Slot> contentListSlots, LineOrientation orientation) {
+        return new ScrollSlotElementsGuiImpl<>(width, height, slotElements, contentListSlots, orientation, Function.identity());
+    }
     
     /**
      * Creates a new {@link ScrollGui}.
@@ -49,6 +73,19 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      */
     static ScrollGui<Item> ofItems(Structure structure, List<? extends Item> items) {
         var gui = ofItems(structure.getWidth(), structure.getHeight(), items, List.of(), LineOrientation.HORIZONTAL);
+        gui.applyStructure(structure);
+        return gui;
+    }
+
+    /**
+     * Creates a new {@link ScrollGui}.
+     *
+     * @param structure    The {@link Structure} to use.
+     * @param slotElements The {@link SlotElement SlotElements} to use.
+     * @return The created {@link ScrollGui}.
+     */
+    static ScrollGui<SlotElement> ofSlotElements(Structure structure, List<? extends SlotElement> slotElements) {
+        var gui = ofSlotElements(structure.getWidth(), structure.getHeight(), slotElements, List.of(), LineOrientation.HORIZONTAL);
         gui.applyStructure(structure);
         return gui;
     }

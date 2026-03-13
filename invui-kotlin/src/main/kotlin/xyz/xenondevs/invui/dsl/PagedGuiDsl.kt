@@ -12,6 +12,7 @@ import xyz.xenondevs.invui.dsl.property.ProviderDslProperty
 import xyz.xenondevs.invui.gui.Gui
 import xyz.xenondevs.invui.gui.IngredientPreset
 import xyz.xenondevs.invui.gui.PagedGui
+import xyz.xenondevs.invui.gui.SlotElement
 import xyz.xenondevs.invui.gui.pageCountProvider
 import xyz.xenondevs.invui.gui.setContent
 import xyz.xenondevs.invui.gui.setPage
@@ -30,6 +31,18 @@ inline fun pagedItemsGui(vararg structure: String, gui: PagedGuiDsl<Item>.() -> 
 inline fun IngredientsDsl.pagedItemsGui(vararg structure: String, gui: PagedGuiDsl<Item>.() -> Unit): PagedGui<Item> {
     contract { callsInPlace(gui, InvocationKind.EXACTLY_ONCE) }
     return PagedGuiDslImpl.Items(structure, (this as IngredientsDslImpl).buildPresets()).apply(gui).build()
+}
+
+@ExperimentalDslApi
+inline fun pagedSlotElementsGui(vararg structure: String, gui: PagedGuiDsl<SlotElement>.() -> Unit): PagedGui<SlotElement> {
+    contract { callsInPlace(gui, InvocationKind.EXACTLY_ONCE) }
+    return PagedGuiDslImpl.SlotElements(structure).apply(gui).build()
+}
+
+@ExperimentalDslApi
+inline fun IngredientsDsl.pagedSlotElementsGui(vararg structure: String, gui: PagedGuiDsl<SlotElement>.() -> Unit): PagedGui<SlotElement> {
+    contract { callsInPlace(gui, InvocationKind.EXACTLY_ONCE) }
+    return PagedGuiDslImpl.SlotElements(structure, (this as IngredientsDslImpl).buildPresets()).apply(gui).build()
 }
 
 @ExperimentalDslApi
@@ -98,6 +111,14 @@ internal abstract class PagedGuiDslImpl<C : Any>(
         presets: List<IngredientPreset> = emptyList()
     ) : PagedGuiDslImpl<Item>(structure, presets) {
         override fun createBuilder() = PagedGui.itemsBuilder()
+    }
+
+    @PublishedApi
+    internal class SlotElements(
+        structure: Array<out String>,
+        presets: List<IngredientPreset> = emptyList()
+    ) : PagedGuiDslImpl<SlotElement>(structure, presets) {
+        override fun createBuilder() = PagedGui.slotElementsBuilder()
     }
     
     @PublishedApi

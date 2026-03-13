@@ -223,7 +223,7 @@ non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements Pag
     public static sealed abstract class AbstractBuilder<C>
         extends AbstractGui.AbstractBuilder<PagedGui<C>, PagedGui.Builder<C>>
         implements PagedGui.Builder<C>
-        permits PagedItemsGuiImpl.Builder, PagedNestedGuiImpl.Builder, PagedInventoriesGuiImpl.Builder
+        permits PagedItemsGuiImpl.Builder, PagedSlotElementsGuiImpl.Builder, PagedNestedGuiImpl.Builder, PagedInventoriesGuiImpl.Builder
     {
         
         private final Constructor<C> ctor;

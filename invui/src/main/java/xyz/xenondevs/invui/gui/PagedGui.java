@@ -9,6 +9,7 @@ import xyz.xenondevs.invui.state.Property;
 
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * A {@link Gui} that can display multiple pages of content.
@@ -27,6 +28,15 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
     }
     
     /**
+     * Creates a new {@link Builder Gui Builder} for a {@link PagedGui} that uses {@link SlotElement SlotElements} as content.
+     *
+     * @return The new {@link Builder Gui Builder}.
+     */
+    static Builder<SlotElement> slotElementsBuilder() {
+        return new PagedSlotElementsGuiImpl.Builder<>();
+    }
+    
+    /**
      * Creates a new {@link PagedGui}.
      *
      * @param width            The width of the {@link PagedGui}.
@@ -42,12 +52,38 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
     /**
      * Creates a new {@link PagedGui}.
      *
+     * @param width            The width of the {@link PagedGui}.
+     * @param height           The height of the {@link PagedGui}.
+     * @param slotElements     The {@link SlotElement SlotElements} to use as page content.
+     * @param contentListSlots The slots where content should be displayed.
+     * @return The created {@link PagedGui}.
+     */
+    static PagedGui<SlotElement> ofSlotElements(int width, int height, List<? extends SlotElement> slotElements, List<? extends Slot> contentListSlots) {
+        return new PagedSlotElementsGuiImpl<>(width, height, slotElements, contentListSlots, Function.identity());
+    }
+    
+    /**
+     * Creates a new {@link PagedGui}.
+     *
      * @param structure The {@link Structure} to use.
      * @param items     The {@link Item Items} to use as in pages.
      * @return The created {@link PagedGui}.
      */
     static PagedGui<Item> ofItems(Structure structure, List<? extends Item> items) {
         var gui = ofItems(structure.getWidth(), structure.getHeight(), items, List.of());
+        gui.applyStructure(structure);
+        return gui;
+    }
+    
+    /**
+     * Creates a new {@link PagedGui}.
+     *
+     * @param structure    The {@link Structure} to use.
+     * @param slotElements The {@link SlotElement SlotElements} to use as page content.
+     * @return The created {@link PagedGui}.
+     */
+    static PagedGui<SlotElement> ofSlotElements(Structure structure, List<? extends SlotElement> slotElements) {
+        var gui = ofSlotElements(structure.getWidth(), structure.getHeight(), slotElements, List.of());
         gui.applyStructure(structure);
         return gui;
     }

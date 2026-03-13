@@ -287,7 +287,7 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
     public static sealed abstract class AbstractBuilder<C>
         extends AbstractGui.AbstractBuilder<ScrollGui<C>, ScrollGui.Builder<C>>
         implements ScrollGui.Builder<C>
-        permits ScrollItemsGuiImpl.Builder, ScrollNestedGuiImpl.Builder, ScrollInventoryGuiImpl.Builder
+        permits ScrollItemsGuiImpl.Builder, ScrollSlotElementsGuiImpl.Builder, ScrollNestedGuiImpl.Builder, ScrollInventoryGuiImpl.Builder
     {
         
         private final Constructor<C> ctor;
