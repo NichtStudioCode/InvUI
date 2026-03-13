@@ -4,6 +4,7 @@ package xyz.xenondevs.invui.dsl
 
 import io.papermc.paper.datacomponent.DataComponentType
 import io.papermc.paper.datacomponent.DataComponentTypes
+import io.papermc.paper.datacomponent.item.ItemLore.lore
 import io.papermc.paper.datacomponent.item.TooltipDisplay.tooltipDisplay
 import net.kyori.adventure.text.Component
 import org.bukkit.inventory.ItemStack
@@ -78,6 +79,7 @@ internal class ItemProviderDslImpl(
     
     private var _type = provider<ItemType?>(null)
     private var _amount = provider<Int?>(null)
+    private var _name = provider<Component?>(null)
     private var _lore = provider<List<Component>?>(null)
     private var _hasTooltip = provider<Boolean?>(null)
     
@@ -87,12 +89,12 @@ internal class ItemProviderDslImpl(
         get() = ProviderDslProperty(::_type)
     override val amount: ProviderDslProperty<Int?>
         get() = ProviderDslProperty(::_amount)
+    override val name: ProviderDslProperty<Component?>
+        get() = ProviderDslProperty(::_name)
     override val lore: ProviderDslProperty<List<Component>?>
         get() = ProviderDslProperty(::_lore)
     override val hasTooltip: ProviderDslProperty<Boolean?>
         get() = ProviderDslProperty(::_hasTooltip)
-    override val name: ProviderDslProperty<Component?>
-        get() = data[DataComponentTypes.ITEM_NAME]
     override val customName: ProviderDslProperty<Component?>
         get() = data[DataComponentTypes.CUSTOM_NAME]
     override val hasGlint: ProviderDslProperty<Boolean?>
@@ -101,9 +103,10 @@ internal class ItemProviderDslImpl(
     fun build(): Provider<ItemProvider> {
         val dataTypeProviders = data.components.map { (type, dslProperty) -> dslProperty.map { type to it } }
         return combinedProvider(
-            base, _type, _amount, _lore, _hasTooltip, combinedProvider(dataTypeProviders)
-        ) { base, type, amount, lore, hasTooltip, dataTypes ->
+            base, _type, _amount, _name, _lore, _hasTooltip, combinedProvider(dataTypeProviders)
+        ) { base, type, amount, name, lore, hasTooltip, dataTypes ->
             var result = base.clone()
+            var hasTooltip = hasTooltip
             
             @Suppress("DEPRECATION")
             if (type != null)
@@ -112,8 +115,15 @@ internal class ItemProviderDslImpl(
             if (amount != null)
                 result.amount = amount
             
-            if (lore != null)
-                result.lore(lore)
+            if (name != null) {
+                hasTooltip = true
+                result.setData(DataComponentTypes.ITEM_NAME, name)
+            }
+            
+            if (lore != null) {
+                hasTooltip = true
+                result.setData(DataComponentTypes.LORE, lore(lore))
+            }
             
             if (hasTooltip != null) {
                 val prev = result.getData(DataComponentTypes.TOOLTIP_DISPLAY)
