@@ -62,6 +62,8 @@ interface WindowOutsideClickDsl {
 @WindowDslMarker
 sealed interface WindowDsl {
     
+    val viewer: Player
+    
     val title: ProviderDslProperty<Component>
     val closeable: ProviderDslProperty<Boolean>
     val fallbackWindow: ProviderDslProperty<Window?>
@@ -100,7 +102,7 @@ sealed interface NormalMergedWindowDsl : WindowDsl {
 @PublishedApi
 @ExperimentalDslApi
 internal abstract class AbstractWindowDsl<W : Window, B : Window.Builder<W, B>>(
-    private val viewer: Player
+    override val viewer: Player
 ) : WindowDsl {
     
     private var _title = provider<Component>(Component.empty())
