@@ -136,7 +136,7 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
         implements AnvilWindow.Builder
     {
         
-        private final List<Consumer<? super String>> renameHandlers = new ArrayList<>();
+        private List<Consumer<? super String>> renameHandlers = new ArrayList<>();
         private Supplier<? extends Gui> upperGuiSupplier = () -> Gui.empty(3, 1);
         private MutableProperty<Boolean> textFieldAlwaysEnabled = MutableProperty.of(DEFAULT_TEXT_FIELD_ALWAYS_ENABLED);
         private MutableProperty<Boolean> resultAlwaysValid = MutableProperty.of(DEFAULT_RESULT_ALWAYS_VALID);
@@ -192,6 +192,14 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
             return window;
         }
         
+        @Override
+        public AnvilWindow.Builder clone() {
+            var clone = (BuilderImpl) super.clone();
+            clone.textFieldAlwaysEnabled = MutableProperty.of(textFieldAlwaysEnabled.get());
+            clone.resultAlwaysValid = MutableProperty.of(resultAlwaysValid.get());
+            clone.renameHandlers = new ArrayList<>(renameHandlers);
+            return clone;
+        }
     }
     
 }

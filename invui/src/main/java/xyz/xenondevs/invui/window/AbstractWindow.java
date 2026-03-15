@@ -892,6 +892,8 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
         public S clone() {
             try {
                 var clone = (AbstractBuilder<W, S>) super.clone();
+                clone.closeable = MutableProperty.of(closeable.get());
+                clone.windowState = MutableProperty.of(windowState.get());
                 clone.openHandlers = new ArrayList<>(openHandlers);
                 clone.closeHandlers = new ArrayList<>(closeHandlers);
                 clone.outsideClickHandlers = new ArrayList<>(outsideClickHandlers);

@@ -341,6 +341,8 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
         @Override
         public ScrollGui.Builder<C> clone() {
             var clone = (AbstractBuilder<C>) super.clone();
+            clone.content = MutableProperty.of(new ArrayList<>(content.get()));
+            clone.line = MutableProperty.of(line.get());
             clone.scrollHandlers = new ArrayList<>(scrollHandlers);
             clone.lineCountChangeHandlers = new ArrayList<>(lineCountChangeHandlers);
             return clone;

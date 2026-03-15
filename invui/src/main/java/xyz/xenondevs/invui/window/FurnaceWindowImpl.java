@@ -135,7 +135,7 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
         implements FurnaceWindow.Builder
     {
         
-        private final List<Consumer<? super Key>> recipeClickHandlers = new ArrayList<>();
+        private List<Consumer<? super Key>> recipeClickHandlers = new ArrayList<>();
         private Supplier<? extends Gui> inputGuiSupplier = () -> Gui.empty(1, 2);
         private Supplier<? extends Gui> resultGuiSupplier = () -> Gui.empty(1, 1);
         private MutableProperty<Double> cookProgress = MutableProperty.of(DEFAULT_COOK_PROGRESS);
@@ -197,6 +197,15 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
             applyModifiers(window);
             
             return window;
+        }
+        
+        @Override
+        public FurnaceWindow.Builder clone() {
+            var clone = (BuilderImpl) super.clone();
+            clone.recipeClickHandlers = new ArrayList<>(recipeClickHandlers);
+            clone.cookProgress = MutableProperty.of(cookProgress.get());
+            clone.burnProgress = MutableProperty.of(burnProgress.get());
+            return clone;
         }
     }
     

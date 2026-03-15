@@ -138,7 +138,7 @@ public final class ItemBuilder implements ItemProvider {
      */
     @Override
     public ItemStack get(Locale locale) {
-        return buildCache.computeIfAbsent(locale, this::build);
+        return buildCache.computeIfAbsent(locale, this::build).clone();
     }
     
     /**

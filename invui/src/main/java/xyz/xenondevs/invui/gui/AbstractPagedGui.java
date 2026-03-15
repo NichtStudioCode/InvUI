@@ -278,8 +278,10 @@ non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements Pag
         @Override
         public PagedGui.Builder<C> clone() {
             var clone = (AbstractBuilder<C>) super.clone();
-            clone.pageChangeHandlers = new ArrayList<>(pageChangeHandlers);
+            clone.content = MutableProperty.of(new ArrayList<>(content.get()));
+            clone.page = MutableProperty.of(page.get());
             clone.pageCountChangeHandlers = new ArrayList<>(pageCountChangeHandlers);
+            clone.pageChangeHandlers = new ArrayList<>(pageChangeHandlers);
             return clone;
         }
         

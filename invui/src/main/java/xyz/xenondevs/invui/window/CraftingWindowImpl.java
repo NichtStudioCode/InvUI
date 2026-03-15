@@ -89,7 +89,7 @@ final class CraftingWindowImpl extends AbstractSplitWindow<CustomCraftingTableMe
         implements CraftingWindow.Builder
     {
         
-        private final List<Consumer<? super Key>> recipeClickHandlers = new ArrayList<>();
+        private List<Consumer<? super Key>> recipeClickHandlers = new ArrayList<>();
         private Supplier<? extends Gui> craftingGuiSupplier = () -> Gui.empty(3, 3);
         private Supplier<? extends Gui> resultGuiSupplier = () -> Gui.empty(1, 1);
         
@@ -135,6 +135,13 @@ final class CraftingWindowImpl extends AbstractSplitWindow<CustomCraftingTableMe
             applyModifiers(window);
             
             return window;
+        }
+        
+        @Override
+        public CraftingWindow.Builder clone() {
+            var clone = (BuilderImpl) super.clone();
+            clone.recipeClickHandlers = new ArrayList<>(recipeClickHandlers);
+            return clone;
         }
     }
     

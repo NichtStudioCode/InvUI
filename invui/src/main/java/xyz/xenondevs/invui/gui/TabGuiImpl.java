@@ -247,6 +247,8 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
         @Override
         public TabGui.Builder clone() {
             var clone = (Builder) super.clone();
+            clone.tabs = MutableProperty.of(new ArrayList<>(tabs.get()));
+            clone.tab = MutableProperty.of(tab.get());
             clone.tabChangeHandlers = new ArrayList<>(tabChangeHandlers);
             return clone;
         }

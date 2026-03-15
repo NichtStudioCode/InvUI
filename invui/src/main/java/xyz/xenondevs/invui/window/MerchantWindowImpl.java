@@ -340,7 +340,7 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
         implements MerchantWindow.Builder
     {
         
-        private final List<BiConsumer<? super Integer, ? super Integer>> tradeSelectHandlers = new ArrayList<>();
+        private List<BiConsumer<? super Integer, ? super Integer>> tradeSelectHandlers = new ArrayList<>();
         private Supplier<? extends Gui> upperGuiSupplier = () -> Gui.empty(3, 1);
         private MutableProperty<List<? extends Trade>> trades = MutableProperty.of(DEFAULT_TRADES);
         private MutableProperty<Integer> level = MutableProperty.of(DEFAULT_LEVEL);
@@ -410,6 +410,17 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
             applyModifiers(window);
             
             return window;
+        }
+        
+        @Override
+        public MerchantWindow.Builder clone() {
+            var clone = (BuilderImpl) super.clone();
+            clone.tradeSelectHandlers = new ArrayList<>(tradeSelectHandlers);
+            clone.trades = MutableProperty.of(new ArrayList<>(trades.get()));
+            clone.level = MutableProperty.of(level.get());
+            clone.progress = MutableProperty.of(progress.get());
+            clone.restockMessageEnabled = MutableProperty.of(restockMessageEnabled.get());
+            return clone;
         }
         
     }

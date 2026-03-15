@@ -1186,6 +1186,9 @@ non-sealed abstract class AbstractGui implements Gui {
         public S clone() {
             try {
                 var clone = (AbstractBuilder<G, S>) super.clone();
+                clone.background = MutableProperty.of(background.get());
+                clone.frozen = MutableProperty.of(frozen.get());
+                clone.ignoreObscuredInventorySlots = MutableProperty.of(ignoreObscuredInventorySlots.get());
                 if (structure != null)
                     clone.structure = structure.clone();
                 if (modifiers != null)

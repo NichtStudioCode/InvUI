@@ -15,6 +15,7 @@ import xyz.xenondevs.invui.util.ItemUtils;
 
 import java.awt.image.BufferedImage;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -187,6 +188,15 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
             applyModifiers(window);
             
             return window;
+        }
+        
+        @Override
+        public CartographyWindow.Builder clone() {
+            var clone = (BuilderImpl) super.clone();
+            clone.icons = MutableProperty.of(new HashSet<>(icons.get()));
+            clone.view = MutableProperty.of(view.get());
+            clone.canvas = canvas != null ? canvas.clone() : null;
+            return clone;
         }
         
     }

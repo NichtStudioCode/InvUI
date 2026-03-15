@@ -153,6 +153,14 @@ final class BrewingWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu
             return window;
         }
         
+        @Override
+        public BrewingWindow.Builder clone() {
+            var clone = (BuilderImpl) super.clone();
+            clone.brewProgress = MutableProperty.of(brewProgress.get());
+            clone.fuelProgress = MutableProperty.of(fuelProgress.get());
+            return clone;
+        }
+        
     }
     
 }

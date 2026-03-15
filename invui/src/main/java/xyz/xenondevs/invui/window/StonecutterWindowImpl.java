@@ -224,6 +224,14 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
             return window;
         }
         
+        @Override
+        public StonecutterWindow.Builder clone() {
+            var clone = (BuilderImpl) super.clone();
+            clone.selectedSlotChangeHandlers = new ArrayList<>(selectedSlotChangeHandlers);
+            clone.selectedSlot = MutableProperty.of(selectedSlot.get());
+            return clone;
+        }
+        
     }
     
 }

@@ -120,8 +120,8 @@ final class CrafterWindowImpl extends AbstractSplitWindow<CustomCrafterMenu> imp
         
         private Supplier<? extends Gui> craftingGuiSupplier = () -> Gui.empty(3, 3);
         private Supplier<? extends Gui> resultGuiSupplier = () -> Gui.empty(1, 1);
-        private final List<BiConsumer<? super Integer, ? super Boolean>> slotToggleHandlers = new ArrayList<>();
-        private final List<MutableProperty<Boolean>> slots = CollectionUtils.newList(9, i -> MutableProperty.of(DEFAULT_SLOT_DISABLED_STATE));
+        private List<BiConsumer<? super Integer, ? super Boolean>> slotToggleHandlers = new ArrayList<>();
+        private List<MutableProperty<Boolean>> slots = CollectionUtils.newList(9, i -> MutableProperty.of(DEFAULT_SLOT_DISABLED_STATE));
         
         @Override
         public CrafterWindow.Builder setCraftingGui(Supplier<? extends Gui> guiSupplier) {
@@ -184,6 +184,14 @@ final class CrafterWindowImpl extends AbstractSplitWindow<CustomCrafterMenu> imp
             applyModifiers(window);
             
             return window;
+        }
+        
+        @Override
+        public CrafterWindow.Builder clone() {
+            var clone = (BuilderImpl) super.clone();
+            clone.slotToggleHandlers = new ArrayList<>(slotToggleHandlers);
+            clone.slots = CollectionUtils.newList(CRAFTING_SLOTS, i -> MutableProperty.of(slots.get(i).get()));
+            return clone;
         }
         
     }
