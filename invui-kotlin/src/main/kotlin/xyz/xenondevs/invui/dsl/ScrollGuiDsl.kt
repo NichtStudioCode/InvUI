@@ -73,6 +73,8 @@ inline fun IngredientsDsl.scrollInventoriesGui(vararg structure: String, gui: Sc
 @ExperimentalDslApi
 sealed interface ScrollGuiDsl<C : Any> : GuiDsl {
     
+    override val gui: Provider<ScrollGui<C>>
+    
     val content: ProviderDslProperty<List<C>>
     val line: MutableProviderDslProperty<Int>
     val lineCount: Provider<Int>

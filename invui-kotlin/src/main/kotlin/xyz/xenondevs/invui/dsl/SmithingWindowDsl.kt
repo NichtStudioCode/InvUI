@@ -1,6 +1,7 @@
 package xyz.xenondevs.invui.dsl
 
 import org.bukkit.entity.Player
+import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.invui.dsl.property.GuiDslProperty
 import xyz.xenondevs.invui.window.SmithingWindow
 import kotlin.contracts.InvocationKind
@@ -14,6 +15,8 @@ inline fun smithingWindow(viewer: Player, smithingWindow: SmithingWindowDsl.() -
 
 @ExperimentalDslApi
 sealed interface SmithingWindowDsl : SplitWindowDsl {
+    
+    override val window: Provider<SmithingWindow>
     
     val upperGui: GuiDslProperty
     

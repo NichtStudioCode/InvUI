@@ -1,6 +1,7 @@
 package xyz.xenondevs.invui.dsl
 
 import org.bukkit.entity.Player
+import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.invui.dsl.property.GuiDslProperty
 import xyz.xenondevs.invui.window.GrindstoneWindow
 import kotlin.contracts.InvocationKind
@@ -14,6 +15,8 @@ inline fun grindstoneWindow(viewer: Player, grindstoneWindow: GrindstoneWindowDs
 
 @ExperimentalDslApi
 sealed interface GrindstoneWindowDsl : SplitWindowDsl {
+    
+    override val window: Provider<GrindstoneWindow>
     
     val inputGui: GuiDslProperty
     val resultGui: GuiDslProperty

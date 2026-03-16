@@ -3,6 +3,7 @@
 package xyz.xenondevs.invui.dsl
 
 import org.bukkit.entity.Player
+import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.invui.ExperimentalReactiveApi
 import xyz.xenondevs.invui.dsl.property.GuiDslProperty
 import xyz.xenondevs.invui.dsl.property.MutableProvider2dArrayDslProperty
@@ -19,6 +20,8 @@ inline fun crafterWindow(viewer: Player, crafterWindow: CrafterWindowDsl.() -> U
 
 @ExperimentalDslApi
 sealed interface CrafterWindowDsl : SplitWindowDsl {
+    
+    override val window: Provider<CrafterWindow>
     
     val craftingGui: GuiDslProperty
     val resultGui: GuiDslProperty

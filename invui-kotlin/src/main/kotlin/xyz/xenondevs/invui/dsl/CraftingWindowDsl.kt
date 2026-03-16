@@ -4,6 +4,7 @@ package xyz.xenondevs.invui.dsl
 
 import net.kyori.adventure.key.Key
 import org.bukkit.entity.Player
+import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.invui.ExperimentalReactiveApi
 import xyz.xenondevs.invui.dsl.property.GuiDslProperty
 import xyz.xenondevs.invui.window.CraftingWindow
@@ -26,6 +27,8 @@ interface RecipeClickDsl {
 
 @ExperimentalDslApi
 sealed interface CraftingWindowDsl : SplitWindowDsl {
+    
+    override val window: Provider<CraftingWindow>
     
     val craftingGui: GuiDslProperty
     val resultGui: GuiDslProperty

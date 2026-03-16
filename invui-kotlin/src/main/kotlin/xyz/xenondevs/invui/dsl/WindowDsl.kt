@@ -63,6 +63,7 @@ interface WindowOutsideClickDsl {
 sealed interface WindowDsl {
     
     val viewer: Player
+    val window: Provider<Window>
     
     val title: ProviderDslProperty<Component>
     val closeable: ProviderDslProperty<Boolean>
@@ -105,6 +106,12 @@ internal abstract class AbstractWindowDsl<W : Window, B : Window.Builder<W, B>>(
     override val viewer: Player
 ) : WindowDsl {
     
+    private lateinit var _window: W
+    override val window: Provider<W> = provider {
+        check(::_window.isInitialized) { "Window cannot be accessed before it is built" }
+        _window
+    }
+    
     private var _title = provider<Component>(Component.empty())
     private var _closeable = provider(true)
     private var _fallbackWindow = provider<Window?>(null)
@@ -135,7 +142,11 @@ internal abstract class AbstractWindowDsl<W : Window, B : Window.Builder<W, B>>(
         outsideClickHandlers += handler
     }
     
-    fun build(): W = createBuilder().apply(::applyToBuilder).build()
+    fun build(): W {
+        val window = createBuilder().apply(::applyToBuilder).build()
+        _window = window
+        return window
+    }
     
     open fun applyToBuilder(builder: B) {
         builder.apply {

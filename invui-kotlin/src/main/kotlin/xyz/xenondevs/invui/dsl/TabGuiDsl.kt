@@ -33,6 +33,8 @@ inline fun <G : Gui> IngredientsDsl.tabGui(vararg structure: String, gui: TabGui
 @ExperimentalDslApi
 sealed interface TabGuiDsl<G : Gui> : GuiDsl {
     
+    override val gui: Provider<TabGui>
+    
     val tabs: ProviderDslProperty<List<G?>>
     val tab: MutableProviderDslProperty<Int>
     val activeTab: Provider<G?>

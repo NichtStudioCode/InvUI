@@ -72,6 +72,8 @@ inline fun IngredientsDsl.pagedInventoriesGui(vararg structure: String, gui: Pag
 @ExperimentalDslApi
 sealed interface PagedGuiDsl<C : Any> : GuiDsl {
     
+    override val gui: Provider<PagedGui<C>>
+    
     val content: ProviderDslProperty<List<C>>
     val page: MutableProviderDslProperty<Int>
     val pageCount: Provider<Int>

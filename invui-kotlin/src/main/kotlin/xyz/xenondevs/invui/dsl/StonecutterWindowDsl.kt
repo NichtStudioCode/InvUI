@@ -3,6 +3,7 @@
 package xyz.xenondevs.invui.dsl
 
 import org.bukkit.entity.Player
+import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.commons.provider.mutableProvider
 import xyz.xenondevs.invui.ExperimentalReactiveApi
 import xyz.xenondevs.invui.dsl.property.GuiDslProperty
@@ -20,6 +21,8 @@ inline fun stonecutterWindow(viewer: Player, stonecutterWindow: StonecutterWindo
 
 @ExperimentalDslApi
 sealed interface StonecutterWindowDsl : SplitWindowDsl {
+    
+    override val window: Provider<StonecutterWindow>
     
     val upperGui: GuiDslProperty
     val buttonsGui: GuiDslProperty

@@ -32,6 +32,8 @@ inline fun trade(trade: TradeDsl.() -> Unit): MerchantWindow.Trade {
 @ExperimentalDslApi
 sealed interface MerchantWindowDsl : SplitWindowDsl {
     
+    override val window: Provider<MerchantWindow>
+    
     val upperGui: GuiDslProperty
     val trades: ProviderDslProperty<List<MerchantWindow.Trade>>
     val selectedTrade: Provider<Int>

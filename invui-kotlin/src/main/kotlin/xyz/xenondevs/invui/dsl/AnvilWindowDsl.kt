@@ -25,6 +25,8 @@ inline fun anvilWindow(viewer: Player, anvilWindow: AnvilWindowDsl.() -> Unit): 
 @ExperimentalDslApi
 sealed interface AnvilWindowDsl : SplitWindowDsl {
     
+    override val window: Provider<AnvilWindow>
+    
     val upperGui: GuiDslProperty
     val text: Provider<String>
     val textFieldAlwaysEnabled: ProviderDslProperty<Boolean>

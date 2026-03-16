@@ -3,6 +3,7 @@
 package xyz.xenondevs.invui.dsl
 
 import org.bukkit.entity.Player
+import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.commons.provider.provider
 import xyz.xenondevs.invui.ExperimentalReactiveApi
 import xyz.xenondevs.invui.dsl.property.GuiDslProperty
@@ -21,6 +22,8 @@ inline fun furnaceWindow(viewer: Player, furnaceWindow: FurnaceWindowDsl.() -> U
 
 @ExperimentalDslApi
 sealed interface FurnaceWindowDsl : SplitWindowDsl {
+    
+    override val window: Provider<FurnaceWindow>
     
     val inputGui: GuiDslProperty
     val resultGui: GuiDslProperty
