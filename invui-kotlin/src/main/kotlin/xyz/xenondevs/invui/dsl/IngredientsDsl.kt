@@ -31,6 +31,26 @@ inline fun IngredientsDsl.ingredients(run: IngredientsDsl.() -> Unit) {
     IngredientsDslImpl((this as IngredientsDslImpl).buildPresets()).run()
 }
 
+@ExperimentalDslApi
+data class InventoryWithBackground(
+    val inventory: Inventory,
+    val background: ItemProvider
+)
+
+@ExperimentalDslApi
+data class InventoryWithBackgroundProvider(
+    val inventory: Inventory,
+    val background: Provider<ItemProvider>
+)
+
+@ExperimentalDslApi
+infix fun Inventory.with(background: ItemProvider): InventoryWithBackground =
+    InventoryWithBackground(this, background)
+
+@ExperimentalDslApi
+infix fun Inventory.with(background: Provider<ItemProvider>): InventoryWithBackgroundProvider =
+    InventoryWithBackgroundProvider(this, background)
+
 @GuiDslMarker
 @ExperimentalDslApi
 sealed interface IngredientsDsl {
@@ -52,6 +72,10 @@ sealed interface IngredientsDsl {
     infix fun Char.by(element: SlotElement)
     
     infix fun Char.by(inventory: Inventory)
+
+    infix fun Char.by(inventory: InventoryWithBackground)
+
+    infix fun Char.by(inventory: InventoryWithBackgroundProvider)
     
     infix fun Char.by(gui: Gui)
     
@@ -129,6 +153,14 @@ internal open class IngredientsDslImpl(
     
     override fun Char.by(inventory: Inventory) {
         ingredients.addIngredient(this, inventory)
+    }
+
+    override fun Char.by(inventory: InventoryWithBackground) {
+        ingredients.addIngredient(this, inventory.inventory, inventory.background)
+    }
+
+    override fun Char.by(inventory: InventoryWithBackgroundProvider) {
+        ingredients.addIngredient(this, inventory.inventory, inventory.background)
     }
     
     override fun Char.by(gui: Gui) {
