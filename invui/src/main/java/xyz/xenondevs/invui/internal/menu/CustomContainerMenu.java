@@ -198,8 +198,10 @@ public abstract class CustomContainerMenu {
     
     /**
      * Sends all changes to the remote client.
+     * 
+     * @param pingId Optional ping id to also send a ping packet, or any negative number to not send a ping packet.
      */
-    public void sendChangesToRemote() {
+    public void sendChangesToRemote(int pingId) {
         var packets = new ArrayList<Packet<? super ClientGamePacketListener>>();
         
         for (int i = 0; i < items.size(); i++) {
@@ -228,6 +230,10 @@ public abstract class CustomContainerMenu {
             }
         }
         
+        if (pingId >= 0) {
+            packets.add(createMaskedPingPacket(pingId));
+        }
+        
         PacketListener.getInstance().injectOutgoing(player, packets);
     }
     
@@ -242,9 +248,11 @@ public abstract class CustomContainerMenu {
     
     /**
      * Sends all data to the remote client.
+     * 
+     * @param pingId Optional ping id to also send a ping packet, or any negative number to not send a ping packet.
      */
-    public void sendAllToRemote() {
-        PacketListener.getInstance().injectOutgoing(player, createContainerInitPacketList());
+    public void sendAllToRemote(int pingId) {
+        PacketListener.getInstance().injectOutgoing(player, createContainerInitPacketList(pingId));
         markRemoteSynced();
     }
     
@@ -256,7 +264,7 @@ public abstract class CustomContainerMenu {
     public void sendOpenPacket(Component title) {
         this.title = title;
         
-        var packets = createContainerInitPacketList();
+        var packets = createContainerInitPacketList(-1);
         packets.addFirst(new ClientboundOpenScreenPacket(containerId, menuType, PaperAdventure.asVanilla(title)));
         PacketListener.getInstance().injectOutgoing(player, packets);
         markRemoteSynced();
@@ -265,9 +273,10 @@ public abstract class CustomContainerMenu {
     /**
      * Creates the list of packets needed for container initialization, excluding the open screen packet.
      *
+     * @param pingId Optional ping id to also include a ping packet, or any negative number to not include a ping packet.
      * @return The list of packets
      */
-    private List<Packet<? super ClientGamePacketListener>> createContainerInitPacketList() {
+    private List<Packet<? super ClientGamePacketListener>> createContainerInitPacketList(int pingId) {
         var packets = new ArrayList<Packet<? super ClientGamePacketListener>>();
         packets.add(new ClientboundContainerSetContentPacket(
             containerId,
@@ -277,6 +286,9 @@ public abstract class CustomContainerMenu {
         ));
         for (int i = 0; i < dataSlots.length; i++) {
             packets.add(new ClientboundContainerSetDataPacket(containerId, i, dataSlots[i]));
+        }
+        if (pingId >= 0) {
+            packets.add(createMaskedPingPacket(pingId));
         }
         return packets;
     }
@@ -304,7 +316,7 @@ public abstract class CustomContainerMenu {
         pl.redirectIncoming(player, ServerboundContainerClickPacket.class, incoming);
         pl.redirectIncoming(player, ServerboundContainerClosePacket.class, incoming);
         pl.redirectIncoming(player, ServerboundSelectBundleItemPacket.class, incoming);
-        pl.listenIncoming(player, ServerboundPongPacket.class, this::handlePongAsync);
+        pl.listenIncoming(player, ServerboundPongPacket.class, incoming);
         pl.discard(player, ClientboundOpenScreenPacket.class);
         pl.discard(player, ClientboundContainerSetContentPacket.class);
         pl.discard(player, ClientboundContainerSetDataPacket.class);
@@ -343,7 +355,7 @@ public abstract class CustomContainerMenu {
      *
      * @param id The window state id
      */
-    public void sendPing(int id) {
+    private ClientboundPingPacket createMaskedPingPacket(int id) {
         // generate new ping id, remember mapping and timestamp
         int ping = MathUtils.RANDOM.nextInt();
         pendingPongs.put(ping, new PingData(id, System.currentTimeMillis()));
@@ -352,24 +364,7 @@ public abstract class CustomContainerMenu {
         long now = System.currentTimeMillis();
         pendingPongs.values().removeIf(data -> now - data.timestamp() > PING_TIMEOUT_MS);
         
-        PacketListener.getInstance().injectOutgoing(player, new ClientboundPingPacket(ping));
-    }
-    
-    /**
-     * Handles a pong packet from the client.
-     *
-     * @param packet The packet that was received
-     */
-    public void handlePongAsync(ServerboundPongPacket packet) {
-        var data = pendingPongs.remove(packet.getId());
-        if (data == null)
-            return; // ignore unknown pongs, unrelated to InvUI
-        
-        player.getScheduler().run(
-            InvUI.getInstance().getPlugin(),
-            _ -> getWindowEvents().handlePong(data.id()),
-            null
-        );
+        return new ClientboundPingPacket(ping);
     }
     
     //<editor-fold desc="action handlers">
@@ -404,8 +399,23 @@ public abstract class CustomContainerMenu {
                 handleClose(p);
                 yield UpdateType.NONE;
             }
-            default -> UpdateType.NONE; // unhandled packet
+            case ServerboundPongPacket p -> {
+                handlePong(p);
+                yield UpdateType.NONE;
+            }
+            default -> throw new UnsupportedOperationException("Unknown packet type: " + packet.getClass().getName());
         };
+    }
+    
+    /**
+     * Handles a pong packet from the client, which may or may not be related to a ping packet sent through this menu.
+     *
+     * @param packet The packet that was received
+     */
+    private void handlePong(ServerboundPongPacket packet) {
+        var data = pendingPongs.remove(packet.getId());
+        if (data != null) // ignore unknown pongs, unrelated to InvUI
+            getWindowEvents().handlePong(data.id());
     }
     
     /**

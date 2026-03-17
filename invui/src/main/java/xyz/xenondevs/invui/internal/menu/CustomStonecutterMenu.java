@@ -124,7 +124,7 @@ public class CustomStonecutterMenu extends CustomContainerMenu {
         remoteItems.set(0, HashedStack.EMPTY);
         remoteItems.set(1, HashedStack.EMPTY);
         remoteDataSlots[0] = -1;
-        sendChangesToRemote();
+        sendChangesToRemote(-1);
     }
     
     /**

@@ -21,7 +21,6 @@ import xyz.xenondevs.invui.InvUI;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 import java.util.stream.StreamSupport;
 
 public class PacketListener implements Listener {
@@ -71,8 +70,8 @@ public class PacketListener implements Listener {
     }
     
     @SuppressWarnings("unchecked")
-    public <T extends Packet<? super ServerGamePacketListener>> void listenIncoming(Player player, Class<? extends T> clazz, Consumer<? super T> handler) {
-        getPacketHandler(player.getUniqueId()).listeners.put(clazz, (Consumer<Packet<? super ServerGamePacketListener>>) handler);
+    public <T extends Packet<? super ServerGamePacketListener>> void listenIncoming(Player player, Class<? extends T> clazz, Queue<? super T> queue) {
+        getPacketHandler(player.getUniqueId()).listeners.put(clazz, (Queue<Packet<? super ServerGamePacketListener>>) queue);
     }
     
     public boolean stopListening(Player player, Class<? extends Packet<? super ServerGamePacketListener>> clazz) {
@@ -122,7 +121,7 @@ public class PacketListener implements Listener {
     private static class PacketHandler extends ChannelDuplexHandler {
         
         private final Map<Class<? extends Packet<? super ServerGamePacketListener>>, Queue<Packet<? super ServerGamePacketListener>>> redirections = new ConcurrentHashMap<>();
-        private final Map<Class<? extends Packet<? super ServerGamePacketListener>>, Consumer<Packet<? super ServerGamePacketListener>>> listeners = new ConcurrentHashMap<>();
+        private final Map<Class<? extends Packet<? super ServerGamePacketListener>>, Queue<Packet<? super ServerGamePacketListener>>> listeners = new ConcurrentHashMap<>();
         private final Set<Class<? extends Packet<ClientGamePacketListener>>> discardRules = Collections.newSetFromMap(new ConcurrentHashMap<>());
         private final Player player;
         private final Channel channel;
@@ -196,7 +195,7 @@ public class PacketListener implements Listener {
             
             var listener = listeners.get(packet.getClass());
             if (listener != null) {
-                listener.accept((Packet<ServerGamePacketListener>) packet);
+                listener.add((Packet<ServerGamePacketListener>) packet);
             }
             
             var queue = redirections.get(packet.getClass());

@@ -99,10 +99,7 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
             .<List<SlotElement>>mapToObj(i -> new ArrayList<>())
             .collect(Collectors.toCollection(ArrayList::new));
         
-        serverWindowState.observeWeak(this, thisRef -> {
-            thisRef.updateAndFlush(UpdateType.DIRTY); // important: flush item updates and send packets
-            thisRef.menu.sendPing(serverWindowState.get());
-        });
+        serverWindowState.observeWeak(this, thisRef -> thisRef.updateAndFlush(UpdateType.DIRTY, serverWindowState.get()));
         
         menu.setWindow(this);
     }
@@ -205,11 +202,11 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
     
     public void handleTick() {
         var updateType = menu.processIncoming();
-        updateAndFlush(updateType);
+        updateAndFlush(updateType, -1);
         windowTick++;
     }
     
-    private void updateAndFlush(UpdateType updateType) {
+    private void updateAndFlush(UpdateType updateType, int pingId) {
         if (!isOpen())
             return;
         
@@ -222,9 +219,9 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
         } else if (titleSupplier instanceof AnimatedTitle) {
             actuallyUpdateTitle();
         } else if (updateType == UpdateType.FULL) {
-            menu.sendAllToRemote();
+            menu.sendAllToRemote(pingId);
         } else if (updateType == UpdateType.DIRTY) {
-            menu.sendChangesToRemote();
+            menu.sendChangesToRemote(pingId);
         }
     }
     
@@ -610,7 +607,7 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
     public void sendAllDataToViewer() {
         if (!isOpen())
             return;
-        menu.sendAllToRemote();
+        menu.sendAllToRemote(-1);
     }
     
     @Override
