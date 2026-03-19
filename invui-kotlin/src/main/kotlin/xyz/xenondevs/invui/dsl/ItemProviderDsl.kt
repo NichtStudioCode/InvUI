@@ -20,6 +20,11 @@ import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 @ExperimentalDslApi
+inline fun itemProvider(itemProvider: ItemProviderDsl.() -> Unit): Provider<ItemProvider> {
+    contract { callsInPlace(itemProvider, InvocationKind.EXACTLY_ONCE) }
+    return ItemProviderDslImpl(provider(ItemStack.empty())).apply(itemProvider).build()
+}
+@ExperimentalDslApi
 inline fun itemProvider(base: Provider<ItemStack>, itemProvider: ItemProviderDsl.() -> Unit): Provider<ItemProvider> {
     contract { callsInPlace(itemProvider, InvocationKind.EXACTLY_ONCE) }
     return ItemProviderDslImpl(base).apply(itemProvider).build()
@@ -41,6 +46,7 @@ inline fun itemProvider(type: ItemType, itemProvider: ItemProviderDsl.() -> Unit
 @ExperimentalDslApi
 sealed interface ItemProviderDsl {
     
+    val base: ProviderDslProperty<ItemStack>
     val type: ProviderDslProperty<ItemType?>
     val amount: ProviderDslProperty<Int?>
     val name: ProviderDslProperty<Component?>
@@ -80,7 +86,7 @@ internal class DataComponentsPatchImpl : DataComponentsPatchDsl {
 @PublishedApi
 @ExperimentalDslApi
 internal class ItemProviderDslImpl(
-    private val base: Provider<ItemStack>
+    private var _base: Provider<ItemStack>
 ) : ItemProviderDsl {
     
     private var _type = provider<ItemType?>(null)
@@ -91,6 +97,8 @@ internal class ItemProviderDslImpl(
     
     override val data = DataComponentsPatchImpl()
     
+    override val base: ProviderDslProperty<ItemStack>
+        get() = ProviderDslProperty(::_base)
     override val type: ProviderDslProperty<ItemType?>
         get() = ProviderDslProperty(::_type)
     override val amount: ProviderDslProperty<Int?>
@@ -109,7 +117,7 @@ internal class ItemProviderDslImpl(
     fun build(): Provider<ItemProvider> {
         val dataTypeProviders = data.components.map { (type, dslProperty) -> dslProperty.map { type to it } }
         return combinedProvider(
-            base, _type, _amount, _name, _lore, _hasTooltip, combinedProvider(dataTypeProviders)
+            _base, _type, _amount, _name, _lore, _hasTooltip, combinedProvider(dataTypeProviders)
         ) { base, type, amount, name, lore, hasTooltip, dataTypes ->
             var result = base.clone()
             var hasTooltip = hasTooltip
