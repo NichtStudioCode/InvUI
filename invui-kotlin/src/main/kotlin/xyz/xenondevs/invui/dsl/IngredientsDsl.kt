@@ -11,6 +11,7 @@ import xyz.xenondevs.invui.gui.IngredientPreset
 import xyz.xenondevs.invui.gui.Marker
 import xyz.xenondevs.invui.gui.Slot
 import xyz.xenondevs.invui.gui.SlotElement
+import xyz.xenondevs.invui.gui.SlotElementSupplier
 import xyz.xenondevs.invui.gui.addIngredient
 import xyz.xenondevs.invui.inventory.Inventory
 import xyz.xenondevs.invui.item.Item
@@ -109,6 +110,8 @@ sealed interface IngredientsDsl {
     @JvmName("bySlotElementSupplier")
     infix fun Char.by(supplier: Supplier<SlotElement>)
     
+    infix fun Char.by(supplier: SlotElementSupplier)
+    
 }
 
 @PublishedApi
@@ -205,6 +208,10 @@ internal open class IngredientsDslImpl(
     @JvmName("bySlotElementSupplier")
     override fun Char.by(supplier: Supplier<SlotElement>) {
         ingredients.addIngredientElementSupplier(this, supplier)
+    }
+    
+    override fun Char.by(supplier: SlotElementSupplier) {
+        ingredients.addIngredient(this, supplier)
     }
     
     fun buildPresets(): List<IngredientPreset> = presets + ingredients.build()
