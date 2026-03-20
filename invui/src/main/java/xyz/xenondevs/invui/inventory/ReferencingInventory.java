@@ -18,8 +18,6 @@ import java.util.Arrays;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-// TODO: equals+hashCode for normal referencing inventories
-
 /**
  * A {@link xyz.xenondevs.invui.inventory.Inventory} which is backed by a bukkit {@link Inventory}.
  * <p>
@@ -245,16 +243,6 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
             return (PlayerInventory) super.getReferencedInventory();
         }
         
-        @Override
-        public int hashCode() {
-            return getReferencedInventory().hashCode();
-        }
-        
-        @Override
-        public boolean equals(Object obj) {
-            return obj instanceof ReferencingInventory.PlayerStorageContents other &&
-                   getReferencedInventory().equals(other.getReferencedInventory());
-        }
     }
     
 }
