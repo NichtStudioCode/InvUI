@@ -7,6 +7,10 @@ import xyz.xenondevs.invui.PropertyAdapter
 import xyz.xenondevs.invui.inventory.Inventory
 import xyz.xenondevs.invui.item.ItemProvider
 
+/**
+ * Creates a new [SlotElement.InventoryLink] that links to [slot] in [inventory],
+ * uses [background] if no item is present, and transforms all item stacks using [visualizer].
+ */
 @ExperimentalReactiveApi
 fun InventoryLink(
     inventory: Inventory,

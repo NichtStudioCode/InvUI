@@ -20,53 +20,262 @@ import xyz.xenondevs.invui.item.ItemWrapper
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
+/**
+ * Creates a reactive [Provider]-based [ItemProvider] using the DSL, starting from an empty
+ * [ItemStack].
+ *
+ * ```
+ * val myProvider = itemProvider {
+ *     type by ItemType.DIAMOND_SWORD
+ *     name by "<red>Fire Sword"
+ *     lore by listOf("<gray>A legendary weapon")
+ *     hasGlint by true
+ * }
+ * ```
+ *
+ * @see ItemProviderDsl
+ */
 @ExperimentalDslApi
 inline fun itemProvider(itemProvider: ItemProviderDsl.() -> Unit): Provider<ItemProvider> {
     contract { callsInPlace(itemProvider, InvocationKind.EXACTLY_ONCE) }
     return ItemProviderDslImpl(provider(ItemStack.empty())).apply(itemProvider).build()
 }
 
+/**
+ * Creates a reactive [Provider]-based [ItemProvider] using the DSL, starting from a reactive
+ * [base] [ItemStack].
+ *
+ * ```
+ * val baseStack: Provider<ItemStack> = ...
+ * val myProvider = itemProvider(baseStack) {
+ *     name by "<green>Enhanced Item"
+ *     amount by 5
+ * }
+ * ```
+ *
+ * @see ItemProviderDsl
+ */
 @ExperimentalDslApi
 inline fun itemProvider(base: Provider<ItemStack>, itemProvider: ItemProviderDsl.() -> Unit): Provider<ItemProvider> {
     contract { callsInPlace(itemProvider, InvocationKind.EXACTLY_ONCE) }
     return ItemProviderDslImpl(base).apply(itemProvider).build()
 }
 
+/**
+ * Creates a reactive [Provider]-based [ItemProvider] using the DSL, starting from a static
+ * [base] [ItemStack].
+ *
+ * ```
+ * val myProvider = itemProvider(ItemStack(Material.DIAMOND)) {
+ *     name by "<aqua>Shiny Diamond"
+ *     amount by 3
+ * }
+ * ```
+ *
+ * @see ItemProviderDsl
+ */
 @ExperimentalDslApi
 inline fun itemProvider(base: ItemStack, itemProvider: ItemProviderDsl.() -> Unit): Provider<ItemProvider> {
     contract { callsInPlace(itemProvider, InvocationKind.EXACTLY_ONCE) }
     return itemProvider(provider(base), itemProvider)
 }
 
+/**
+ * Creates a reactive [Provider]-based [ItemProvider] using the DSL, starting from an [ItemStack]
+ * of the given static [ItemType].
+ *
+ * ```
+ * val myProvider = itemProvider(ItemType.GOLDEN_APPLE) {
+ *     name by "<gold>Special Apple"
+ *     hasTooltip by true
+ * }
+ * ```
+ *
+ * @see ItemProviderDsl
+ */
 @ExperimentalDslApi
 inline fun itemProvider(type: ItemType, itemProvider: ItemProviderDsl.() -> Unit): Provider<ItemProvider> {
     contract { callsInPlace(itemProvider, InvocationKind.EXACTLY_ONCE) }
     return itemProvider(provider(type.createItemStack()), itemProvider)
 }
 
+/**
+ * DSL scope for configuring an [ItemProvider] with reactive properties.
+ *
+ * Provides convenient properties for common item attributes like [name], [lore], and [amount].
+ * Each property can be set to a static value or bound to a [Provider] for reactive updates.
+ * String values for [name] and [lore] are automatically parsed as
+ * [MiniMessage][net.kyori.adventure.text.minimessage.MiniMessage].
+ *
+ * For data components not covered by the convenience properties, use [data] to access
+ * arbitrary [DataComponentType][io.papermc.paper.datacomponent.DataComponentType]s directly.
+ *
+ * ```
+ * val myProvider = itemProvider(ItemType.DIAMOND_SWORD) {
+ *     name by "<red>Fire Sword"
+ *     lore by listOf("<gray>A legendary weapon", "<gray>Forged in flames")
+ *     hasGlint by true
+ *     data[DataComponentTypes.MAX_DAMAGE] by 500
+ * }
+ * ```
+ */
 @ItemDslMarker
 @ExperimentalDslApi
 sealed interface ItemProviderDsl {
     
+    /**
+     * The base [ItemStack] that all other properties are applied on top of.
+     *
+     * Defaults to an empty [ItemStack]. Can be set to a static value or bound to a [Provider]:
+     * ```
+     * base by ItemStack(Material.DIAMOND_SWORD)
+     * ```
+     */
     val base: ProviderDslProperty<ItemStack>
+    
+    /**
+     * The [ItemType] to override on the base stack, or `null` to keep the base stack's type.
+     *
+     * Defaults to `null`. Can be set to a static value or bound to a [Provider]:
+     * ```
+     * type by ItemType.NETHERITE_SWORD
+     * ```
+     */
     val type: ProviderDslProperty<ItemType?>
+    
+    /**
+     * The stack amount to override, or `null` to keep the base stack's amount.
+     *
+     * Defaults to `null`. Can be set to a static value or bound to a [Provider]:
+     * ```
+     * amount by 16
+     * ```
+     */
     val amount: ProviderDslProperty<Int?>
+    
+    /**
+     * The item name ([DataComponentTypes.ITEM_NAME][io.papermc.paper.datacomponent.DataComponentTypes.ITEM_NAME]),
+     * or `null` to keep the base stack's name. Setting this automatically enables the tooltip.
+     *
+     * Defaults to `null`. Can be set to a [Component] or bound to a [Provider]:
+     * ```
+     * name by Component.text("Fire Sword").color(NamedTextColor.RED)
+     * ```
+     *
+     * [MiniMessage][net.kyori.adventure.text.minimessage.MiniMessage] strings are also supported
+     * via extension functions:
+     * ```
+     * name by "<red>Fire Sword"
+     * ```
+     */
     val name: ProviderDslProperty<Component?>
+    
+    /**
+     * The custom name ([DataComponentTypes.CUSTOM_NAME][io.papermc.paper.datacomponent.DataComponentTypes.CUSTOM_NAME]),
+     * or `null` to keep the base stack's custom name. Unlike [name], this is the
+     * player-visible renamed name (as from an anvil).
+     *
+     * Defaults to `null`. Can be set to a [Component] or bound to a [Provider]:
+     * ```
+     * customName by Component.text("My Renamed Sword").decorate(TextDecoration.ITALIC)
+     * ```
+     *
+     * [MiniMessage][net.kyori.adventure.text.minimessage.MiniMessage] strings are also supported
+     * via extension functions:
+     * ```
+     * customName by "<italic>My Renamed Sword"
+     * ```
+     */
     val customName: ProviderDslProperty<Component?>
+    
+    /**
+     * The item lore lines, or `null` to keep the base stack's lore. Setting this automatically
+     * enables the tooltip.
+     *
+     * Defaults to `null`. Can be set to a list of [Component]s or bound to a [Provider]:
+     * ```
+     * lore by listOf(
+     *     Component.text("Line 1").color(NamedTextColor.GRAY),
+     *     Component.text("Line 2").color(NamedTextColor.GRAY),
+     * )
+     * ```
+     *
+     * [MiniMessage][net.kyori.adventure.text.minimessage.MiniMessage] string lists are also
+     * supported via extension functions:
+     * ```
+     * lore by listOf("<gray>Line 1", "<gray>Line 2")
+     * ```
+     */
     val lore: ProviderDslProperty<List<Component>?>
+    
+    /**
+     * Whether the item has an enchantment glint, or `null` to keep the base stack's glint state.
+     *
+     * Defaults to `null`. Can be set to a static value or bound to a [Provider]:
+     * ```
+     * hasGlint by true
+     * ```
+     */
     val hasGlint: ProviderDslProperty<Boolean?>
+    
+    /**
+     * Whether the item shows its tooltip, or `null` to keep the base stack's tooltip state.
+     * Automatically set to `true` when [name] or [lore] is set.
+     *
+     * Defaults to `null`. Can be set to a static value or bound to a [Provider]:
+     * ```
+     * hasTooltip by false
+     * ```
+     */
     val hasTooltip: ProviderDslProperty<Boolean?>
     
+    /**
+     * Access to arbitrary data components beyond the convenience properties.
+     *
+     * ```
+     * data[DataComponentTypes.MAX_DAMAGE] by 500
+     * data[DataComponentTypes.FIRE_RESISTANT] by true
+     * ```
+     *
+     * @see DataComponentsPatchDsl
+     */
     val data: DataComponentsPatchDsl
     
 }
 
+/**
+ * DSL scope for setting arbitrary data components on an [ItemProvider].
+ *
+ * Accessed via [ItemProviderDsl.data]. Use the indexing operator with a
+ * [DataComponentType] to get a [ProviderDslProperty] for that component:
+ *
+ * ```
+ * itemProvider(ItemType.DIAMOND_SWORD) {
+ *     data[DataComponentTypes.MAX_DAMAGE] by 500
+ *     data[DataComponentTypes.FIRE_RESISTANT] by true
+ * }
+ * ```
+ */
 @ItemDslMarker
 @ExperimentalDslApi
 sealed interface DataComponentsPatchDsl {
     
+    /**
+     * Returns a [ProviderDslProperty] for the given valued data component type.
+     * Set to `null` to leave unchanged, or to a value (or [Provider]) to override:
+     * ```
+     * data[DataComponentTypes.MAX_DAMAGE] by 500
+     * ```
+     */
     operator fun <T : Any> get(type: DataComponentType.Valued<T>): ProviderDslProperty<T?>
     
+    /**
+     * Returns a [ProviderDslProperty] for the given non-valued data component type.
+     * Set to `true` to apply, `false` to remove, or `null` to leave unchanged:
+     * ```
+     * data[DataComponentTypes.FIRE_RESISTANT] by true
+     * ```
+     */
     operator fun <T : Any> get(type: DataComponentType.NonValued): ProviderDslProperty<Boolean?>
     
 }

@@ -15,25 +15,137 @@ import xyz.xenondevs.invui.item.ItemProvider
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
+/**
+ * Creates a [Gui] using the DSL.
+ *
+ * Each string in [structure] represents a row in the GUI, where each character is a slot.
+ * Characters are mapped to ingredients (items, inventories, markers, etc.) using the
+ * [Char.by][IngredientsDsl.by] infix function inside the [gui] block. Spaces are ignored and
+ * can be used for readability.
+ *
+ * ```
+ * val myGui = gui(
+ *     "# # # # # # # # #",
+ *     "# . . . . . . . #",
+ *     "# . . . x . . . #",
+ *     "# . . . . . . . #",
+ *     "# # # # # # # # #",
+ * ) {
+ *     '#' by borderItem
+ *     'x' by someItem
+ *     background by ItemStack(Material.BLACK_STAINED_GLASS_PANE)
+ * }
+ * ```
+ */
 @ExperimentalDslApi
 inline fun gui(vararg structure: String, gui: GuiDsl.() -> Unit): Gui {
     contract { callsInPlace(gui, InvocationKind.EXACTLY_ONCE) }
     return NormalGuiDslImpl(structure).apply(gui).build()
 }
 
+/**
+ * Creates a [Gui] using the DSL, inheriting ingredients from the enclosing [IngredientsDsl] scope.
+ * Inherited ingredients can be overridden by redefining the same character in the inner [gui] block.
+ *
+ * This is particularly useful when creating multiple GUIs that share common ingredients:
+ * ```
+ * ingredients {
+ *     '#' by borderItem
+ *     'x' by closeButton
+ *
+ *     val mainGui = gui(
+ *         "# # # # # # # # #",
+ *         "# . . . . . . . #",
+ *         "# # # # x # # # #",
+ *     ) {
+ *         // '#' and 'x' are inherited
+ *     }
+ *
+ *     val settingsGui = gui(
+ *         "# # # # # # # # #",
+ *         "# . . . . . . . #",
+ *         "# # # # x # # # #",
+ *     ) {
+ *         // '#' and 'x' are inherited here too
+ *     }
+ * }
+ * ```
+ *
+ * It also works when nesting GUIs, since [GuiDsl] extends [IngredientsDsl]:
+ * ```
+ * gui(
+ *     "# # # # # # # # #",
+ *     "# . . g g g . . #",
+ *     "# . . g g g . . #",
+ *     "# . . g g g . . #",
+ *     "# # # # # # # # #",
+ * ) {
+ *     '#' by borderItem
+ *     'g' by gui(
+ *         "# # #",
+ *         "# x #",
+ *         "# # #",
+ *     ) {
+ *         // '#' is inherited from the outer gui
+ *         'x' by someItem
+ *     }
+ * }
+ * ```
+ */
 @ExperimentalDslApi
 inline fun IngredientsDsl.gui(vararg structure: String, gui: GuiDsl.() -> Unit): Gui {
     contract { callsInPlace(gui, InvocationKind.EXACTLY_ONCE) }
     return NormalGuiDslImpl(structure, (this as IngredientsDslImpl).buildPresets()).apply(gui).build()
 }
 
+/**
+ * DSL scope for configuring a [Gui].
+ *
+ * Extends [IngredientsDsl], so ingredient mappings (e.g. `'x' by someItem`) can be defined directly
+ * inside this scope. Additionally, provides GUI-specific properties like the [background] or [frozen]
+ * state.
+ */
 @ExperimentalDslApi
 sealed interface GuiDsl : IngredientsDsl {
     
+    /**
+     * A [Provider] that resolves to the built [Gui] instance.
+     *
+     * Can be used to obtain a reference to the GUI after the DSL block finishes and
+     * the GUI is built. Accessing it before the GUI is built throws an [IllegalStateException].
+     */
     val gui: Provider<Gui>
     
+    /**
+     * The background [ItemProvider] displayed in empty slots of the GUI.
+     *
+     * Defaults to `null` (no background). Can be set to a static value or bound to a [Provider]:
+     * ```
+     * background by ItemStack(Material.GRAY_STAINED_GLASS_PANE)
+     * ```
+     *
+     * @see itemProvider
+     */
     val background: ProviderDslProperty<ItemProvider?>
+    
+    /**
+     * Whether the GUI is frozen, preventing all player interactions with slots.
+     *
+     * Defaults to `false`. Can be set to a static value or bound to a [Provider]:
+     * ```
+     * frozen by true
+     * ```
+     */
     val frozen: ProviderDslProperty<Boolean>
+    
+    /**
+     * Whether to ignore inventory slots that are visually obscured (e.g. by another GUI layered on top).
+     *
+     * Defaults to `false`. Can be set to a static value or bound to a [Provider]:
+     * ```
+     * ignoreObscuredInventorySlots by true
+     * ```
+     */
     val ignoreObscuredInventorySlots: ProviderDslProperty<Boolean>
     
 }

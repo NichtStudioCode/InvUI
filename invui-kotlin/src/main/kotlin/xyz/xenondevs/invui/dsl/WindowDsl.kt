@@ -23,79 +23,394 @@ import xyz.xenondevs.invui.window.setWindowState
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
+/**
+ * Creates a split [Window] using the DSL, with separate upper and lower GUI sections.
+ *
+ * The upper GUI is displayed in the top inventory, while the lower GUI is displayed in the
+ * player's inventory area. The lower GUI defaults to a player inventory reference.
+ *
+ * ```
+ * val myWindow = window(player) {
+ *     title by "My Window"
+ *
+ *     upperGui by gui(
+ *         "# # # # # # # # #",
+ *         "# . . . x . . . #",
+ *         "# # # # # # # # #",
+ *     ) {
+ *         '#' by borderItem
+ *         'x' by someItem
+ *     }
+ * }
+ * ```
+ *
+ * @see NormalSplitWindowDsl
+ */
 @ExperimentalDslApi
 inline fun window(viewer: Player, window: NormalSplitWindowDsl.() -> Unit): Window {
     contract { callsInPlace(window, InvocationKind.EXACTLY_ONCE) }
     return NormalSplitWindowDslImpl(viewer).apply(window).build()
 }
 
+/**
+ * Creates a merged [Window] using the DSL, where a single GUI spans both the top inventory
+ * and the player's inventory area.
+ *
+ * ```
+ * val myWindow = mergedWindow(player) {
+ *     title by "Merged Window"
+ *
+ *     gui by gui(
+ *         "# # # # # # # # #",
+ *         "# . . . . . . . #",
+ *         "# . . . x . . . #",
+ *         "# . . . . . . . #",
+ *         "# # # # # # # # #",
+ *         ". . . . . . . . .",
+ *         ". . . . . . . . .",
+ *         ". . . . . . . . .",
+ *         ". . . . . . . . .",
+ *     ) {
+ *         '#' by borderItem
+ *         'x' by someItem
+ *     }
+ * }
+ * ```
+ *
+ * @see NormalMergedWindowDsl
+ */
 @ExperimentalDslApi
 inline fun mergedWindow(viewer: Player, window: NormalMergedWindowDsl.() -> Unit): Window {
     contract { callsInPlace(window, InvocationKind.EXACTLY_ONCE) }
     return NormalMergedWindowDslImpl(viewer).apply(window).build()
 }
 
+/**
+ * DSL scope available inside [WindowDsl.onOpen] handlers.
+ *
+ * ```
+ * onOpen {
+ *     // window has been opened
+ * }
+ * ```
+ */
 @WindowDslMarker
 @ExperimentalDslApi
 interface WindowOpenDsl
 
+/**
+ * DSL scope available inside [WindowDsl.onClose] handlers, providing the close reason.
+ *
+ * ```
+ * onClose {
+ *     if (reason == InventoryCloseEvent.Reason.PLAYER) {
+ *         // player closed the window manually
+ *     }
+ * }
+ * ```
+ */
 @WindowDslMarker
 @ExperimentalDslApi
 interface WindowCloseDsl {
     
+    /** The reason the window was closed. */
     val reason: InventoryCloseEvent.Reason
     
 }
 
+/**
+ * DSL scope available inside [WindowDsl.onOutsideClick] handlers, providing information about
+ * a click outside the inventory window. The event can be cancelled via [isCancelled].
+ *
+ * ```
+ * onOutsideClick {
+ *     player.sendMessage("You clicked outside!")
+ *     isCancelled = true
+ * }
+ * ```
+ */
 @WindowDslMarker
 @ExperimentalDslApi
 interface WindowOutsideClickDsl {
     
+    /** The player who clicked outside the window. */
     val player: Player
+    
+    /** The type of click performed. */
     val clickType: ClickType
+    
+    /** The hotbar button pressed, or `-1` if no hotbar button was involved. */
     val hotbarButton: Int
+    
+    /** Whether the click event is cancelled. Set to `true` to cancel. */
     var isCancelled: Boolean
     
 }
 
+/**
+ * Base DSL scope for configuring a [Window].
+ *
+ * Provides common window properties like [title], [closeable], and event handlers
+ * ([onOpen], [onClose], [onOutsideClick]).
+ *
+ * ```
+ * window(player) {
+ *     title by "My Window"
+ *     closeable by true
+ *
+ *     onClose {
+ *         // handle close
+ *     }
+ *
+ *     upperGui by myGui
+ * }
+ * ```
+ */
 @ExperimentalDslApi
 @WindowDslMarker
 sealed interface WindowDsl {
     
+    /** The player viewing this window. */
     val viewer: Player
+    
+    /**
+     * A [Provider] that resolves to the built [Window] instance.
+     *
+     * Can be used to obtain a reference to the window after the DSL block finishes and
+     * the window is built. Accessing it before the window is built throws an
+     * [IllegalStateException].
+     */
     val window: Provider<Window>
     
+    /**
+     * The window title displayed at the top of the inventory.
+     *
+     * Defaults to an empty [Component]. Can be set to a static value or bound to a [Provider]:
+     * ```
+     * title by Component.text("My Window")
+     * ```
+     *
+     * [MiniMessage][net.kyori.adventure.text.minimessage.MiniMessage] strings are also supported
+     * via extension functions:
+     * ```
+     * title by "<red>My Window"
+     * ```
+     */
     val title: ProviderDslProperty<Component>
+    
+    /**
+     * Whether the player can close this window by pressing escape or the inventory key.
+     *
+     * Defaults to `true`. Can be set to a static value or bound to a [Provider]:
+     * ```
+     * closeable by false
+     * ```
+     */
     val closeable: ProviderDslProperty<Boolean>
+    
+    /**
+     * A fallback [Window] to open when this window is closed. Set to `null` for no fallback.
+     *
+     * Defaults to `null`. Can be set to a static value or bound to a [Provider]:
+     * ```
+     * fallbackWindow by anotherWindow
+     * ```
+     */
     val fallbackWindow: ProviderDslProperty<Window?>
+    
+    /**
+     * The server-side window state. When changed, the new value is sent to the client via a
+     * ping packet. Once the client acknowledges it with a pong, [clientWindowState] is updated
+     * and any window state change handlers fire. This can be used to track what state the window
+     * is in during interactions.
+     *
+     * Defaults to `0`.
+     * 
+     * ```
+     * serverWindowState by 0
+     * ```
+     */
     val serverWindowState: MutableProviderDslProperty<Int>
+    
+    /**
+     * The last window state acknowledged by the client. Updated automatically when the client
+     * responds with a pong to the server's ping (triggered by [serverWindowState] changes).
+     * This is a read-only [Provider].
+     */
     val clientWindowState: Provider<Int>
     
+    /**
+     * Registers a handler that is called when the window is opened.
+     * Multiple handlers can be registered and will all be called in order.
+     *
+     * ```
+     * onOpen {
+     *     // window opened
+     * }
+     * ```
+     *
+     * @see WindowOpenDsl
+     */
     fun onOpen(handler: WindowOpenDsl.() -> Unit)
     
+    /**
+     * Registers a handler that is called when the window is closed.
+     * Multiple handlers can be registered and will all be called in order.
+     *
+     * ```
+     * onClose {
+     *     if (reason == InventoryCloseEvent.Reason.PLAYER) {
+     *         // player closed manually
+     *     }
+     * }
+     * ```
+     *
+     * @see WindowCloseDsl
+     */
     fun onClose(handler: WindowCloseDsl.() -> Unit)
     
+    /**
+     * Registers a handler that is called when the player clicks outside the window.
+     * Multiple handlers can be registered and will all be called in order.
+     *
+     * ```
+     * onOutsideClick {
+     *     isCancelled = true
+     * }
+     * ```
+     *
+     * @see WindowOutsideClickDsl
+     */
     fun onOutsideClick(handler: WindowOutsideClickDsl.() -> Unit)
     
 }
 
+/**
+ * Base DSL scope for windows with separate upper and lower GUI sections.
+ *
+ * ```
+ * window(player) {
+ *     title by "Split Window"
+ *
+ *     upperGui by gui(
+ *         "# # # # # # # # #",
+ *         "# . . . . . . . #",
+ *         "# # # # # # # # #",
+ *     ) {
+ *         '#' by borderItem
+ *     }
+ *
+ *     // lowerGui defaults to the player's inventory;
+ *     // override with a custom GUI if needed:
+ *     // lowerGui by myCustomGui
+ * }
+ * ```
+ */
 @ExperimentalDslApi
 sealed interface SplitWindowDsl : WindowDsl {
     
+    /**
+     * The lower GUI displayed in the player's inventory area. Defaults to a player inventory
+     * reference.
+     *
+     * ```
+     * lowerGui by gui(
+     *     "x x x x x x x x x",
+     *     "x x x x x x x x x",
+     *     "x x x x x x x x x",
+     *     "x x x x x x x x x",
+     * ) {
+     *     'x' by Markers.CONTENT_LIST_SLOT_HORIZONTAL
+     * }
+     * ```
+     */
     val lowerGui: GuiDslProperty
     
 }
 
+/**
+ * DSL scope for configuring a normal split [Window] with separate upper and lower GUIs.
+ *
+ * ```
+ * val myWindow = window(player) {
+ *     title by "Split Window"
+ *
+ *     upperGui by gui(
+ *         "# # # # # # # # #",
+ *         "# . . . . . . . #",
+ *         "# # # # # # # # #",
+ *     ) {
+ *         '#' by borderItem
+ *     }
+ * }
+ * ```
+ */
 @ExperimentalDslApi
 sealed interface NormalSplitWindowDsl : SplitWindowDsl {
     
+    /**
+     * The upper GUI displayed in the top inventory section.
+     *
+     * ```
+     * upperGui by gui(
+     *     "# # # # # # # # #",
+     *     "# . . . . . . . #",
+     *     "# # # # # # # # #",
+     * ) {
+     *     '#' by borderItem
+     * }
+     * ```
+     */
     val upperGui: GuiDslProperty
     
 }
 
+/**
+ * DSL scope for configuring a merged [Window] where a single GUI spans both the top inventory
+ * and the player's inventory area.
+ *
+ * ```
+ * val myWindow = mergedWindow(player) {
+ *     title by "Merged Window"
+ *
+ *     gui by gui(
+ *         "# # # # # # # # #",
+ *         "# . . . . . . . #",
+ *         "# . . . . . . . #",
+ *         "# . . . . . . . #",
+ *         "# # # # # # # # #",
+ *         ". . . . . . . . .",
+ *         ". . . . . . . . .",
+ *         ". . . . . . . . .",
+ *         ". . . . . . . . .",
+ *     ) {
+ *         '#' by borderItem
+ *     }
+ * }
+ * ```
+ */
 @ExperimentalDslApi
 sealed interface NormalMergedWindowDsl : WindowDsl {
     
+    /**
+     * The GUI that spans both the upper inventory and the player's inventory area.
+     *
+     * ```
+     * gui by gui(
+     *     "# # # # # # # # #",
+     *     "# . . . . . . . #",
+     *     "# . . . . . . . #",
+     *     "# . . . . . . . #",
+     *     "# # # # # # # # #",
+     *     ". . . . . . . . .",
+     *     ". . . . . . . . .",
+     *     ". . . . . . . . .",
+     *     ". . . . . . . . .",
+     * ) {
+     *     '#' by borderItem
+     * }
+     * ```
+     */
     val gui: GuiDslProperty
     
 }

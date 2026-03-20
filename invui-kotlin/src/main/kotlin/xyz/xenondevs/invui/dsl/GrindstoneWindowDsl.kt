@@ -7,18 +7,78 @@ import xyz.xenondevs.invui.window.GrindstoneWindow
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
+/**
+ * Creates a [GrindstoneWindow] using the DSL.
+ *
+ * A grindstone window displays a grindstone GUI with an input area (1x2) for the two input
+ * items and a result slot (1x1).
+ *
+ * ```
+ * val myWindow = grindstoneWindow(player) {
+ *     title by "Grindstone"
+ *     inputGui by gui("a", "b") {
+ *         'a' by inputItem1
+ *         'b' by inputItem2
+ *     }
+ *     resultGui by gui("r") { 'r' by resultItem }
+ * }
+ * ```
+ *
+ * @see GrindstoneWindowDsl
+ */
 @ExperimentalDslApi
 inline fun grindstoneWindow(viewer: Player, grindstoneWindow: GrindstoneWindowDsl.() -> Unit): GrindstoneWindow {
     contract { callsInPlace(grindstoneWindow, InvocationKind.EXACTLY_ONCE) }
     return GrindstoneWindowDslImpl(viewer).apply(grindstoneWindow).build()
 }
 
+/**
+ * DSL scope for configuring a [GrindstoneWindow].
+ *
+ * Extends [SplitWindowDsl] with grindstone-specific GUIs ([inputGui], [resultGui]).
+ *
+ * ```
+ * grindstoneWindow(player) {
+ *     title by "Grindstone"
+ *     inputGui by gui("a", "b") {
+ *         'a' by inputItem1
+ *         'b' by inputItem2
+ *     }
+ *     resultGui by gui("r") { 'r' by resultItem }
+ * }
+ * ```
+ */
 @ExperimentalDslApi
 sealed interface GrindstoneWindowDsl : SplitWindowDsl {
     
+    /**
+     * A [Provider] that resolves to the built [GrindstoneWindow] instance.
+     *
+     * Can be used to obtain a reference to the window after the DSL block finishes and
+     * the window is built. Accessing it before the window is built throws an
+     * [IllegalStateException].
+     */
     override val window: Provider<GrindstoneWindow>
     
+    /**
+     * The input GUI (1x2) for the two grindstone input slots.
+     *
+     * ```
+     * inputGui by gui("a", "b") {
+     *     'a' by inputItem1
+     *     'b' by inputItem2
+     * }
+     * ```
+     */
     val inputGui: GuiDslProperty
+    
+    /**
+     * The result GUI (1x1).
+     *
+     * ```
+     * resultGui by gui("r") { 'r' by resultItem }
+     * ```
+     */
     val resultGui: GuiDslProperty
     
 }
