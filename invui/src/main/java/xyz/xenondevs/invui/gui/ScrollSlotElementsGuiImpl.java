@@ -48,8 +48,8 @@ class ScrollSlotElementsGuiImpl<C> extends AbstractScrollGui<C> {
                 int line = slot.y() - min.y() + topLine;
                 int offset = slot.x() - min.x();
                 int i = line * lineLength + offset;
-                SlotElement element = i < content.size() 
-                    ? mapper.apply(content.get(i)) 
+                SlotElement element = i < content.size()
+                    ? mapper.apply(content.get(i))
                     : null;
                 setSlotElement(slot, element);
             }
@@ -58,8 +58,8 @@ class ScrollSlotElementsGuiImpl<C> extends AbstractScrollGui<C> {
                 int line = slot.x() - min.x() + topLine;
                 int offset = slot.y() - min.y();
                 int i = line * lineLength + offset;
-                SlotElement element = i < content.size() 
-                    ? mapper.apply(content.get(i)) 
+                SlotElement element = i < content.size()
+                    ? mapper.apply(content.get(i))
                     : null;
                 setSlotElement(slot, element);
             }
@@ -73,7 +73,7 @@ class ScrollSlotElementsGuiImpl<C> extends AbstractScrollGui<C> {
         
         return Math.ceilDiv(getContent().size(), lineLength);
     }
-
+    
     public static final class Builder<C extends SlotElement> extends AbstractBuilder<C> {
         
         public Builder() {

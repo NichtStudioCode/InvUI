@@ -813,7 +813,7 @@ public class AnimationTest {
         
         gui.playAnimation(rowAnimation);
         assertThrows(
-            IllegalStateException.class, 
+            IllegalStateException.class,
             () -> gui.setItem(0, Item.simple(ItemStack.of(Material.GOLD_INGOT)))
         );
         server.getScheduler().performTicks(4);

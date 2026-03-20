@@ -114,7 +114,7 @@ internal abstract class PagedGuiDslImpl<C : Any>(
     ) : PagedGuiDslImpl<Item>(structure, presets) {
         override fun createBuilder() = PagedGui.itemsBuilder()
     }
-
+    
     @PublishedApi
     internal class SlotElements(
         structure: Array<out String>,

@@ -47,8 +47,8 @@ class PagedSlotElementsGuiImpl<C> extends AbstractPagedGui<C> {
         
         int off = page * cls.size();
         for (int i = 0; i < cls.size(); i++) {
-            SlotElement element = (i + off) < content.size() 
-                ? mapper.apply(content.get(i + off)) 
+            SlotElement element = (i + off) < content.size()
+                ? mapper.apply(content.get(i + off))
                 : null;
             setSlotElement(cls.get(i), element);
         }

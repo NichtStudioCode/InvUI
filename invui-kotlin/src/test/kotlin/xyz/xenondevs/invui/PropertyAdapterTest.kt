@@ -19,7 +19,7 @@ class PropertyAdapterTest {
     fun `mutable property adapter from mutable provider`() {
         val mutableProvider: MutableProvider<Int> = mutableProvider(0)
         val mutableProperty: MutableProperty<Int> = PropertyAdapter(mutableProvider)
-     
+        
         var providerValue = -1
         var propertyValue = -1
         mutableProvider.subscribe { providerValue = it }

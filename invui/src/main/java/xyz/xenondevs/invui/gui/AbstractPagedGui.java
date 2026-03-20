@@ -9,7 +9,9 @@ import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
 import xyz.xenondevs.invui.state.Property;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.BiConsumer;
 
 non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements PagedGui<C> {

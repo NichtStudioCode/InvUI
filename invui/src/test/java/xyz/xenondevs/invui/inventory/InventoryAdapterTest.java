@@ -54,7 +54,7 @@ class InventoryAdapterTest {
         assertEquals(64, adapter.getMaxStackSize());
         
         // With custom max stack sizes
-        var backingInv2 = new VirtualInventory(3, null, new int[]{32, 16, 99});
+        var backingInv2 = new VirtualInventory(3, null, new int[] {32, 16, 99});
         var adapter2 = new InventoryAdapter(backingInv2);
         
         // Should return the maximum of all slot stack sizes
@@ -223,10 +223,10 @@ class InventoryAdapterTest {
         var backingInv = new VirtualInventory(3);
         var adapter = new InventoryAdapter(backingInv);
         
-        assertThrows(IllegalArgumentException.class, () -> 
+        assertThrows(IllegalArgumentException.class, () ->
             adapter.addItem((ItemStack[]) null));
         
-        assertThrows(IllegalArgumentException.class, () -> 
+        assertThrows(IllegalArgumentException.class, () ->
             adapter.addItem(ItemStack.of(Material.DIRT), null));
     }
     
@@ -367,7 +367,7 @@ class InventoryAdapterTest {
         var backingInv = new VirtualInventory(3);
         var adapter = new InventoryAdapter(backingInv);
         
-        assertThrows(IllegalArgumentException.class, () -> 
+        assertThrows(IllegalArgumentException.class, () ->
             adapter.removeItem((ItemStack[]) null));
     }
     
@@ -412,7 +412,7 @@ class InventoryAdapterTest {
         var backingInv = new VirtualInventory(3);
         var adapter = new InventoryAdapter(backingInv);
         
-        ItemStack[] newContents = new ItemStack[]{
+        ItemStack[] newContents = new ItemStack[] {
             ItemStack.of(Material.DIRT),
             null,
             ItemStack.of(Material.DIAMOND, 5)
@@ -425,11 +425,11 @@ class InventoryAdapterTest {
         assertEquals(ItemStack.of(Material.DIAMOND, 5), adapter.getItem(2));
         
         // Test with smaller array
-        adapter.setContents(new ItemStack[]{ItemStack.of(Material.GOLD_INGOT)});
+        adapter.setContents(new ItemStack[] {ItemStack.of(Material.GOLD_INGOT)});
         assertEquals(ItemStack.of(Material.GOLD_INGOT), adapter.getItem(0));
         
         // Test with array larger than inventory size throws exception
-        assertThrows(IllegalArgumentException.class, () -> 
+        assertThrows(IllegalArgumentException.class, () ->
             adapter.setContents(new ItemStack[10]));
     }
     
@@ -453,7 +453,7 @@ class InventoryAdapterTest {
         var backingInv = new VirtualInventory(3);
         var adapter = new InventoryAdapter(backingInv);
         
-        ItemStack[] newContents = new ItemStack[]{
+        ItemStack[] newContents = new ItemStack[] {
             ItemStack.of(Material.IRON_INGOT),
             ItemStack.of(Material.GOLD_INGOT),
             null

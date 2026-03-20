@@ -122,7 +122,7 @@ internal abstract class ScrollGuiDslImpl<C : Any>(
     ) : ScrollGuiDslImpl<Item>(structure, presets) {
         override fun createBuilder() = ScrollGui.itemsBuilder()
     }
-
+    
     @PublishedApi
     internal class SlotElements(
         structure: Array<out String>,

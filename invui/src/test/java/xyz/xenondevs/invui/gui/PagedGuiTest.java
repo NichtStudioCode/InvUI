@@ -170,7 +170,7 @@ public class PagedGuiTest {
         var gui = PagedGui.itemsBuilder()
             .setStructure(
                 "x x x",
-                "x x x", 
+                "x x x",
                 "x x x"
             )
             .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
@@ -276,7 +276,7 @@ public class PagedGuiTest {
         
         gui.setContent(IntStream.range(0, 7).mapToObj(i -> Item.builder().build()).toList());
         assertEquals(3, pageCount.get());
-     
+        
         gui.setContent(List.of());
         assertEquals(0, pageCount.get());
     }

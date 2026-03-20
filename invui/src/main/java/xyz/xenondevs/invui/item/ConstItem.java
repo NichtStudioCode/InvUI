@@ -4,7 +4,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import xyz.xenondevs.invui.Click;
 
-class ConstItem extends AbstractItem{
+class ConstItem extends AbstractItem {
     
     private final ItemProvider itemProvider;
     

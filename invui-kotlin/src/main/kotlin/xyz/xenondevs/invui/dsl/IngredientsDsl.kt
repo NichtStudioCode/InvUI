@@ -73,9 +73,9 @@ sealed interface IngredientsDsl {
     infix fun Char.by(element: SlotElement)
     
     infix fun Char.by(inventory: Inventory)
-
+    
     infix fun Char.by(inventory: InventoryWithBackground)
-
+    
     infix fun Char.by(inventory: InventoryWithBackgroundProvider)
     
     infix fun Char.by(gui: Gui)
@@ -157,11 +157,11 @@ internal open class IngredientsDslImpl(
     override fun Char.by(inventory: Inventory) {
         ingredients.addIngredient(this, inventory)
     }
-
+    
     override fun Char.by(inventory: InventoryWithBackground) {
         ingredients.addIngredient(this, inventory.inventory, inventory.background)
     }
-
+    
     override fun Char.by(inventory: InventoryWithBackgroundProvider) {
         ingredients.addIngredient(this, inventory.inventory, inventory.background)
     }

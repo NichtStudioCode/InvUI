@@ -83,7 +83,7 @@ public class ScrollItemsGuiTest {
         var items = IntStream.range(0, 10)
             .mapToObj(i -> Item.simple(ItemStack.of(Material.DIAMOND)))
             .toList();
-            
+        
         var b = Item.simple(ItemStack.of(Material.DIAMOND));
         var gui = ScrollGui.itemsBuilder()
             .setStructure(

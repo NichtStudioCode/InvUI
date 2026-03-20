@@ -47,7 +47,7 @@ internal abstract class GuiDslImpl<G : Gui, B : Gui.Builder<G, B>>(
     
     private lateinit var _gui: G
     override val gui: Provider<G> = provider {
-        check(::_gui.isInitialized) { "Gui cannot be accessed before it is built"}
+        check(::_gui.isInitialized) { "Gui cannot be accessed before it is built" }
         _gui
     }
     

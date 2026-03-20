@@ -200,7 +200,7 @@ public class PacketListener implements Listener {
             
             var queue = redirections.get(packet.getClass());
             if (queue != null) {
-                queue.add((Packet<ServerGamePacketListener>)packet);
+                queue.add((Packet<ServerGamePacketListener>) packet);
             } else {
                 super.channelRead(ctx, packet);
             }

@@ -26,7 +26,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
     static Builder<Item> itemsBuilder() {
         return new ScrollItemsGuiImpl.Builder<>();
     }
-
+    
     /**
      * Creates a new {@link Builder Gui Builder} for a {@link ScrollGui} that uses {@link SlotElement SlotElements} as content.
      *
@@ -49,7 +49,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
     static ScrollGui<Item> ofItems(int width, int height, List<? extends Item> items, List<? extends Slot> contentListSlots, LineOrientation orientation) {
         return new ScrollItemsGuiImpl<>(width, height, items, contentListSlots, orientation);
     }
-
+    
     /**
      * Creates a new {@link ScrollGui}.
      *
@@ -76,7 +76,7 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
         gui.applyStructure(structure);
         return gui;
     }
-
+    
     /**
      * Creates a new {@link ScrollGui}.
      *

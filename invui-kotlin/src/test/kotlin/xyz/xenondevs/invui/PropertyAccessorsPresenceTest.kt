@@ -24,7 +24,7 @@ import xyz.xenondevs.invui.window.Window
  * These tests do not run any code, instead they just check that it compiles.
  */
 class PropertyAccessorsPresenceTest {
-
+    
     private lateinit var pagedGui: PagedGui<Item>
     private lateinit var scrollGui: ScrollGui<Item>
     private lateinit var tabGui: TabGui
@@ -102,7 +102,7 @@ class PropertyAccessorsPresenceTest {
             // -- MerchantWindow --
             merchantWindow.trades
             merchantWindow.trades = emptyList()
-        
+            
             // -- RecipeBookPowered --
             recipeBookPowered.recipeClickHandlers
             recipeBookPowered.recipeClickHandlers = emptyList()

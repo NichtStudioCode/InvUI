@@ -198,7 +198,7 @@ public abstract class CustomContainerMenu {
     
     /**
      * Sends all changes to the remote client.
-     * 
+     *
      * @param pingId Optional ping id to also send a ping packet, or any negative number to not send a ping packet.
      */
     public void sendChangesToRemote(int pingId) {
@@ -248,7 +248,7 @@ public abstract class CustomContainerMenu {
     
     /**
      * Sends all data to the remote client.
-     * 
+     *
      * @param pingId Optional ping id to also send a ping packet, or any negative number to not send a ping packet.
      */
     public void sendAllToRemote(int pingId) {
