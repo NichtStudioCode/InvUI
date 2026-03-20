@@ -73,9 +73,8 @@ public sealed interface Window extends Observer permits AbstractWindow, AnvilWin
     SlotElement.@Nullable GuiLink getGuiAtHotbar(int slot);
     
     /**
-     * Shows the window to the player.
-     *
-     * @throws IllegalStateException If the window is already open.
+     * Shows the window to the viewer.
+     * Does nothing if the window is already open.
      */
     void open();
     
@@ -95,8 +94,8 @@ public sealed interface Window extends Observer permits AbstractWindow, AnvilWin
     void setCloseable(boolean closeable);
     
     /**
-     * Closes the {@link Window} for the {@link #getViewer() viewer}, if they are
-     * {@link #isOpen() currently viewing} the {@link Window}.
+     * Closes the window for the viewer.
+     * Does nothing if the window is not currently open.
      */
     void close();
     
