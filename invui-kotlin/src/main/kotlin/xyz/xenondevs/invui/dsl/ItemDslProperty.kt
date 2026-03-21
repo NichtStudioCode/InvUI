@@ -48,8 +48,8 @@ class ItemDslProperty internal constructor() {
      * firstInput by myItemProviderProvider // Provider<ItemProvider>
      * ```
      */
-    infix fun by(provider: Provider<ItemProvider>): Unit =
-        by(Item.builder().setItemProvider(provider).build())
+    infix fun by(itemProvider: Provider<ItemProvider>): Unit =
+        by(Item.builder().setItemProvider(itemProvider).build())
     
     /**
      * Sets this property to an [Item] backed by a reactive [Provider] of [ItemStack]s.
@@ -60,8 +60,8 @@ class ItemDslProperty internal constructor() {
      * ```
      */
     @JvmName("by1")
-    infix fun by(provider: Provider<ItemStack>): Unit =
-        by(Item.builder().setItemProvider(provider).build())
+    infix fun by(itemStack: Provider<ItemStack>): Unit =
+        by(Item.builder().setItemProvider(itemStack).build())
     
     /**
      * Sets this property to a simple [Item] wrapping the given [ItemProvider].
