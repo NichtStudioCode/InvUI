@@ -13,6 +13,9 @@ import xyz.xenondevs.invui.dsl.property.ProviderDslProperty
 import xyz.xenondevs.invui.window.MerchantWindow
 import xyz.xenondevs.invui.window.setAvailable
 import xyz.xenondevs.invui.window.setDiscount
+import xyz.xenondevs.invui.window.setLevel
+import xyz.xenondevs.invui.window.setProgress
+import xyz.xenondevs.invui.window.setRestockMessageEnabled
 import xyz.xenondevs.invui.window.setTrades
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -77,7 +80,7 @@ inline fun trade(trade: TradeDsl.() -> Unit): MerchantWindow.Trade {
 /**
  * DSL scope for configuring a [MerchantWindow].
  *
- * Extends [SplitWindowDsl] with merchant-specific properties: [trades] to define available
+ * Extends [SplitWindowDsl] with merchant-specific properties like [trades] to define available
  * trades and [selectedTrade] to observe which trade the player has selected.
  *
  * ```
@@ -133,6 +136,43 @@ sealed interface MerchantWindowDsl : SplitWindowDsl {
      * @see trade
      */
     val trades: ProviderDslProperty<List<MerchantWindow.Trade>>
+    
+    /**
+     * The merchant's level, displayed after the [title][WindowDsl.title] using the translation
+     * `merchant.level.<level>`. The following levels exist:
+     * 1 (Novice), 2 (Apprentice), 3 (Journeyman), 4 (Expert), 5 (Master).
+     *
+     * If set to `<= 0`, no level name and an always-empty progress bar will be displayed.
+     * If set to `> 5`, no level name and no progress bar will be displayed.
+     *
+     * Defaults to `0`. Can be set to a static value or bound to a [Provider]:
+     * ```
+     * level by 3 // Journeyman
+     * ```
+     */
+    val level: ProviderDslProperty<Int>
+
+    /**
+     * The progress of the merchant's experience bar, from `0.0` to `1.0`.
+     * If set to any value `< 0`, the progress bar and the merchant level name will be hidden.
+     *
+     * Defaults to `-1.0` (hidden). Can be set to a static value or bound to a [Provider]:
+     * ```
+     * progress by 0.5
+     * ```
+     */
+    val progress: ProviderDslProperty<Double>
+
+    /**
+     * Whether the message "Villagers restock up to two times per day" is displayed when hovering
+     * over the arrow of disabled trades.
+     *
+     * Defaults to `false`. Can be set to a static value or bound to a [Provider]:
+     * ```
+     * restockMessageEnabled by true
+     * ```
+     */
+    val restockMessageEnabled: ProviderDslProperty<Boolean>
     
     /**
      * A read-only [Provider] that tracks the index of the currently selected trade (zero-based),
@@ -225,10 +265,19 @@ internal class MerchantWindowDslImpl(
 ) : AbstractSplitWindowDsl<MerchantWindow, MerchantWindow.Builder>(viewer), MerchantWindowDsl {
     
     private var _trades = provider(emptyList<MerchantWindow.Trade>())
+    private var _level = provider(0)
+    private var _progress = provider(-1.0)
+    private var _restockMessageEnabled = provider(false)
     
     override val upperGui = GuiDslProperty(3, 1)
     override val trades: ProviderDslProperty<List<MerchantWindow.Trade>>
         get() = ProviderDslProperty(::_trades)
+    override val level: ProviderDslProperty<Int>
+        get() = ProviderDslProperty(::_level)
+    override val progress: ProviderDslProperty<Double>
+        get() = ProviderDslProperty(::_progress)
+    override val restockMessageEnabled: ProviderDslProperty<Boolean>
+        get() = ProviderDslProperty(::_restockMessageEnabled)
     override val selectedTrade = mutableProvider(-1)
     
     override fun createBuilder() = MerchantWindow.builder()
@@ -238,6 +287,9 @@ internal class MerchantWindowDslImpl(
         builder.apply {
             setUpperGui(upperGui.value)
             setTrades(_trades)
+            setLevel(_level)
+            setProgress(_progress)
+            setRestockMessageEnabled(_restockMessageEnabled)
             addTradeSelectHandler { _, trade -> selectedTrade.set(trade) }
         }
     }
