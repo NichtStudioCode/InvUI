@@ -6,8 +6,6 @@ import org.bukkit.entity.Player
 import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.commons.provider.mutableProvider
 import xyz.xenondevs.invui.ExperimentalReactiveApi
-import xyz.xenondevs.invui.dsl.property.GuiDslProperty
-import xyz.xenondevs.invui.dsl.property.MutableProviderDslProperty
 import xyz.xenondevs.invui.window.StonecutterWindow
 import xyz.xenondevs.invui.window.setSelectedSlot
 import kotlin.contracts.InvocationKind

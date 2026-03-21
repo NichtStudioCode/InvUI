@@ -1,6 +1,5 @@
-package xyz.xenondevs.invui.dsl.property
+package xyz.xenondevs.invui.dsl
 
-import xyz.xenondevs.invui.dsl.ExperimentalDslApi
 import xyz.xenondevs.invui.gui.Gui
 import xyz.xenondevs.invui.inventory.Inventory
 import kotlin.math.ceil
@@ -14,7 +13,7 @@ internal data class Dimensions(val width: Int, val height: Int) {
 /**
  * A DSL property that holds a [Gui], used for the GUI slots in window DSLs.
  *
- * Can be set to a [Gui] (typically created via the [gui DSL][xyz.xenondevs.invui.dsl.gui])
+ * Can be set to a [Gui] (typically created via the [gui DSL][gui])
  * or an [Inventory] using the [by] infix function:
  * ```
  * upperGui by gui(

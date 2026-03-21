@@ -1,6 +1,6 @@
 @file:OptIn(UnstableProviderApi::class)
 
-package xyz.xenondevs.invui.dsl.property
+package xyz.xenondevs.invui.dsl
 
 import io.papermc.paper.datacomponent.DataComponentBuilder
 import net.kyori.adventure.text.Component
@@ -11,7 +11,6 @@ import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.commons.provider.UnstableProviderApi
 import xyz.xenondevs.commons.provider.mutableProvider
 import xyz.xenondevs.commons.provider.provider
-import xyz.xenondevs.invui.dsl.ExperimentalDslApi
 import xyz.xenondevs.invui.item.ItemProvider
 import xyz.xenondevs.invui.item.ItemWrapper
 import kotlin.reflect.KMutableProperty0

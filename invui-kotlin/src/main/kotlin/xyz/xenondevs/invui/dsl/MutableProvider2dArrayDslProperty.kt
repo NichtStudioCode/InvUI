@@ -1,8 +1,7 @@
-package xyz.xenondevs.invui.dsl.property
+package xyz.xenondevs.invui.dsl
 
 import xyz.xenondevs.commons.provider.MutableProvider
 import xyz.xenondevs.commons.provider.mutableProvider
-import xyz.xenondevs.invui.dsl.ExperimentalDslApi
 
 /**
  * A DSL property representing a 2D grid of [MutableProvider]s.

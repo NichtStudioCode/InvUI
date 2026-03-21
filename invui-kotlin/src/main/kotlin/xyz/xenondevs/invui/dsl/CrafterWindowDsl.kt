@@ -5,8 +5,6 @@ package xyz.xenondevs.invui.dsl
 import org.bukkit.entity.Player
 import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.invui.ExperimentalReactiveApi
-import xyz.xenondevs.invui.dsl.property.GuiDslProperty
-import xyz.xenondevs.invui.dsl.property.MutableProvider2dArrayDslProperty
 import xyz.xenondevs.invui.window.CrafterWindow
 import xyz.xenondevs.invui.window.setSlots
 import kotlin.contracts.InvocationKind

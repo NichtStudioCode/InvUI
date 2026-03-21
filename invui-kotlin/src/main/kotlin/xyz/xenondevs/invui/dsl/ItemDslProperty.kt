@@ -1,11 +1,10 @@
 @file:OptIn(ExperimentalReactiveApi::class)
 
-package xyz.xenondevs.invui.dsl.property
+package xyz.xenondevs.invui.dsl
 
 import org.bukkit.inventory.ItemStack
 import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.invui.ExperimentalReactiveApi
-import xyz.xenondevs.invui.dsl.ExperimentalDslApi
 import xyz.xenondevs.invui.item.Item
 import xyz.xenondevs.invui.item.ItemProvider
 import xyz.xenondevs.invui.item.setItemProvider

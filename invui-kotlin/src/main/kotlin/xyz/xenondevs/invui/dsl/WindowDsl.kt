@@ -11,10 +11,6 @@ import xyz.xenondevs.commons.provider.mutableProvider
 import xyz.xenondevs.commons.provider.provider
 import xyz.xenondevs.invui.ClickEvent
 import xyz.xenondevs.invui.ExperimentalReactiveApi
-import xyz.xenondevs.invui.dsl.property.Dimensions
-import xyz.xenondevs.invui.dsl.property.GuiDslProperty
-import xyz.xenondevs.invui.dsl.property.MutableProviderDslProperty
-import xyz.xenondevs.invui.dsl.property.ProviderDslProperty
 import xyz.xenondevs.invui.internal.util.InventoryUtils
 import xyz.xenondevs.invui.window.Window
 import xyz.xenondevs.invui.window.setCloseable

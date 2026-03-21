@@ -6,8 +6,6 @@ import org.bukkit.entity.Player
 import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.commons.provider.provider
 import xyz.xenondevs.invui.ExperimentalReactiveApi
-import xyz.xenondevs.invui.dsl.property.GuiDslProperty
-import xyz.xenondevs.invui.dsl.property.ProviderDslProperty
 import xyz.xenondevs.invui.window.CartographyWindow
 import xyz.xenondevs.invui.window.setIcons
 import xyz.xenondevs.invui.window.setView
