@@ -17,15 +17,6 @@ fun TabGui.Builder.setTab(tab: MutableProvider<Int>): TabGui.Builder =
     setTab(PropertyAdapter(tab))
 
 /**
- * Sets the provider containing the tabs of the [TabGui] built by this builder to the result
- * of applying [transform] to the value of [provider].
- * (Shortcut for `setTabs(provider.map(transform))`)
- */
-@ExperimentalReactiveApi
-fun <T> TabGui.Builder.setTabs(provider: Provider<T>, transform: (T) -> List<Gui?>): TabGui.Builder =
-    setTabs(provider.map(transform))
-
-/**
  * Sets the tabs containing the tabs of the [TabGui] built by this builder.
  * If [tabs] is not a [MutableProvider], attempting to change the tabs through other means will throw an exception.
  */

@@ -16,15 +16,6 @@ fun <C : Any> ScrollGui.Builder<C>.setLine(line: MutableProvider<Int>): ScrollGu
     setLine(PropertyAdapter(line))
 
 /**
- * Sets the provider containing the content of the [ScrollGui] built by this builder to the result
- * of applying [transform] to the value of [provider].
- * (Shortcut for `setContent(provider.map(transform))`)
- */
-@ExperimentalReactiveApi
-fun <C : Any, T> ScrollGui.Builder<C>.setContent(provider: Provider<T>, transform: (T) -> List<C>): ScrollGui.Builder<C> =
-    setContent(provider.map(transform))
-
-/**
  * Sets the provider containing the content of the [ScrollGui] built by this builder.
  * If [content] is not a [MutableProvider], attempting to change the content through other means will throw an exception.
  */
