@@ -16,7 +16,7 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <minecraft.version>1.21.11</minecraft.version>
-        <spigot.version>${minecraft.version}-R0.1-SNAPSHOT</spigot.version>
+        <spigot.version>${minecraft.version}-R0.2-SNAPSHOT</spigot.version>
     </properties>
 
     <dependencies>
