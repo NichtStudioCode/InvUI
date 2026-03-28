@@ -72,7 +72,7 @@ public class CustomCrafterMenu extends CustomContainerMenu {
      */
     public void setSlotDisabled(int slot, boolean state) {
         dataSlots[slot] = state ? 1 : 0;
-        remoteItems.set(slot, HashedStack.EMPTY);
+        setRemoteItem(slot, HashedStack.EMPTY);
     }
     
     /**

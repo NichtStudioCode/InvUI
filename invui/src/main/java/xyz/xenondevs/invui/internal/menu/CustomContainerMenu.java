@@ -3,6 +3,7 @@ package xyz.xenondevs.invui.internal.menu;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.MapMaker;
 import com.google.common.hash.HashCode;
 import com.mojang.serialization.DynamicOps;
 import io.papermc.paper.adventure.PaperAdventure;
@@ -51,12 +52,10 @@ import xyz.xenondevs.invui.internal.util.PingData;
 import xyz.xenondevs.invui.window.Window;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * A packet-based container menu.
@@ -83,7 +82,12 @@ public abstract class CustomContainerMenu {
      */
     private static final HashedPatchMap.HashGenerator HASH_GENERATOR = new HashedPatchMap.HashGenerator() {
         
-        private final LoadingCache<TypedDataComponent<?>, Integer> cache = CacheBuilder.newBuilder()
+        // layer 1 cache uses identity hash code to avoid expensive component hash code calculations
+        private final ConcurrentMap<Object, Integer> layer1 = new MapMaker()
+            .weakKeys() // also enables identity-based lookup
+            .makeMap();
+        
+        private final LoadingCache<TypedDataComponent<?>, Integer> layer2 = CacheBuilder.newBuilder()
             .expireAfterAccess(Duration.ofMinutes(1))
             .build(new CacheLoader<>() {
                 
@@ -101,7 +105,10 @@ public abstract class CustomContainerMenu {
         
         @Override
         public Integer apply(TypedDataComponent<?> typedDataComponent) {
-            return cache.getUnchecked(typedDataComponent);
+            return layer1.computeIfAbsent(
+                typedDataComponent.value(),
+                _ -> layer2.getUnchecked(typedDataComponent)
+            );
         }
         
     };
@@ -123,8 +130,8 @@ public abstract class CustomContainerMenu {
     private @Nullable Window window;
     private final ContainerMenuProxy proxy;
     
-    protected final NonNullList<ItemStack> items;
-    protected final NonNullList<HashedStack> remoteItems;
+    private final NonNullList<ItemStack> items;
+    private final NonNullList<HashedStack> remoteItems;
     private ItemStack carried = ItemStack.EMPTY;
     private HashedStack remoteCarried = HashedStack.EMPTY;
     private HashedStack remoteOffHand;
@@ -138,6 +145,13 @@ public abstract class CustomContainerMenu {
     
     protected final Queue<Packet<? super ServerGamePacketListener>> incoming = new ConcurrentLinkedQueue<>();
     private final Map<Integer, PingData> pendingPongs = new ConcurrentHashMap<>();
+    
+    // Only items marked as dirty via the fields below will be compared with their remote counterparts.
+    // Then, only if they differ, an update packet will be created for them.
+    // The intention of these dirty fields is to avoid expensive comparisons between the remote and server items.
+    private final BitSet dirtyItems;
+    private boolean dirtyCarried;
+    private boolean dirtyOffHand;
     
     /**
      * Creates a new {@link CustomContainerMenu} for the specified player.
@@ -155,6 +169,7 @@ public abstract class CustomContainerMenu {
         this.items = NonNullList.withSize(size, ItemStack.EMPTY);
         this.remoteItems = NonNullList.withSize(size, HashedStack.EMPTY);
         this.remoteOffHand = HashedStack.create(serverPlayer.getOffhandItem(), HASH_GENERATOR);
+        this.dirtyItems = new BitSet(size);
         
         int dataSize = InventoryUtils.getDataSlotCountOf(menuType);
         this.dataSlots = new int[dataSize];
@@ -174,6 +189,14 @@ public abstract class CustomContainerMenu {
             throw new IllegalArgumentException("Slot out of bounds: " + slot);
         
         items.set(slot, item == null ? ItemStack.EMPTY : CraftItemStack.unwrap(item));
+        dirtyItems.set(slot);
+    }
+    
+    public ItemStack getItem(int slot) {
+        if (slot < 0 || slot >= items.size())
+            throw new IllegalArgumentException("Slot out of bounds: " + slot);
+        
+        return items.get(slot);
     }
     
     /**
@@ -183,6 +206,7 @@ public abstract class CustomContainerMenu {
      */
     public void setCursor(org.bukkit.inventory.@Nullable ItemStack item) {
         carried = item == null ? ItemStack.EMPTY : CraftItemStack.unwrap(item);
+        dirtyCarried = true;
     }
     
     /**
@@ -195,6 +219,23 @@ public abstract class CustomContainerMenu {
     }
     
     //<editor-fold desc="synchronization">
+    protected void setRemoteItem(int slot, HashedStack item) {
+        if (slot < 0 || slot >= remoteItems.size())
+            throw new IllegalArgumentException("Slot out of bounds: " + slot);
+        
+        remoteItems.set(slot, item);
+        dirtyItems.set(slot);
+    }
+    
+    protected void setRemoteCarried(HashedStack item) {
+        remoteCarried = item;
+        dirtyCarried = true;
+    }
+    
+    protected void setRemoteOffHand(HashedStack item) {
+        remoteOffHand = item;
+        dirtyOffHand = true;
+    }
     
     /**
      * Sends all changes to the remote client.
@@ -204,29 +245,38 @@ public abstract class CustomContainerMenu {
     public void sendChangesToRemote(int pingId) {
         var packets = new ArrayList<Packet<? super ClientGamePacketListener>>();
         
-        for (int i = 0; i < items.size(); i++) {
-            var item = items.get(i);
-            if (!remoteItems.get(i).matches(item, HASH_GENERATOR)) {
-                packets.add(new ClientboundContainerSetSlotPacket(containerId, incrementStateId(), i, item.copy()));
-                remoteItems.set(i, HashedStack.create(item, HASH_GENERATOR));
+        int itemSlot = -1;
+        while ((itemSlot = dirtyItems.nextSetBit(itemSlot + 1)) != -1) {
+            var item = items.get(itemSlot);
+            var remoteItem = remoteItems.get(itemSlot);
+            if (remoteItem == DIRTY_MARKER || !remoteItem.matches(item, HASH_GENERATOR)) {
+                packets.add(new ClientboundContainerSetSlotPacket(containerId, incrementStateId(), itemSlot, item.copy()));
+                remoteItems.set(itemSlot, HashedStack.create(item, HASH_GENERATOR));
             }
         }
+        dirtyItems.clear();
         
-        var offHand = serverPlayer.getOffhandItem();
-        if (!remoteOffHand.matches(offHand, HASH_GENERATOR)) {
-            packets.add(new ClientboundContainerSetSlotPacket(serverPlayer.inventoryMenu.containerId, incrementStateId(), OFF_HAND_SLOT, offHand.copy()));
-            remoteOffHand = HashedStack.create(offHand, HASH_GENERATOR);
+        if (dirtyOffHand) {
+            var offHand = serverPlayer.getOffhandItem();
+            if (remoteOffHand == DIRTY_MARKER || !remoteOffHand.matches(offHand, HASH_GENERATOR)) {
+                packets.add(new ClientboundContainerSetSlotPacket(serverPlayer.inventoryMenu.containerId, incrementStateId(), OFF_HAND_SLOT, offHand.copy()));
+                remoteOffHand = HashedStack.create(offHand, HASH_GENERATOR);
+            }
+            dirtyOffHand = false;
         }
         
-        if (!remoteCarried.matches(carried, HASH_GENERATOR)) {
-            packets.add(new ClientboundSetCursorItemPacket(carried.copy()));
-            remoteCarried = HashedStack.create(carried, HASH_GENERATOR);
+        if (dirtyCarried) {
+            if (remoteCarried == DIRTY_MARKER || !remoteCarried.matches(carried, HASH_GENERATOR)) {
+                packets.add(new ClientboundSetCursorItemPacket(carried.copy()));
+                remoteCarried = HashedStack.create(carried, HASH_GENERATOR);
+            }
+            dirtyCarried = false;
         }
         
-        for (int i = 0; i < dataSlots.length; i++) {
-            if (dataSlots[i] != remoteDataSlots[i]) {
-                packets.add(new ClientboundContainerSetDataPacket(containerId, i, dataSlots[i]));
-                remoteDataSlots[i] = dataSlots[i];
+        for (int dataSlot = 0; dataSlot < dataSlots.length; dataSlot++) {
+            if (dataSlots[dataSlot] != remoteDataSlots[dataSlot]) {
+                packets.add(new ClientboundContainerSetDataPacket(containerId, dataSlot, dataSlots[dataSlot]));
+                remoteDataSlots[dataSlot] = dataSlots[dataSlot];
             }
         }
         
@@ -244,6 +294,7 @@ public abstract class CustomContainerMenu {
         var content = new ClientboundSetCursorItemPacket(carried.copy());
         PacketListener.getInstance().injectOutgoing(player, content);
         remoteCarried = HashedStack.create(carried, HASH_GENERATOR);
+        dirtyCarried = false;
     }
     
     /**
@@ -302,6 +353,10 @@ public abstract class CustomContainerMenu {
         }
         remoteCarried = HashedStack.create(carried, HASH_GENERATOR);
         System.arraycopy(dataSlots, 0, remoteDataSlots, 0, dataSlots.length);
+        
+        dirtyItems.clear();
+        dirtyCarried = false;
+        dirtyOffHand = false;
     }
     //</editor-fold>
     
@@ -451,9 +506,9 @@ public abstract class CustomContainerMenu {
             HashedStack stack = entry.getValue();
             if (slot < 0 || slot > remoteItems.size())
                 continue;
-            remoteItems.set(slot, stack);
+            setRemoteItem(slot, stack);
         }
-        remoteCarried = DIRTY_MARKER;
+        setRemoteCarried(DIRTY_MARKER);
         
         if (packet.clickType() == net.minecraft.world.inventory.ClickType.QUICK_CRAFT) {
             if (!handleDragClick(packet))
@@ -491,7 +546,7 @@ public abstract class CustomContainerMenu {
                     yield ClickType.NUMBER_KEY;
                 }
                 case 40 -> {
-                    remoteOffHand = DIRTY_MARKER;
+                    setRemoteOffHand(DIRTY_MARKER);
                     yield ClickType.SWAP_OFFHAND;
                 }
                 default -> ClickType.UNKNOWN;

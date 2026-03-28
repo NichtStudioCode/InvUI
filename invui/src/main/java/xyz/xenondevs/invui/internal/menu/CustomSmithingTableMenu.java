@@ -26,7 +26,7 @@ public class CustomSmithingTableMenu extends CustomContainerMenu {
         
         // client-side prediction clears output slot when input slots are modified
         if (slot == 0 || slot == 1 || slot == 2) {
-            remoteItems.set(3, HashedStack.EMPTY);
+            setRemoteItem(3, HashedStack.EMPTY);
         }
     }
     

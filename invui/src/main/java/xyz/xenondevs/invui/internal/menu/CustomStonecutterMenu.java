@@ -89,7 +89,7 @@ public class CustomStonecutterMenu extends CustomContainerMenu {
         super.setItem(slot, item);
         if (slot == 0) {
             // client-side prediction may clear the output slot (e.g. when shift-clicking into input)
-            remoteItems.set(1, DIRTY_MARKER);
+            setRemoteItem(1, DIRTY_MARKER);
         }
     }
     
@@ -121,8 +121,8 @@ public class CustomStonecutterMenu extends CustomContainerMenu {
         // this also triggers result and selected slot to be reset, requiring them to be resent
         var setInputPacket = new ClientboundContainerSetSlotPacket(containerId, incrementStateId(), 0, ItemStack.EMPTY);
         PacketListener.getInstance().injectOutgoing(player, setInputPacket);
-        remoteItems.set(0, HashedStack.EMPTY);
-        remoteItems.set(1, HashedStack.EMPTY);
+        setRemoteItem(0, HashedStack.EMPTY);
+        setRemoteItem(1, HashedStack.EMPTY);
         remoteDataSlots[0] = -1;
         sendChangesToRemote(-1);
     }
@@ -155,7 +155,7 @@ public class CustomStonecutterMenu extends CustomContainerMenu {
         int prev = dataSlots[0];
         dataSlots[0] = clicked;
         remoteDataSlots[0] = clicked;
-        remoteItems.set(1, HashedStack.EMPTY);
+        setRemoteItem(1, HashedStack.EMPTY);
         
         if (clickHandler != null)
             clickHandler.accept(prev, clicked);

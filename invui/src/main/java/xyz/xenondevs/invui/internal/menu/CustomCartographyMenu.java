@@ -74,7 +74,7 @@ public class CustomCartographyMenu extends CustomContainerMenu {
     
     public void setView(CartographyWindow.View view) {
         this.view = view;
-        setItem(1, CraftItemStack.asCraftMirror(items.get(1)));
+        setItem(1, CraftItemStack.asCraftMirror(getItem(1)));
     }
     
     public void setIcons(Collection<? extends MapIcon> icons, boolean sendUpdate) {
@@ -107,7 +107,7 @@ public class CustomCartographyMenu extends CustomContainerMenu {
         canvas = new byte[MAP_SIZE * MAP_SIZE];
         decorations.clear();
         
-        setItem(0, CraftItemStack.asCraftMirror(items.getFirst()));
+        setItem(0, CraftItemStack.asCraftMirror(getItem(0)));
     }
     
     private void sendMapUpdate(MapItemSavedData.@Nullable MapPatch patch, @Nullable Collection<MapDecoration> icons) {

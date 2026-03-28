@@ -26,7 +26,7 @@ public class CustomGrindstoneMenu extends CustomContainerMenu {
         
         // client-side prediction clears output slot when input slots are modified
         if (slot == 0 || slot == 1) {
-            remoteItems.set(2, HashedStack.EMPTY);
+            setRemoteItem(2, HashedStack.EMPTY);
         }
     }
     
