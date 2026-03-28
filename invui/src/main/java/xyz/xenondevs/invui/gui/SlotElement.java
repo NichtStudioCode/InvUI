@@ -249,6 +249,25 @@ public sealed interface SlotElement {
             return Collections.unmodifiableList(elements);
         }
         
+        /**
+         * Follows {@link #getHoldingElement()} until a non-{@link GuiLink} is reached and compares the path
+         * to the given list as returned by {@link #traverse()}.
+         *
+         * @return {@code true} if the path matches the given list, {@code false} otherwise.
+         */
+        public boolean checkTraverse(List<SlotElement> other) {
+            int i = 0;
+            SlotElement current = this;
+            while (current instanceof GuiLink(Gui g, int s)) {
+                if (i >= other.size() || !current.equals(other.get(i)))
+                    return false;
+                current = g.getSlotElement(s);
+                i++;
+            }
+            return (i == other.size() && current == null) 
+                   || (i == other.size() - 1 && other.getLast().equals(current));
+        }
+        
         @Override
         public void addObserver(Observer who, int how) {
             gui.addObserver(who, slot, how);

@@ -109,19 +109,20 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
         if (root == null)
             return;
         
-        List<SlotElement> newPath = root.traverse();
-        List<SlotElement> oldPath = elementsDisplayed.get(slot);
+        List<SlotElement> path = elementsDisplayed.get(slot);
         
         // if path has changed, viewers need to be updated
-        if (!newPath.equals(oldPath)) {
-            unregisterAsViewer(slot, oldPath);
-            registerAsViewer(slot, newPath);
-            elementsDisplayed.set(slot, newPath);
+        if (!root.checkTraverse(path)) {
+            unregisterAsViewer(slot, path);
+            path = root.traverse();
+            
+            registerAsViewer(slot, path);
+            elementsDisplayed.set(slot, path);
         }
         
         // create and place item stack in inventory
         ItemStack itemStack;
-        SlotElement lastElement = newPath.getLast();
+        SlotElement lastElement = path.getLast();
         if (!(lastElement instanceof SlotElement.GuiLink)) {
             itemStack = lastElement.getItemStack(getViewer());
             if (itemStack != null && lastElement instanceof SlotElement.Item) {
@@ -131,7 +132,7 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
             }
         } else { // there is no holding element
             // background by gui
-            itemStack = newPath.reversed().stream()
+            itemStack = path.reversed().stream()
                 .filter(e -> e instanceof SlotElement.GuiLink)
                 .map(e -> ((SlotElement.GuiLink) e).gui().getBackground())
                 .filter(Objects::nonNull)
