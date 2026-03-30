@@ -32,6 +32,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.BundleContents;
+import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.inventory.CraftInventory;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
@@ -146,6 +147,8 @@ public abstract class CustomContainerMenu {
         
         @Override
         public Integer apply(TypedDataComponent<?> tdc) {
+            assert Bukkit.isOwnedByCurrentRegion(player);
+            
             var c = tdc.value();
             var cachedValue = cache.get(c);
             if (cachedValue.isPresent())

@@ -26,10 +26,7 @@ import xyz.xenondevs.invui.i18n.Languages;
 import xyz.xenondevs.invui.internal.menu.CustomContainerMenu;
 import xyz.xenondevs.invui.internal.menu.UpdateType;
 import xyz.xenondevs.invui.internal.menu.WindowEventListener;
-import xyz.xenondevs.invui.internal.util.CollectionUtils;
-import xyz.xenondevs.invui.internal.util.FakeInventoryView;
-import xyz.xenondevs.invui.internal.util.FuncUtils;
-import xyz.xenondevs.invui.internal.util.InventoryUtils;
+import xyz.xenondevs.invui.internal.util.*;
 import xyz.xenondevs.invui.inventory.CompositeInventory;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.inventory.InventorySlot;
@@ -504,6 +501,7 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
             throw new IllegalStateException("Opening a window is not allowed to trigger opening another window.");
         if (isInCloseHandlerContext.get() > 0)
             throw new IllegalStateException("Opening a window is not allowed while handling window close. Consider setting a fallback window or scheduling a task instead.");
+        ThreadCheck.checkOwnedBy(viewer);
         
         try {
             isInOpeningContext.set(true);
@@ -549,6 +547,7 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
     
     @Override
     public void close() {
+        ThreadCheck.checkOwnedBy(getViewer());
         if (isOpen()) {
             viewer.closeInventory(); // WindowManager then calls handleClose
         }
