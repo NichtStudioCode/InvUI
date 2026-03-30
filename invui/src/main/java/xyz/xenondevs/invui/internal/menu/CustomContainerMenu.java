@@ -739,11 +739,12 @@ public abstract class CustomContainerMenu {
         @Override
         public void setCarried(ItemStack stack) {
             carried = stack;
+            dirtyCarried = true;
         }
         
         @Override
         public void broadcastCarriedItem() {
-            sendCarriedToRemote();
+            dirtyCarried = true;
         }
         
         @Override
