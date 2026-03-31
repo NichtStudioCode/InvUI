@@ -59,11 +59,11 @@ final class BrewingWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu
     }
     
     @Override
-    protected void update(int slot) {
+    protected void update(int slot, boolean structural) {
         switch (slot) {
             case BREW_PROGRESS_MAGIC_SLOT -> menu.setBrewProgress(getBrewProgress());
             case FUEL_PROGRESS_MAGIC_SLOT -> menu.setFuelProgress(getFuelProgress());
-            default -> super.update(slot);
+            default -> super.update(slot, structural);
         }
     }
     

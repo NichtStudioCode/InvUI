@@ -101,7 +101,7 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
         menu.setWindow(this);
     }
     
-    protected void update(int slot) {
+    protected void update(int slot, boolean structural) {
         SlotElement.GuiLink root = getGuiAt(slot);
         if (root == null)
             return;
@@ -109,7 +109,7 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
         List<SlotElement> path = elementsDisplayed.get(slot);
         
         // if path has changed, viewers need to be updated
-        if (!root.checkTraverse(path)) {
+        if (structural && !root.checkTraverse(path)) {
             unregisterAsViewer(slot, path);
             path = root.traverse();
             
@@ -224,12 +224,9 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
     }
     
     private UpdateType updateSlots() {
-        BitSet toUpdate;
-        synchronized (dirtySlots) {
-            toUpdate = (BitSet) dirtySlots.clone();
-            dirtySlots.clear();
-        }
+        boolean changedAny = false;
         
+        // periodic updates (cannot be structural, only item or inventory element)
         for (int slot = 0; slot < size; slot++) {
             if (slot >= elementsDisplayed.size())
                 continue;
@@ -239,14 +236,22 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
                 continue;
             
             var updatePeriod = path.getLast().getUpdatePeriod();
-            if (updatePeriod > 0 && windowTick % updatePeriod == 0)
-                toUpdate.set(slot);
+            if (updatePeriod > 0 && windowTick % updatePeriod == 0) {
+                update(slot, false);
+                changedAny = true;
+            }
         }
         
-        boolean changedAny = false;
+        // updates from notifyWindows (can be structural, ex. gui slot element change)
+        BitSet toUpdate;
+        synchronized (dirtySlots) {
+            toUpdate = (BitSet) dirtySlots.clone();
+            dirtySlots.clear();
+        }
+        
         int slot = 0;
         while ((slot = toUpdate.nextSetBit(slot)) != -1) {
-            update(slot);
+            update(slot, true);
             changedAny = true;
             slot++;
         }
@@ -526,7 +531,7 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
             
             // init items
             for (int i = 0; i < size; i++) {
-                update(i);
+                update(i, true);
             }
             postItemInit();
             

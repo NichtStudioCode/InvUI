@@ -145,12 +145,12 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
     }
     
     @Override
-    protected void update(int slot) {
+    protected void update(int slot, boolean structural) {
         switch (slot) {
             case TRADES_REBUILD_MAGIC_SLOT -> rebuildTrades();
             case TRADES_RESEND_MAGIC_SLOT ->
                 menu.sendTrades(activeTrades, getLevel(), getProgress(), isRestockMessageEnabled());
-            default -> super.update(slot);
+            default -> super.update(slot, structural);
         }
     }
     

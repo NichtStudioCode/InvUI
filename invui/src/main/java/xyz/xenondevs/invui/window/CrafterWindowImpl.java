@@ -53,18 +53,18 @@ final class CrafterWindowImpl extends AbstractSplitWindow<CustomCrafterMenu> imp
         for (int i = 0; i < CRAFTING_SLOTS; i++) {
             int slot = i;
             MutableProperty<Boolean> property = slots.get(slot);
-            property.observeWeak(this, thisRef -> thisRef.update(SLOTS_MAGIC_SLOT_OFFSET + slot));
+            property.observeWeak(this, thisRef -> thisRef.update(SLOTS_MAGIC_SLOT_OFFSET + slot, false));
             menu.setSlotDisabled(slot, isSlotDisabled(slot));
         }
         menu.setSlotStateChangeHandler(this::playerToggleSlot);
     }
     
     @Override
-    protected void update(int slot) {
+    protected void update(int slot, boolean structural) {
         if (slot >= SLOTS_MAGIC_SLOT_OFFSET && slot < SLOTS_MAGIC_SLOT_OFFSET + CRAFTING_SLOTS) {
             menu.setSlotDisabled(slot - SLOTS_MAGIC_SLOT_OFFSET, isSlotDisabled(slot - SLOTS_MAGIC_SLOT_OFFSET));
         } else {
-            super.update(slot);
+            super.update(slot, structural);
         }
     }
     

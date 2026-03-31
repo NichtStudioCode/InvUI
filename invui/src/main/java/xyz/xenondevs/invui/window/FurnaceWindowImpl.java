@@ -61,11 +61,11 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
     }
     
     @Override
-    protected void update(int slot) {
+    protected void update(int slot, boolean structural) {
         switch (slot) {
             case COOK_PROGRESS_MAGIC_SLOT -> menu.setCookProgress(getCookProgress());
             case BURN_PROGRESS_MAGIC_SLOT -> menu.setBurnProgress(getBurnProgress());
-            default -> super.update(slot);
+            default -> super.update(slot, structural);
         }
     }
     
