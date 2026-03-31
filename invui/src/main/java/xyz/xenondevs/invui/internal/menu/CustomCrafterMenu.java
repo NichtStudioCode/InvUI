@@ -1,11 +1,11 @@
 package xyz.xenondevs.invui.internal.menu;
 
 import net.kyori.adventure.text.Component;
-import net.minecraft.network.HashedStack;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ServerGamePacketListener;
 import net.minecraft.network.protocol.game.ServerboundContainerSlotStateChangedPacket;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.ItemStack;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.internal.network.PacketListener;
@@ -72,7 +72,7 @@ public class CustomCrafterMenu extends CustomContainerMenu {
      */
     public void setSlotDisabled(int slot, boolean state) {
         dataSlots[slot] = state ? 1 : 0;
-        setRemoteItem(slot, HashedStack.EMPTY);
+        forceRemoteItem(slot, ItemStack.EMPTY);
     }
     
     /**

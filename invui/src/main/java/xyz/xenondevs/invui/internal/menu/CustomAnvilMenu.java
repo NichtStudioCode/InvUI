@@ -69,7 +69,7 @@ public class CustomAnvilMenu extends CustomContainerMenu {
         renameText = packet.getName();
         if (renameHandler != null)
             renameHandler.accept(renameText);
-        setRemoteItem(2, DIRTY_MARKER);
+        forceRemoteItem(2, DIRTY_MARKER);
         remoteDataSlots[0] = ENCHANTMENT_COST_DIRTY_MARKER;
     }
     

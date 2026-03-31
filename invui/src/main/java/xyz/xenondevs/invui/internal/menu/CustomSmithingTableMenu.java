@@ -1,9 +1,8 @@
 package xyz.xenondevs.invui.internal.menu;
 
-import net.minecraft.network.HashedStack;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.ItemStack;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -21,12 +20,12 @@ public class CustomSmithingTableMenu extends CustomContainerMenu {
     }
     
     @Override
-    public void setItem(int slot, @Nullable ItemStack item) {
+    public void setItem(int slot, org.bukkit.inventory.@Nullable ItemStack item) {
         super.setItem(slot, item);
         
         // client-side prediction clears output slot when input slots are modified
         if (slot == 0 || slot == 1 || slot == 2) {
-            setRemoteItem(3, HashedStack.EMPTY);
+            forceRemoteItem(3, ItemStack.EMPTY);
         }
     }
     

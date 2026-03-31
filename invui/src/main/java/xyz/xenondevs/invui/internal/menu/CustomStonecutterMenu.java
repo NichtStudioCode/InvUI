@@ -3,7 +3,6 @@ package xyz.xenondevs.invui.internal.menu;
 import net.kyori.adventure.text.Component;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.HashedStack;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket;
 import net.minecraft.network.protocol.game.ServerboundContainerClickPacket;
@@ -89,7 +88,7 @@ public class CustomStonecutterMenu extends CustomContainerMenu {
         super.setItem(slot, item);
         if (slot == 0) {
             // client-side prediction may clear the output slot (e.g. when shift-clicking into input)
-            setRemoteItem(1, DIRTY_MARKER);
+            forceRemoteItem(1, DIRTY_MARKER);
         }
     }
     
@@ -121,8 +120,8 @@ public class CustomStonecutterMenu extends CustomContainerMenu {
         // this also triggers result and selected slot to be reset, requiring them to be resent
         var setInputPacket = new ClientboundContainerSetSlotPacket(containerId, incrementStateId(), 0, ItemStack.EMPTY);
         PacketListener.getInstance().injectOutgoing(player, setInputPacket);
-        setRemoteItem(0, HashedStack.EMPTY);
-        setRemoteItem(1, HashedStack.EMPTY);
+        forceRemoteItem(0, ItemStack.EMPTY);
+        forceRemoteItem(1, ItemStack.EMPTY);
         remoteDataSlots[0] = -1;
         sendChangesToRemote(-1);
     }
@@ -155,7 +154,7 @@ public class CustomStonecutterMenu extends CustomContainerMenu {
         int prev = dataSlots[0];
         dataSlots[0] = clicked;
         remoteDataSlots[0] = clicked;
-        setRemoteItem(1, HashedStack.EMPTY);
+        forceRemoteItem(1, ItemStack.EMPTY);
         
         if (clickHandler != null)
             clickHandler.accept(prev, clicked);

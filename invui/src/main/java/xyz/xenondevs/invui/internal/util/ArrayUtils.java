@@ -103,4 +103,36 @@ public class ArrayUtils {
         return array;
     }
     
+    /**
+     * Creates a new array of the given size, filled with the given value.
+     *
+     * @param creator the function to create a new array
+     * @param size    the size of the array
+     * @param value   the value to fill the array with
+     * @param <T>     the type of the array
+     * @return a new array of the given size, filled with the given value
+     */
+    public static <T> T[] newArray(IntFunction<T[]> creator, int size, T value) {
+        T[] array = creator.apply(size);
+        Arrays.fill(array, value);
+        return array;
+    }
+    
+    /**
+     * Creates a new array of the given size, filled with the results of the given initializer function.
+     *
+     * @param creator     the function to create a new array
+     * @param size        the size of the array
+     * @param initializer the function to initialize the elements of the array, taking the index as an argument
+     * @param <T>         the type of the array
+     * @return a new array of the given size, filled with the results of the given initializer function
+     */
+    public static <T> T[] newArrayBy(IntFunction<T[]> creator, int size, IntFunction<? extends T> initializer) {
+        T[] array = creator.apply(size);
+        for (int i = 0; i < size; i++) {
+            array[i] = initializer.apply(i);
+        }
+        return array;
+    }
+    
 }

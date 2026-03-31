@@ -10,7 +10,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.IntLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import net.kyori.adventure.text.Component;
-import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.component.TypedDataComponent;
@@ -29,6 +28,7 @@ import net.minecraft.util.HashOps;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.RemoteSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.BundleContents;
@@ -59,7 +59,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public abstract class CustomContainerMenu {
     
     /**
-     * The amount of slots in the lower (player) inventory.
+     * The number of slots in the lower (player) inventory.
      */
     private static final int LOWER_INVENTORY_SIZE = 36;
     
@@ -79,7 +79,7 @@ public abstract class CustomContainerMenu {
     private static final HashedPatchMap.HashGenerator HASH_GENERATOR = new HashedPatchMap.HashGenerator() {
         
         private final LoadingCache<TypedDataComponent<?>, Integer> cache = CacheBuilder.newBuilder()
-            .expireAfterAccess(Duration.ofMinutes(1))
+            .expireAfterAccess(Duration.ofMinutes(5))
             .build(new CacheLoader<>() {
                 
                 private final DynamicOps<HashCode> hashOps = RegistryOps.create(
@@ -104,43 +104,18 @@ public abstract class CustomContainerMenu {
     /**
      * An item stack used for marking a remote slot dirty.
      */
-    protected static final HashedStack DIRTY_MARKER = HashedStack.create(new ItemStack(
-        BuiltInRegistries.ITEM.wrapAsHolder(Items.DIRT), 1,
+    protected static final ItemStack DIRTY_MARKER = new ItemStack(
+        // use obscure item / count combination to fail item comparison as early as possible
+        BuiltInRegistries.ITEM.wrapAsHolder(Items.GREEN_CANDLE), 51,
         DataComponentPatch.builder()
             .set(DataComponents.ITEM_MODEL, Identifier.fromNamespaceAndPath("invui", "dirty_marker"))
             .build()
-    ), HASH_GENERATOR);
+    );
     
-    private final MenuType<?> menuType;
-    protected final int containerId;
-    protected final Player player;
-    private final ServerPlayer serverPlayer;
-    private @Nullable Window window;
-    private final ContainerMenuProxy proxy;
-    
-    private final NonNullList<ItemStack> items;
-    private final NonNullList<HashedStack> remoteItems;
-    private ItemStack carried = ItemStack.EMPTY;
-    private HashedStack remoteCarried = HashedStack.EMPTY;
-    private HashedStack remoteOffHand;
-    protected final int[] dataSlots;
-    protected final int[] remoteDataSlots;
-    private int stateId;
-    private Component title = Component.empty();
-    
-    private final IntSet dragSlots = new IntLinkedOpenHashSet();
-    private ClickType dragMode = ClickType.LEFT;
-    
-    protected final Queue<Packet<? super ServerGamePacketListener>> incoming = new ConcurrentLinkedQueue<>();
-    private final Map<Integer, PingData> pendingPongs = new ConcurrentHashMap<>();
-    
-    // Only items marked as dirty via the fields below will be compared with their remote counterparts.
-    // Then, only if they differ, an update packet will be created for them.
-    // The intention of these dirty fields is to avoid expensive comparisons between the remote and server items.
-    private final BitSet dirtyItems;
-    private boolean dirtyCarried;
-    private boolean dirtyOffHand;
-    
+    /**
+     * A hash generator that caches component CRCs by their identity to avoid expensive hashCode() calls.
+     * Delegates to {@link #HASH_GENERATOR} on cache miss.
+     */
     private final HashedPatchMap.HashGenerator hashGenerator = new HashedPatchMap.HashGenerator() {
         
         private final WeakIdentityToIntMap<Object> cache = new WeakIdentityToIntMap<>();
@@ -160,6 +135,36 @@ public abstract class CustomContainerMenu {
         
     };
     
+    private final MenuType<?> menuType;
+    protected final int containerId;
+    protected final Player player;
+    private final ServerPlayer serverPlayer;
+    private @Nullable Window window;
+    private final ContainerMenuProxy proxy;
+    
+    private final ItemStack[] items;
+    private ItemStack carried = ItemStack.EMPTY;
+    private final RemoteSlot.Synchronized[] remoteSlots;
+    private final RemoteSlot.Synchronized remoteCarried = remoteSlot(ItemStack.EMPTY);
+    private final RemoteSlot.Synchronized remoteOffHand;
+    protected final int[] dataSlots;
+    protected final int[] remoteDataSlots;
+    private int stateId;
+    private Component title = Component.empty();
+    
+    private final IntSet dragSlots = new IntLinkedOpenHashSet();
+    private ClickType dragMode = ClickType.LEFT;
+    
+    protected final Queue<Packet<? super ServerGamePacketListener>> incoming = new ConcurrentLinkedQueue<>();
+    private final Map<Integer, PingData> pendingPongs = new ConcurrentHashMap<>();
+    
+    // Only items marked as dirty via the fields below will be compared with their remote counterparts.
+    // Then, only if they differ, an update packet will be created for them.
+    // The intention of these dirty fields is to avoid expensive comparisons between the remote and server items.
+    private final BitSet dirtyItems;
+    private boolean dirtyCarried;
+    private boolean dirtyOffHand;
+    
     /**
      * Creates a new {@link CustomContainerMenu} for the specified player.
      *
@@ -173,9 +178,9 @@ public abstract class CustomContainerMenu {
         this.containerId = serverPlayer.nextContainerCounter();
         
         int size = InventoryUtils.getSizeOf(menuType) + LOWER_INVENTORY_SIZE;
-        this.items = NonNullList.withSize(size, ItemStack.EMPTY);
-        this.remoteItems = NonNullList.withSize(size, HashedStack.EMPTY);
-        this.remoteOffHand = HashedStack.create(serverPlayer.getOffhandItem(), hashGenerator);
+        this.items = ArrayUtils.newArray(ItemStack[]::new, size, ItemStack.EMPTY);
+        this.remoteSlots = ArrayUtils.newArrayBy(RemoteSlot.Synchronized[]::new, size, _ -> remoteSlot(ItemStack.EMPTY));
+        this.remoteOffHand = remoteSlot(serverPlayer.getOffhandItem());
         this.dirtyItems = new BitSet(size);
         
         int dataSize = InventoryUtils.getDataSlotCountOf(menuType);
@@ -192,18 +197,18 @@ public abstract class CustomContainerMenu {
      * @param item The {@link org.bukkit.inventory.ItemStack} to put into the slot
      */
     public void setItem(int slot, org.bukkit.inventory.@Nullable ItemStack item) {
-        if (slot < 0 || slot >= items.size())
+        if (slot < 0 || slot >= items.length)
             throw new IllegalArgumentException("Slot out of bounds: " + slot);
         
-        items.set(slot, item == null ? ItemStack.EMPTY : CraftItemStack.unwrap(item));
+        items[slot] = item == null ? ItemStack.EMPTY : CraftItemStack.unwrap(item);
         dirtyItems.set(slot);
     }
     
     public ItemStack getItem(int slot) {
-        if (slot < 0 || slot >= items.size())
+        if (slot < 0 || slot >= items.length)
             throw new IllegalArgumentException("Slot out of bounds: " + slot);
         
-        return items.get(slot);
+        return items[slot];
     }
     
     /**
@@ -226,21 +231,29 @@ public abstract class CustomContainerMenu {
     }
     
     //<editor-fold desc="synchronization">
-    protected void setRemoteItem(int slot, HashedStack item) {
-        if (slot < 0 || slot >= remoteItems.size())
-            throw new IllegalArgumentException("Slot out of bounds: " + slot);
-        
-        remoteItems.set(slot, item);
+    private RemoteSlot.Synchronized remoteSlot(ItemStack initial) {
+        var slot = new RemoteSlot.Synchronized( hashGenerator);
+        slot.force(initial);
+        return slot;
+    }
+    
+    protected void forceRemoteItem(int slot, ItemStack item) {
+        remoteSlots[slot].force(item);
         dirtyItems.set(slot);
     }
     
-    protected void setRemoteCarried(HashedStack item) {
-        remoteCarried = item;
+    protected void receiveRemoteItem(int slot, HashedStack item) {
+        remoteSlots[slot].receive(item);
+        dirtyItems.set(slot);
+    }
+    
+    protected void forceRemoteCarried(ItemStack item) {
+        remoteCarried.force(item);
         dirtyCarried = true;
     }
     
-    protected void setRemoteOffHand(HashedStack item) {
-        remoteOffHand = item;
+    protected void forceRemoteOffHand(ItemStack item) {
+        remoteOffHand.force(item);
         dirtyOffHand = true;
     }
     
@@ -254,28 +267,28 @@ public abstract class CustomContainerMenu {
         
         int itemSlot = -1;
         while ((itemSlot = dirtyItems.nextSetBit(itemSlot + 1)) != -1) {
-            var item = items.get(itemSlot);
-            var remoteItem = remoteItems.get(itemSlot);
-            if (remoteItem == DIRTY_MARKER || !remoteItem.matches(item, hashGenerator)) {
+            var item = items[itemSlot];
+            var remoteSlot = remoteSlots[itemSlot];
+            if (!remoteSlot.matches(item)) {
                 packets.add(new ClientboundContainerSetSlotPacket(containerId, incrementStateId(), itemSlot, item.copy()));
-                remoteItems.set(itemSlot, HashedStack.create(item, hashGenerator));
+                remoteSlot.force(item);
             }
         }
         dirtyItems.clear();
         
         if (dirtyOffHand) {
             var offHand = serverPlayer.getOffhandItem();
-            if (remoteOffHand == DIRTY_MARKER || !remoteOffHand.matches(offHand, hashGenerator)) {
+            if (!remoteOffHand.matches(offHand)) {
                 packets.add(new ClientboundContainerSetSlotPacket(serverPlayer.inventoryMenu.containerId, incrementStateId(), OFF_HAND_SLOT, offHand.copy()));
-                remoteOffHand = HashedStack.create(offHand, hashGenerator);
+                remoteOffHand.force(offHand);
             }
             dirtyOffHand = false;
         }
         
         if (dirtyCarried) {
-            if (remoteCarried == DIRTY_MARKER || !remoteCarried.matches(carried, hashGenerator)) {
+            if (!remoteCarried.matches(carried)) {
                 packets.add(new ClientboundSetCursorItemPacket(carried.copy()));
-                remoteCarried = HashedStack.create(carried, hashGenerator);
+                remoteCarried.force(carried);
             }
             dirtyCarried = false;
         }
@@ -300,7 +313,7 @@ public abstract class CustomContainerMenu {
     public void sendCarriedToRemote() {
         var content = new ClientboundSetCursorItemPacket(carried.copy());
         PacketListener.getInstance().injectOutgoing(player, content);
-        remoteCarried = HashedStack.create(carried, hashGenerator);
+        remoteCarried.force(carried);
         dirtyCarried = false;
     }
     
@@ -339,7 +352,7 @@ public abstract class CustomContainerMenu {
         packets.add(new ClientboundContainerSetContentPacket(
             containerId,
             incrementStateId(),
-            items.stream().map(ItemStack::copy).toList(),
+            Arrays.stream(items).map(ItemStack::copy).toList(),
             carried.copy()
         ));
         for (int i = 0; i < dataSlots.length; i++) {
@@ -355,10 +368,10 @@ public abstract class CustomContainerMenu {
      * Marks the current state as synced with the remote client.
      */
     private void markRemoteSynced() {
-        for (int i = 0; i < items.size(); i++) {
-            remoteItems.set(i, HashedStack.create(items.get(i), hashGenerator));
+        for (int i = 0; i < items.length; i++) {
+            remoteSlots[i].force(items[i]);
         }
-        remoteCarried = HashedStack.create(carried, hashGenerator);
+        remoteCarried.force(carried);
         System.arraycopy(dataSlots, 0, remoteDataSlots, 0, dataSlots.length);
         
         dirtyItems.clear();
@@ -405,11 +418,17 @@ public abstract class CustomContainerMenu {
         
         // transfer remote items state to inventory menu
         for (int i = 0; i < LOWER_INVENTORY_SIZE; i++) {
-            var item = remoteItems.get((remoteItems.size() - LOWER_INVENTORY_SIZE) + i);
+            var remoteSlot = remoteSlots[(remoteSlots.length - LOWER_INVENTORY_SIZE) + i];
             // in the inventory menu, contents start at 9
-            serverPlayer.inventoryMenu.setRemoteSlotUnsafe(9 + i, item);
+            transferRemoteSlot(remoteSlot, serverPlayer.inventoryMenu.remoteSlots.get(9 + i));
         }
-        serverPlayer.inventoryMenu.setRemoteSlotUnsafe(OFF_HAND_SLOT, remoteOffHand);
+        transferRemoteSlot(remoteCarried, serverPlayer.inventoryMenu.remoteSlots.get(OFF_HAND_SLOT));
+    }
+    
+    private void transferRemoteSlot(RemoteSlot.Synchronized from, RemoteSlot to) {
+        if (to instanceof RemoteSlot.Synchronized toSync) {
+            toSync.copyFrom(from);
+        } // AbstractContainerMenu#transferTo doesn't do anything otherwise either
     }
     
     /**
@@ -511,11 +530,11 @@ public abstract class CustomContainerMenu {
         for (Int2ObjectMap.Entry<HashedStack> entry : packet.changedSlots().int2ObjectEntrySet()) {
             int slot = entry.getIntKey();
             HashedStack stack = entry.getValue();
-            if (slot < 0 || slot > remoteItems.size())
+            if (slot < 0 || slot > remoteSlots.length)
                 continue;
-            setRemoteItem(slot, stack);
+            receiveRemoteItem(slot, stack);
         }
-        setRemoteCarried(DIRTY_MARKER);
+        forceRemoteCarried(DIRTY_MARKER);
         
         if (packet.clickType() == net.minecraft.world.inventory.ClickType.QUICK_CRAFT) {
             if (!handleDragClick(packet))
@@ -553,7 +572,7 @@ public abstract class CustomContainerMenu {
                     yield ClickType.NUMBER_KEY;
                 }
                 case 40 -> {
-                    setRemoteOffHand(DIRTY_MARKER);
+                    forceRemoteOffHand(DIRTY_MARKER);
                     yield ClickType.SWAP_OFFHAND;
                 }
                 default -> ClickType.UNKNOWN;
@@ -595,7 +614,7 @@ public abstract class CustomContainerMenu {
             // add slot for left, right, middle drag
             case 1, 5, 9 -> {
                 var slot = packet.slotNum();
-                if (slot >= 0 && slot < items.size()) {
+                if (slot >= 0 && slot < items.length) {
                     dragSlots.add(packet.slotNum());
                 }
                 
@@ -640,11 +659,11 @@ public abstract class CustomContainerMenu {
     private UpdateType handleBundleSelect(ServerboundSelectBundleItemPacket packet) {
         // verify legal slot
         int slot = packet.slotId();
-        if (slot < 0 || slot >= items.size())
+        if (slot < 0 || slot >= items.length)
             return UpdateType.NONE;
         
         // verify bundle at slot
-        var bundle = items.get(slot);
+        var bundle = items[slot];
         var bundleContents = bundle.get(DataComponents.BUNDLE_CONTENTS);
         if (bundleContents == null)
             return UpdateType.NONE;
