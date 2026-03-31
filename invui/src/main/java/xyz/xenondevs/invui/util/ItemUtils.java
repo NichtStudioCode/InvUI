@@ -29,11 +29,7 @@ public final class ItemUtils {
      * @return Whether the {@link ItemStack} is empty.
      */
     public static boolean isEmpty(@Nullable ItemStack itemStack) {
-        if (itemStack == null || itemStack.getAmount() <= 0)
-            return true;
-        
-        Material type = itemStack.getType();
-        return type == Material.AIR || type == Material.CAVE_AIR || type == Material.VOID_AIR;
+        return itemStack == null || itemStack.isEmpty();
     }
     
     /**
