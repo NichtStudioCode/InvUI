@@ -162,7 +162,7 @@ public sealed interface SlotElement {
         @Override
         public @Nullable ItemStack getItemStack(Player player) {
             var locale = Languages.getInstance().getLocale(player);
-            var itemStack = inventory.getUnsafeItem(slot);
+            var itemStack = inventory.getItem(slot);
             
             // pass actual item stack to visualizer
             var visualization = visualizer.apply(itemStack);
