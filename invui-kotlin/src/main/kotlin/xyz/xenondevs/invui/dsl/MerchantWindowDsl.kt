@@ -3,6 +3,7 @@
 package xyz.xenondevs.invui.dsl
 
 import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemStack
 import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.commons.provider.mutableProvider
 import xyz.xenondevs.commons.provider.provider
@@ -148,7 +149,7 @@ sealed interface MerchantWindowDsl : SplitWindowDsl {
      * ```
      */
     val level: ProviderDslProperty<Int>
-
+    
     /**
      * The progress of the merchant's experience bar, from `0.0` to `1.0`.
      * If set to any value `< 0`, the progress bar and the merchant level name will be hidden.
@@ -159,7 +160,7 @@ sealed interface MerchantWindowDsl : SplitWindowDsl {
      * ```
      */
     val progress: ProviderDslProperty<Double>
-
+    
     /**
      * Whether the message "Villagers restock up to two times per day" is displayed when hovering
      * over the arrow of disabled trades.
