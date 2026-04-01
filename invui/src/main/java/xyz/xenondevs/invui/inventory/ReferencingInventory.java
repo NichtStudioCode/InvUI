@@ -26,8 +26,6 @@ import java.util.function.Function;
  */
 public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.Inventory {
     
-    private static final int MAX_STACK_SIZE = 64;
-    
     protected final Inventory inventory;
     protected final Function<Inventory, @Nullable ItemStack[]> itemsGetter;
     protected final BiFunction<Inventory, Integer, @Nullable ItemStack> itemGetter;
@@ -54,7 +52,7 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
         this.itemGetter = itemGetter;
         this.itemSetter = itemSetter;
         this.maxStackSizes = new int[getSize()];
-        Arrays.fill(maxStackSizes, MAX_STACK_SIZE);
+        Arrays.fill(maxStackSizes, inventory.getMaxStackSize());
     }
     
     /**
@@ -95,7 +93,7 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
     
     @Override
     public int getMaxSlotStackSize(int slot) {
-        return MAX_STACK_SIZE;
+        return inventory.getMaxStackSize();
     }
     
     @Override

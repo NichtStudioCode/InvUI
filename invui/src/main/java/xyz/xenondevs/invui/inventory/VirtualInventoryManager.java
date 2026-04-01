@@ -61,7 +61,7 @@ public final class VirtualInventoryManager {
      * @param items         The items of the {@link VirtualInventory}.
      *                      Can be null for an empty inventory.
      * @param maxStackSizes The max stack sizes of the {@link VirtualInventory}.
-     *                      Can be null for the default stack size of 64.
+     *                      Can be null for the default stack size of {@link Inventory#DEFAULT_MAX_STACK_SIZE}.
      * @return The created {@link VirtualInventory}.
      * @throws IllegalArgumentException If a {@link VirtualInventory} with the given UUID already exists.
      */
@@ -106,14 +106,14 @@ public final class VirtualInventoryManager {
      * @param items         The items of the {@link VirtualInventory} to create if no such inventory exists.
      *                      Can be null for an empty inventory.
      * @param maxStackSizes The max stack sizes of the {@link VirtualInventory}.
-     *                      Can be null for the default stack size of 64.
+     *                      Can be null for the default stack size of {@link Inventory#DEFAULT_MAX_STACK_SIZE}.
      * @return The {@link VirtualInventory} with the given UUID or a new one with the given size, items and stack sizes if no such inventory exists.
      */
     public VirtualInventory getOrCreate(UUID uuid, int size, @Nullable ItemStack @Nullable [] items, int @Nullable [] maxStackSizes) {
         VirtualInventory inventory = getByUuid(uuid);
         if (inventory != null) {
             if (maxStackSizes != null) {
-                inventory.setMaxStackSizes(ArrayUtils.copyOf(maxStackSizes, inventory.getSize(), 64));
+                inventory.setMaxStackSizes(ArrayUtils.copyOf(maxStackSizes, inventory.getSize(), Inventory.DEFAULT_MAX_STACK_SIZE));
             }
             return inventory;
         } else {

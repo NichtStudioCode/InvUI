@@ -37,7 +37,8 @@ public final class VirtualInventory extends Inventory {
      * @param uuid          The {@link UUID} of this {@link VirtualInventory}. Can be null, only used for serialization.
      * @param size          The amount of slots this {@link VirtualInventory} has.
      * @param items         A predefined array of content. Can be null.
-     * @param maxStackSizes An array of maximum allowed stack sizes for each slot in the {@link VirtualInventory}. Can be null for 64.
+     * @param maxStackSizes An array of maximum allowed stack sizes for each slot in the {@link VirtualInventory}.
+     *                      Can be null for {@link Inventory#DEFAULT_MAX_STACK_SIZE}.
      * @throws IllegalArgumentException If the given size does not match the length of the items array or the length of the stackSizes array.
      */
     public VirtualInventory(@Nullable UUID uuid, int size, @Nullable ItemStack @Nullable [] items, int @Nullable [] maxStackSizes) {
@@ -51,7 +52,7 @@ public final class VirtualInventory extends Inventory {
             this.maxStackSizes = maxStackSizes;
         } else {
             this.maxStackSizes = new int[size];
-            Arrays.fill(this.maxStackSizes, 64);
+            Arrays.fill(this.maxStackSizes, Inventory.DEFAULT_MAX_STACK_SIZE);
         }
         
         if (items != null) {
@@ -73,7 +74,8 @@ public final class VirtualInventory extends Inventory {
      *
      * @param size          The amount of slots this {@link VirtualInventory} has.
      * @param items         A predefined array of content. Can be null.
-     * @param maxStackSizes An array of maximum allowed stack sizes for each slot in the {@link VirtualInventory}. Can be null for 64.
+     * @param maxStackSizes An array of maximum allowed stack sizes for each slot in the {@link VirtualInventory}.
+     *                      Can be null for {@link Inventory#DEFAULT_MAX_STACK_SIZE}.
      */
     public VirtualInventory(int size, @Nullable ItemStack @Nullable [] items, int @Nullable [] maxStackSizes) {
         this(null, size, items, maxStackSizes);
@@ -84,7 +86,8 @@ public final class VirtualInventory extends Inventory {
      *
      * @param uuid          The {@link UUID} of this {@link VirtualInventory}. Can be null, only used for serialization.
      * @param items         A predefined array of content.
-     * @param maxStackSizes An array of maximum allowed stack sizes for each slot in the {@link VirtualInventory}. Can be null for 64.
+     * @param maxStackSizes An array of maximum allowed stack sizes for each slot in the {@link VirtualInventory}.
+     *                      Can be null for {@link Inventory#DEFAULT_MAX_STACK_SIZE}.
      */
     public VirtualInventory(@Nullable UUID uuid, @Nullable ItemStack[] items, int @Nullable [] maxStackSizes) {
         this(uuid, items.length, items, maxStackSizes);
@@ -94,7 +97,8 @@ public final class VirtualInventory extends Inventory {
      * Constructs a new {@link VirtualInventory}
      *
      * @param items         A predefined array of content.
-     * @param maxStackSizes An array of maximum allowed stack sizes for each slot in the {@link VirtualInventory}. Can be null for 64.
+     * @param maxStackSizes An array of maximum allowed stack sizes for each slot in the {@link VirtualInventory}.
+     *                      Can be null for {@link Inventory#DEFAULT_MAX_STACK_SIZE}.
      */
     public VirtualInventory(@Nullable ItemStack[] items, int @Nullable [] maxStackSizes) {
         this(null, items.length, items, maxStackSizes);

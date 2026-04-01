@@ -54,6 +54,13 @@ import java.util.stream.IntStream;
  */
 public sealed abstract class Inventory implements Observable permits VirtualInventory, CompositeInventory, ObscuredInventory, ReferencingInventory {
     
+    /**
+     * The default maximum stack size of slots in inventories.
+     * Note that the actual maximum stack size of item stacks is also limited
+     * by their max stack size component.
+     */
+    public static int DEFAULT_MAX_STACK_SIZE = 99;
+    
     private final int size;
     private final List<Set<ObserverAtSlot>> observers;
     private @Nullable List<Consumer<? super InventoryClickEvent>> clickHandlers;
@@ -581,11 +588,12 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
      * parameter will be used to determine a potential maximum stack size.
      *
      * @param slot            The slot
-     * @param alternativeFrom The alternative {@link ItemStack} to determine the potential maximum stack size. Uses 64 if null.
+     * @param alternativeFrom The alternative {@link ItemStack} to determine the potential maximum stack size.
+     *                       Uses {@link #DEFAULT_MAX_STACK_SIZE} if null.
      * @return The current maximum allowed stack size on the specific slot.
      */
     public int getMaxStackSize(int slot, @Nullable ItemStack alternativeFrom) {
-        int itemMaxStackSize = alternativeFrom == null ? 64 : alternativeFrom.getMaxStackSize();
+        int itemMaxStackSize = alternativeFrom == null ? DEFAULT_MAX_STACK_SIZE : alternativeFrom.getMaxStackSize();
         return getMaxStackSize(slot, itemMaxStackSize);
     }
     
@@ -606,11 +614,12 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
      * The returned value will be a minimum of the maximum stack size of both the slot and the alternativeFrom parameter.
      *
      * @param slot            The slot
-     * @param alternativeFrom The alternative {@link ItemStack} to determine the potential maximum stack size. Uses 64 if null.
+     * @param alternativeFrom The alternative {@link ItemStack} to determine the potential maximum stack size.
+     *                       Uses {@link #DEFAULT_MAX_STACK_SIZE} if null.
      * @return The maximum stack size on that slot
      */
     public int getMaxSlotStackSize(int slot, @Nullable ItemStack alternativeFrom) {
-        int itemMaxStackSize = alternativeFrom == null ? 64 : alternativeFrom.getMaxStackSize();
+        int itemMaxStackSize = alternativeFrom == null ? DEFAULT_MAX_STACK_SIZE : alternativeFrom.getMaxStackSize();
         return getMaxSlotStackSize(slot, itemMaxStackSize);
     }
     

@@ -50,8 +50,8 @@ class InventoryAdapterTest {
         var backingInv = new VirtualInventory(10);
         var adapter = new InventoryAdapter(backingInv);
         
-        // Default max stack size is 64
-        assertEquals(64, adapter.getMaxStackSize());
+        // Default max stack size is 99
+        assertEquals(99, adapter.getMaxStackSize());
         
         // With custom max stack sizes
         var backingInv2 = new VirtualInventory(3, null, new int[] {32, 16, 99});
@@ -66,7 +66,7 @@ class InventoryAdapterTest {
         var backingInv = new VirtualInventory(10);
         var adapter = new InventoryAdapter(backingInv);
         
-        assertEquals(64, adapter.getMaxStackSize());
+        assertEquals(99, adapter.getMaxStackSize());
         
         adapter.setMaxStackSize(32);
         

@@ -29,7 +29,7 @@ class InventoryAdapter implements org.bukkit.inventory.Inventory {
     
     @Override
     public int getMaxStackSize() {
-        return Arrays.stream(inventory.getMaxStackSizes()).max().orElse(64);
+        return Arrays.stream(inventory.getMaxStackSizes()).max().orElse(Inventory.DEFAULT_MAX_STACK_SIZE);
     }
     
     @Override
