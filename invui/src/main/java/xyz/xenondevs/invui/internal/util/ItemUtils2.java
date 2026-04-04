@@ -14,7 +14,6 @@ import xyz.xenondevs.invui.util.ItemUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static io.papermc.paper.datacomponent.item.BundleContents.bundleContents;
 
@@ -198,12 +197,11 @@ public class ItemUtils2 {
         var nmsBundle = CraftItemStack.unwrap(bundle);
         var bundleContents = nmsBundle.get(DataComponents.BUNDLE_CONTENTS);
         if (bundleContents != null && !bundleContents.isEmpty()) {
-            var items = bundleContents.itemCopyStream()
-                .collect(Collectors.toCollection(ArrayList::new));
-            int i = Math.min(Math.max(0, bundleContents.getSelectedItem()), bundleContents.size());
+            var items = new ArrayList<>(bundleContents.items());
+            int i = Math.clamp(bundleContents.getSelectedItemIndex(), 0, bundleContents.size());
             var taken = items.remove(i);
             nmsBundle.set(DataComponents.BUNDLE_CONTENTS, new BundleContents(items));
-            return CraftItemStack.asCraftMirror(taken);
+            return CraftItemStack.asCraftMirror(taken.create());
         }
         
         return null;

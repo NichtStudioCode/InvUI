@@ -167,7 +167,7 @@ public class CustomMerchantMenu extends CustomContainerMenu {
     
     private ItemCost toItemCost(ItemStack itemStack) {
         return new ItemCost(
-            itemStack.getItemHolder(),
+            itemStack.typeHolder(),
             itemStack.getCount(),
             DataComponentExactPredicate.allOf(itemStack.getComponents()),
             itemStack

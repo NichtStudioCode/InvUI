@@ -11,11 +11,9 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.SelectableRecipe;
-import net.minecraft.world.item.crafting.StonecutterRecipe;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.item.crafting.display.SlotDisplay;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.jspecify.annotations.Nullable;
@@ -134,7 +132,9 @@ public class CustomStonecutterMenu extends CustomContainerMenu {
      * @return The stonecutter recipes.
      */
     private List<SelectableRecipe.SingleInputEntry<StonecutterRecipe>> createRecipes(List<? extends ItemStack> buttons) {
-        return buttons.stream().map(button -> new SelectableRecipe.SingleInputEntry<>(
+        return buttons.stream()
+            .map(ItemStackTemplate::fromNonEmptyStack)
+            .map(button -> new SelectableRecipe.SingleInputEntry<>(
             INGREDIENT,
             new SelectableRecipe<>(
                 new SlotDisplay.ItemStackSlotDisplay(button),
@@ -143,7 +143,7 @@ public class CustomStonecutterMenu extends CustomContainerMenu {
                         Registries.RECIPE,
                         Identifier.fromNamespaceAndPath("invui", "fake_stonecutter_" + MathUtils.RANDOM.nextInt())
                     ),
-                    new StonecutterRecipe("", INGREDIENT, button.copy())
+                    new StonecutterRecipe(new Recipe.CommonInfo(false), INGREDIENT, button)
                 ))
             )
         )).toList();

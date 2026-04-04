@@ -27,6 +27,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.HashOps;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.RemoteSlot;
 import net.minecraft.world.item.ItemStack;
@@ -497,7 +498,7 @@ public abstract class CustomContainerMenu {
         }
         remoteCarried.force(DIRTY_MARKER);
         
-        if (packet.clickType() == net.minecraft.world.inventory.ClickType.QUICK_CRAFT) {
+        if (packet.containerInput() == ContainerInput.QUICK_CRAFT) {
             if (!handleDragClick(packet))
                 return requiresFullUpdate ? UpdateType.FULL : UpdateType.DIRTY;
         } else {
@@ -514,7 +515,7 @@ public abstract class CustomContainerMenu {
      */
     private void handleNormalClick(ServerboundContainerClickPacket packet) {
         int hotbarBtn = -1;
-        ClickType clickType = switch (packet.clickType()) {
+        ClickType clickType = switch (packet.containerInput()) {
             case PICKUP -> switch (packet.buttonNum()) {
                 case 0 -> ClickType.LEFT;
                 case 1 -> ClickType.RIGHT;
