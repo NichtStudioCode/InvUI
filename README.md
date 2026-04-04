@@ -15,7 +15,7 @@ Highlighted features:
 * First-class [MiniMessage](https://docs.advntr.dev/minimessage/index.html) support
 * Easy localization of UI items using the built-in ItemBuilder
 
-Check out the [InvUI Documentation](https://xenondevs.xyz/docs/invui2/) to learn more.  
+Check out the [InvUI Documentation](https://xenondevs.xyz/docs/invui/) to learn more.  
 If you have any questions, feel free to join the [Discord](https://discord.com/invite/EpVMXtXB2t) or ask them in [GitHub Discussions](https://github.com/NichtStudioCode/InvUI/discussions).
 
 ## Version Compatibility
@@ -23,10 +23,10 @@ If you have any questions, feel free to join the [Discord](https://discord.com/i
 Starting with v2, InvUI is no longer a multi-version library.
 See the table below for an overview of which InvUI version is compatible with which Minecraft version.
 
-| InvUI version | Minecraft version     |
-|---------------|-----------------------|
-| `2.0.x`       | `26.1`                |
-| `1.49`        | `1.14.0` - `1.21.11`  |
+| InvUI version | Minecraft version    |
+|---------------|----------------------|
+| `2.0.x`       | `26.1.1`             |
+| `1.49`        | `1.14.0` - `1.21.11` |
 
 ## Maven
 
@@ -45,21 +45,21 @@ See the table below for an overview of which InvUI version is compatible with wh
 </dependency>
 ```
 
-Check out the [InvUI documentation](https://xenondevs.xyz/docs/invui2/) for more information.
+Check out the [InvUI documentation](https://xenondevs.xyz/docs/invui/) for more information.
 
 ## Examples
 _These examples are taken from the documentation linked above. To keep the code examples there short, button names are often omitted._
 
 <p>
-    <a href="https://docs.xenondevs.xyz/invui2/gui/#paged-gui"><img src="https://docs.xenondevs.xyz/invui2/assets/img/gui/paged2.avif" width="256"></a>
-    <a href="https://docs.xenondevs.xyz/invui2/gui/#scroll-gui"><img src="https://docs.xenondevs.xyz/invui2/assets/img/gui/scroll.avif" width="256"></a>
-    <a href="https://docs.xenondevs.xyz/invui2/gui/#tab-gui"><img src="https://docs.xenondevs.xyz/invui2/assets/img/gui/tab.avif" width="256"></a>
-    <a href="https://docs.xenondevs.xyz/invui2/gui/#animations"><img src="https://docs.xenondevs.xyz/invui2/assets/img/gui/animation2.avif" width="256"></a>
-    <a href="https://docs.xenondevs.xyz/invui2/inventory/#itempreupdateevent"><img src="https://docs.xenondevs.xyz/invui2/assets/img/inventory/item_pre_update_event.avif" width="256"></a>
-    <a href="https://docs.xenondevs.xyz/invui2/inventory/#inventoryclickevent"><img src="https://docs.xenondevs.xyz/invui2/assets/img/inventory/inventory_click_event.avif" width="256"></a>
-    <a href="https://docs.xenondevs.xyz/invui2/window/#anvil-window"><img src="https://docs.xenondevs.xyz/invui2/assets/img/window/anvil_search.avif" width="256"></a>
-    <a href="https://docs.xenondevs.xyz/invui2/window/#stonecutter-window"><img src="https://docs.xenondevs.xyz/invui2/assets/img/window/stonecutter_buttons_as_inventory.avif" width="256"></a>
-    <a href="https://docs.xenondevs.xyz/invui2/window/#cartography-window"><img src="https://docs.xenondevs.xyz/invui2/assets/img/window/cartography_drawing.avif" width="256"></a>
-    <a href="https://docs.xenondevs.xyz/invui2/window/#merchant-window"><img src="https://docs.xenondevs.xyz/invui2/assets/img/window/merchant_tabs.avif" width="426"></a>
-    <a href="https://docs.xenondevs.xyz/invui2/item/#bundle-selection"><img src="https://docs.xenondevs.xyz/invui2/assets/img/item/bundleSelect.avif" width="344"></a>
+    <a href="https://docs.xenondevs.xyz/invui/gui/#paged-gui"><img src="https://docs.xenondevs.xyz/invui/assets/img/gui/paged2.avif" width="256"></a>
+    <a href="https://docs.xenondevs.xyz/invui/gui/#scroll-gui"><img src="https://docs.xenondevs.xyz/invui/assets/img/gui/scroll.avif" width="256"></a>
+    <a href="https://docs.xenondevs.xyz/invui/gui/#tab-gui"><img src="https://docs.xenondevs.xyz/invui/assets/img/gui/tab.avif" width="256"></a>
+    <a href="https://docs.xenondevs.xyz/invui/gui/#animations"><img src="https://docs.xenondevs.xyz/invui/assets/img/gui/animation2.avif" width="256"></a>
+    <a href="https://docs.xenondevs.xyz/invui/inventory/#itempreupdateevent"><img src="https://docs.xenondevs.xyz/invui/assets/img/inventory/item_pre_update_event.avif" width="256"></a>
+    <a href="https://docs.xenondevs.xyz/invui/inventory/#inventoryclickevent"><img src="https://docs.xenondevs.xyz/invui/assets/img/inventory/inventory_click_event.avif" width="256"></a>
+    <a href="https://docs.xenondevs.xyz/invui/window/#anvil-window"><img src="https://docs.xenondevs.xyz/invui/assets/img/window/anvil_search.avif" width="256"></a>
+    <a href="https://docs.xenondevs.xyz/invui/window/#stonecutter-window"><img src="https://docs.xenondevs.xyz/invui/assets/img/window/stonecutter_buttons_as_inventory.avif" width="256"></a>
+    <a href="https://docs.xenondevs.xyz/invui/window/#cartography-window"><img src="https://docs.xenondevs.xyz/invui/assets/img/window/cartography_drawing.avif" width="256"></a>
+    <a href="https://docs.xenondevs.xyz/invui/window/#merchant-window"><img src="https://docs.xenondevs.xyz/invui/assets/img/window/merchant_tabs.avif" width="426"></a>
+    <a href="https://docs.xenondevs.xyz/invui/item/#bundle-selection"><img src="https://docs.xenondevs.xyz/invui/assets/img/item/bundleSelect.avif" width="344"></a>
 </p>
