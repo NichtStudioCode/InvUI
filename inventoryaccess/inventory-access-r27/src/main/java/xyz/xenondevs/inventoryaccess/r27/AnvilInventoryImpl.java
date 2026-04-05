@@ -67,14 +67,14 @@ class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
         
         // send initial items
         NonNullList<ItemStack> itemsList = NonNullList.of(ItemStack.EMPTY, getItem(0), getItem(1), getItem(2));
-        player.connection.send(new ClientboundContainerSetContentPacket(getActiveWindowId(player), incrementStateId(), itemsList, ItemStack.EMPTY));
+        player.connection.send(new ClientboundContainerSetContentPacket(InventoryUtilsImpl.getActiveWindowId(player), incrementStateId(), itemsList, ItemStack.EMPTY));
         
         // init menu
         player.initMenu(this);
     }
     
     public void sendItem(int slot) {
-        player.connection.send(new ClientboundContainerSetSlotPacket(getActiveWindowId(player), incrementStateId(), slot, getItem(slot)));
+        player.connection.send(new ClientboundContainerSetSlotPacket(InventoryUtilsImpl.getActiveWindowId(player), incrementStateId(), slot, getItem(slot)));
     }
     
     public void setItem(int slot, ItemStack item) {
@@ -87,11 +87,6 @@ class AnvilInventoryImpl extends AnvilMenu implements AnvilInventory {
     private ItemStack getItem(int slot) {
         if (slot < 2) return inputSlots.getItem(slot);
         else return resultSlots.getItem(0);
-    }
-    
-    private int getActiveWindowId(ServerPlayer player) {
-        AbstractContainerMenu container = player.containerMenu;
-        return container == null ? -1 : container.containerId;
     }
     
     @Override

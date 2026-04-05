@@ -47,7 +47,7 @@ class InventoryUtilsImpl implements InventoryUtils {
         ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
         MenuType<?> menuType = CraftContainer.getNotchInventoryType(inventory);
 
-        if (!serverPlayer.hasDisconnected()) {
+        if (serverPlayer.connection != null) {
             AbstractContainerMenu menu = new CraftContainer(inventory, serverPlayer, serverPlayer.nextContainerCounter());
             menu = CraftEventFactory.callInventoryOpenEvent(serverPlayer, menu);
             if (menu != null) {

@@ -29,7 +29,7 @@ class CartographyInventoryImpl extends CartographyTableMenu implements Cartograp
     private static final Field RESULT_CONTAINER_FIELD = ReflectionUtils.getField(
         CartographyTableMenu.class,
         true,
-        "SRF(net.minecraft.world.inventory.CartographyTableMenu resultContainer)"
+        "resultContainer"
     );
     
     private final ResultContainer resultContainer = ReflectionUtils.getFieldValue(RESULT_CONTAINER_FIELD, this);
