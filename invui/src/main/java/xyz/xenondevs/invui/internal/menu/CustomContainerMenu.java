@@ -251,7 +251,12 @@ public abstract class CustomContainerMenu {
         
         var offHand = serverPlayer.getOffhandItem();
         if (!remoteOffHand.matches(offHand)) {
-            packets.add(new ClientboundContainerSetSlotPacket(serverPlayer.inventoryMenu.containerId, incrementStateId(), OFF_HAND_SLOT, offHand.copy()));
+            packets.add(new ClientboundContainerSetSlotPacket(
+                serverPlayer.inventoryMenu.containerId,
+                serverPlayer.inventoryMenu.incrementStateId(),
+                OFF_HAND_SLOT,
+                serverPlayer.getOffhandItem()
+            ));
             remoteOffHand.force(offHand);
         }
         
@@ -272,15 +277,6 @@ public abstract class CustomContainerMenu {
         }
         
         PacketListener.getInstance().injectOutgoing(player, packets);
-    }
-    
-    /**
-     * Sends the cursor item stack to the remote client.
-     */
-    public void sendCarriedToRemote() {
-        var content = new ClientboundSetCursorItemPacket(carried.copy());
-        PacketListener.getInstance().injectOutgoing(player, content);
-        remoteCarried.force(carried);
     }
     
     /**
@@ -321,9 +317,22 @@ public abstract class CustomContainerMenu {
             Arrays.stream(items).map(ItemStack::copy).toList(),
             carried.copy()
         ));
+        
+        // cursor
+        packets.add(new ClientboundSetCursorItemPacket(carried.copy()));
+        
+        // off-hand
+        packets.add(new ClientboundContainerSetSlotPacket(
+            serverPlayer.inventoryMenu.containerId,
+            serverPlayer.inventoryMenu.incrementStateId(),
+            OFF_HAND_SLOT,
+            serverPlayer.getOffhandItem()
+        ));
+        
         for (int i = 0; i < dataSlots.length; i++) {
             packets.add(new ClientboundContainerSetDataPacket(containerId, i, dataSlots[i]));
         }
+        
         if (pingId >= 0) {
             packets.add(createMaskedPingPacket(pingId));
         }
