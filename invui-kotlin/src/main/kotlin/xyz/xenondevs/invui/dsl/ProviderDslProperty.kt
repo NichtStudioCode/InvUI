@@ -116,6 +116,28 @@ infix fun <T : Any> ProviderDslProperty<in T>.by(valueBuilder: Provider<DataComp
     by(valueBuilder.map(DataComponentBuilder<T>::build))
 
 /**
+ * Sets this [List] property to a single value.
+ * ```
+ * lore by Component.text("Single line lore")
+ * ```
+ */
+@JvmName("listByValue")
+@ExperimentalDslApi
+infix fun <T : Any> ProviderDslProperty<in List<T>>.by(value: T): Unit =
+    by(listOf(value))
+
+/**
+ * Sets this [List] property to a provider of a single value.
+ * ```
+ * lore by provider(Component.text("Single line lore"))
+ * ```
+ */
+@JvmName("listByValueProvider")
+@ExperimentalDslApi
+infix fun <T : Any> ProviderDslProperty<in List<T>>.by(value: Provider<T>): Unit =
+    by(value.map(::listOf))
+
+/**
  * A DSL property backed by a [Provider]. Can be set to a static value or bound to a reactive
  * [Provider] using the [by] infix function.
  *
