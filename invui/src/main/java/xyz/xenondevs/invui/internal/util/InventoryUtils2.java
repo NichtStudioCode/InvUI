@@ -4,21 +4,19 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.world.inventory.MenuType;
-import org.bukkit.Location;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
-import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.inventory.OperationCategory;
 import xyz.xenondevs.invui.inventory.ReferencingInventory;
 import xyz.xenondevs.invui.util.ItemUtils;
 
-public class InventoryUtils {
+public final class InventoryUtils2 {
+    
+    private InventoryUtils2() {}
     
     /**
      * Gets the amount of slots that a menu type has.
@@ -138,49 +136,6 @@ public class InventoryUtils {
             };
             default -> throw new IllegalArgumentException("Illegal width: " + width);
         };
-    }
-    
-    /**
-     * Spawns an item entity as if the player dropped it, also firing {@link PlayerDropItemEvent}.
-     *
-     * @param player    The player
-     * @param itemStack The item stack
-     * @return Whether the item was dropped. False if the event was cancelled.
-     */
-    @SuppressWarnings("UnstableApiUsage")
-    public static boolean dropItemLikePlayer(Player player, @Nullable ItemStack itemStack) {
-        if (ItemUtils.isEmpty(itemStack))
-            return true;
-        
-        Location location = player.getLocation();
-        location.add(0, 1.5, 0); // not the eye location
-        
-        Item item = location.getWorld().createEntity(location, Item.class);
-        item.setItemStack(itemStack.clone());
-        item.setPickupDelay(40);
-        item.setVelocity(location.getDirection().multiply(0.35));
-        
-        if (new PlayerDropItemEvent(player, item).callEvent()) {
-            location.getWorld().addEntity(item);
-            return true;
-        }
-        
-        return false;
-    }
-    
-    /**
-     * Adds an item stack to the player's inventory or drops it if it doesn't fit.
-     * Also fires {@link PlayerDropItemEvent}, effectively deleting the item if the event is cancelled.
-     *
-     * @param player    The player
-     * @param itemStack The item stack
-     */
-    public static void addToInventoryOrDrop(Player player, ItemStack itemStack) {
-        player.getInventory().addItem(itemStack.clone())
-            .entrySet()
-            .stream()
-            .findFirst()
-            .ifPresent(entry -> dropItemLikePlayer(player, entry.getValue()));
     }
     
     /**

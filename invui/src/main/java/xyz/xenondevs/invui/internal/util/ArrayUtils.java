@@ -7,7 +7,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.IntFunction;
 
-public class ArrayUtils {
+public final class ArrayUtils {
+    
+    private ArrayUtils() {}
     
     /**
      * Concatenates a single element with an array.

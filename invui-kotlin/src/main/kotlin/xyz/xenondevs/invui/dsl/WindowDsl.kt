@@ -11,7 +11,7 @@ import xyz.xenondevs.commons.provider.mutableProvider
 import xyz.xenondevs.commons.provider.provider
 import xyz.xenondevs.invui.ClickEvent
 import xyz.xenondevs.invui.ExperimentalReactiveApi
-import xyz.xenondevs.invui.internal.util.InventoryUtils
+import xyz.xenondevs.invui.internal.util.InventoryUtils2
 import xyz.xenondevs.invui.window.Window
 import xyz.xenondevs.invui.window.setCloseable
 import xyz.xenondevs.invui.window.setTitle
@@ -488,7 +488,7 @@ internal abstract class AbstractSplitWindowDsl<W : Window, B : Window.Builder.Sp
     viewer: Player
 ) : AbstractWindowDsl<W, B>(viewer), SplitWindowDsl {
     
-    override val lowerGui = GuiDslProperty(9, 4) { InventoryUtils.createPlayerReferencingInventoryGui(viewer) }
+    override val lowerGui = GuiDslProperty(9, 4) { InventoryUtils2.createPlayerReferencingInventoryGui(viewer) }
     
     override fun applyToBuilder(builder: B) {
         super.applyToBuilder(builder)

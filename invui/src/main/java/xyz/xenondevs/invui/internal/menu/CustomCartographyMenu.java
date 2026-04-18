@@ -7,14 +7,14 @@ import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.saveddata.maps.*;
-import org.bukkit.Material;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.internal.network.PacketListener;
-import xyz.xenondevs.invui.internal.util.ItemUtils2;
 import xyz.xenondevs.invui.internal.util.MathUtils;
+import xyz.xenondevs.invui.util.ItemUtils;
 import xyz.xenondevs.invui.window.CartographyWindow;
 import xyz.xenondevs.invui.window.CartographyWindow.MapIcon;
 import xyz.xenondevs.invui.window.CartographyWindow.MapPatch;
@@ -55,12 +55,12 @@ public class CustomCartographyMenu extends CustomContainerMenu {
             super.setItem(slot, clone);
         } else if (slot == 1 && item != null) {
             var targetType = switch (view) {
-                case NORMAL -> Material.STONE;
-                case SMALL -> Material.PAPER;
-                case DUPLICATE -> Material.MAP;
-                case LOCK -> Material.GLASS_PANE;
+                case NORMAL -> ItemType.STONE;
+                case SMALL -> ItemType.PAPER;
+                case DUPLICATE -> ItemType.MAP;
+                case LOCK -> ItemType.GLASS_PANE;
             };
-            super.setItem(slot, ItemUtils2.asType(item, targetType));
+            super.setItem(slot, ItemUtils.asType(item, targetType));
         } else {
             super.setItem(slot, item);
         }

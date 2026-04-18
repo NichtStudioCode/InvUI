@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class CollectionUtils {
+public final class CollectionUtils {
+    
+    private CollectionUtils() {}
     
     /**
      * Creates an unmodifiable view of the specified list, while performing an unchecked cast

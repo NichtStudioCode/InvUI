@@ -35,6 +35,7 @@ import xyz.xenondevs.invui.inventory.event.PlayerUpdateReason;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
 import xyz.xenondevs.invui.state.MutableProperty;
 import xyz.xenondevs.invui.util.ItemUtils;
+import xyz.xenondevs.invui.util.InventoryUtils;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -491,7 +492,7 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
         // simulate drag results & fire event
         var oldCursor = reason.player().getItemOnCursor().clone();
         var newCursor = oldCursor.clone();
-        var results = InventoryUtils.simulateItemDrag(reason.clickType(), view, rawSlots, newCursor);
+        var results = InventoryUtils2.simulateItemDrag(reason.clickType(), view, rawSlots, newCursor);
         return !new InventoryDragEvent(view, newCursor, oldCursor, reason.clickType() == ClickType.RIGHT, results).callEvent();
     }
     

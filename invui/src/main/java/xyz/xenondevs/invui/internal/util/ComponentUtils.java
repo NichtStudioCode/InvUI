@@ -5,7 +5,9 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
 
-public class ComponentUtils {
+public final class ComponentUtils {
+    
+    private ComponentUtils() {}
     
     private static final Style FORMATTING_TEMPLATE = Style.style()
         .color(NamedTextColor.WHITE)

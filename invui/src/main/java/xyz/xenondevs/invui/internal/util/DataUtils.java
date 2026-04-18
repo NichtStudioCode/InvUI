@@ -14,7 +14,9 @@ import org.bukkit.inventory.ItemStack;
 
 import java.io.*;
 
-public class DataUtils {
+public final class DataUtils {
+    
+    private DataUtils() {}
     
     public static byte[] readByteArray(DataInputStream din) throws IOException {
         int size = din.readInt();

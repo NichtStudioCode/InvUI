@@ -171,12 +171,12 @@ public abstract class CustomContainerMenu {
         this.serverPlayer = ((CraftPlayer) player).getHandle();
         this.containerId = serverPlayer.nextContainerCounter();
         
-        int size = InventoryUtils.getSizeOf(menuType) + LOWER_INVENTORY_SIZE;
+        int size = InventoryUtils2.getSizeOf(menuType) + LOWER_INVENTORY_SIZE;
         this.items = ArrayUtils.newArray(ItemStack[]::new, size, ItemStack.EMPTY);
         this.remoteSlots = ArrayUtils.newArrayBy(RemoteSlot.Synchronized[]::new, size, _ -> remoteSlot(ItemStack.EMPTY));
         this.remoteOffHand = remoteSlot(serverPlayer.getOffhandItem());
         
-        int dataSize = InventoryUtils.getDataSlotCountOf(menuType);
+        int dataSize = InventoryUtils2.getDataSlotCountOf(menuType);
         this.dataSlots = new int[dataSize];
         this.remoteDataSlots = new int[dataSize];
         

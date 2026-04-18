@@ -7,7 +7,9 @@ import xyz.xenondevs.invui.gui.SlotElement;
 
 import java.util.*;
 
-public class SlotUtils {
+public final class SlotUtils {
+    
+    private SlotUtils() {}
     
     public static SequencedSet<Integer> getSlotsRow(int row, int width) {
         var slots = new LinkedHashSet<Integer>();

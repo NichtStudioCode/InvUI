@@ -3,7 +3,9 @@ package xyz.xenondevs.invui.internal.util;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 
-public class ThreadCheck {
+public final class ThreadCheck {
+    
+    private ThreadCheck() {}
     
     public static void checkOwnedBy(Entity entity) {
         if (Bukkit.isOwnedByCurrentRegion(entity))

@@ -6,7 +6,7 @@ import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.internal.menu.CustomContainerMenu;
-import xyz.xenondevs.invui.internal.util.InventoryUtils;
+import xyz.xenondevs.invui.internal.util.InventoryUtils2;
 import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.function.Supplier;
@@ -57,7 +57,7 @@ sealed abstract class AbstractSplitWindow<M extends CustomContainerMenu>
         protected Gui supplyLowerGui(Player viewer) {
             return lowerGuiSupplier != null
                 ? lowerGuiSupplier.get()
-                : InventoryUtils.createPlayerReferencingInventoryGui(viewer);
+                : InventoryUtils2.createPlayerReferencingInventoryGui(viewer);
         }
         
     }

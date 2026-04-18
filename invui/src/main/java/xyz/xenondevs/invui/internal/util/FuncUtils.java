@@ -6,7 +6,9 @@ import xyz.xenondevs.invui.InvUI;
 
 import java.util.function.Supplier;
 
-public class FuncUtils {
+public final class FuncUtils {
+    
+    private FuncUtils() {}
     
     /**
      * Resolves the value from the given supplier, catching any exceptions that may occur and

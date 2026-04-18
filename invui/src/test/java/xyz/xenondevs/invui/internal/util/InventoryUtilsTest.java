@@ -41,7 +41,7 @@ class InventoryUtilsTest {
         var cursor = ItemStack.empty();
         IntList slots = new IntArrayList(new int[] {0, 1, 2});
         
-        var result = InventoryUtils.simulateItemDrag(ClickType.LEFT, view, slots, cursor);
+        var result = InventoryUtils2.simulateItemDrag(ClickType.LEFT, view, slots, cursor);
         
         assertTrue(result.isEmpty());
     }
@@ -54,7 +54,7 @@ class InventoryUtilsTest {
         var cursor = ItemStack.of(Material.DIAMOND, 9);
         IntList slots = new IntArrayList(new int[] {0, 1, 2});
         
-        var result = InventoryUtils.simulateItemDrag(ClickType.LEFT, view, slots, cursor);
+        var result = InventoryUtils2.simulateItemDrag(ClickType.LEFT, view, slots, cursor);
         
         assertEquals(3, result.size());
         assertEquals(3, result.get(0).getAmount());
@@ -71,7 +71,7 @@ class InventoryUtilsTest {
         var cursor = ItemStack.of(Material.DIAMOND, 9);
         IntList slots = new IntArrayList(new int[] {0, 1, 2});
         
-        var result = InventoryUtils.simulateItemDrag(ClickType.RIGHT, view, slots, cursor);
+        var result = InventoryUtils2.simulateItemDrag(ClickType.RIGHT, view, slots, cursor);
         
         assertEquals(3, result.size());
         assertEquals(1, result.get(0).getAmount());
@@ -90,7 +90,7 @@ class InventoryUtilsTest {
         var cursor = ItemStack.of(Material.DIAMOND, 6);
         IntList slots = new IntArrayList(new int[] {0, 1, 2});
         
-        var result = InventoryUtils.simulateItemDrag(ClickType.LEFT, view, slots, cursor);
+        var result = InventoryUtils2.simulateItemDrag(ClickType.LEFT, view, slots, cursor);
         
         assertEquals(3, result.size());
         // Each slot gets 2 items (6 / 3 = 2)
@@ -110,7 +110,7 @@ class InventoryUtilsTest {
         var cursor = ItemStack.of(Material.DIAMOND, 6);
         IntList slots = new IntArrayList(new int[] {0, 1, 2});
         
-        var result = InventoryUtils.simulateItemDrag(ClickType.LEFT, view, slots, cursor);
+        var result = InventoryUtils2.simulateItemDrag(ClickType.LEFT, view, slots, cursor);
         
         assertEquals(2, result.size()); // Only slots 0 and 2 are valid
         assertTrue(result.containsKey(0));
@@ -131,7 +131,7 @@ class InventoryUtilsTest {
         var cursor = ItemStack.of(Material.DIAMOND, 9);
         IntList slots = new IntArrayList(new int[] {0, 1, 2});
         
-        var result = InventoryUtils.simulateItemDrag(ClickType.RIGHT, view, slots, cursor);
+        var result = InventoryUtils2.simulateItemDrag(ClickType.RIGHT, view, slots, cursor);
         
         assertEquals(3, result.size());
         // Each slot gets 1 item
@@ -149,7 +149,7 @@ class InventoryUtilsTest {
         var cursor = ItemStack.of(Material.DIAMOND, 3);
         IntList slots = new IntArrayList(new int[] {0, 1, 2, 3, 4, 5});
         
-        var result = InventoryUtils.simulateItemDrag(ClickType.LEFT, view, slots, cursor);
+        var result = InventoryUtils2.simulateItemDrag(ClickType.LEFT, view, slots, cursor);
         
         // With 3 items and 6 slots, each slot gets 0 items (integer division 3/6=0)
         // The implementation still creates entries but with 0 amount each
@@ -169,7 +169,7 @@ class InventoryUtilsTest {
         var cursor = ItemStack.of(Material.DIAMOND, 20);
         IntList slots = new IntArrayList(new int[] {0, 1});
         
-        var result = InventoryUtils.simulateItemDrag(ClickType.LEFT, view, slots, cursor);
+        var result = InventoryUtils2.simulateItemDrag(ClickType.LEFT, view, slots, cursor);
         
         assertEquals(2, result.size());
         // 10 items per slot, but slot 0 can only take 4 more (64 - 60 = 4)
@@ -187,7 +187,7 @@ class InventoryUtilsTest {
         var cursor = ItemStack.of(Material.DIAMOND, 9);
         IntList slots = new IntArrayList(new int[] {0, 1, 2});
         
-        var result = InventoryUtils.simulateItemDrag(ClickType.RIGHT, view, slots, cursor);
+        var result = InventoryUtils2.simulateItemDrag(ClickType.RIGHT, view, slots, cursor);
         
         assertEquals(2, result.size()); // Slot 0 is skipped (already full)
         assertFalse(result.containsKey(0));
@@ -204,7 +204,7 @@ class InventoryUtilsTest {
         var cursor = ItemStack.of(Material.DIAMOND, 5);
         IntList slots = new IntArrayList(new int[] {0, 1, 2});
         
-        var result = InventoryUtils.simulateItemDrag(ClickType.MIDDLE, view, slots, cursor);
+        var result = InventoryUtils2.simulateItemDrag(ClickType.MIDDLE, view, slots, cursor);
         
         // Middle drag in creative mode sets slots to max stack size
         assertTrue(result.isEmpty()); // Returns empty because it directly modifies view
@@ -222,7 +222,7 @@ class InventoryUtilsTest {
         var cursor = ItemStack.of(Material.DIAMOND, 10);
         IntList slots = new IntArrayList(new int[] {0, 1, 2});
         
-        var result = InventoryUtils.simulateItemDrag(ClickType.LEFT, view, slots, cursor);
+        var result = InventoryUtils2.simulateItemDrag(ClickType.LEFT, view, slots, cursor);
         
         assertEquals(3, result.size());
         // 10 / 3 = 3 per slot, 1 remains
@@ -240,7 +240,7 @@ class InventoryUtilsTest {
         var cursor = ItemStack.of(Material.DIAMOND, 2);
         IntList slots = new IntArrayList(new int[] {0, 1, 2, 3, 4});
         
-        var result = InventoryUtils.simulateItemDrag(ClickType.RIGHT, view, slots, cursor);
+        var result = InventoryUtils2.simulateItemDrag(ClickType.RIGHT, view, slots, cursor);
         
         assertEquals(2, result.size()); // Only 2 slots filled
         assertEquals(1, result.get(0).getAmount());
@@ -257,7 +257,7 @@ class InventoryUtilsTest {
         var cursor = ItemStack.of(Material.DIAMOND, 10);
         IntList slots = new IntArrayList(new int[] {0});
         
-        var result = InventoryUtils.simulateItemDrag(ClickType.LEFT, view, slots, cursor);
+        var result = InventoryUtils2.simulateItemDrag(ClickType.LEFT, view, slots, cursor);
         
         assertEquals(1, result.size());
         assertEquals(10, result.get(0).getAmount());
@@ -273,7 +273,7 @@ class InventoryUtilsTest {
         var cursor = ItemStack.of(Material.DIAMOND, 9);
         IntList slots = new IntArrayList(new int[] {0, 1, 2});
         
-        var result = InventoryUtils.simulateItemDrag(ClickType.RIGHT, view, slots, cursor);
+        var result = InventoryUtils2.simulateItemDrag(ClickType.RIGHT, view, slots, cursor);
         
         assertEquals(2, result.size());
         assertTrue(result.containsKey(0));
@@ -293,7 +293,7 @@ class InventoryUtilsTest {
         IntList slots = new IntArrayList(new int[] {});
         
         // Empty slots list should be handled gracefully
-        var result = InventoryUtils.simulateItemDrag(ClickType.LEFT, view, slots, cursor);
+        var result = InventoryUtils2.simulateItemDrag(ClickType.LEFT, view, slots, cursor);
         
         assertTrue(result.isEmpty());
         assertEquals(10, cursor.getAmount()); // Unchanged
@@ -309,7 +309,7 @@ class InventoryUtilsTest {
         var cursor = ItemStack.of(Material.DIAMOND, 5);
         IntList slots = new IntArrayList(new int[] {0, 1});
         
-        InventoryUtils.simulateItemDrag(ClickType.MIDDLE, view, slots, cursor);
+        InventoryUtils2.simulateItemDrag(ClickType.MIDDLE, view, slots, cursor);
         
         // Middle drag in creative sets slots to max stack size
         assertEquals(64, view.getItem(0).getAmount());
@@ -327,7 +327,7 @@ class InventoryUtilsTest {
         var cursor = ItemStack.of(Material.DIAMOND, 5);
         IntList slots = new IntArrayList(new int[] {0, 1, 2});
         
-        InventoryUtils.simulateItemDrag(ClickType.MIDDLE, view, slots, cursor);
+        InventoryUtils2.simulateItemDrag(ClickType.MIDDLE, view, slots, cursor);
         
         assertEquals(64, view.getItem(0).getAmount()); // Filled
         assertEquals(Material.EMERALD, view.getItem(1).getType()); // Unchanged (different type)
@@ -346,7 +346,7 @@ class InventoryUtilsTest {
         var cursor = ItemStack.of(Material.DIAMOND, 5);
         IntList slots = new IntArrayList(new int[] {0, 1, 2});
         
-        InventoryUtils.simulateItemDrag(ClickType.MIDDLE, view, slots, cursor);
+        InventoryUtils2.simulateItemDrag(ClickType.MIDDLE, view, slots, cursor);
         
         assertEquals(64, view.getItem(0).getAmount());
         assertEquals(64, view.getItem(1).getAmount()); // Was already 64

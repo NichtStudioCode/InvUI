@@ -10,7 +10,7 @@ import org.bukkit.inventory.MenuType;
 import org.jspecify.annotations.Nullable;
 
 @SuppressWarnings("UnstableApiUsage")
-public class FakeInventoryView implements InventoryView {
+public final class FakeInventoryView implements InventoryView {
     
     private final Player player;
     private final Inventory top;
