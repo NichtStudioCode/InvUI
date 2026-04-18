@@ -140,9 +140,9 @@ sealed interface GuiDsl : IngredientsDsl {
     /**
      * Whether to ignore inventory slots that are visually obscured (e.g. by another GUI layered on top).
      *
-     * Defaults to `false`. Can be set to a static value or bound to a [Provider]:
+     * Defaults to `true`. Can be set to a static value or bound to a [Provider]:
      * ```
-     * ignoreObscuredInventorySlots by true
+     * ignoreObscuredInventorySlots by false
      * ```
      */
     val ignoreObscuredInventorySlots: ProviderDslProperty<Boolean>
@@ -164,7 +164,7 @@ internal abstract class GuiDslImpl<G : Gui, B : Gui.Builder<G, B>>(
     
     private var _background = provider<ItemProvider?>(null)
     private var _frozen = provider(false)
-    private var _ignoreObscuredInventorySlots = provider(false)
+    private var _ignoreObscuredInventorySlots = provider(true)
     
     override val background: ProviderDslProperty<ItemProvider?>
         get() = ProviderDslProperty(::_background)
