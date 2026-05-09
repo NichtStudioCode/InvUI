@@ -23,8 +23,11 @@ import xyz.xenondevs.invui.item.BoundItem;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
+import xyz.xenondevs.invui.state.Property;
+import xyz.xenondevs.invui.util.InventoryUtils;
 import xyz.xenondevs.invui.util.ItemUtils;
 import xyz.xenondevs.invui.util.ObserverAtSlot;
+import xyz.xenondevs.invui.util.TriConsumer;
 import xyz.xenondevs.invui.window.Window;
 import xyz.xenondevs.invui.window.WindowManager;
 
@@ -49,6 +52,8 @@ non-sealed abstract class AbstractGui implements Gui {
     private final MutableProperty<Boolean> frozen;
     private final MutableProperty<Boolean> ignoreObscuredInventorySlots;
     private final MutableProperty<@Nullable ItemProvider> background;
+    
+    private final List<TriConsumer<? super Player, ? super Integer, ? super Integer>> bundleSelectHandlers = new ArrayList<>(0);
     
     private AnimationImpl.@Nullable StateImpl animation;
     private @Nullable SlotElement @Nullable [] animationElements;
@@ -112,6 +117,12 @@ non-sealed abstract class AbstractGui implements Gui {
             case SlotElement.InventoryLink ie -> handleInvBundleSelect(player, ie.inventory(), ie.slot(), bundleSlot);
             case null -> {}
         }
+        
+        CollectionUtils.forEachCatching(
+            bundleSelectHandlers,
+            handler -> handler.accept(player, slot, bundleSlot),
+            "Failed to handle bundle select"
+        );
     }
     
     //<editor-fold desc="inventories">
@@ -449,6 +460,8 @@ non-sealed abstract class AbstractGui implements Gui {
     
     @SuppressWarnings("UnstableApiUsage")
     private void handleInvBundleSelect(Player player, Inventory inventory, int slot, int bundleSlot) {
+        inventory.callBundleSelectEvent(slot, player, bundleSlot);
+        
         var bundle = inventory.getItem(slot);
         if (bundle != null && bundle.hasData(DataComponentTypes.BUNDLE_CONTENTS)) {
             ItemUtils2.setSelectedBundleSlot(bundle, bundleSlot);
@@ -773,6 +786,7 @@ non-sealed abstract class AbstractGui implements Gui {
         this.background.set(itemProvider);
     }
     
+    
     @Override
     public void applyStructure(Structure structure) {
         if (structure.getWidth() != width)
@@ -813,6 +827,27 @@ non-sealed abstract class AbstractGui implements Gui {
     @Override
     public boolean isIgnoreObscuredInventorySlots() {
         return FuncUtils.getSafely(ignoreObscuredInventorySlots, DEFAULT_IGNORE_OBSCURED_INVENTORY_SLOTS);
+    }
+    
+    @Override
+    public void setBundleSelectHandlers(List<? extends TriConsumer<Player, Integer, Integer>> bundleSelectHandlers) {
+        this.bundleSelectHandlers.clear();
+        this.bundleSelectHandlers.addAll(bundleSelectHandlers);
+    }
+    
+    @Override
+    public List<TriConsumer<Player, Integer, Integer>> getBundleSelectHandlers() {
+        return CollectionUtils.unmodifiableListUnchecked(bundleSelectHandlers);
+    }
+    
+    @Override
+    public void addBundleSelectHandler(TriConsumer<? super Player, ? super Integer, ? super Integer> bundleSelectHandler) {
+        bundleSelectHandlers.add(bundleSelectHandler);
+    }
+    
+    @Override
+    public void removeBundleSelectHandler(TriConsumer<? super Player, ? super Integer, ? super Integer> bundleSelectHandler) {
+        bundleSelectHandlers.remove(bundleSelectHandler);
     }
     
     //<editor-fold desc="ingredient-key-based methods">
@@ -1068,18 +1103,25 @@ non-sealed abstract class AbstractGui implements Gui {
     
     @Override
     public void fillRectangle(int x, int y, int width, Inventory inventory, boolean replaceExisting) {
-        fillRectangle(x, y, width, inventory, null, replaceExisting);
+        fillRectangle(x, y, width, inventory, (ItemProvider) null, replaceExisting);
     }
     
     @Override
-    public void fillRectangle(int x, int y, int width, Inventory inventory, @Nullable ItemProvider background, boolean replaceExisting) {
+    public void fillRectangle(
+        int x,
+        int y,
+        int width,
+        Inventory inventory,
+        @Nullable ItemProvider background,
+        boolean replaceExisting
+    ) {
         int height = (int) Math.ceil((double) inventory.getSize() / (double) width);
         
         int slotIndex = 0;
         for (int slot : SlotUtils.getSlotsRect(x, y, width, height, this.width)) {
             if (slotIndex >= inventory.getSize()) return;
             if (hasSlotElement(slot) && !replaceExisting) continue;
-            setSlotElement(slot, new SlotElement.InventoryLink(inventory, slotIndex, background));
+            setSlotElement(slot, new SlotElement.InventoryLink(inventory, slotIndex, Property.of(background)));
             slotIndex++;
         }
     }
@@ -1093,6 +1135,7 @@ non-sealed abstract class AbstractGui implements Gui {
         
         protected @Nullable Structure structure;
         protected @Nullable List<Consumer<? super G>> modifiers;
+        protected List<TriConsumer<? super Player, ? super Integer, ? super Integer>> bundleSelectHandlers = new ArrayList<>(0);
         protected MutableProperty<@Nullable ItemProvider> background = MutableProperty.of(DEFAULT_BACKGROUND);
         protected MutableProperty<Boolean> frozen = MutableProperty.of(DEFAULT_FROZEN);
         protected MutableProperty<Boolean> ignoreObscuredInventorySlots = MutableProperty.of(DEFAULT_IGNORE_OBSCURED_INVENTORY_SLOTS);
@@ -1172,12 +1215,27 @@ non-sealed abstract class AbstractGui implements Gui {
             return (S) this;
         }
         
+        @Override
+        public S setBundleSelectHandlers(List<? extends TriConsumer<? super Player, ? super Integer, ? super Integer>> bundleSelectHandlers) {
+            this.bundleSelectHandlers.clear();
+            this.bundleSelectHandlers.addAll(bundleSelectHandlers);
+            return (S) this;
+        }
+        
+        @Override
+        public S addBundleSelectHandler(TriConsumer<? super Player, ? super Integer, ? super Integer> bundleSelectHandler) {
+            bundleSelectHandlers.add(bundleSelectHandler);
+            return (S) this;
+        }
+        
         /**
          * Applies the {@link AbstractBuilder#modifiers} to the given {@link AbstractGui}.
          *
          * @param gui The {@link AbstractGui} to apply the modifiers to
          */
+        @SuppressWarnings("rawtypes")
         protected void applyModifiers(G gui) {
+            gui.setBundleSelectHandlers((List) bundleSelectHandlers);
             if (modifiers != null) modifiers.forEach(modifier -> modifier.accept(gui));
         }
         
@@ -1193,6 +1251,7 @@ non-sealed abstract class AbstractGui implements Gui {
                     clone.structure = structure.clone();
                 if (modifiers != null)
                     clone.modifiers = new ArrayList<>(modifiers);
+                clone.bundleSelectHandlers = new ArrayList<>(bundleSelectHandlers);
                 return (S) clone;
             } catch (CloneNotSupportedException e) {
                 throw new AssertionError();

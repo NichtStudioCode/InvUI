@@ -11,12 +11,15 @@ import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.internal.util.DataUtils;
 import xyz.xenondevs.invui.internal.util.FakeInventoryView;
+import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.util.ItemUtils;
 
 import java.io.*;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -27,9 +30,12 @@ import java.util.zip.GZIPOutputStream;
  */
 public final class VirtualInventory extends Inventory {
     
+    private static final Object MASKED_NULL = new Object();
+    
     private final UUID uuid;
     private final @Nullable ItemStack[] items;
     private int[] maxStackSizes;
+    private final AtomicReferenceArray<@Nullable Object> visualization;
     
     /**
      * Constructs a new {@link VirtualInventory}
@@ -45,6 +51,7 @@ public final class VirtualInventory extends Inventory {
         super(size);
         this.uuid = uuid == null ? new UUID(0L, 0L) : uuid;
         this.items = new ItemStack[size];
+        this.visualization = new AtomicReferenceArray<>(size);
         
         if (maxStackSizes != null) {
             if (size != maxStackSizes.length)
@@ -394,8 +401,30 @@ public final class VirtualInventory extends Inventory {
     }
     
     @Override
-    public int getUpdatePeriod(int what) {
-        return -1;
+    public void notifyWindows() {
+        for (int i = 0; i < visualization.length(); i++) {
+            visualization.set(i, null);
+        }
+        super.notifyWindows();
+    }
+    
+    @Override
+    public void notifyWindows(int slot) {
+        visualization.set(slot, null);
+        super.notifyWindows(slot);
+    }
+    
+    @Override
+    public @Nullable ItemProvider getVisualization(int slot) {
+        var cached = visualization.get(slot);
+        if (cached == MASKED_NULL)
+            return null;
+        if (cached != null)
+            return (ItemProvider) cached;
+        
+        var provider = super.getVisualization(slot);
+        visualization.set(slot, Objects.requireNonNullElse(provider, MASKED_NULL));
+        return provider;
     }
     
 }

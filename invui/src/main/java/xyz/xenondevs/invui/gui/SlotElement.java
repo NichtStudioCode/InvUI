@@ -8,6 +8,7 @@ import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.Observable;
 import xyz.xenondevs.invui.Observer;
 import xyz.xenondevs.invui.i18n.Languages;
+import xyz.xenondevs.invui.internal.util.FuncUtils;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.Property;
@@ -162,19 +163,29 @@ public sealed interface SlotElement {
         @Override
         public @Nullable ItemStack getItemStack(Player player) {
             var locale = Languages.getInstance().getLocale(player);
+            
+            // 1. try visualizer on SlotElement level
+            var slotVisualization = FuncUtils.applySafely(visualizer, inventory.getItem(slot), null);
+            if (slotVisualization != null)
+                return slotVisualization.get(locale);
+            
+            // 2. try visualizer on Inventory level
+            var invVisualization = inventory.getVisualization(slot);
+            if (invVisualization != null)
+                return invVisualization.get(locale);
+            
+            // 3. use actual item stack on slot, if present
             var itemStack = inventory.getItem(slot);
+            if (itemStack != null)
+                return itemStack;
             
-            // pass actual item stack to visualizer
-            var visualization = visualizer.apply(itemStack);
-            if (visualization != null)
-                itemStack = visualization.get(locale);
+            // 4. use background if there is no item stack on the inventory slot but there is a background
+            var background = backgroundProperty().get();
+            if (background != null)
+                return background.get(locale);
             
-            // if visualizer returned null and the slot is empty: use background provider
-            ItemProvider background = backgroundProperty().get();
-            if (itemStack == null && background != null)
-                itemStack = background.get(locale);
-            
-            return itemStack;
+            // 5. no visualization, no item stack, no background: empty slot
+            return null;
         }
         
         @Override
@@ -264,7 +275,7 @@ public sealed interface SlotElement {
                 current = g.getSlotElement(s);
                 i++;
             }
-            return (i == other.size() && current == null) 
+            return (i == other.size() && current == null)
                    || (i == other.size() - 1 && other.getLast().equals(current));
         }
         

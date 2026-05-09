@@ -9,6 +9,7 @@ import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomCartographyMenu;
 import xyz.xenondevs.invui.internal.util.FuncUtils;
+import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
 import xyz.xenondevs.invui.util.ColorPalette;
 import xyz.xenondevs.invui.util.ItemUtils;
@@ -18,6 +19,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyMenu> implements CartographyWindow {
@@ -43,9 +45,10 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
         MutableProperty<View> view,
         MutableProperty<Set<? extends MapIcon>> icons,
         MutableProperty<Boolean> closeable,
-        MutableProperty<Integer> windowState
+        MutableProperty<Integer> windowState,
+        MutableProperty<Function<@Nullable ItemStack, @Nullable ItemProvider>> cursorVisualizer
     ) {
-        super(player, title, lowerGui, 3 + 36, new CustomCartographyMenu(player), closeable, windowState);
+        super(player, title, lowerGui, 3 + 36, new CustomCartographyMenu(player), closeable, windowState, cursorVisualizer);
         if (inputGui.getWidth() != 1 || inputGui.getHeight() != 2)
             throw new IllegalArgumentException("Input gui must be of dimensions 1x2");
         if (resultGui.getWidth() != 1 || resultGui.getHeight() != 1)
@@ -179,7 +182,8 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
                 view,
                 icons,
                 closeable,
-                windowState
+                windowState,
+                cursorVisualizer
             );
             
             if (canvas != null)

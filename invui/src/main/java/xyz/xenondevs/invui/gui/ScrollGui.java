@@ -28,15 +28,6 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
     }
     
     /**
-     * Creates a new {@link Builder Gui Builder} for a {@link ScrollGui} that uses {@link SlotElement SlotElements} as content.
-     *
-     * @return The new {@link Builder Gui Builder}.
-     */
-    static Builder<SlotElement> slotElementsBuilder() {
-        return new ScrollSlotElementsGuiImpl.Builder<>();
-    }
-    
-    /**
      * Creates a new {@link ScrollGui}.
      *
      * @param width            The width of the {@link ScrollGui}.
@@ -48,20 +39,6 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
      */
     static ScrollGui<Item> ofItems(int width, int height, List<? extends Item> items, List<? extends Slot> contentListSlots, LineOrientation orientation) {
         return new ScrollItemsGuiImpl<>(width, height, items, contentListSlots, orientation);
-    }
-    
-    /**
-     * Creates a new {@link ScrollGui}.
-     *
-     * @param width            The width of the {@link ScrollGui}.
-     * @param height           The height of the {@link ScrollGui}.
-     * @param slotElements     The {@link SlotElement SlotElements} to use.
-     * @param contentListSlots The slots where content should be displayed.
-     * @param orientation      The direction in which the {@link ScrollGui} will scroll.
-     * @return The created {@link ScrollGui}.
-     */
-    static ScrollGui<SlotElement> ofSlotElements(int width, int height, List<? extends SlotElement> slotElements, List<? extends Slot> contentListSlots, LineOrientation orientation) {
-        return new ScrollSlotElementsGuiImpl<>(width, height, slotElements, contentListSlots, orientation, Function.identity());
     }
     
     /**
@@ -160,6 +137,29 @@ public sealed interface ScrollGui<C> extends Gui permits AbstractScrollGui {
         var gui = ofInventories(structure.getWidth(), structure.getHeight(), inventories, List.of(), LineOrientation.HORIZONTAL);
         gui.applyStructure(structure);
         return gui;
+    }
+    
+    /**
+     * Creates a new {@link Builder Gui Builder} for a {@link ScrollGui} that uses {@link SlotElement SlotElements} as content.
+     *
+     * @return The new {@link Builder Gui Builder}.
+     */
+    static Builder<SlotElement> slotElementsBuilder() {
+        return new ScrollSlotElementsGuiImpl.Builder<>();
+    }
+    
+    /**
+     * Creates a new {@link ScrollGui}.
+     *
+     * @param width            The width of the {@link ScrollGui}.
+     * @param height           The height of the {@link ScrollGui}.
+     * @param slotElements     The {@link SlotElement SlotElements} to use.
+     * @param contentListSlots The slots where content should be displayed.
+     * @param orientation      The direction in which the {@link ScrollGui} will scroll.
+     * @return The created {@link ScrollGui}.
+     */
+    static ScrollGui<SlotElement> ofSlotElements(int width, int height, List<? extends SlotElement> slotElements, List<? extends Slot> contentListSlots, LineOrientation orientation) {
+        return new ScrollSlotElementsGuiImpl<>(width, height, slotElements, contentListSlots, orientation, Function.identity());
     }
     
     /**

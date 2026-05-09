@@ -53,6 +53,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Function;
 
 /**
  * A packet-based container menu.
@@ -142,6 +143,7 @@ public abstract class CustomContainerMenu {
     private final ServerPlayer serverPlayer;
     private @Nullable Window window;
     private final ContainerMenuProxy proxy;
+    private Function<? super ItemStack, ? extends ItemStack> cursorVisualizer = Function.identity();
     
     private final ItemStack[] items;
     private ItemStack carried = ItemStack.EMPTY;
@@ -260,9 +262,10 @@ public abstract class CustomContainerMenu {
             remoteOffHand.force(offHand);
         }
         
-        if (!remoteCarried.matches(carried)) {
-            packets.add(new ClientboundSetCursorItemPacket(carried.copy()));
-            remoteCarried.force(carried);
+        var visualCarried = cursorVisualizer.apply(carried);
+        if (!remoteCarried.matches(visualCarried)) {
+            packets.add(new ClientboundSetCursorItemPacket(visualCarried.copy()));
+            remoteCarried.force(visualCarried);
         }
         
         for (int i = 0; i < dataSlots.length; i++) {
@@ -315,11 +318,8 @@ public abstract class CustomContainerMenu {
             containerId,
             incrementStateId(),
             Arrays.stream(items).map(ItemStack::copy).toList(),
-            carried.copy()
+            cursorVisualizer.apply(carried)
         ));
-        
-        // cursor
-        packets.add(new ClientboundSetCursorItemPacket(carried.copy()));
         
         // off-hand
         packets.add(new ClientboundContainerSetSlotPacket(
@@ -346,7 +346,7 @@ public abstract class CustomContainerMenu {
         for (int i = 0; i < items.length; i++) {
             remoteSlots[i].force(items[i]);
         }
-        remoteCarried.force(carried);
+        remoteCarried.force(cursorVisualizer.apply(carried));
         System.arraycopy(dataSlots, 0, remoteDataSlots, 0, dataSlots.length);
     }
     //</editor-fold>
@@ -708,6 +708,11 @@ public abstract class CustomContainerMenu {
         if (window == null)
             throw new IllegalStateException("Window is not set");
         return (WindowEventListener) window;
+    }
+    
+    public void setCursorVisualizer(Function<? super ItemStack, ? extends ItemStack> cursorVisualizer) {
+        this.cursorVisualizer = cursorVisualizer;
+        this.remoteCarried.force(DIRTY_MARKER);
     }
     
     /**

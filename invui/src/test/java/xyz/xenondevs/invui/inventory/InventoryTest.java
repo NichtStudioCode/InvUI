@@ -10,6 +10,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockbukkit.mockbukkit.MockBukkit;
+import org.mockbukkit.mockbukkit.ServerMock;
 import xyz.xenondevs.invui.InvUI;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
 
@@ -20,10 +21,12 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 
 class InventoryTest {
-    
+
+    private static ServerMock server;
+
     @BeforeAll
     public static void setUp() {
-        MockBukkit.mock();
+        server = MockBukkit.mock();
         InvUI.getInstance().setExceptionHandler((msg, t) -> {
             throw new AssertionError(msg, t);
         });
@@ -1296,6 +1299,81 @@ class InventoryTest {
         assertFalse(canHold);
     }
     //</editor-fold>
-    
+
+    //<editor-fold desc="bundleSelectHandler">
+    @Test
+    void bundleSelectHandler_Called() {
+        var inv = new VirtualInventory(5);
+        var player = server.addPlayer();
+        AtomicBoolean handlerCalled = new AtomicBoolean(false);
+
+        inv.addBundleSelectHandler(event -> handlerCalled.set(true));
+        inv.callBundleSelectEvent(0, player, 0);
+
+        assertTrue(handlerCalled.get());
+    }
+
+    @Test
+    void bundleSelectHandler_ProvidesCorrectValues() {
+        var inv = new VirtualInventory(5);
+        var player = server.addPlayer();
+        AtomicReference<Integer> eventSlot = new AtomicReference<>();
+        AtomicReference<Integer> eventBundleSlot = new AtomicReference<>();
+
+        inv.addBundleSelectHandler(event -> {
+            eventSlot.set(event.getSlot());
+            eventBundleSlot.set(event.getBundleSlot());
+            assertSame(inv, event.getInventory());
+            assertSame(player, event.getPlayer());
+        });
+        inv.callBundleSelectEvent(2, player, 3);
+
+        assertEquals(2, eventSlot.get());
+        assertEquals(3, eventBundleSlot.get());
+    }
+
+    @Test
+    void bundleSelectHandler_MultipleHandlersCalled() {
+        var inv = new VirtualInventory(5);
+        var player = server.addPlayer();
+        AtomicBoolean firstCalled = new AtomicBoolean(false);
+        AtomicBoolean secondCalled = new AtomicBoolean(false);
+
+        inv.addBundleSelectHandler(event -> firstCalled.set(true));
+        inv.addBundleSelectHandler(event -> secondCalled.set(true));
+        inv.callBundleSelectEvent(0, player, 0);
+
+        assertTrue(firstCalled.get());
+        assertTrue(secondCalled.get());
+    }
+
+    @Test
+    void bundleSelectHandler_RemoveHandler() {
+        var inv = new VirtualInventory(5);
+        var player = server.addPlayer();
+        AtomicBoolean handlerCalled = new AtomicBoolean(false);
+
+        var handler = new java.util.function.Consumer<xyz.xenondevs.invui.inventory.event.InventoryBundleSelectEvent>() {
+            @Override
+            public void accept(xyz.xenondevs.invui.inventory.event.InventoryBundleSelectEvent event) {
+                handlerCalled.set(true);
+            }
+        };
+        inv.addBundleSelectHandler(handler);
+        inv.removeBundleSelectHandler(handler);
+        inv.callBundleSelectEvent(0, player, 0);
+
+        assertFalse(handlerCalled.get());
+    }
+
+    @Test
+    void bundleSelectHandler_NotCalledWithoutHandler() {
+        var inv = new VirtualInventory(5);
+        var player = server.addPlayer();
+        // should not throw
+        inv.callBundleSelectEvent(0, player, 0);
+    }
+    //</editor-fold>
+
 }
 

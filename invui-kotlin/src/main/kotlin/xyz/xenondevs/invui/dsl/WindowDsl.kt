@@ -6,14 +6,17 @@ import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryCloseEvent
+import org.bukkit.inventory.ItemStack
 import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.commons.provider.mutableProvider
 import xyz.xenondevs.commons.provider.provider
 import xyz.xenondevs.invui.ClickEvent
 import xyz.xenondevs.invui.ExperimentalReactiveApi
 import xyz.xenondevs.invui.internal.util.InventoryUtils2
+import xyz.xenondevs.invui.item.ItemProvider
 import xyz.xenondevs.invui.window.Window
 import xyz.xenondevs.invui.window.setCloseable
+import xyz.xenondevs.invui.window.setCursorVisualizer
 import xyz.xenondevs.invui.window.setTitle
 import xyz.xenondevs.invui.window.setWindowState
 import kotlin.contracts.InvocationKind
@@ -236,6 +239,18 @@ sealed interface WindowDsl {
     val clientWindowState: Provider<Int>
     
     /**
+     * A function that takes the actual [ItemStack] on the cursor and returns an [ItemProvider]
+     * to visualize it. May return `null` to display the item stack normally.
+     * 
+     * Defaults to `{ null }`.
+     * 
+     * ```
+     * cursorVisualizer by { it?.let { ItemBuilder(it).setGlint(true) } }
+     * ```
+     */
+    val cursorVisualizer: ProviderDslProperty<(ItemStack?) -> ItemProvider?>
+    
+    /**
      * Registers a handler that is called when the window is opened.
      * Multiple handlers can be registered and will all be called in order.
      *
@@ -427,6 +442,7 @@ internal abstract class AbstractWindowDsl<W : Window, B : Window.Builder<W, B>>(
     private var _closeable = provider(true)
     private var _fallbackWindow = provider<Window?>(null)
     private var _serverWindowState = mutableProvider(0)
+    private var _cursorVisualizer = provider<(ItemStack?) -> ItemProvider?> { { null } }
     
     override val title: ProviderDslProperty<Component>
         get() = ProviderDslProperty(::_title)
@@ -436,6 +452,8 @@ internal abstract class AbstractWindowDsl<W : Window, B : Window.Builder<W, B>>(
         get() = ProviderDslProperty(::_fallbackWindow)
     override val serverWindowState: MutableProviderDslProperty<Int>
         get() = MutableProviderDslProperty(::_serverWindowState)
+    override val cursorVisualizer: ProviderDslProperty<(ItemStack?) -> ItemProvider?>
+        get() = ProviderDslProperty(::_cursorVisualizer)
     override val clientWindowState = mutableProvider(0)
     private val openHandlers = mutableListOf<WindowOpenDsl.() -> Unit>()
     private val closeHandlers = mutableListOf<WindowCloseDsl.() -> Unit>()
@@ -476,6 +494,7 @@ internal abstract class AbstractWindowDsl<W : Window, B : Window.Builder<W, B>>(
             }
             setWindowState(_serverWindowState)
             addWindowStateChangeHandler(clientWindowState::set)
+            setCursorVisualizer(_cursorVisualizer)
         }
     }
     

@@ -2,12 +2,16 @@ package xyz.xenondevs.invui.window;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Unmodifiable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomPlainMenu;
+import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 final class NormalSplitWindowImpl extends AbstractSplitWindow<CustomPlainMenu> {
@@ -21,9 +25,10 @@ final class NormalSplitWindowImpl extends AbstractSplitWindow<CustomPlainMenu> {
         Gui upperGui,
         Gui lowerGui,
         MutableProperty<Boolean> closeable,
-        MutableProperty<Integer> windowState
+        MutableProperty<Integer> windowState,
+        MutableProperty<Function<@Nullable ItemStack, @Nullable ItemProvider>> cursorVisualizer
     ) {
-        super(player, title, lowerGui, upperGui.getSize() + lowerGui.getSize(), new CustomPlainMenu(upperGui.getWidth(), upperGui.getHeight(), player), closeable, windowState);
+        super(player, title, lowerGui, upperGui.getSize() + lowerGui.getSize(), new CustomPlainMenu(upperGui.getWidth(), upperGui.getHeight(), player), closeable, windowState, cursorVisualizer);
         this.upperGui = upperGui;
         this.lowerGui = lowerGui;
     }
@@ -54,7 +59,8 @@ final class NormalSplitWindowImpl extends AbstractSplitWindow<CustomPlainMenu> {
                 upperGuiSupplier.get(),
                 supplyLowerGui(viewer),
                 closeable,
-                windowState
+                windowState,
+                cursorVisualizer
             );
             
             applyModifiers(window);

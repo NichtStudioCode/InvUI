@@ -3,16 +3,20 @@ package xyz.xenondevs.invui.window;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomCraftingTableMenu;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
+import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 final class CraftingWindowImpl extends AbstractSplitWindow<CustomCraftingTableMenu> implements CraftingWindow {
@@ -29,9 +33,10 @@ final class CraftingWindowImpl extends AbstractSplitWindow<CustomCraftingTableMe
         Gui resultGui,
         Gui lowerGui,
         MutableProperty<Boolean> closeable,
-        MutableProperty<Integer> windowState
+        MutableProperty<Integer> windowState,
+        MutableProperty<Function<@Nullable ItemStack, @Nullable ItemProvider>> cursorVisualizer
     ) {
-        super(player, title, lowerGui, 46, new CustomCraftingTableMenu(player), closeable, windowState);
+        super(player, title, lowerGui, 46, new CustomCraftingTableMenu(player), closeable, windowState, cursorVisualizer);
         if (craftingGui.getWidth() != 3 || craftingGui.getHeight() != 3)
             throw new IllegalArgumentException("Crafting Gui must be of dimensions 3x3");
         if (resultGui.getWidth() != 1 || resultGui.getHeight() != 1)
@@ -128,7 +133,8 @@ final class CraftingWindowImpl extends AbstractSplitWindow<CustomCraftingTableMe
                 resultGuiSupplier.get(),
                 supplyLowerGui(viewer),
                 closeable,
-                windowState
+                windowState,
+                cursorVisualizer
             );
             
             window.setRecipeClickHandlers((List) recipeClickHandlers);

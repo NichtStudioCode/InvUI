@@ -13,6 +13,7 @@ import xyz.xenondevs.invui.internal.menu.CustomStonecutterMenu;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
 import xyz.xenondevs.invui.internal.util.FuncUtils;
 import xyz.xenondevs.invui.internal.util.ItemUtils2;
+import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
 import xyz.xenondevs.invui.util.ItemUtils;
 
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -54,9 +56,10 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
         MutableProperty<Integer> selectedSlot,
         List<BiConsumer<? super Integer, ? super Integer>> selectedSlotChangeHandlers,
         MutableProperty<Boolean> closeable,
-        MutableProperty<Integer> windowState
+        MutableProperty<Integer> windowState,
+        MutableProperty<Function<@Nullable ItemStack, @Nullable ItemProvider>> cursorVisualizer
     ) {
-        super(player, title, lowerGui, upperGui.getSize() + lowerGui.getSize() + buttonsGui.getSize(), new CustomStonecutterMenu(player), closeable, windowState);
+        super(player, title, lowerGui, upperGui.getSize() + lowerGui.getSize() + buttonsGui.getSize(), new CustomStonecutterMenu(player), closeable, windowState, cursorVisualizer);
         if (upperGui.getWidth() != 2 || upperGui.getHeight() != 1)
             throw new IllegalArgumentException("Gui must of of dimensions 2x1.");
         if (lowerGui.getWidth() != 9 || lowerGui.getHeight() != 4)
@@ -218,7 +221,8 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
                 selectedSlot,
                 selectedSlotChangeHandlers,
                 closeable,
-                windowState
+                windowState,
+                cursorVisualizer
             );
             applyModifiers(window);
             return window;

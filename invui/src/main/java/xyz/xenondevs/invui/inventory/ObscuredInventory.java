@@ -1,7 +1,9 @@
 package xyz.xenondevs.invui.inventory;
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.InvUI;
@@ -9,6 +11,7 @@ import xyz.xenondevs.invui.Observer;
 import xyz.xenondevs.invui.internal.util.ArrayUtils;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
+import xyz.xenondevs.invui.item.ItemProvider;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -177,6 +180,12 @@ public final class ObscuredInventory extends Inventory {
     }
     
     @Override
+    public void callBundleSelectEvent(int slot, Player player, int bundleSlot) {
+        inventory.callBundleSelectEvent(slots[slot], player, bundleSlot);
+        super.callBundleSelectEvent(slot, player, bundleSlot);
+    }
+    
+    @Override
     public void callPostUpdateEvent(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
         if (updateReason == UpdateReason.SUPPRESSED)
             throw new IllegalArgumentException("Cannot call ItemPostUpdateEvent with UpdateReason.SUPPRESSED");
@@ -193,6 +202,14 @@ public final class ObscuredInventory extends Inventory {
     @Override
     public InventorySlot getBackingSlot(int slot) {
         return inventory.getBackingSlot(slots[slot]);
+    }
+    
+    @Override
+    @ApiStatus.Experimental
+    public @Nullable ItemProvider getVisualization(int slot) {
+        if (getVisualizer() != null)
+            return super.getVisualization(slot);
+        return inventory.getVisualization(slots[slot]);
     }
     
     @Override

@@ -1,7 +1,9 @@
 package xyz.xenondevs.invui.inventory;
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.InvUI;
@@ -9,6 +11,7 @@ import xyz.xenondevs.invui.Observer;
 import xyz.xenondevs.invui.internal.util.ArrayUtils;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
+import xyz.xenondevs.invui.item.ItemProvider;
 
 import java.util.Collection;
 
@@ -37,9 +40,6 @@ public final class CompositeInventory extends Inventory {
      */
     public CompositeInventory(Collection<? extends Inventory> inventories) {
         super(calculateSize(inventories));
-        if (inventories.isEmpty())
-            throw new IllegalArgumentException("CompositeInventory must contain at least one Inventory");
-        
         this.inventories = inventories.toArray(Inventory[]::new);
     }
     
@@ -212,6 +212,13 @@ public final class CompositeInventory extends Inventory {
     }
     
     @Override
+    public void callBundleSelectEvent(int slot, Player player, int bundleSlot) {
+        var invSlot = findInventory(slot);
+        invSlot.inventory().callBundleSelectEvent(invSlot.slot(), player, bundleSlot);
+        super.callBundleSelectEvent(slot, player, bundleSlot);
+    }
+    
+    @Override
     public void callPostUpdateEvent(@Nullable UpdateReason updateReason, int slot, @Nullable ItemStack previousItemStack, @Nullable ItemStack newItemStack) {
         var invSlot = findInventory(slot);
         invSlot.inventory().callPostUpdateEvent(updateReason, invSlot.slot(), previousItemStack, newItemStack);
@@ -235,6 +242,15 @@ public final class CompositeInventory extends Inventory {
     public InventorySlot getBackingSlot(int slot) {
         var invSlot = findInventory(slot);
         return invSlot.inventory().getBackingSlot(invSlot.slot());
+    }
+    
+    @Override
+    @ApiStatus.Experimental
+    public @Nullable ItemProvider getVisualization(int slot) {
+        if (getVisualizer() != null)
+            return super.getVisualization(slot);
+        var invSlot = findInventory(slot);
+        return invSlot.inventory().getVisualization(invSlot.slot());
     }
     
     @Override

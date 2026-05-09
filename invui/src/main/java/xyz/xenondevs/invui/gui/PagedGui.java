@@ -28,15 +28,6 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
     }
     
     /**
-     * Creates a new {@link Builder Gui Builder} for a {@link PagedGui} that uses {@link SlotElement SlotElements} as content.
-     *
-     * @return The new {@link Builder Gui Builder}.
-     */
-    static Builder<SlotElement> slotElementsBuilder() {
-        return new PagedSlotElementsGuiImpl.Builder<>();
-    }
-    
-    /**
      * Creates a new {@link PagedGui}.
      *
      * @param width            The width of the {@link PagedGui}.
@@ -47,19 +38,6 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      */
     static PagedGui<Item> ofItems(int width, int height, List<? extends Item> items, List<? extends Slot> contentListSlots) {
         return new PagedItemsGuiImpl<>(width, height, items, contentListSlots);
-    }
-    
-    /**
-     * Creates a new {@link PagedGui}.
-     *
-     * @param width            The width of the {@link PagedGui}.
-     * @param height           The height of the {@link PagedGui}.
-     * @param slotElements     The {@link SlotElement SlotElements} to use as page content.
-     * @param contentListSlots The slots where content should be displayed.
-     * @return The created {@link PagedGui}.
-     */
-    static PagedGui<SlotElement> ofSlotElements(int width, int height, List<? extends SlotElement> slotElements, List<? extends Slot> contentListSlots) {
-        return new PagedSlotElementsGuiImpl<>(width, height, slotElements, contentListSlots, Function.identity());
     }
     
     /**
@@ -156,6 +134,28 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
         var gui = ofInventories(structure.getWidth(), structure.getHeight(), inventories, List.of());
         gui.applyStructure(structure);
         return gui;
+    }
+    
+    /**
+     * Creates a new {@link Builder Gui Builder} for a {@link PagedGui} that uses {@link SlotElement SlotElements} as content.
+     *
+     * @return The new {@link Builder Gui Builder}.
+     */
+    static Builder<SlotElement> slotElementsBuilder() {
+        return new PagedSlotElementsGuiImpl.Builder<>();
+    }
+    
+    /**
+     * Creates a new {@link PagedGui}.
+     *
+     * @param width            The width of the {@link PagedGui}.
+     * @param height           The height of the {@link PagedGui}.
+     * @param slotElements     The {@link SlotElement SlotElements} to use as page content.
+     * @param contentListSlots The slots where content should be displayed.
+     * @return The created {@link PagedGui}.
+     */
+    static PagedGui<SlotElement> ofSlotElements(int width, int height, List<? extends SlotElement> slotElements, List<? extends Slot> contentListSlots) {
+        return new PagedSlotElementsGuiImpl<>(width, height, slotElements, contentListSlots, Function.identity());
     }
     
     /**

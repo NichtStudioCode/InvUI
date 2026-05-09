@@ -2,14 +2,17 @@ package xyz.xenondevs.invui.window;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.internal.menu.CustomContainerMenu;
+import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 sealed abstract class AbstractMergedWindow<M extends CustomContainerMenu> extends AbstractWindow<M> permits NormalMergedWindowImpl {
@@ -22,9 +25,10 @@ sealed abstract class AbstractMergedWindow<M extends CustomContainerMenu> extend
         Gui gui,
         M menu,
         MutableProperty<Boolean> closeable,
-        MutableProperty<Integer> windowState
+        MutableProperty<Integer> windowState,
+        MutableProperty<Function<@Nullable ItemStack, @Nullable ItemProvider>> cursorVisualizer
     ) {
-        super(viewer, title, gui.getSize(), menu, closeable, windowState);
+        super(viewer, title, gui.getSize(), menu, closeable, windowState, cursorVisualizer);
         this.gui = gui;
     }
     

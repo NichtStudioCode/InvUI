@@ -10,12 +10,14 @@ import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomAnvilMenu;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
 import xyz.xenondevs.invui.internal.util.FuncUtils;
+import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
 import xyz.xenondevs.invui.util.ItemUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> implements AnvilWindow {
@@ -37,9 +39,10 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
         MutableProperty<Boolean> textFieldAlwaysEnabled,
         MutableProperty<Boolean> resultAlwaysValid,
         MutableProperty<Boolean> closeable,
-        MutableProperty<Integer> windowState
+        MutableProperty<Integer> windowState,
+        MutableProperty<Function<@Nullable ItemStack, @Nullable ItemProvider>> cursorVisualizer
     ) {
-        super(player, title, lowerGui, upperGui.getSize() + lowerGui.getSize(), new CustomAnvilMenu(player), closeable, windowState);
+        super(player, title, lowerGui, upperGui.getSize() + lowerGui.getSize(), new CustomAnvilMenu(player), closeable, windowState, cursorVisualizer);
         if (upperGui.getWidth() != 3 && upperGui.getHeight() != 1)
             throw new IllegalArgumentException("Upper gui must be of dimensions 3x1");
         
@@ -183,7 +186,8 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
                 textFieldAlwaysEnabled,
                 resultAlwaysValid,
                 closeable,
-                windowState
+                windowState,
+                cursorVisualizer
             );
             
             window.setRenameHandlers((List) renameHandlers);

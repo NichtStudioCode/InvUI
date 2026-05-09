@@ -1,6 +1,9 @@
 package xyz.xenondevs.invui.inventory
 
 import org.bukkit.inventory.ItemStack
+import org.jetbrains.annotations.ApiStatus
+import xyz.xenondevs.invui.item.ItemProvider
+import java.util.function.Function
 
 /**
  * Gets a copy of [ItemStack] placed on that [slot].
@@ -32,3 +35,11 @@ operator fun Inventory.contains(item: ItemStack): Boolean =
  */
 operator fun Inventory.get(range: IntRange): ObscuredInventory =
     ObscuredInventory(this) { it !in range }
+
+/**
+ * Sets the visualizer of this inventory.
+ */
+@ApiStatus.Experimental
+fun Inventory.setVisualizer(visualizer: ((ItemStack?) -> ItemProvider?)?) {
+    this.visualizer = if (visualizer != null) Function { itemStack -> visualizer(itemStack) } else null
+}

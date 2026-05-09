@@ -3,6 +3,7 @@ package xyz.xenondevs.invui.window;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
@@ -12,6 +13,7 @@ import xyz.xenondevs.invui.internal.menu.CustomMerchantMenu;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
 import xyz.xenondevs.invui.internal.util.FuncUtils;
 import xyz.xenondevs.invui.item.Item;
+import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
 import xyz.xenondevs.invui.state.Property;
 
@@ -20,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> implements MerchantWindow {
@@ -53,9 +56,10 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
         MutableProperty<Double> progress,
         MutableProperty<Boolean> restockMessage,
         MutableProperty<Boolean> closeable,
-        MutableProperty<Integer> windowState
+        MutableProperty<Integer> windowState,
+        MutableProperty<Function<@Nullable ItemStack, @Nullable ItemProvider>> cursorVisualizer
     ) {
-        super(player, title, lowerGui, 3 + 36, new CustomMerchantMenu(player), closeable, windowState);
+        super(player, title, lowerGui, 3 + 36, new CustomMerchantMenu(player), closeable, windowState, cursorVisualizer);
         if (upperGui.getWidth() != 3 || upperGui.getHeight() != 1)
             throw new IllegalArgumentException("Upper gui must be of dimensions 3x1");
         
@@ -403,7 +407,8 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
                 progress,
                 restockMessageEnabled,
                 closeable,
-                windowState
+                windowState,
+                cursorVisualizer
             );
             
             window.setTradeSelectHandlers((List) tradeSelectHandlers);

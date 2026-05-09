@@ -3,6 +3,8 @@ package xyz.xenondevs.invui.window;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent.Reason;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
@@ -10,10 +12,12 @@ import xyz.xenondevs.invui.ClickEvent;
 import xyz.xenondevs.invui.Observer;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
+import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -310,6 +314,32 @@ public sealed interface Window extends Observer permits AbstractWindow, AnvilWin
     void removeWindowStateChangeHandler(Consumer<? super Integer> handler);
     
     /**
+     * Sets the cursor visualizer of the {@link Window}.
+     * The cursor visualizer is a function that takes the actual {@link ItemStack} on the cursor and returns
+     * an {@link ItemProvider} to visualize it. May return {@code null} to display the item stack normally.
+     *
+     * @param cursorVisualizer The cursor visualizer function
+     */
+    @ApiStatus.Experimental
+    void setCursorVisualizer(Function<@Nullable ItemStack, @Nullable ItemProvider> cursorVisualizer);
+    
+    /**
+     * Gets the cursor visualizer of the {@link Window}.
+     *
+     * @return The cursor visualizer function
+     */
+    @ApiStatus.Experimental
+    Function<@Nullable ItemStack, @Nullable ItemProvider> getCursorVisualizer();
+    
+    /**
+     * Gets the {@link MutableProperty} containing the cursor visualizer of the {@link Window}.
+     *
+     * @return The cursor visualizer property
+     */
+    @ApiStatus.Experimental
+    MutableProperty<Function<@Nullable ItemStack, @Nullable ItemProvider>> getCursorVisualizerProperty();
+    
+    /**
      * Re-sends all window data (excluding title) to the viewer.
      * Does nothing if the window is not currently open.
      * <p>
@@ -493,6 +523,30 @@ public sealed interface Window extends Observer permits AbstractWindow, AnvilWin
          * @return This {@link Builder Window Builder}
          */
         S setFallbackWindow(Supplier<? extends @Nullable Window> fallbackWindow);
+        
+        /**
+         * Sets the cursor visualizer of the {@link Window}.
+         * The cursor visualizer is a function that takes the actual {@link ItemStack} on the cursor and returns
+         * an {@link ItemProvider} to visualize it. May return {@code null} to display the item stack normally.
+         *
+         * @param cursorVisualizer The cursor visualizer function
+         * @return This {@link Builder Window Builder}
+         */
+        @ApiStatus.Experimental
+        default S setCursorVisualizer(Function<@Nullable ItemStack, @Nullable ItemProvider> cursorVisualizer) {
+            return setCursorVisualizer(MutableProperty.of(cursorVisualizer));
+        }
+        
+        /**
+         * Sets the property containing the cursor visualizer of the {@link Window}.
+         * The cursor visualizer is a function that takes the actual {@link ItemStack} on the cursor and returns
+         * an {@link ItemProvider} to visualize it. May return {@code null} to display the item stack normally.
+         *
+         * @param cursorVisualizer The property containing the cursor visualizer function
+         * @return This {@link Builder Window Builder}
+         */
+        @ApiStatus.Experimental
+        S setCursorVisualizer(MutableProperty<Function<@Nullable ItemStack, @Nullable ItemProvider>> cursorVisualizer);
         
         /**
          * Sets the modifiers of the {@link Window}.

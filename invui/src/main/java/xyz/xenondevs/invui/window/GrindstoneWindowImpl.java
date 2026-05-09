@@ -2,12 +2,16 @@ package xyz.xenondevs.invui.window;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Unmodifiable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomGrindstoneMenu;
+import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 final class GrindstoneWindowImpl extends AbstractSplitWindow<CustomGrindstoneMenu> implements GrindstoneWindow {
@@ -23,9 +27,10 @@ final class GrindstoneWindowImpl extends AbstractSplitWindow<CustomGrindstoneMen
         Gui resultGui,
         Gui lowerGui,
         MutableProperty<Boolean> closeable,
-        MutableProperty<Integer> windowState
+        MutableProperty<Integer> windowState,
+        MutableProperty<Function<@Nullable ItemStack, @Nullable ItemProvider>> cursorVisualizer
     ) {
-        super(player, title, lowerGui, 41, new CustomGrindstoneMenu(player), closeable, windowState);
+        super(player, title, lowerGui, 41, new CustomGrindstoneMenu(player), closeable, windowState, cursorVisualizer);
         if (inputGui.getWidth() != 1 || inputGui.getHeight() != 2)
             throw new IllegalArgumentException("Input Gui must be of dimensions 1x2");
         if (resultGui.getWidth() != 1 || resultGui.getHeight() != 1)
@@ -70,7 +75,8 @@ final class GrindstoneWindowImpl extends AbstractSplitWindow<CustomGrindstoneMen
                 resultGuiSupplier.get(),
                 supplyLowerGui(viewer),
                 closeable,
-                windowState
+                windowState,
+                cursorVisualizer
             );
             
             applyModifiers(window);

@@ -11,12 +11,12 @@ import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.ServerMock;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.InvUI;
+import xyz.xenondevs.invui.item.ItemWrapper;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ObscuredInventoryTest {
     
@@ -144,6 +144,42 @@ public class ObscuredInventoryTest {
     }
     
     @Test
+    public void testBundleSelectHandlersInBackingAndObscuredInventory() {
+        var backing = new VirtualInventory(3);
+        var obscured = new ObscuredInventory(backing, i -> i == 0);
+
+        AtomicInteger state = new AtomicInteger();
+        AtomicInteger backingSelectedAt = new AtomicInteger();
+        AtomicInteger obscuredSelectedAt = new AtomicInteger();
+        AtomicInteger backingSlot = new AtomicInteger(-1);
+        AtomicInteger obscuredSlot = new AtomicInteger(-1);
+
+        backing.addBundleSelectHandler(event -> {
+            backingSelectedAt.set(state.incrementAndGet());
+            backingSlot.set(event.getSlot());
+        });
+        obscured.addBundleSelectHandler(event -> {
+            obscuredSelectedAt.set(state.incrementAndGet());
+            obscuredSlot.set(event.getSlot());
+        });
+
+        var player = server.addPlayer();
+
+        obscured.callBundleSelectEvent(0, player, 2);
+
+        assertEquals(1, backingSelectedAt.get());
+        assertEquals(2, obscuredSelectedAt.get());
+        assertEquals(1, backingSlot.get()); // obscured slot 0 -> backing slot 1
+        assertEquals(0, obscuredSlot.get());
+
+        backing.callBundleSelectEvent(0, player, 2);
+
+        assertEquals(3, backingSelectedAt.get());
+        assertEquals(2, obscuredSelectedAt.get());
+        assertEquals(0, backingSlot.get());
+    }
+
+    @Test
     public void testPreUpdateHandlersInBackingAndObscuredInventory() {
         var backing = new VirtualInventory(3);
         var obscured = new ObscuredInventory(backing, i -> i == 0);
@@ -209,6 +245,31 @@ public class ObscuredInventoryTest {
         assertEquals(2, obscuredClickedAt.get());
     }
     
+    @Test
+    public void testVisualizerIsDelegatedIfUnset() {
+        var inv = new VirtualInventory(2);
+        var obscured = new ObscuredInventory(inv, i -> i == 0);
+        
+        inv.setVisualizer(item -> item == null ? null : new ItemWrapper(item));
+        
+        obscured.setItem(null, 0, ItemStack.of(Material.DIAMOND));
+        
+        assertEquals(Material.DIAMOND, obscured.getVisualization(0).get().getType());
+    }
+    
+    @Test
+    public void testOwnVisualizerTakesPrecedence() {
+        var inv = new VirtualInventory(2);
+        var obscured = new ObscuredInventory(inv, i -> i == 0);
+        
+        inv.setVisualizer(_ -> new ItemWrapper(ItemStack.of(Material.DIRT)));
+        obscured.setVisualizer(_ -> new ItemWrapper(ItemStack.of(Material.STONE)));
+        
+        obscured.setItem(null, 0, ItemStack.of(Material.DIAMOND));
+        
+        assertEquals(Material.STONE, obscured.getVisualization(0).get().getType());
+    }
+
     @Test
     public void testGetUpdatePeriod() {
         var backing1 = new VirtualInventory(3);

@@ -13,10 +13,8 @@ import xyz.xenondevs.invui.Observer;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.util.ArrayUtils;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
-import xyz.xenondevs.invui.inventory.event.InventoryClickEvent;
-import xyz.xenondevs.invui.inventory.event.ItemPostUpdateEvent;
-import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
-import xyz.xenondevs.invui.inventory.event.UpdateReason;
+import xyz.xenondevs.invui.inventory.event.*;
+import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.util.ItemUtils;
 import xyz.xenondevs.invui.util.ObserverAtSlot;
 import xyz.xenondevs.invui.window.Window;
@@ -64,10 +62,12 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
     private final int size;
     private final List<Set<ObserverAtSlot>> observers;
     private @Nullable List<Consumer<? super InventoryClickEvent>> clickHandlers;
+    private @Nullable List<Consumer<? super InventoryBundleSelectEvent>> bundleSelectHandlers;
     private @Nullable List<Consumer<? super ItemPreUpdateEvent>> preUpdateHandlers;
     private @Nullable List<Consumer<? super ItemPostUpdateEvent>> postUpdateHandlers;
     private final Map<OperationCategory, int[]> iterationOrders;
     private final Map<OperationCategory, Integer> guiPriorities;
+    private @Nullable Function<@Nullable ItemStack, @Nullable ItemProvider> visualizer;
     
     public Inventory(int size) {
         this.size = size;
@@ -327,6 +327,53 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
     }
     
     /**
+     * Gets all registered bundle select handlers of this {@link Inventory}.
+     *
+     * @return The bundle select handlers
+     */
+    @ApiStatus.Experimental
+    public @UnmodifiableView List<Consumer<InventoryBundleSelectEvent>> getBundleSelectHandlers() {
+        if (bundleSelectHandlers == null)
+            return List.of();
+        
+        return CollectionUtils.unmodifiableListUnchecked(bundleSelectHandlers);
+    }
+    
+    /**
+     * Sets the bundle select handlers of this {@link Inventory}.
+     *
+     * @param bundleSelectHandlers The bundle select handlers
+     */
+    @ApiStatus.Experimental
+    public void setBundleSelectHandlers(List<? extends Consumer<InventoryBundleSelectEvent>> bundleSelectHandlers) {
+        this.bundleSelectHandlers = new ArrayList<>(bundleSelectHandlers);
+    }
+    
+    /**
+     * Registers a bundle select handler for this {@link Inventory}.
+     *
+     * @param bundleSelectHandler The bundle select handler
+     */
+    @ApiStatus.Experimental
+    public void addBundleSelectHandler(Consumer<? super InventoryBundleSelectEvent> bundleSelectHandler) {
+        if (bundleSelectHandlers == null)
+            bundleSelectHandlers = new ArrayList<>();
+        
+        bundleSelectHandlers.add(bundleSelectHandler);
+    }
+    
+    /**
+     * Removes a bundle select handler that was previously registered for this {@link Inventory}.
+     *
+     * @param bundleSelectHandler The bundle select handler to remove
+     */
+    @ApiStatus.Experimental
+    public void removeBundleSelectHandler(Consumer<? super InventoryBundleSelectEvent> bundleSelectHandler) {
+        if (bundleSelectHandlers != null)
+            bundleSelectHandlers.remove(bundleSelectHandler);
+    }
+    
+    /**
      * Gets the pre update handlers of this {@link Inventory}.
      *
      * @return The pre update handlers
@@ -456,6 +503,25 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
         }
         
         return clickEvent.isCancelled();
+    }
+    
+    /**
+     * Calls the bundle select handlers of this {@link Inventory}.
+     *
+     * @param slot       The slot of this {@link Inventory} where the bundle is located.
+     * @param player     The player that selected the item.
+     * @param bundleSlot The index of the selected item inside the bundle.
+     */
+    @ApiStatus.Experimental
+    public void callBundleSelectEvent(int slot, org.bukkit.entity.Player player, int bundleSlot) {
+        var event = new InventoryBundleSelectEvent(this, slot, player, bundleSlot);
+        for (var handler : getBundleSelectHandlers()) {
+            try {
+                handler.accept(event);
+            } catch (Throwable t) {
+                InvUI.getInstance().handleException("An exception occurred while handling a bundle select event", t);
+            }
+        }
     }
     
     /**
@@ -589,7 +655,7 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
      *
      * @param slot            The slot
      * @param alternativeFrom The alternative {@link ItemStack} to determine the potential maximum stack size.
-     *                       Uses {@link #DEFAULT_MAX_STACK_SIZE} if null.
+     *                        Uses {@link #DEFAULT_MAX_STACK_SIZE} if null.
      * @return The current maximum allowed stack size on the specific slot.
      */
     public int getMaxStackSize(int slot, @Nullable ItemStack alternativeFrom) {
@@ -615,7 +681,7 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
      *
      * @param slot            The slot
      * @param alternativeFrom The alternative {@link ItemStack} to determine the potential maximum stack size.
-     *                       Uses {@link #DEFAULT_MAX_STACK_SIZE} if null.
+     *                        Uses {@link #DEFAULT_MAX_STACK_SIZE} if null.
      * @return The maximum stack size on that slot
      */
     public int getMaxSlotStackSize(int slot, @Nullable ItemStack alternativeFrom) {
@@ -1425,6 +1491,46 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
         }
         
         return 0;
+    }
+    
+    /**
+     * Sets the visualizer of this {@link Inventory}.
+     * <p>
+     * The visualizer is a function that takes the actual {@link ItemStack} on a slot and returns an {@link ItemProvider}
+     * to be used as the visual representation of that slot. Returning {@code null} indicates that no replacement
+     * visualization is provided and the actual {@link ItemStack} should be used.
+     *
+     * @param visualizer The visualizer function, or {@code null} for no visualizer
+     */
+    @ApiStatus.Experimental
+    public void setVisualizer(@Nullable Function<@Nullable ItemStack, @Nullable ItemProvider> visualizer) {
+        this.visualizer = visualizer;
+        notifyWindows();
+    }
+    
+    /**
+     * Gets the visualizer of this {@link Inventory}.
+     *
+     * @return The visualizer, or {@code null} if no visualizer is set.
+     */
+    @ApiStatus.Experimental
+    public @Nullable Function<@Nullable ItemStack, @Nullable ItemProvider> getVisualizer() {
+        return visualizer;
+    }
+    
+    /**
+     * Gets the {@link ItemProvider} that visually represents the given slot by invoking this inventory's
+     * {@link #getVisualizer() visualizer}. May return {@code null} if there is no special visualization
+     * for this slot and the normal item stack should be used instead.
+     *
+     * @param slot The slot
+     * @return The {@link ItemProvider} for that slot, or {@code null} if the actual
+     * {@link #getItem(int) item on the slot} should be used.
+     */
+    @ApiStatus.Experimental
+    public @Nullable ItemProvider getVisualization(int slot) {
+        var visualizer = getVisualizer();
+        return visualizer != null ? visualizer.apply(getItem(slot)) : null;
     }
     
     /**

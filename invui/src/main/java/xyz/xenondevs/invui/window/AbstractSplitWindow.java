@@ -2,13 +2,16 @@ package xyz.xenondevs.invui.window;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.internal.menu.CustomContainerMenu;
 import xyz.xenondevs.invui.internal.util.InventoryUtils2;
+import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
 
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 sealed abstract class AbstractSplitWindow<M extends CustomContainerMenu>
@@ -25,9 +28,10 @@ sealed abstract class AbstractSplitWindow<M extends CustomContainerMenu>
         int size,
         M menu,
         MutableProperty<Boolean> closeable,
-        MutableProperty<Integer> windowState
+        MutableProperty<Integer> windowState,
+        MutableProperty<Function<@Nullable ItemStack, @Nullable ItemProvider>> cursorVisualizer
     ) {
-        super(player, title, size, menu, closeable, windowState);
+        super(player, title, size, menu, closeable, windowState, cursorVisualizer);
         this.lowerGui = lowerGui;
         
         if (lowerGui.getWidth() != 9 || lowerGui.getHeight() != 4)

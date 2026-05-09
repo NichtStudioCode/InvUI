@@ -2,12 +2,16 @@ package xyz.xenondevs.invui.window;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Unmodifiable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomSmithingTableMenu;
+import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 final class SmithingWindowImpl extends AbstractSplitWindow<CustomSmithingTableMenu> implements SmithingWindow {
@@ -21,9 +25,10 @@ final class SmithingWindowImpl extends AbstractSplitWindow<CustomSmithingTableMe
         Gui upperGui,
         Gui lowerGui,
         MutableProperty<Boolean> closeable,
-        MutableProperty<Integer> windowState
+        MutableProperty<Integer> windowState,
+        MutableProperty<Function<@Nullable ItemStack, @Nullable ItemProvider>> cursorVisualizer
     ) {
-        super(player, title, lowerGui, 41, new CustomSmithingTableMenu(player), closeable, windowState);
+        super(player, title, lowerGui, 41, new CustomSmithingTableMenu(player), closeable, windowState, cursorVisualizer);
         if (upperGui.getWidth() != 4 || upperGui.getHeight() != 1)
             throw new IllegalArgumentException("Upper Gui must be of dimensions 4x1");
         
@@ -57,7 +62,8 @@ final class SmithingWindowImpl extends AbstractSplitWindow<CustomSmithingTableMe
                 upperGuiSupplier.get(),
                 supplyLowerGui(viewer),
                 closeable,
-                windowState
+                windowState,
+                cursorVisualizer
             );
             
             applyModifiers(window);

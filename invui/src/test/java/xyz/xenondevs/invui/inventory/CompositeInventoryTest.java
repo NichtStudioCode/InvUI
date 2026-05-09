@@ -11,12 +11,12 @@ import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.ServerMock;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.InvUI;
+import xyz.xenondevs.invui.item.ItemWrapper;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CompositeInventoryTest {
     
@@ -144,6 +144,54 @@ public class CompositeInventoryTest {
     }
     
     @Test
+    public void testBundleSelectHandlersInComposedAndCompositeInventory() {
+        var inv1 = new VirtualInventory(3);
+        var inv2 = new VirtualInventory(3);
+        var composite = new CompositeInventory(inv1, inv2);
+
+        AtomicInteger state = new AtomicInteger();
+        AtomicInteger inv1SelectedAt = new AtomicInteger();
+        AtomicInteger inv2SelectedAt = new AtomicInteger();
+        AtomicInteger compositeSelectedAt = new AtomicInteger();
+        AtomicInteger inv2Slot = new AtomicInteger(-1);
+        AtomicInteger compositeSlot = new AtomicInteger(-1);
+
+        inv1.addBundleSelectHandler(event -> inv1SelectedAt.set(state.incrementAndGet()));
+        inv2.addBundleSelectHandler(event -> {
+            inv2SelectedAt.set(state.incrementAndGet());
+            inv2Slot.set(event.getSlot());
+        });
+        composite.addBundleSelectHandler(event -> {
+            compositeSelectedAt.set(state.incrementAndGet());
+            compositeSlot.set(event.getSlot());
+        });
+
+        var player = server.addPlayer();
+
+        composite.callBundleSelectEvent(0, player, 2);
+
+        assertEquals(1, inv1SelectedAt.get());
+        assertEquals(0, inv2SelectedAt.get());
+        assertEquals(2, compositeSelectedAt.get());
+        assertEquals(0, compositeSlot.get());
+
+        composite.callBundleSelectEvent(5, player, 1);
+
+        assertEquals(1, inv1SelectedAt.get());
+        assertEquals(3, inv2SelectedAt.get());
+        assertEquals(4, compositeSelectedAt.get());
+        assertEquals(2, inv2Slot.get()); // composite slot 5 -> inv2 slot 2
+        assertEquals(5, compositeSlot.get());
+
+        inv1.callBundleSelectEvent(0, player, 0);
+        inv2.callBundleSelectEvent(0, player, 0);
+
+        assertEquals(5, inv1SelectedAt.get());
+        assertEquals(6, inv2SelectedAt.get());
+        assertEquals(4, compositeSelectedAt.get());
+    }
+
+    @Test
     public void testPreUpdateHandlersInComposedAndCompositeInventory() {
         var inv1 = new VirtualInventory(3);
         var inv2 = new VirtualInventory(3);
@@ -233,6 +281,37 @@ public class CompositeInventoryTest {
         assertEquals(4, compositeUpdatedAt.get());
     }
     
+    @Test
+    public void testVisualizerIsDelegatedIfUnset() {
+        var inv1 = new VirtualInventory(1);
+        var inv2 = new VirtualInventory(1);
+        var composite = new CompositeInventory(inv1, inv2);
+        
+        inv2.setVisualizer(item -> item == null ? null : new ItemWrapper(item));
+
+        composite.setItem(null, 0, ItemStack.of(Material.DIAMOND));
+        composite.setItem(null, 1, ItemStack.of(Material.GOLD_INGOT));
+        
+        assertNull(composite.getVisualization(0));
+        assertEquals(Material.GOLD_INGOT, composite.getVisualization(1).get().getType());
+    }
+
+    @Test
+    public void testOwnVisualizerTakesPrecedence() {
+        var inv1 = new VirtualInventory(1);
+        var inv2 = new VirtualInventory(1);
+        var composite = new CompositeInventory(inv1, inv2);
+        
+        inv2.setVisualizer(_ -> new ItemWrapper(ItemStack.of(Material.DIRT)));
+        composite.setVisualizer(_ -> new ItemWrapper(ItemStack.of(Material.STONE)));
+        
+        composite.setItem(null, 0, ItemStack.of(Material.DIAMOND));
+        composite.setItem(null, 1, ItemStack.of(Material.GOLD_INGOT));
+        
+        assertEquals(Material.STONE, composite.getVisualization(0).get().getType());
+        assertEquals(Material.STONE, composite.getVisualization(1).get().getType());
+    }
+
     @Test
     public void testGetUpdatePeriod() {
         var inv1 = new VirtualInventory(3);

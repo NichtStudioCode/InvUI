@@ -12,6 +12,7 @@ import xyz.xenondevs.invui.item.ItemBuilder;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.item.ItemWrapper;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -22,6 +23,8 @@ public final class ItemUtils {
     
     private static @Nullable ItemStack placeholder;
     private static @Nullable ItemWrapper placeholderProvider;
+    
+    private static final List<DataComponentType> DATA_COMPONENT_TYPES = Registry.DATA_COMPONENT_TYPE.stream().toList();
     
     private ItemUtils() {}
     
@@ -164,7 +167,7 @@ public final class ItemUtils {
             return ItemStack.empty();
         
         ItemStack result = targetType.createItemStack(original.getAmount());
-        for (var type : Registry.DATA_COMPONENT_TYPE) {
+        for (var type : DATA_COMPONENT_TYPES) {
             if (original.hasData(type)) {
                 if (type instanceof DataComponentType.Valued<?> valuedType) {
                     copyDataComponent(valuedType, original, result);

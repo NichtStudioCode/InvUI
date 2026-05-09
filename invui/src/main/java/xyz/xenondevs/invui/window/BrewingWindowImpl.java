@@ -2,13 +2,17 @@ package xyz.xenondevs.invui.window;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Unmodifiable;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomBrewingStandMenu;
 import xyz.xenondevs.invui.internal.util.FuncUtils;
+import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 final class BrewingWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu> implements BrewingWindow {
@@ -35,9 +39,10 @@ final class BrewingWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu
         MutableProperty<Double> brewProgress,
         MutableProperty<Double> fuelProgress,
         MutableProperty<Boolean> closeable,
-        MutableProperty<Integer> windowState
+        MutableProperty<Integer> windowState,
+        MutableProperty<Function<@Nullable ItemStack, @Nullable ItemProvider>> cursorVisualizer
     ) {
-        super(player, title, lowerGui, 41, new CustomBrewingStandMenu(player), closeable, windowState);
+        super(player, title, lowerGui, 41, new CustomBrewingStandMenu(player), closeable, windowState, cursorVisualizer);
         if (inputGui.getWidth() != 1 || inputGui.getHeight() != 1)
             throw new IllegalArgumentException("Input Gui must be of dimensions 1x1");
         if (fuelGui.getWidth() != 1 || fuelGui.getHeight() != 1)
@@ -145,7 +150,8 @@ final class BrewingWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu
                 brewProgress,
                 fuelProgress,
                 closeable,
-                windowState
+                windowState,
+                cursorVisualizer
             );
             
             applyModifiers(window);

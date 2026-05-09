@@ -87,6 +87,9 @@ class PropertyAccessorsPresenceTest {
             inventory.postUpdateHandlers
             inventory.postUpdateHandlers = emptyList()
             
+            inventory.visualizer
+            inventory.visualizer = null
+            
             // -- AnvilWindow --
             anvilWindow.renameHandlers
             anvilWindow.renameHandlers = emptyList()

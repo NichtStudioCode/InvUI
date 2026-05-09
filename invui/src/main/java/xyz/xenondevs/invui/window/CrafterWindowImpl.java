@@ -2,17 +2,21 @@ package xyz.xenondevs.invui.window;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
+import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.menu.CustomCrafterMenu;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
 import xyz.xenondevs.invui.internal.util.FuncUtils;
+import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 final class CrafterWindowImpl extends AbstractSplitWindow<CustomCrafterMenu> implements CrafterWindow {
@@ -36,9 +40,10 @@ final class CrafterWindowImpl extends AbstractSplitWindow<CustomCrafterMenu> imp
         List<? extends MutableProperty<Boolean>> slots,
         List<BiConsumer<? super Integer, ? super Boolean>> slotToggleHandlers,
         MutableProperty<Boolean> closeable,
-        MutableProperty<Integer> windowState
+        MutableProperty<Integer> windowState,
+        MutableProperty<Function<@Nullable ItemStack, @Nullable ItemProvider>> cursorVisualizer
     ) {
-        super(player, title, lowerGui, 46, new CustomCrafterMenu(player), closeable, windowState);
+        super(player, title, lowerGui, 46, new CustomCrafterMenu(player), closeable, windowState, cursorVisualizer);
         if (craftingGui.getWidth() != 3 || craftingGui.getHeight() != 3)
             throw new IllegalArgumentException("Crafting Gui must be of dimensions 3x3");
         if (resultGui.getWidth() != 1 || resultGui.getHeight() != 1)
@@ -178,7 +183,8 @@ final class CrafterWindowImpl extends AbstractSplitWindow<CustomCrafterMenu> imp
                 slots,
                 slotToggleHandlers,
                 closeable,
-                windowState
+                windowState,
+                cursorVisualizer
             );
             
             applyModifiers(window);

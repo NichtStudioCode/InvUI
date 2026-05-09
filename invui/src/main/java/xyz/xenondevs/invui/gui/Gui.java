@@ -3,7 +3,9 @@ package xyz.xenondevs.invui.gui;
 import io.papermc.paper.threadedregions.scheduler.EntityScheduler;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Unmodifiable;
+import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 import xyz.xenondevs.invui.Click;
 import xyz.xenondevs.invui.Observable;
@@ -13,6 +15,7 @@ import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.item.ItemWrapper;
 import xyz.xenondevs.invui.state.MutableProperty;
 import xyz.xenondevs.invui.state.Property;
+import xyz.xenondevs.invui.util.TriConsumer;
 import xyz.xenondevs.invui.window.Window;
 
 import java.util.Collection;
@@ -148,6 +151,41 @@ public sealed interface Gui extends Observable permits AbstractGui, PagedGui, Sc
      * @param bundleSlot The bundle slot index that was selected.
      */
     void handleBundleSelect(int slot, Player player, int bundleSlot);
+    
+    /**
+     * Replaces the currently registered bundle select handlers with the given list.
+     *
+     * @param bundleSelectHandlers The new bundle select handlers,
+     *                             receiving the {@link Player}, the gui slot of the bundle, and the index of the item in the bundle that was selected
+     */
+    @ApiStatus.Experimental
+    void setBundleSelectHandlers(List<? extends TriConsumer<Player, Integer, Integer>> bundleSelectHandlers);
+    
+    /**
+     * Gets the currently registered bundle select handlers.
+     *
+     * @return An unmodifiable view of the currently registered bundle select handlers.
+     */
+    @ApiStatus.Experimental
+    @UnmodifiableView
+    List<TriConsumer<Player, Integer, Integer>> getBundleSelectHandlers();
+    
+    /**
+     * Adds a bundle select handler that will be called when a player selects an item from a bundle.
+     *
+     * @param bundleSelectHandler The bundle select handler to add,
+     *                            receiving the {@link Player}, the gui slot of the bundle, and the index of the item in the bundle that was selected
+     */
+    @ApiStatus.Experimental
+    void addBundleSelectHandler(TriConsumer<? super Player, ? super Integer, ? super Integer> bundleSelectHandler);
+    
+    /**
+     * Removes a bundle select handler that has been added previously.
+     *
+     * @param bundleSelectHandler The bundle select handler to remove
+     */
+    @ApiStatus.Experimental
+    void removeBundleSelectHandler(TriConsumer<? super Player, ? super Integer, ? super Integer> bundleSelectHandler);
     
     /**
      * Gets the size of the {@link Gui}.
@@ -1052,6 +1090,26 @@ public sealed interface Gui extends Observable permits AbstractGui, PagedGui, Sc
          * @return This {@link Builder Gui Builder}
          */
         S setIgnoreObscuredInventorySlots(MutableProperty<Boolean> ignoreObscuredInventorySlots);
+        
+        /**
+         * Sets the bundle select handlers of the {@link Gui}.
+         *
+         * @param bundleSelectHandlers The bundle select handlers,
+         *                             receiving the {@link Player}, the gui slot of the bundle, and the index of the item in the bundle that was selected
+         * @return This {@link Gui.Builder Gui Builder}
+         */
+        @ApiStatus.Experimental
+        S setBundleSelectHandlers(List<? extends TriConsumer<? super Player, ? super Integer, ? super Integer>> bundleSelectHandlers);
+        
+        /**
+         * Adds a bundle select handler to the {@link Gui}.
+         *
+         * @param bundleSelectHandler The bundle select handler to add,
+         *                            receiving the {@link Player}, the gui slot of the bundle, and the index of the item in the bundle that was selected
+         * @return This {@link Gui.Builder Gui Builder}
+         */
+        @ApiStatus.Experimental
+        S addBundleSelectHandler(TriConsumer<? super Player, ? super Integer, ? super Integer> bundleSelectHandler);
         
         /**
          * Adds a {@link Consumer} that is run when the {@link Gui} is built.
