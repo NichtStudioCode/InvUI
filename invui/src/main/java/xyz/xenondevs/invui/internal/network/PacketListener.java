@@ -102,7 +102,12 @@ public class PacketListener implements Listener {
         var channel = ((CraftPlayer) player).getHandle().connection.connection.channel;
         var packetHandler = new PacketHandler(player, channel);
         packetHandlers.put(player.getUniqueId(), packetHandler);
-        channel.pipeline().addBefore(MC_PACKET_HANDLER_NAME, invuiPacketHandlerName, packetHandler);
+        try {
+            channel.pipeline().addBefore(MC_PACKET_HANDLER_NAME, invuiPacketHandlerName, packetHandler);
+        } catch (NoSuchElementException e) {
+            // When player disconnected with unknown reason, the handler injection might fail.
+            // just catch and ignore the exception to ensure PacketListener initializes.
+        }
     }
     
     private void removeChannelHandler(Player player) {
