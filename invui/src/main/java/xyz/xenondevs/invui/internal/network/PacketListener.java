@@ -104,7 +104,7 @@ public class PacketListener implements Listener {
         packetHandlers.put(player.getUniqueId(), packetHandler);
         try {
             channel.pipeline().addBefore(MC_PACKET_HANDLER_NAME, invuiPacketHandlerName, packetHandler);
-        } catch (NoSuchElementException e) {
+        } catch (NoSuchElementException ignored) {
             // When player disconnected with unknown reason, the handler injection might fail.
             // just catch and ignore the exception to ensure PacketListener initializes.
         }
