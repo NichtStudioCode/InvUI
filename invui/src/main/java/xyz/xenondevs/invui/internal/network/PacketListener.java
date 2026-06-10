@@ -104,9 +104,10 @@ public class PacketListener implements Listener {
         packetHandlers.put(player.getUniqueId(), packetHandler);
         try {
             channel.pipeline().addBefore(MC_PACKET_HANDLER_NAME, invuiPacketHandlerName, packetHandler);
-        } catch (NoSuchElementException ignored) {
-            // When player disconnected with unknown reason, the handler injection might fail.
-            // just catch and ignore the exception to ensure PacketListener initializes.
+        } catch (NoSuchElementException e) {
+            // https://github.com/NichtStudioCode/InvUI/pull/119
+            InvUI.getInstance().getPlugin().getComponentLogger()
+                .error("[InvUI] Failed to inject packet handler for player {}: {}. InvUI will not work correctly for this player.", player.getName(), e.getMessage());
         }
     }
     
