@@ -102,7 +102,13 @@ public class PacketListener implements Listener {
         var channel = ((CraftPlayer) player).getHandle().connection.connection.channel;
         var packetHandler = new PacketHandler(player, channel);
         packetHandlers.put(player.getUniqueId(), packetHandler);
-        channel.pipeline().addBefore(MC_PACKET_HANDLER_NAME, invuiPacketHandlerName, packetHandler);
+        try {
+            channel.pipeline().addBefore(MC_PACKET_HANDLER_NAME, invuiPacketHandlerName, packetHandler);
+        } catch (NoSuchElementException e) {
+            // https://github.com/NichtStudioCode/InvUI/pull/119
+            InvUI.getInstance().getPlugin().getComponentLogger()
+                .error("[InvUI] Failed to inject packet handler for player {}: {}. InvUI will not work correctly for this player.", player.getName(), e.getMessage());
+        }
     }
     
     private void removeChannelHandler(Player player) {
