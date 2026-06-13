@@ -78,7 +78,12 @@ public sealed interface Window extends Observer permits AbstractWindow, AnvilWin
     
     /**
      * Shows the window to the viewer.
-     * Does nothing if the window is already open.
+     * Does nothing if the window is already open or if the window cannot be opened because
+     * the viewer is {@link Player#isValid() invalid}, {@link Player#isConnected() disconnected},
+     * {@link Player#isSleeping() sleeping}, or similar.
+     * 
+     * @throws IllegalStateException If this function was called while opening another window
+     * @throws IllegalStateException If this function was called while closing another window
      */
     void open();
     

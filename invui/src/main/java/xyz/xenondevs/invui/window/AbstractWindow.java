@@ -530,10 +530,8 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
     @Override
     public void open() {
         Player viewer = getViewer();
-        if (isOpen)
+        if (isOpen || viewer.isSleeping() || !viewer.isValid() || !viewer.isConnected())
             return;
-        if (!viewer.isValid())
-            throw new IllegalStateException("Viewer is not valid");
         if (isInOpeningContext.get())
             throw new IllegalStateException("Opening a window is not allowed to trigger opening another window.");
         if (isInCloseHandlerContext.get() > 0)
