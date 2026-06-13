@@ -444,10 +444,10 @@ public abstract class CustomContainerMenu {
      */
     protected UpdateType processPacket(Packet<? super ServerGamePacketListener> packet) {
         return switch (packet) {
-            case ServerboundContainerButtonClickPacket p -> handleButtonClick(p.buttonId());
-            case ServerboundContainerClickPacket p -> handleClick(p);
+            case ServerboundContainerButtonClickPacket p when p.containerId() == containerId -> handleButtonClick(p.buttonId());
+            case ServerboundContainerClickPacket p when p.containerId() == containerId -> handleClick(p);
             case ServerboundSelectBundleItemPacket p -> handleBundleSelect(p);
-            case ServerboundContainerClosePacket p -> {
+            case ServerboundContainerClosePacket p when p.getContainerId() == containerId -> {
                 handleClose(p);
                 yield UpdateType.NONE;
             }
@@ -476,9 +476,6 @@ public abstract class CustomContainerMenu {
      * @param packet The packet that was received
      */
     private void handleClose(ServerboundContainerClosePacket packet) {
-        if (packet.getContainerId() != containerId)
-            return;
-        
         if (getWindow().isCloseable()) {
             getWindowEvents().handleClose(InventoryCloseEvent.Reason.PLAYER);
             serverPlayer.containerMenu = serverPlayer.inventoryMenu;
