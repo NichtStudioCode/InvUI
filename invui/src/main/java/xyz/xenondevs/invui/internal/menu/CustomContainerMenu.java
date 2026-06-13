@@ -108,7 +108,7 @@ public abstract class CustomContainerMenu {
      */
     protected static final ItemStack DIRTY_MARKER = new ItemStack(
         // use obscure item / count combination to fail item comparison as early as possible
-        BuiltInRegistries.ITEM.wrapAsHolder(Items.GREEN_CANDLE), 51,
+        BuiltInRegistries.ITEM.wrapAsHolder(Items.DYED_CANDLE.green()), 51,
         DataComponentPatch.builder()
             .set(DataComponents.ITEM_MODEL, Identifier.fromNamespaceAndPath("invui", "dirty_marker"))
             .build()
