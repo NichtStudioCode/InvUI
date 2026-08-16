@@ -169,11 +169,35 @@ non-sealed abstract class AbstractGui implements Gui {
             if (inventory.callClickEvent(slot, click, InventoryAction.PICKUP_SOME_INTO_BUNDLE))
                 return;
             
+            // trial the insert on copies first, since a bundle can refuse an item the free space says fits
             int toAdd = ItemUtils2.getMaxAmountToAddToBundle(cursor, clicked);
-            toAdd = -inventory.addItemAmount(updateReason, slot, -toAdd);
-            clicked.setAmount(toAdd);
-            ItemUtils2.tryMoveIntoBundle(cursor, clicked); // writes back into clicked and cursor
-            player.setItemOnCursor(cursor);
+            if (toAdd <= 0)
+                return;
+            
+            ItemStack bundle = cursor.clone();
+            ItemStack moving = clicked.clone();
+            moving.setAmount(toAdd);
+            if (!ItemUtils2.tryMoveIntoBundle(bundle, moving)) // writes the remainder back into moving
+                return;
+            
+            int accepted = toAdd - moving.getAmount();
+            if (accepted <= 0)
+                return;
+            
+            // only now take from the inventory, and only what the bundle accepted
+            int taken = -inventory.addItemAmount(updateReason, slot, -accepted);
+            if (taken <= 0)
+                return;
+            
+            if (taken < accepted) {
+                // redo the insert at what was actually taken, else the bundle holds items the inventory kept
+                bundle = cursor.clone();
+                ItemStack actual = clicked.clone();
+                actual.setAmount(taken);
+                ItemUtils2.tryMoveIntoBundle(bundle, actual);
+            }
+            
+            player.setItemOnCursor(bundle);
         } else if (clicked != null && ItemUtils2.isBundle(clicked)) {
             // insert cursor item into clicked bundle
             if (inventory.callClickEvent(slot, click, InventoryAction.PLACE_SOME_INTO_BUNDLE))
