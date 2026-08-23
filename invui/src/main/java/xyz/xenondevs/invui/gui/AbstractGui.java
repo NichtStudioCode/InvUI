@@ -169,11 +169,12 @@ non-sealed abstract class AbstractGui implements Gui {
             if (inventory.callClickEvent(slot, click, InventoryAction.PICKUP_SOME_INTO_BUNDLE))
                 return;
             
-            int toAdd = ItemUtils2.getMaxAmountToAddToBundle(cursor, clicked);
-            toAdd = -inventory.addItemAmount(updateReason, slot, -toAdd);
-            clicked.setAmount(toAdd);
-            ItemUtils2.tryMoveIntoBundle(cursor, clicked); // writes back into clicked and cursor
-            player.setItemOnCursor(cursor);
+            ItemStack bundle = cursor.clone();
+            if (!ItemUtils2.tryMoveIntoBundle(bundle, clicked)) // writes back into bundle and clicked
+                return;
+            if (!inventory.setItem(updateReason, slot, clicked))
+                return;
+            player.setItemOnCursor(bundle);
         } else if (clicked != null && ItemUtils2.isBundle(clicked)) {
             // insert cursor item into clicked bundle
             if (inventory.callClickEvent(slot, click, InventoryAction.PLACE_SOME_INTO_BUNDLE))

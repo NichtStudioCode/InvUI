@@ -114,26 +114,6 @@ public final class ItemUtils2 {
     }
     
     /**
-     * Gets the maximum amount of items from the given target stack that can be added to the given bundle.
-     *
-     * @param bundle The bundle item stack
-     * @param target The target item stack
-     * @return The maximum amount of items from the target stack that can be added to the bundle
-     */
-    public static int getMaxAmountToAddToBundle(ItemStack bundle, ItemStack target) {
-        if (ItemUtils.isEmpty(target))
-            return 0;
-        
-        var nmsBundle = CraftItemStack.unwrap(bundle);
-        var bundleContents = nmsBundle.get(DataComponents.BUNDLE_CONTENTS);
-        if (bundleContents == null)
-            return 0;
-        
-        var nmsTarget = CraftItemStack.unwrap(target);
-        return Math.min(target.getAmount(), bundleContents.getMaxAmountToAdd(nmsTarget));
-    }
-    
-    /**
      * Gets the first item stack from the bundle without removing it.
      *
      * @param bundle the bundle item stack
