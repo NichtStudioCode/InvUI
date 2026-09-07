@@ -123,7 +123,7 @@ public final class InvUI implements Listener {
      * {@link org.bukkit.event.inventory.InventoryDragEvent} should be called for interactions with InvUI inventories.
      * <p>
      * By default, this is {@code true}. It can be changed using {@link #setFireBukkitInventoryEvents(boolean)} or
-     * with the system property {@code invui.fireBukkitClickEvents}. If the system property is present,
+     * with the system property {@code invui.fireBukkitInventoryEvents}. If the system property is present,
      * it overrides the value set using {@link #setFireBukkitInventoryEvents(boolean)}.
      *
      * @return Whether Bukkit's inventory events should be fired for interactions with InvUI inventories.
