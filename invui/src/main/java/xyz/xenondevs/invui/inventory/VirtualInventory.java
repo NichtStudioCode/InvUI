@@ -15,11 +15,12 @@ import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.util.ItemUtils;
 
 import java.io.*;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -31,11 +32,12 @@ import java.util.zip.GZIPOutputStream;
 public final class VirtualInventory extends Inventory {
     
     private static final Object MASKED_NULL = new Object();
+    private static final VarHandle VISUALIZATION_HANDLE = MethodHandles.arrayElementVarHandle(Object[].class);
     
     private final UUID uuid;
     private final @Nullable ItemStack[] items;
     private int[] maxStackSizes;
-    private final AtomicReferenceArray<@Nullable Object> visualization;
+    private final @Nullable Object[] visualization;
     
     /**
      * Constructs a new {@link VirtualInventory}
@@ -51,7 +53,7 @@ public final class VirtualInventory extends Inventory {
         super(size);
         this.uuid = uuid == null ? new UUID(0L, 0L) : uuid;
         this.items = new ItemStack[size];
-        this.visualization = new AtomicReferenceArray<>(size);
+        this.visualization = new Object[size];
         
         if (maxStackSizes != null) {
             if (size != maxStackSizes.length)
@@ -402,28 +404,28 @@ public final class VirtualInventory extends Inventory {
     
     @Override
     public void notifyWindows() {
-        for (int i = 0; i < visualization.length(); i++) {
-            visualization.set(i, null);
+        for (int i = 0; i < visualization.length; i++) {
+            VISUALIZATION_HANDLE.setVolatile(visualization, i, null);
         }
         super.notifyWindows();
     }
     
     @Override
     public void notifyWindows(int slot) {
-        visualization.set(slot, null);
+        VISUALIZATION_HANDLE.setVolatile(visualization, slot, null);
         super.notifyWindows(slot);
     }
     
     @Override
     public @Nullable ItemProvider getVisualization(int slot) {
-        var cached = visualization.get(slot);
+        var cached = VISUALIZATION_HANDLE.getVolatile(visualization, slot);
         if (cached == MASKED_NULL)
             return null;
         if (cached != null)
             return (ItemProvider) cached;
         
         var provider = super.getVisualization(slot);
-        visualization.set(slot, Objects.requireNonNullElse(provider, MASKED_NULL));
+        VISUALIZATION_HANDLE.setVolatile(visualization, slot, Objects.requireNonNullElse(provider, MASKED_NULL));
         return provider;
     }
     
