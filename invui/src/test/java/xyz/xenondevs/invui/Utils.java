@@ -17,6 +17,10 @@ public class Utils {
         }
     }
     
+    public static void assertSlotElement(Gui gui, int x, int y, @Nullable SlotElement element) {
+        assertSlotElementEquals(element, gui.getSlotElement(x, y), "x=" + x + ", y=" + y);
+    }
+    
     public static void assertItems(Gui gui, @Nullable Item... items) {
         assertEquals(gui.getSize(), items.length);
         for (int i = 0; i < items.length; i++) {

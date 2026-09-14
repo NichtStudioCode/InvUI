@@ -40,7 +40,7 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
         MutableProperty<List<? extends C>> content
     ) {
         super(width, height);
-        this.line = new BatchingProperty<>(DEFAULT_LINE);
+        this.line = new BatchingProperty<>(DEFAULT_LINE, this::notifyWindowsOfContentListSlots);
         this.line.observeWeak(this, AbstractScrollGui::handleLineChange);
         this.content = new BatchingProperty<>(content, this::notifyWindowsOfContentListSlots);
         this.content.observeWeak(this, AbstractScrollGui::bake);

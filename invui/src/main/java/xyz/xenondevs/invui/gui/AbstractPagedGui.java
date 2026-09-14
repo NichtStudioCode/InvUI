@@ -33,7 +33,7 @@ non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements Pag
         MutableProperty<List<? extends C>> content
     ) {
         super(width, height);
-        this.page = new BatchingProperty<>(DEFAULT_PAGE);
+        this.page = new BatchingProperty<>(DEFAULT_PAGE, this::notifyWindowsOfContentListSlots);
         this.page.observeWeak(this, AbstractPagedGui::handlePageChange);
         this.content = new BatchingProperty<>(content, this::notifyWindowsOfContentListSlots);
         this.content.observeWeak(this, AbstractPagedGui::bake);

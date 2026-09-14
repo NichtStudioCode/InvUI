@@ -100,6 +100,19 @@ public class PagedGuiTest {
         }
     }
     
+    @Test
+    public void testPagePropertyWithStaticFactory() {
+        var items = List.of(
+            Item.simple(ItemStack.of(Material.STONE)),
+            Item.simple(ItemStack.of(Material.DIRT))
+        );
+        var gui = PagedGui.ofItems(1, 1, items, List.of(new Slot(0, 0)));
+        
+        assertSame(items.get(0), gui.getItem(0, 0));
+        gui.getPageProperty().set(1);
+        assertSame(items.get(1), gui.getItem(0, 0));
+    }
+    
     @ParameterizedTest
     @ValueSource(ints = {0, 10, 99, 1000})
     public void testPageProperty(int itemCount) {

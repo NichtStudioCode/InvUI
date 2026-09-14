@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static xyz.xenondevs.invui.Utils.assertSlotElement;
 import static xyz.xenondevs.invui.Utils.assertSlotElements;
 import static xyz.xenondevs.invui.Utils.gl;
 
@@ -409,6 +410,16 @@ public class TabGuiTest {
         return IntStream.range(0, amount)
             .mapToObj(i -> Gui.empty(width, height))
             .toList();
+    }
+    
+    @Test
+    public void testTabPropertyWithStaticFactory() {
+        var tabs = List.of(Gui.empty(1, 1), Gui.empty(1, 1));
+        var gui = TabGui.of(1, 1, tabs, List.of(new Slot(0, 0)));
+        
+        assertSlotElement(gui, 0, 0, gl(tabs.get(0), 0, 0));
+        gui.getTabProperty().set(1);
+        assertSlotElement(gui, 0, 0, gl(tabs.get(1), 0, 0));
     }
     
 }

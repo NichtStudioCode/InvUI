@@ -66,6 +66,24 @@ public class ScrollGuiTest {
     }
     
     @Test
+    public void testLinePropertyWithStaticFactory() {
+        var items = List.of(
+            Item.simple(ItemStack.of(Material.STONE)),
+            Item.simple(ItemStack.of(Material.DIRT))
+        );
+        var gui = ScrollGui.ofItems(
+            1, 1,
+            items,
+            List.of(new Slot(0, 0)),
+            ScrollGui.LineOrientation.HORIZONTAL
+        );
+        
+        assertSame(items.get(0), gui.getItem(0, 0));
+        gui.getLineProperty().set(1);
+        assertSame(items.get(1), gui.getItem(0, 0));
+    }
+    
+    @Test
     public void testScrollVerticalLineLength1() {
         var items = List.of(
             Item.simple(ItemStack.of(Material.STONE)),

@@ -33,7 +33,7 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
         super(width, height);
         if (contentListSlots.isEmpty())
             throw new IllegalArgumentException("Content list slots must not be empty");
-        this.tab = new BatchingProperty<>(DEFAULT_TAB);
+        this.tab = new BatchingProperty<>(DEFAULT_TAB, this::notifyWindowsOfContentListSlots);
         this.tab.observeWeak(this, TabGuiImpl::handleTabChange);
         this.tabs = new BatchingProperty<>(tabs, this::notifyWindowsOfContentListSlots);
         this.tabs.observeWeak(this, TabGuiImpl::bake);
@@ -168,7 +168,7 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     
     @Override
     public MutableProperty<Integer> getTabProperty() {
-        return tab;
+        return tab.upstream;
     }
     
     public int getTab() {

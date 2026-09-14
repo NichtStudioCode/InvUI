@@ -26,8 +26,8 @@ class BatchingProperty<T> implements MutableProperty<T> {
     
     private volatile boolean dirty = false;
     
-    public BatchingProperty(T constantValue) {
-        this.upstream = MutableProperty.of(constantValue);
+    public BatchingProperty(T initialValue, Runnable notifier) {
+        this(MutableProperty.of(initialValue), notifier);
     }
     
     public BatchingProperty(MutableProperty<T> upstream, Runnable notifier) {
