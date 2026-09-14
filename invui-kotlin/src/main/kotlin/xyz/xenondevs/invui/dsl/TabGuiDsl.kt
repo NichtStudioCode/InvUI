@@ -9,10 +9,12 @@ import xyz.xenondevs.commons.provider.flatten
 import xyz.xenondevs.commons.provider.mutableProvider
 import xyz.xenondevs.commons.provider.provider
 import xyz.xenondevs.invui.ExperimentalReactiveApi
+import xyz.xenondevs.invui.gui.ContentLayoutMode
 import xyz.xenondevs.invui.gui.Gui
 import xyz.xenondevs.invui.gui.IngredientPreset
 import xyz.xenondevs.invui.gui.TabGui
 import xyz.xenondevs.invui.gui.activeTabProvider
+import xyz.xenondevs.invui.gui.setContentLayoutMode
 import xyz.xenondevs.invui.gui.setTab
 import xyz.xenondevs.invui.gui.setTabs
 import kotlin.contracts.InvocationKind
@@ -123,6 +125,13 @@ sealed interface TabGuiDsl<G : Gui> : GuiDsl {
     val tabs: ProviderDslProperty<List<G?>>
     
     /**
+     * How tab content is laid out in the content list slots.
+     *
+     * Defaults to [ContentLayoutMode.SPATIAL].
+     */
+    val contentLayoutMode: ProviderDslProperty<ContentLayoutMode>
+    
+    /**
      * The index of the currently selected tab (zero-based).
      *
      * Defaults to `-1` (no tab selected). Can be set to a static value or bound to a
@@ -151,10 +160,13 @@ internal class TabGuiDslImpl<G : Gui>(
     private val internalActiveTab = mutableProvider { provider<G?>(null) }
     
     private var _tabs = provider(emptyList<G?>())
+    private var _contentLayoutMode = provider(ContentLayoutMode.SPATIAL)
     private var _tab = mutableProvider(-1)
     
     override val tabs: ProviderDslProperty<List<G?>>
         get() = ProviderDslProperty(::_tabs)
+    override val contentLayoutMode: ProviderDslProperty<ContentLayoutMode>
+        get() = ProviderDslProperty(::_contentLayoutMode)
     override val tab: MutableProviderDslProperty<Int>
         get() = MutableProviderDslProperty(::_tab)
     override val activeTab = internalActiveTab.flatten()
@@ -164,6 +176,7 @@ internal class TabGuiDslImpl<G : Gui>(
     override fun applyToBuilder(builder: TabGui.Builder) {
         super.applyToBuilder(builder)
         builder.setTabs(_tabs)
+        builder.setContentLayoutMode(_contentLayoutMode)
         builder.setTab(_tab)
         builder.addModifier { gui ->
             @Suppress("UNCHECKED_CAST")

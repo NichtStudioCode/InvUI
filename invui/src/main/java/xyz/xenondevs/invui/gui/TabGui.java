@@ -64,6 +64,20 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
     List<Slot> getContentListSlots();
     
     /**
+     * Sets how tab content is laid out in the {@link #getContentListSlots() content list slots}.
+     *
+     * @param contentLayoutMode The content layout mode.
+     */
+    void setContentLayoutMode(ContentLayoutMode contentLayoutMode);
+    
+    /**
+     * Gets the content layout mode.
+     *
+     * @return The content layout mode.
+     */
+    ContentLayoutMode getContentLayoutMode();
+    
+    /**
      * Gets the property containing the current tab index.
      *
      * @return The tab property.
@@ -155,6 +169,24 @@ public sealed interface TabGui extends Gui permits TabGuiImpl {
      * A {@link TabGui} builder.
      */
     sealed interface Builder extends Gui.Builder<TabGui, Builder> permits TabGuiImpl.Builder {
+        
+        /**
+         * Sets how tab content is laid out in the content list slots of the {@link TabGui}.
+         *
+         * @param contentLayoutMode The content layout mode.
+         * @return This {@link Builder Gui Builder}.
+         */
+        default Builder setContentLayoutMode(ContentLayoutMode contentLayoutMode) {
+            return setContentLayoutMode(MutableProperty.of(contentLayoutMode));
+        }
+        
+        /**
+         * Sets the property that determines how tab content is laid out in the content list slots of the {@link TabGui}.
+         *
+         * @param contentLayoutMode The content layout mode property.
+         * @return This {@link Builder Gui Builder}.
+         */
+        Builder setContentLayoutMode(MutableProperty<ContentLayoutMode> contentLayoutMode);
         
         /**
          * Sets the property that contains the tabs.

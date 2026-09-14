@@ -17,11 +17,13 @@ import java.util.function.BiConsumer;
 final class TabGuiImpl extends AbstractGui implements TabGui {
     
     private static final int DEFAULT_TAB = -1;
+    private static final ContentLayoutMode DEFAULT_CONTENT_LAYOUT_MODE = ContentLayoutMode.SPATIAL;
     
     private List<Slot> contentListSlots = List.of();
     
     private final BatchingProperty<Integer> tab;
     private final BatchingProperty<List<? extends @Nullable Gui>> tabs;
+    private final BatchingProperty<ContentLayoutMode> contentLayoutMode;
     private final List<BiConsumer<? super Integer, ? super Integer>> tabChangeHandlers = new ArrayList<>(0);
     private int previousTab = -1;
     
@@ -37,6 +39,8 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
         this.tab.observeWeak(this, TabGuiImpl::handleTabChange);
         this.tabs = new BatchingProperty<>(tabs, this::notifyWindowsOfContentListSlots);
         this.tabs.observeWeak(this, TabGuiImpl::bake);
+        this.contentLayoutMode = new BatchingProperty<>(DEFAULT_CONTENT_LAYOUT_MODE, this::notifyWindowsOfContentListSlots);
+        this.contentLayoutMode.observeWeak(this, TabGuiImpl::bake);
         this.contentListSlots = new ArrayList<>(contentListSlots);
         bake();
     }
@@ -45,6 +49,7 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
         Structure structure,
         MutableProperty<Integer> tab,
         MutableProperty<List<? extends @Nullable Gui>> tabs,
+        MutableProperty<ContentLayoutMode> contentLayoutMode,
         MutableProperty<Boolean> frozen,
         MutableProperty<Boolean> ignoreObscuredInventorySlots,
         MutableProperty<@Nullable ItemProvider> background
@@ -54,6 +59,8 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
         this.tab.observeWeak(this, TabGuiImpl::handleTabChange);
         this.tabs = new BatchingProperty<>(tabs, this::notifyWindowsOfContentListSlots);
         this.tabs.observeWeak(this, TabGuiImpl::bake);
+        this.contentLayoutMode = new BatchingProperty<>(contentLayoutMode, this::notifyWindowsOfContentListSlots);
+        this.contentLayoutMode.observeWeak(this, TabGuiImpl::bake);
         super.applyStructure(structure); // super call to avoid bake() through applyStructure override
         setContentListSlots(structure.getIngredientMatrix().getContentListSlots());
         this.contentListSlots = structure.getIngredientMatrix().getContentListSlots();
@@ -63,6 +70,7 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     @Override
     public @Nullable SlotElement getSlotElement(int index) {
         tabs.flushDirty();
+        contentLayoutMode.flushDirty();
         tab.flushDirty();
         return super.getSlotElement(index);
     }
@@ -83,6 +91,16 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
     @Override
     public @Unmodifiable List<Slot> getContentListSlots() {
         return Collections.unmodifiableList(contentListSlots);
+    }
+    
+    @Override
+    public void setContentLayoutMode(ContentLayoutMode contentLayoutMode) {
+        this.contentLayoutMode.set(contentLayoutMode);
+    }
+    
+    @Override
+    public ContentLayoutMode getContentLayoutMode() {
+        return FuncUtils.getSafely(contentLayoutMode, DEFAULT_CONTENT_LAYOUT_MODE);
     }
     
     @Override
@@ -145,8 +163,15 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
         var tabs = getTabs();
         var min = SlotUtils.min(contentListSlots);
         if (currentTab >= 0 && tabs.size() > currentTab && tabs.get(currentTab) instanceof Gui gui) {
-            for (Slot slot : contentListSlots) {
-                setSlotElement(slot, SlotUtils.getGuiLinkOrNull(gui, slot.x() - min.x(), slot.y() - min.y()));
+            if (getContentLayoutMode() == ContentLayoutMode.SEQUENTIAL) {
+                for (int i = 0; i < contentListSlots.size(); i++) {
+                    SlotElement element = i < gui.getSize() ? new SlotElement.GuiLink(gui, i) : null;
+                    setSlotElement(contentListSlots.get(i), element);
+                }
+            } else {
+                for (Slot slot : contentListSlots) {
+                    setSlotElement(slot, SlotUtils.getGuiLinkOrNull(gui, slot.x() - min.x(), slot.y() - min.y()));
+                }
             }
         } else {
             for (Slot slot : contentListSlots) {
@@ -218,11 +243,18 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
         
         private MutableProperty<List<? extends @Nullable Gui>> tabs = MutableProperty.of(List.of());
         private MutableProperty<Integer> tab = MutableProperty.of(DEFAULT_TAB);
+        private MutableProperty<ContentLayoutMode> contentLayoutMode = MutableProperty.of(DEFAULT_CONTENT_LAYOUT_MODE);
         private List<BiConsumer<? super Integer, ? super Integer>> tabChangeHandlers = new ArrayList<>(0);
         
         @Override
         public TabGui.Builder setTabs(MutableProperty<List<? extends @Nullable Gui>> tabs) {
             this.tabs = tabs;
+            return this;
+        }
+        
+        @Override
+        public TabGui.Builder setContentLayoutMode(MutableProperty<ContentLayoutMode> contentLayoutMode) {
+            this.contentLayoutMode = contentLayoutMode;
             return this;
         }
         
@@ -250,7 +282,7 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
             if (structure == null)
                 throw new IllegalStateException("Structure is not defined.");
             
-            var gui = new TabGuiImpl(structure, tab, tabs, frozen, ignoreObscuredInventorySlots, background);
+            var gui = new TabGuiImpl(structure, tab, tabs, contentLayoutMode, frozen, ignoreObscuredInventorySlots, background);
             tabChangeHandlers.forEach(gui::addTabChangeHandler);
             applyModifiers(gui);
             
@@ -262,6 +294,7 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
             var clone = (Builder) super.clone();
             clone.tabs = MutableProperty.of(new ArrayList<>(tabs.get()));
             clone.tab = MutableProperty.of(tab.get());
+            clone.contentLayoutMode = MutableProperty.of(contentLayoutMode.get());
             clone.tabChangeHandlers = new ArrayList<>(tabChangeHandlers);
             return clone;
         }

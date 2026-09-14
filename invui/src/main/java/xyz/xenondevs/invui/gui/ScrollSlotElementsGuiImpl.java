@@ -27,12 +27,13 @@ class ScrollSlotElementsGuiImpl<C> extends AbstractScrollGui<C> {
         Structure structure,
         MutableProperty<Integer> line,
         MutableProperty<List<? extends C>> content,
+        MutableProperty<ContentLayoutMode> contentLayoutMode,
         MutableProperty<Boolean> frozen,
         MutableProperty<Boolean> ignoreObscuredInventorySlots,
         MutableProperty<@Nullable ItemProvider> background,
         Function<? super C, ? extends SlotElement> mapper
     ) {
-        super(structure, line, content, frozen, ignoreObscuredInventorySlots, background);
+        super(structure, line, content, contentLayoutMode, frozen, ignoreObscuredInventorySlots, background);
         this.mapper = mapper;
         bake();
     }
@@ -40,8 +41,12 @@ class ScrollSlotElementsGuiImpl<C> extends AbstractScrollGui<C> {
     @Override
     protected void updateContent() {
         int topLine = getLine();
+        int lineLength = getContentLineLength();
         List<Slot> cls = getContentListSlots();
         List<C> content = getContent();
+        
+        if (tryUpdateContentSequentially(i -> i < content.size() ? mapper.apply(content.get(i)) : null))
+            return;
         
         if (getLineOrientation() == LineOrientation.HORIZONTAL) {
             for (Slot slot : cls) {
@@ -68,6 +73,7 @@ class ScrollSlotElementsGuiImpl<C> extends AbstractScrollGui<C> {
     
     @Override
     public int getLineCount() {
+        int lineLength = getContentLineLength();
         if (lineLength <= 0)
             return 0;
         
@@ -77,11 +83,12 @@ class ScrollSlotElementsGuiImpl<C> extends AbstractScrollGui<C> {
     public static final class Builder<C extends SlotElement> extends AbstractBuilder<C> {
         
         public Builder() {
-            super((structure, line, content, frozen, ignoreObscuredInventorySlots, background) ->
+            super((structure, line, content, contentLayoutMode, frozen, ignoreObscuredInventorySlots, background) ->
                 new ScrollSlotElementsGuiImpl<>(
                     structure,
                     line,
                     content,
+                    contentLayoutMode,
                     frozen,
                     ignoreObscuredInventorySlots,
                     background,
@@ -93,6 +100,4 @@ class ScrollSlotElementsGuiImpl<C> extends AbstractScrollGui<C> {
     }
     
 }
-
-
 

@@ -22,11 +22,12 @@ final class PagedNestedGuiImpl<C extends Gui> extends AbstractPagedGui<C> {
         Structure structure,
         MutableProperty<Integer> page,
         MutableProperty<List<? extends C>> guis,
+        MutableProperty<ContentLayoutMode> contentLayoutMode,
         MutableProperty<Boolean> frozen,
         MutableProperty<Boolean> ignoreObscuredInventorySlots,
         MutableProperty<@Nullable ItemProvider> background
     ) {
-        super(structure, page, guis, frozen, ignoreObscuredInventorySlots, background);
+        super(structure, page, guis, contentLayoutMode, frozen, ignoreObscuredInventorySlots, background);
         bake();
     }
     
@@ -41,9 +42,16 @@ final class PagedNestedGuiImpl<C extends Gui> extends AbstractPagedGui<C> {
         
         if (page < content.size()) {
             Gui gui = content.get(page);
-            Slot min = SlotUtils.min(cls);
-            for (Slot slot : cls) {
-                setSlotElement(slot, SlotUtils.getGuiLinkOrNull(gui, slot.x() - min.x(), slot.y() - min.y()));
+            if (getContentLayoutMode() == ContentLayoutMode.SEQUENTIAL) {
+                for (int i = 0; i < cls.size(); i++) {
+                    SlotElement element = i < gui.getSize() ? new SlotElement.GuiLink(gui, i) : null;
+                    setSlotElement(cls.get(i), element);
+                }
+            } else {
+                Slot min = SlotUtils.min(cls);
+                for (Slot slot : cls) {
+                    setSlotElement(slot, SlotUtils.getGuiLinkOrNull(gui, slot.x() - min.x(), slot.y() - min.y()));
+                }
             }
         } else {
             for (Slot slot : cls) {

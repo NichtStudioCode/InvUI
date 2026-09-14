@@ -17,12 +17,14 @@ import java.util.function.BiConsumer;
 non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements PagedGui<C> {
     
     private static final int DEFAULT_PAGE = 0;
+    private static final ContentLayoutMode DEFAULT_CONTENT_LAYOUT_MODE = ContentLayoutMode.SPATIAL;
     
     private List<Slot> contentListSlots = List.of();
     
     private final BatchingProperty<Integer> page;
     private final MutableProperty<Integer> pageCount = MutableProperty.of(-1);
     private final BatchingProperty<List<? extends C>> content;
+    private final BatchingProperty<ContentLayoutMode> contentLayoutMode;
     private final List<BiConsumer<? super Integer, ? super Integer>> pageChangeHandlers = new ArrayList<>(0);
     private final List<BiConsumer<? super Integer, ? super Integer>> pageCountChangeHandlers = new ArrayList<>(0);
     private int previousPage;
@@ -37,6 +39,8 @@ non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements Pag
         this.page.observeWeak(this, AbstractPagedGui::handlePageChange);
         this.content = new BatchingProperty<>(content, this::notifyWindowsOfContentListSlots);
         this.content.observeWeak(this, AbstractPagedGui::bake);
+        this.contentLayoutMode = new BatchingProperty<>(DEFAULT_CONTENT_LAYOUT_MODE, this::notifyWindowsOfContentListSlots);
+        this.contentLayoutMode.observeWeak(this, AbstractPagedGui::bake);
         this.contentListSlots = new ArrayList<>(contentListSlots);
     }
     
@@ -44,6 +48,7 @@ non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements Pag
         Structure structure,
         MutableProperty<Integer> page,
         MutableProperty<List<? extends C>> content,
+        MutableProperty<ContentLayoutMode> contentLayoutMode,
         MutableProperty<Boolean> frozen,
         MutableProperty<Boolean> ignoreObscuredInventorySlots,
         MutableProperty<@Nullable ItemProvider> background
@@ -53,6 +58,8 @@ non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements Pag
         this.page.observeWeak(this, AbstractPagedGui::handlePageChange);
         this.content = new BatchingProperty<>(content, this::notifyWindowsOfContentListSlots);
         this.content.observeWeak(this, AbstractPagedGui::bake);
+        this.contentLayoutMode = new BatchingProperty<>(contentLayoutMode, this::notifyWindowsOfContentListSlots);
+        this.contentLayoutMode.observeWeak(this, AbstractPagedGui::bake);
         
         this.contentListSlots = structure.getIngredientMatrix().getContentListSlots();
         super.applyStructure(structure); // super call to avoid bake() through applyStructure override
@@ -61,6 +68,7 @@ non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements Pag
     @Override
     public @Nullable SlotElement getSlotElement(int index) {
         content.flushDirty();
+        contentLayoutMode.flushDirty();
         page.flushDirty();
         return super.getSlotElement(index);
     }
@@ -81,6 +89,16 @@ non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements Pag
     @Override
     public @Unmodifiable List<Slot> getContentListSlots() {
         return Collections.unmodifiableList(contentListSlots);
+    }
+    
+    @Override
+    public void setContentLayoutMode(ContentLayoutMode contentLayoutMode) {
+        this.contentLayoutMode.set(contentLayoutMode);
+    }
+    
+    @Override
+    public ContentLayoutMode getContentLayoutMode() {
+        return FuncUtils.getSafely(contentLayoutMode, DEFAULT_CONTENT_LAYOUT_MODE);
     }
     
     @Override
@@ -216,6 +234,7 @@ non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements Pag
             Structure structure,
             MutableProperty<Integer> page,
             MutableProperty<List<? extends C>> content,
+            MutableProperty<ContentLayoutMode> contentLayoutMode,
             MutableProperty<Boolean> frozen,
             MutableProperty<Boolean> ignoreObscuredInventorySlots,
             MutableProperty<@Nullable ItemProvider> background
@@ -231,6 +250,7 @@ non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements Pag
         private final Constructor<C> ctor;
         private MutableProperty<List<? extends C>> content = MutableProperty.of(List.of());
         private MutableProperty<Integer> page = MutableProperty.of(DEFAULT_PAGE);
+        private MutableProperty<ContentLayoutMode> contentLayoutMode = MutableProperty.of(DEFAULT_CONTENT_LAYOUT_MODE);
         private List<BiConsumer<? super Integer, ? super Integer>> pageChangeHandlers = new ArrayList<>(0);
         private List<BiConsumer<? super Integer, ? super Integer>> pageCountChangeHandlers = new ArrayList<>(0);
         
@@ -241,6 +261,12 @@ non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements Pag
         @Override
         public PagedGui.Builder<C> setContent(MutableProperty<List<? extends C>> content) {
             this.content = content;
+            return this;
+        }
+        
+        @Override
+        public PagedGui.Builder<C> setContentLayoutMode(MutableProperty<ContentLayoutMode> contentLayoutMode) {
+            this.contentLayoutMode = contentLayoutMode;
             return this;
         }
         
@@ -281,7 +307,7 @@ non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements Pag
             if (structure == null)
                 throw new IllegalStateException("Structure is not defined.");
             
-            var gui = ctor.create(structure, page, content, frozen, ignoreObscuredInventorySlots, background);
+            var gui = ctor.create(structure, page, content, contentLayoutMode, frozen, ignoreObscuredInventorySlots, background);
             pageChangeHandlers.forEach(gui::addPageChangeHandler);
             pageCountChangeHandlers.forEach(gui::addPageCountChangeHandler);
             applyModifiers(gui);
@@ -294,6 +320,7 @@ non-sealed abstract class AbstractPagedGui<C> extends AbstractGui implements Pag
             var clone = (AbstractBuilder<C>) super.clone();
             clone.content = MutableProperty.of(new ArrayList<>(content.get()));
             clone.page = MutableProperty.of(page.get());
+            clone.contentLayoutMode = MutableProperty.of(contentLayoutMode.get());
             clone.pageCountChangeHandlers = new ArrayList<>(pageCountChangeHandlers);
             clone.pageChangeHandlers = new ArrayList<>(pageChangeHandlers);
             return clone;

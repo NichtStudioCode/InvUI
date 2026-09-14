@@ -22,11 +22,12 @@ final class PagedInventoriesGuiImpl<C extends Inventory> extends AbstractPagedGu
         Structure structure,
         MutableProperty<Integer> page,
         MutableProperty<List<? extends C>> inventories,
+        MutableProperty<ContentLayoutMode> contentLayoutMode,
         MutableProperty<Boolean> frozen,
         MutableProperty<Boolean> ignoreObscuredInventorySlots,
         MutableProperty<@Nullable ItemProvider> background
     ) {
-        super(structure, page, inventories, frozen, ignoreObscuredInventorySlots, background);
+        super(structure, page, inventories, contentLayoutMode, frozen, ignoreObscuredInventorySlots, background);
         bake();
     }
     

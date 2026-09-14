@@ -25,6 +25,13 @@ fun TabGui.Builder.setTabs(tabs: Provider<List<Gui?>>): TabGui.Builder =
     setTabs(PropertyAdapter(tabs))
 
 /**
+ * Sets the provider containing the content layout mode of the [TabGui] built by this builder.
+ */
+@ExperimentalReactiveApi
+fun TabGui.Builder.setContentLayoutMode(contentLayoutMode: Provider<ContentLayoutMode>): TabGui.Builder =
+    setContentLayoutMode(PropertyAdapter(contentLayoutMode))
+
+/**
  * A provider containing the tabs of this [TabGui].
  *
  * - If the tabs were defined through a [Provider], the same instance is returned.

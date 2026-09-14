@@ -6,6 +6,7 @@ import xyz.xenondevs.invui.gui.Slot;
 import xyz.xenondevs.invui.gui.SlotElement;
 
 import java.util.*;
+import java.util.function.BiPredicate;
 
 public final class SlotUtils {
     
@@ -137,6 +138,59 @@ public final class SlotUtils {
         }
         
         return longestLength;
+    }
+    
+    /**
+     * Determines the length of consecutive horizontal lines in the given ordered slots.
+     *
+     * @param slots The ordered slots.
+     * @return The line length, or {@code 0} if there are no slots.
+     * @throws IllegalArgumentException If the slots contain lines of differing lengths.
+     */
+    public static int determineHorizontalLinesLength(List<? extends Slot> slots) {
+        return determineLinesLength(
+            slots,
+            (previous, current) -> previous.y() == current.y() && Math.abs(previous.x() - current.x()) == 1
+        );
+    }
+    
+    /**
+     * Determines the length of consecutive vertical lines in the given ordered slots.
+     *
+     * @param slots The ordered slots.
+     * @return The line length, or {@code 0} if there are no slots.
+     * @throws IllegalArgumentException If the slots contain lines of differing lengths.
+     */
+    public static int determineVerticalLinesLength(List<? extends Slot> slots) {
+        return determineLinesLength(
+            slots,
+            (previous, current) -> previous.x() == current.x() && Math.abs(previous.y() - current.y()) == 1
+        );
+    }
+    
+    private static int determineLinesLength(
+        List<? extends Slot> slots,
+        BiPredicate<? super Slot, ? super Slot> continuesLine
+    ) {
+        int expectedLineLength = -1;
+        int currentLineLength = 0;
+        Slot previous = null;
+        
+        for (Slot slot : slots) {
+            if (previous == null || continuesLine.test(previous, slot)) {
+                currentLineLength++;
+            } else {
+                if (expectedLineLength != -1 && expectedLineLength != currentLineLength)
+                    throw new IllegalArgumentException("Differing line lengths");
+                expectedLineLength = currentLineLength;
+                currentLineLength = 1;
+            }
+            previous = slot;
+        }
+        
+        if (expectedLineLength != -1 && expectedLineLength != currentLineLength)
+            throw new IllegalArgumentException("Differing line lengths");
+        return currentLineLength;
     }
     
     /**

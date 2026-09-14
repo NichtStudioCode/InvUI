@@ -23,20 +23,34 @@ final class ScrollNestedGuiImpl<C extends Gui> extends AbstractScrollGui<C> {
         Structure structure,
         MutableProperty<Integer> line,
         MutableProperty<List<? extends C>> guis,
+        MutableProperty<ContentLayoutMode> contentLayoutMode,
         MutableProperty<Boolean> frozen,
         MutableProperty<Boolean> ignoreObscuredInventorySlots,
         MutableProperty<@Nullable ItemProvider> background
     ) {
-        super(structure, line, guis, frozen, ignoreObscuredInventorySlots, background);
+        super(structure, line, guis, contentLayoutMode, frozen, ignoreObscuredInventorySlots, background);
         bake();
     }
     
     @Override
     protected void updateContent() {
+        List<C> content = getContent();
+        if (tryUpdateContentSequentially(i -> getElement(content, i)))
+            return;
+        
         switch (getLineOrientation()) {
             case HORIZONTAL -> updateContentHorizontal();
             case VERTICAL -> updateContentVertical();
         }
+    }
+    
+    private static @Nullable SlotElement getElement(List<? extends Gui> content, int index) {
+        for (Gui gui : content) {
+            if (index < gui.getSize())
+                return new SlotElement.GuiLink(gui, index);
+            index -= gui.getSize();
+        }
+        return null;
     }
     
     private void updateContentHorizontal() {
@@ -85,6 +99,14 @@ final class ScrollNestedGuiImpl<C extends Gui> extends AbstractScrollGui<C> {
     
     @Override
     public int getLineCount() {
+        if (getContentLayoutMode() == ContentLayoutMode.SEQUENTIAL) {
+            int lineLength = getContentLineLength();
+            if (lineLength <= 0)
+                return 0;
+            int slots = getContent().stream().mapToInt(Gui::getSize).sum();
+            return Math.ceilDiv(slots, lineLength);
+        }
+        
         if (getLineOrientation() == LineOrientation.HORIZONTAL) {
             return getContent().stream().mapToInt(Gui::getHeight).sum();
         } else {

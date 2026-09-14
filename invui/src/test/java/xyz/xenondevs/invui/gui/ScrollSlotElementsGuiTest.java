@@ -17,6 +17,7 @@ import java.util.function.Function;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static xyz.xenondevs.invui.Utils.assertSlotElement;
 import static xyz.xenondevs.invui.Utils.assertSlotElements;
 
 public class ScrollSlotElementsGuiTest {
@@ -37,7 +38,7 @@ public class ScrollSlotElementsGuiTest {
     @Test
     public void testWithNonContinuousHorizontalLines() {
         var slotElements = IntStream.range(0, 10)
-            .mapToObj(i -> new SlotElement.Item(Item.simple(ItemStack.of(Material.DIAMOND))))
+            .mapToObj(_ -> new SlotElement.Item(Item.simple(ItemStack.of(Material.DIAMOND))))
             .toList();
         
         var b = new SlotElement.Item(Item.simple(ItemStack.of(Material.DIAMOND)));
@@ -122,6 +123,34 @@ public class ScrollSlotElementsGuiTest {
         );
     }
     
+    @Test
+    public void testSequentialLayout() {
+        var content = IntStream.range(0, 21)
+            .mapToObj(_ -> new SlotElement.Item(Item.simple(ItemStack.of(Material.DIAMOND))))
+            .toList();
+        var gui = ScrollGui.slotElementsBuilder()
+            .setStructure(
+                ". . . . . . . . .",
+                ". x x x x x x x .",
+                ". . . . . . . . .",
+                ". x x x x x x x .",
+                ". . . . . . . . ."
+            )
+            .addIngredient('x', Markers.CONTENT_LIST_SLOT_VERTICAL)
+            .setContentLayoutMode(ContentLayoutMode.SEQUENTIAL)
+            .setContent(content)
+            .build();
+        
+        assertSlotElement(gui, 1, 1, content.get(0));
+        assertSlotElement(gui, 1, 3, content.get(1));
+        assertSlotElement(gui, 2, 1, content.get(2));
+        
+        gui.setLine(1);
+        assertSlotElement(gui, 1, 1, content.get(1));
+        assertSlotElement(gui, 1, 3, content.get(2));
+        assertSlotElement(gui, 2, 1, content.get(3));
+    }
+    
     @ValueSource(booleans = {true, false})
     @ParameterizedTest
     public void testContentRemoved(boolean horizontalLines) {
@@ -189,4 +218,3 @@ public class ScrollSlotElementsGuiTest {
     }
     
 }
-

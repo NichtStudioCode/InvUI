@@ -26,12 +26,13 @@ class PagedSlotElementsGuiImpl<C> extends AbstractPagedGui<C> {
         Structure structure,
         MutableProperty<Integer> page,
         MutableProperty<List<? extends C>> content,
+        MutableProperty<ContentLayoutMode> contentLayoutMode,
         MutableProperty<Boolean> frozen,
         MutableProperty<Boolean> ignoreObscuredInventorySlots,
         MutableProperty<@Nullable ItemProvider> background,
         Function<? super C, ? extends SlotElement> mapper
     ) {
-        super(structure, page, content, frozen, ignoreObscuredInventorySlots, background);
+        super(structure, page, content, contentLayoutMode, frozen, ignoreObscuredInventorySlots, background);
         this.mapper = mapper;
         bake();
     }
@@ -66,11 +67,12 @@ class PagedSlotElementsGuiImpl<C> extends AbstractPagedGui<C> {
     public static final class Builder<C extends SlotElement> extends AbstractBuilder<C> {
         
         public Builder() {
-            super((structure, page, content, frozen, ignoreObscuredInventorySlots, background) ->
+            super((structure, page, content, contentLayoutMode, frozen, ignoreObscuredInventorySlots, background) ->
                 new PagedSlotElementsGuiImpl<>(
                     structure,
                     page,
                     content,
+                    contentLayoutMode,
                     frozen,
                     ignoreObscuredInventorySlots,
                     background,

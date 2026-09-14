@@ -13,11 +13,13 @@ import xyz.xenondevs.invui.internal.util.SlotUtils;
 import xyz.xenondevs.invui.inventory.Inventory;
 import xyz.xenondevs.invui.inventory.VirtualInventory;
 import xyz.xenondevs.invui.item.Item;
+import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.List;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static xyz.xenondevs.invui.Utils.assertSlotElement;
 import static xyz.xenondevs.invui.Utils.assertSlotElements;
 import static xyz.xenondevs.invui.Utils.il;
 
@@ -120,6 +122,36 @@ public class ScrollInventoriesGuiTest {
             b, il(i3, 0), il(i3, 3), null, b,
             b, b, b, b, b
         );
+    }
+    
+    @Test
+    public void testSequentialLayout() {
+        var mode = MutableProperty.of(ContentLayoutMode.SPATIAL);
+        var content = new VirtualInventory(21);
+        var gui = ScrollGui.inventoriesBuilder()
+            .setStructure(
+                ". . . . . . . . .",
+                ". x x x x x x x .",
+                ". . . . . . . . .",
+                ". x x x x x x x .",
+                ". . . . . . . . ."
+            )
+            .addIngredient('x', Markers.CONTENT_LIST_SLOT_VERTICAL)
+            .setContentLayoutMode(mode)
+            .setContent(List.of(content))
+            .build();
+        
+        assertEquals(ContentLayoutMode.SPATIAL, gui.getContentLayoutMode());
+        assertSlotElement(gui, 1, 1, il(content, 0));
+        assertSlotElement(gui, 1, 3, il(content, 2));
+        assertSlotElement(gui, 2, 1, il(content, 3));
+        
+        mode.set(ContentLayoutMode.SEQUENTIAL);
+        assertEquals(ContentLayoutMode.SEQUENTIAL, gui.getContentLayoutMode());
+        assertSlotElement(gui, 1, 1, il(content, 0));
+        assertSlotElement(gui, 1, 3, il(content, 1));
+        assertSlotElement(gui, 2, 1, il(content, 2));
+        assertEquals(7, gui.getMaxLine());
     }
     
     @ValueSource(booleans = {true, false})

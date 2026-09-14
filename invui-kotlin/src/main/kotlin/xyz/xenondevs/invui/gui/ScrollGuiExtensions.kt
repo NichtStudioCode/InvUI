@@ -24,6 +24,13 @@ fun <C : Any> ScrollGui.Builder<C>.setContent(content: Provider<List<C>>): Scrol
     setContent(PropertyAdapter(content))
 
 /**
+ * Sets the provider containing the content layout mode of the [ScrollGui] built by this builder.
+ */
+@ExperimentalReactiveApi
+fun <C : Any> ScrollGui.Builder<C>.setContentLayoutMode(contentLayoutMode: Provider<ContentLayoutMode>): ScrollGui.Builder<C> =
+    setContentLayoutMode(PropertyAdapter(contentLayoutMode))
+
+/**
  * A provider containing the content of this [ScrollGui].
  *
  * - If the content was defined through a [Provider], the same instance is returned.

@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static xyz.xenondevs.invui.Utils.assertSlotElement;
 import static xyz.xenondevs.invui.Utils.assertSlotElements;
 import static xyz.xenondevs.invui.Utils.gl;
 
@@ -184,6 +185,32 @@ public class ScrollGuisGuiTest {
             b, gl(g2, 6), gl(g2, 7), null, b,
             b, b, b, b, b
         );
+    }
+    
+    @Test
+    public void testSequentialLayout() {
+        var content = Gui.empty(9, 3);
+        var gui = ScrollGui.guisBuilder()
+            .setStructure(
+                ". . . . . . . . .",
+                ". x x x x x x x .",
+                ". . . . . . . . .",
+                ". x x x x x x x .",
+                ". . . . . . . . ."
+            )
+            .addIngredient('x', Markers.CONTENT_LIST_SLOT_VERTICAL)
+            .setContentLayoutMode(ContentLayoutMode.SEQUENTIAL)
+            .setContent(List.of(content))
+            .build();
+        
+        assertSlotElement(gui, 1, 1, gl(content, 0, 0));
+        assertSlotElement(gui, 1, 3, gl(content, 1, 0));
+        assertSlotElement(gui, 2, 1, gl(content, 2, 0));
+        
+        gui.setLine(1);
+        assertSlotElement(gui, 1, 1, gl(content, 1, 0));
+        assertSlotElement(gui, 1, 3, gl(content, 2, 0));
+        assertSlotElement(gui, 2, 1, gl(content, 3, 0));
     }
     
     @ValueSource(booleans = {true, false})

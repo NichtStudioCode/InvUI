@@ -21,11 +21,12 @@ final class PagedItemsGuiImpl<C extends Item> extends PagedSlotElementsGuiImpl<C
         Structure structure,
         MutableProperty<Integer> page,
         MutableProperty<List<? extends C>> items,
+        MutableProperty<ContentLayoutMode> contentLayoutMode,
         MutableProperty<Boolean> frozen,
         MutableProperty<Boolean> ignoreObscuredInventorySlots,
         MutableProperty<@Nullable ItemProvider> background
     ) {
-        super(structure, page, items, frozen, ignoreObscuredInventorySlots, background, SlotElement.Item::new);
+        super(structure, page, items, contentLayoutMode, frozen, ignoreObscuredInventorySlots, background, SlotElement.Item::new);
     }
     
     public static final class Builder<C extends Item> extends AbstractBuilder<C> {

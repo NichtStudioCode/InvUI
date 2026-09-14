@@ -11,11 +11,13 @@ import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.ServerMock;
 import xyz.xenondevs.invui.internal.util.SlotUtils;
 import xyz.xenondevs.invui.item.Item;
+import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.List;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static xyz.xenondevs.invui.Utils.assertSlotElement;
 import static xyz.xenondevs.invui.Utils.assertSlotElements;
 import static xyz.xenondevs.invui.Utils.gl;
 
@@ -54,6 +56,7 @@ public class PagedGuisGuiTest {
             .addIngredient('x', m)
             .setContent(List.of(t1, t2, t3))
             .build();
+        assertEquals(ContentLayoutMode.SPATIAL, gui.getContentLayoutMode());
         
         assertSlotElements(
             gui,
@@ -85,6 +88,34 @@ public class PagedGuisGuiTest {
             b, null, gl(t3, 1, 2), null, b,
             b, b, b, b, b
         );
+    }
+    
+    @Test
+    public void testSequentialLayout() {
+        var mode = MutableProperty.of(ContentLayoutMode.SPATIAL);
+        var content = Gui.empty(9, 3);
+        var gui = PagedGui.guisBuilder()
+            .setStructure(
+                ". . . . . . . . .",
+                ". x x x x x x x .",
+                ". . . . . . . . .",
+                ". x x x x x x x .",
+                ". . . . . . . . ."
+            )
+            .addIngredient('x', Markers.CONTENT_LIST_SLOT_VERTICAL)
+            .setContentLayoutMode(mode)
+            .setContent(List.of(content))
+            .build();
+        
+        assertSlotElement(gui, 1, 1, gl(content, 0, 0));
+        assertSlotElement(gui, 1, 3, gl(content, 0, 2));
+        assertSlotElement(gui, 2, 1, gl(content, 1, 0));
+        
+        mode.set(ContentLayoutMode.SEQUENTIAL);
+        assertEquals(ContentLayoutMode.SEQUENTIAL, gui.getContentLayoutMode());
+        assertSlotElement(gui, 1, 1, gl(content, 0, 0));
+        assertSlotElement(gui, 1, 3, gl(content, 1, 0));
+        assertSlotElement(gui, 2, 1, gl(content, 2, 0));
     }
     
     @ValueSource(booleans = {true, false})

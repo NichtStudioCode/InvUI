@@ -58,6 +58,7 @@ public class TabGuiTest {
             .addIngredient('x', m)
             .setTabs(List.of(t1, t2, t3))
             .build();
+        assertEquals(ContentLayoutMode.SPATIAL, gui.getContentLayoutMode());
         
         assertSlotElements(
             gui,
@@ -89,6 +90,34 @@ public class TabGuiTest {
             b, null, gl(t3, 1, 2), null, b,
             b, b, b, b, b
         );
+    }
+    
+    @Test
+    public void testSequentialLayout() {
+        var mode = MutableProperty.of(ContentLayoutMode.SPATIAL);
+        var content = Gui.empty(9, 3);
+        var gui = TabGui.builder()
+            .setStructure(
+                ". . . . . . . . .",
+                ". x x x x x x x .",
+                ". . . . . . . . .",
+                ". x x x x x x x .",
+                ". . . . . . . . ."
+            )
+            .addIngredient('x', Markers.CONTENT_LIST_SLOT_VERTICAL)
+            .setContentLayoutMode(mode)
+            .setTabs(List.of(content))
+            .build();
+        
+        assertSlotElement(gui, 1, 1, gl(content, 0, 0));
+        assertSlotElement(gui, 1, 3, gl(content, 0, 2));
+        assertSlotElement(gui, 2, 1, gl(content, 1, 0));
+        
+        mode.set(ContentLayoutMode.SEQUENTIAL);
+        assertEquals(ContentLayoutMode.SEQUENTIAL, gui.getContentLayoutMode());
+        assertSlotElement(gui, 1, 1, gl(content, 0, 0));
+        assertSlotElement(gui, 1, 3, gl(content, 1, 0));
+        assertSlotElement(gui, 2, 1, gl(content, 2, 0));
     }
     
     @ValueSource(booleans = {true, false})

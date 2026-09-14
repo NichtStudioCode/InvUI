@@ -6,6 +6,7 @@ import xyz.xenondevs.invui.gui.Slot;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class SlotUtilsTest {
     
@@ -103,6 +104,34 @@ public class SlotUtilsTest {
             s(1, 5), /*    */ s(3, 5)
         );
         assertEquals(6, SlotUtils.determineLongestVerticalLineLength(slots, 4));
+    }
+    
+    @Test
+    public void testDetermineHorizontalLinesLength() {
+        var slots = List.of(
+            s(1, 1), s(2, 1),
+            s(1, 3), s(2, 3)
+        );
+        assertEquals(2, SlotUtils.determineHorizontalLinesLength(slots));
+        assertEquals(0, SlotUtils.determineHorizontalLinesLength(List.of()));
+    }
+    
+    @Test
+    public void testDetermineVerticalLinesLength() {
+        var slots = List.of(
+            s(1, 1), s(1, 3),
+            s(2, 1), s(2, 3)
+        );
+        assertEquals(1, SlotUtils.determineVerticalLinesLength(slots));
+    }
+    
+    @Test
+    public void testDetermineLinesLengthRejectsDifferingLengths() {
+        var slots = List.of(
+            s(1, 1), s(2, 1),
+            s(1, 3)
+        );
+        assertThrows(IllegalArgumentException.class, () -> SlotUtils.determineHorizontalLinesLength(slots));
     }
     
     private Slot s(int x, int y) {

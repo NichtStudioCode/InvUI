@@ -23,20 +23,34 @@ final class ScrollInventoryGuiImpl<C extends Inventory> extends AbstractScrollGu
         Structure structure,
         MutableProperty<Integer> line,
         MutableProperty<List<? extends C>> inventories,
+        MutableProperty<ContentLayoutMode> contentLayoutMode,
         MutableProperty<Boolean> frozen,
         MutableProperty<Boolean> ignoreObscuredInventorySlots,
         MutableProperty<@Nullable ItemProvider> background
     ) {
-        super(structure, line, inventories, frozen, ignoreObscuredInventorySlots, background);
+        super(structure, line, inventories, contentLayoutMode, frozen, ignoreObscuredInventorySlots, background);
         bake();
     }
     
     @Override
     protected void updateContent() {
+        List<C> content = getContent();
+        if (tryUpdateContentSequentially(i -> getElement(content, i)))
+            return;
+        
         switch (getLineOrientation()) {
             case HORIZONTAL -> updateContentHorizontal();
             case VERTICAL -> updateContentVertical();
         }
+    }
+    
+    private static @Nullable SlotElement getElement(List<? extends Inventory> content, int index) {
+        for (Inventory inv : content) {
+            if (index < inv.getSize())
+                return new SlotElement.InventoryLink(inv, index);
+            index -= inv.getSize();
+        }
+        return null;
     }
     
     private void updateContentHorizontal() {
@@ -48,7 +62,7 @@ final class ScrollInventoryGuiImpl<C extends Inventory> extends AbstractScrollGu
         for (Slot slot : cls) {
             int line = slot.y() - min.y() + topLine;
             int offset = slot.x() - min.x();
-            int i = line * lineLength + offset;
+            int i = line * spatialLineLength + offset;
             
             for (Inventory inv : content) {
                 if (inv.getSize() > i) {
@@ -71,7 +85,7 @@ final class ScrollInventoryGuiImpl<C extends Inventory> extends AbstractScrollGu
         for (Slot slot : cls) {
             int line = slot.x() - min.x() + topLine;
             int offset = slot.y() - min.y();
-            int i = line * lineLength + offset;
+            int i = line * spatialLineLength + offset;
             
             for (Inventory inv : content) {
                 if (inv.getSize() > i) {
@@ -87,6 +101,7 @@ final class ScrollInventoryGuiImpl<C extends Inventory> extends AbstractScrollGu
     
     @Override
     public int getLineCount() {
+        int lineLength = getContentLineLength();
         if (lineLength <= 0)
             return 0;
         

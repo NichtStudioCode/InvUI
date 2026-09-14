@@ -22,11 +22,12 @@ final class ScrollItemsGuiImpl<C extends Item> extends ScrollSlotElementsGuiImpl
         Structure structure,
         MutableProperty<Integer> line,
         MutableProperty<List<? extends C>> items,
+        MutableProperty<ContentLayoutMode> contentLayoutMode,
         MutableProperty<Boolean> frozen,
         MutableProperty<Boolean> ignoreObscuredInventorySlots,
         MutableProperty<@Nullable ItemProvider> background
     ) {
-        super(structure, line, items, frozen, ignoreObscuredInventorySlots, background, SlotElement.Item::new);
+        super(structure, line, items, contentLayoutMode, frozen, ignoreObscuredInventorySlots, background, SlotElement.Item::new);
     }
     
     public static final class Builder<C extends Item> extends AbstractBuilder<C> {

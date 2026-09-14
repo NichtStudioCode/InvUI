@@ -1,6 +1,7 @@
 package xyz.xenondevs.invui
 
 import org.junit.jupiter.api.Test
+import xyz.xenondevs.invui.gui.ContentLayoutMode
 import xyz.xenondevs.invui.gui.PagedGui
 import xyz.xenondevs.invui.gui.ScrollGui
 import xyz.xenondevs.invui.gui.TabGui
@@ -47,6 +48,8 @@ class PropertyAccessorsPresenceTest {
             
             pagedGui.content
             pagedGui.content = emptyList()
+            pagedGui.contentLayoutMode
+            pagedGui.contentLayoutMode = ContentLayoutMode.SPATIAL
             
             pagedGui.pageChangeHandlers
             pagedGui.pageChangeHandlers = emptyList()
@@ -60,6 +63,8 @@ class PropertyAccessorsPresenceTest {
             
             scrollGui.content
             scrollGui.content = emptyList()
+            scrollGui.contentLayoutMode
+            scrollGui.contentLayoutMode = ContentLayoutMode.SPATIAL
             
             scrollGui.scrollHandlers
             scrollGui.scrollHandlers = emptyList()
@@ -73,6 +78,8 @@ class PropertyAccessorsPresenceTest {
             
             tabGui.tabs
             tabGui.tabs = emptyList()
+            tabGui.contentLayoutMode
+            tabGui.contentLayoutMode = ContentLayoutMode.SPATIAL
             
             tabGui.tabChangeHandlers
             tabGui.tabChangeHandlers = emptyList()

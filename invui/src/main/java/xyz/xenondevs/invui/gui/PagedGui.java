@@ -174,6 +174,20 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
     List<Slot> getContentListSlots();
     
     /**
+     * Sets how content is laid out in the {@link #getContentListSlots() content list slots}.
+     *
+     * @param contentLayoutMode The content layout mode.
+     */
+    void setContentLayoutMode(ContentLayoutMode contentLayoutMode);
+    
+    /**
+     * Gets the content layout mode.
+     *
+     * @return The content layout mode.
+     */
+    ContentLayoutMode getContentLayoutMode();
+    
+    /**
      * Gets the property containing the currently selected page.
      *
      * @return The page property.
@@ -302,6 +316,24 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
      * @param <C> The content type.
      */
     sealed interface Builder<C> extends Gui.Builder<PagedGui<C>, Builder<C>> permits AbstractPagedGui.AbstractBuilder {
+        
+        /**
+         * Sets how content is laid out in the content list slots of the {@link PagedGui}.
+         *
+         * @param contentLayoutMode The content layout mode.
+         * @return This {@link Builder Gui Builder}.
+         */
+        default Builder<C> setContentLayoutMode(ContentLayoutMode contentLayoutMode) {
+            return setContentLayoutMode(MutableProperty.of(contentLayoutMode));
+        }
+        
+        /**
+         * Sets the property that determines how content is laid out in the content list slots of the {@link PagedGui}.
+         *
+         * @param contentLayoutMode The content layout mode property.
+         * @return This {@link Builder Gui Builder}.
+         */
+        Builder<C> setContentLayoutMode(MutableProperty<ContentLayoutMode> contentLayoutMode);
         
         /**
          * Sets the property that contains the content of the {@link PagedGui}.

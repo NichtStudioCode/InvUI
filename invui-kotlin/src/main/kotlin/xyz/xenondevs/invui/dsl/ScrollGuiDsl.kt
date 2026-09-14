@@ -9,6 +9,7 @@ import xyz.xenondevs.commons.provider.flatten
 import xyz.xenondevs.commons.provider.mutableProvider
 import xyz.xenondevs.commons.provider.provider
 import xyz.xenondevs.invui.ExperimentalReactiveApi
+import xyz.xenondevs.invui.gui.ContentLayoutMode
 import xyz.xenondevs.invui.gui.Gui
 import xyz.xenondevs.invui.gui.IngredientPreset
 import xyz.xenondevs.invui.gui.ScrollGui
@@ -16,6 +17,7 @@ import xyz.xenondevs.invui.gui.SlotElement
 import xyz.xenondevs.invui.gui.lineCountProvider
 import xyz.xenondevs.invui.gui.maxLineProvider
 import xyz.xenondevs.invui.gui.setContent
+import xyz.xenondevs.invui.gui.setContentLayoutMode
 import xyz.xenondevs.invui.gui.setLine
 import xyz.xenondevs.invui.inventory.Inventory
 import xyz.xenondevs.invui.item.Item
@@ -293,6 +295,13 @@ sealed interface ScrollGuiDsl<C : Any> : GuiDsl {
     val content: ProviderDslProperty<List<C>>
     
     /**
+     * How content is laid out in the content list slots.
+     *
+     * Defaults to [ContentLayoutMode.SPATIAL].
+     */
+    val contentLayoutMode: ProviderDslProperty<ContentLayoutMode>
+    
+    /**
      * The current scroll line (i.e. the index of the first displayed line).
      *
      * Defaults to `0`. Can be set to a static value or bound to a [MutableProvider][xyz.xenondevs.commons.provider.MutableProvider]:
@@ -328,10 +337,13 @@ internal abstract class ScrollGuiDslImpl<C : Any>(
     private val internalMaxLine = mutableProvider { provider(0) }
     
     private var _content = provider(emptyList<C>())
+    private var _contentLayoutMode = provider(ContentLayoutMode.SPATIAL)
     private var _line = mutableProvider(0)
     
     override val content: ProviderDslProperty<List<C>>
         get() = ProviderDslProperty(::_content)
+    override val contentLayoutMode: ProviderDslProperty<ContentLayoutMode>
+        get() = ProviderDslProperty(::_contentLayoutMode)
     override val line: MutableProviderDslProperty<Int>
         get() = MutableProviderDslProperty(::_line)
     override val lineCount = internalLineCount.flatten()
@@ -341,6 +353,7 @@ internal abstract class ScrollGuiDslImpl<C : Any>(
         super.applyToBuilder(builder)
         builder.apply {
             setContent(_content)
+            setContentLayoutMode(_contentLayoutMode)
             setLine(_line)
             
             addModifier { gui ->

@@ -14,21 +14,24 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.IntFunction;
 
 non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements ScrollGui<C> {
     
     private static final int DEFAULT_LINE = 0;
+    private static final ContentLayoutMode DEFAULT_CONTENT_LAYOUT_MODE = ContentLayoutMode.SPATIAL;
     
     private List<Slot> contentListSlots = List.of();
     protected Slot min = new Slot(0, 0);
     protected Slot max = new Slot(0, 0);
-    protected int lineLength = 0;
+    protected int spatialLineLength = 0;
     private LineOrientation orientation = LineOrientation.HORIZONTAL;
     
     private final BatchingProperty<Integer> line;
     private final MutableProperty<Integer> lineCount = MutableProperty.of(-1);
     private final MutableProperty<Integer> maxLine = MutableProperty.of(-1);
     private final BatchingProperty<List<? extends C>> content;
+    private final BatchingProperty<ContentLayoutMode> contentLayoutMode;
     private final List<BiConsumer<? super Integer, ? super Integer>> scrollHandlers = new ArrayList<>(0);
     private final List<BiConsumer<? super Integer, ? super Integer>> lineCountChangeHandlers = new ArrayList<>(0);
     private int previousLine;
@@ -44,6 +47,8 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
         this.line.observeWeak(this, AbstractScrollGui::handleLineChange);
         this.content = new BatchingProperty<>(content, this::notifyWindowsOfContentListSlots);
         this.content.observeWeak(this, AbstractScrollGui::bake);
+        this.contentLayoutMode = new BatchingProperty<>(DEFAULT_CONTENT_LAYOUT_MODE, this::notifyWindowsOfContentListSlots);
+        this.contentLayoutMode.observeWeak(this, AbstractScrollGui::bake);
         setContentListSlotsNoBake(contentListSlots, orientation);
     }
     
@@ -51,6 +56,7 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
         Structure structure,
         MutableProperty<Integer> line,
         MutableProperty<List<? extends C>> content,
+        MutableProperty<ContentLayoutMode> contentLayoutMode,
         MutableProperty<Boolean> frozen,
         MutableProperty<Boolean> ignoreObscuredInventorySlots,
         MutableProperty<@Nullable ItemProvider> background
@@ -60,6 +66,8 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
         this.line.observeWeak(this, AbstractScrollGui::handleLineChange);
         this.content = new BatchingProperty<>(content, this::notifyWindowsOfContentListSlots);
         this.content.observeWeak(this, AbstractScrollGui::bake);
+        this.contentLayoutMode = new BatchingProperty<>(contentLayoutMode, this::notifyWindowsOfContentListSlots);
+        this.contentLayoutMode.observeWeak(this, AbstractScrollGui::bake);
         super.applyStructure(structure); // super call to avoid bake() through applyStructure override
         setContentListSlotsFromStructure(structure);
     }
@@ -67,6 +75,7 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
     @Override
     public @Nullable SlotElement getSlotElement(int index) {
         content.flushDirty();
+        contentLayoutMode.flushDirty();
         line.flushDirty();
         return super.getSlotElement(index);
     }
@@ -100,7 +109,7 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
     }
     
     public void setContentListSlotsNoBake(List<? extends Slot> slots, LineOrientation orientation) {
-        lineLength = switch (orientation) {
+        spatialLineLength = switch (orientation) {
             case HORIZONTAL -> SlotUtils.determineLongestHorizontalLineLength(slots, getHeight());
             case VERTICAL -> SlotUtils.determineLongestVerticalLineLength(slots, getWidth());
         };
@@ -157,21 +166,47 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
     
     protected abstract void updateContent();
     
+    protected final boolean tryUpdateContentSequentially(IntFunction<? extends @Nullable SlotElement> elementSupplier) {
+        if (getContentLayoutMode() != ContentLayoutMode.SEQUENTIAL)
+            return false;
+        
+        int offset = getLine() * getContentLineLength();
+        List<Slot> slots = getContentListSlots();
+        for (int i = 0; i < slots.size(); i++) {
+            setSlotElement(slots.get(i), elementSupplier.apply(offset + i));
+        }
+        return true;
+    }
+    
     private int correctLine(int line) {
-        // 0 <= line <= maxLine
-        return Math.max(0, Math.min(line, getMaxLine()));
+        return Math.clamp(line, 0, getMaxLine());
     }
     
     @Override
     public int getMaxLine() {
+        int lineLength = getContentLineLength();
         if (lineLength == 0)
             return 0;
         
-        int lines = switch (orientation) {
-            case HORIZONTAL -> max.y() - min.y();
-            case VERTICAL -> max.x() - min.x();
-        } + 1;
-        return Math.max(0, getLineCount() - lines);
+        int lines;
+        if (getContentLayoutMode() == ContentLayoutMode.SEQUENTIAL) {
+            lines = contentListSlots.size() / lineLength;
+        } else {
+            lines = switch (orientation) {
+                case HORIZONTAL -> max.y() - min.y();
+                case VERTICAL -> max.x() - min.x();
+            } + 1;
+        }
+        return Math.clamp(0, getLineCount() - lines, getLineCount());
+    }
+    
+    protected int getContentLineLength() {
+        if (getContentLayoutMode() == ContentLayoutMode.SPATIAL)
+            return spatialLineLength;
+        return switch (orientation) {
+            case HORIZONTAL -> SlotUtils.determineHorizontalLinesLength(contentListSlots);
+            case VERTICAL -> SlotUtils.determineVerticalLinesLength(contentListSlots);
+        };
     }
     
     private void notifyWindowsOfContentListSlots() {
@@ -198,6 +233,16 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
     @Override
     public @Unmodifiable List<Slot> getContentListSlots() {
         return Collections.unmodifiableList(contentListSlots);
+    }
+    
+    @Override
+    public void setContentLayoutMode(ContentLayoutMode contentLayoutMode) {
+        this.contentLayoutMode.set(contentLayoutMode);
+    }
+    
+    @Override
+    public ContentLayoutMode getContentLayoutMode() {
+        return FuncUtils.getSafely(contentLayoutMode, DEFAULT_CONTENT_LAYOUT_MODE);
     }
     
     @Override
@@ -278,6 +323,7 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
             Structure structure,
             MutableProperty<Integer> line,
             MutableProperty<List<? extends C>> content,
+            MutableProperty<ContentLayoutMode> contentLayoutMode,
             MutableProperty<Boolean> frozen,
             MutableProperty<Boolean> ignoreObscuredInventorySlots,
             MutableProperty<@Nullable ItemProvider> background
@@ -293,6 +339,7 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
         private final Constructor<C> ctor;
         private MutableProperty<List<? extends C>> content = MutableProperty.of(List.of());
         private MutableProperty<Integer> line = MutableProperty.of(DEFAULT_LINE);
+        private MutableProperty<ContentLayoutMode> contentLayoutMode = MutableProperty.of(DEFAULT_CONTENT_LAYOUT_MODE);
         private List<BiConsumer<? super Integer, ? super Integer>> scrollHandlers = new ArrayList<>(0);
         private List<BiConsumer<? super Integer, ? super Integer>> lineCountChangeHandlers = new ArrayList<>(0);
         
@@ -303,6 +350,12 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
         @Override
         public ScrollGui.Builder<C> setContent(MutableProperty<List<? extends C>> content) {
             this.content = content;
+            return this;
+        }
+        
+        @Override
+        public ScrollGui.Builder<C> setContentLayoutMode(MutableProperty<ContentLayoutMode> contentLayoutMode) {
+            this.contentLayoutMode = contentLayoutMode;
             return this;
         }
         
@@ -343,7 +396,7 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
             if (structure == null)
                 throw new IllegalStateException("Structure is not defined.");
             
-            var gui = ctor.create(structure, line, content, frozen, ignoreObscuredInventorySlots, background);
+            var gui = ctor.create(structure, line, content, contentLayoutMode, frozen, ignoreObscuredInventorySlots, background);
             scrollHandlers.forEach(gui::addScrollHandler);
             lineCountChangeHandlers.forEach(gui::addLineCountChangeHandler);
             applyModifiers(gui);
@@ -356,6 +409,7 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
             var clone = (AbstractBuilder<C>) super.clone();
             clone.content = MutableProperty.of(new ArrayList<>(content.get()));
             clone.line = MutableProperty.of(line.get());
+            clone.contentLayoutMode = MutableProperty.of(contentLayoutMode.get());
             clone.scrollHandlers = new ArrayList<>(scrollHandlers);
             clone.lineCountChangeHandlers = new ArrayList<>(lineCountChangeHandlers);
             return clone;

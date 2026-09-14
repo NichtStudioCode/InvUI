@@ -24,6 +24,13 @@ fun <C : Any> PagedGui.Builder<C>.setContent(content: Provider<List<C>>): PagedG
     setContent(PropertyAdapter(content))
 
 /**
+ * Sets the provider containing the content layout mode of the [PagedGui] built by this builder.
+ */
+@ExperimentalReactiveApi
+fun <C : Any> PagedGui.Builder<C>.setContentLayoutMode(contentLayoutMode: Provider<ContentLayoutMode>): PagedGui.Builder<C> =
+    setContentLayoutMode(PropertyAdapter(contentLayoutMode))
+
+/**
  * A provider containing the content of this [PagedGui].
  * 
  * - If the content was defined through a [Provider], the same instance is returned.
