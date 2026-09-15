@@ -13,7 +13,6 @@ import java.util.List;
 
 import static io.papermc.paper.datacomponent.item.BundleContents.bundleContents;
 
-@SuppressWarnings("UnstableApiUsage")
 public final class ItemUtils2 {
     
     private ItemUtils2() {}
@@ -76,7 +75,7 @@ public final class ItemUtils2 {
             return false;
         
         var nmsTarget = CraftItemStack.unwrap(target);
-        var mutableBundleContents = new BundleContents.Mutable(bundleContents);
+        var mutableBundleContents = bundleContents.asMutable();
         int added = mutableBundleContents.tryInsert(nmsTarget);
         
         if (added != 0) {
@@ -179,7 +178,7 @@ public final class ItemUtils2 {
             int i = Math.clamp(bundleContents.getSelectedItemIndex(), 0, bundleContents.size());
             var taken = items.remove(i);
             nmsBundle.set(DataComponents.BUNDLE_CONTENTS, new BundleContents(items));
-            return CraftItemStack.asCraftMirror(taken.create());
+            return CraftItemStack.asBukkitMirror(taken.create());
         }
         
         return null;
@@ -195,7 +194,7 @@ public final class ItemUtils2 {
         var nmsBundle = CraftItemStack.unwrap(bundle);
         var bundleContents = nmsBundle.get(DataComponents.BUNDLE_CONTENTS);
         if (bundleContents != null) {
-            var mutableBundleContents = new BundleContents.Mutable(bundleContents);
+            var mutableBundleContents = bundleContents.asMutable();
             mutableBundleContents.toggleSelectedItem(bundleSlot);
             nmsBundle.set(DataComponents.BUNDLE_CONTENTS, mutableBundleContents.toImmutable());
         }

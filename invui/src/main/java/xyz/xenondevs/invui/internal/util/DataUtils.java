@@ -70,12 +70,12 @@ public final class DataUtils {
                 dataVersion, CraftMagicNumbers.INSTANCE.getDataVersion()
             ).getValue();
             
-            return net.minecraft.world.item.ItemStack.CODEC.parse(
+            return CraftItemStack.asBukkitMirror(net.minecraft.world.item.ItemStack.CODEC.parse(
                 MinecraftServer.getServer()
                     .registryAccess()
                     .createSerializationContext(NbtOps.INSTANCE),
                 tag
-            ).resultOrPartial().orElseThrow().asBukkitMirror();
+            ).resultOrPartial().orElseThrow());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

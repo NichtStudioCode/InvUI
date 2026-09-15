@@ -74,7 +74,7 @@ public class CustomCartographyMenu extends CustomContainerMenu {
     
     public void setView(CartographyWindow.View view) {
         this.view = view;
-        setItem(1, CraftItemStack.asCraftMirror(getItem(1)));
+        setItem(1, CraftItemStack.asBukkitMirror(getItem(1)));
     }
     
     public void setIcons(Collection<? extends MapIcon> icons, boolean sendUpdate) {
@@ -107,21 +107,12 @@ public class CustomCartographyMenu extends CustomContainerMenu {
         canvas = new byte[MAP_SIZE * MAP_SIZE];
         decorations.clear();
         
-        setItem(0, CraftItemStack.asCraftMirror(getItem(0)));
+        setItem(0, CraftItemStack.asBukkitMirror(getItem(0)));
     }
     
     private void sendMapUpdate(MapItemSavedData.@Nullable MapPatch patch, @Nullable Collection<MapDecoration> icons) {
         var packet = new ClientboundMapItemDataPacket(new MapId(mapId), (byte) 0, false, icons, patch);
         PacketListener.getInstance().injectOutgoing(player, packet);
-    }
-    
-    private static @Nullable Collection<MapDecoration> toNmsDecorations(@Nullable Collection<MapIcon> icons) {
-        if (icons == null)
-            return null;
-        
-        return icons.stream()
-            .map(CustomCartographyMenu::toNmsDecoration)
-            .toList();
     }
     
     private static MapDecoration toNmsDecoration(MapIcon icon) {

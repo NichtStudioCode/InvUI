@@ -33,7 +33,6 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.RemoteSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.component.BundleContents;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.inventory.CraftInventory;
@@ -230,7 +229,7 @@ public abstract class CustomContainerMenu {
      * @return The {@link org.bukkit.inventory.ItemStack} on the cursor
      */
     public org.bukkit.inventory.ItemStack getCursor() {
-        return CraftItemStack.asCraftMirror(carried);
+        return CraftItemStack.asBukkitMirror(carried);
     }
     
     //<editor-fold desc="synchronization">
@@ -681,7 +680,7 @@ public abstract class CustomContainerMenu {
             return UpdateType.NONE;
         
         // update remote item to expected selected item index
-        var mutableBundleContents = new BundleContents.Mutable(bundleContents);
+        var mutableBundleContents = bundleContents.asMutable();
         mutableBundleContents.toggleSelectedItem(packet.selectedItemIndex());
         bundle.set(DataComponents.BUNDLE_CONTENTS, mutableBundleContents.toImmutable());
         
