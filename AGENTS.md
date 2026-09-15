@@ -52,7 +52,7 @@ When GitHub CLI is available, verify the account and permission with:
 
 ```console
 gh auth status
-gh repo view NichteStudioCode/InvUI --json viewerPermission
+gh repo view NichtStudioCode/InvUI --json viewerPermission
 ```
 
 ### Require Human Ownership
