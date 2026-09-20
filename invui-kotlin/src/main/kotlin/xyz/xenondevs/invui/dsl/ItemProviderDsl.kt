@@ -1,5 +1,3 @@
-@file:Suppress("UnstableApiUsage")
-
 package xyz.xenondevs.invui.dsl
 
 import io.papermc.paper.datacomponent.DataComponentType
@@ -13,8 +11,10 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.ItemType
 import org.bukkit.persistence.PersistentDataContainer
 import org.bukkit.persistence.PersistentDataType
+import xyz.xenondevs.commons.provider.NULL_PROVIDER
 import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.commons.provider.combinedProvider
+import xyz.xenondevs.commons.provider.dsl.ProviderDslProperty
 import xyz.xenondevs.commons.provider.dsl.DslProperty
 import xyz.xenondevs.commons.provider.provider
 import xyz.xenondevs.invui.internal.util.ComponentUtils
@@ -156,7 +156,7 @@ sealed interface ItemProviderDsl {
      * base by ItemStack(Material.DIAMOND_SWORD)
      * ```
      */
-    val base: DslProperty<ItemStack>
+    val base: ProviderDslProperty<ItemStack>
     
     /**
      * The [ItemType] to override on the base stack, or `null` to keep the base stack's type.
@@ -166,7 +166,7 @@ sealed interface ItemProviderDsl {
      * type by ItemType.NETHERITE_SWORD
      * ```
      */
-    val type: DslProperty<ItemType?>
+    val type: ProviderDslProperty<ItemType?>
     
     /**
      * The stack amount to override, or `null` to keep the base stack's amount.
@@ -176,7 +176,7 @@ sealed interface ItemProviderDsl {
      * amount by 16
      * ```
      */
-    val amount: DslProperty<Int?>
+    val amount: ProviderDslProperty<Int?>
     
     /**
      * The item name ([DataComponentTypes.ITEM_NAME][io.papermc.paper.datacomponent.DataComponentTypes.ITEM_NAME]),
@@ -193,7 +193,7 @@ sealed interface ItemProviderDsl {
      * name by "<red>Fire Sword"
      * ```
      */
-    val name: DslProperty<Component?>
+    val name: ProviderDslProperty<Component?>
     
     /**
      * The custom name ([DataComponentTypes.CUSTOM_NAME][io.papermc.paper.datacomponent.DataComponentTypes.CUSTOM_NAME]),
@@ -211,7 +211,7 @@ sealed interface ItemProviderDsl {
      * customName by "<italic>My Renamed Sword"
      * ```
      */
-    val customName: DslProperty<Component?>
+    val customName: ProviderDslProperty<Component?>
     
     /**
      * The item lore lines, or `null` to keep the base stack's lore. Setting this automatically
@@ -231,7 +231,7 @@ sealed interface ItemProviderDsl {
      * lore by listOf("<gray>Line 1", "<gray>Line 2")
      * ```
      */
-    val lore: DslProperty<List<Component>?>
+    val lore: ProviderDslProperty<List<Component>?>
     
     /**
      * Whether the item has an enchantment glint, or `null` to keep the base stack's glint state.
@@ -241,7 +241,7 @@ sealed interface ItemProviderDsl {
      * hasGlint by true
      * ```
      */
-    val hasGlint: DslProperty<Boolean?>
+    val hasGlint: ProviderDslProperty<Boolean?>
     
     /**
      * Whether the item shows its tooltip, or `null` to keep the base stack's tooltip state.
@@ -252,7 +252,7 @@ sealed interface ItemProviderDsl {
      * hasTooltip by false
      * ```
      */
-    val hasTooltip: DslProperty<Boolean?>
+    val hasTooltip: ProviderDslProperty<Boolean?>
     
     /**
      * A set of [DataComponentTypes][DataComponentType] that are hidden in the tooltip.
@@ -261,7 +261,7 @@ sealed interface ItemProviderDsl {
      * hiddenComponents by setOf(DataComponentTypes.ENCHANTMENTS)
      * ```
      */
-    val hiddenComponents: DslProperty<Set<DataComponentType>?>
+    val hiddenComponents: ProviderDslProperty<Set<DataComponentType>?>
     
     /**
      * Access to arbitrary data components beyond the convenience properties.
@@ -290,7 +290,7 @@ sealed interface ItemProviderDsl {
  * DSL scope for setting arbitrary data components on an [ItemProvider].
  *
  * Accessed via [ItemProviderDsl.data]. Use the [get] operator with a
- * [DataComponentType] to get a [DslProperty] for that component:
+ * [DataComponentType] to get a [ProviderDslProperty] for that component:
  *
  * ```
  * itemProvider(ItemType.DIAMOND_SWORD) {
@@ -303,22 +303,22 @@ sealed interface ItemProviderDsl {
 sealed interface DataComponentsPatchDsl {
     
     /**
-     * Returns a [DslProperty] for the given valued data component type.
+     * Returns a [ProviderDslProperty] for the given valued data component type.
      * Set to `null` to leave unchanged, or to a value (or [Provider]) to override:
      * ```
      * data[DataComponentTypes.MAX_DAMAGE] by 500
      * ```
      */
-    operator fun <T : Any> get(type: DataComponentType.Valued<T>): DslProperty<T?>
+    operator fun <T : Any> get(type: DataComponentType.Valued<T>): ProviderDslProperty<T?>
     
     /**
-     * Returns a [DslProperty] for the given non-valued data component type.
+     * Returns a [ProviderDslProperty] for the given non-valued data component type.
      * Set to `true` to apply, `false` to remove, or `null` to leave unchanged:
      * ```
      * data[DataComponentTypes.FIRE_RESISTANT] by true
      * ```
      */
-    operator fun <T : Any> get(type: DataComponentType.NonValued): DslProperty<Boolean?>
+    operator fun <T : Any> get(type: DataComponentType.NonValued): ProviderDslProperty<Boolean?>
     
 }
 
@@ -328,11 +328,11 @@ internal class DataComponentsPatchDslImpl : DataComponentsPatchDsl {
     
     val components = mutableMapOf<DataComponentType, Provider<*>>()
     
-    override fun <T : Any> get(type: DataComponentType.Valued<T>): DslProperty<T?> =
-        DslProperty { components[type] = it }
+    override fun <T : Any> get(type: DataComponentType.Valued<T>): ProviderDslProperty<T?> =
+        ProviderDslProperty<T?>(components[type] as? Provider<T> ?: NULL_PROVIDER) { components[type] = it }
     
-    override fun <T : Any> get(type: DataComponentType.NonValued): DslProperty<Boolean?> =
-        DslProperty { components[type] = it }
+    override fun <T : Any> get(type: DataComponentType.NonValued): ProviderDslProperty<Boolean?> =
+        ProviderDslProperty<Boolean?>(components[type] as? Provider<Boolean> ?: NULL_PROVIDER) { components[type] = it }
     
 }
 
@@ -340,7 +340,7 @@ internal class DataComponentsPatchDslImpl : DataComponentsPatchDsl {
  * DSL scope for setting [PersistentDataContainer] entries.
  * 
  * Accessed via [ItemProviderDsl.pdc]. Use the [get] operator with a [Key] 
- * and [PersistentDataType] to get a [DslProperty] for that entry:
+ * and [PersistentDataType] to get a [ProviderDslProperty] for that entry:
  * 
  * ```
  * itemProvider(ItemType.DIAMOND_SWORD) {
@@ -350,7 +350,7 @@ internal class DataComponentsPatchDslImpl : DataComponentsPatchDsl {
  */
 sealed interface PersistentDataContainerDsl {
     
-    operator fun <T : Any> get(key: Key, type: PersistentDataType<*, T>): DslProperty<T?>
+    operator fun <T : Any> get(key: Key, type: PersistentDataType<*, T>): ProviderDslProperty<T?>
     
 }
 
@@ -359,8 +359,8 @@ internal class PersistentDataContainerDslImpl : PersistentDataContainerDsl {
     
     val entries = mutableMapOf<Key, Pair<PersistentDataType<*, *>, Provider<*>>>()
     
-    override fun <T : Any> get(key: Key, type: PersistentDataType<*, T>): DslProperty<T?> =
-        DslProperty { entries[key] = type to it }
+    override fun <T : Any> get(key: Key, type: PersistentDataType<*, T>): ProviderDslProperty<T?> =
+        ProviderDslProperty<T?>(entries[key]?.second as? Provider<T> ?: NULL_PROVIDER) { entries[key] = type to it }
     
 }
 
@@ -381,23 +381,23 @@ internal class ItemProviderDslImpl(
     override val pdc = PersistentDataContainerDslImpl()
     override val data = DataComponentsPatchDslImpl()
     
-    override val base: DslProperty<ItemStack>
-        get() = DslProperty(::_base)
-    override val type: DslProperty<ItemType?>
-        get() = DslProperty(::_type)
-    override val amount: DslProperty<Int?>
-        get() = DslProperty(::_amount)
-    override val name: DslProperty<Component?>
-        get() = DslProperty(::_name)
-    override val customName: DslProperty<Component?>
-        get() = DslProperty(::_customName)
-    override val lore: DslProperty<List<Component>?>
-        get() = DslProperty(::_lore)
-    override val hasTooltip: DslProperty<Boolean?>
-        get() = DslProperty(::_hasTooltip)
-    override val hiddenComponents: DslProperty<Set<DataComponentType>?>
-        get() = DslProperty(::_hiddenComponents)
-    override val hasGlint: DslProperty<Boolean?>
+    override val base: ProviderDslProperty<ItemStack>
+        get() = ProviderDslProperty(::_base)
+    override val type: ProviderDslProperty<ItemType?>
+        get() = ProviderDslProperty(::_type)
+    override val amount: ProviderDslProperty<Int?>
+        get() = ProviderDslProperty(::_amount)
+    override val name: ProviderDslProperty<Component?>
+        get() = ProviderDslProperty(::_name)
+    override val customName: ProviderDslProperty<Component?>
+        get() = ProviderDslProperty(::_customName)
+    override val lore: ProviderDslProperty<List<Component>?>
+        get() = ProviderDslProperty(::_lore)
+    override val hasTooltip: ProviderDslProperty<Boolean?>
+        get() = ProviderDslProperty(::_hasTooltip)
+    override val hiddenComponents: ProviderDslProperty<Set<DataComponentType>?>
+        get() = ProviderDslProperty(::_hiddenComponents)
+    override val hasGlint: ProviderDslProperty<Boolean?>
         get() = data[DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE]
     
     fun build(): Provider<ItemProvider> {
