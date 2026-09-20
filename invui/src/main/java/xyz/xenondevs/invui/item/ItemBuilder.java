@@ -36,12 +36,10 @@ import java.util.stream.Collectors;
 
 import static net.kyori.adventure.text.minimessage.MiniMessage.miniMessage;
 import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
-import static org.jetbrains.annotations.ApiStatus.Experimental;
 
 /**
  * Utility for building (localized) {@link ItemStack ItemStacks}.
  */
-@SuppressWarnings("UnstableApiUsage")
 public final class ItemBuilder implements ItemProvider {
     
     private ItemStack itemStack;
@@ -1244,7 +1242,6 @@ public final class ItemBuilder implements ItemProvider {
      * @param <T>          value type
      * @return The builder instance
      */
-    @Experimental
     public <T> ItemBuilder set(DataComponentType.Valued<T> type, DataComponentBuilder<T> valueBuilder) {
         buildCache.clear();
         
@@ -1262,7 +1259,6 @@ public final class ItemBuilder implements ItemProvider {
      * @param <T>   value type
      * @return The builder instance
      */
-    @Experimental
     public <T> ItemBuilder set(final DataComponentType.Valued<T> type, T value) {
         buildCache.clear();
         
@@ -1278,7 +1274,6 @@ public final class ItemBuilder implements ItemProvider {
      * @param type the data component type
      * @return The builder instance
      */
-    @Experimental
     public ItemBuilder set(DataComponentType.NonValued type) {
         buildCache.clear();
         
@@ -1294,7 +1289,6 @@ public final class ItemBuilder implements ItemProvider {
      * @param type the data component type
      * @return The builder instance
      */
-    @Experimental
     public ItemBuilder unset(DataComponentType type) {
         buildCache.clear();
         
