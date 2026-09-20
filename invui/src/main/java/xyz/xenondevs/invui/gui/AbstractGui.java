@@ -459,7 +459,6 @@ non-sealed abstract class AbstractGui implements Gui {
         }
     }
     
-    @SuppressWarnings("UnstableApiUsage")
     private void handleInvBundleSelect(Player player, Inventory inventory, int slot, int bundleSlot) {
         inventory.callBundleSelectEvent(slot, player, bundleSlot);
         

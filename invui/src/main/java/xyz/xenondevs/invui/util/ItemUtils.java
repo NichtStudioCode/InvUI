@@ -18,7 +18,6 @@ import java.util.Objects;
 /**
  * Generic item-related utilities.
  */
-@SuppressWarnings("UnstableApiUsage")
 public final class ItemUtils {
     
     private static @Nullable ItemStack placeholder;

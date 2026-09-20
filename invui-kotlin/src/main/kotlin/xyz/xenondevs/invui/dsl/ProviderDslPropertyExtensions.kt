@@ -118,7 +118,6 @@ infix fun DslProperty<in ItemProvider>.by(itemType: Provider<ItemType>): Unit =
  * data[DataComponentTypes.LORE] by lore(listOf(Component.text("Line 1")))
  * ```
  */
-@Suppress("UnstableApiUsage")
 @JvmName("dataComponentValueByBuilder")
 @ExperimentalDslApi
 infix fun <T : Any> DslProperty<in T>.by(valueBuilder: DataComponentBuilder<T>): Unit =
@@ -131,7 +130,6 @@ infix fun <T : Any> DslProperty<in T>.by(valueBuilder: DataComponentBuilder<T>):
  * data[DataComponentTypes.LORE] by myLoreBuilderProvider // Provider<DataComponentBuilder<ItemLore>>
  * ```
  */
-@Suppress("UnstableApiUsage")
 @JvmName("dataComponentValueByBuilderProvider")
 @ExperimentalDslApi
 infix fun <T : Any> DslProperty<in T>.by(valueBuilder: Provider<DataComponentBuilder<T>>): Unit =
