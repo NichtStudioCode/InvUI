@@ -25,7 +25,7 @@ See the table below for an overview of which InvUI version is compatible with wh
 
 | Minecraft version    | InvUI version     |
 |----------------------|-------------------|
-| `26.3`               | `2.4.x`           |
+| `26.3`               | `2.4.0` - `2.5.x` |
 | `26.2`               | `2.2.0` - `2.3.2` |
 | `26.1.2`             | `2.0.0` - `2.1.1` |
 | `1.14.0` - `1.21.11` | `1.49`            |
