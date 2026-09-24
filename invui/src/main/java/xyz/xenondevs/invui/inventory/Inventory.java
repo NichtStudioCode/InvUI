@@ -13,18 +13,22 @@ import xyz.xenondevs.invui.Observer;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.internal.util.ArrayUtils;
 import xyz.xenondevs.invui.internal.util.CollectionUtils;
+import xyz.xenondevs.invui.internal.util.OperationCategory2IntMap;
+import xyz.xenondevs.invui.internal.util.OperationCategory2ObjectMap;
 import xyz.xenondevs.invui.inventory.event.*;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.util.ItemUtils;
 import xyz.xenondevs.invui.util.ObserverAtSlot;
 import xyz.xenondevs.invui.window.Window;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.IntStream;
 
 /**
  * An inventory that can be embedded in InvUI's {@link Gui Guis}.
@@ -52,6 +56,8 @@ import java.util.stream.IntStream;
  */
 public sealed abstract class Inventory implements Observable permits VirtualInventory, CompositeInventory, ObscuredInventory, ReferencingInventory {
     
+    private static final VarHandle OBSERVER_HANDLE = MethodHandles.arrayElementVarHandle(Set[].class);
+    
     /**
      * The default maximum stack size of slots in inventories.
      * Note that the actual maximum stack size of item stacks is also limited
@@ -60,20 +66,27 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
     public static int DEFAULT_MAX_STACK_SIZE = 99;
     
     private final int size;
-    private final List<Set<ObserverAtSlot>> observers;
+    private final AtomicReference<@Nullable Set<ObserverAtSlot> @Nullable []> observers = new AtomicReference<>();
     private @Nullable List<Consumer<? super InventoryClickEvent>> clickHandlers;
     private @Nullable List<Consumer<? super InventoryBundleSelectEvent>> bundleSelectHandlers;
     private @Nullable List<Consumer<? super ItemPreUpdateEvent>> preUpdateHandlers;
     private @Nullable List<Consumer<? super ItemPostUpdateEvent>> postUpdateHandlers;
-    private final Map<OperationCategory, int[]> iterationOrders;
-    private final Map<OperationCategory, Integer> guiPriorities;
+    private final OperationCategory2ObjectMap<int[]> iterationOrders;
+    private final OperationCategory2IntMap guiPriorities;
     private @Nullable Function<@Nullable ItemStack, @Nullable ItemProvider> visualizer;
     
     public Inventory(int size) {
         this.size = size;
-        observers = CollectionUtils.newList(size, _ -> ConcurrentHashMap.newKeySet());
-        iterationOrders = CollectionUtils.newEnumMap(OperationCategory.class, k -> IntStream.range(0, size).toArray());
-        guiPriorities = CollectionUtils.newEnumMap(OperationCategory.class, k -> 0);
+        iterationOrders = new OperationCategory2ObjectMap<>(defaultIterationOrder(size));
+        guiPriorities = new OperationCategory2IntMap(0);
+    }
+    
+    private static int[] defaultIterationOrder(int size) {
+        int[] order = new int[size];
+        for (int i = 0; i < size; i++) {
+            order[i] = i;
+        }
+        return order;
     }
     
     /**
@@ -227,13 +240,41 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
     protected abstract void setDirectBackingItem(int slot, @Nullable ItemStack itemStack);
     
     @Override
+    @SuppressWarnings("unchecked")
     public void addObserver(Observer who, int what, int how) {
-        observers.get(what).add(new ObserverAtSlot(who, how));
+        var observerSet = getObservers(what);
+        if (observerSet == null) {
+            var observerArray = getOrCreateObserverArray();
+            var newSet = ConcurrentHashMap.<ObserverAtSlot>newKeySet();
+            var existingSet = (Set<ObserverAtSlot>) OBSERVER_HANDLE.compareAndExchange(observerArray, what, null, newSet);
+            observerSet = existingSet == null ? newSet : existingSet;
+        }
+        observerSet.add(new ObserverAtSlot(who, how));
     }
     
     @Override
     public void removeObserver(Observer who, int what, int how) {
-        observers.get(what).remove(new ObserverAtSlot(who, how));
+        var observerSet = getObservers(what);
+        if (observerSet != null)
+            observerSet.remove(new ObserverAtSlot(who, how));
+    }
+    
+    @SuppressWarnings("unchecked")
+    private @Nullable Set<ObserverAtSlot>[] getOrCreateObserverArray() {
+        var observerArray = observers.get();
+        if (observerArray != null)
+            return observerArray;
+        
+        var newArray = (Set<ObserverAtSlot>[]) new Set<?>[size];
+        var existingArray = observers.compareAndExchange(null, newArray);
+        return existingArray == null ? newArray : existingArray;
+    }
+    
+    @SuppressWarnings("unchecked")
+    private @Nullable Set<ObserverAtSlot> getObservers(int slot) {
+        Objects.checkIndex(slot, size);
+        var observerArray = observers.get();
+        return observerArray == null ? null : (Set<ObserverAtSlot>) OBSERVER_HANDLE.getVolatile(observerArray, slot);
     }
     
     /**
@@ -243,7 +284,12 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
      */
     public List<Window> getWindows() {
         var windows = new ArrayList<Window>();
-        for (var observerSet : observers) {
+        if (observers.get() == null)
+            return windows;
+        for (int slot = 0; slot < size; slot++) {
+            var observerSet = getObservers(slot);
+            if (observerSet == null)
+                continue;
             for (var viewerAtSlot : observerSet) {
                 if (!(viewerAtSlot.observer() instanceof Window w))
                     continue;
@@ -260,7 +306,12 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
      * Can be called asynchronously.
      */
     public void notifyWindows() {
-        for (var observerSet : observers) {
+        if (observers.get() == null)
+            return;
+        for (int slot = 0; slot < size; slot++) {
+            var observerSet = getObservers(slot);
+            if (observerSet == null)
+                continue;
             for (var viewerAtSlot : observerSet) {
                 viewerAtSlot.notifyUpdate();
             }
@@ -276,7 +327,10 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
      * @param slot The slot to notify
      */
     public void notifyWindows(int slot) {
-        for (var viewerAtSlot : observers.get(slot)) {
+        var observerSet = getObservers(slot);
+        if (observerSet == null)
+            return;
+        for (var viewerAtSlot : observerSet) {
             viewerAtSlot.notifyUpdate();
         }
     }
