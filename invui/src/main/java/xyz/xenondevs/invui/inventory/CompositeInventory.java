@@ -12,8 +12,11 @@ import xyz.xenondevs.invui.internal.util.ArrayUtils;
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent;
 import xyz.xenondevs.invui.inventory.event.UpdateReason;
 import xyz.xenondevs.invui.item.ItemProvider;
+import xyz.xenondevs.invui.window.Window;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * An {@link Inventory} which is composed of multiple other {@link Inventory Inventories}.
@@ -156,6 +159,15 @@ public final class CompositeInventory extends Inventory {
         }
         
         throw new IndexOutOfBoundsException(slot);
+    }
+    
+    @Override
+    public List<Window> getWindows() {
+        var windows = new ArrayList<Window>();
+        for (Inventory inventory : inventories) {
+            windows.addAll(inventory.getWindows());
+        }
+        return windows;
     }
     
     @Override
