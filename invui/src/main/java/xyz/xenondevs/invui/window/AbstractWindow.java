@@ -9,6 +9,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.NamespacedKey;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.*;
@@ -537,6 +538,14 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
         if (isInCloseHandlerContext.get() > 0)
             throw new IllegalStateException("Opening a window is not allowed while handling window close. Consider setting a fallback window or scheduling a task instead.");
         ThreadCheck.checkOwnedBy(viewer);
+        
+        // close containers that weren't opened by InvUI, so that they return their items and call their close event
+        var serverPlayer = ((CraftPlayer) viewer).getHandle();
+        if (serverPlayer.containerMenu != serverPlayer.inventoryMenu && WindowManager.getInstance().getOpenWindow(viewer) == null) {
+            viewer.closeInventory(Reason.OPEN_NEW);
+            if (isOpen || !viewer.isValid() || !viewer.isConnected())
+                return;
+        }
         
         try {
             isInOpeningContext.set(true);
