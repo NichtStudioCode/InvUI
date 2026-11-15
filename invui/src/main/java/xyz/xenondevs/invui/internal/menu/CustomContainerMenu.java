@@ -473,6 +473,10 @@ public abstract class CustomContainerMenu {
         Packet<? super ServerGamePacketListener> packet;
         UpdateType updateType = UpdateType.NONE;
         while ((packet = incoming.poll()) != null) {
+            if (serverPlayer.containerMenu != proxy) { // closed by a previous packet
+                incoming.clear();
+                break;
+            }
             updateType = updateType.or(processPacket(packet));
         }
         
