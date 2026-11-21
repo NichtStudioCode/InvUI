@@ -55,7 +55,7 @@ target/
 .gradle
 **/build/
 !src/**/build/
-.kotlin/*
+.kotlin/
 
 # Ignore Gradle GUI config
 gradle-app.setting
