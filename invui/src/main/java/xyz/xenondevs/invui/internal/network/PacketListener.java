@@ -4,7 +4,11 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
+import io.papermc.paper.util.IntervalledCounter;
+import net.minecraft.network.Connection;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.common.ClientboundDisconnectPacket;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ServerGamePacketListener;
@@ -100,7 +104,7 @@ public class PacketListener implements Listener {
             throw new IllegalStateException("A packet handler is already registered for this player");
         
         var channel = ((CraftPlayer) player).getHandle().connection.connection.channel;
-        var packetHandler = new PacketHandler(player, channel);
+        var packetHandler = new PacketHandler(channel);
         packetHandlers.put(player.getUniqueId(), packetHandler);
         try {
             channel.pipeline().addBefore(MC_PACKET_HANDLER_NAME, invuiPacketHandlerName, packetHandler);
@@ -126,14 +130,18 @@ public class PacketListener implements Listener {
     
     private static class PacketHandler extends ChannelDuplexHandler {
         
+        private static final long PACKET_LIMIT_INTERVAL_NANOS = 7_000_000_000L;
+        private static final double PACKET_LIMIT_RATE = 500.0;
+        private static final Component KICK_MESSAGE = Component.translatable("disconnect.exceeded_packet_rate");
+        
         private final Map<Class<? extends Packet<? super ServerGamePacketListener>>, Queue<Packet<? super ServerGamePacketListener>>> redirections = new ConcurrentHashMap<>();
         private final Map<Class<? extends Packet<? super ServerGamePacketListener>>, Queue<Packet<? super ServerGamePacketListener>>> listeners = new ConcurrentHashMap<>();
         private final Set<Class<? extends Packet<ClientGamePacketListener>>> discardRules = Collections.newSetFromMap(new ConcurrentHashMap<>());
-        private final Player player;
         private final Channel channel;
+        private final IntervalledCounter packetCounter = new IntervalledCounter(PACKET_LIMIT_INTERVAL_NANOS);
+        private boolean stopReadingPackets;
         
-        public PacketHandler(Player player, Channel channel) {
-            this.player = player;
+        public PacketHandler(Channel channel) {
             this.channel = channel;
         }
         
@@ -191,9 +199,38 @@ public class PacketListener implements Listener {
             }
         }
         
+        private boolean isPacketAllowed() {
+            packetCounter.updateAndAdd(1L, System.nanoTime());
+            if (packetCounter.getRate() >= PACKET_LIMIT_RATE) {
+                kick();
+                return false;
+            }
+            
+            return true;
+        }
+        
+        private void kick() {
+            if (stopReadingPackets)
+                return;
+            
+            stopReadingPackets = true;
+            channel.config().setAutoRead(false);
+            channel.writeAndFlush(new ClientboundDisconnectPacket(KICK_MESSAGE))
+                .addListener(_ -> {
+                    if (channel.pipeline().get(MC_PACKET_HANDLER_NAME) instanceof Connection connection) {
+                        connection.disconnect(KICK_MESSAGE);
+                    } else {
+                        channel.close();
+                    }
+                });
+        }
+        
         @SuppressWarnings("unchecked")
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+            if (stopReadingPackets)
+                return;
+            
             if (!(msg instanceof Packet<?> packet)) {
                 super.channelRead(ctx, msg);
                 return;
@@ -206,7 +243,9 @@ public class PacketListener implements Listener {
             
             var queue = redirections.get(packet.getClass());
             if (queue != null) {
-                queue.add((Packet<ServerGamePacketListener>) packet);
+                if (isPacketAllowed()) {
+                    queue.add((Packet<ServerGamePacketListener>) packet);
+                }
             } else {
                 super.channelRead(ctx, packet);
             }
