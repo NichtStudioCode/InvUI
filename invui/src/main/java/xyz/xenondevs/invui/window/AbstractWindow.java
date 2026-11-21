@@ -538,6 +538,14 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
             throw new IllegalStateException("Opening a window is not allowed while handling window close. Consider setting a fallback window or scheduling a task instead.");
         ThreadCheck.checkOwnedBy(viewer);
         
+        if (!menu.closeForeignContainer()
+            || isOpen
+            || viewer.isSleeping()
+            || !viewer.isValid()
+            || !viewer.isConnected()) {
+            return;
+        }
+        
         try {
             isInOpeningContext.set(true);
             

@@ -421,6 +421,31 @@ public abstract class CustomContainerMenu {
     }
     
     /**
+     * Closes the non-InvUI container that the player currently has open, if any.
+     * <p>
+     * This fires an {@link InventoryCloseEvent} with {@link InventoryCloseEvent.Reason#OPEN_NEW}.
+     *
+     * @return Whether the player no longer has a foreign container open, i.e. whether opening this menu can proceed.
+     * {@code false} if closing the container failed or an event handler opened another container.
+     */
+    public boolean closeForeignContainer() {
+        if (serverPlayer.containerMenu == serverPlayer.inventoryMenu
+            || serverPlayer.containerMenu instanceof ContainerMenuProxy) {
+            return true;
+        }
+        
+        try {
+            player.closeInventory(InventoryCloseEvent.Reason.OPEN_NEW);
+        } catch (RuntimeException e) {
+            InvUI.getInstance().handleException("Failed to close a foreign container", e);
+            return false;
+        }
+        
+        // While Paper's javadoc prohibits it, a misbehaving event handler may still have opened another container
+        return serverPlayer.containerMenu == serverPlayer.inventoryMenu;
+    }
+    
+    /**
      * Runs cleanup logic after this menu has been closed.
      */
     public void handleClosed() {
