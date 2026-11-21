@@ -473,7 +473,11 @@ public abstract class CustomContainerMenu {
         Packet<? super ServerGamePacketListener> packet;
         UpdateType updateType = UpdateType.NONE;
         while ((packet = incoming.poll()) != null) {
-            updateType = updateType.or(processPacket(packet));
+            try {
+                updateType = updateType.or(processPacket(packet));
+            } catch (Throwable t) {
+                InvUI.getInstance().handleException("An exception occurred while handling a window interaction", t);
+            }
         }
         
         return updateType;
