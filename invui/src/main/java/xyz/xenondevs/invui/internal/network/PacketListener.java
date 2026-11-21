@@ -100,14 +100,20 @@ public class PacketListener implements Listener {
     
     @EventHandler(priority = EventPriority.MONITOR)
     private void handleQuit(PlayerQuitEvent event) {
-        packetHandlers.remove(event.getPlayer().getUniqueId());
+        var player = event.getPlayer();
+        var channel = ((CraftPlayer) player).getHandle().connection.connection.channel;
+        packetHandlers.computeIfPresent(player.getUniqueId(), (_, packetHandler) -> packetHandler.channel == channel ? null : packetHandler);
     }
     
     private void injectChannelHandler(Player player) {
-        if (packetHandlers.containsKey(player.getUniqueId()))
-            throw new IllegalStateException("A packet handler is already registered for this player");
-        
         var channel = ((CraftPlayer) player).getHandle().connection.connection.channel;
+        var previous = packetHandlers.get(player.getUniqueId());
+        if (previous != null) {
+            if (previous.channel == channel)
+                throw new IllegalStateException("A packet handler is already registered for this player");
+            removeChannelHandler(previous.channel); // previous session of the same player that has not been removed yet
+        }
+        
         var packetHandler = new PacketHandler(channel);
         packetHandlers.put(player.getUniqueId(), packetHandler);
         try {
@@ -123,8 +129,10 @@ public class PacketListener implements Listener {
     
     private void removeChannelHandler(Player player) {
         packetHandlers.remove(player.getUniqueId());
-        var channel = ((CraftPlayer) player).getHandle().connection.connection.channel;
-        
+        removeChannelHandler(((CraftPlayer) player).getHandle().connection.connection.channel);
+    }
+    
+    private void removeChannelHandler(Channel channel) {
         try {
             channel.pipeline().remove(invuiPacketHandlerName);
         } catch (NoSuchElementException ignored) {
