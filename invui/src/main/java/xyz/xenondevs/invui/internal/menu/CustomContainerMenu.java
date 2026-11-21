@@ -633,8 +633,8 @@ public abstract class CustomContainerMenu {
             case CLONE -> ClickType.MIDDLE;
             
             case THROW -> switch (packet.buttonNum()) {
-                case 0 -> packet.slotNum() > 0 ? ClickType.DROP : ClickType.LEFT;
-                case 1 -> packet.slotNum() > 0 ? ClickType.CONTROL_DROP : ClickType.RIGHT;
+                case 0 -> packet.slotNum() >= 0 ? ClickType.DROP : ClickType.LEFT;
+                case 1 -> packet.slotNum() >= 0 ? ClickType.CONTROL_DROP : ClickType.RIGHT;
                 default -> ClickType.UNKNOWN;
             };
             
