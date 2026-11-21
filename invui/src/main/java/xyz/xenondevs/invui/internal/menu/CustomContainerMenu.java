@@ -87,6 +87,7 @@ public abstract class CustomContainerMenu {
         
         private final LoadingCache<TypedDataComponent<?>, Integer> cache = CacheBuilder.newBuilder()
             .expireAfterAccess(Duration.ofMinutes(5))
+            .maximumSize(4096)
             .build(new CacheLoader<>() {
                 
                 private final DynamicOps<HashCode> hashOps = RegistryOps.create(

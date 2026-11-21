@@ -6,7 +6,9 @@ import xyz.xenondevs.invui.InvUI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -83,6 +85,24 @@ public final class CollectionUtils {
             map.put(key, initializer.apply(key));
         }
         return map;
+    }
+    
+    /**
+     * Creates a new access-ordered {@link LinkedHashMap} that removes its least recently used entry
+     * when the specified maximum size is exceeded.
+     *
+     * @param maxSize The maximum number of entries in the map
+     * @param <K>     The type of the keys in the map
+     * @param <V>     The type of the values in the map
+     * @return A new access-ordered {@link LinkedHashMap} with the specified maximum size
+     */
+    public static <K, V> LinkedHashMap<K, V> newLruMap(int maxSize) {
+        return new LinkedHashMap<>(maxSize, 0.75f, true) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
+                return size() > maxSize;
+            }
+        };
     }
     
 }
