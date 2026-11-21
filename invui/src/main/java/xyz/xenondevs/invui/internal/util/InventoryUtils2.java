@@ -43,10 +43,23 @@ public final class InventoryUtils2 {
         if (first.inventory() instanceof ReferencingInventory refFirst
             && second.inventory() instanceof ReferencingInventory refSecond) {
             return refFirst.getReferencedInventory() == refSecond.getReferencedInventory()
-                   && first.slot() == second.slot();
+                   && toReferencedSlot(refFirst, first.slot()) == toReferencedSlot(refSecond, second.slot());
         }
         
         return false;
+    }
+    
+    /**
+     * Converts a slot of the given {@link ReferencingInventory} to the corresponding slot of the referenced
+     * Bukkit inventory.
+     *
+     * @param inventory The {@link ReferencingInventory}
+     * @param slot      The slot in the {@link ReferencingInventory}
+     * @return The slot in the referenced Bukkit inventory
+     */
+    private static int toReferencedSlot(ReferencingInventory inventory, int slot) {
+        // mirrors ReferencingInventory.PlayerStorageContents#convertSlot, which moves the hotbar to the end
+        return inventory instanceof ReferencingInventory.PlayerStorageContents ? (slot + 9) % 36 : slot;
     }
     
     /**

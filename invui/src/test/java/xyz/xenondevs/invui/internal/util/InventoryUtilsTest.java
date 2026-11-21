@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.ServerMock;
 import xyz.xenondevs.invui.InvUI;
+import xyz.xenondevs.invui.inventory.ObscuredInventory;
+import xyz.xenondevs.invui.inventory.ReferencingInventory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,6 +33,33 @@ class InventoryUtilsTest {
     @AfterAll
     public static void tearDown() {
         MockBukkit.unmock();
+    }
+    
+    @Test
+    void playerStorageContents_backingSlot_usesOwnSlotIndex() {
+        var player = server.addPlayer();
+        var storage = ReferencingInventory.fromPlayerStorageContents(player.getInventory());
+        player.getInventory().setItem(0, ItemStack.of(Material.DIAMOND)); // hotbar slot 0, InvUI slot 27
+        
+        var backing = storage.getBackingSlot(27);
+        
+        assertSame(storage, backing.inventory());
+        assertEquals(27, backing.slot());
+        assertEquals(Material.DIAMOND, backing.inventory().getItem(backing.slot()).getType());
+    }
+    
+    @Test
+    void containsBackingSlot_mapsPlayerStorageContentsSlots() {
+        var player = server.addPlayer();
+        var contents = ReferencingInventory.fromContents(player.getInventory());
+        var storage = ReferencingInventory.fromPlayerStorageContents(player.getInventory());
+        var onlyHotbar0 = new ObscuredInventory(storage, slot -> slot != 27); // hotbar slot 0
+        var onlyMain0 = new ObscuredInventory(storage, slot -> slot != 0); // main inventory slot 9
+        
+        assertTrue(InventoryUtils2.containsBackingSlot(onlyHotbar0, contents, 0));
+        assertFalse(InventoryUtils2.containsBackingSlot(onlyMain0, contents, 0));
+        assertTrue(InventoryUtils2.containsBackingSlot(onlyMain0, contents, 9));
+        assertFalse(InventoryUtils2.containsBackingSlot(onlyHotbar0, contents, 9));
     }
     
     @Test

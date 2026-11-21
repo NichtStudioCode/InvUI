@@ -201,11 +201,6 @@ public sealed class ReferencingInventory extends xyz.xenondevs.invui.inventory.I
         }
         
         @Override
-        public InventorySlot getBackingSlot(int slot) {
-            return new InventorySlot(this, convertSlot(slot));
-        }
-        
-        @Override
         public @Nullable ItemStack getItem(int slot) {
             return super.getItem(convertSlot(slot));
         }
