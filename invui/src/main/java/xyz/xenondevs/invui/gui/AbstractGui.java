@@ -90,16 +90,16 @@ non-sealed abstract class AbstractGui implements Gui {
     }
     
     @Override
-    public void handleClick(int slot, Click click) {
+    public void handleClick(int slot, Click click, @Nullable Window sourceWindow) {
         // ignore all clicks if the gui is frozen
         if (isFrozen())
             return;
         
         SlotElement slotElement = getSlotElement(slot);
         switch (slotElement) {
-            case SlotElement.GuiLink le -> le.gui().handleClick(le.slot(), click);
+            case SlotElement.GuiLink le -> le.gui().handleClick(le.slot(), click, sourceWindow);
             case SlotElement.Item ie -> ie.item().handleClick(click.clickType(), click.player(), click);
-            case SlotElement.InventoryLink ie -> handleInvSlotElementClick(ie, click);
+            case SlotElement.InventoryLink ie -> handleInvSlotElementClick(ie, click, sourceWindow);
             case null -> {}
         }
     }
@@ -126,24 +126,24 @@ non-sealed abstract class AbstractGui implements Gui {
     }
     
     //<editor-fold desc="inventories">
-    private void handleInvSlotElementClick(SlotElement.InventoryLink element, Click click) {
+    private void handleInvSlotElementClick(SlotElement.InventoryLink element, Click click, @Nullable Window sourceWindow) {
         Inventory inventory = element.inventory();
         int slot = element.slot();
         
         switch (click.clickType()) {
-            case LEFT -> handleInvLeftClick(click, inventory, slot);
-            case RIGHT -> handleInvRightClick(click, inventory, slot);
-            case SHIFT_LEFT, SHIFT_RIGHT -> handleInvItemShift(click, inventory, slot);
-            case NUMBER_KEY -> handleInvNumberKey(click, inventory, slot);
-            case SWAP_OFFHAND -> handleInvOffHandKey(click, inventory, slot);
-            case DROP -> handleInvDrop(false, click, inventory, slot);
-            case CONTROL_DROP -> handleInvDrop(true, click, inventory, slot);
-            case DOUBLE_CLICK -> handleInvDoubleClick(click, inventory, slot);
-            case MIDDLE -> handleInvMiddleClick(click, inventory, slot);
+            case LEFT -> handleInvLeftClick(click, inventory, slot, sourceWindow);
+            case RIGHT -> handleInvRightClick(click, inventory, slot, sourceWindow);
+            case SHIFT_LEFT, SHIFT_RIGHT -> handleInvItemShift(click, inventory, slot, sourceWindow);
+            case NUMBER_KEY -> handleInvNumberKey(click, inventory, slot, sourceWindow);
+            case SWAP_OFFHAND -> handleInvOffHandKey(click, inventory, slot, sourceWindow);
+            case DROP -> handleInvDrop(false, click, inventory, slot, sourceWindow);
+            case CONTROL_DROP -> handleInvDrop(true, click, inventory, slot, sourceWindow);
+            case DOUBLE_CLICK -> handleInvDoubleClick(click, inventory, slot, sourceWindow);
+            case MIDDLE -> handleInvMiddleClick(click, inventory, slot, sourceWindow);
         }
     }
     
-    private void handleInvLeftClick(Click click, Inventory inventory, int slot) {
+    private void handleInvLeftClick(Click click, Inventory inventory, int slot, @Nullable Window sourceWindow) {
         Player player = click.player();
         ItemStack cursor = ItemUtils.takeUnlessEmpty(player.getItemOnCursor());
         ItemStack clicked = inventory.getItem(slot);
@@ -160,6 +160,8 @@ non-sealed abstract class AbstractGui implements Gui {
             // if the cursor is empty, pick the stack up
             if (inventory.callClickEvent(slot, click, InventoryAction.PICKUP_SOME))
                 return;
+            if (sourceWindow != null && !sourceWindow.isOpen())
+                return;
             
             int amount = -inventory.addItemAmount(updateReason, slot, -clicked.getAmount());
             clicked.setAmount(amount);
@@ -167,6 +169,8 @@ non-sealed abstract class AbstractGui implements Gui {
         } else if (clicked != null && ItemUtils2.isBundle(cursor)) {
             // insert clicked item into bundle on cursor
             if (inventory.callClickEvent(slot, click, InventoryAction.PICKUP_SOME_INTO_BUNDLE))
+                return;
+            if (sourceWindow != null && !sourceWindow.isOpen())
                 return;
             
             ItemStack bundle = cursor.clone();
@@ -178,6 +182,8 @@ non-sealed abstract class AbstractGui implements Gui {
         } else if (clicked != null && ItemUtils2.isBundle(clicked)) {
             // insert cursor item into clicked bundle
             if (inventory.callClickEvent(slot, click, InventoryAction.PLACE_SOME_INTO_BUNDLE))
+                return;
+            if (sourceWindow != null && !sourceWindow.isOpen())
                 return;
             
             ItemStack bundle = clicked.clone();
@@ -195,6 +201,8 @@ non-sealed abstract class AbstractGui implements Gui {
             // if there are no items, or they're similar to the cursor, add the cursor items to the stack
             if (inventory.callClickEvent(slot, click, InventoryAction.PLACE_SOME))
                 return;
+            if (sourceWindow != null && !sourceWindow.isOpen())
+                return;
             
             int remains = inventory.putItem(updateReason, slot, cursor);
             if (remains == 0) {
@@ -207,13 +215,15 @@ non-sealed abstract class AbstractGui implements Gui {
             // if the stacks are not similar, swap them
             if (inventory.callClickEvent(slot, click, InventoryAction.SWAP_WITH_CURSOR))
                 return;
+            if (sourceWindow != null && !sourceWindow.isOpen())
+                return;
             
             if (inventory.setItem(updateReason, slot, cursor))
                 player.setItemOnCursor(clicked);
         }
     }
     
-    private void handleInvRightClick(Click click, Inventory inventory, int slot) {
+    private void handleInvRightClick(Click click, Inventory inventory, int slot, @Nullable Window sourceWindow) {
         Player player = click.player();
         ItemStack cursor = ItemUtils.takeUnlessEmpty(player.getItemOnCursor());
         ItemStack clicked = inventory.getItem(slot);
@@ -229,6 +239,8 @@ non-sealed abstract class AbstractGui implements Gui {
         if (cursor == null && ItemUtils2.isBundle(clicked)) {
             // take the selected item from the bundle
             if (inventory.callClickEvent(slot, click, InventoryAction.PICKUP_FROM_BUNDLE))
+                return;
+            if (sourceWindow != null && !sourceWindow.isOpen())
                 return;
             
             ItemStack bundle = clicked.clone();
@@ -248,6 +260,8 @@ non-sealed abstract class AbstractGui implements Gui {
             // if the stack is not divisible by 2, give the cursor the bigger part
             if (inventory.callClickEvent(slot, click, InventoryAction.PICKUP_HALF))
                 return;
+            if (sourceWindow != null && !sourceWindow.isOpen())
+                return;
             
             int newCursorAmount = (int) Math.ceil(clicked.getAmount() / 2.0);
             newCursorAmount = -inventory.addItemAmount(updateReason, slot, -newCursorAmount);
@@ -257,6 +271,8 @@ non-sealed abstract class AbstractGui implements Gui {
         } else if (clicked == null && ItemUtils2.isBundle(cursor)) {
             // if the player right-clicked on an empty slot with a bundle, place the first item from the bundle there
             if (inventory.callClickEvent(slot, click, InventoryAction.PLACE_FROM_BUNDLE))
+                return;
+            if (sourceWindow != null && !sourceWindow.isOpen())
                 return;
             
             ItemStack toTake = ItemUtils2.getFirstFromBundle(cursor);
@@ -272,6 +288,8 @@ non-sealed abstract class AbstractGui implements Gui {
             // put one item from the cursor in the inventory
             if (inventory.callClickEvent(slot, click, InventoryAction.PLACE_ONE))
                 return;
+            if (sourceWindow != null && !sourceWindow.isOpen())
+                return;
             
             ItemStack toAdd = cursor.clone();
             toAdd.setAmount(1);
@@ -284,13 +302,15 @@ non-sealed abstract class AbstractGui implements Gui {
             // swap cursor and clicked
             if (inventory.callClickEvent(slot, click, InventoryAction.SWAP_WITH_CURSOR))
                 return;
+            if (sourceWindow != null && !sourceWindow.isOpen())
+                return;
             
             if (inventory.setItem(updateReason, slot, cursor))
                 player.setItemOnCursor(clicked);
         }
     }
     
-    private void handleInvItemShift(Click click, Inventory inventory, int slot) {
+    private void handleInvItemShift(Click click, Inventory inventory, int slot, @Nullable Window sourceWindow) {
         Player player = click.player();
         ItemStack clicked = inventory.getItem(slot);
         
@@ -301,10 +321,12 @@ non-sealed abstract class AbstractGui implements Gui {
         
         if (inventory.callClickEvent(slot, click, InventoryAction.MOVE_TO_OTHER_INVENTORY))
             return;
+        if (sourceWindow != null && !sourceWindow.isOpen())
+            return;
         
         UpdateReason updateReason = new PlayerUpdateReason.Click(player, click);
         ItemPreUpdateEvent updateEvent = inventory.callPreUpdateEvent(updateReason, slot, clicked, null);
-        if (updateEvent.isCancelled())
+        if (updateEvent.isCancelled() || (sourceWindow != null && !sourceWindow.isOpen()))
             return;
         
         var window = WindowManager.getInstance().getOpenWindow(player);
@@ -325,7 +347,7 @@ non-sealed abstract class AbstractGui implements Gui {
         inventory.callPostUpdateEvent(updateReason, slot, clicked, newStack);
     }
     
-    private void handleInvNumberKey(Click click, Inventory inventory, int slot) {
+    private void handleInvNumberKey(Click click, Inventory inventory, int slot, @Nullable Window sourceWindow) {
         Player player = click.player();
         ItemStack clicked = inventory.getItem(slot);
         
@@ -350,12 +372,14 @@ non-sealed abstract class AbstractGui implements Gui {
             
             if (inventory.callClickEvent(slot, click, InventoryAction.HOTBAR_SWAP))
                 return;
+            if (sourceWindow != null && !sourceWindow.isOpen())
+                return;
             
             var updateReason = new PlayerUpdateReason.Click(click);
             
             // check if clicked inventory would allow hotbar swap
             ItemPreUpdateEvent updateEvent = inventory.callPreUpdateEvent(updateReason, slot, clicked, hotbar);
-            if (updateEvent.isCancelled())
+            if (updateEvent.isCancelled() || (sourceWindow != null && !sourceWindow.isOpen()))
                 return;
             
             // move clicked into hotbar, or abort if cancelled
@@ -368,7 +392,7 @@ non-sealed abstract class AbstractGui implements Gui {
         }
     }
     
-    private void handleInvOffHandKey(Click click, Inventory inventory, int slot) {
+    private void handleInvOffHandKey(Click click, Inventory inventory, int slot, @Nullable Window sourceWindow) {
         Player player = click.player();
         PlayerInventory playerInventory = player.getInventory();
         ItemStack clicked = inventory.getItem(slot);
@@ -381,17 +405,21 @@ non-sealed abstract class AbstractGui implements Gui {
         
         if (inventory.callClickEvent(slot, click, InventoryAction.HOTBAR_SWAP))
             return;
+        if (sourceWindow != null && !sourceWindow.isOpen())
+            return;
         
         if (inventory.setItem(new PlayerUpdateReason.Click(click), slot, offhandItem))
             playerInventory.setItemInOffHand(clicked);
     }
     
-    private void handleInvDrop(boolean ctrl, Click click, Inventory inventory, int slot) {
+    private void handleInvDrop(boolean ctrl, Click click, Inventory inventory, int slot, @Nullable Window sourceWindow) {
         ItemStack clicked = inventory.getItem(slot);
         if (ItemUtils.isEmpty(clicked))
             return;
         
         if (inventory.callClickEvent(slot, click, ctrl ? InventoryAction.DROP_ALL_SLOT : InventoryAction.DROP_ONE_SLOT))
+            return;
+        if (sourceWindow != null && !sourceWindow.isOpen())
             return;
         
         Player player = click.player();
@@ -400,7 +428,7 @@ non-sealed abstract class AbstractGui implements Gui {
         int initialDropCount = ctrl ? clicked.getAmount() : 1;
         var initialNewItem = ItemUtils.cloneWithCount(clicked, clicked.getAmount() - initialDropCount);
         var event = inventory.callPreUpdateEvent(updateReason, slot, clicked, initialNewItem);
-        if (event.isCancelled())
+        if (event.isCancelled() || (sourceWindow != null && !sourceWindow.isOpen()))
             return;
         
         var newItem = event.getNewItem();
@@ -413,7 +441,7 @@ non-sealed abstract class AbstractGui implements Gui {
         inventory.callPostUpdateEvent(updateReason, slot, clicked, newItem);
     }
     
-    private void handleInvDoubleClick(Click click, Inventory clickedinventory, int clickedSlot) {
+    private void handleInvDoubleClick(Click click, Inventory clickedinventory, int clickedSlot, @Nullable Window sourceWindow) {
         Player player = click.player();
         if (ItemUtils.isEmpty(player.getItemOnCursor())) {
             clickedinventory.callClickEvent(clickedSlot, click, InventoryAction.NOTHING);
@@ -421,6 +449,8 @@ non-sealed abstract class AbstractGui implements Gui {
         }
         
         if (clickedinventory.callClickEvent(clickedSlot, click, InventoryAction.COLLECT_TO_CURSOR))
+            return;
+        if (sourceWindow != null && !sourceWindow.isOpen())
             return;
         
         // requires window as collect to cursor is a cross-gui operation
@@ -446,11 +476,13 @@ non-sealed abstract class AbstractGui implements Gui {
         player.setItemOnCursor(template);
     }
     
-    private void handleInvMiddleClick(Click click, Inventory inventory, int slot) {
+    private void handleInvMiddleClick(Click click, Inventory inventory, int slot, @Nullable Window sourceWindow) {
         Player player = click.player();
         ItemStack target = inventory.getItem(slot);
         if (player.getGameMode() == GameMode.CREATIVE && target != null && ItemUtils.isEmpty(player.getItemOnCursor())) {
             if (inventory.callClickEvent(slot, click, InventoryAction.CLONE_STACK))
+                return;
+            if (sourceWindow != null && !sourceWindow.isOpen())
                 return;
             target.setAmount(target.getMaxStackSize());
             player.setItemOnCursor(target);

@@ -450,6 +450,8 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
     
     /**
      * Adds a pre update handler for this {@link Inventory}.
+     * <p>
+     * Do not open or close windows from this handler. Schedule a task instead.
      *
      * @param preUpdateHandler The pre update handler
      */
@@ -493,6 +495,8 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
     
     /**
      * Adds a post update handler for this {@link Inventory}.
+     * <p>
+     * Do not open or close windows from this handler. Schedule a task instead.
      *
      * @param postUpdateHandler The post update handler
      */

@@ -305,7 +305,7 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
         if (slot != -999) { // inside
             var link = getGuiAt(slot);
             if (link != null) {
-                link.gui().handleClick(link.slot(), click);
+                link.gui().handleClick(link.slot(), click, this);
             }
         } else { // outside
             handleOutsideClick(click);
@@ -323,7 +323,7 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
             handler -> handler.accept(event),
             "Failed to handle outside click: " + click
         );
-        if (event.isCancelled())
+        if (event.isCancelled() || !isOpen)
             return;
         
         // fire bukkit event
@@ -345,7 +345,7 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
                 action
             );
             Bukkit.getPluginManager().callEvent(bukkitEvent);
-            if (bukkitEvent.isCancelled())
+            if (bukkitEvent.isCancelled() || !isOpen)
                 return;
         }
         
@@ -384,6 +384,8 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
         var updateReason = new PlayerUpdateReason.Drag(viewer, mode, invSlots);
         
         if (InvUI.getInstance().isFireBukkitInventoryEvents() && fireBukkitDragEvent(updateReason))
+            return;
+        if (!isOpen)
             return;
         
         switch (mode) {

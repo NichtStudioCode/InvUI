@@ -138,10 +138,21 @@ public sealed interface Gui extends Observable permits AbstractGui, PagedGui, Sc
     /**
      * Handles a click on the given slot.
      *
+     * @param slot         The slot index that was clicked.
+     * @param click        The {@link Click} that was performed on the slot.
+     * @param sourceWindow The {@link Window} the click originated from, or {@code null} if unknown.
+     */
+    void handleClick(int slot, Click click, @Nullable Window sourceWindow);
+    
+    /**
+     * Handles a click on the given slot.
+     *
      * @param slot  The slot index that was clicked.
      * @param click The {@link Click} that was performed on the slot.
      */
-    void handleClick(int slot, Click click);
+    default void handleClick(int slot, Click click) {
+        handleClick(slot, click, null);
+    }
     
     /**
      * Handles a bundle select action on the given slot.
