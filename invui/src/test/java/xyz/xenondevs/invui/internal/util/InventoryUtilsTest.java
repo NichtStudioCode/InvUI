@@ -206,11 +206,13 @@ class InventoryUtilsTest {
         
         var result = InventoryUtils2.simulateItemDrag(ClickType.MIDDLE, view, slots, cursor);
         
-        // Middle drag in creative mode sets slots to max stack size
-        assertTrue(result.isEmpty()); // Returns empty because it directly modifies view
-        assertEquals(64, view.getItem(0).getAmount());
-        assertEquals(64, view.getItem(1).getAmount());
-        assertEquals(64, view.getItem(2).getAmount());
+        assertEquals(3, result.size());
+        assertEquals(64, result.get(0).getAmount());
+        assertEquals(64, result.get(1).getAmount());
+        assertEquals(64, result.get(2).getAmount());
+        assertNull(view.getItem(0));
+        assertNull(view.getItem(1));
+        assertNull(view.getItem(2));
         assertEquals(0, cursor.getAmount());
     }
     
@@ -309,11 +311,13 @@ class InventoryUtilsTest {
         var cursor = ItemStack.of(Material.DIAMOND, 5);
         IntList slots = new IntArrayList(new int[] {0, 1});
         
-        InventoryUtils2.simulateItemDrag(ClickType.MIDDLE, view, slots, cursor);
+        var result = InventoryUtils2.simulateItemDrag(ClickType.MIDDLE, view, slots, cursor);
         
-        // Middle drag in creative sets slots to max stack size
-        assertEquals(64, view.getItem(0).getAmount());
-        assertEquals(64, view.getItem(1).getAmount());
+        assertEquals(2, result.size());
+        assertEquals(64, result.get(0).getAmount());
+        assertEquals(64, result.get(1).getAmount());
+        assertEquals(10, view.getItem(0).getAmount());
+        assertNull(view.getItem(1));
         assertEquals(0, cursor.getAmount());
     }
     
@@ -327,12 +331,18 @@ class InventoryUtilsTest {
         var cursor = ItemStack.of(Material.DIAMOND, 5);
         IntList slots = new IntArrayList(new int[] {0, 1, 2});
         
-        InventoryUtils2.simulateItemDrag(ClickType.MIDDLE, view, slots, cursor);
+        var result = InventoryUtils2.simulateItemDrag(ClickType.MIDDLE, view, slots, cursor);
         
-        assertEquals(64, view.getItem(0).getAmount()); // Filled
-        assertEquals(Material.EMERALD, view.getItem(1).getType()); // Unchanged (different type)
+        assertEquals(2, result.size());
+        assertTrue(result.containsKey(0));
+        assertFalse(result.containsKey(1));
+        assertTrue(result.containsKey(2));
+        assertEquals(64, result.get(0).getAmount());
+        assertEquals(64, result.get(2).getAmount());
+        assertEquals(Material.EMERALD, view.getItem(1).getType());
         assertEquals(10, view.getItem(1).getAmount());
-        assertEquals(64, view.getItem(2).getAmount()); // Filled
+        assertNull(view.getItem(0));
+        assertNull(view.getItem(2));
         assertEquals(0, cursor.getAmount());
     }
     
@@ -346,11 +356,17 @@ class InventoryUtilsTest {
         var cursor = ItemStack.of(Material.DIAMOND, 5);
         IntList slots = new IntArrayList(new int[] {0, 1, 2});
         
-        InventoryUtils2.simulateItemDrag(ClickType.MIDDLE, view, slots, cursor);
+        var result = InventoryUtils2.simulateItemDrag(ClickType.MIDDLE, view, slots, cursor);
         
-        assertEquals(64, view.getItem(0).getAmount());
-        assertEquals(64, view.getItem(1).getAmount()); // Was already 64
-        assertEquals(64, view.getItem(2).getAmount());
+        assertEquals(2, result.size());
+        assertTrue(result.containsKey(0));
+        assertFalse(result.containsKey(1));
+        assertTrue(result.containsKey(2));
+        assertEquals(64, result.get(0).getAmount());
+        assertEquals(64, result.get(2).getAmount());
+        assertEquals(64, view.getItem(1).getAmount());
+        assertNull(view.getItem(0));
+        assertNull(view.getItem(2));
         assertEquals(0, cursor.getAmount());
     }
     

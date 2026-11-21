@@ -191,7 +191,7 @@ public final class InventoryUtils2 {
                     var toPut = ItemUtils.cloneWithCount(cursor, cursor.getMaxStackSize());
                     assert toPut != null;
                     
-                    view.setItem(slot, toPut);
+                    result.put(slot, toPut);
                 }
             }
             cursor.setAmount(0);
