@@ -355,7 +355,7 @@ non-sealed abstract class AbstractGui implements Gui {
         assert window != null;
         
         SlotElement.GuiLink link = window.getGuiAtHotbar(click.hotbarButton());
-        if (link == null)
+        if (link == null || link.gui().isFrozen())
             return;
         
         if (link.getHoldingElement() instanceof SlotElement.InventoryLink(
@@ -369,6 +369,9 @@ non-sealed abstract class AbstractGui implements Gui {
                 inventory.callClickEvent(slot, click, InventoryAction.NOTHING);
                 return;
             }
+            
+            if (hotbar != null && hotbar.getAmount() > inventory.getMaxSlotStackSize(slot, hotbar))
+                return;
             
             if (inventory.callClickEvent(slot, click, InventoryAction.HOTBAR_SWAP))
                 return;
