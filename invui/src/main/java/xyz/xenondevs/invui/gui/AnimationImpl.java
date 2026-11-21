@@ -262,7 +262,8 @@ final class AnimationImpl implements Animation {
         @Override
         public Set<Slot> apply(State state) {
             int width = state.getGui().getWidth();
-            while (true) {
+            int height = state.getGui().getHeight();
+            while (y < height) {
                 Slot slot = new Slot(x, y);
                 if (state.getRemainingSlots().contains(slot))
                     return Set.of(slot);
@@ -279,6 +280,8 @@ final class AnimationImpl implements Animation {
                     } else x++;
                 }
             }
+            
+            return Set.of();
         }
         
     }
@@ -291,8 +294,9 @@ final class AnimationImpl implements Animation {
         
         @Override
         public Set<Slot> apply(State state) {
-            int height = state.getGui().getWidth();
-            while (true) {
+            int width = state.getGui().getWidth();
+            int height = state.getGui().getHeight();
+            while (x < width) {
                 Slot slot = new Slot(x, y);
                 if (state.getRemainingSlots().contains(slot))
                     return Set.of(slot);
@@ -309,6 +313,8 @@ final class AnimationImpl implements Animation {
                     } else y++;
                 }
             }
+            
+            return Set.of();
         }
         
     }
