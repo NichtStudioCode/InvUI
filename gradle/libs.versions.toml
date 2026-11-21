@@ -7,7 +7,7 @@ testpaper = "1.21.11-R0.1-SNAPSHOT"
 commons-provider = { module = "xyz.xenondevs.commons:commons-provider-dsl", version = "2.0.0-alpha.11" }
 jetbrains-annotations = { module = "org.jetbrains:annotations", version = "26.0.2" }
 jspecify = { module = "org.jspecify:jspecify", version = "1.0.1" }
-junit-bom = { module = "org.junit:junit-bom", version = "6.0.1" }
+junit-bom = { module = "org.junit:junit-bom", version = "6.1.3" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 junit-platformLauncher = { module = "org.junit.platform:junit-platform-launcher" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
