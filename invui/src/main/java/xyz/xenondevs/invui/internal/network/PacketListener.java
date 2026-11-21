@@ -51,7 +51,9 @@ public class PacketListener implements Listener {
     }
     
     public void stopDiscard(Player player, Class<? extends Packet<ClientGamePacketListener>> clazz) {
-        getPacketHandler(player.getUniqueId()).discardRules.remove(clazz);
+        var packetHandler = packetHandlers.get(player.getUniqueId());
+        if (packetHandler != null)
+            packetHandler.discardRules.remove(clazz);
     }
     
     public void injectOutgoing(Player player, List<Packet<? super ClientGamePacketListener>> packets) {
@@ -70,7 +72,8 @@ public class PacketListener implements Listener {
     }
     
     public boolean removeRedirect(Player player, Class<? extends Packet<ServerGamePacketListener>> clazz) {
-        return getPacketHandler(player.getUniqueId()).redirections.remove(clazz) != null;
+        var packetHandler = packetHandlers.get(player.getUniqueId());
+        return packetHandler != null && packetHandler.redirections.remove(clazz) != null;
     }
     
     @SuppressWarnings("unchecked")
@@ -79,7 +82,8 @@ public class PacketListener implements Listener {
     }
     
     public boolean stopListening(Player player, Class<? extends Packet<? super ServerGamePacketListener>> clazz) {
-        return getPacketHandler(player.getUniqueId()).listeners.remove(clazz) != null;
+        var packetHandler = packetHandlers.get(player.getUniqueId());
+        return packetHandler != null && packetHandler.listeners.remove(clazz) != null;
     }
     
     private PacketHandler getPacketHandler(UUID uuid) {
