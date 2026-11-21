@@ -42,6 +42,7 @@ public class CustomStonecutterMenu extends CustomContainerMenu {
     );
     
     private @Nullable BiConsumer<? super Integer, ? super Integer> clickHandler;
+    private int buttonCount;
     
     /**
      * Creates a new custom stonecutter menu.
@@ -108,6 +109,8 @@ public class CustomStonecutterMenu extends CustomContainerMenu {
      * @param buttons The buttons.
      */
     private void setNmsButtons(List<? extends ItemStack> buttons) {
+        buttonCount = buttons.size();
+        
         // create and send the recipes required for displaying the buttons
         var recipeManager = MinecraftServer.getServer().getRecipeManager();
         var stonecutterRecipes = new SelectableRecipe.SingleInputSet<>(createRecipes(buttons));
@@ -151,6 +154,9 @@ public class CustomStonecutterMenu extends CustomContainerMenu {
     
     @Override
     public UpdateType handleButtonClick(int clicked) {
+        if (clicked < 0 || clicked >= buttonCount)
+            return UpdateType.NONE;
+        
         int prev = dataSlots[0];
         dataSlots[0] = clicked;
         remoteDataSlots[0] = clicked;

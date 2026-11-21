@@ -17,6 +17,8 @@ import java.util.function.BiConsumer;
  */
 public class CustomCrafterMenu extends CustomContainerMenu {
     
+    private static final int CRAFTING_SLOTS = 9;
+    
     private @Nullable BiConsumer<? super Integer, ? super Boolean> slotStateChangeHandler;
     
     /**
@@ -86,6 +88,9 @@ public class CustomCrafterMenu extends CustomContainerMenu {
     
     private void handleSlotStateChange(ServerboundContainerSlotStateChangedPacket packet) {
         int slot = packet.slotId();
+        if (slot < 0 || slot >= CRAFTING_SLOTS)
+            return;
+        
         int value = packet.newState() ? 0 : 1;
         remoteDataSlots[slot] = value;
         dataSlots[slot] = value;

@@ -4,6 +4,8 @@ import net.kyori.adventure.text.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ServerGamePacketListener;
 import net.minecraft.network.protocol.game.ServerboundRenameItemPacket;
+import net.minecraft.util.StringUtil;
+import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.inventory.MenuType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -66,7 +68,11 @@ public class CustomAnvilMenu extends CustomContainerMenu {
     }
     
     private void handleRename(ServerboundRenameItemPacket packet) {
-        renameText = packet.getName();
+        String name = StringUtil.filterText(packet.getName());
+        if (name.length() > AnvilMenu.MAX_NAME_LENGTH)
+            return;
+        
+        renameText = name;
         if (renameHandler != null)
             renameHandler.accept(renameText);
         forceRemoteItem(2, DIRTY_MARKER);
