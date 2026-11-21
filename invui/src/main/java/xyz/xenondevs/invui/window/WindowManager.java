@@ -82,7 +82,8 @@ public final class WindowManager implements Listener {
     private void handleInventoryClose(InventoryCloseEvent event) {
         Player player = (Player) event.getPlayer();
         AbstractWindow<?> window = (AbstractWindow<?>) getOpenWindow(player);
-        if (window != null) {
+        // Player#equals only compares uuids, so this may be the window of a newer session of the same player
+        if (window != null && window.getViewer() == player) {
             window.handleClose(event.getReason());
         }
     }
