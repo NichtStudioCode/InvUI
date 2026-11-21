@@ -1515,6 +1515,9 @@ public sealed abstract class Inventory implements Observable permits VirtualInve
      * @return The amount of items that were taken.
      */
     private int takeFrom(@Nullable UpdateReason updateReason, int slot, int maxTake) {
+        if (maxTake <= 0)
+            return 0;
+        
         ItemStack currentItemStack = getUnsafeItem(slot);
         if (currentItemStack == null)
             return 0;
