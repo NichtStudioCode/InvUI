@@ -10,6 +10,7 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.inventory.Inventory;
+import xyz.xenondevs.invui.inventory.InventorySlot;
 import xyz.xenondevs.invui.inventory.OperationCategory;
 import xyz.xenondevs.invui.inventory.ReferencingInventory;
 import xyz.xenondevs.invui.util.ItemUtils;
@@ -17,6 +18,36 @@ import xyz.xenondevs.invui.util.ItemUtils;
 public final class InventoryUtils2 {
     
     private InventoryUtils2() {}
+    
+    /**
+     * Returns whether the target inventory contains the backing slot of the source slot.
+     *
+     * @param target     The target inventory
+     * @param source     The source inventory
+     * @param sourceSlot The source slot
+     * @return Whether the target inventory contains the source backing slot
+     */
+    public static boolean containsBackingSlot(Inventory target, Inventory source, int sourceSlot) {
+        InventorySlot sourceBacking = source.getBackingSlot(sourceSlot);
+        for (int i = 0; i < target.getSize(); i++) {
+            if (isSameBackingSlot(sourceBacking, target.getBackingSlot(i)))
+                return true;
+        }
+        return false;
+    }
+    
+    private static boolean isSameBackingSlot(InventorySlot first, InventorySlot second) {
+        if (first.inventory() == second.inventory() && first.slot() == second.slot())
+            return true;
+        
+        if (first.inventory() instanceof ReferencingInventory refFirst
+            && second.inventory() instanceof ReferencingInventory refSecond) {
+            return refFirst.getReferencedInventory() == refSecond.getReferencedInventory()
+                   && first.slot() == second.slot();
+        }
+        
+        return false;
+    }
     
     /**
      * Gets the amount of slots that a menu type has.

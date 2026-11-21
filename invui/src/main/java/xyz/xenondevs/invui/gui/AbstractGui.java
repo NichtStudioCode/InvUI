@@ -335,6 +335,7 @@ non-sealed abstract class AbstractGui implements Gui {
         // move into the first inventory that accepts the item, sorted by priority
         var inventories = window.getGuis().stream()
             .flatMap(gui -> gui.getInventories(inventory).stream())
+            .filter(inv -> !InventoryUtils2.containsBackingSlot(inv, inventory, slot))
             .sorted(Comparator.<Inventory>comparingInt(inv -> inv.getGuiPriority(OperationCategory.ADD)).reversed())
             .toList();
         
