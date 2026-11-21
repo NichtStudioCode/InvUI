@@ -145,12 +145,12 @@ public final class ObscuredInventory extends Inventory {
     
     @Override
     public void addObserver(Observer who, int what, int how) {
-        inventory.addObserver(who, what, how);
+        inventory.addObserver(who, slots[what], how);
     }
     
     @Override
     public void removeObserver(Observer who, int what, int how) {
-        inventory.removeObserver(who, what, how);
+        inventory.removeObserver(who, slots[what], how);
     }
     
     @Override
