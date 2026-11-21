@@ -400,6 +400,9 @@ public abstract class CustomContainerMenu {
      * @param title The title of the inventory
      */
     public void open(Component title) {
+        incoming.clear();
+        dragSlots.clear();
+        
         var pl = PacketListener.getInstance();
         pl.redirectIncoming(player, ServerboundContainerButtonClickPacket.class, incoming);
         pl.redirectIncoming(player, ServerboundContainerClickPacket.class, incoming);
@@ -419,6 +422,9 @@ public abstract class CustomContainerMenu {
      * Runs cleanup logic after this menu has been closed.
      */
     public void handleClosed() {
+        incoming.clear();
+        dragSlots.clear();
+        
         var pl = PacketListener.getInstance();
         pl.removeRedirect(player, ServerboundContainerButtonClickPacket.class);
         pl.removeRedirect(player, ServerboundContainerClickPacket.class);
@@ -472,7 +478,7 @@ public abstract class CustomContainerMenu {
     public UpdateType processIncoming() {
         Packet<? super ServerGamePacketListener> packet;
         UpdateType updateType = UpdateType.NONE;
-        while ((packet = incoming.poll()) != null) {
+        while (isWindowOpen() && (packet = incoming.poll()) != null) {
             try {
                 updateType = updateType.or(processPacket(packet));
             } catch (Throwable t) {
@@ -481,6 +487,10 @@ public abstract class CustomContainerMenu {
         }
         
         return updateType;
+    }
+    
+    private boolean isWindowOpen() {
+        return window != null && window.isOpen();
     }
     
     /**
@@ -523,6 +533,9 @@ public abstract class CustomContainerMenu {
      * @param packet The packet that was received
      */
     private void handleClose(ServerboundContainerClosePacket packet) {
+        if (!isWindowOpen())
+            return;
+        
         if (getWindow().isCloseable()) {
             getWindowEvents().handleClose(InventoryCloseEvent.Reason.PLAYER);
             serverPlayer.containerMenu = serverPlayer.inventoryMenu;
