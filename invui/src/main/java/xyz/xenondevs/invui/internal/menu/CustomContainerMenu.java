@@ -541,7 +541,7 @@ public abstract class CustomContainerMenu {
         for (Int2ObjectMap.Entry<HashedStack> entry : packet.changedSlots().int2ObjectEntrySet()) {
             int slot = entry.getIntKey();
             HashedStack stack = entry.getValue();
-            if (slot < 0 || slot > remoteSlots.length)
+            if (slot < 0 || slot >= remoteSlots.length)
                 continue;
             remoteSlots[slot].receive(stack);
         }
