@@ -560,8 +560,8 @@ public abstract class CustomContainerMenu {
             return;
         
         if (getWindow().isCloseable()) {
-            getWindowEvents().handleClose(InventoryCloseEvent.Reason.PLAYER);
             serverPlayer.containerMenu = serverPlayer.inventoryMenu;
+            getWindowEvents().handleClose(InventoryCloseEvent.Reason.PLAYER);
         } else {
             sendOpenPacket(title);
         }
