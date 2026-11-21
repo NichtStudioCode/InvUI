@@ -1,5 +1,6 @@
 package xyz.xenondevs.invui.internal.menu;
 
+import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -51,7 +52,6 @@ import xyz.xenondevs.invui.window.Window;
 
 import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Function;
 
@@ -165,7 +165,9 @@ public abstract class CustomContainerMenu {
     private ClickType dragMode = ClickType.LEFT;
     
     protected final Queue<Packet<? super ServerGamePacketListener>> incoming = new ConcurrentLinkedQueue<>();
-    private final Map<Integer, PingData> pendingPongs = new ConcurrentHashMap<>();
+    private final Cache<Integer, PingData> pendingPongs = CacheBuilder.newBuilder()
+        .expireAfterWrite(Duration.ofMillis(PING_TIMEOUT_MS))
+        .build();
     
     /**
      * Creates a new {@link CustomContainerMenu} for the specified player.
@@ -461,10 +463,6 @@ public abstract class CustomContainerMenu {
         int ping = MathUtils.RANDOM.nextInt();
         pendingPongs.put(ping, new PingData(id, System.currentTimeMillis()));
         
-        // clear timed out pings
-        long now = System.currentTimeMillis();
-        pendingPongs.values().removeIf(data -> now - data.timestamp() > PING_TIMEOUT_MS);
-        
         return new ClientboundPingPacket(ping);
     }
     
@@ -522,7 +520,7 @@ public abstract class CustomContainerMenu {
      * @param packet The packet that was received
      */
     private void handlePong(ServerboundPongPacket packet) {
-        var data = pendingPongs.remove(packet.getId());
+        var data = pendingPongs.asMap().remove(packet.getId());
         if (data != null) // ignore unknown pongs, unrelated to InvUI
             getWindowEvents().handlePong(data.id());
     }
