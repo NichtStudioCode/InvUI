@@ -199,9 +199,7 @@ public sealed interface CrafterWindow extends Window permits CrafterWindowImpl {
          * @return This {@link Builder}
          * @throws IllegalArgumentException If the slot index is out of bounds (0-8)
          */
-        default Builder setSlot(int slot, boolean state) {
-            return setSlot(slot, MutableProperty.of(state));
-        }
+        Builder setSlot(int slot, boolean state);
         
         /**
          * Sets the property that contains the disabled state of the slot at the given index.
@@ -223,7 +221,7 @@ public sealed interface CrafterWindow extends Window permits CrafterWindowImpl {
          * @throws IllegalArgumentException If the slot coordinates are out of bounds (0-2, 0-2)
          */
         default Builder setSlot(int x, int y, boolean state) {
-            return setSlot(x, y, MutableProperty.of(state));
+            return setSlot(x + y * 3, state);
         }
         
         /**
@@ -248,7 +246,7 @@ public sealed interface CrafterWindow extends Window permits CrafterWindowImpl {
          * @throws IllegalArgumentException If the slot coordinates are out of bounds (0-2, 0-2)
          */
         default Builder setSlot(Slot slot, boolean state) {
-            return setSlot(slot, MutableProperty.of(state));
+            return setSlot(slot.x(), slot.y(), state);
         }
         
         /**

@@ -36,9 +36,9 @@ final class NormalMergedWindowImpl extends AbstractMergedWindow<CustomPlainMenu>
                 viewer,
                 titleSupplier,
                 guiSupplier.get(),
-                closeable,
-                windowState,
-                cursorVisualizer
+                getCloseableProperty(),
+                getWindowStateProperty(),
+                getCursorVisualizerProperty()
             );
             
             applyModifiers(window);

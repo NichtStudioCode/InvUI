@@ -337,9 +337,11 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
     {
         
         private final Constructor<C> ctor;
-        private MutableProperty<List<? extends C>> content = MutableProperty.of(List.of());
-        private MutableProperty<Integer> line = MutableProperty.of(DEFAULT_LINE);
-        private MutableProperty<ContentLayoutMode> contentLayoutMode = MutableProperty.of(DEFAULT_CONTENT_LAYOUT_MODE);
+        private List<? extends C> content = List.of();
+        private ContentLayoutMode contentLayoutMode = DEFAULT_CONTENT_LAYOUT_MODE;
+        private @Nullable MutableProperty<List<? extends C>> contentProperty;
+        private @Nullable MutableProperty<Integer> lineProperty;
+        private @Nullable MutableProperty<ContentLayoutMode> contentLayoutModeProperty;
         private List<BiConsumer<? super Integer, ? super Integer>> scrollHandlers = new ArrayList<>(0);
         private List<BiConsumer<? super Integer, ? super Integer>> lineCountChangeHandlers = new ArrayList<>(0);
         
@@ -348,21 +350,47 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
         }
         
         @Override
-        public ScrollGui.Builder<C> setContent(MutableProperty<List<? extends C>> content) {
+        public ScrollGui.Builder<C> setContent(List<? extends C> content) {
             this.content = content;
+            this.contentProperty = null;
+            return this;
+        }
+        
+        @Override
+        public ScrollGui.Builder<C> setContent(MutableProperty<List<? extends C>> content) {
+            this.contentProperty = content;
+            return this;
+        }
+        
+        @Override
+        public ScrollGui.Builder<C> setContentLayoutMode(ContentLayoutMode contentLayoutMode) {
+            this.contentLayoutMode = contentLayoutMode;
+            this.contentLayoutModeProperty = null;
             return this;
         }
         
         @Override
         public ScrollGui.Builder<C> setContentLayoutMode(MutableProperty<ContentLayoutMode> contentLayoutMode) {
-            this.contentLayoutMode = contentLayoutMode;
+            this.contentLayoutModeProperty = contentLayoutMode;
             return this;
         }
         
         @Override
         public ScrollGui.Builder<C> setLine(MutableProperty<Integer> line) {
-            this.line = line;
+            this.lineProperty = line;
             return this;
+        }
+        
+        protected MutableProperty<List<? extends C>> getContentProperty() {
+            return contentProperty != null ? contentProperty : MutableProperty.of(new ArrayList<>(content));
+        }
+        
+        protected MutableProperty<Integer> getLineProperty() {
+            return lineProperty != null ? lineProperty : MutableProperty.of(DEFAULT_LINE);
+        }
+        
+        protected MutableProperty<ContentLayoutMode> getContentLayoutModeProperty() {
+            return contentLayoutModeProperty != null ? contentLayoutModeProperty : MutableProperty.of(contentLayoutMode);
         }
         
         @Override
@@ -396,7 +424,15 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
             if (structure == null)
                 throw new IllegalStateException("Structure is not defined.");
             
-            var gui = ctor.create(structure, line, content, contentLayoutMode, frozen, ignoreObscuredInventorySlots, background);
+            var gui = ctor.create(
+                structure.clone(),
+                getLineProperty(),
+                getContentProperty(),
+                getContentLayoutModeProperty(),
+                getFrozenProperty(),
+                getIgnoreObscuredInventorySlotsProperty(),
+                getBackgroundProperty()
+            );
             scrollHandlers.forEach(gui::addScrollHandler);
             lineCountChangeHandlers.forEach(gui::addLineCountChangeHandler);
             applyModifiers(gui);
@@ -407,9 +443,7 @@ non-sealed abstract class AbstractScrollGui<C> extends AbstractGui implements Sc
         @Override
         public ScrollGui.Builder<C> clone() {
             var clone = (AbstractBuilder<C>) super.clone();
-            clone.content = MutableProperty.of(new ArrayList<>(content.get()));
-            clone.line = MutableProperty.of(line.get());
-            clone.contentLayoutMode = MutableProperty.of(contentLayoutMode.get());
+            clone.content = new ArrayList<>(content);
             clone.scrollHandlers = new ArrayList<>(scrollHandlers);
             clone.lineCountChangeHandlers = new ArrayList<>(lineCountChangeHandlers);
             return clone;

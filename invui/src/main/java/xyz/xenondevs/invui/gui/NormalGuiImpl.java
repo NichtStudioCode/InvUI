@@ -27,7 +27,12 @@ final class NormalGuiImpl extends AbstractGui {
             if (structure == null)
                 throw new IllegalStateException("Structure is not defined.");
             
-            var gui = new NormalGuiImpl(structure, frozen, ignoreObscuredInventorySlots, background);
+            var gui = new NormalGuiImpl(
+                structure.clone(),
+                getFrozenProperty(),
+                getIgnoreObscuredInventorySlotsProperty(),
+                getBackgroundProperty()
+            );
             applyModifiers(gui);
             return gui;
         }

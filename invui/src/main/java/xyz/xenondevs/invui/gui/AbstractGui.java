@@ -1172,9 +1172,12 @@ non-sealed abstract class AbstractGui implements Gui {
         protected @Nullable Structure structure;
         protected @Nullable List<Consumer<? super G>> modifiers;
         protected List<TriConsumer<? super Player, ? super Integer, ? super Integer>> bundleSelectHandlers = new ArrayList<>(0);
-        protected MutableProperty<@Nullable ItemProvider> background = MutableProperty.of(DEFAULT_BACKGROUND);
-        protected MutableProperty<Boolean> frozen = MutableProperty.of(DEFAULT_FROZEN);
-        protected MutableProperty<Boolean> ignoreObscuredInventorySlots = MutableProperty.of(DEFAULT_IGNORE_OBSCURED_INVENTORY_SLOTS);
+        protected @Nullable ItemProvider background = DEFAULT_BACKGROUND;
+        protected boolean frozen = DEFAULT_FROZEN;
+        protected boolean ignoreObscuredInventorySlots = DEFAULT_IGNORE_OBSCURED_INVENTORY_SLOTS;
+        private @Nullable MutableProperty<@Nullable ItemProvider> backgroundProperty;
+        private @Nullable MutableProperty<Boolean> frozenProperty;
+        private @Nullable MutableProperty<Boolean> ignoreObscuredInventorySlotsProperty;
         
         @Override
         public S setStructure(int width, int height, String structureData) {
@@ -1234,21 +1237,56 @@ non-sealed abstract class AbstractGui implements Gui {
         }
         
         @Override
-        public S setBackground(MutableProperty<@Nullable ItemProvider> background) {
+        public S setBackground(@Nullable ItemProvider background) {
             this.background = background;
+            this.backgroundProperty = null;
+            return (S) this;
+        }
+        
+        @Override
+        public S setBackground(MutableProperty<@Nullable ItemProvider> background) {
+            this.backgroundProperty = background;
+            return (S) this;
+        }
+        
+        @Override
+        public S setFrozen(boolean frozen) {
+            this.frozen = frozen;
+            this.frozenProperty = null;
             return (S) this;
         }
         
         @Override
         public S setFrozen(MutableProperty<Boolean> frozen) {
-            this.frozen = frozen;
+            this.frozenProperty = frozen;
+            return (S) this;
+        }
+        
+        @Override
+        public S setIgnoreObscuredInventorySlots(boolean ignoreObscuredInventorySlots) {
+            this.ignoreObscuredInventorySlots = ignoreObscuredInventorySlots;
+            this.ignoreObscuredInventorySlotsProperty = null;
             return (S) this;
         }
         
         @Override
         public S setIgnoreObscuredInventorySlots(MutableProperty<Boolean> ignoreObscuredInventorySlots) {
-            this.ignoreObscuredInventorySlots = ignoreObscuredInventorySlots;
+            this.ignoreObscuredInventorySlotsProperty = ignoreObscuredInventorySlots;
             return (S) this;
+        }
+        
+        protected MutableProperty<@Nullable ItemProvider> getBackgroundProperty() {
+            return backgroundProperty != null ? backgroundProperty : MutableProperty.of(background);
+        }
+        
+        protected MutableProperty<Boolean> getFrozenProperty() {
+            return frozenProperty != null ? frozenProperty : MutableProperty.of(frozen);
+        }
+        
+        protected MutableProperty<Boolean> getIgnoreObscuredInventorySlotsProperty() {
+            return ignoreObscuredInventorySlotsProperty != null
+                ? ignoreObscuredInventorySlotsProperty
+                : MutableProperty.of(ignoreObscuredInventorySlots);
         }
         
         @Override
@@ -1280,9 +1318,6 @@ non-sealed abstract class AbstractGui implements Gui {
         public S clone() {
             try {
                 var clone = (AbstractBuilder<G, S>) super.clone();
-                clone.background = MutableProperty.of(background.get());
-                clone.frozen = MutableProperty.of(frozen.get());
-                clone.ignoreObscuredInventorySlots = MutableProperty.of(ignoreObscuredInventorySlots.get());
                 if (structure != null)
                     clone.structure = structure.clone();
                 if (modifiers != null)

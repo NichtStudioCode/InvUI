@@ -132,9 +132,9 @@ final class CraftingWindowImpl extends AbstractSplitWindow<CustomCraftingTableMe
                 craftingGuiSupplier.get(),
                 resultGuiSupplier.get(),
                 supplyLowerGui(viewer),
-                closeable,
-                windowState,
-                cursorVisualizer
+                getCloseableProperty(),
+                getWindowStateProperty(),
+                getCursorVisualizerProperty()
             );
             
             window.setRecipeClickHandlers((List) recipeClickHandlers);

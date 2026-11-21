@@ -141,8 +141,10 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
         
         private List<Consumer<? super String>> renameHandlers = new ArrayList<>();
         private Supplier<? extends Gui> upperGuiSupplier = () -> Gui.empty(3, 1);
-        private MutableProperty<Boolean> textFieldAlwaysEnabled = MutableProperty.of(DEFAULT_TEXT_FIELD_ALWAYS_ENABLED);
-        private MutableProperty<Boolean> resultAlwaysValid = MutableProperty.of(DEFAULT_RESULT_ALWAYS_VALID);
+        private boolean textFieldAlwaysEnabled = DEFAULT_TEXT_FIELD_ALWAYS_ENABLED;
+        private boolean resultAlwaysValid = DEFAULT_RESULT_ALWAYS_VALID;
+        private @Nullable MutableProperty<Boolean> textFieldAlwaysEnabledProperty;
+        private @Nullable MutableProperty<Boolean> resultAlwaysValidProperty;
         
         @Override
         public BuilderImpl setUpperGui(Supplier<? extends Gui> guiSupplier) {
@@ -164,15 +166,37 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
         }
         
         @Override
-        public AnvilWindow.Builder setTextFieldAlwaysEnabled(MutableProperty<Boolean> textFieldAlwaysEnabled) {
+        public AnvilWindow.Builder setTextFieldAlwaysEnabled(boolean textFieldAlwaysEnabled) {
             this.textFieldAlwaysEnabled = textFieldAlwaysEnabled;
+            this.textFieldAlwaysEnabledProperty = null;
+            return this;
+        }
+        
+        @Override
+        public AnvilWindow.Builder setTextFieldAlwaysEnabled(MutableProperty<Boolean> textFieldAlwaysEnabled) {
+            this.textFieldAlwaysEnabledProperty = textFieldAlwaysEnabled;
+            return this;
+        }
+        
+        @Override
+        public AnvilWindow.Builder setResultAlwaysValid(boolean resultAlwaysValid) {
+            this.resultAlwaysValid = resultAlwaysValid;
+            this.resultAlwaysValidProperty = null;
             return this;
         }
         
         @Override
         public AnvilWindow.Builder setResultAlwaysValid(MutableProperty<Boolean> resultAlwaysValid) {
-            this.resultAlwaysValid = resultAlwaysValid;
+            this.resultAlwaysValidProperty = resultAlwaysValid;
             return this;
+        }
+        
+        private MutableProperty<Boolean> getTextFieldAlwaysEnabledProperty() {
+            return textFieldAlwaysEnabledProperty != null ? textFieldAlwaysEnabledProperty : MutableProperty.of(textFieldAlwaysEnabled);
+        }
+        
+        private MutableProperty<Boolean> getResultAlwaysValidProperty() {
+            return resultAlwaysValidProperty != null ? resultAlwaysValidProperty : MutableProperty.of(resultAlwaysValid);
         }
         
         @SuppressWarnings({"unchecked", "rawtypes"})
@@ -183,11 +207,11 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
                 titleSupplier,
                 upperGuiSupplier.get(),
                 supplyLowerGui(viewer),
-                textFieldAlwaysEnabled,
-                resultAlwaysValid,
-                closeable,
-                windowState,
-                cursorVisualizer
+                getTextFieldAlwaysEnabledProperty(),
+                getResultAlwaysValidProperty(),
+                getCloseableProperty(),
+                getWindowStateProperty(),
+                getCursorVisualizerProperty()
             );
             
             window.setRenameHandlers((List) renameHandlers);
@@ -199,8 +223,6 @@ final class AnvilWindowImpl extends AbstractSplitWindow<CustomAnvilMenu> impleme
         @Override
         public AnvilWindow.Builder clone() {
             var clone = (BuilderImpl) super.clone();
-            clone.textFieldAlwaysEnabled = MutableProperty.of(textFieldAlwaysEnabled.get());
-            clone.resultAlwaysValid = MutableProperty.of(resultAlwaysValid.get());
             clone.renameHandlers = new ArrayList<>(renameHandlers);
             return clone;
         }

@@ -323,9 +323,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
          * @param contentLayoutMode The content layout mode.
          * @return This {@link Builder Gui Builder}.
          */
-        default Builder<C> setContentLayoutMode(ContentLayoutMode contentLayoutMode) {
-            return setContentLayoutMode(MutableProperty.of(contentLayoutMode));
-        }
+        Builder<C> setContentLayoutMode(ContentLayoutMode contentLayoutMode);
         
         /**
          * Sets the property that determines how content is laid out in the content list slots of the {@link PagedGui}.
@@ -349,9 +347,7 @@ public sealed interface PagedGui<C> extends Gui permits AbstractPagedGui {
          * @param content The content to set.
          * @return This {@link Builder Gui Builder}.
          */
-        default Builder<C> setContent(List<? extends C> content) {
-            return setContent(MutableProperty.of(content));
-        }
+        Builder<C> setContent(List<? extends C> content);
         
         /**
          * Sets the property that contains the page of the {@link PagedGui}.

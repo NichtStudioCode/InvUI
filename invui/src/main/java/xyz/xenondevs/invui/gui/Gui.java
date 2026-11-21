@@ -1041,9 +1041,7 @@ public sealed interface Gui extends Observable permits AbstractGui, PagedGui, Sc
          * @param background The {@link ItemProvider} for the background
          * @return This {@link Builder Gui Builder}
          */
-        default S setBackground(@Nullable ItemProvider background) {
-            return setBackground(MutableProperty.of(background));
-        }
+        S setBackground(@Nullable ItemProvider background);
         
         /**
          * Sets the background of the {@link Gui}.
@@ -1069,9 +1067,7 @@ public sealed interface Gui extends Observable permits AbstractGui, PagedGui, Sc
          * @param frozen Whether the {@link Gui} should be frozen
          * @return This {@link Builder Gui Builder}
          */
-        default S setFrozen(boolean frozen) {
-            return setFrozen(MutableProperty.of(frozen));
-        }
+        S setFrozen(boolean frozen);
         
         /**
          * Sets the property containing whether the {@link Gui} should be frozen.
@@ -1089,9 +1085,7 @@ public sealed interface Gui extends Observable permits AbstractGui, PagedGui, Sc
          *                                     and collecting to the cursor.
          * @return This {@link Builder Gui Builder}
          */
-        default S setIgnoreObscuredInventorySlots(boolean ignoreObscuredInventorySlots) {
-            return setIgnoreObscuredInventorySlots(MutableProperty.of(ignoreObscuredInventorySlots));
-        }
+        S setIgnoreObscuredInventorySlots(boolean ignoreObscuredInventorySlots);
         
         /**
          * Sets the property containing whether it is possible to shift-click items into and cursor collect items

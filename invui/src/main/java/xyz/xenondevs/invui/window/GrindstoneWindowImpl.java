@@ -74,9 +74,9 @@ final class GrindstoneWindowImpl extends AbstractSplitWindow<CustomGrindstoneMen
                 inputGuiSupplier.get(),
                 resultGuiSupplier.get(),
                 supplyLowerGui(viewer),
-                closeable,
-                windowState,
-                cursorVisualizer
+                getCloseableProperty(),
+                getWindowStateProperty(),
+                getCursorVisualizerProperty()
             );
             
             applyModifiers(window);

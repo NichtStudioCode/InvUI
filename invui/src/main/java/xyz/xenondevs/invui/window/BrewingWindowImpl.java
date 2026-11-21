@@ -105,8 +105,10 @@ final class BrewingWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu
         private Supplier<? extends Gui> inputGuiSupplier = () -> Gui.empty(1, 1);
         private Supplier<? extends Gui> fuelGuiSupplier = () -> Gui.empty(1, 1);
         private Supplier<? extends Gui> resultGuiSupplier = () -> Gui.empty(3, 1);
-        private MutableProperty<Double> brewProgress = MutableProperty.of(DEFAULT_BREW_PROGRESS);
-        private MutableProperty<Double> fuelProgress = MutableProperty.of(DEFAULT_FUEL_PROGRESS);
+        private double brewProgress = DEFAULT_BREW_PROGRESS;
+        private double fuelProgress = DEFAULT_FUEL_PROGRESS;
+        private @Nullable MutableProperty<Double> brewProgressProperty;
+        private @Nullable MutableProperty<Double> fuelProgressProperty;
         
         @Override
         public BrewingWindow.Builder setInputGui(Supplier<? extends Gui> guiSupplier) {
@@ -127,15 +129,37 @@ final class BrewingWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu
         }
         
         @Override
-        public BrewingWindow.Builder setBrewProgress(MutableProperty<Double> progress) {
+        public BrewingWindow.Builder setBrewProgress(double progress) {
             this.brewProgress = progress;
+            this.brewProgressProperty = null;
+            return this;
+        }
+        
+        @Override
+        public BrewingWindow.Builder setBrewProgress(MutableProperty<Double> progress) {
+            this.brewProgressProperty = progress;
+            return this;
+        }
+        
+        @Override
+        public BrewingWindow.Builder setFuelProgress(double progress) {
+            this.fuelProgress = progress;
+            this.fuelProgressProperty = null;
             return this;
         }
         
         @Override
         public BrewingWindow.Builder setFuelProgress(MutableProperty<Double> progress) {
-            this.fuelProgress = progress;
+            this.fuelProgressProperty = progress;
             return this;
+        }
+        
+        private MutableProperty<Double> getBrewProgressProperty() {
+            return brewProgressProperty != null ? brewProgressProperty : MutableProperty.of(brewProgress);
+        }
+        
+        private MutableProperty<Double> getFuelProgressProperty() {
+            return fuelProgressProperty != null ? fuelProgressProperty : MutableProperty.of(fuelProgress);
         }
         
         @Override
@@ -147,24 +171,16 @@ final class BrewingWindowImpl extends AbstractSplitWindow<CustomBrewingStandMenu
                 fuelGuiSupplier.get(),
                 resultGuiSupplier.get(),
                 supplyLowerGui(viewer),
-                brewProgress,
-                fuelProgress,
-                closeable,
-                windowState,
-                cursorVisualizer
+                getBrewProgressProperty(),
+                getFuelProgressProperty(),
+                getCloseableProperty(),
+                getWindowStateProperty(),
+                getCursorVisualizerProperty()
             );
             
             applyModifiers(window);
             
             return window;
-        }
-        
-        @Override
-        public BrewingWindow.Builder clone() {
-            var clone = (BuilderImpl) super.clone();
-            clone.brewProgress = MutableProperty.of(brewProgress.get());
-            clone.fuelProgress = MutableProperty.of(fuelProgress.get());
-            return clone;
         }
         
     }

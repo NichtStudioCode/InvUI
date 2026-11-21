@@ -157,9 +157,7 @@ public sealed interface AnvilWindow extends Window permits AnvilWindowImpl {
          * @param textFieldAlwaysEnabled Whether the text field should always be enabled.
          * @return This {@link Builder}
          */
-        default Builder setTextFieldAlwaysEnabled(boolean textFieldAlwaysEnabled) {
-            return setTextFieldAlwaysEnabled(MutableProperty.of(textFieldAlwaysEnabled));
-        }
+        Builder setTextFieldAlwaysEnabled(boolean textFieldAlwaysEnabled);
         
         /**
          * Sets the property containing whether the text field is always enabled, even if the input slot is empty.
@@ -176,9 +174,7 @@ public sealed interface AnvilWindow extends Window permits AnvilWindowImpl {
          * @param resultAlwaysValid Whether the result should always be valid.
          * @return This {@link Builder}
          */
-        default Builder setResultAlwaysValid(boolean resultAlwaysValid) {
-            return setResultAlwaysValid(MutableProperty.of(resultAlwaysValid));
-        }
+        Builder setResultAlwaysValid(boolean resultAlwaysValid);
         
         /**
          * Sets the property containing whether the result of the anvil is always valid, i.e. the arrow is never crossed out.

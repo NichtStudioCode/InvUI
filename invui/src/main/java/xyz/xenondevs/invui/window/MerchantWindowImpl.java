@@ -346,33 +346,81 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
         
         private List<BiConsumer<? super Integer, ? super Integer>> tradeSelectHandlers = new ArrayList<>();
         private Supplier<? extends Gui> upperGuiSupplier = () -> Gui.empty(3, 1);
-        private MutableProperty<List<? extends Trade>> trades = MutableProperty.of(DEFAULT_TRADES);
-        private MutableProperty<Integer> level = MutableProperty.of(DEFAULT_LEVEL);
-        private MutableProperty<Double> progress = MutableProperty.of(DEFAULT_PROGRESS);
-        private MutableProperty<Boolean> restockMessageEnabled = MutableProperty.of(DEFAULT_RESTOCK_MESSAGE_ENABLED);
+        private List<? extends Trade> trades = DEFAULT_TRADES;
+        private int level = DEFAULT_LEVEL;
+        private double progress = DEFAULT_PROGRESS;
+        private boolean restockMessageEnabled = DEFAULT_RESTOCK_MESSAGE_ENABLED;
+        private @Nullable MutableProperty<List<? extends Trade>> tradesProperty;
+        private @Nullable MutableProperty<Integer> levelProperty;
+        private @Nullable MutableProperty<Double> progressProperty;
+        private @Nullable MutableProperty<Boolean> restockMessageEnabledProperty;
+        
+        @Override
+        public MerchantWindow.Builder setLevel(int level) {
+            this.level = level;
+            this.levelProperty = null;
+            return this;
+        }
         
         @Override
         public MerchantWindow.Builder setLevel(MutableProperty<Integer> level) {
-            this.level = level;
+            this.levelProperty = level;
+            return this;
+        }
+        
+        @Override
+        public MerchantWindow.Builder setProgress(double progress) {
+            this.progress = progress;
+            this.progressProperty = null;
             return this;
         }
         
         @Override
         public MerchantWindow.Builder setProgress(MutableProperty<Double> progress) {
-            this.progress = progress;
+            this.progressProperty = progress;
+            return this;
+        }
+        
+        @Override
+        public MerchantWindow.Builder setRestockMessageEnabled(boolean enabled) {
+            this.restockMessageEnabled = enabled;
+            this.restockMessageEnabledProperty = null;
             return this;
         }
         
         @Override
         public MerchantWindow.Builder setRestockMessageEnabled(MutableProperty<Boolean> enabled) {
-            this.restockMessageEnabled = enabled;
+            this.restockMessageEnabledProperty = enabled;
+            return this;
+        }
+        
+        @Override
+        public MerchantWindow.Builder setTrades(List<? extends Trade> trades) {
+            this.trades = trades;
+            this.tradesProperty = null;
             return this;
         }
         
         @Override
         public MerchantWindow.Builder setTrades(MutableProperty<List<? extends Trade>> trades) {
-            this.trades = trades;
+            this.tradesProperty = trades;
             return this;
+        }
+        
+        private MutableProperty<List<? extends Trade>> getTradesProperty() {
+            return tradesProperty != null ? tradesProperty : MutableProperty.of(new ArrayList<>(trades));
+        }
+        
+        private MutableProperty<Integer> getLevelProperty() {
+            return levelProperty != null ? levelProperty : MutableProperty.of(level);
+        }
+        
+        private MutableProperty<Double> getProgressProperty() {
+            return progressProperty != null ? progressProperty : MutableProperty.of(progress);
+        }
+        
+        private MutableProperty<Boolean> getRestockMessageEnabledProperty() {
+            return restockMessageEnabledProperty != null ? restockMessageEnabledProperty : MutableProperty.of(restockMessageEnabled);
         }
         
         @Override
@@ -402,13 +450,13 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
                 titleSupplier,
                 upperGuiSupplier.get(),
                 supplyLowerGui(viewer),
-                trades,
-                level,
-                progress,
-                restockMessageEnabled,
-                closeable,
-                windowState,
-                cursorVisualizer
+                getTradesProperty(),
+                getLevelProperty(),
+                getProgressProperty(),
+                getRestockMessageEnabledProperty(),
+                getCloseableProperty(),
+                getWindowStateProperty(),
+                getCursorVisualizerProperty()
             );
             
             window.setTradeSelectHandlers((List) tradeSelectHandlers);
@@ -421,10 +469,7 @@ final class MerchantWindowImpl extends AbstractSplitWindow<CustomMerchantMenu> i
         public MerchantWindow.Builder clone() {
             var clone = (BuilderImpl) super.clone();
             clone.tradeSelectHandlers = new ArrayList<>(tradeSelectHandlers);
-            clone.trades = MutableProperty.of(new ArrayList<>(trades.get()));
-            clone.level = MutableProperty.of(level.get());
-            clone.progress = MutableProperty.of(progress.get());
-            clone.restockMessageEnabled = MutableProperty.of(restockMessageEnabled.get());
+            clone.trades = new ArrayList<>(trades);
             return clone;
         }
         

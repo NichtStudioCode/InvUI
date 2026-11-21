@@ -404,9 +404,7 @@ public sealed interface Window extends Observer permits AbstractWindow, AnvilWin
          * @param closeable If the {@link Window} is closeable
          * @return This {@link Builder Window Builder}
          */
-        default S setCloseable(boolean closeable) {
-            return setCloseable(MutableProperty.of(closeable));
-        }
+        S setCloseable(boolean closeable);
         
         /**
          * Sets the property that determines whether the {@link Window} is closable by the viewer.
@@ -489,9 +487,7 @@ public sealed interface Window extends Observer permits AbstractWindow, AnvilWin
          * @param windowState The server-side window state
          * @return This {@link Builder Window Builder}
          */
-        default S setWindowState(int windowState) {
-            return setWindowState(MutableProperty.of(windowState));
-        }
+        S setWindowState(int windowState);
         
         /**
          * Sets the window state change handlers of the {@link Window}.
@@ -538,9 +534,7 @@ public sealed interface Window extends Observer permits AbstractWindow, AnvilWin
          * @return This {@link Builder Window Builder}
          */
         @ApiStatus.Experimental
-        default S setCursorVisualizer(Function<@Nullable ItemStack, @Nullable ItemProvider> cursorVisualizer) {
-            return setCursorVisualizer(MutableProperty.of(cursorVisualizer));
-        }
+        S setCursorVisualizer(Function<@Nullable ItemStack, @Nullable ItemProvider> cursorVisualizer);
         
         /**
          * Sets the property containing the cursor visualizer of the {@link Window}.

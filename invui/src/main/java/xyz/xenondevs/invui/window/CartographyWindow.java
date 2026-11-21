@@ -341,9 +341,7 @@ public sealed interface CartographyWindow extends Window permits CartographyWind
          * @param icons The {@link MapIcon MapIcons} to set.
          * @return This {@link Builder}
          */
-        default Builder setIcons(Set<? extends MapIcon> icons) {
-            return setIcons(MutableProperty.of(icons));
-        }
+        Builder setIcons(Set<? extends MapIcon> icons);
         
         /**
          * Sets the property containing the {@link MapIcon MapIcons} of the map.
@@ -377,9 +375,7 @@ public sealed interface CartographyWindow extends Window permits CartographyWind
          * @param view The view.
          * @return This {@link Builder}
          */
-        default Builder setView(View view) {
-            return setView(MutableProperty.of(view));
-        }
+        Builder setView(View view);
         
         /**
          * Sets the property containing the view of the cartography table.

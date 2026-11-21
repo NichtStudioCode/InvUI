@@ -172,7 +172,8 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
         private Supplier<? extends Gui> upperGuiSupplier = () -> Gui.empty(2, 1);
         private Supplier<? extends Gui> butonsGuiSupplier = () -> Gui.empty(4, 0);
         private List<BiConsumer<? super Integer, ? super Integer>> selectedSlotChangeHandlers = new ArrayList<>();
-        private MutableProperty<Integer> selectedSlot = MutableProperty.of(-1);
+        private int selectedSlot = -1;
+        private @Nullable MutableProperty<Integer> selectedSlotProperty;
         
         @Override
         public StonecutterWindow.Builder setUpperGui(Supplier<? extends Gui> guiSupplier) {
@@ -200,14 +201,19 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
         
         @Override
         public BuilderImpl setSelectedSlot(int slot) {
-            this.selectedSlot = MutableProperty.of(slot);
+            this.selectedSlot = slot;
+            this.selectedSlotProperty = null;
             return this;
         }
         
         @Override
         public BuilderImpl setSelectedSlot(MutableProperty<Integer> slot) {
-            this.selectedSlot = slot;
+            this.selectedSlotProperty = slot;
             return this;
+        }
+        
+        private MutableProperty<Integer> getSelectedSlotProperty() {
+            return selectedSlotProperty != null ? selectedSlotProperty : MutableProperty.of(selectedSlot);
         }
         
         @Override
@@ -218,11 +224,11 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
                 upperGuiSupplier.get(),
                 supplyLowerGui(viewer),
                 butonsGuiSupplier.get(),
-                selectedSlot,
+                getSelectedSlotProperty(),
                 selectedSlotChangeHandlers,
-                closeable,
-                windowState,
-                cursorVisualizer
+                getCloseableProperty(),
+                getWindowStateProperty(),
+                getCursorVisualizerProperty()
             );
             applyModifiers(window);
             return window;
@@ -232,7 +238,6 @@ final class StonecutterWindowImpl extends AbstractSplitWindow<CustomStonecutterM
         public StonecutterWindow.Builder clone() {
             var clone = (BuilderImpl) super.clone();
             clone.selectedSlotChangeHandlers = new ArrayList<>(selectedSlotChangeHandlers);
-            clone.selectedSlot = MutableProperty.of(selectedSlot.get());
             return clone;
         }
         

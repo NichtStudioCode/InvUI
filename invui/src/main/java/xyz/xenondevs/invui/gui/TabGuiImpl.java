@@ -241,27 +241,55 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
         implements TabGui.Builder
     {
         
-        private MutableProperty<List<? extends @Nullable Gui>> tabs = MutableProperty.of(List.of());
-        private MutableProperty<Integer> tab = MutableProperty.of(DEFAULT_TAB);
-        private MutableProperty<ContentLayoutMode> contentLayoutMode = MutableProperty.of(DEFAULT_CONTENT_LAYOUT_MODE);
+        private List<? extends @Nullable Gui> tabs = List.of();
+        private ContentLayoutMode contentLayoutMode = DEFAULT_CONTENT_LAYOUT_MODE;
+        private @Nullable MutableProperty<List<? extends @Nullable Gui>> tabsProperty;
+        private @Nullable MutableProperty<Integer> tabProperty;
+        private @Nullable MutableProperty<ContentLayoutMode> contentLayoutModeProperty;
         private List<BiConsumer<? super Integer, ? super Integer>> tabChangeHandlers = new ArrayList<>(0);
         
         @Override
-        public TabGui.Builder setTabs(MutableProperty<List<? extends @Nullable Gui>> tabs) {
+        public TabGui.Builder setTabs(List<? extends @Nullable Gui> tabs) {
             this.tabs = tabs;
+            this.tabsProperty = null;
+            return this;
+        }
+        
+        @Override
+        public TabGui.Builder setTabs(MutableProperty<List<? extends @Nullable Gui>> tabs) {
+            this.tabsProperty = tabs;
+            return this;
+        }
+        
+        @Override
+        public TabGui.Builder setContentLayoutMode(ContentLayoutMode contentLayoutMode) {
+            this.contentLayoutMode = contentLayoutMode;
+            this.contentLayoutModeProperty = null;
             return this;
         }
         
         @Override
         public TabGui.Builder setContentLayoutMode(MutableProperty<ContentLayoutMode> contentLayoutMode) {
-            this.contentLayoutMode = contentLayoutMode;
+            this.contentLayoutModeProperty = contentLayoutMode;
             return this;
         }
         
         @Override
         public TabGui.Builder setTab(MutableProperty<Integer> tab) {
-            this.tab = tab;
+            this.tabProperty = tab;
             return this;
+        }
+        
+        private MutableProperty<List<? extends @Nullable Gui>> getTabsProperty() {
+            return tabsProperty != null ? tabsProperty : MutableProperty.of(new ArrayList<>(tabs));
+        }
+        
+        private MutableProperty<Integer> getTabProperty() {
+            return tabProperty != null ? tabProperty : MutableProperty.of(DEFAULT_TAB);
+        }
+        
+        private MutableProperty<ContentLayoutMode> getContentLayoutModeProperty() {
+            return contentLayoutModeProperty != null ? contentLayoutModeProperty : MutableProperty.of(contentLayoutMode);
         }
         
         @Override
@@ -282,7 +310,15 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
             if (structure == null)
                 throw new IllegalStateException("Structure is not defined.");
             
-            var gui = new TabGuiImpl(structure, tab, tabs, contentLayoutMode, frozen, ignoreObscuredInventorySlots, background);
+            var gui = new TabGuiImpl(
+                structure.clone(),
+                getTabProperty(),
+                getTabsProperty(),
+                getContentLayoutModeProperty(),
+                getFrozenProperty(),
+                getIgnoreObscuredInventorySlotsProperty(),
+                getBackgroundProperty()
+            );
             tabChangeHandlers.forEach(gui::addTabChangeHandler);
             applyModifiers(gui);
             
@@ -292,9 +328,7 @@ final class TabGuiImpl extends AbstractGui implements TabGui {
         @Override
         public TabGui.Builder clone() {
             var clone = (Builder) super.clone();
-            clone.tabs = MutableProperty.of(new ArrayList<>(tabs.get()));
-            clone.tab = MutableProperty.of(tab.get());
-            clone.contentLayoutMode = MutableProperty.of(contentLayoutMode.get());
+            clone.tabs = new ArrayList<>(tabs);
             clone.tabChangeHandlers = new ArrayList<>(tabChangeHandlers);
             return clone;
         }

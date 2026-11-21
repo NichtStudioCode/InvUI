@@ -831,15 +831,18 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
         
         private @Nullable Player viewer;
         protected Supplier<? extends Component> titleSupplier = () -> DEFAULT_TITLE;
-        protected MutableProperty<Boolean> closeable = MutableProperty.of(DEFAULT_CLOSEABLE);
-        protected MutableProperty<Integer> windowState = MutableProperty.of(DEFAULT_WINDOW_STATE);
+        private boolean closeable = DEFAULT_CLOSEABLE;
+        private int windowState = DEFAULT_WINDOW_STATE;
+        private Function<@Nullable ItemStack, @Nullable ItemProvider> cursorVisualizer = DEFAULT_CURSOR_VISUALIZER;
+        private @Nullable MutableProperty<Boolean> closeableProperty;
+        private @Nullable MutableProperty<Integer> windowStateProperty;
+        private @Nullable MutableProperty<Function<@Nullable ItemStack, @Nullable ItemProvider>> cursorVisualizerProperty;
         private List<Runnable> openHandlers = new ArrayList<>(0);
         private List<Consumer<? super Reason>> closeHandlers = new ArrayList<>(0);
         private List<Consumer<? super ClickEvent>> outsideClickHandlers = new ArrayList<>(0);
         private List<Consumer<? super Integer>> windowStateChangeHandlers = new ArrayList<>(0);
         private List<Consumer<? super W>> modifiers = new ArrayList<>(0);
         private Supplier<? extends @Nullable Window> fallbackWindow = () -> DEFAULT_FALLBACK_WINDOW;
-        protected MutableProperty<Function<@Nullable ItemStack, @Nullable ItemProvider>> cursorVisualizer = MutableProperty.of(DEFAULT_CURSOR_VISUALIZER);
         
         @Override
         public S setViewer(Player viewer) {
@@ -866,8 +869,15 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
         }
         
         @Override
-        public S setCloseable(MutableProperty<Boolean> closeable) {
+        public S setCloseable(boolean closeable) {
             this.closeable = closeable;
+            this.closeableProperty = null;
+            return (S) this;
+        }
+        
+        @Override
+        public S setCloseable(MutableProperty<Boolean> closeable) {
+            this.closeableProperty = closeable;
             return (S) this;
         }
         
@@ -891,8 +901,15 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
         }
         
         @Override
-        public S setCursorVisualizer(MutableProperty<Function<@Nullable ItemStack, @Nullable ItemProvider>> cursorVisualizer) {
+        public S setCursorVisualizer(Function<@Nullable ItemStack, @Nullable ItemProvider> cursorVisualizer) {
             this.cursorVisualizer = cursorVisualizer;
+            this.cursorVisualizerProperty = null;
+            return (S) this;
+        }
+        
+        @Override
+        public S setCursorVisualizer(MutableProperty<Function<@Nullable ItemStack, @Nullable ItemProvider>> cursorVisualizer) {
+            this.cursorVisualizerProperty = cursorVisualizer;
             return (S) this;
         }
         
@@ -923,8 +940,15 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
         }
         
         @Override
-        public S setWindowState(MutableProperty<Integer> windowState) {
+        public S setWindowState(int windowState) {
             this.windowState = windowState;
+            this.windowStateProperty = null;
+            return (S) this;
+        }
+        
+        @Override
+        public S setWindowState(MutableProperty<Integer> windowState) {
+            this.windowStateProperty = windowState;
             return (S) this;
         }
         
@@ -964,6 +988,18 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
             modifiers.forEach(modifier -> modifier.accept(window));
         }
         
+        protected MutableProperty<Boolean> getCloseableProperty() {
+            return closeableProperty != null ? closeableProperty : MutableProperty.of(closeable);
+        }
+        
+        protected MutableProperty<Integer> getWindowStateProperty() {
+            return windowStateProperty != null ? windowStateProperty : MutableProperty.of(windowState);
+        }
+        
+        protected MutableProperty<Function<@Nullable ItemStack, @Nullable ItemProvider>> getCursorVisualizerProperty() {
+            return cursorVisualizerProperty != null ? cursorVisualizerProperty : MutableProperty.of(cursorVisualizer);
+        }
+        
         @Override
         public W build() {
             if (viewer == null)
@@ -981,9 +1017,6 @@ non-sealed abstract class AbstractWindow<M extends CustomContainerMenu> implemen
         public S clone() {
             try {
                 var clone = (AbstractBuilder<W, S>) super.clone();
-                clone.closeable = MutableProperty.of(closeable.get());
-                clone.windowState = MutableProperty.of(windowState.get());
-                clone.cursorVisualizer = MutableProperty.of(cursorVisualizer.get());
                 clone.openHandlers = new ArrayList<>(openHandlers);
                 clone.closeHandlers = new ArrayList<>(closeHandlers);
                 clone.outsideClickHandlers = new ArrayList<>(outsideClickHandlers);

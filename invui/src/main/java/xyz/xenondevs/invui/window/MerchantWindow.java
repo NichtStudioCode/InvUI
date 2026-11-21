@@ -313,9 +313,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
          * @param level The level of the merchant
          * @return This {@link Builder}
          */
-        default Builder setLevel(int level) {
-            return setLevel(MutableProperty.of(level));
-        }
+        Builder setLevel(int level);
         
         /**
          * Sets the property containing the level of the merchant.
@@ -342,9 +340,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
          * @param progress The progress of the experience bar
          * @return This {@link Builder}
          */
-        default Builder setProgress(double progress) {
-            return setProgress(MutableProperty.of(progress));
-        }
+        Builder setProgress(double progress);
         
         /**
          * Sets the property containing the progress of the experience bar (from 0 to 1).
@@ -366,9 +362,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
          * @param enabled Whether the restocking message should be displayed
          * @return This {@link Builder}
          */
-        default Builder setRestockMessageEnabled(boolean enabled) {
-            return setRestockMessageEnabled(MutableProperty.of(enabled));
-        }
+        Builder setRestockMessageEnabled(boolean enabled);
         
         /**
          * Sets the property containing whether the message "Villagers restock up to two times per day" should
@@ -385,9 +379,7 @@ public sealed interface MerchantWindow extends Window permits MerchantWindowImpl
          * @param trades The trades of the window
          * @return This {@link Builder}
          */
-        default Builder setTrades(List<? extends Trade> trades) {
-            return setTrades(MutableProperty.of(trades));
-        }
+        Builder setTrades(List<? extends Trade> trades);
         
         /**
          * Sets the property containing the trades of the window, which are visualized as buttons on the left-hand side.

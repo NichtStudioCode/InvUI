@@ -120,9 +120,7 @@ public sealed interface FurnaceWindow extends Window, RecipeBookPowered permits 
          * @param progress The cook progress, between 0.0 and 1.0.
          * @return This {@link Builder}
          */
-        default Builder setCookProgress(double progress) {
-            return setCookProgress(MutableProperty.of(progress));
-        }
+        Builder setCookProgress(double progress);
         
         /**
          * Sets the property containing the cook progress, i.e. how much of the arrow is white.
@@ -138,9 +136,7 @@ public sealed interface FurnaceWindow extends Window, RecipeBookPowered permits 
          * @param progress The burn progress, between 0.0 and 1.0.
          * @return This {@link Builder}
          */
-        default Builder setBurnProgress(double progress) {
-            return setBurnProgress(MutableProperty.of(progress));
-        }
+        Builder setBurnProgress(double progress);
         
         /**
          * Sets the property containing the burn progress, i.e. how much of the fire is white.

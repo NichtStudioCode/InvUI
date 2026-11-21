@@ -61,9 +61,9 @@ final class SmithingWindowImpl extends AbstractSplitWindow<CustomSmithingTableMe
                 titleSupplier,
                 upperGuiSupplier.get(),
                 supplyLowerGui(viewer),
-                closeable,
-                windowState,
-                cursorVisualizer
+                getCloseableProperty(),
+                getWindowStateProperty(),
+                getCursorVisualizerProperty()
             );
             
             applyModifiers(window);

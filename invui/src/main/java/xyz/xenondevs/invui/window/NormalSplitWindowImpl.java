@@ -58,9 +58,9 @@ final class NormalSplitWindowImpl extends AbstractSplitWindow<CustomPlainMenu> {
                 titleSupplier,
                 upperGuiSupplier.get(),
                 supplyLowerGui(viewer),
-                closeable,
-                windowState,
-                cursorVisualizer
+                getCloseableProperty(),
+                getWindowStateProperty(),
+                getCursorVisualizerProperty()
             );
             
             applyModifiers(window);

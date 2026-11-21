@@ -14,6 +14,7 @@ import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.state.MutableProperty;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -126,7 +127,12 @@ final class CrafterWindowImpl extends AbstractSplitWindow<CustomCrafterMenu> imp
         private Supplier<? extends Gui> craftingGuiSupplier = () -> Gui.empty(3, 3);
         private Supplier<? extends Gui> resultGuiSupplier = () -> Gui.empty(1, 1);
         private List<BiConsumer<? super Integer, ? super Boolean>> slotToggleHandlers = new ArrayList<>();
-        private List<MutableProperty<Boolean>> slots = CollectionUtils.newList(9, i -> MutableProperty.of(DEFAULT_SLOT_DISABLED_STATE));
+        private boolean[] slots = new boolean[CRAFTING_SLOTS];
+        private List<@Nullable MutableProperty<Boolean>> slotProperties = CollectionUtils.newList(CRAFTING_SLOTS, _ -> null);
+        
+        BuilderImpl() {
+            Arrays.fill(slots, DEFAULT_SLOT_DISABLED_STATE);
+        }
         
         @Override
         public CrafterWindow.Builder setCraftingGui(Supplier<? extends Gui> guiSupplier) {
@@ -154,10 +160,19 @@ final class CrafterWindowImpl extends AbstractSplitWindow<CustomCrafterMenu> imp
         }
         
         @Override
+        public CrafterWindow.Builder setSlot(int slot, boolean state) {
+            if (slot < 0 || slot >= CRAFTING_SLOTS)
+                throw new IllegalArgumentException("Slot must be between 0 and 8");
+            slots[slot] = state;
+            slotProperties.set(slot, null);
+            return this;
+        }
+        
+        @Override
         public CrafterWindow.Builder setSlot(int slot, MutableProperty<Boolean> state) {
             if (slot < 0 || slot >= CRAFTING_SLOTS)
                 throw new IllegalArgumentException("Slot must be between 0 and 8");
-            slots.set(slot, state);
+            slotProperties.set(slot, state);
             return this;
         }
         
@@ -167,9 +182,16 @@ final class CrafterWindowImpl extends AbstractSplitWindow<CustomCrafterMenu> imp
                 throw new IllegalArgumentException("Slots must contain exactly " + CRAFTING_SLOTS + " properties");
             
             for (int i = 0; i < CRAFTING_SLOTS; i++) {
-                this.slots.set(i, slots.get(i));
+                this.slotProperties.set(i, slots.get(i));
             }
             return this;
+        }
+        
+        private List<MutableProperty<Boolean>> getSlotProperties() {
+            return CollectionUtils.newList(CRAFTING_SLOTS, i -> {
+                var property = slotProperties.get(i);
+                return property != null ? property : MutableProperty.of(slots[i]);
+            });
         }
         
         @Override
@@ -180,11 +202,11 @@ final class CrafterWindowImpl extends AbstractSplitWindow<CustomCrafterMenu> imp
                 craftingGuiSupplier.get(),
                 resultGuiSupplier.get(),
                 supplyLowerGui(viewer),
-                slots,
+                getSlotProperties(),
                 slotToggleHandlers,
-                closeable,
-                windowState,
-                cursorVisualizer
+                getCloseableProperty(),
+                getWindowStateProperty(),
+                getCursorVisualizerProperty()
             );
             
             applyModifiers(window);
@@ -196,7 +218,8 @@ final class CrafterWindowImpl extends AbstractSplitWindow<CustomCrafterMenu> imp
         public CrafterWindow.Builder clone() {
             var clone = (BuilderImpl) super.clone();
             clone.slotToggleHandlers = new ArrayList<>(slotToggleHandlers);
-            clone.slots = CollectionUtils.newList(CRAFTING_SLOTS, i -> MutableProperty.of(slots.get(i).get()));
+            clone.slots = slots.clone();
+            clone.slotProperties = new ArrayList<>(slotProperties);
             return clone;
         }
         

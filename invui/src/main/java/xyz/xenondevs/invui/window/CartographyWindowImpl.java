@@ -127,8 +127,10 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
         
         private Supplier<? extends Gui> inputGuiSupplier = () -> Gui.empty(1, 2);
         private Supplier<? extends Gui> resultGuiSupplier = () -> Gui.empty(1, 1);
-        private MutableProperty<Set<? extends MapIcon>> icons = MutableProperty.of(DEFAULT_ICONS);
-        private MutableProperty<View> view = MutableProperty.of(DEFAULT_VIEW);
+        private Set<? extends MapIcon> icons = DEFAULT_ICONS;
+        private View view = DEFAULT_VIEW;
+        private @Nullable MutableProperty<Set<? extends MapIcon>> iconsProperty;
+        private @Nullable MutableProperty<View> viewProperty;
         private byte @Nullable [] canvas;
         
         @Override
@@ -144,8 +146,15 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
         }
         
         @Override
-        public CartographyWindow.Builder setIcons(MutableProperty<Set<? extends MapIcon>> icons) {
+        public CartographyWindow.Builder setIcons(Set<? extends MapIcon> icons) {
             this.icons = icons;
+            this.iconsProperty = null;
+            return this;
+        }
+        
+        @Override
+        public CartographyWindow.Builder setIcons(MutableProperty<Set<? extends MapIcon>> icons) {
+            this.iconsProperty = icons;
             return this;
         }
         
@@ -166,9 +175,24 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
         }
         
         @Override
-        public CartographyWindow.Builder setView(MutableProperty<View> view) {
+        public CartographyWindow.Builder setView(View view) {
             this.view = view;
+            this.viewProperty = null;
             return this;
+        }
+        
+        @Override
+        public CartographyWindow.Builder setView(MutableProperty<View> view) {
+            this.viewProperty = view;
+            return this;
+        }
+        
+        private MutableProperty<Set<? extends MapIcon>> getIconsProperty() {
+            return iconsProperty != null ? iconsProperty : MutableProperty.of(new HashSet<>(icons));
+        }
+        
+        private MutableProperty<View> getViewProperty() {
+            return viewProperty != null ? viewProperty : MutableProperty.of(view);
         }
         
         @Override
@@ -179,11 +203,11 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
                 inputGuiSupplier.get(),
                 resultGuiSupplier.get(),
                 supplyLowerGui(viewer),
-                view,
-                icons,
-                closeable,
-                windowState,
-                cursorVisualizer
+                getViewProperty(),
+                getIconsProperty(),
+                getCloseableProperty(),
+                getWindowStateProperty(),
+                getCursorVisualizerProperty()
             );
             
             if (canvas != null)
@@ -197,8 +221,7 @@ final class CartographyWindowImpl extends AbstractSplitWindow<CustomCartographyM
         @Override
         public CartographyWindow.Builder clone() {
             var clone = (BuilderImpl) super.clone();
-            clone.icons = MutableProperty.of(new HashSet<>(icons.get()));
-            clone.view = MutableProperty.of(view.get());
+            clone.icons = new HashSet<>(icons);
             clone.canvas = canvas != null ? canvas.clone() : null;
             return clone;
         }

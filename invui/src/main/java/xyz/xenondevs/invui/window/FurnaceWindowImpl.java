@@ -143,8 +143,10 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
         private List<Consumer<? super Key>> recipeClickHandlers = new ArrayList<>();
         private Supplier<? extends Gui> inputGuiSupplier = () -> Gui.empty(1, 2);
         private Supplier<? extends Gui> resultGuiSupplier = () -> Gui.empty(1, 1);
-        private MutableProperty<Double> cookProgress = MutableProperty.of(DEFAULT_COOK_PROGRESS);
-        private MutableProperty<Double> burnProgress = MutableProperty.of(DEFAULT_BURN_PROGRESS);
+        private double cookProgress = DEFAULT_COOK_PROGRESS;
+        private double burnProgress = DEFAULT_BURN_PROGRESS;
+        private @Nullable MutableProperty<Double> cookProgressProperty;
+        private @Nullable MutableProperty<Double> burnProgressProperty;
         
         @Override
         public FurnaceWindow.Builder setInputGui(Supplier<? extends Gui> guiSupplier) {
@@ -172,15 +174,37 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
         }
         
         @Override
-        public FurnaceWindow.Builder setCookProgress(MutableProperty<Double> progress) {
+        public FurnaceWindow.Builder setCookProgress(double progress) {
             this.cookProgress = progress;
+            this.cookProgressProperty = null;
+            return this;
+        }
+        
+        @Override
+        public FurnaceWindow.Builder setCookProgress(MutableProperty<Double> progress) {
+            this.cookProgressProperty = progress;
+            return this;
+        }
+        
+        @Override
+        public FurnaceWindow.Builder setBurnProgress(double progress) {
+            this.burnProgress = progress;
+            this.burnProgressProperty = null;
             return this;
         }
         
         @Override
         public FurnaceWindow.Builder setBurnProgress(MutableProperty<Double> progress) {
-            this.burnProgress = progress;
+            this.burnProgressProperty = progress;
             return this;
+        }
+        
+        private MutableProperty<Double> getCookProgressProperty() {
+            return cookProgressProperty != null ? cookProgressProperty : MutableProperty.of(cookProgress);
+        }
+        
+        private MutableProperty<Double> getBurnProgressProperty() {
+            return burnProgressProperty != null ? burnProgressProperty : MutableProperty.of(burnProgress);
         }
         
         @SuppressWarnings({"rawtypes", "unchecked"})
@@ -192,11 +216,11 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
                 inputGuiSupplier.get(),
                 resultGuiSupplier.get(),
                 supplyLowerGui(viewer),
-                cookProgress,
-                burnProgress,
-                closeable,
-                windowState,
-                cursorVisualizer
+                getCookProgressProperty(),
+                getBurnProgressProperty(),
+                getCloseableProperty(),
+                getWindowStateProperty(),
+                getCursorVisualizerProperty()
             );
             
             window.setRecipeClickHandlers((List) recipeClickHandlers);
@@ -209,8 +233,6 @@ final class FurnaceWindowImpl extends AbstractSplitWindow<CustomFurnaceMenu> imp
         public FurnaceWindow.Builder clone() {
             var clone = (BuilderImpl) super.clone();
             clone.recipeClickHandlers = new ArrayList<>(recipeClickHandlers);
-            clone.cookProgress = MutableProperty.of(cookProgress.get());
-            clone.burnProgress = MutableProperty.of(burnProgress.get());
             return clone;
         }
     }
